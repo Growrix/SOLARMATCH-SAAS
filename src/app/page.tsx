@@ -1,0 +1,229 @@
+'use client'
+
+import { useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import Hero from '../components/Hero';
+import InstantQuoteForm from '../components/InstantQuoteForm';
+import RebateCalculatorForm from '../components/RebateCalculatorForm';
+import QuoteOptionsModal from '../components/QuoteOptionsModal';
+import QuoteSuccessModal from '../components/QuoteSuccessModal';
+import DetailedQuoteAuthModal from '../components/DetailedQuoteAuthModal';
+import Footer from '../components/Footer';
+import BlogSection from '../components/BlogSection';
+import type { Post } from '../types/blog';
+
+// Icon components
+const CalculatorIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect width="16" height="20" x="4" y="2" rx="2"/>
+    <line x1="8" x2="16" y1="6" y2="6"/>
+    <line x1="16" x2="16" y1="14" y2="18"/>
+    <path d="M16 10h.01"/>
+    <path d="M12 10h.01"/>
+    <path d="M8 10h.01"/>
+    <path d="M12 14h.01"/>
+    <path d="M8 14h.01"/>
+    <path d="M12 18h.01"/>
+    <path d="M8 18h.01"/>
+  </svg>
+);
+
+const TagIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/>
+    <path d="M7 7h.01"/>
+  </svg>
+);
+
+export default function Home() {
+  const router = useRouter();
+  const [activeCalculator, setActiveCalculator] = useState<'quote' | 'rebate'>('quote');
+  const [isQuoteOptionsModalOpen, setIsQuoteOptionsModalOpen] = useState(false);
+  const [isDetailedQuoteAuthModalOpen, setIsDetailedQuoteAuthModalOpen] = useState(false);
+  const [isQuoteSuccessModalOpen, setIsQuoteSuccessModalOpen] = useState(false);
+  const [selectedQuoteType, setSelectedQuoteType] = useState<'call_visit' | 'written' | null>(null);
+  const [quoteData, setQuoteData] = useState<any>(null);
+  const [pendingQuoteData, setPendingQuoteData] = useState<any>(null);
+
+  // Captures quote data from the form and stores it pending authentication
+  const handleQuoteCalculated = useCallback((data: any) => {
+    setPendingQuoteData(data);
+    setQuoteData(data);
+  }, []);
+
+  const handleQuoteOptionSelected = (type: 'call_visit' | 'written') => {
+    setSelectedQuoteType(type);
+    setIsQuoteOptionsModalOpen(false);
+    setIsDetailedQuoteAuthModalOpen(true);
+  };
+
+  const handleSignupAndSubmit = (formData: any) => {
+    // In production, this would:
+    // 1. Create user account with formData
+    // 2. Submit quote request with pendingQuoteData and selectedQuoteType
+    // 3. Set authentication state
+    console.log('Signup and submit quote request:', { 
+      formData, 
+      quoteType: selectedQuoteType, 
+      quoteData: pendingQuoteData 
+    });
+    
+    setIsDetailedQuoteAuthModalOpen(false);
+    setIsQuoteSuccessModalOpen(true);
+    
+    // Clear pending data after submission
+    setPendingQuoteData(null);
+  };
+
+  const handleDashboardClick = () => {
+    setIsQuoteSuccessModalOpen(false);
+    // Navigate to homeowner dashboard
+    router.push('/homeowner/dashboard');
+  };
+
+  const handleScrollToQuote = () => {
+    setActiveCalculator('quote');
+    document.getElementById('calculator-section')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleScrollToRebate = () => {
+    setActiveCalculator('rebate');
+    document.getElementById('calculator-section')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // Footer handlers
+  const handleBecomePartner = () => {
+    router.push('/installer');
+  };
+
+  const handlePartnerSignIn = () => {
+    router.push('/installer');
+  };
+
+  const handleBlogClick = () => {
+    // Navigate to blog page when implemented
+    console.log('Blog clicked');
+  };
+
+  const handleGovernmentNewsClick = () => {
+    // Navigate to government news page when implemented
+    console.log('Government news clicked');
+  };
+
+  const handleSeeAllBlogPosts = () => {
+    router.push('/blog');
+  };
+
+  const handleNavigateToPost = (post: Post) => {
+    // Store post in sessionStorage and navigate
+    sessionStorage.setItem('currentBlogPost', JSON.stringify(post));
+    router.push('/blog/post');
+  };
+
+  return (
+    <main>
+      <Hero 
+        onInstantQuoteClick={handleScrollToQuote}
+        onRebateCalculatorClick={handleScrollToRebate}
+      />
+      
+      {/* Calculator Section */}
+      <section id="calculator-section" className="relative py-16 lg:py-24 bg-gradient-to-b from-white via-teal-50/20 to-white dark:from-black dark:via-teal-950/10 dark:to-black">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-teal-500/5 to-transparent dark:via-teal-400/5 pointer-events-none" />
+        
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-4">
+              How Much Could You Save?
+            </h2>
+            <p className="text-lg text-slate-600 dark:text-slate-400 max-w-3xl mx-auto">
+              Find out now. Our calculators provide a transparent, no-jargon estimate of your solar savings and government incentives.
+            </p>
+          </div>
+          
+          {/* Calculator Switcher */}
+          <div className="flex justify-center mb-8">
+            <div className="relative w-full max-w-md bg-gray-100 dark:bg-slate-800 p-1 rounded-full flex border border-gray-200 dark:border-slate-700">
+              <div className={`absolute top-1 bottom-1 left-1 w-1/2 rounded-full bg-white dark:bg-slate-700 shadow-lg transition-transform duration-300 ease-in-out transform ${
+                activeCalculator === 'quote' ? 'translate-x-0' : 'translate-x-full'
+              }`}></div>
+
+              <button
+                onClick={() => setActiveCalculator('quote')}
+                className={`relative z-10 w-1/2 py-3 text-sm font-semibold flex items-center justify-center gap-2 transition-colors duration-300 rounded-full ${
+                  activeCalculator === 'quote' ? 'text-primary' : 'text-slate-600 dark:text-slate-300'
+                }`}
+                aria-pressed={activeCalculator === 'quote'}
+              >
+                <CalculatorIcon />
+                Instant Quote
+              </button>
+              <button
+                onClick={() => setActiveCalculator('rebate')}
+                className={`relative z-10 w-1/2 py-3 text-sm font-semibold flex items-center justify-center gap-2 transition-colors duration-300 rounded-full ${
+                  activeCalculator === 'rebate' ? 'text-primary' : 'text-slate-600 dark:text-slate-300'
+                }`}
+                aria-pressed={activeCalculator === 'rebate'}
+              >
+                <TagIcon />
+                Rebate Calculator
+              </button>
+            </div>
+          </div>
+          
+          {/* Calculator Forms */}
+          {activeCalculator === 'quote' ? (
+            <InstantQuoteForm 
+              onProceedToDetailedQuote={() => setIsQuoteOptionsModalOpen(true)}
+              onQuoteCalculated={handleQuoteCalculated}
+            />
+          ) : (
+            <RebateCalculatorForm onGetQuotesClick={() => setIsQuoteOptionsModalOpen(true)} />
+          )}
+        </div>
+      </section>
+
+      {/* Modals */}
+      {isQuoteOptionsModalOpen && (
+        <QuoteOptionsModal
+          isOpen={isQuoteOptionsModalOpen}
+          onClose={() => setIsQuoteOptionsModalOpen(false)}
+          onSelectOption={handleQuoteOptionSelected}
+        />
+      )}
+
+      {isDetailedQuoteAuthModalOpen && (
+        <DetailedQuoteAuthModal
+          isOpen={isDetailedQuoteAuthModalOpen}
+          onClose={() => setIsDetailedQuoteAuthModalOpen(false)}
+          onSignupAndSubmit={handleSignupAndSubmit}
+          onSwitchToSignIn={() => console.log('Switch to sign in')}
+        />
+      )}
+
+      {isQuoteSuccessModalOpen && (
+        <QuoteSuccessModal
+          isOpen={isQuoteSuccessModalOpen}
+          onClose={() => setIsQuoteSuccessModalOpen(false)}
+          onDashboardClick={handleDashboardClick}
+        />
+      )}
+
+      {/* Blog Section */}
+      <BlogSection
+        onSeeAllPostsClick={handleSeeAllBlogPosts}
+        onNavigateToPost={handleNavigateToPost}
+      />
+
+      {/* Footer */}
+      <Footer
+        onBecomePartnerClick={handleBecomePartner}
+        onPartnerSignInClick={handlePartnerSignIn}
+        onScrollToQuote={handleScrollToQuote}
+        onScrollToRebate={handleScrollToRebate}
+        onBlogClick={handleBlogClick}
+        onGovernmentNewsClick={handleGovernmentNewsClick}
+      />
+    </main>
+  );
+}
