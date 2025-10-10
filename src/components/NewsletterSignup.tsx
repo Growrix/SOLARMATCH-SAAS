@@ -32,17 +32,58 @@ const NewsletterSignup = () => {
         setStatus('loading');
         setMessage('');
 
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Randomly succeed or fail for demo
-        if (email.includes("fail")) {
+        // ====================================================================
+        // REAL API CALL - Connect to Backend
+        // ====================================================================
+        // TEACHING NOTE: This is where the UI talks to the API we just created!
+        // Before: We used fake setTimeout to simulate a delay
+        // Now: We make a real HTTP request to our API endpoint
+        // ====================================================================
+        
+        try {
+            // TEACHING NOTE: try-catch handles network errors (no internet, server down, etc.)
+            
+            // Make HTTP POST request to our API
+            const response = await fetch('/api/newsletter/subscribe', {
+                method: 'POST',  // TEACHING NOTE: POST = creating new data
+                headers: {
+                    'Content-Type': 'application/json',  // Tell server we're sending JSON
+                },
+                body: JSON.stringify({ email }),  // Convert JavaScript object to JSON string
+            });
+            // TEACHING NOTE: fetch() is built into browsers for making HTTP requests
+            // await = wait for the request to complete before continuing
+            // The API URL is relative (/api/...) because we're on the same domain
+            
+            // Parse the JSON response from the API
+            const data = await response.json();
+            // TEACHING NOTE: response.json() converts the JSON string back to JavaScript object
+            // Example: '{"success":true,"message":"Thanks!"}' → { success: true, message: "Thanks!" }
+            
+            // Check if the request was successful
+            if (response.ok) {
+                // TEACHING NOTE: response.ok is true when status code is 200-299 (success)
+                // This means the email was saved to the database!
+                
+                setStatus('success');
+                setMessage(data.message || "Thanks for subscribing! Check your inbox for the latest solar news.");
+                setEmail('');  // Clear the input field
+            } else {
+                // TEACHING NOTE: response.ok is false for 400, 404, 500, etc. (errors)
+                // This could be: duplicate email, invalid format, database error, etc.
+                
+                setStatus('error');
+                setMessage(data.error || "Oops! Something went wrong. Please try again.");
+            }
+        } catch (error) {
+            // TEACHING NOTE: This catch block runs if:
+            // - No internet connection
+            // - Server is down
+            // - Request timed out
+            // - Invalid URL
+            
             setStatus('error');
-            setMessage("Oops! Something went wrong. Please try again.");
-        } else {
-            setStatus('success');
-            setMessage("Thanks for subscribing! Check your inbox for the latest solar news.");
-            setEmail('');
+            setMessage("Network error. Please check your connection and try again.");
         }
     };
 

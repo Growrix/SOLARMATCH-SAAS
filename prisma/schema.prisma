@@ -1,0 +1,133 @@
+// ============================================================================
+// PRISMA SCHEMA FILE
+// ============================================================================
+// This file is the "blueprint" for your database structure.
+// Think of it like an architect's drawing before building a house.
+//
+// What Prisma does with this file:
+// 1. Generates TypeScript code so you can talk to your database easily
+// 2. Creates SQL migration files (instructions to create tables)
+// 3. Keeps your code and database in sync
+//
+// TEACHING NOTE: You never write SQL by hand with Prisma. You write this
+// schema, and Prisma writes the SQL for you!
+// ============================================================================
+
+// ----------------------------------------------------------------------------
+// DATABASE CONNECTION SETTINGS
+// ----------------------------------------------------------------------------
+datasource db {
+  provider = "postgresql"  
+  // TEACHING NOTE: This tells Prisma we're using PostgreSQL database
+  // Supabase, Vercel Postgres, and many others use PostgreSQL
+  // Other options: "mysql", "sqlite", "sqlserver", "mongodb"
+  
+  url = env("DATABASE_URL")
+  // TEACHING NOTE: env("DATABASE_URL") reads the connection string from .env file
+  // This keeps your database password secret and not in git!
+  // Example: postgresql://user:password@host:5432/database
+}
+
+// ----------------------------------------------------------------------------
+// CODE GENERATION SETTINGS
+// ----------------------------------------------------------------------------
+generator client {
+  provider = "prisma-client-js"
+  // TEACHING NOTE: This tells Prisma to generate JavaScript/TypeScript code
+  // After running "npx prisma generate", you can import { PrismaClient }
+  // and use it to query your database with autocomplete!
+}
+
+// ============================================================================
+// NEWSLETTER SUBSCRIBER MODEL
+// ============================================================================
+// This defines the structure of our "newsletter_subscribers" table
+// Each model becomes a table in the database
+// Each field becomes a column in that table
+// ============================================================================
+
+model NewsletterSubscriber {
+  // PRIMARY KEY (Unique Identifier)
+  // --------------------------------
+  id String @id @default(cuid())
+  // TEACHING NOTE: Every table needs a unique ID to identify each record
+  // @id = This is the primary key
+  // @default(cuid()) = Auto-generate a unique ID when creating new records
+  // "cuid" = Collision-resistant Unique ID (better than random numbers)
+  // Example: "clx1a2b3c4d5e6f7g8h9"
+  
+  // EMAIL ADDRESS (Main data we're collecting)
+  // ------------------------------------------
+  email String @unique
+  // TEACHING NOTE: @unique prevents duplicate emails
+  // If someone tries to subscribe twice, the database will reject it
+  // This is enforced at the database level, not just in your code
+  
+  // SUBSCRIPTION DATE (When they joined)
+  // ------------------------------------
+  subscribedAt DateTime @default(now())
+  // TEACHING NOTE: @default(now()) automatically sets to current date/time
+  // You don't need to manually set this when creating a new subscriber
+  // Example: "2025-10-11T14:30:00.000Z"
+  
+  // ACTIVE STATUS (Are they still subscribed?)
+  // -------------------------------------------
+  isActive Boolean @default(true)
+  // TEACHING NOTE: @default(true) means new subscribers are active by default
+  // We use Boolean (true/false) instead of deleting records
+  // This is called "soft delete" - keeps data for analytics
+  
+  // UNSUBSCRIBE DATE (When they left, if they did)
+  // -----------------------------------------------
+  unsubscribedAt DateTime?
+  // TEACHING NOTE: The "?" means this field is OPTIONAL (can be null/empty)
+  // Only set this when someone unsubscribes
+  // If isActive = true, this should be null
+  // If isActive = false, this should have a date
+  
+  // TABLE NAME MAPPING
+  // ------------------
+  @@map("newsletter_subscribers")
+  // TEACHING NOTE: By default, Prisma uses the model name as table name
+  // @@map changes it to "newsletter_subscribers" (snake_case)
+  // This is a common convention in databases (lowercase with underscores)
+  // Without this, the table would be called "NewsletterSubscriber"
+}
+
+// ============================================================================
+// WHAT HAPPENS NEXT?
+// ============================================================================
+// 1. Run: npx prisma migrate dev --name add_newsletter_subscribers
+//    - This creates SQL migration files
+//    - Creates the table in your database
+//    - Generates TypeScript code
+//
+// 2. Run: npx prisma generate
+//    - Regenerates TypeScript code if you only changed comments
+//
+// 3. Use in your code:
+//    import { prisma } from '@/lib/prisma';
+//    const subscriber = await prisma.newsletterSubscriber.create({
+//      data: { email: 'user@example.com' }
+//    });
+//
+// ============================================================================
+// COMMON PRISMA FIELD TYPES
+// ============================================================================
+// String    → Text (emails, names, descriptions)
+// Int       → Whole numbers (age, count, price in cents)
+// Float     → Decimal numbers (ratings, percentages)
+// Boolean   → True/False (isActive, hasAccess)
+// DateTime  → Date and time (createdAt, publishedAt)
+// Json      → JSON data (settings, metadata)
+//
+// ============================================================================
+// COMMON PRISMA DECORATORS
+// ============================================================================
+// @id              → Primary key (unique identifier)
+// @unique          → No duplicates allowed
+// @default(value)  → Auto-set this value when creating new records
+// @updatedAt       → Auto-update timestamp when record changes
+// Field?           → Optional field (can be null)
+//
+// ============================================================================
