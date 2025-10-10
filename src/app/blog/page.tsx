@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import Footer from '@/components/Footer';
 import type { Post } from '@/types/blog';
 import { allArticles, categories } from '@/data/blogData';
@@ -28,7 +29,9 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, onNavigateToPost }) 
     aria-label={`Read article: ${article.title}`}
     onKeyPress={(e) => e.key === 'Enter' && onNavigateToPost(article)}
   >
-    <img src={article.image} alt={article.title} className="w-full h-48 object-cover" />
+    <div className="relative w-full h-48">
+      <Image src={article.image} alt={article.title} fill className="object-cover" />
+    </div>
     <div className="p-6 flex flex-col flex-grow">
       <div className="flex items-center justify-between mb-3">
         <span className="text-xs font-semibold text-primary bg-primary/10 px-3 py-1 rounded-full">{article.category}</span>

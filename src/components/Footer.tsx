@@ -26,7 +26,7 @@ interface FooterProps {
 
 const Footer: React.FC<FooterProps> = ({ onBecomePartnerClick, onPartnerSignInClick, onScrollToQuote, onScrollToRebate, onBlogClick, onGovernmentNewsClick }) => {
   return (
-    <footer className="border-t border-gray-200 dark:border-slate-800/50 mt-0 animated-section-background">
+  <footer className="border-t border-gray-200 dark:border-slate-800/50 mt-0">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Company Info */}
@@ -84,7 +84,7 @@ const Footer: React.FC<FooterProps> = ({ onBecomePartnerClick, onPartnerSignInCl
               <div className="flex items-center space-x-3"><Mail className="h-5 w-5 text-primary" /><span className="text-slate-600 dark:text-slate-400">hello@solarmatch.com.au</span></div>
               <div className="flex items-start space-x-3"><MapPin className="h-5 w-5 text-primary mt-1" /><span className="text-slate-600 dark:text-slate-400">Level 10, 123 Collins Street<br />Melbourne VIC 3000</span></div>
             </div>
-            <div className="theme-card mt-6 p-4">
+            <div className="mt-6 p-4">
               <p className="text-sm text-slate-600 dark:text-slate-400 mb-2"><strong className="text-slate-900 dark:text-white">Operating Hours:</strong></p>
               <p className="text-sm text-slate-600 dark:text-slate-400">Mon - Fri: 8:00 AM - 6:00 PM AEST<br />Sat: 9:00 AM - 4:00 PM AEST</p>
             </div>

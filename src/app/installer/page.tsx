@@ -183,7 +183,7 @@ export default function InstallerHomePage() {
         </section>
 
         {/* How It Works Section */}
-        <section id="how-it-works" className="installer-how-it-works-section">
+        <section id="how-it-works" className="installer-how-it-works-section py-16 sm:py-24">
           <div className="animated-grid-background"></div>
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="max-w-3xl mx-auto text-center mb-12">

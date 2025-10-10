@@ -11,6 +11,8 @@ module.exports = {
       colors: {
         primary: '#0d9488', // teal-600
         secondary: '#fbbf24', // amber-400 (sun color)
+        'bg-primary': 'var(--bg-primary)', // Theme-aware background
+        'bg-secondary': 'var(--bg-secondary)', // Theme-aware secondary background
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

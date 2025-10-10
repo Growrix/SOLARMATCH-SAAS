@@ -46,11 +46,18 @@ export default function LayoutContent({ children }: LayoutContentProps) {
   const [isNewQuoteModalOpen, setIsNewQuoteModalOpen] = useState(false);
   const [isMessagingModalOpen, setIsMessagingModalOpen] = useState(false);
 
-  // Check login status on mount
+  // Check login status on mount and handle query parameters
   useEffect(() => {
     const homeownerAuth = localStorage.getItem('homeownerAuth');
     if (homeownerAuth === 'true') {
       setIsLoggedIn(true);
+    }
+    
+    // Check if there's an action query parameter (e.g., ?action=signin)
+    const urlParams = new URLSearchParams(window.location.search);
+    const action = urlParams.get('action');
+    if (action === 'signin' && homeownerAuth !== 'true') {
+      setIsHomeownerSignInModalOpen(true);
     }
   }, []);
 
@@ -138,6 +145,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
   const handleHomeownerSignupSuccess = () => {
     setIsHomeownerSignupModalOpen(false);
     setIsLoggedIn(true);
+    localStorage.setItem('homeownerAuth', 'true');
     console.log('Homeowner signed up successfully');
     // Navigate to homeowner dashboard
     router.push('/homeowner/dashboard');
@@ -146,13 +154,25 @@ export default function LayoutContent({ children }: LayoutContentProps) {
   const handleHomeownerSignInSuccess = () => {
     setIsHomeownerSignInModalOpen(false);
     setIsLoggedIn(true);
+    localStorage.setItem('homeownerAuth', 'true');
     console.log('Homeowner signed in successfully');
-    // Navigate to homeowner dashboard
-    router.push('/homeowner/dashboard');
+    
+    // Check if we should return to the previous page or go to dashboard
+    const urlParams = new URLSearchParams(window.location.search);
+    const action = urlParams.get('action');
+    if (action === 'signin') {
+      // Remove the action query parameter and stay on the same page
+      window.history.replaceState({}, '', window.location.pathname);
+      window.location.reload();
+    } else {
+      // Navigate to homeowner dashboard
+      router.push('/homeowner/dashboard');
+    }
   };
 
   const handleLogoutClick = () => {
     setIsLoggedIn(false);
+    localStorage.removeItem('homeownerAuth');
     console.log('User logged out');
   };
 
@@ -249,11 +269,11 @@ export default function LayoutContent({ children }: LayoutContentProps) {
             onLoginClick={handleLoginClick}
             onSignupClick={handleSignupClick}
             onLogoutClick={handleLogoutClick}
-            onDashboardClick={() => console.log('Dashboard clicked')}
-            onHomeownerDashboardClick={() => console.log('Homeowner Dashboard clicked')}
-            onInstallerDashboardClick={() => console.log('Installer Dashboard clicked')}
-            onInstallerHomeClick={() => console.log('Installer Home clicked')}
-            onAdminDashboardClick={() => console.log('Admin Dashboard clicked')}
+            onDashboardClick={handleHomeownerDashboardClick}
+            onHomeownerDashboardClick={handleHomeownerDashboardClick}
+            onInstallerDashboardClick={() => router.push('/installer/dashboard')}
+            onInstallerHomeClick={() => router.push('/installer')}
+            onAdminDashboardClick={() => router.push('/admin/dashboard')}
           />
         </div>
       )}

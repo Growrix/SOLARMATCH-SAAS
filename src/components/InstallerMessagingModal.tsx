@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import type { Message, Conversation } from '../types';
 
 // --- Icon Components ---
@@ -129,7 +130,7 @@ const InstallerMessagingModal: React.FC<InstallerMessagingModalProps> = ({ isOpe
           <div className="flex-1 overflow-y-auto">{filteredConversations.map(c => (
             <div key={c.id} onClick={() => { setActiveConversation(c.id); setShowMobileInbox(false); }} className={`p-4 border-b border-gray-200 dark:border-slate-700 cursor-pointer ${activeConversation === c.id ? 'bg-white dark:bg-slate-700 border-r-2 border-r-primary' : ''}`}>
               <div className="flex items-start space-x-3">
-                <div className="relative flex-shrink-0"><img src={c.homeowner.avatar} alt={c.homeowner.name} className="w-10 h-10 rounded-full" />{c.homeowner.online && <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 border-2 border-white dark:border-slate-700 rounded-full" />}</div>
+                <div className="relative flex-shrink-0"><Image src={c.homeowner.avatar} alt={c.homeowner.name} width={40} height={40} className="rounded-full" />{c.homeowner.online && <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 border-2 border-white dark:border-slate-700 rounded-full" />}</div>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between"><h4 className="text-sm font-semibold text-slate-900 dark:text-white truncate">{c.homeowner.name}</h4><span className="text-xs text-slate-500 dark:text-slate-400">{formatTime(c.lastMessage)}</span></div>
                   <p className="text-sm text-slate-500 dark:text-slate-400 truncate mt-0.5">{c.isTyping ? <span className="text-green-500 italic">Typing...</span> : c.messages[c.messages.length - 1]?.content}</p>
@@ -144,7 +145,7 @@ const InstallerMessagingModal: React.FC<InstallerMessagingModalProps> = ({ isOpe
             <div className="p-4 border-b border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <div className="relative"><img src={activeConv.homeowner.avatar} alt={activeConv.homeowner.name} className="w-10 h-10 rounded-full" />{activeConv.homeowner.online && <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 border-2 border-white dark:border-slate-700 rounded-full" />}</div>
+                  <div className="relative"><Image src={activeConv.homeowner.avatar} alt={activeConv.homeowner.name} width={40} height={40} className="rounded-full" />{activeConv.homeowner.online && <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 border-2 border-white dark:border-slate-700 rounded-full" />}</div>
                   <div><h3 className="font-semibold text-slate-900 dark:text-white">{activeConv.homeowner.name}</h3><p className="text-sm text-slate-500 dark:text-slate-400">{activeConv.homeowner.online ? 'Online' : `Last seen ${activeConv.homeowner.lastSeen ? formatTime(activeConv.homeowner.lastSeen) : 'awhile ago'}`}</p></div>
                 </div>
                 <div className="flex items-center space-x-2"><button className="p-2 rounded-lg text-slate-400"><StarIcon /></button><div className="relative"><button onClick={() => setDropdownOpen(dropdownOpen === activeConv.id ? null : activeConv.id)} className="p-2 rounded-lg text-slate-400"><MoreVerticalIcon /></button>{dropdownOpen === activeConv.id && <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-slate-800 rounded-lg shadow-lg z-10"><button className="w-full px-4 py-2 text-left text-sm text-slate-700 dark:text-slate-300 flex items-center space-x-2"><PinIcon /><span>Pin Conversation</span></button><button className="w-full px-4 py-2 text-left text-sm text-slate-700 dark:text-slate-300 flex items-center space-x-2"><BlockIcon /><span>Block Homeowner</span></button><button className="w-full px-4 py-2 text-left text-sm text-red-600 flex items-center space-x-2"><FlagIcon /><span>Report</span></button></div>}</div></div>

@@ -8,7 +8,7 @@ export const allArticles: Post[] = [
     date: "March 15, 2024",
     readTime: "6 min read",
     category: "Policy Updates",
-    image: "https://images.unsplash.com/photo-1509390636472-a0b5a1985799?q=80&w=800"
+    image: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=800&q=80"
   },
   {
     title: "Tesla Powerwall vs Competitors: Battery Storage Comparison",
@@ -17,7 +17,7 @@ export const allArticles: Post[] = [
     date: "March 10, 2024",
     readTime: "8 min read",
     category: "Technology",
-    image: "https://images.unsplash.com/photo-1629231249110-a1a1c63740e2?q=80&w=800"
+    image: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=800&q=80"
   },
   {
     title: "Summer Solar Tips: Maximizing Your System's Performance",
@@ -26,7 +26,7 @@ export const allArticles: Post[] = [
     date: "March 5, 2024",
     readTime: "4 min read",
     category: "Maintenance",
-    image: "https://images.unsplash.com/photo-1545284884-f3c914a2b9ae?q=80&w=800"
+    image: "https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=800&q=80"
   },
   {
     title: "Case Study: A Sydney Family's Journey to Energy Independence",
@@ -35,7 +35,7 @@ export const allArticles: Post[] = [
     date: "Feb 28, 2024",
     readTime: "7 min read",
     category: "Case Studies",
-    image: "https://images.unsplash.com/photo-1518709594023-63ab79d72a24?q=80&w=800"
+    image: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80"
   },
   {
     title: "The Rise of Virtual Power Plants (VPPs) in Australia",
@@ -44,7 +44,7 @@ export const allArticles: Post[] = [
     date: "Feb 22, 2024",
     readTime: "5 min read",
     category: "Technology",
-    image: "https://images.unsplash.com/photo-1630691742469-32a106a7afd5?q=80&w=800"
+    image: "https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?w=800&q=80"
   },
   {
     title: "Choosing the Right Solar Inverter for Your Home",
@@ -53,7 +53,7 @@ export const allArticles: Post[] = [
     date: "Feb 15, 2024",
     readTime: "9 min read",
     category: "Technology",
-    image: "https://images.unsplash.com/photo-1627993093952-721d20e7e231?q=80&w=800"
+    image: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&q=80"
   },
   {
     title: "Understanding Your Electricity Bill: A Homeowner's Guide",
@@ -62,7 +62,7 @@ export const allArticles: Post[] = [
     date: "Feb 10, 2024",
     readTime: "5 min read",
     category: "Guides",
-    image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=800"
+    image: "https://images.unsplash.com/photo-1554224311-beee460c201f?w=800&q=80"
   },
   {
     title: "Are Solar Panels Worth It in 2024? A Cost-Benefit Analysis",
@@ -71,7 +71,7 @@ export const allArticles: Post[] = [
     date: "Feb 1, 2024",
     readTime: "10 min read",
     category: "Finance",
-    image: "https://images.unsplash.com/photo-1624391673245-56c45999b550?q=80&w=800"
+    image: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&q=80"
   },
   {
     title: "DIY vs. Professional Solar Panel Cleaning: Which is Better?",
@@ -80,7 +80,7 @@ export const allArticles: Post[] = [
     date: "Jan 25, 2024",
     readTime: "4 min read",
     category: "Maintenance",
-    image: "https://images.unsplash.com/photo-1609156847114-1e5c1b61c741?q=80&w=800"
+    image: "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&q=80"
   }
 ];
 

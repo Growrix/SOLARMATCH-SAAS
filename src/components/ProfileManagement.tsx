@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import Image from 'next/image';
 
 // --- Icon Components ---
 const UserIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
@@ -63,7 +64,7 @@ const ProfileManagement: React.FC<ProfileManagementProps> = ({ user, onUpdate, o
       {/* Profile Picture Card */}
       <div className="theme-card p-6">
         <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
-          <img src={formData.avatar} alt="Profile Avatar" className="w-24 h-24 rounded-full object-cover" />
+          <Image src={formData.avatar} alt="Profile Avatar" width={96} height={96} className="rounded-full object-cover" />
           <div className="text-center sm:text-left">
             <h3 className="text-xl font-bold text-slate-900 dark:text-white">Profile Picture</h3>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Upload a new photo to personalize your account.</p>

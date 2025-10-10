@@ -2,15 +2,21 @@
 
 ## 📋 Executive Summary
 
-**Objective:** Transform the current partially-centralized theming system into a fully industry-standard, CSS variable-based theming system where ALL colors can be changed from a single central file.
+**Objective:** Transform the current partially-centralized theming system into a fully industry-standard, **minimalist** CSS variable-based theming system where ALL colors can be changed from a single central file.
+
+**Design Philosophy:** **3-4 colors maximum per theme**
+- 1 background color
+- 1 text color  
+- 1 accent color (teal #14b8a6 - same for all themes)
+- Optional: 1 secondary background/text for rare cases
 
 **Current State:** Partially centralized with 300+ hardcoded color instances across 50+ components.
 
-**Target State:** 100% centralized theming system with zero hardcoded colors.
+**Target State:** 100% centralized theming system with zero hardcoded colors, using only 3-4 core colors per theme.
 
 **Timeline:** 8-12 hours of focused work (can be split into phases)
 
-**Impact:** Future color changes will take 5 minutes instead of hours of hunting through files.
+**Impact:** Future color changes will take 5 minutes instead of hours of hunting through files. Palette changes are as simple as editing 3 hex codes.
 
 ---
 
@@ -46,66 +52,70 @@
 - ❌ Changing a color requires editing multiple files
 - ❌ No centralized hover/active state colors
 
-### Hardcoded Color Inventory
+### Hardcoded Color Inventory (Minimalist Approach)
 
-#### Brand/Primary Colors
-- `bg-teal-600` (89 instances) → Should be `bg-primary`
-- `bg-teal-700` (89 instances) → Should be `bg-primary-hover`
-- `text-primary` (inconsistent usage)
+#### Accent/Brand Colors (Teal)
+- `bg-teal-600` (89 instances) → Should be `bg-accent`
+- `bg-teal-700` (89 instances) → Should be `bg-accent-hover`
+- `text-teal-600` → Should be `text-accent`
 
-#### Semantic Status Colors
-- `bg-red-500` / `text-red-500` (54 instances) → Should be `bg-error` / `text-error`
-- `bg-green-500` / `text-green-500` (27 instances) → Should be `bg-success` / `text-success`
-- `bg-blue-500` / `text-blue-500` (38 instances) → Should be `bg-info` / `text-info`
-- `bg-yellow-500` / `text-yellow-500` (18 instances) → Should be `bg-warning` / `text-warning`
-- `bg-purple-500` / `text-purple-500` (15 instances) → Should be `bg-accent-secondary`
+#### Background Colors
+- `bg-white` / `bg-gray-50` / `bg-cream` → Should be `bg-bg-primary`
+- `bg-gray-100` / `bg-slate-100` → Should be `bg-bg-secondary`
+- `bg-black` / `bg-slate-900` (dark mode) → Should be `bg-bg-primary`
+- `bg-slate-800` (dark mode) → Should be `bg-bg-secondary`
 
-#### UI Element Colors
-- `bg-gray-100` / `bg-slate-800` → Should be `bg-surface`
-- `border-gray-200` / `border-slate-700` → Should be `border-default`
-- Notification badges: Always `bg-red-500` → Should be `bg-badge-error`
+#### Text Colors
+- `text-black` / `text-slate-900` → Should be `text-text-primary`
+- `text-gray-600` / `text-slate-600` → Should be `text-text-secondary`
+- `text-white` / `text-slate-100` (dark mode) → Should be `text-text-primary`
+- `text-slate-400` (dark mode) → Should be `text-text-secondary`
+
+#### Border Colors
+- `border-gray-200` / `border-slate-700` → Should be `border-border`
+
+#### Semantic Status Colors (Minimalist Strategy)
+**Option 1 (Recommended):** Use accent color with opacity
+- `bg-red-500` / `text-red-500` (54 instances) → `bg-accent/10 text-accent` OR keep Tailwind red for critical errors
+- `bg-green-500` / `text-green-500` (27 instances) → `text-accent` (success indicators)
+- `bg-blue-500` / `text-blue-500` (38 instances) → `bg-accent/10 text-accent` (info boxes)
+- `bg-yellow-500` / `text-yellow-500` (18 instances) → `bg-accent/20 text-accent` (warnings)
+- `bg-purple-500` / `text-purple-500` (15 instances) → Use system theme purple or `text-accent`
+
+**Option 2:** Keep Tailwind's default semantic colors for critical states (red for errors, green for success)
+- This adds more than 3-4 colors but improves UX for critical alerts
 
 ---
 
-## 🏗️ New Architecture
+## 🏗️ New Architecture - Minimalist Approach
 
-### CSS Variable Structure
+### Core Philosophy
+**3-4 Colors Maximum Per Theme**
+- Background color (primary)
+- Text color (primary)
+- Accent color (same across all themes: #14b8a6)
+- Optional: Secondary background/text for rare cases
+
+### CSS Variable Structure (Simplified)
 
 ```
-Root Variables:
-├── Backgrounds
-│   ├── --color-bg-primary
-│   ├── --color-bg-secondary
-│   ├── --color-bg-surface
-│   └── --color-bg-elevated
-├── Text Colors
-│   ├── --color-text-primary
-│   ├── --color-text-secondary
-│   ├── --color-text-tertiary
-│   └── --color-text-inverse
-├── Brand/Accent
-│   ├── --color-accent-primary
-│   ├── --color-accent-primary-hover
-│   ├── --color-accent-secondary
-│   └── --color-accent-tertiary
-├── Semantic Status
-│   ├── --color-success (green)
-│   ├── --color-success-hover
-│   ├── --color-error (red)
-│   ├── --color-error-hover
-│   ├── --color-warning (yellow/amber)
-│   ├── --color-warning-hover
-│   ├── --color-info (blue)
-│   └── --color-info-hover
-├── Borders
-│   ├── --color-border-default
-│   ├── --color-border-hover
-│   └── --color-border-focus
-└── Special
-    ├── --color-badge-notification
-    ├── --color-online-indicator
-    └── --color-glassmorphism-overlay
+Root Variables (Core - 3 colors):
+├── --bg-primary          (Main background)
+├── --text-primary        (Main text)
+└── --accent-color        (Teal #14b8a6 - same for all themes)
+
+Optional (for rare cases - max 4th color):
+├── --bg-secondary        (Cards, surfaces)
+├── --text-secondary      (Muted text)
+└── --border-color        (Derived from bg/text)
+
+Derived/Generated:
+├── --accent-hover        (Slightly darker accent)
+├── --bg-hover            (Slightly lighter/darker bg)
+└── --text-muted          (Lower opacity text-primary)
 ```
+
+**Key Principle:** The accent color (#14b8a6 teal) remains constant across all themes. Only backgrounds and text colors change per theme.
 
 ### Tailwind Configuration Mapping
 
@@ -199,136 +209,85 @@ git checkout -b theming-overhaul-backup
 git checkout -b theming-overhaul
 ```
 
-#### Step 0.2: Expand CSS Variables in globals.css
+#### Step 0.2: Define Minimalist CSS Variables in globals.css
 **File:** `src/app/globals.css`
 
-**Action:** Add comprehensive CSS variables for all three themes
+**Action:** Add ONLY the essential CSS variables (3-4 colors per theme)
 
 **Location:** After line 20 (existing variables section)
 
+**Philosophy:** Keep it minimal - only define what you need. Derive everything else.
+
 **Add:**
 ```css
+/* ============================================
+   MINIMALIST THEMING SYSTEM - 3 COLORS MAX
+   ============================================ */
+
 :root {
-  /* === BACKGROUNDS === */
-  --color-bg-primary: #F2F0EF;
-  --color-bg-secondary: #ffffff;
-  --color-bg-surface: #f8fafc;
-  --color-bg-elevated: #ffffff;
+  /* CORE COLORS (Light Theme) */
+  --bg-primary: #F2F0EF;      /* Cream background */
+  --text-primary: #0F172A;    /* Black/Dark Slate text */
+  --accent-color: #14b8a6;    /* Teal (same for all themes) */
   
-  /* === TEXT === */
-  --color-text-primary: #0F172A;
-  --color-text-secondary: #475569;
-  --color-text-tertiary: #94a3b8;
-  --color-text-inverse: #ffffff;
-  
-  /* === BRAND/ACCENT === */
-  --color-accent-primary: #0d9488;
-  --color-accent-primary-hover: #0f766e;
-  --color-accent-secondary: #8b5cf6;
-  --color-accent-tertiary: #fbbf24;
-  
-  /* === SEMANTIC COLORS === */
-  --color-success: #10b981;
-  --color-success-bg: #d1fae5;
-  --color-success-hover: #059669;
-  
-  --color-error: #ef4444;
-  --color-error-bg: #fee2e2;
-  --color-error-hover: #dc2626;
-  
-  --color-warning: #f59e0b;
-  --color-warning-bg: #fef3c7;
-  --color-warning-hover: #d97706;
-  
-  --color-info: #3b82f6;
-  --color-info-bg: #dbeafe;
-  --color-info-hover: #2563eb;
-  
-  /* === BORDERS === */
-  --color-border-default: #e5e7eb;
-  --color-border-hover: #d1d5db;
-  --color-border-focus: #0d9488;
-  
-  /* === SPECIAL === */
-  --color-badge-notification: #ef4444;
-  --color-online-indicator: #10b981;
-  --color-glassmorphism: rgba(255, 255, 255, 0.8);
+  /* OPTIONAL - Only if needed */
+  --bg-secondary: #FFFFFF;    /* White cards/surfaces */
+  --text-secondary: #475569;  /* Muted text */
 }
 
 .dark {
-  /* === BACKGROUNDS === */
-  --color-bg-primary: #000000;
-  --color-bg-secondary: #0f172a;
-  --color-bg-surface: #1e293b;
-  --color-bg-elevated: #334155;
+  /* CORE COLORS (Dark Theme) */
+  --bg-primary: #000000;      /* Pure black background */
+  --text-primary: #E2E8F0;    /* Light slate text */
+  --accent-color: #14b8a6;    /* Teal (same) */
   
-  /* === TEXT === */
-  --color-text-primary: #E2E8F0;
-  --color-text-secondary: #94a3b8;
-  --color-text-tertiary: #64748b;
-  --color-text-inverse: #0F172A;
-  
-  /* === BRAND/ACCENT === */
-  --color-accent-primary: #14b8a6;
-  --color-accent-primary-hover: #0d9488;
-  --color-accent-secondary: #a78bfa;
-  --color-accent-tertiary: #fbbf24;
-  
-  /* === SEMANTIC COLORS === */
-  --color-success: #34d399;
-  --color-success-bg: rgba(16, 185, 129, 0.2);
-  --color-success-hover: #10b981;
-  
-  --color-error: #f87171;
-  --color-error-bg: rgba(239, 68, 68, 0.2);
-  --color-error-hover: #ef4444;
-  
-  --color-warning: #fbbf24;
-  --color-warning-bg: rgba(245, 158, 11, 0.2);
-  --color-warning-hover: #f59e0b;
-  
-  --color-info: #60a5fa;
-  --color-info-bg: rgba(59, 130, 246, 0.2);
-  --color-info-hover: #3b82f6;
-  
-  /* === BORDERS === */
-  --color-border-default: #334155;
-  --color-border-hover: #475569;
-  --color-border-focus: #14b8a6;
-  
-  /* === SPECIAL === */
-  --color-badge-notification: #ef4444;
-  --color-online-indicator: #34d399;
-  --color-glassmorphism: rgba(15, 23, 42, 0.8);
+  /* OPTIONAL - Only if needed */
+  --bg-secondary: #0f172a;    /* Dark slate surfaces */
+  --text-secondary: #94a3b8;  /* Muted light text */
 }
 
 .dark.theme-system {
-  /* === BACKGROUNDS === */
-  --color-bg-primary: #001405;
-  --color-bg-secondary: #0a2f1a;
-  --color-bg-surface: #0d4d15;
-  --color-bg-elevated: #166534;
+  /* CORE COLORS (System/Purple Theme) */
+  --bg-primary: #6f14b8;      /* Purple background */
+  --text-primary: #FFFFFF;    /* White text */
+  --accent-color: #14b8a6;    /* Teal (same) */
   
-  /* === TEXT === */
-  --color-text-primary: #FFFFFF;
-  --color-text-secondary: #86efac;
-  --color-text-tertiary: #4ade80;
-  --color-text-inverse: #001405;
+  /* OPTIONAL - Only if needed */
+  --bg-secondary: #8b5cf6;    /* Lighter purple surfaces */
+  --text-secondary: #e9d5ff;  /* Muted light text */
+}
+
+/* ============================================
+   DERIVED/UTILITY VARIABLES (Auto-generated from core)
+   ============================================ */
+:root,
+.dark,
+.dark.theme-system {
+  /* Hover states (slightly darker) */
+  --accent-hover: color-mix(in srgb, var(--accent-color) 85%, black);
+  --bg-hover: color-mix(in srgb, var(--bg-primary) 95%, var(--text-primary));
   
-  /* === BRAND/ACCENT === */
-  --color-accent-primary: #0d9488;
-  --color-accent-primary-hover: #0f766e;
-  --color-accent-secondary: #4ade80;
-  --color-accent-tertiary: #fbbf24;
+  /* Border (derived from background) */
+  --border-color: color-mix(in srgb, var(--bg-primary) 90%, var(--text-primary));
   
-  /* Semantic colors remain same as dark */
+  /* Text muted (50% opacity) */
+  --text-muted: color-mix(in srgb, var(--text-primary) 60%, transparent);
 }
 ```
 
-#### Step 0.3: Update Tailwind Config
+**Why This Works:**
+- ✅ Only 3-4 colors per theme (as requested)
+- ✅ Accent color stays the same (#14b8a6 teal)
+- ✅ Everything else is derived using CSS `color-mix()`
+- ✅ Change your palette in seconds
+- ✅ Industry-standard minimalist approach
+
+#### Step 0.3: Update Tailwind Config (Minimalist)
 **File:** `tailwind.config.js`
 
-**Action:** Map CSS variables to Tailwind utilities
+**Action:** Map ONLY the essential CSS variables to Tailwind utilities
+
+**Philosophy:** Map only your 3-4 core colors. Everything else uses Tailwind's default or opacity modifiers.
 
 **Replace entire colors section:**
 ```javascript
@@ -342,49 +301,32 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Brand/Accent
-        primary: 'var(--color-accent-primary)',
-        'primary-hover': 'var(--color-accent-primary-hover)',
-        secondary: 'var(--color-accent-secondary)',
-        tertiary: 'var(--color-accent-tertiary)',
+        /* ===================================
+           MINIMALIST COLOR PALETTE (3-4 colors)
+           =================================== */
         
-        // Backgrounds
-        'bg-primary': 'var(--color-bg-primary)',
-        'bg-secondary': 'var(--color-bg-secondary)',
-        'bg-surface': 'var(--color-bg-surface)',
-        'bg-elevated': 'var(--color-bg-elevated)',
+        // Core Background
+        'bg-primary': 'var(--bg-primary)',
+        'bg-secondary': 'var(--bg-secondary)',
         
-        // Text
-        'text-primary': 'var(--color-text-primary)',
-        'text-secondary': 'var(--color-text-secondary)',
-        'text-tertiary': 'var(--color-text-tertiary)',
-        'text-inverse': 'var(--color-text-inverse)',
+        // Core Text
+        'text-primary': 'var(--text-primary)',
+        'text-secondary': 'var(--text-secondary)',
         
-        // Semantic Status
-        success: 'var(--color-success)',
-        'success-bg': 'var(--color-success-bg)',
-        'success-hover': 'var(--color-success-hover)',
+        // Core Accent (same across all themes)
+        accent: 'var(--accent-color)',
+        'accent-hover': 'var(--accent-hover)',
         
-        error: 'var(--color-error)',
-        'error-bg': 'var(--color-error-bg)',
-        'error-hover': 'var(--color-error-hover)',
+        // Derived/Utility
+        border: 'var(--border-color)',
+        muted: 'var(--text-muted)',
         
-        warning: 'var(--color-warning)',
-        'warning-bg': 'var(--color-warning-bg)',
-        'warning-hover': 'var(--color-warning-hover)',
-        
-        info: 'var(--color-info)',
-        'info-bg': 'var(--color-info-bg)',
-        'info-hover': 'var(--color-info-hover)',
-        
-        // Borders
-        'border-default': 'var(--color-border-default)',
-        'border-hover': 'var(--color-border-hover)',
-        'border-focus': 'var(--color-border-focus)',
-        
-        // Special
-        'badge-notification': 'var(--color-badge-notification)',
-        'online-indicator': 'var(--color-online-indicator)',
+        /* ===================================
+           SEMANTIC SHORTCUTS (using accent + opacity)
+           =================================== */
+        // Use accent color with opacity for consistency
+        // e.g., bg-accent/10, bg-accent/20 for info/success states
+        // This keeps your palette minimal while still being functional
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
@@ -394,6 +336,24 @@ module.exports = {
   },
   plugins: [],
 }
+```
+
+**Usage Examples:**
+```tsx
+// Primary button
+<button className="bg-accent text-white hover:bg-accent-hover">
+
+// Card
+<div className="bg-bg-secondary border border-border">
+
+// Muted text
+<p className="text-muted">
+
+// Info box (using accent with opacity)
+<div className="bg-accent/10 border border-accent/30 text-accent">
+
+// Success state (using accent)
+<div className="text-accent">✓ Success</div>
 ```
 
 #### Step 0.4: Test Foundation
@@ -409,50 +369,65 @@ npm run dev
 
 **Goal:** Refactor the most visible UI elements first for immediate visual consistency
 
-#### Component Refactoring Template
+#### Component Refactoring Template (MINIMALIST)
 
-For each component, follow this pattern:
+For each component, follow this simplified pattern using ONLY your 3-4 core colors:
 
-**Find & Replace Patterns:**
+**Find & Replace Patterns (Minimalist):**
 
-| Old (Hardcoded) | New (Semantic) | Use Case |
-|-----------------|----------------|----------|
-| `bg-teal-600` | `bg-primary` | Primary brand color |
-| `hover:bg-teal-700` | `hover:bg-primary-hover` | Primary hover state |
-| `text-teal-600` | `text-primary` | Primary text |
-| `bg-red-500` | `bg-error` | Error background |
-| `text-red-500` | `text-error` | Error text |
-| `bg-red-500/10` | `bg-error-bg` | Error light background |
-| `hover:bg-red-500/20` | `hover:bg-error-hover/20` | Error hover |
-| `bg-green-500` | `bg-success` | Success background |
-| `text-green-500` | `text-success` | Success text |
-| `bg-blue-500` | `bg-info` | Info background |
-| `text-blue-500` | `text-info` | Info text |
-| `bg-yellow-500` | `bg-warning` | Warning background |
-| `text-yellow-500` | `text-warning` | Warning text |
-| `bg-purple-500` | `bg-secondary` | Secondary accent |
-| `border-gray-200` | `border-border-default` | Default borders |
+| Old (Hardcoded) | New (Minimalist Semantic) | Use Case |
+|-----------------|---------------------------|----------|
+| `bg-teal-600` | `bg-accent` | Primary accent buttons |
+| `hover:bg-teal-700` | `hover:bg-accent-hover` | Accent hover state |
+| `text-teal-600` | `text-accent` | Accent text |
+| `bg-white` / `bg-gray-50` | `bg-bg-primary` | Main background |
+| `bg-gray-100` / `bg-slate-100` | `bg-bg-secondary` | Cards/surfaces |
+| `text-black` / `text-slate-900` | `text-text-primary` | Main text |
+| `text-gray-600` / `text-slate-600` | `text-text-secondary` | Muted text |
+| `border-gray-200` / `border-slate-200` | `border-border` | All borders |
+| `bg-red-500/10 text-red-500` | `bg-accent/10 text-accent` | Info/alert boxes* |
+| `bg-green-500` | `bg-accent` or `text-accent` | Success indicators* |
+| `bg-blue-500` | `bg-accent` or `text-accent` | Info indicators* |
+
+**\*Semantic Colors Strategy:**
+Since we're using a minimalist 3-color palette, use **accent color with opacity** for all semantic states:
+- ✅ Success: `text-accent` or `bg-accent/10`
+- ❌ Errors: `text-accent` or `bg-accent/10` (or keep Tailwind's red for true errors)
+- ℹ️ Info: `text-accent` or `bg-accent/10`
+- ⚠️ Warning: `text-accent` or `bg-accent/20`
 
 #### 1.1 Header.tsx
 **Hardcoded Colors:** 8 instances
-- `bg-red-500/10 text-red-500 hover:bg-red-500/20` (logout button)
-- `hover:bg-teal-700` (Sign In/Sign Up buttons)
+
+**Strategy:** Replace all teal colors with `accent`, all grays with `bg-primary/bg-secondary`, all text with `text-primary/text-secondary`
 
 **Search & Replace:**
 ```tsx
-// OLD
-className="px-2 py-1 text-xs font-semibold rounded-md bg-red-500/10 text-red-500 hover:bg-red-500/20"
+// OLD (Primary accent buttons)
+className="bg-teal-600 hover:bg-teal-700 text-white"
 
-// NEW
-className="px-2 py-1 text-xs font-semibold rounded-md bg-error-bg text-error hover:bg-error-hover/20"
-```
+// NEW (Using accent)
+className="bg-accent hover:bg-accent-hover text-white"
 
-```tsx
-// OLD
-className="px-4 py-2 text-sm font-semibold rounded-lg bg-primary text-white hover:bg-teal-700"
+// OLD (Error/logout - keep red or use accent)
+className="bg-red-500/10 text-red-500 hover:bg-red-500/20"
 
-// NEW
-className="px-4 py-2 text-sm font-semibold rounded-lg bg-primary text-white hover:bg-primary-hover"
+// NEW (Option 1: Keep semantic red from Tailwind)
+className="bg-red-500/10 text-red-500 hover:bg-red-500/20"
+// OR NEW (Option 2: Use accent for consistency)
+className="bg-accent/10 text-accent hover:bg-accent/20"
+
+// OLD (Backgrounds and surfaces)
+className="bg-white border-gray-200"
+
+// NEW (Using theme variables)
+className="bg-bg-primary border-border"
+
+// OLD (Text colors)
+className="text-slate-900"
+
+// NEW (Using theme text)
+className="text-text-primary"
 ```
 
 #### 1.2 HeaderMenu.tsx
@@ -865,28 +840,80 @@ git checkout -b theming-overhaul
 ---
 
 **Last Updated:** October 9, 2025
-**Version:** 1.0
+**Version:** 2.0 - Minimalist Edition
 **Status:** Ready for Execution
 
 ---
 
-## Appendix A: Quick Color Reference
+## 🎨 What Changed in v2.0 (Minimalist Edition)
+
+### v1.0 (Previous - Complex)
+- 20+ CSS variables per theme
+- Semantic colors for success, error, warning, info
+- Multiple background and text variants
+- Complex color hierarchy
+
+### v2.0 (Current - Minimalist)
+- **3-4 CSS variables per theme maximum**
+- Single accent color (#14b8a6) across all themes
+- Minimal backgrounds and text colors
+- Everything else derived using opacity/color-mix
+- Industry-standard minimalist approach
+
+### Why This Is Better
+✅ Simpler to maintain
+✅ Easier to understand
+✅ Faster to implement
+✅ More flexible (opacity-based variations)
+✅ Industry-standard (Apple, Google, Stripe style)
+✅ Change entire palette by editing 3 values
+
+---
+
+## Appendix A: Minimalist Color Reference
+
+### Your Approved 3-Color Palette Per Theme
 
 ```css
-/* Light Theme Primary Colors */
-Primary: #0d9488 (teal)
-Success: #10b981 (green)
-Error: #ef4444 (red)
-Warning: #f59e0b (amber)
-Info: #3b82f6 (blue)
+/* ==========================================
+   LIGHT THEME (3 colors)
+   ========================================== */
+--bg-primary:    #F2F0EF    /* Cream background */
+--text-primary:  #0F172A    /* Black/dark slate text */
+--accent-color:  #14b8a6    /* Teal (SAME across all themes) */
 
-/* Dark Theme Primary Colors */
-Primary: #14b8a6 (bright teal)
-Success: #34d399 (bright green)
-Error: #f87171 (bright red)
-Warning: #fbbf24 (bright amber)
-Info: #60a5fa (bright blue)
+/* Optional 4th color (rare cases): */
+--bg-secondary:  #FFFFFF    /* White for cards */
+--text-secondary: #475569   /* Muted gray text */
+
+/* ==========================================
+   DARK THEME (3 colors)
+   ========================================== */
+--bg-primary:    #000000    /* Pure black background */
+--text-primary:  #E2E8F0    /* Light slate text */
+--accent-color:  #14b8a6    /* Teal (SAME across all themes) */
+
+/* Optional 4th color (rare cases): */
+--bg-secondary:  #0f172a    /* Dark slate for cards */
+--text-secondary: #94a3b8   /* Muted light text */
+
+/* ==========================================
+   SYSTEM/PURPLE THEME (3 colors)
+   ========================================== */
+--bg-primary:    #6f14b8    /* Purple background */
+--text-primary:  #FFFFFF    /* White text */
+--accent-color:  #14b8a6    /* Teal (SAME across all themes) */
+
+/* Optional 4th color (rare cases): */
+--bg-secondary:  #8b5cf6    /* Lighter purple for cards */
+--text-secondary: #e9d5ff   /* Muted lavender text */
 ```
+
+### Key Principles
+1. ✅ **Accent color (#14b8a6) is CONSTANT across all themes**
+2. ✅ **Only backgrounds and text change per theme**
+3. ✅ **Maximum 3-4 colors per theme (never more)**
+4. ✅ **All other colors are derived using opacity or Tailwind defaults**
 
 ## Appendix B: Component Priority Matrix
 
@@ -903,4 +930,56 @@ Info: #60a5fa (bright blue)
 
 ---
 
-**END OF MASTER PLAN**
+---
+
+## 📝 Quick Reference Card - Minimalist Theming
+
+### Your 3-Color Palette (Copy-Paste Ready)
+
+```css
+/* LIGHT THEME */
+:root {
+  --bg-primary: #F2F0EF;      /* Cream */
+  --text-primary: #0F172A;    /* Black */
+  --accent-color: #14b8a6;    /* Teal */
+}
+
+/* DARK THEME */
+.dark {
+  --bg-primary: #000000;      /* Black */
+  --text-primary: #E2E8F0;    /* Light slate */
+  --accent-color: #14b8a6;    /* Teal (same) */
+}
+
+/* SYSTEM/PURPLE THEME */
+.dark.theme-system {
+  --bg-primary: #6f14b8;      /* Purple */
+  --text-primary: #FFFFFF;    /* White */
+  --accent-color: #14b8a6;    /* Teal (same) */
+}
+```
+
+### Common Class Replacements
+
+| What You Need | Tailwind Class |
+|---------------|----------------|
+| Main background | `bg-bg-primary` |
+| Card/surface | `bg-bg-secondary` |
+| Primary text | `text-text-primary` |
+| Muted text | `text-text-secondary` |
+| Accent button | `bg-accent text-white` |
+| Accent text | `text-accent` |
+| Border | `border-border` |
+| Info box | `bg-accent/10 text-accent` |
+| Hover state | `hover:bg-accent-hover` |
+
+### The Rule
+**If you need a new color, ask yourself:**
+1. Can I use accent color? (`text-accent` or `bg-accent`)
+2. Can I use accent with opacity? (`bg-accent/10`)
+3. Can I use background/text? (`bg-bg-primary`, `text-text-primary`)
+4. If none work, you may need a 4th color (rare!)
+
+---
+
+**END OF MASTER PLAN v2.0 - MINIMALIST EDITION**

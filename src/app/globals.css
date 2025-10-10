@@ -288,6 +288,48 @@ body {
   background-color: transparent;
 }
 
+/* --- CALCULATOR SWITCHER STYLES (Theme-aware) --- */
+
+/* LIGHT THEME - Switcher background */
+.theme-switcher-bg {
+  background-color: #f3f4f6;
+}
+
+.theme-switcher-border {
+  border-color: #e5e7eb;
+}
+
+.theme-switcher-active {
+  background-color: #ffffff;
+}
+
+/* DARK THEME - Switcher background */
+.dark .theme-switcher-bg {
+  background-color: #1e293b;
+}
+
+.dark .theme-switcher-border {
+  border-color: #334155;
+}
+
+.dark .theme-switcher-active {
+  background-color: #334155;
+}
+
+/* SYSTEM THEME - Switcher background (Eco Green) */
+.dark.theme-system .theme-switcher-bg {
+  background-color: rgba(10, 47, 26, 0.6);
+}
+
+.dark.theme-system .theme-switcher-border {
+  border-color: rgba(13, 148, 136, 0.4);
+}
+
+.dark.theme-system .theme-switcher-active {
+  background-color: rgba(10, 47, 26, 0.9);
+  border: 1px solid rgba(13, 148, 136, 0.5);
+}
+
 /* --- HERO SECTION ANIMATIONS --- */
 
 /* Fade in up animation */

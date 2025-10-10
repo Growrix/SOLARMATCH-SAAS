@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import Footer from '@/components/Footer';
 import HomeownerSignInModal from '@/components/HomeownerSignInModal';
+import HomeownerSignupModal from '@/components/HomeownerSignupModal';
 import type { Post } from '@/types/blog';
 
 interface Comment {
@@ -28,8 +30,10 @@ export default function BlogPostPage() {
   const router = useRouter();
   const [post, setPost] = useState<Post | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
+  const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
   const [newComment, setNewComment] = useState('');
+  const [pendingComment, setPendingComment] = useState('');
   const [comments, setComments] = useState<Comment[]>([
     { 
       id: 1, 
@@ -48,6 +52,9 @@ export default function BlogPostPage() {
   ]);
 
   useEffect(() => {
+    // Always scroll to top when this page loads
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+
     const storedPost = sessionStorage.getItem('currentBlogPost');
     if (storedPost) {
       setPost(JSON.parse(storedPost));
@@ -55,9 +62,43 @@ export default function BlogPostPage() {
       router.push('/blog');
     }
     
-    // Check if user is logged in (you can check localStorage or session)
-    const userAuth = localStorage.getItem('homeownerAuth');
-    setIsLoggedIn(userAuth === 'true');
+    // Check authentication status from localStorage (same system as dashboard)
+    const checkAuth = () => {
+      const userAuth = localStorage.getItem('homeownerAuth');
+      setIsLoggedIn(userAuth === 'true');
+    };
+    
+    checkAuth();
+    
+    // Check if there's a pending comment after sign-in/sign-up (from page reload)
+    const pendingCommentFromStorage = sessionStorage.getItem('pendingBlogComment');
+    if (pendingCommentFromStorage && localStorage.getItem('homeownerAuth') === 'true') {
+      // User just signed in and has a pending comment - post it automatically
+      const newCommentObject: Comment = {
+        id: Date.now(),
+        author: "You",
+        avatar: "https://i.pravatar.cc/150?img=5",
+        text: pendingCommentFromStorage,
+        date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+      };
+      
+      setComments(prev => [...prev, newCommentObject]);
+      
+      // Clear the pending comment from sessionStorage
+      sessionStorage.removeItem('pendingBlogComment');
+      
+      // Scroll to the comment section to show the posted comment
+      setTimeout(() => {
+        const commentSection = document.querySelector('.comments-section');
+        if (commentSection) {
+          commentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 500);
+    }
+    
+    // Listen for storage changes (in case user logs in/out in another tab)
+    window.addEventListener('storage', checkAuth);
+    return () => window.removeEventListener('storage', checkAuth);
   }, [router]);
 
   if (!post) {
@@ -65,28 +106,72 @@ export default function BlogPostPage() {
   }
 
   const handlePostComment = () => {
-    if (!newComment.trim()) return;
-
-    if (isLoggedIn) {
-      const newCommentObject: Comment = {
-        id: Date.now(),
-        author: "You",
-        avatar: "https://i.pravatar.cc/150?img=5",
-        text: newComment,
-        date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
-      };
-      setComments(prev => [...prev, newCommentObject]);
-      setNewComment("");
-    } else {
-      // Open login modal if not logged in
-      setIsLoginModalOpen(true);
+    // Check if comment is empty first
+    if (!newComment.trim()) {
+      alert('Please write a comment before posting.');
+      return;
     }
+    
+    // Check if user is logged in
+    const userAuth = localStorage.getItem('homeownerAuth');
+    if (userAuth !== 'true') {
+      // Save the comment temporarily and open sign-in modal
+      setPendingComment(newComment);
+      setIsSignInModalOpen(true);
+      return;
+    }
+    
+    // User is authenticated - post the comment
+    const newCommentObject: Comment = {
+      id: Date.now(),
+      author: "You",
+      avatar: "https://i.pravatar.cc/150?img=5",
+      text: newComment,
+      date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+    };
+    
+    setComments(prev => [...prev, newCommentObject]);
+    setNewComment("");
   };
 
-  const handleLoginSuccess = () => {
-    setIsLoginModalOpen(false);
-    setIsLoggedIn(true);
+  const handleSignInSuccess = () => {
+    setIsSignInModalOpen(false);
+    
+    // Set authentication state in localStorage
     localStorage.setItem('homeownerAuth', 'true');
+    
+    // If there's a pending comment, save it to sessionStorage before reload
+    if (pendingComment.trim()) {
+      sessionStorage.setItem('pendingBlogComment', pendingComment);
+    }
+    
+    // Force a page reload to update the header and entire app state
+    window.location.reload();
+  };
+
+  const handleSignUpSuccess = () => {
+    setIsSignUpModalOpen(false);
+    
+    // Set authentication state in localStorage
+    localStorage.setItem('homeownerAuth', 'true');
+    
+    // If there's a pending comment, save it to sessionStorage before reload
+    if (pendingComment.trim()) {
+      sessionStorage.setItem('pendingBlogComment', pendingComment);
+    }
+    
+    // Force a page reload to update the header and entire app state
+    window.location.reload();
+  };
+
+  const handleSwitchToSignUp = () => {
+    setIsSignInModalOpen(false);
+    setIsSignUpModalOpen(true);
+  };
+
+  const handleSwitchToSignIn = () => {
+    setIsSignUpModalOpen(false);
+    setIsSignInModalOpen(true);
   };
 
   const handleBecomePartner = () => router.push('/installer');
@@ -94,7 +179,7 @@ export default function BlogPostPage() {
   const handleScrollToQuote = () => router.push('/#calculator-section');
   const handleScrollToRebate = () => router.push('/#calculator-section');
   const handleBlogClick = () => router.push('/blog');
-  const handleGovernmentNewsClick = () => console.log('Government news');
+  const handleGovernmentNewsClick = () => router.push('/blog');
   const handleBackToBlog = () => router.push('/blog');
 
   return (
@@ -103,7 +188,7 @@ export default function BlogPostPage() {
         <article>
           {/* Hero Image */}
           <header className="relative h-64 sm:h-80 md:h-96">
-            <img src={post.image} alt={post.title} className="w-full h-full object-cover" />
+            <Image src={post.image} alt={post.title} fill className="object-cover" priority />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
           </header>
           
@@ -140,7 +225,7 @@ export default function BlogPostPage() {
               </p>
               
               <blockquote className="border-l-4 border-primary pl-4 my-6 italic text-slate-700 dark:text-slate-300">
-                "The most significant change is the adjustment to the Small-scale Technology Certificate (STC) calculation, which directly impacts the upfront discount on your system."
+                &ldquo;The most significant change is the adjustment to the Small-scale Technology Certificate (STC) calculation, which directly impacts the upfront discount on your system.&rdquo;
               </blockquote>
               
               <h2 className="text-2xl font-bold text-slate-900 dark:text-white mt-8 mb-4">Understanding the STC Deeming Period Reduction</h2>
@@ -167,7 +252,7 @@ export default function BlogPostPage() {
 
             {/* Author Bio */}
             <div className="theme-card mt-12 p-6 flex flex-col sm:flex-row items-center gap-6">
-              <img src="https://i.pravatar.cc/150?img=3" alt={post.author} className="w-20 h-20 rounded-full flex-shrink-0"/>
+              <Image src="https://i.pravatar.cc/150?img=3" alt={post.author} width={80} height={80} className="rounded-full flex-shrink-0" />
               <div className="text-center sm:text-left">
                 <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Written by</p>
                 <h4 className="text-xl font-bold text-slate-900 dark:text-white mt-1">{post.author}</h4>
@@ -178,23 +263,24 @@ export default function BlogPostPage() {
             </div>
 
             {/* Comments Section */}
-            <div className="mt-16">
+            <div className="mt-16 comments-section">
               <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Comments ({comments.length})</h2>
               
               {/* Comment Form */}
-              <div className="theme-card p-4 mb-8">
+              <div className="theme-card p-6 mb-8">
                 <textarea 
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Write your comment..." 
+                  placeholder="Write your comment..."
                   rows={4}
                   className="w-full bg-white dark:bg-slate-800 p-3 rounded-lg border border-gray-300 dark:border-slate-700 focus:ring-primary focus:border-primary transition"
                   aria-label="Write a comment"
                 ></textarea>
-                <div className="flex justify-end mt-2">
+                <div className="flex justify-end mt-3">
                   <button 
                     onClick={handlePostComment}
-                    className="bg-primary text-white px-5 py-2 rounded-lg font-semibold hover:bg-teal-700 transition-colors text-sm"
+                    type="button"
+                    className="bg-primary text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-teal-700 transition-all text-sm shadow-md hover:shadow-lg"
                   >
                     Post Comment
                   </button>
@@ -205,7 +291,7 @@ export default function BlogPostPage() {
               <div className="space-y-8">
                 {comments.map(comment => (
                   <div key={comment.id} className="theme-card flex items-start gap-4 p-4">
-                    <img src={comment.avatar} alt={comment.author} className="w-10 h-10 rounded-full flex-shrink-0 mt-1"/>
+                    <Image src={comment.avatar} alt={comment.author} width={40} height={40} className="rounded-full flex-shrink-0 mt-1" />
                     <div>
                       <div className="flex items-center gap-3">
                         <h5 className="font-bold text-slate-900 dark:text-white">{comment.author}</h5>
@@ -230,15 +316,19 @@ export default function BlogPostPage() {
         onGovernmentNewsClick={handleGovernmentNewsClick}
       />
 
-      {/* Login Modal */}
+      {/* Authentication Modals */}
       <HomeownerSignInModal
-        isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
-        onSuccess={handleLoginSuccess}
-        onSwitchToSignUp={() => {
-          setIsLoginModalOpen(false);
-          console.log('Switch to sign up');
-        }}
+        isOpen={isSignInModalOpen}
+        onClose={() => setIsSignInModalOpen(false)}
+        onSuccess={handleSignInSuccess}
+        onSwitchToSignUp={handleSwitchToSignUp}
+      />
+
+      <HomeownerSignupModal
+        isOpen={isSignUpModalOpen}
+        onClose={() => setIsSignUpModalOpen(false)}
+        onSuccess={handleSignUpSuccess}
+        onSwitchToSignIn={handleSwitchToSignIn}
       />
     </div>
   );

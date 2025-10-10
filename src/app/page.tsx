@@ -10,6 +10,7 @@ import QuoteSuccessModal from '../components/QuoteSuccessModal';
 import DetailedQuoteAuthModal from '../components/DetailedQuoteAuthModal';
 import Footer from '../components/Footer';
 import BlogSection from '../components/BlogSection';
+import NewsletterSignup from '../components/NewsletterSignup';
 import type { Post } from '../types/blog';
 
 // Icon components
@@ -121,16 +122,15 @@ export default function Home() {
   };
 
   return (
-    <main>
+  <main className="bg-bg-primary dark:bg-black">
       <Hero 
         onInstantQuoteClick={handleScrollToQuote}
         onRebateCalculatorClick={handleScrollToRebate}
       />
       
       {/* Calculator Section */}
-      <section id="calculator-section" className="relative py-16 lg:py-24 bg-gradient-to-b from-white via-teal-50/20 to-white dark:from-black dark:via-teal-950/10 dark:to-black">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-teal-500/5 to-transparent dark:via-teal-400/5 pointer-events-none" />
-        
+  <section id="calculator-section" className="py-16 lg:py-24 bg-bg-primary">
+        {/* Removed all gradient overlays for a flat cream look in light mode */}
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-4">
@@ -143,8 +143,8 @@ export default function Home() {
           
           {/* Calculator Switcher */}
           <div className="flex justify-center mb-8">
-            <div className="relative w-full max-w-md bg-gray-100 dark:bg-slate-800 p-1 rounded-full flex border border-gray-200 dark:border-slate-700">
-              <div className={`absolute top-1 bottom-1 left-1 w-1/2 rounded-full bg-white dark:bg-slate-700 shadow-lg transition-transform duration-300 ease-in-out transform ${
+            <div className="relative w-full max-w-md theme-switcher-bg p-1 rounded-full flex border theme-switcher-border">
+              <div className={`absolute top-1 bottom-1 left-1 w-1/2 rounded-full theme-switcher-active shadow-lg transition-transform duration-300 ease-in-out transform ${
                 activeCalculator === 'quote' ? 'translate-x-0' : 'translate-x-full'
               }`}></div>
 
@@ -210,10 +210,15 @@ export default function Home() {
       )}
 
       {/* Blog Section */}
-      <BlogSection
-        onSeeAllPostsClick={handleSeeAllBlogPosts}
-        onNavigateToPost={handleNavigateToPost}
-      />
+  <section className="w-full py-16 lg:py-24 bg-bg-primary">
+    <BlogSection
+      onSeeAllPostsClick={handleSeeAllBlogPosts}
+      onNavigateToPost={handleNavigateToPost}
+    />
+  </section>
+
+      {/* Newsletter Section */}
+      <NewsletterSignup />
 
       {/* Footer */}
       <Footer
