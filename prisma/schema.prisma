@@ -17,15 +17,12 @@
 // DATABASE CONNECTION SETTINGS
 // ----------------------------------------------------------------------------
 datasource db {
-  provider = "postgresql"  
-  // TEACHING NOTE: This tells Prisma we're using PostgreSQL database
-  // Supabase, Vercel Postgres, and many others use PostgreSQL
-  // Other options: "mysql", "sqlite", "sqlserver", "mongodb"
-  
+  provider = "postgresql"
   url = env("DATABASE_URL")
-  // TEACHING NOTE: env("DATABASE_URL") reads the connection string from .env file
-  // This keeps your database password secret and not in git!
-  // Example: postgresql://user:password@host:5432/database
+  directUrl = env("DIRECT_URL")
+  // TEACHING NOTE: env("DATABASE_URL") is for pooled connections (app runtime)
+  // directUrl is for migrations (direct connection)
+  // Both are set in your .env file as recommended by Supabase
 }
 
 // ----------------------------------------------------------------------------

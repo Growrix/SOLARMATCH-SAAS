@@ -191,20 +191,22 @@ export async function POST(request: Request) {
 export async function GET() {
   try {
     // --------------------------------------------------------------------------
-    // FETCH ALL ACTIVE SUBSCRIBERS
+    // FETCH ALL SUBSCRIBERS (BOTH ACTIVE AND UNSUBSCRIBED)
     // --------------------------------------------------------------------------
     const subscribers = await prisma.newsletterSubscriber.findMany({
-      where: { isActive: true },
-      // TEACHING NOTE: Only get active subscribers (not unsubscribed)
+      // TEACHING NOTE: Removed where clause to get ALL subscribers
+      // Admin dashboard needs to see both active and unsubscribed
       
       select: {
         id: true,
         email: true,
         subscribedAt: true,
+        isActive: true,
+        unsubscribedAt: true,
       },
       // TEACHING NOTE: select{} chooses which fields to return
-      // We're hiding isActive, unsubscribedAt for privacy
-      // If you omit select, it returns ALL fields
+      // We need isActive and unsubscribedAt for the admin dashboard
+      // to correctly display subscriber status
       
       orderBy: { subscribedAt: 'desc' },
       // TEACHING NOTE: Sort by newest subscribers first

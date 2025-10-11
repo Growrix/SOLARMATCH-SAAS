@@ -1,3 +1,77 @@
+## What is Row Level Security (RLS)?
+
+### What is RLS?
+- **RLS** stands for **Row Level Security**.
+- It is a database feature (supported by PostgreSQL, Supabase, etc.) that controls which rows in a table a user can see or modify, based on rules you define.
+- RLS lets you enforce data access rules **directly in the database**, not just in your API or app code.
+
+### How Does RLS Work?
+- When RLS is enabled on a table, every query (SELECT, UPDATE, DELETE, etc.) is filtered by the RLS policy.
+- You write policies (rules) that say who can access which rows.
+- Example: “A user can only see their own records” or “Only admins can update all rows.”
+
+**Example in SQL:**
+```sql
+-- Enable RLS on a table
+ALTER TABLE newsletter_subscribers ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Only allow users to see their own rows
+CREATE POLICY "Users can view their own subscriptions"
+  ON newsletter_subscribers
+  USING (user_id = current_setting('jwt.claims.user_id')::uuid);
+```
+
+### RLS and the Database
+- RLS is enforced by the database engine itself (e.g., PostgreSQL).
+- Even if someone bypasses your API and connects directly to the database, RLS still protects your data.
+
+### RLS and the API
+- Your API (and Prisma) just sends queries to the database.
+- If RLS is enabled, the database will only return rows allowed by the policy, no matter what the API requests.
+- This adds an extra layer of security beyond your API code.
+
+### Do You Have RLS in This Project?
+- **No, not by default.**
+  - In plain PostgreSQL (and with Prisma), RLS is **not enabled** unless you turn it on and write policies.
+  - Supabase enables RLS by default on new tables, but you must define the policies yourself.
+- In your current Docker/Postgres/Prisma setup, **RLS is not active** unless you manually enable it and add policies.
+
+### How to Add RLS to Your Project
+1. **Enable RLS on a table:**
+   ```sql
+   ALTER TABLE newsletter_subscribers ENABLE ROW LEVEL SECURITY;
+   ```
+2. **Create policies:**
+   ```sql
+   CREATE POLICY "Allow all" ON newsletter_subscribers FOR SELECT USING (true);
+   ```
+   - This example allows everyone to read all rows (not secure, just for demo).
+   - You can write more complex policies for user-based access.
+
+### Industry Standard Best Practices for RLS
+- **Enable RLS for sensitive data** (user profiles, payments, private messages, etc.).
+- **Write least-privilege policies**: Only allow users to access their own data unless they are admins.
+- **Test your policies**: Make sure users cannot access or modify data they shouldn’t.
+- **Combine RLS with API authentication**: Use JWT claims or session info in your policies.
+- **Document your RLS policies** for your team.
+
+### Summary Table
+
+| Layer      | With RLS? | Without RLS?         |
+|------------|-----------|----------------------|
+| Database   | Enforces  | No row-level checks  |
+| API        | Relies on DB | Must check in code |
+| Security   | Strong    | Weaker, code-only    |
+
+### Key Takeaways
+- RLS is a powerful, database-level security feature.
+- It works independently of your API or app code.
+- You do **not** have RLS in your current Prisma/Postgres setup unless you add it.
+- Supabase makes RLS easy, but you must define policies.
+- **Best practice:** Use RLS for all sensitive, user-specific data in production.
+
+If you want to add RLS to your project, let me know and I’ll guide you step-by-step!
+
 # Prisma, SQL, and How They Work Together (Explained Simply)
 
 ## What is SQL?
