@@ -583,6 +583,22 @@ body {
   }
 }
 
+/* --- QUOTE RESULT ANIMATIONS --- */
+@keyframes slide-in-from-top {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-in-top {
+  animation: slide-in-from-top 0.5s ease-out forwards;
+}
+
 /* --- ACCESSIBILITY IMPROVEMENTS --- */
 @media (prefers-reduced-motion: reduce) {
   .theme-card,
@@ -590,7 +606,8 @@ body {
   .floating-dollars-container span,
   .ray > div,
   .particle,
-  .panel-surface {
+  .panel-surface,
+  .animate-slide-in-top {
     animation: none !important;
     transition: none;
   }

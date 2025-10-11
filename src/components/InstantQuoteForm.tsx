@@ -90,46 +90,55 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
   const [stateRebateRules, setStateRebateRules] = useState<any>(null);
 
   const handleStartOver = () => {
-    setCurrentStep(1);
-    setQuoteResult(null);
-    setErrors({});
-    setFormData({
-      postcode: '',
-      location: '',
-      state: '',
-      roofType: '',
-      budgetRange: '',
-      batteryIncluded: false,
-      batteryCapacity: '',
-      batteryBrand: '',
-      customBatteryCapacity: '',
-      backupCritical: 'essential',
-      batteryUsage: 'self-consumption',
-      includeVPP: false,
-      includeEVCharging: false,
-      includeSmartHome: false,
-      includeGridServices: false,
-      desiredOffset: 100,
-      hasExistingSystem: false,
-      existingSystemSize: '',
-      panelOrientation: 'north',
-      roofTilt: 'optimal',
-      shadingLevel: 'none',
-      usagePattern: 'spread',
-      customRetailRate: '',
-      customFeedInRate: '',
-      retailer: '',
-      tariffPlan: '',
-      panelBrand: '',
-      includeOptimizers: false,
-      includeMicroinverters: false,
-      peakDemand: '',
-      isThreePhase: false,
-      projectPriority: 'reduce_bills',
-      additionalArrays: [],
-      systemSizeOverride: '',
-    });
-    setElectricityValue('');
+    // First scroll to position, then reset state to prevent jump
+    const calculatorSection = document.getElementById('calculator-section');
+    if (calculatorSection) {
+      calculatorSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    // Delay state reset slightly to allow scroll to start
+    setTimeout(() => {
+      setCurrentStep(1);
+      setQuoteResult(null);
+      setErrors({});
+      setFormData({
+        postcode: '',
+        location: '',
+        state: '',
+        roofType: '',
+        budgetRange: '',
+        batteryIncluded: false,
+        batteryCapacity: '',
+        batteryBrand: '',
+        customBatteryCapacity: '',
+        backupCritical: 'essential',
+        batteryUsage: 'self-consumption',
+        includeVPP: false,
+        includeEVCharging: false,
+        includeSmartHome: false,
+        includeGridServices: false,
+        desiredOffset: 100,
+        hasExistingSystem: false,
+        existingSystemSize: '',
+        panelOrientation: 'north',
+        roofTilt: 'optimal',
+        shadingLevel: 'none',
+        usagePattern: 'spread',
+        customRetailRate: '',
+        customFeedInRate: '',
+        retailer: '',
+        tariffPlan: '',
+        panelBrand: '',
+        includeOptimizers: false,
+        includeMicroinverters: false,
+        peakDemand: '',
+        isThreePhase: false,
+        projectPriority: 'reduce_bills',
+        additionalArrays: [],
+        systemSizeOverride: '',
+      });
+      setElectricityValue('');
+    }, 50);
   };
 
   useEffect(() => {
@@ -460,6 +469,14 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
       setQuoteResult(resultData);
       onQuoteCalculated({ ...formData, ...resultData, propertyType: quoteType });
       setCurrentStep(3);
+      
+      // Scroll to show result at top of viewport
+      setTimeout(() => {
+        document.getElementById('calculator-section')?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 100);
 
     } catch (err) {
       console.error('Quote calculation error:', err);
@@ -1351,7 +1368,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
         )}
 
         {currentStep === 3 && quoteResult && (
-          <div className="animate-fade-in">
+          <div className="animate-slide-in-top">
             <div className="text-center mb-8"><div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10"><CheckCircle /></div><h2 className="text-2xl font-bold text-slate-900 dark:text-white mt-4 mb-2">Your Instant {quoteType === 'commercial' ? 'Commercial' : 'Residential'} Solar Quote</h2><p className="text-slate-600 dark:text-slate-400">An estimate based on your provided details</p></div>
             
             {/* Enhanced Residential Results */}
