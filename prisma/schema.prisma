@@ -128,3 +128,228 @@ model NewsletterSubscriber {
 // Field?           → Optional field (can be null)
 //
 // ============================================================================
+
+// ============================================================================
+// GUEST INSTANT QUOTE MODEL
+// ============================================================================
+// This stores all instant solar quote submissions from guests (non-registered users).
+// Each quote captures user inputs, calculated results, and metadata for analytics.
+// Admins can view quote trends, conversion rates, and popular configurations.
+// ============================================================================
+
+model GuestInstantQuote {
+  // PRIMARY KEY (Unique Identifier)
+  // --------------------------------
+  id String @id @default(cuid())
+  // Auto-generated unique ID for each quote
+  
+  // SESSION & TRACKING
+  // ------------------
+  sessionId String?
+  // Browser session ID to track user journey (for analytics)
+  // Optional because some users may have tracking disabled
+  
+  ipAddress String?
+  // IP address for fraud detection and location analytics
+  // Stored as string (e.g., "192.168.1.1")
+  
+  userAgent String?
+  // Browser/device info for UX analytics
+  
+  // TIMESTAMPS
+  // ----------
+  createdAt DateTime @default(now())
+  // When the quote was generated
+  
+  updatedAt DateTime @updatedAt
+  // Auto-updates when record changes
+  
+  // PROPERTY TYPE
+  // -------------
+  quoteType String
+  // "residential" or "commercial"
+  // Determines which calculation logic was used
+  
+  // LOCATION DATA
+  // -------------
+  postcode String
+  // 4-digit Australian postcode (e.g., "2000")
+  
+  location String
+  // Suburb name (e.g., "Sydney")
+  
+  state String
+  // Australian state code (NSW, VIC, QLD, etc.)
+  
+  // ENERGY USAGE
+  // ------------
+  electricityUsageType String
+  // "monthly" or "quarterly"
+  
+  electricityValue Float
+  // Usage amount (bill $ or kWh)
+  
+  // SYSTEM CONFIGURATION
+  // --------------------
+  roofType String
+  // Metal, tile, colorbond, etc.
+  
+  budgetRange String
+  // User's budget bracket
+  
+  panelOrientation String
+  // north, northeast, east, etc.
+  
+  roofTilt String
+  // flat, low, optimal, steep
+  
+  shadingLevel String
+  // none, minimal, partial, moderate, heavy
+  
+  desiredOffset Int
+  // Target % of electricity bill to offset (e.g., 100)
+  
+  usagePattern String?
+  // daytime, evening, spread (residential only)
+  
+  // BATTERY OPTIONS
+  // ---------------
+  batteryIncluded Boolean @default(false)
+  
+  batteryCapacity String?
+  // Battery size in kWh if included
+  
+  batteryBrand String?
+  // Tesla, Enphase, etc.
+  
+  customBatteryCapacity String?
+  // Custom battery capacity if user specified their own value
+  
+  backupCritical String?
+  // Backup priority: essential, whole-home, etc.
+  
+  batteryUsage String?
+  // self-consumption, backup, etc.
+  
+  includeVPP Boolean @default(false)
+  // Virtual Power Plant participation
+  
+  // COMMERCIAL-SPECIFIC
+  // -------------------
+  peakDemand String?
+  // Peak demand in kW (commercial only)
+  
+  isThreePhase Boolean @default(false)
+  
+  projectPriority String?
+  // reduce_bills, sustainability, etc.
+  
+  // ADVANCED OPTIONS
+  // ----------------
+  retailer String?
+  // Energy retailer name
+  
+  tariffPlan String?
+  // Tariff structure (single, time-of-use, etc.)
+  
+  additionalArrays Json?
+  // Complex roof layouts with multiple arrays (stored as JSON)
+  
+  customRetailRate String?
+  // User-provided rate in cents/kWh
+  
+  customFeedInRate String?
+  // User-provided feed-in tariff
+  
+  panelBrand String?
+  // Preferred panel manufacturer
+  
+  includeOptimizers Boolean @default(false)
+  
+  includeMicroinverters Boolean @default(false)
+  
+  includeEVCharging Boolean @default(false)
+  
+  includeSmartHome Boolean @default(false)
+  
+  includeGridServices Boolean @default(false)
+  
+  hasExistingSystem Boolean @default(false)
+  
+  existingSystemSize String?
+  
+  systemSizeOverride String?
+  // User-specified system size override
+  
+  // CALCULATED RESULTS (JSON)
+  // --------------------------
+  results Json
+  // Stores the complete calculation output as JSON:
+  // {
+  //   systemSize: 6.6,
+  //   annualProduction: 9500,
+  //   annualSavings: 1250,
+  //   currentAnnualBill: 1800,
+  //   totalCost: 8500,
+  //   federalRebate: 2100,
+  //   batteryRebate: 0,
+  //   stateRebate: 1400,
+  //   finalPrice: 5000,
+  //   simplePaybackYears: 4.0,
+  //   disclaimers: [...]
+  // }
+  
+  // ADMIN NOTES & FLAGS
+  // -------------------
+  adminNotes String?
+  // Internal notes from admin review
+  
+  isConverted Boolean @default(false)
+  // True if guest later signed up and created a quote request
+  
+  conversionDate DateTime?
+  // When they converted (if applicable)
+  
+  // TABLE NAME MAPPING
+  // ------------------
+  @@map("guest_instant_quotes")
+  
+  // INDEXES FOR PERFORMANCE
+  // -----------------------
+  @@index([createdAt])
+  // Fast filtering by date
+  
+  @@index([state])
+  // Group quotes by state
+  
+  @@index([quoteType])
+  // Filter residential vs commercial
+  
+  @@index([sessionId])
+  // Track user journey
+}
+
+// ============================================================================
+// WHAT THIS MODEL ENABLES
+// ============================================================================
+// 1. Admin Dashboard Metrics:
+//    - Total quotes generated per day/week/month
+//    - Popular system sizes and configurations
+//    - Geographic distribution (state/postcode heatmaps)
+//    - Conversion funnel (guests → signups → quote requests)
+//
+// 2. Marketing Insights:
+//    - Peak usage times and user behavior
+//    - Budget preferences and price sensitivity
+//    - Feature adoption (battery, EV charging, etc.)
+//
+// 3. Product Improvements:
+//    - Identify common user configurations
+//    - A/B testing different pricing models
+//    - Optimize calculator accuracy
+//
+// 4. User Journey:
+//    - Link anonymous quotes to user accounts later (via sessionId)
+//    - Pre-fill forms when guests sign up
+//    - Track conversion from quote → signup → purchase
+// ============================================================================

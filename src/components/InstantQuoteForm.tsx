@@ -36,6 +36,19 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   
+  // Generate or retrieve session ID for tracking
+  const [sessionId] = useState(() => {
+    if (typeof window !== 'undefined') {
+      let id = sessionStorage.getItem('quote_session_id');
+      if (!id) {
+        id = `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+        sessionStorage.setItem('quote_session_id', id);
+      }
+      return id;
+    }
+    return `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+  });
+  
   // Form data state
   const [formData, setFormData] = useState({
     postcode: '',
@@ -344,6 +357,92 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
     return Math.round(requiredKw * 10) / 10;
   }, [electricityValue, electricityUsageType, formData.postcode, formData.desiredOffset]);
   
+  // Save quote to database for admin tracking
+  const saveQuoteToDatabase = async (resultData: any) => {
+    try {
+      const payload = {
+        sessionId,
+        quoteType,
+        
+        // Step 1: Location
+        postcode: formData.postcode,
+        location: formData.location,
+        state: formData.state,
+        
+        // Step 2: Usage and preferences
+        electricityUsageType,
+        electricityValue: Number(electricityValue),
+        budgetRange: formData.budgetRange,
+        roofType: formData.roofType,
+        desiredOffset: formData.desiredOffset,
+        
+        // Advanced options
+        usagePattern: formData.usagePattern,
+        panelOrientation: formData.panelOrientation,
+        roofTilt: formData.roofTilt,
+        shadingLevel: formData.shadingLevel,
+        hasExistingSystem: formData.hasExistingSystem,
+        existingSystemSize: formData.existingSystemSize ? String(formData.existingSystemSize) : null,
+        
+        // Battery configuration
+        batteryIncluded: formData.batteryIncluded,
+        batteryCapacity: formData.batteryCapacity ? String(formData.batteryCapacity) : null,
+        batteryBrand: formData.batteryBrand || null,
+        customBatteryCapacity: formData.customBatteryCapacity || null,
+        backupCritical: formData.backupCritical || null,
+        batteryUsage: formData.batteryUsage,
+        includeVPP: formData.includeVPP,
+        
+        // Smart features
+        includeEVCharging: formData.includeEVCharging,
+        includeSmartHome: formData.includeSmartHome,
+        includeGridServices: formData.includeGridServices,
+        
+        // Advanced system options
+        panelBrand: formData.panelBrand || null,
+        includeOptimizers: formData.includeOptimizers,
+        includeMicroinverters: formData.includeMicroinverters,
+        
+        // Electricity plan
+        customRetailRate: formData.customRetailRate ? String(formData.customRetailRate) : null,
+        customFeedInRate: formData.customFeedInRate ? String(formData.customFeedInRate) : null,
+        retailer: formData.retailer || null,
+        tariffPlan: formData.tariffPlan || null,
+        
+        // Commercial-specific
+        peakDemand: formData.peakDemand ? String(formData.peakDemand) : null,
+        isThreePhase: formData.isThreePhase,
+        projectPriority: formData.projectPriority || null,
+        
+        // System size override (if user manually specified)
+        systemSizeOverride: formData.systemSizeOverride ? String(formData.systemSizeOverride) : null,
+        
+        // Additional roof arrays (for complex layouts)
+        additionalArrays: formData.additionalArrays.length > 0 ? formData.additionalArrays : null,
+        
+        // Calculated results (stored as JSON)
+        results: resultData,
+      };
+      
+      const response = await fetch('/api/instant-quote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Failed to save quote' }));
+        throw new Error(errorData.error || `HTTP ${response.status}`);
+      }
+      
+      const savedQuote = await response.json();
+      console.log('Quote saved successfully:', savedQuote.id);
+      return savedQuote;
+    } catch (error) {
+      console.error('Error saving quote to database:', error);
+      throw error;
+    }
+  };
 
   const handleCalculateQuote = async () => {
     const fields = [
@@ -468,6 +567,17 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
 
       setQuoteResult(resultData);
       onQuoteCalculated({ ...formData, ...resultData, propertyType: quoteType });
+      
+      // Save quote to database (non-blocking)
+      console.log('Attempting to save quote to database...');
+      saveQuoteToDatabase(resultData).then(saved => {
+        console.log('✅ Quote saved successfully:', saved);
+      }).catch(err => {
+        console.error('❌ Failed to save quote to database:', err);
+        console.error('Error details:', err.message || err);
+        // Don't block user experience if save fails
+      });
+      
       setCurrentStep(3);
       
       // Scroll to show result at top of viewport
