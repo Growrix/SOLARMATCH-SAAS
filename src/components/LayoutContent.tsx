@@ -358,8 +358,10 @@ export default function LayoutContent({ children }: LayoutContentProps) {
     setIsMobileSidebarOpen(true);
   };
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
+  const handleLogout = async () => {
+    // Clear NextAuth session
+    await signOut({ redirect: false });
+    // Redirect to homepage
     router.push('/');
   };
 
@@ -370,7 +372,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
     <>
       {/* Only show main site header/topbar on non-installer, non-homeowner, and non-admin routes */}
       {!isInstallerRoute && !isHomeownerRoute && !isAdminRoute && (
-        <div className="sticky top-0 z-30">
+        <div className={`sticky top-0 z-30 transition-transform duration-300 ease-in-out ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
           {!isLoggedIn && (
             <TopBar 
               onBecomePartnerClick={handleBecomePartner}
@@ -442,9 +444,9 @@ export default function LayoutContent({ children }: LayoutContentProps) {
         onClose={() => setIsMessagingModalOpen(false)}
       />
 
-      {/* Conditional Bottom Navigation - Matches SOT Pattern */}
-      {isLoggedIn && !isDashboardRoute ? (
-        // Logged-in homeowner on main pages (/, /blog, etc.) - Show homeowner navbar
+      {/* Conditional Bottom Navigation - Role-Based Rendering */}
+      {isLoggedIn && !isDashboardRoute && !isInstallerRoute && !isHomeownerRoute && !isAdminRoute && session?.user?.role === 'HOMEOWNER' ? (
+        // Logged-in HOMEOWNER on main pages (/, /blog, etc.) - NOT on /homeowner routes
         <>
           <HomeownerBottomNavBar 
             activePage={activeDashboardPage}
@@ -456,6 +458,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
             onMenuClick={handleMobileSidebarOpen}
             onMessagesClick={handleMessagesClick}
             unreadMessagesCount={3}
+            onLogoutClick={handleLogout}
           />
           <HomeownerMobileSidebarMenu
             isOpen={isMobileSidebarOpen}
@@ -466,12 +469,13 @@ export default function LayoutContent({ children }: LayoutContentProps) {
           />
         </>
       ) : !isLoggedIn && isGuestPage ? (
-        // Guest on main pages - Show guest navbar
+        // Guest (not logged in) on main pages
         <GuestBottomNavBar 
           onHomeClick={handleGuestHome}
           onArticlesClick={handleGuestArticles}
           onRebateClick={handleScrollToRebate}
           onLoginClick={handleGuestLogin}
+          onSignupClick={handleSignupClick}
         />
       ) : null}
     </>

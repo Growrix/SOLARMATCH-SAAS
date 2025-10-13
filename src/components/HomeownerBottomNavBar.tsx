@@ -9,6 +9,7 @@ const PlusIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height
 const MessageSquareIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>;
 const HomeIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
 const MenuIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>;
+const LogoutIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>;
 
 interface HomeownerBottomNavBarProps {
   activePage: string;
@@ -20,6 +21,7 @@ interface HomeownerBottomNavBarProps {
   onMenuClick: () => void;
   onMessagesClick: () => void;
   unreadMessagesCount?: number;
+  onLogoutClick?: () => void;
 }
 
 const NavItem: React.FC<{ icon: React.ReactNode; label: string; isActive: boolean; onClick: () => void; badgeCount?: number; }> = ({ icon, label, isActive, onClick, badgeCount }) => (
@@ -34,7 +36,7 @@ const NavItem: React.FC<{ icon: React.ReactNode; label: string; isActive: boolea
   </button>
 );
 
-const HomeownerBottomNavBar: React.FC<HomeownerBottomNavBarProps> = ({ activePage, setActivePage, onNewQuoteClick, currentPage, onHomeClick, onDashboardClick, onMenuClick, onMessagesClick, unreadMessagesCount }) => {
+const HomeownerBottomNavBar: React.FC<HomeownerBottomNavBarProps> = ({ activePage, setActivePage, onNewQuoteClick, currentPage, onHomeClick, onDashboardClick, onMenuClick, onMessagesClick, unreadMessagesCount, onLogoutClick }) => {
   
   const navigateToDashboardPage = (page: string) => {
     setActivePage(page);
@@ -60,7 +62,11 @@ const HomeownerBottomNavBar: React.FC<HomeownerBottomNavBarProps> = ({ activePag
         </div>
 
         <NavItem icon={<MessageSquareIcon />} label="Messages" isActive={false} onClick={onMessagesClick} badgeCount={unreadMessagesCount} />
-        <NavItem icon={<MenuIcon />} label="Menu" isActive={false} onClick={onMenuClick} />
+        {currentPage === 'home' && onLogoutClick ? (
+          <NavItem icon={<LogoutIcon />} label="Logout" isActive={false} onClick={onLogoutClick} />
+        ) : (
+          <NavItem icon={<MenuIcon />} label="Menu" isActive={false} onClick={onMenuClick} />
+        )}
       </div>
     </div>
   );

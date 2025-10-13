@@ -67,7 +67,7 @@ const AdminBottomNavBar: React.FC<AdminBottomNavBarProps> = ({
   activePage, 
   setActivePage, 
   onMenuClick, 
-  onThemeClick 
+  onThemeClick
 }) => {
   return (
     <div 

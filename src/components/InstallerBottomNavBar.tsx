@@ -89,7 +89,7 @@ const InstallerBottomNavBar: React.FC<InstallerBottomNavBarProps> = ({
   onHomeClick, 
   onDashboardClick, 
   unreadMessagesCount, 
-  newLeadsCount 
+  newLeadsCount
 }) => {
   const navigateToDashboardPage = (page: string) => {
     setActivePage(page);
