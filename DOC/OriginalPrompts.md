@@ -26,30 +26,73 @@ Original :
   - Admins need visibility into the total number of guests who have generated instant quotes (to be shown in the Admin Dashboard; modal/page not yet created).
 
 - **Quote Request Phase:**
-  - After generating an instant quote, guests can request a quote from an installer.
+  - After generating an instant quote, guests can proceed to request a detailed quote from an installer by clicking "Get Detailed Quotes from Installers".
   - Two request types are available:
-    - **Call/Visit** (stored in a `CallVisitQuoteRequest` table)
-    - **Written Quote** (stored in a `WrittenQuoteRequest` table)
-  - Upon selecting a request type, guests are prompted to sign up (user authentication required).
-    - A user authentication table is needed for sign up/login.
+    - **Call/Visit** (to be stored in a `CallVisitQuoteRequest` table)
+    - **Written Quote** (to be stored in a `WrittenQuoteRequest` table)
+  - Upon selecting a request type, guests are prompted to sign up or log in (user authentication required).
+    - Implement or extend a user authentication table/model to support instant sign-up and login.
+    - Identify and reuse any existing authentication modal; if missing, design a new one for a seamless experience.
     - After account creation, the guest becomes a Homeowner and is redirected to the Homeowner Dashboard.
 
-- **Homeowner Dashboard:**
-  - Homeowners can view all their quote requests and results (no modals/pages exist yet for these records).
-  - Homeowners can submit new quote requests; each request is saved and editable.
-  - When submitting a new quote, the Instant Quote form should be pre-filled with their previous inputs (editable before submission).
-  - All quote requests and results should be visible and manageable from the Homeowner Dashboard.
+---
 
-- **Admin Dashboard:**
-  - Needs modals/pages to track:
-    - Total users who generated instant quotes
-    - Users who signed up and requested installer quotes
-    - Cost calculations and user input details for each quote
+### 3. **Dashboard & Modal Enhancements**
 
-- **Installer Dashboard:**
-  - Reference the existing "Lead Feed" modal to understand the data structure for installer leads.
-  - After purchasing a Call/Visit lead, installers should see all instant quote inputs and calculated results.
-  - A "Purchased Lead" page should be created to display all purchased leads and detailed Homeowner information.
+#### **Admin Dashboard**
+  - Build a unified modal/page to display all lead types ("Call/Visit" and "Written Quote" requests) with comprehensive details:
+    - User inputs, calculated quote results, lead status, and timestamps.
+    - Filtering and sorting by lead type, status, and date.
+    - Summary statistics at the top (e.g., total instant quotes, leads by type, conversion rates).
+    - Ensure the design and data structure are consistent with `src/app/admin/instant-quotes/page.tsx`.
+    - Add visibility into installer comments and lead quality ratings.
+    - Enable quick actions for lead management and tracking.
+
+#### **Homeowner Dashboard**
+  - Provide a dedicated, responsive modal/page listing all quote requests (current and historical) with:
+    - Original Instant Quote inputs, selected request type, calculated results, cost breakdown, and status indicators.
+    - Timestamps for submission and updates.
+    - Ability to initiate new quote requests (Instant Quote form pre-filled with latest data, but fully editable).
+    - Actions to edit/resubmit previous requests, view detailed results, and track progress.
+    - Status updates reflecting when a lead is purchased by an installer (e.g., "Deal Closed").
+    - Accessibility and dark mode support.
+
+#### **Installer Dashboard**
+  - Reference and extend the existing "Lead Feed" modal for consistency.
+  - After purchasing a Call/Visit lead, unlock a detailed modal showing all instant quote inputs and calculated results (matching Homeowner/Admin views).
+  - Create a "Purchased Lead" page to manage all purchased leads, displaying detailed Homeowner information and lead status.
+    - Only show Call/Visit quotes here.
+    - Include "Submit Quote" and "Start Chat" buttons, mirroring current Lead Feed functionality.
+    - Add options to mark leads as "Done Deal", "Void", or "User No Response".
+    - Provide a comment section for installers to rate/comment on lead quality (visible to Admins for quality tracking).
+
+---
+
+### 4. **Lead Lifecycle & Data Flow**
+
+- Ensure all leads are trackable and data is shared appropriately across Admin, Installer, and Homeowner dashboards, respecting user roles and permissions.
+- Define clear lead lifecycle statuses: New, Pending, In Progress, Deal Closed, Void, No Response, etc.
+- Categorize and display leads by status in all relevant dashboards.
+- Implement robust auditing of the existing API, Prisma models, and database structure before each development phase to avoid inconsistencies.
+
+---
+
+### 5. **Implementation Plan & Best Practices**
+
+- **Audit:**  
+  - Thoroughly review current user flows, modals, API endpoints, and database models.
+  - Identify gaps and redundancies in the existing structure.
+- **Plan:**  
+  - Document all findings and next steps in `InstantquoteFeature.md`.
+  - Clearly outline new/updated models, API endpoints, and migration requirements.
+  - Prioritize a clean, maintainable build process with a focus on UX, accessibility, and responsiveness.
+  - Ensure all dashboards and modals are consistent, intuitive, and provide actionable insights for each user type.
+  - Validate all new features with real user scenarios to guarantee a seamless experience.
+
+---
+
+**Goal:**  
+Deliver a robust, user-friendly Instant Quote and Lead Management feature set that empowers Admins, Homeowners, and Installers with clear, actionable data and a seamless workflow—while maintaining code quality, scalability, and a clean development process.
 
 ---
 
@@ -76,7 +119,6 @@ Original :
 - Summarize findings and plans in `InstantquoteFeature.md`.
 
 
-
-
+Now the homeowners auth
 
 

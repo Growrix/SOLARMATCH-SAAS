@@ -353,3 +353,130 @@ model GuestInstantQuote {
 //    - Pre-fill forms when guests sign up
 //    - Track conversion from quote → signup → purchase
 // ============================================================================
+
+// ============================================================================
+// USER AUTHENTICATION & ACCOUNTS
+// ============================================================================
+// NextAuth.js compatible schema for user authentication
+// Supports multiple authentication providers (email/password, Google, Apple)
+// ============================================================================
+
+// USER ROLES ENUM
+// ---------------
+enum UserRole {
+  GUEST      // Unauthenticated users (default)
+  HOMEOWNER  // Residential customers requesting quotes
+  INSTALLER  // Solar installers purchasing leads
+  ADMIN      // System administrators
+}
+
+// MAIN USER MODEL
+// ---------------
+model User {
+  // PRIMARY KEY
+  id            String    @id @default(cuid())
+  
+  // CORE AUTHENTICATION
+  email         String    @unique
+  emailVerified DateTime?
+  password      String?   // Hashed with bcrypt (null for OAuth-only users)
+  
+  // USER ROLE & STATUS
+  role          UserRole  @default(HOMEOWNER)
+  isActive      Boolean   @default(true)
+  
+  // PROFILE INFO (Common to all users)
+  name          String?   // Full name for homeowners, contact name for installers
+  phone         String?
+  image         String?   // Profile picture URL
+  
+  // INSTALLER-SPECIFIC FIELDS
+  companyName       String?  // Company name (installers only)
+  businessAddress   String?  // Business address (installers only)
+  postcode          String?  // Business postcode (installers only)
+  
+  // TIMESTAMPS
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lastLoginAt   DateTime?
+  
+  // RELATIONS
+  accounts      Account[]
+  sessions      Session[]
+  
+  @@map("users")
+  @@index([email])
+  @@index([role])
+}
+
+// NEXTAUTH ACCOUNT MODEL (OAuth Providers)
+// ----------------------------------------
+// Stores OAuth provider info (Google, Apple, etc.)
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+// NEXTAUTH SESSION MODEL
+// ----------------------
+// Stores active user sessions
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+// NEXTAUTH VERIFICATION TOKEN MODEL
+// ----------------------------------
+// For email verification and password reset
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ============================================================================
+// WHAT THIS AUTHENTICATION SYSTEM ENABLES
+// ============================================================================
+// 1. Multiple Login Methods:
+//    - Email/Password (stored securely with bcrypt)
+//    - Google OAuth
+//    - Apple OAuth
+//
+// 2. Role-Based Access Control:
+//    - Homeowners: Create quote requests, view their requests
+//    - Installers: View lead feed, purchase leads, manage purchased leads
+//    - Admins: View all data, manage users, moderate content
+//
+// 3. Session Management:
+//    - Secure JWT-based sessions
+//    - Automatic session expiry
+//    - Track last login time
+//
+// 4. Account Flexibility:
+//    - Users can link multiple OAuth providers to one account
+//    - Soft delete with isActive flag
+//    - Email verification support
+// ============================================================================

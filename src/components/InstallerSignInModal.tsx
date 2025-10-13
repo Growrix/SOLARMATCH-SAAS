@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { signIn } from 'next-auth/react';
 
 // --- Icon Components ---
 const XIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>;
@@ -75,17 +76,31 @@ const InstallerSignInModal: React.FC<InstallerSignInProps> = ({ isOpen, onClose,
     setError(null);
     setSuccess(null);
 
-    // Mock API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      // Use NextAuth signIn with credentials provider
+      const result = await signIn('credentials', {
+        redirect: false, // Don't redirect automatically
+        email: formData.email,
+        password: formData.password,
+      });
 
-    if (formData.email.trim() !== '' && formData.password.trim() !== '') {
+      if (result?.error) {
+        // Login failed - show error message
+        setError(result.error);
+        setLoading(false);
+        return;
+      }
+
+      if (result?.ok) {
+        // Login successful
         setSuccess('Signed in successfully! Redirecting...');
         setTimeout(() => {
-            onSuccess();
-        }, 1500);
-    } else {
-        setError('Please enter both email and password to sign in.');
-        setLoading(false);
+          onSuccess(); // Call parent's success handler
+        }, 1000);
+      }
+    } catch (err) {
+      setError('An error occurred during sign in. Please try again.');
+      setLoading(false);
     }
   };
   

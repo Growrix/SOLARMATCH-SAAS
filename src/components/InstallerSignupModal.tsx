@@ -105,7 +105,9 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setSuccess(null);
     
+    // Client-side validation
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match.");
       setLoading(false);
@@ -118,16 +120,37 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
       return;
     }
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    try {
+      // Call the registration API
+      const response = await fetch('/api/auth/register/installer', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
 
-    if (formData.email && formData.password.length >= 8 && formData.companyName && formData.businessAddress && formData.postcode) {
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Registration failed - show error
+        throw new Error(data.error || 'Registration failed');
+      }
+
+      // Registration successful
       setSuccess('Your account has been created successfully! Welcome to the SolarMatch network.');
-    } else {
-      setError('Please fill out all required fields correctly.');
-    }
+      
+      // Wait a moment to show success message
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Call onSuccess to trigger any parent component logic
+      onSuccess();
 
-    setLoading(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred during registration');
+    } finally {
+      setLoading(false);
+    }
   };
   
   if (!isOpen) {

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { useSession, signOut } from 'next-auth/react';
 import TopBar from './TopBar';
 import HeaderMenu from './HeaderMenu';
 import InstallerEligibilityModal from './InstallerEligibilityModal';
@@ -22,6 +23,7 @@ interface LayoutContentProps {
 export default function LayoutContent({ children }: LayoutContentProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const { data: session, status } = useSession(); // Get NextAuth session
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -46,20 +48,21 @@ export default function LayoutContent({ children }: LayoutContentProps) {
   const [isNewQuoteModalOpen, setIsNewQuoteModalOpen] = useState(false);
   const [isMessagingModalOpen, setIsMessagingModalOpen] = useState(false);
 
-  // Check login status on mount and handle query parameters
+  // Check login status from NextAuth session
   useEffect(() => {
-    const homeownerAuth = localStorage.getItem('homeownerAuth');
-    if (homeownerAuth === 'true') {
+    if (status === 'authenticated' && session?.user) {
       setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
     }
     
     // Check if there's an action query parameter (e.g., ?action=signin)
     const urlParams = new URLSearchParams(window.location.search);
     const action = urlParams.get('action');
-    if (action === 'signin' && homeownerAuth !== 'true') {
+    if (action === 'signin' && status === 'unauthenticated') {
       setIsHomeownerSignInModalOpen(true);
     }
-  }, []);
+  }, [session, status]);
 
   // Effect for header visibility on scroll
   useEffect(() => {
@@ -114,18 +117,26 @@ export default function LayoutContent({ children }: LayoutContentProps) {
 
   const handleInstallerSignupSuccess = () => {
     setIsInstallerSignupModalOpen(false);
-    setIsLoggedIn(true);
     console.log('Installer signed up successfully');
-    // Navigate to installer home page
-    router.push('/installer');
+    // NextAuth session will be created automatically
+    // Redirect to installer dashboard (role is INSTALLER)
+    router.push('/installer/dashboard');
   };
 
   const handleInstallerSignInSuccess = () => {
     setIsInstallerSignInModalOpen(false);
-    setIsLoggedIn(true);
     console.log('Installer signed in successfully');
-    // Navigate to installer dashboard
-    router.push('/installer/dashboard');
+    // NextAuth session will be updated automatically
+    // Redirect based on role from session
+    if (session?.user?.role === 'INSTALLER') {
+      router.push('/installer/dashboard');
+    } else if (session?.user?.role === 'HOMEOWNER') {
+      router.push('/homeowner/dashboard');
+    } else if (session?.user?.role === 'ADMIN') {
+      router.push('/admin/dashboard');
+    } else {
+      router.push('/installer/dashboard'); // Default for installer signin
+    }
   };
 
   const handleSwitchToInstallerSignIn = () => {
@@ -144,17 +155,14 @@ export default function LayoutContent({ children }: LayoutContentProps) {
 
   const handleHomeownerSignupSuccess = () => {
     setIsHomeownerSignupModalOpen(false);
-    setIsLoggedIn(true);
-    localStorage.setItem('homeownerAuth', 'true');
     console.log('Homeowner signed up successfully');
-    // Navigate to homeowner dashboard
+    // NextAuth session will be created automatically
+    // Redirect to homeowner dashboard (role is HOMEOWNER)
     router.push('/homeowner/dashboard');
   };
 
   const handleHomeownerSignInSuccess = () => {
     setIsHomeownerSignInModalOpen(false);
-    setIsLoggedIn(true);
-    localStorage.setItem('homeownerAuth', 'true');
     console.log('Homeowner signed in successfully');
     
     // Check if we should return to the previous page or go to dashboard
@@ -165,15 +173,30 @@ export default function LayoutContent({ children }: LayoutContentProps) {
       window.history.replaceState({}, '', window.location.pathname);
       window.location.reload();
     } else {
-      // Navigate to homeowner dashboard
-      router.push('/homeowner/dashboard');
+      // Redirect based on role from session (NextAuth will update)
+      // Session will be available on next render
+      setTimeout(() => {
+        if (session?.user?.role === 'INSTALLER') {
+          router.push('/installer/dashboard');
+        } else if (session?.user?.role === 'HOMEOWNER') {
+          router.push('/homeowner/dashboard');
+        } else if (session?.user?.role === 'ADMIN') {
+          router.push('/admin/dashboard');
+        } else {
+          // Default to homeowner if role not yet loaded
+          router.push('/homeowner/dashboard');
+        }
+      }, 100); // Small delay to let NextAuth update session
     }
   };
 
-  const handleLogoutClick = () => {
+  const handleLogoutClick = async () => {
+    console.log('User logging out');
+    // Use NextAuth signOut instead of localStorage
+    await signOut({ redirect: false });
     setIsLoggedIn(false);
-    localStorage.removeItem('homeownerAuth');
-    console.log('User logged out');
+    // Redirect to homepage
+    router.push('/');
   };
 
   const handleSwitchToSignIn = () => {

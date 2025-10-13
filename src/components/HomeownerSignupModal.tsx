@@ -21,19 +21,51 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({ isOpen, onC
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ fullName: '', email: '', password: '' });
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError(null); // Clear error when user types
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Mock API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    console.log("Signing up with:", formData);
-    setLoading(false);
-    onSuccess();
+    setError(null);
+    setSuccess(null);
+
+    try {
+      // Call the registration API
+      const response = await fetch('/api/auth/register/homeowner', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Registration failed - show error
+        throw new Error(data.error || 'Registration failed');
+      }
+
+      // Registration successful
+      setSuccess('Account created successfully! Redirecting...');
+      
+      // Wait a moment to show success message
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Call onSuccess to trigger any parent component logic
+      onSuccess();
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred during registration');
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -87,13 +119,24 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({ isOpen, onC
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 px-4 py-3 rounded-xl text-sm">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-200 px-4 py-3 rounded-xl text-sm">
+              {success}
+            </div>
+          )}
           <input 
             type="text" 
             name="fullName" 
             placeholder="Full Name" 
             className={baseInputClasses} 
             required 
-            onChange={handleInputChange} 
+            onChange={handleInputChange}
+            value={formData.fullName}
           />
           <input 
             type="email" 
@@ -101,7 +144,8 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({ isOpen, onC
             placeholder="Email Address" 
             className={baseInputClasses} 
             required 
-            onChange={handleInputChange} 
+            onChange={handleInputChange}
+            value={formData.email}
           />
           <div className="relative">
             <input 
@@ -111,7 +155,8 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({ isOpen, onC
               className={`${baseInputClasses} pr-12`} 
               required 
               minLength={8} 
-              onChange={handleInputChange} 
+              onChange={handleInputChange}
+              value={formData.password}
             />
             <button 
               type="button" 

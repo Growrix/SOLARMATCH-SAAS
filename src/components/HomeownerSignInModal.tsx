@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { signIn } from 'next-auth/react';
 
 // --- Icon Components ---
 const XIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>;
@@ -21,19 +22,42 @@ const HomeownerSignInModal: React.FC<HomeownerSignInModalProps> = ({ isOpen, onC
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ email: '', password: '' });
+  const [error, setError] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError(null); // Clear error when user types
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Mock API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    console.log("Signing in with:", formData);
-    setLoading(false);
-    onSuccess();
+    setError(null);
+
+    try {
+      // Use NextAuth signIn with credentials provider
+      const result = await signIn('credentials', {
+        redirect: false, // Don't redirect automatically
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (result?.error) {
+        // Login failed - show error message
+        setError(result.error);
+        setLoading(false);
+        return;
+      }
+
+      if (result?.ok) {
+        // Login successful
+        setLoading(false);
+        onSuccess(); // Call parent's success handler
+      }
+    } catch (err) {
+      setError('An error occurred during sign in. Please try again.');
+      setLoading(false);
+    }
   };
   
   useEffect(() => {
@@ -87,13 +111,19 @@ const HomeownerSignInModal: React.FC<HomeownerSignInModalProps> = ({ isOpen, onC
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 px-4 py-3 rounded-xl text-sm">
+              {error}
+            </div>
+          )}
           <input 
             type="email" 
             name="email" 
             placeholder="Email Address" 
             className={baseInputClasses} 
             required 
-            onChange={handleInputChange} 
+            onChange={handleInputChange}
+            value={formData.email} 
           />
           <div className="relative">
             <input 
@@ -102,7 +132,8 @@ const HomeownerSignInModal: React.FC<HomeownerSignInModalProps> = ({ isOpen, onC
               placeholder="Password" 
               className={`${baseInputClasses} pr-12`} 
               required 
-              onChange={handleInputChange} 
+              onChange={handleInputChange}
+              value={formData.password} 
             />
             <button 
               type="button" 
