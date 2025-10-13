@@ -115,27 +115,63 @@ export default function LayoutContent({ children }: LayoutContentProps) {
     setIsInstallerSignupModalOpen(true);
   };
 
-  const handleInstallerSignupSuccess = () => {
+  const handleInstallerSignupSuccess = async () => {
     setIsInstallerSignupModalOpen(false);
     console.log('Installer signed up successfully');
-    // NextAuth session will be created automatically
-    // Redirect to installer dashboard (role is INSTALLER)
-    router.push('/installer/dashboard');
+    
+    // Fetch fresh session to get updated role
+    try {
+      const response = await fetch('/api/auth/session');
+      const sessionData = await response.json();
+      const role = sessionData?.user?.role;
+      
+      console.log('User role from fresh session after signup:', role);
+      
+      // Redirect based on actual role (should be INSTALLER)
+      if (role === 'INSTALLER') {
+        router.push('/installer/dashboard');
+      } else if (role === 'HOMEOWNER') {
+        router.push('/homeowner/dashboard');
+      } else if (role === 'ADMIN') {
+        router.push('/admin/dashboard');
+      } else {
+        // Fallback
+        router.push('/installer/dashboard');
+      }
+    } catch (error) {
+      console.error('Error fetching session after signup:', error);
+      // Fallback to installer dashboard
+      router.push('/installer/dashboard');
+    }
   };
 
-  const handleInstallerSignInSuccess = () => {
+  const handleInstallerSignInSuccess = async () => {
     setIsInstallerSignInModalOpen(false);
     console.log('Installer signed in successfully');
-    // NextAuth session will be updated automatically
-    // Redirect based on role from session
-    if (session?.user?.role === 'INSTALLER') {
+    
+    // Fetch fresh session to get updated role
+    try {
+      const response = await fetch('/api/auth/session');
+      const sessionData = await response.json();
+      const role = sessionData?.user?.role;
+      
+      console.log('User role from fresh session:', role);
+      
+      // Redirect based on actual role
+      if (role === 'INSTALLER') {
+        router.push('/installer/dashboard');
+      } else if (role === 'HOMEOWNER') {
+        router.push('/homeowner/dashboard');
+      } else if (role === 'ADMIN') {
+        router.push('/admin/dashboard');
+      } else {
+        // Fallback
+        router.push('/installer/dashboard');
+      }
+    } catch (error) {
+      console.error('Error fetching session:', error);
+      // Fallback to installer dashboard
       router.push('/installer/dashboard');
-    } else if (session?.user?.role === 'HOMEOWNER') {
-      router.push('/homeowner/dashboard');
-    } else if (session?.user?.role === 'ADMIN') {
-      router.push('/admin/dashboard');
-    } else {
-      router.push('/installer/dashboard'); // Default for installer signin
     }
   };
 
@@ -153,15 +189,37 @@ export default function LayoutContent({ children }: LayoutContentProps) {
     setIsHomeownerSignupModalOpen(true);
   };
 
-  const handleHomeownerSignupSuccess = () => {
+  const handleHomeownerSignupSuccess = async () => {
     setIsHomeownerSignupModalOpen(false);
     console.log('Homeowner signed up successfully');
-    // NextAuth session will be created automatically
-    // Redirect to homeowner dashboard (role is HOMEOWNER)
-    router.push('/homeowner/dashboard');
+    
+    // Fetch fresh session to get updated role
+    try {
+      const response = await fetch('/api/auth/session');
+      const sessionData = await response.json();
+      const role = sessionData?.user?.role;
+      
+      console.log('User role from fresh session after signup:', role);
+      
+      // Redirect based on actual role (should be HOMEOWNER)
+      if (role === 'HOMEOWNER') {
+        router.push('/homeowner/dashboard');
+      } else if (role === 'INSTALLER') {
+        router.push('/installer/dashboard');
+      } else if (role === 'ADMIN') {
+        router.push('/admin/dashboard');
+      } else {
+        // Fallback
+        router.push('/homeowner/dashboard');
+      }
+    } catch (error) {
+      console.error('Error fetching session after signup:', error);
+      // Fallback to homeowner dashboard
+      router.push('/homeowner/dashboard');
+    }
   };
 
-  const handleHomeownerSignInSuccess = () => {
+  const handleHomeownerSignInSuccess = async () => {
     setIsHomeownerSignInModalOpen(false);
     console.log('Homeowner signed in successfully');
     
@@ -173,20 +231,30 @@ export default function LayoutContent({ children }: LayoutContentProps) {
       window.history.replaceState({}, '', window.location.pathname);
       window.location.reload();
     } else {
-      // Redirect based on role from session (NextAuth will update)
-      // Session will be available on next render
-      setTimeout(() => {
-        if (session?.user?.role === 'INSTALLER') {
+      // Fetch fresh session to get updated role
+      try {
+        const response = await fetch('/api/auth/session');
+        const sessionData = await response.json();
+        const role = sessionData?.user?.role;
+        
+        console.log('User role from fresh session:', role);
+        
+        // Redirect based on actual role
+        if (role === 'INSTALLER') {
           router.push('/installer/dashboard');
-        } else if (session?.user?.role === 'HOMEOWNER') {
+        } else if (role === 'HOMEOWNER') {
           router.push('/homeowner/dashboard');
-        } else if (session?.user?.role === 'ADMIN') {
+        } else if (role === 'ADMIN') {
           router.push('/admin/dashboard');
         } else {
-          // Default to homeowner if role not yet loaded
+          // Fallback to homeowner
           router.push('/homeowner/dashboard');
         }
-      }, 100); // Small delay to let NextAuth update session
+      } catch (error) {
+        console.error('Error fetching session:', error);
+        // Fallback to homeowner dashboard
+        router.push('/homeowner/dashboard');
+      }
     }
   };
 
@@ -256,6 +324,28 @@ export default function LayoutContent({ children }: LayoutContentProps) {
     router.push('/homeowner/dashboard');
   };
 
+  // Smart dashboard handler that routes based on role
+  const handleDashboardClick = () => {
+    const role = session?.user?.role;
+    
+    if (role === 'INSTALLER') {
+      router.push('/installer/dashboard');
+    } else if (role === 'HOMEOWNER') {
+      router.push('/homeowner/dashboard');
+    } else if (role === 'ADMIN') {
+      router.push('/admin/dashboard');
+    } else {
+      // If role not loaded yet, check current path or default to homeowner
+      if (pathname?.startsWith('/installer')) {
+        router.push('/installer/dashboard');
+      } else if (pathname?.startsWith('/admin')) {
+        router.push('/admin/dashboard');
+      } else {
+        router.push('/homeowner/dashboard'); // Default
+      }
+    }
+  };
+
   const handleNewQuoteClick = () => {
     setIsNewQuoteModalOpen(true);
   };
@@ -292,7 +382,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
             onLoginClick={handleLoginClick}
             onSignupClick={handleSignupClick}
             onLogoutClick={handleLogoutClick}
-            onDashboardClick={handleHomeownerDashboardClick}
+            onDashboardClick={handleDashboardClick}
             onHomeownerDashboardClick={handleHomeownerDashboardClick}
             onInstallerDashboardClick={() => router.push('/installer/dashboard')}
             onInstallerHomeClick={() => router.push('/installer')}

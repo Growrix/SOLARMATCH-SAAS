@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Hero from '../components/Hero';
 import InstantQuoteForm from '../components/InstantQuoteForm';
@@ -45,6 +45,11 @@ export default function Home() {
   const [selectedQuoteType, setSelectedQuoteType] = useState<'call_visit' | 'written' | null>(null);
   const [quoteData, setQuoteData] = useState<any>(null);
   const [pendingQuoteData, setPendingQuoteData] = useState<any>(null);
+
+  // Ensure page starts at top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   // Captures quote data from the form and stores it pending authentication
   const handleQuoteCalculated = useCallback((data: any) => {

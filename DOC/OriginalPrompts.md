@@ -122,3 +122,4 @@ Deliver a robust, user-friendly Instant Quote and Lead Management feature set th
 Now the homeowners auth
 
 
+After successful signup the Installers see a modal that shared in the screenshot. When the click co the button "Visit Installer's HOme" it should redirect to the installers home page and that page is only dedicated to Installers. This Homeowners should not see it anyway. Add another button "Visit Dashboard" that will redirect to the installers Dashboard. The installers area is the Installers Dashboard and the Installers home and nothing else. When they logged out, they see the Guest's homepage. This is the Authentication ssytem for the Installers. Now you Do audit, understand the existing what have you done. do the necessary updates as per Expkained the installers story. 

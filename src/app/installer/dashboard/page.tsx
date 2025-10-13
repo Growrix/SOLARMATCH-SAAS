@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import { useTheme, type Theme } from '@/components/ThemeProvider';
 import InstallerBottomNavBar from '@/components/InstallerBottomNavBar';
 import InstallerMobileSidebarMenu from '@/components/InstallerMobileSidebarMenu';
@@ -356,8 +357,10 @@ export default function InstallerDashboardPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleLogout = () => {
-    // TODO: Clear authentication state
+  const handleLogout = async () => {
+    // Clear authentication state using NextAuth
+    await signOut({ redirect: false });
+    // Redirect to guest homepage
     router.push('/');
   };
 

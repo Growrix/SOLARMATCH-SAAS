@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { signIn } from 'next-auth/react';
 
 // --- Icon Components ---
 const XIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>;
@@ -53,12 +54,26 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({ isOpen, onC
       }
 
       // Registration successful
-      setSuccess('Account created successfully! Redirecting...');
+      setSuccess('Account created successfully! Logging you in...');
       
+      // Automatically sign in the user with their new credentials
+      const signInResult = await signIn('credentials', {
+        redirect: false,
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (signInResult?.error) {
+        // Sign in failed after registration - shouldn't happen but handle it
+        setError('Account created but automatic login failed. Please sign in manually.');
+        setLoading(false);
+        return;
+      }
+
       // Wait a moment to show success message
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Call onSuccess to trigger any parent component logic
+      // Call onSuccess to trigger redirect
       onSuccess();
 
     } catch (err) {

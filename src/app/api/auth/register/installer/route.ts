@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
       const phoneRegex = /^(\+?61|0)[2-478](\d{8}|\d{4}\s?\d{4})$/;
       if (!phoneRegex.test(cleanedPhone)) {
         return NextResponse.json(
-          { error: "Invalid phone number format" },
+          { error: "Invalid phone number format. Please use Australian format (e.g., 0412345678 or +61412345678)" },
           { status: 400 }
         );
       }

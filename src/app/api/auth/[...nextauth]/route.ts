@@ -115,7 +115,7 @@ export const authOptions: NextAuthOptions = {
       // On initial sign in, add user info to token
       if (user) {
         token.id = user.id;
-        token.role = user.role;
+        token.role = user.role || 'GUEST';
         token.email = user.email;
         token.name = user.name;
         token.image = user.image;

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import { useTheme, type Theme } from '@/components/ThemeProvider';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -51,8 +52,10 @@ export default function InstallerHomePage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
 
-  const handleLogout = () => {
-    // TODO: Clear authentication state
+  const handleLogout = async () => {
+    // Clear authentication state using NextAuth
+    await signOut({ redirect: false });
+    // Redirect to guest homepage
     router.push('/');
   };
 

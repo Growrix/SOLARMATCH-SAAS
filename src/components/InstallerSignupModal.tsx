@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 // --- Icon Components ---
 const BuildingIcon = () => (
@@ -62,6 +64,7 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
   onSuccess,
   onSwitchToSignIn 
 }) => {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -138,13 +141,24 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
       }
 
       // Registration successful
-      setSuccess('Your account has been created successfully! Welcome to the SolarMatch network.');
+      setSuccess('Your account has been created successfully! Logging you in...');
       
-      // Wait a moment to show success message
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Call onSuccess to trigger any parent component logic
-      onSuccess();
+      // Automatically sign in the user with their new credentials
+      const signInResult = await signIn('credentials', {
+        redirect: false,
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (signInResult?.error) {
+        // Sign in failed after registration - shouldn't happen but handle it
+        setError('Account created but automatic login failed. Please sign in manually.');
+        setLoading(false);
+        return;
+      }
+
+      // Success! User is now logged in and can choose where to go
+      // The success modal will show with the two navigation buttons
 
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred during registration');
@@ -189,12 +203,26 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
             <p className="text-slate-600 dark:text-slate-400 mb-8">
               {success}
             </p>
-            <button 
-              onClick={onSuccess}
-              className="w-full bg-primary hover:bg-teal-700 text-white font-semibold py-3 px-4 rounded-xl transition-all transform hover:scale-105 shadow-lg"
-            >
-              Visit Installer&apos;s Home
-            </button>
+            <div className="space-y-3">
+              <button 
+                onClick={() => {
+                  onClose();
+                  window.location.href = '/installer/dashboard';
+                }}
+                className="w-full bg-primary hover:bg-teal-700 text-white font-semibold py-3 px-4 rounded-xl transition-all transform hover:scale-105 shadow-lg"
+              >
+                Visit Dashboard
+              </button>
+              <button 
+                onClick={() => {
+                  onClose();
+                  window.location.href = '/installer';
+                }}
+                className="w-full bg-slate-600 hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-semibold py-3 px-4 rounded-xl transition-all transform hover:scale-105 shadow-lg"
+              >
+                Visit Installer&apos;s Home
+              </button>
+            </div>
           </div>
         ) : (
           <>
@@ -246,10 +274,13 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
                   name="phone" 
                   value={formData.phone} 
                   onChange={handleInputChange} 
-                  placeholder="Phone number" 
+                  placeholder="Phone number (e.g., 0412345678)" 
                   className={baseInputClasses} 
                   required 
                 />
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  Australian format: 04XX XXX XXX or +61 4XX XXX XXX
+                </p>
               </div>
               <div>
                 <input 
@@ -268,11 +299,16 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
                   name="postcode" 
                   value={formData.postcode} 
                   onChange={handleInputChange} 
-                  placeholder="Postcode" 
+                  placeholder="Postcode (4 digits)" 
                   className={baseInputClasses} 
                   required 
-                  maxLength={4} 
+                  maxLength={4}
+                  pattern="\d{4}"
+                  title="Australian postcode must be 4 digits"
                 />
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  Australian postcode (e.g., 2000, 3000, 4000)
+                </p>
               </div>
               <div>
                 <input 

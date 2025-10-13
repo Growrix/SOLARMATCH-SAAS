@@ -101,34 +101,6 @@ const HeaderMenu = ({
           </Link>
           <div className="flex items-center space-x-2">
             <ThemeSwitcher theme={theme} setTheme={setTheme} />
-            {/* START OF TEMP DEV BUTTONS */}
-            <div className="hidden sm:flex items-center space-x-1 border border-dashed border-red-500 p-1 rounded-md">
-              <Link 
-                href="/homeowner/dashboard"
-                className="px-2 py-1 text-xs font-semibold rounded-md bg-red-500/10 text-red-500 hover:bg-red-500/20"
-              >
-                DEV: H.Dash
-              </Link>
-              <Link 
-                href="/installer"
-                className="px-2 py-1 text-xs font-semibold rounded-md bg-red-500/10 text-red-500 hover:bg-red-500/20"
-              >
-                DEV: I.Home
-              </Link>
-              <Link 
-                href="/installer/dashboard"
-                className="px-2 py-1 text-xs font-semibold rounded-md bg-red-500/10 text-red-500 hover:bg-red-500/20"
-              >
-                DEV: I.Dash
-              </Link>
-              <Link 
-                href="/admin/dashboard"
-                className="px-2 py-1 text-xs font-semibold rounded-md bg-red-500/10 text-red-500 hover:bg-red-500/20"
-              >
-                DEV: Admin
-              </Link>
-            </div>
-            {/* END OF TEMP DEV BUTTONS */}
             {/* Desktop Menu */}
             <div className="hidden sm:flex items-center space-x-2">
               {isLoggedIn ? (

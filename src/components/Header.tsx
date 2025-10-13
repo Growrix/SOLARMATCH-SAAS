@@ -93,34 +93,6 @@ const Header: React.FC<HeaderProps> = ({ theme, setTheme, isLoggedIn, onLoginCli
           </button>
           <div className="flex items-center space-x-2">
             <ThemeSwitcher theme={theme} setTheme={setTheme} />
-            {/* START OF TEMP DEV BUTTONS */}
-            <div className="hidden sm:flex items-center space-x-1 border border-dashed border-red-500 p-1 rounded-md">
-                <button 
-                    onClick={onHomeownerDashboardClick}
-                    className="px-2 py-1 text-xs font-semibold rounded-md bg-red-500/10 text-red-500 hover:bg-red-500/20"
-                >
-                    DEV: Homeowner Dash
-                </button>
-                <button 
-                    onClick={onInstallerHomeClick}
-                    className="px-2 py-1 text-xs font-semibold rounded-md bg-red-500/10 text-red-500 hover:bg-red-500/20"
-                >
-                    DEV: Installer Home
-                </button>
-                 <button 
-                    onClick={onInstallerDashboardClick}
-                    className="px-2 py-1 text-xs font-semibold rounded-md bg-red-500/10 text-red-500 hover:bg-red-500/20"
-                >
-                    DEV: Installer Dash
-                </button>
-                 <button 
-                    onClick={onAdminDashboardClick}
-                    className="px-2 py-1 text-xs font-semibold rounded-md bg-red-500/10 text-red-500 hover:bg-red-500/20"
-                >
-                    DEV: Admin Dash
-                </button>
-            </div>
-            {/* END OF TEMP DEV BUTTONS */}
             {/* Desktop Menu */}
             <div className="hidden sm:flex items-center space-x-2">
                 {isLoggedIn ? (
