@@ -198,7 +198,128 @@ const AdminSidebar: React.FC<{
   );
 };
 
-// Header for mobile and desktop - Simplified (only page title and theme switcher)
+// Development Quick Access Menu (Admin Dashboard Navigation)
+const DevQuickAccessMenu: React.FC = () => {
+  const [isOpen, setIsOpen] = React.useState(false);
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  
+  if (!isDevelopment) return null;
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 transition-colors border border-amber-500/20"
+        title="Development Quick Access"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+        <span>DEV</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}>
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+
+      {isOpen && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)}></div>
+          <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-gray-200 dark:border-slate-700 z-50 overflow-hidden animate-slide-in-up">
+            <div className="p-3 border-b border-gray-200 dark:border-slate-700 bg-amber-500/5">
+              <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+                🛠️ Development Quick Access
+              </p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                Admin bypass enabled
+              </p>
+            </div>
+            <div className="p-2 space-y-1">
+              <a
+                href="/homeowner/dashboard"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors group"
+                onClick={() => setIsOpen(false)}
+              >
+                <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-500/20 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="text-blue-500">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">Homeowner Dashboard</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">View as homeowner</p>
+                </div>
+              </a>
+
+              <a
+                href="/installer/dashboard"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors group"
+                onClick={() => setIsOpen(false)}
+              >
+                <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center group-hover:bg-green-500/20 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="text-green-500">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                    <polyline points="7.5 4.21 12 6.81 16.5 4.21"/>
+                    <polyline points="7.5 19.79 7.5 14.6 3 12"/>
+                    <polyline points="21 12 16.5 14.6 16.5 19.79"/>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                    <line x1="12" x2="12" y1="22.08" y2="12"/>
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">Installer Dashboard</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">View as installer</p>
+                </div>
+              </a>
+
+              <a
+                href="/installer"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors group"
+                onClick={() => setIsOpen(false)}
+              >
+                <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center group-hover:bg-purple-500/20 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="text-purple-500">
+                    <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">Installer Homepage</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Public installer page</p>
+                </div>
+              </a>
+
+              <div className="border-t border-gray-200 dark:border-slate-700 my-2"></div>
+
+              <a
+                href="/"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors group"
+                onClick={() => setIsOpen(false)}
+              >
+                <div className="w-8 h-8 rounded-lg bg-slate-500/10 flex items-center justify-center group-hover:bg-slate-500/20 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="text-slate-500">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">Guest Homepage</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Public landing page</p>
+                </div>
+              </a>
+            </div>
+            <div className="p-3 border-t border-gray-200 dark:border-slate-700 bg-amber-500/5">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                ⚠️ Only visible in development mode
+              </p>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+// Header for mobile and desktop - with dev menu
 const AdminHeader: React.FC<{ 
   pageTitle: string; 
   theme: Theme; 
@@ -208,7 +329,8 @@ const AdminHeader: React.FC<{
     <div className="flex items-center space-x-4">
       <h1 className="text-lg font-bold text-slate-900 dark:text-white">{pageTitle}</h1>
     </div>
-    <div className="flex items-center">
+    <div className="flex items-center gap-3">
+      <DevQuickAccessMenu />
       <ThemeSwitcher theme={theme} setTheme={setTheme} />
     </div>
   </header>
