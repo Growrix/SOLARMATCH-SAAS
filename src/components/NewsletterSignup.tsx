@@ -12,76 +12,97 @@ const NewsletterSignup = () => {
     const [email, setEmail] = useState('');
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
     const [message, setMessage] = useState('');
+    const [inputError, setInputError] = useState('');
+
+    // Comprehensive email validation following RFC 5322 standards
+    const validateEmail = (email: string): boolean => {
+        if (!email) return false;
+        
+        // Industry-standard email validation regex
+        // This checks for proper format: user@domain.tld
+        // - Allows letters, numbers, dots, hyphens, underscores in username
+        // - Requires @ symbol
+        // - Domain must have at least 2 characters
+        // - TLD must be 2-6 characters and only letters
+        const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+        
+        if (!emailRegex.test(email)) return false;
+        
+        // Additional validation: check for common typos in popular domains
+        const domain = email.split('@')[1]?.toLowerCase();
+        
+        // Map of common typos to correct domains
+        const commonTypos: { [key: string]: string } = {
+            'gmial.com': 'gmail.com',
+            'gmai.com': 'gmail.com',
+            'gmail.co': 'gmail.com',
+            'gmail.comm': 'gmail.com',
+            'gail.com': 'gmail.com',
+            'yahooo.com': 'yahoo.com',
+            'yaho.com': 'yahoo.com',
+            'hotmial.com': 'hotmail.com',
+            'hotmai.com': 'hotmail.com',
+            'outloo.com': 'outlook.com',
+        };
+        
+        // If domain is a known typo, reject it
+        if (domain && commonTypos[domain]) {
+            return false;
+        }
+        
+        return true;
+    };
+
+    // Live validation as user types
+    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setEmail(value);
+        setInputError('');
+        setStatus('idle');
+        setMessage('');
+        
+        if (!value) {
+            setInputError('Please enter your email address.');
+        } else if (!validateEmail(value)) {
+            setInputError('Please enter a valid email address.');
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
         if (!email) {
+            setInputError('Please enter your email address.');
             setStatus('error');
             setMessage('Please enter your email address.');
             return;
         }
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
+        if (!validateEmail(email)) {
+            setInputError('Please enter a valid email address.');
             setStatus('error');
             setMessage('Please enter a valid email address.');
             return;
         }
-
         setStatus('loading');
         setMessage('');
-
-        // ====================================================================
-        // REAL API CALL - Connect to Backend
-        // ====================================================================
-        // TEACHING NOTE: This is where the UI talks to the API we just created!
-        // Before: We used fake setTimeout to simulate a delay
-        // Now: We make a real HTTP request to our API endpoint
-        // ====================================================================
-        
+        setInputError('');
         try {
-            // TEACHING NOTE: try-catch handles network errors (no internet, server down, etc.)
-            
-            // Make HTTP POST request to our API
             const response = await fetch('/api/newsletter/subscribe', {
-                method: 'POST',  // TEACHING NOTE: POST = creating new data
+                method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',  // Tell server we're sending JSON
+                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ email }),  // Convert JavaScript object to JSON string
+                body: JSON.stringify({ email }),
             });
-            // TEACHING NOTE: fetch() is built into browsers for making HTTP requests
-            // await = wait for the request to complete before continuing
-            // The API URL is relative (/api/...) because we're on the same domain
-            
-            // Parse the JSON response from the API
             const data = await response.json();
-            // TEACHING NOTE: response.json() converts the JSON string back to JavaScript object
-            // Example: '{"success":true,"message":"Thanks!"}' → { success: true, message: "Thanks!" }
-            
-            // Check if the request was successful
             if (response.ok) {
-                // TEACHING NOTE: response.ok is true when status code is 200-299 (success)
-                // This means the email was saved to the database!
-                
                 setStatus('success');
                 setMessage(data.message || "Thanks for subscribing! Check your inbox for the latest solar news.");
-                setEmail('');  // Clear the input field
+                setEmail('');
             } else {
-                // TEACHING NOTE: response.ok is false for 400, 404, 500, etc. (errors)
-                // This could be: duplicate email, invalid format, database error, etc.
-                
                 setStatus('error');
                 setMessage(data.error || "Oops! Something went wrong. Please try again.");
             }
         } catch (error) {
-            // TEACHING NOTE: This catch block runs if:
-            // - No internet connection
-            // - Server is down
-            // - Request timed out
-            // - Invalid URL
-            
             setStatus('error');
             setMessage("Network error. Please check your connection and try again.");
         }
@@ -120,11 +141,12 @@ const NewsletterSignup = () => {
                                                 <input
                                                     type="email"
                                                     value={email}
-                                                    onChange={(e) => setEmail(e.target.value)}
+                                                    onChange={handleEmailChange}
                                                     placeholder="Enter your email address"
                                                     aria-label="Email address for newsletter"
-                                                    className="w-full pl-12 pr-4 py-3 bg-gray-100/80 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700/80 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 shadow-sm"
+                                                    className={`w-full pl-12 pr-4 py-3 bg-gray-100/80 dark:bg-slate-800/50 border ${inputError ? 'border-red-500' : 'border-gray-200 dark:border-slate-700/80'} rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 shadow-sm`}
                                                     disabled={status === 'loading'}
+                                                    autoComplete="email"
                                                 />
                                             </div>
                                             <button
@@ -145,9 +167,9 @@ const NewsletterSignup = () => {
                                                 )}
                                             </button>
                                         </div>
-                                        {status === 'error' && (
+                                        {(inputError || (status === 'error' && message)) && (
                                             <p role="alert" className="mt-3 text-sm text-red-600 dark:text-red-400 flex items-center justify-center gap-2 animate-fade-in">
-                                                <AlertCircleIcon /> {message}
+                                                <AlertCircleIcon /> {inputError || message}
                                             </p>
                                         )}
                                      </>

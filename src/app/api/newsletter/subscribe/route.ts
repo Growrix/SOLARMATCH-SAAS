@@ -70,20 +70,34 @@ export async function POST(request: Request) {
     // TEACHING NOTE: 400 = "Bad Request" (client sent invalid data)
     // The function stops here and sends this response immediately
     
-    // Check email format with regex
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Check email format with comprehensive regex
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
     // TEACHING NOTE: This pattern checks for:
-    // - Characters before @
-    // - @ symbol
-    // - Characters after @
-    // - A dot
-    // - Characters after the dot
-    // Example valid: user@example.com
-    // Example invalid: user@, @example.com, user.example
+    // - Alphanumeric characters, dots, hyphens, underscores before @
+    // - @ symbol (required)
+    // - Alphanumeric characters, dots, hyphens in domain
+    // - Dot before TLD
+    // - TLD must be 2-6 letters only (com, net, org, etc.)
+    // Example valid: user@example.com, user.name@company.co.uk
+    // Example invalid: user@, @example.com, user@domain.comm, user@gail.com
     
     if (!emailRegex.test(email)) {
       return NextResponse.json(
         { error: 'Invalid email address' },
+        { status: 400 }
+      );
+    }
+    
+    // Additional validation: reject common typos in popular email domains
+    const domain = email.split('@')[1]?.toLowerCase();
+    const commonTypos = [
+      'gmial.com', 'gmai.com', 'gmail.co', 'gmail.comm', 'gail.com',
+      'yahooo.com', 'yaho.com', 'hotmial.com', 'hotmai.com', 'outloo.com'
+    ];
+    
+    if (domain && commonTypos.includes(domain)) {
+      return NextResponse.json(
+        { error: 'Invalid email address. Please check for typos.' },
         { status: 400 }
       );
     }
