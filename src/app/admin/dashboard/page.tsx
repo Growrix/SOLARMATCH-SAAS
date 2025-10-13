@@ -232,13 +232,8 @@ export default function AdminDashboardPage() {
   const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
 
-  // Check authentication - DISABLED FOR DEV ACCESS
-  // useEffect(() => {
-  //   const isAdminAuth = localStorage.getItem('adminAuth') === 'true';
-  //   if (!isAdminAuth) {
-  //     router.push('/admin');
-  //   }
-  // }, [router]);
+  // NextAuth middleware handles authentication automatically
+  // No need for manual checks - protected routes are enforced at middleware level
 
   // Scroll detection for header
   useEffect(() => {
@@ -256,10 +251,10 @@ export default function AdminDashboardPage() {
     router.push('/');
   };
 
-  const handleLogoutClick = () => {
-    localStorage.removeItem('adminAuth');
-    localStorage.removeItem('userRole');
-    router.push('/');
+  const handleLogoutClick = async () => {
+    // Use NextAuth signOut
+    const { signOut } = await import('next-auth/react');
+    await signOut({ callbackUrl: '/' });
   };
 
   const handleSetActivePage = (page: string) => {

@@ -15,15 +15,10 @@ export default function AdminPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    // Check if admin is already authenticated
-    const isAdminAuth = localStorage.getItem('adminAuth') === 'true';
-    if (isAdminAuth) {
-      router.push('/admin/dashboard');
-    } else {
-      // Show login modal after brief delay
-      const timer = setTimeout(() => setIsModalOpen(true), 300);
-      return () => clearTimeout(timer);
-    }
+    // Show login modal after brief delay
+    // NextAuth middleware will handle authentication
+    const timer = setTimeout(() => setIsModalOpen(true), 300);
+    return () => clearTimeout(timer);
   }, [router]);
 
   const handleSignInSuccess = () => {

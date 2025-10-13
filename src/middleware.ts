@@ -6,10 +6,31 @@ export default withAuth(
     const token = req.nextauth.token;
     const path = req.nextUrl.pathname;
 
+    // Allow /admin login page without authentication
+    if (path === '/admin') {
+      return NextResponse.next();
+    }
+
     // If no token, redirect to home (withAuth will handle this)
     if (!token) {
       return NextResponse.redirect(new URL('/', req.url));
     }
+
+    // ========================================================================
+    // ADMIN BYPASS - Admins can access ALL protected routes
+    // ========================================================================
+    // This allows admins to view homeowner and installer dashboards
+    // for support, debugging, and content management purposes
+    // Admin role is verified by NextAuth JWT - cannot be faked
+    // ========================================================================
+    if (token.role === 'ADMIN') {
+      console.log(`Admin access granted to ${path}`);
+      return NextResponse.next();
+    }
+
+    // ========================================================================
+    // ROLE-BASED ACCESS CONTROL (for non-admin users)
+    // ========================================================================
 
     // Check role-based access for admin routes
     if (path.startsWith('/admin')) {
@@ -26,8 +47,6 @@ export default withAuth(
         // Redirect to their correct dashboard
         if (token.role === 'HOMEOWNER') {
           return NextResponse.redirect(new URL('/homeowner/dashboard', req.url));
-        } else if (token.role === 'ADMIN') {
-          return NextResponse.redirect(new URL('/admin/dashboard', req.url));
         }
         return NextResponse.redirect(new URL('/', req.url));
       }
@@ -40,8 +59,6 @@ export default withAuth(
         // Redirect to their correct dashboard
         if (token.role === 'INSTALLER') {
           return NextResponse.redirect(new URL('/installer/dashboard', req.url));
-        } else if (token.role === 'ADMIN') {
-          return NextResponse.redirect(new URL('/admin/dashboard', req.url));
         }
         return NextResponse.redirect(new URL('/', req.url));
       }
@@ -52,7 +69,14 @@ export default withAuth(
   },
   {
     callbacks: {
-      authorized: ({ token }) => !!token, // User must have a token
+      authorized: ({ token, req }) => {
+        // Allow /admin login page without token
+        if (req.nextUrl.pathname === '/admin') {
+          return true;
+        }
+        // All other protected routes require a token
+        return !!token;
+      },
     },
   }
 );

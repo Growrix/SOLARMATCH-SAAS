@@ -1,3 +1,14 @@
+🎉 ADMIN ACCOUNT CREATED
+═══════════════════════════════════════════════════════════
+Email:    admin@solarmatch.com
+Password: Admin123!Secure
+Name:     SolarMatch Admin
+Role:     ADMIN
+ID:       cmgp0ab3j0000i1eg35uorwws
+Created:  Mon Oct 13 2025 16:44:22 GMT+0600 (Bangladesh Standard Time)
+
+
+
 Original : 
 
 understand the scenario and user story before building any API and DB.First, the guests Generates Instant quotes by filling up instant quote form (I want all the guests from Inputs and the results in a table which is separate as Guest's InstantQuote Table), By this table I Want to see total users that generated InstantQuotes In my AdminDashboard (I do not have any modal yet for this). Second , When the Guests Clicks on the "Get Qoute From a Installer" here starts the another phase. They see 2 types of Quote request options "call/Visit" and "Written Quote"(Should have 2 different tables for 2 types of lead). Whatever option the user chose it opens a signup modal (This should have a Table that will authenticate users instantly and also when they login back later). Once the user submits "Create Account & Submit Request" the guests users become the Homeowner and they get redirected to the Homeowners Dashboard (The page "My Quote request are created but there are no modals created yet for any types of quote the user requested, so you have to create it too"). In the homeowners Dashboard They should See the record when they have requested the qoute including its calculated results. All the user inputs should fill up the InstantQuote form when they request for the second time, but users are allowd to edit if they want to change anything in the form and submit. Each time they request new quote it should be saved and show on the homeowners dashboard.

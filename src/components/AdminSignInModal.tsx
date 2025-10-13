@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { signIn } from 'next-auth/react';
 
 const XIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
@@ -33,19 +34,29 @@ const AdminSignInModal: React.FC<AdminSignInModalProps> = ({ isOpen, onClose, on
     setError('');
     setIsLoading(true);
 
-    // Simulate authentication - Replace with actual admin auth logic
-    setTimeout(() => {
-      if (email === 'admin@solarmatch.com' && password === 'admin123') {
-        // Store admin auth token
-        localStorage.setItem('adminAuth', 'true');
-        localStorage.setItem('userRole', 'admin');
+    try {
+      // Use NextAuth signIn with credentials
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false, // Don't redirect automatically
+      });
+
+      if (result?.error) {
+        // Authentication failed
+        setError(result.error || 'Invalid admin credentials');
+        setIsLoading(false);
+      } else if (result?.ok) {
+        // Authentication successful
+        // NextAuth will handle the session
         setIsLoading(false);
         onSignInSuccess();
-      } else {
-        setError('Invalid admin credentials');
-        setIsLoading(false);
       }
-    }, 1000);
+    } catch (error) {
+      console.error('Admin login error:', error);
+      setError('An unexpected error occurred. Please try again.');
+      setIsLoading(false);
+    }
   };
 
   if (!isOpen) return null;
