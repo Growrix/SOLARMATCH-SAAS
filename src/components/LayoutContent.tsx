@@ -419,6 +419,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
         onClose={() => setIsHomeownerSignupModalOpen(false)}
         onSuccess={handleHomeownerSignupSuccess}
         onSwitchToSignIn={handleSwitchToSignIn}
+        context="header"
       />
       
       <HomeownerSignInModal 

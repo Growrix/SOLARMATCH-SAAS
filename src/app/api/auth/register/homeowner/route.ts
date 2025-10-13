@@ -13,16 +13,16 @@ export async function POST(request: NextRequest) {
   try {
     // Parse request body
     const body = await request.json();
-    const { fullName, email, password } = body;
+    const { fullName, email, phone, address, password } = body;
 
     // ========================================================================
     // VALIDATION
     // ========================================================================
     
     // Check required fields
-    if (!fullName || !email || !password) {
+    if (!fullName || !email || !phone || !address || !password) {
       return NextResponse.json(
-        { error: "Full name, email, and password are required" },
+        { error: "Full name, email, phone, address, and password are required" },
         { status: 400 }
       );
     }
@@ -51,6 +51,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { 
           error: "Password must contain at least one letter and one number" 
+        },
+        { status: 400 }
+      );
+    }
+
+    // Validate Australian phone number format
+    const phoneRegex = /^(\+?61|0)[2-478](?:[ -]?[0-9]){8}$/;
+    if (!phoneRegex.test(phone)) {
+      return NextResponse.json(
+        { 
+          error: "Invalid phone number format. Please use Australian format (e.g., 0412345678 or +61412345678)" 
         },
         { status: 400 }
       );
@@ -89,6 +100,7 @@ export async function POST(request: NextRequest) {
       data: {
         name: fullName,
         email: email.toLowerCase(), // Store emails in lowercase
+        phone: phone,
         password: hashedPassword,
         role: "HOMEOWNER", // Set role as HOMEOWNER
         isActive: true,
@@ -97,6 +109,7 @@ export async function POST(request: NextRequest) {
         id: true,
         name: true,
         email: true,
+        phone: true,
         role: true,
         createdAt: true,
       },

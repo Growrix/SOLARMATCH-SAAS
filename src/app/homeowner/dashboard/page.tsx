@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import { useTheme, type Theme } from '@/components/ThemeProvider';
 import HomeownerBottomNavBar from '@/components/HomeownerBottomNavBar';
 import HomeownerMobileSidebarMenu from '@/components/HomeownerMobileSidebarMenu';
@@ -228,8 +229,10 @@ export default function HomeownerDashboardPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
 
-  const handleLogout = () => {
-    console.log('Logout clicked');
+  const handleLogout = async () => {
+    // Clear authentication state using NextAuth
+    await signOut({ redirect: false });
+    // Redirect to guest homepage
     router.push('/');
   };
 

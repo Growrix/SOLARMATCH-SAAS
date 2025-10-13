@@ -121,5 +121,8 @@ Deliver a robust, user-friendly Instant Quote and Lead Management feature set th
 
 Now the homeowners auth
 
-
+***Installers Authentication Flow*** The Installers can signup from the header menu button. when the users are logged in they can access the installers Dashboard and also can see the Guest's Homepage. They are not allowed to see/access anything else in this site.
 After successful signup the Installers see a modal that shared in the screenshot. When the click co the button "Visit Installer's HOme" it should redirect to the installers home page and that page is only dedicated to Installers. This Homeowners should not see it anyway. Add another button "Visit Dashboard" that will redirect to the installers Dashboard. The installers area is the Installers Dashboard and the Installers home and nothing else. When they logged out, they see the Guest's homepage. This is the Authentication ssytem for the Installers. Now you Do audit, understand the existing what have you done. do the necessary updates as per Expkained the installers story. 
+
+
+***HOmeowners Authentication Flow*** The Homeowners can signup from the header menu button and also while requeting the quote from the installers. both signup process serves the same purpose. when the users are logged in they can access the homeowners Dashboard and also can see the Guest's Homepage. They are not allowed to see/access anything else in this site. and after logout the homeowners can see only the guests homepage by default. 

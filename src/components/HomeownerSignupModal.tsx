@@ -5,25 +5,55 @@ import { signIn } from 'next-auth/react';
 
 // --- Icon Components ---
 const XIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>;
-const UserIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 text-white"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
+const UserCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 text-white"><path d="M18 20a6 6 0 0 0-12 0"/><circle cx="12" cy="10" r="4"/><circle cx="12" cy="12" r="10"/></svg>;
+const UserIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-slate-400"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
+const MailIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-slate-400"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>;
+const PhoneIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-slate-400"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>;
+const MapPinIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-slate-400"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
+const LockIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-slate-400"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>;
 const EyeIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>;
-const EyeOffIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>;
-const GoogleIcon = () => <svg className="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>;
-const AppleIcon = () => <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.2,12.3c0-1.7,1.4-2.9,3.1-2.9c-0.1-1.2-0.8-2.6-2.2-3.4c-1.4-0.9-3-1-3.8-1c-2.9,0-5.1,1.8-6.5,1.8 c-1.4,0-3.6-1.8-5.8-1.7c-2.4,0-4.5,1.3-5.7,3.3C-1,9.8-0.3,13.7,2.1,16.5c1.2,1.4,2.6,3.2,4.6,3.1c1.9,0,2.6-1.2,5.1-1.2 c2.5,0,3.1,1.2,5.1,1.2c2,0.1,3.3-1.6,4.5-3C20.1,15.6,17.2,14.6,17.2,12.3z M13,4.1c1-1.1,1.8-2.6,1.6-4 c-1.4,0.1-3,0.9-4,2.1C9.6,3.4,8.7,5.1,8.9,6.5C10.5,6.5,12,5.2,13,4.1z"/></svg>;
+const ArrowRightIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 ml-2"><line x1="5" x2="19" y1="12" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>;
 
 interface HomeownerSignupModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
   onSwitchToSignIn: () => void;
+  context?: 'header' | 'quote'; // Context determines text/button labels
 }
 
-const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({ isOpen, onClose, onSuccess, onSwitchToSignIn }) => {
+const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({ isOpen, onClose, onSuccess, onSwitchToSignIn, context = 'header' }) => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({ fullName: '', email: '', password: '' });
+  const [isRecaptchaVerified, setIsRecaptchaVerified] = useState(false);
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    address: '',
+    password: '',
+    confirmPassword: '',
+  });
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  // Conditional text based on context
+  const modalTexts = {
+    header: {
+      title: 'Create Your Account',
+      description: 'Join SolarMatch to manage your solar quotes and connect with trusted installers.',
+      buttonText: 'Create Account',
+      successMessage: 'Account created successfully! Welcome to SolarMatch.',
+    },
+    quote: {
+      title: 'Almost there!',
+      description: 'Just create an account to securely save and track your quote requests.',
+      buttonText: 'Create Account & Submit Request',
+      successMessage: 'Account created successfully! Processing your quote request...',
+    },
+  };
+
+  const texts = modalTexts[context];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -35,6 +65,20 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({ isOpen, onC
     setLoading(true);
     setError(null);
     setSuccess(null);
+
+    // Validate passwords match
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match.');
+      setLoading(false);
+      return;
+    }
+
+    // Validate recaptcha
+    if (!isRecaptchaVerified) {
+      setError('Please complete the reCAPTCHA verification.');
+      setLoading(false);
+      return;
+    }
 
     try {
       // Call the registration API
@@ -54,7 +98,7 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({ isOpen, onC
       }
 
       // Registration successful
-      setSuccess('Account created successfully! Logging you in...');
+      setSuccess(texts.successMessage);
       
       // Automatically sign in the user with their new credentials
       const signInResult = await signIn('credentials', {
@@ -84,14 +128,21 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({ isOpen, onC
   };
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (isOpen) {
+      setError(null);
+      setSuccess(null);
+      setIsRecaptchaVerified(false);
+      setFormData({
+        fullName: '', email: '', phone: '', address: '', password: '', confirmPassword: ''
+      });
+    }
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
+      if (e.key === 'Escape') onClose();
     };
     document.addEventListener('keydown', handleKeyDown);
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = isOpen ? 'hidden' : 'auto';
+    
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'auto';
@@ -100,39 +151,35 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({ isOpen, onC
   
   if (!isOpen) return null;
 
-  const baseInputClasses = "w-full bg-white/5 dark:bg-black/20 border border-gray-300/30 dark:border-slate-700/50 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors";
+  const baseInputClasses = "w-full bg-white/5 dark:bg-black/20 border border-gray-300/30 dark:border-slate-700/50 rounded-xl px-4 py-3 pl-12 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors";
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center px-4 py-20 animate-fade-in" onClick={onClose}>
-      <div className="theme-card relative w-full max-w-md p-8 max-h-[90vh] overflow-y-auto animate-slide-in-up" onClick={(e) => e.stopPropagation()}>
-        <button onClick={onClose} className="absolute top-4 right-4 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors" aria-label="Close"><XIcon /></button>
+    <div
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center px-4 py-20 animate-fade-in"
+      onClick={onClose}
+    >
+      <div
+        className="theme-card relative w-full max-w-lg p-8 animate-slide-in-up max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors"
+          aria-label="Close"
+        >
+          <XIcon />
+        </button>
         
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-primary rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg"><UserIcon /></div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Create Your Account</h2>
-          <p className="text-slate-600 dark:text-slate-400 text-sm">Get access to your solar savings dashboard.</p>
-        </div>
-        
-        <div className="space-y-4">
-          <button className="w-full flex items-center justify-center space-x-3 py-3 px-4 rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors text-slate-700 dark:text-slate-200 font-medium">
-            <GoogleIcon />
-            <span>Continue with Google</span>
-          </button>
-          <button className="w-full flex items-center justify-center space-x-3 py-3 px-4 rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors text-slate-700 dark:text-slate-200 font-medium">
-            <AppleIcon />
-            <span>Continue with Apple</span>
-          </button>
+          <div className="w-16 h-16 bg-primary rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg">
+            <UserCircleIcon />
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{texts.title}</h2>
+          <p className="text-slate-600 dark:text-slate-400 text-sm">
+            {texts.description}
+          </p>
         </div>
 
-        <div className="relative my-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300 dark:border-slate-700"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-3 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400">or</span>
-          </div>
-        </div>
-        
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 px-4 py-3 rounded-xl text-sm">
@@ -144,75 +191,140 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({ isOpen, onC
               {success}
             </div>
           )}
-          <input 
-            type="text" 
-            name="fullName" 
-            placeholder="Full Name" 
-            className={baseInputClasses} 
-            required 
-            onChange={handleInputChange}
-            value={formData.fullName}
-          />
-          <input 
-            type="email" 
-            name="email" 
-            placeholder="Email Address" 
-            className={baseInputClasses} 
-            required 
-            onChange={handleInputChange}
-            value={formData.email}
-          />
-          <div className="relative">
+          
+          <div className="space-y-4">
+            <div className="relative flex items-center">
+              <div className="absolute left-4"><UserIcon /></div>
+              <input 
+                type="text" 
+                name="fullName" 
+                placeholder="Full Name"
+                className={baseInputClasses + " placeholder:text-base"}
+                required 
+                onChange={handleInputChange}
+                value={formData.fullName}
+              />
+            </div>
+            <div className="relative flex items-center">
+              <div className="absolute left-4"><PhoneIcon /></div>
+              <input 
+                type="tel" 
+                name="phone" 
+                placeholder="Phone Number (e.g., 0412 345 678)"
+                className={baseInputClasses + " placeholder:text-base"}
+                required 
+                onChange={handleInputChange}
+                value={formData.phone}
+              />
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 ml-1 -mt-2 mb-2">
+              Australian format: 04XX XXX XXX or +61 4XX XXX XXX
+            </p>
+          </div>
+          
+          <div className="relative flex items-center">
+            <div className="absolute left-4"><MailIcon /></div>
+            <input 
+              type="email" 
+              name="email" 
+              placeholder="Email Address" 
+              className={baseInputClasses} 
+              required 
+              onChange={handleInputChange}
+              value={formData.email}
+            />
+          </div>
+          
+          <div className="relative flex items-center">
+            <div className="absolute left-4"><MapPinIcon /></div>
+            <input 
+              type="text" 
+              name="address" 
+              placeholder="Property Address" 
+              className={baseInputClasses} 
+              required 
+              onChange={handleInputChange}
+              value={formData.address}
+            />
+          </div>
+          
+          <div className="relative flex items-center">
+            <div className="absolute left-4"><LockIcon /></div>
             <input 
               type={showPassword ? "text" : "password"} 
               name="password" 
               placeholder="Password (min. 8 characters)" 
               className={`${baseInputClasses} pr-12`} 
               required 
-              minLength={8} 
+              minLength={8}
               onChange={handleInputChange}
               value={formData.password}
             />
             <button 
               type="button" 
               onClick={() => setShowPassword(!showPassword)} 
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-700 dark:hover:text-white transition-colors"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-700 dark:hover:text-white"
             >
-              {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+              <EyeIcon />
             </button>
           </div>
           
-          <button 
-            type="submit" 
-            disabled={loading} 
-            className="w-full bg-primary hover:bg-teal-700 text-white font-semibold py-3 px-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 shadow-lg"
-          >
-            {loading ? (
-              <div className="flex items-center justify-center">
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                <span>Creating Account...</span>
-              </div>
-            ) : (
-              'Create Account'
-            )}
-          </button>
+          <div className="relative flex items-center">
+            <div className="absolute left-4"><LockIcon /></div>
+            <input 
+              type={showPassword ? "text" : "password"} 
+              name="confirmPassword" 
+              placeholder="Confirm Password" 
+              className={`${baseInputClasses} pr-12`} 
+              required 
+              onChange={handleInputChange}
+              value={formData.confirmPassword}
+            />
+          </div>
+
+          <div className="pt-4">
+            <div className="flex items-center space-x-3 bg-gray-100/50 dark:bg-slate-800/50 p-3 rounded-xl border border-gray-200 dark:border-slate-700">
+                <input 
+                    type="checkbox"
+                    id="recaptcha"
+                    checked={isRecaptchaVerified}
+                    onChange={(e) => setIsRecaptchaVerified(e.target.checked)}
+                    className="h-6 w-6 rounded border-gray-300 dark:border-slate-600 text-primary focus:ring-primary dark:bg-slate-900"
+                />
+                <label htmlFor="recaptcha" className="text-sm text-slate-700 dark:text-slate-300">I&apos;m not a robot</label>
+                <div className="ml-auto text-center text-slate-500 text-xs">
+                    reCAPTCHA
+                </div>
+            </div>
+          </div>
+          
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full flex items-center justify-center bg-primary hover:bg-teal-700 text-white font-semibold py-3 px-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 shadow-lg"
+            >
+              {loading ? (
+                <div className="flex items-center justify-center">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  <span>Creating Account...</span>
+                </div>
+              ) : (
+                <>
+                  {texts.buttonText}
+                  <ArrowRightIcon />
+                </>
+              )}
+            </button>
+          </div>
         </form>
 
         <div className="mt-6 text-center">
           <p className="text-slate-600 dark:text-slate-400 text-sm">
-            Already have an account?{' '}
-            <button 
-              onClick={onSwitchToSignIn} 
-              className="text-primary font-medium hover:underline"
-            >
-              Sign in
-            </button>
+            Already have an account? 
+            <button onClick={onSwitchToSignIn} className="text-primary font-medium hover:underline ml-1">Sign In</button>
           </p>
         </div>
-        
-        <p className="mt-4 text-xs text-center text-slate-500 dark:text-slate-400">
-          By signing up, you agree to our Terms of Service and Privacy Policy
-        </p>
       </div>
     </div>
   );

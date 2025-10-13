@@ -2,12 +2,13 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import Hero from '../components/Hero';
 import InstantQuoteForm from '../components/InstantQuoteForm';
 import RebateCalculatorForm from '../components/RebateCalculatorForm';
 import QuoteOptionsModal from '../components/QuoteOptionsModal';
 import QuoteSuccessModal from '../components/QuoteSuccessModal';
-import DetailedQuoteAuthModal from '../components/DetailedQuoteAuthModal';
+import HomeownerSignupModal from '../components/HomeownerSignupModal';
 import Footer from '../components/Footer';
 import BlogSection from '../components/BlogSection';
 import NewsletterSignup from '../components/NewsletterSignup';
@@ -38,9 +39,10 @@ const TagIcon = () => (
 
 export default function Home() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [activeCalculator, setActiveCalculator] = useState<'quote' | 'rebate'>('quote');
   const [isQuoteOptionsModalOpen, setIsQuoteOptionsModalOpen] = useState(false);
-  const [isDetailedQuoteAuthModalOpen, setIsDetailedQuoteAuthModalOpen] = useState(false);
+  const [isHomeownerSignupModalOpen, setIsHomeownerSignupModalOpen] = useState(false);
   const [isQuoteSuccessModalOpen, setIsQuoteSuccessModalOpen] = useState(false);
   const [selectedQuoteType, setSelectedQuoteType] = useState<'call_visit' | 'written' | null>(null);
   const [quoteData, setQuoteData] = useState<any>(null);
@@ -60,21 +62,37 @@ export default function Home() {
   const handleQuoteOptionSelected = (type: 'call_visit' | 'written') => {
     setSelectedQuoteType(type);
     setIsQuoteOptionsModalOpen(false);
-    setIsDetailedQuoteAuthModalOpen(true);
+    
+    // Check if user is already logged in
+    if (status === 'authenticated' && session?.user) {
+      // User is logged in - submit quote directly without signup
+      console.log('User already logged in, submitting quote request:', { 
+        quoteType: type, 
+        quoteData: pendingQuoteData,
+        userId: session.user.id,
+        userEmail: session.user.email
+      });
+      
+      // TODO: In production, send quote request to backend API here
+      // Example: await fetch('/api/quotes/submit', { method: 'POST', body: JSON.stringify({ type, data: pendingQuoteData }) });
+      
+      // Show success modal directly
+      setIsQuoteSuccessModalOpen(true);
+      setPendingQuoteData(null);
+    } else {
+      // User is not logged in - show signup modal
+      setIsHomeownerSignupModalOpen(true);
+    }
   };
 
-  const handleSignupAndSubmit = (formData: any) => {
-    // In production, this would:
-    // 1. Create user account with formData
-    // 2. Submit quote request with pendingQuoteData and selectedQuoteType
-    // 3. Set authentication state
-    console.log('Signup and submit quote request:', { 
-      formData, 
+  const handleHomeownerSignupSuccess = () => {
+    // After successful signup and auto-login, submit the quote request
+    console.log('Signup successful, submitting quote request:', { 
       quoteType: selectedQuoteType, 
       quoteData: pendingQuoteData 
     });
     
-    setIsDetailedQuoteAuthModalOpen(false);
+    setIsHomeownerSignupModalOpen(false);
     setIsQuoteSuccessModalOpen(true);
     
     // Clear pending data after submission
@@ -197,12 +215,13 @@ export default function Home() {
         />
       )}
 
-      {isDetailedQuoteAuthModalOpen && (
-        <DetailedQuoteAuthModal
-          isOpen={isDetailedQuoteAuthModalOpen}
-          onClose={() => setIsDetailedQuoteAuthModalOpen(false)}
-          onSignupAndSubmit={handleSignupAndSubmit}
-          onSwitchToSignIn={() => console.log('Switch to sign in')}
+      {isHomeownerSignupModalOpen && (
+        <HomeownerSignupModal
+          isOpen={isHomeownerSignupModalOpen}
+          onClose={() => setIsHomeownerSignupModalOpen(false)}
+          onSuccess={handleHomeownerSignupSuccess}
+          onSwitchToSignIn={() => setIsHomeownerSignupModalOpen(false)}
+          context="quote"
         />
       )}
 
