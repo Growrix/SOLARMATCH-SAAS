@@ -137,3 +137,44 @@ After successful signup the Installers see a modal that shared in the screenshot
 
 
 ***HOmeowners Authentication Flow*** The Homeowners can signup from the header menu button and also while requeting the quote from the installers. both signup process serves the same purpose. when the users are logged in they can access the homeowners Dashboard and also can see the Guest's Homepage. They are not allowed to see/access anything else in this site. and after logout the homeowners can see only the guests homepage by default. 
+
+
+
+***Lead Joruney & Life cycle***
+There are 2 types of quotes that homeowner's can generate: Call/Visit & Written Quotes. I need to build a life cycle, story of the "Leads". This is a lead journey through the Homeowners who generate, Admins who control it by approving, rejecting, etc., and the Installers who buy it. The lead itself will have status updates based on what action is taken by which users.
+
+**Lead Journey & Lifecycle:**
+
+- After the Homeowners request a quote from an Installer, the lead will appear first in the admin dashboard.
+- The admin will have a lead setting system where they can auto-approve the leads, which automatically hit the Installers' lead feed.
+- Admins can fix prices for leads centrally and also individually, providing flexible control over each lead.
+- Admins can assign leads to any specific Installer, send it to a group of Installers' Lead Feeds, or open it for all Installers.
+- The admin should be able to match postcode/area/location/address, which should automatically show for the lead and the installer, making it available for any installers/multiple installers or for all available installers.
+- Admins should be able to give away free leads by setting the price to 0 (this should be flexible).
+- Leads will be available only for verified installers. After signup, installers should get notified instantly to verify their account to get the leads.
+- The admin panel is a gateway for all kinds of leads for both parties, containing leads and also an installers list (verified/unverified).
+- Even though installers are required to verify their account to get leads, the admin can send anyone (verified/unverified) leads to purchase or for free.
+- Installers get a Verified badge when they verify their contact number via OTP and submit all other important documents.
+- Homeowners can send their first quote request without any blocking, but they are required to verify their contact number via OTP. When verified, they get a Verified Homeowners Badge.
+- On the leads, it should always show the verified/unverified status based on Homeowners' verifications.
+- The admin can turn a lead into a hot lead based on the user's status and authenticity.
+- Homeowners have to unlock more quote requests by verifying with OTP, and after verifying, they can request up to another 4 Installers (the total is 5). Each lead is unique and independent.
+- The Call/Visit leads have a journey where the leads will show all the information except the Homeowners' contact details; it will be unlocked upon purchase by installers and reveal the contact info, and users can chat/send quotes internally.
+- When an installer purchases a lead, it should also appear in their Purchased Leads page to keep tracking the lead until deal closing status.
+- The admin gets notified upon purchase by installers and all the actions taken on the lead.
+- A purchased lead will be shown in all the installers' lead feeds as purchased.
+- Only admin can make it available again and resell if admin decides later.
+- On each individual lead, there should be a time counter starting from when the lead was generated; the time counter can be reset by admin if admin decides to reset and make it fresh as a new lead.
+- A lead's life cycle only ends by Admin, when admin sends a lead to archive, the life cycle of a lead is ended.
+
+ 
+
+
+
+
+
+
+
+
+ original :
+ There are 2 types of quotes that homeowner's can generate Call/visit & Written Quotes. I need to to build a life cycle, story of the "Leads".  This a lead journey through the Homeowners who generates, Admins who control it by approving, rejecting etc , And the Installers who buy it.  The lead itself will have Status updates based on what action taken by which users.  What I want : After the Homeowners requested a quote from a Installer, the lead will appear first in the admin dashboard>The admin will have a lead setting system where they can auto approve the leads which automatically hit the installers lead feed, The admins can fix price for leads centrally and also individually which is very flexible and has control over each leads, Admin can assign leads to any specific Installers and also can send it to a group of installer's Lead feeds or open for all Installers. The admin will look for postcode/area/location/address etc matching (which should automatically show) for The lead and the installer and make it available for any installers/multiple installers or for all the available installers. the admin should be able to giveaway free leads by setting 0 price (this should be flexible) > The leads will be only available for verified installers , so after the signup the installers should get notified instantly to verify their account to get the leads> The admin panel is a gateway of all kind of leads for both parties  that has Leads and also installers list (verified/unverified). Even the Installers are required to verify their account to get leads, the Admin can send anyone (verified/unverified) leads to purchase or free. The installers get Verified badge when they verify their contact number via OTP and all other important documents to submit> The Homeowners can send their first Quote request without any blocking ,but they are required to verify their contact number via OTP , when they are verified they get verified Homeowners Badge> On the leads , it should always show the verified/unverified status based on Homeowners verifications > the admin can turn a lead to a hot lead based on the users status and authenticity. > The Homeowners have to unlock more quote requests by verifying with OTP , and after verifying they can request up to another 4 Installers (The total is 5). Each leads are unique and independent > the call/visit leads has a journey where the leads will show all the information's except the homeowners Contact details, it will be unlocked upon purchased by installers and reveal the contact info and the users can chat internally/ send quotes internally> When a installer purchase a lead it should also appear in their purchased leads page to keep tracking the lead until deal closing status.  > the admin get notified upon purchased by installers and all the actions taken on lead. > A purchased lead will be shown in all the installers lead feed as purchased > Only admin can make it available again and resell if admin decides later. > on the each individual leads there should be a time counter, it should start from when the lead generated and will go on, the time counter can be reset by admin if admin decides to reset and make it fresh as a new lead. > A leads life cycle only ends by Admin , when admin send a lead to archive the life cycle of a lead is ended.  > The Homeowners are restricted to request quote upto 5 by default in between call/visit and written quote , but the admin can give more request options to any specific homeowners to request more quotes. > the admin are has all the control over homeowners account to suspend/hold/verify etc .  

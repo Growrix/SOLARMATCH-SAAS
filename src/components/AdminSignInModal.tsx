@@ -35,25 +35,26 @@ const AdminSignInModal: React.FC<AdminSignInModalProps> = ({ isOpen, onClose, on
     setIsLoading(true);
 
     try {
-      // Use NextAuth signIn with credentials
       const result = await signIn('credentials', {
         email,
         password,
-        redirect: false, // Don't redirect automatically
+        redirect: false,
+        callbackUrl: '/admin/dashboard',
       });
 
+      console.log(' SignIn result:', result);
+
       if (result?.error) {
-        // Authentication failed
-        setError(result.error || 'Invalid admin credentials');
+        console.log(' Auth failed:', result.error);
+        setError(result.error === 'CredentialsSignin' ? 'Invalid admin credentials' : result.error);
         setIsLoading(false);
-      } else if (result?.ok) {
-        // Authentication successful
-        // NextAuth will handle the session
+      } else {
+        console.log(' Auth successful, redirecting to dashboard...');
         setIsLoading(false);
-        onSignInSuccess();
+        window.location.href = '/admin/dashboard';
       }
     } catch (error) {
-      console.error('Admin login error:', error);
+      console.error(' Admin login exception:', error);
       setError('An unexpected error occurred. Please try again.');
       setIsLoading(false);
     }
@@ -111,7 +112,7 @@ const AdminSignInModal: React.FC<AdminSignInModalProps> = ({ isOpen, onClose, on
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="••••••••"
+              placeholder=""
               required
             />
           </div>
@@ -126,7 +127,7 @@ const AdminSignInModal: React.FC<AdminSignInModalProps> = ({ isOpen, onClose, on
 
           <div className="text-center pt-4 border-t border-gray-200 dark:border-slate-800">
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              🔒 Secure admin access only
+               Secure admin access only
             </p>
           </div>
         </form>

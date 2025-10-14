@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useTheme, type Theme } from '@/components/ThemeProvider';
 import AdminBottomNavBar from '@/components/AdminBottomNavBar';
 import AdminMobileSidebarMenu from '@/components/AdminMobileSidebarMenu';
+import AdminHomeownersList from '@/components/AdminHomeownersList';
+import AdminHomeownersAnalytics from '@/components/AdminHomeownersAnalytics';
 
 // --- Icon Components ---
 const SunIcon = () => (
@@ -28,6 +30,21 @@ const UsersIcon = () => (
     <circle cx="9" cy="7" r="4"/>
     <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
     <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+  </svg>
+);
+
+const HomeIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+    <polyline points="9 22 9 12 15 12 15 22"/>
+  </svg>
+);
+
+const BarChartIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+    <line x1="12" x2="12" y1="20" y2="10"/>
+    <line x1="18" x2="18" y1="20" y2="4"/>
+    <line x1="6" x2="6" y1="20" y2="16"/>
   </svg>
 );
 
@@ -165,6 +182,18 @@ const AdminSidebar: React.FC<{
           title="Dashboard" 
           onClick={() => setActivePage('Dashboard')} 
           isActive={activePage === 'Dashboard'} 
+        />
+        <NavItem 
+          icon={<HomeIcon />} 
+          title="Homeowners" 
+          onClick={() => setActivePage('Homeowners')} 
+          isActive={activePage === 'Homeowners'} 
+        />
+        <NavItem 
+          icon={<BarChartIcon />} 
+          title="Analytics" 
+          onClick={() => setActivePage('Analytics')} 
+          isActive={activePage === 'Analytics'} 
         />
         <NavItem 
           icon={<UsersIcon />} 
@@ -385,6 +414,20 @@ export default function AdminDashboardPage() {
   };
 
   const renderContent = () => {
+    if (activePage === 'Homeowners') {
+      return (
+        <div className="animate-fade-in">
+          <AdminHomeownersList />
+        </div>
+      );
+    }
+    if (activePage === 'Analytics') {
+      return (
+        <div className="animate-fade-in">
+          <AdminHomeownersAnalytics />
+        </div>
+      );
+    }
     if (activePage === 'Dashboard') {
       return (
         <div className="max-w-4xl mx-auto animate-fade-in space-y-6">
