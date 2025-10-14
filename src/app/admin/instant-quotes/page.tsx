@@ -107,6 +107,9 @@ interface QuoteResult {
   finalPrice: number;
   simplePaybackYears: number | null;
   disclaimers: string[];
+  // System details
+  panelCount?: number;
+  inverterSize?: number;
   // Commercial specific
   demandChargeSavings?: number;
   energySavings?: number;

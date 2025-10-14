@@ -23,7 +23,10 @@ export default function AdminPage() {
 
   const handleSignInSuccess = () => {
     setIsModalOpen(false);
-    router.push('/admin/dashboard');
+    // Use replace to avoid back button issues
+    router.replace('/admin/dashboard');
+    // Force a refresh to ensure session is loaded
+    router.refresh();
   };
 
   const handleClose = () => {

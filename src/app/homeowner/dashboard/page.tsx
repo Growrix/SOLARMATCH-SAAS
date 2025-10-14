@@ -263,7 +263,7 @@ export default function HomeownerDashboardPage() {
       case 'Messages':
         return <PlaceholderContent title="Messages" />;
       case 'My Profile':
-        return <ProfileManagement user={userProfile} onUpdate={handleProfileUpdate} onDeleteClick={handleDeleteAccount} />;
+        return <ProfileManagement onDeleteClick={handleDeleteAccount} />;
       default:
         return <DashboardOverviewContent />;
     }

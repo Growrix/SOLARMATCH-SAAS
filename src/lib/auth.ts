@@ -1,0 +1,99 @@
+import { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
+import { prisma } from "@/lib/prisma";
+
+export const authOptions: NextAuthOptions = {
+  providers: [CredentialsProvider({
+    name: "credentials",
+    credentials: { email: { label: "Email", type: "email" }, password: { label: "Password", type: "password" } },
+    async authorize(credentials) {
+      if (!credentials?.email || !credentials?.password) throw new Error("Invalid credentials");
+      
+      const user = await prisma.user.findUnique({
+        where: { email: credentials.email },
+        select: { id: true, email: true, password: true, name: true, role: true, image: true, isActive: true },
+      });
+
+      if (!user?.password) throw new Error("Invalid credentials");
+      const valid = await bcrypt.compare(credentials.password, user.password);
+      if (!valid) throw new Error("Invalid credentials");
+      if (!user.isActive) throw new Error("Account deactivated");
+
+      prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() }, select: { id: true } }).catch(console.error);
+
+      // IMPORTANT: Only include image URL in JWT, never base64-encoded images
+      // Base64 images should be stored elsewhere or fetched separately
+      return { 
+        id: user.id, 
+        email: user.email, 
+        name: user.name, 
+        role: user.role, 
+        image: user.image // Safe now - admin has null image
+      };
+    },
+  })],
+  session: { 
+    strategy: "jwt", 
+    maxAge: 30 * 24 * 60 * 60,
+  },
+  pages: { 
+    signIn: "/",
+    error: "/admin",
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      // On sign in, add user data to token
+      if (user) { 
+        token.id = user.id;
+        token.role = user.role || 'HOMEOWNER';
+        token.email = user.email || '';
+        token.name = user.name || '';
+        token.image = user.image || null;
+      }
+
+      // DEBUG: Print token size and contents
+      try {
+        const tokenString = JSON.stringify(token);
+        console.log('[JWT DEBUG] Token size:', tokenString.length, 'bytes');
+        if (tokenString.length > 1000) {
+          console.log('[JWT DEBUG] Token (truncated):', tokenString.slice(0, 1000) + '...');
+        } else {
+          console.log('[JWT DEBUG] Token:', tokenString);
+        }
+      } catch (e) {
+        console.log('[JWT DEBUG] Error stringifying token:', e);
+      }
+
+      // CRITICAL: Always return ONLY the fields we want
+      // This prevents NextAuth from accumulating garbage data
+      return {
+        sub: token.sub,
+        id: token.id,
+        role: token.role,
+        email: token.email,
+        name: token.name,
+        image: token.image,
+        iat: token.iat,
+        exp: token.exp,
+        jti: token.jti,
+      };
+    },
+    async session({ session, token }) {
+      // Return ONLY what the client needs
+      return {
+        ...session,
+        user: {
+          id: token.id as string,
+          role: token.role as string,
+          email: token.email as string,
+          name: token.name as string | null,
+          image: token.image as string | null,
+        },
+        expires: session.expires,
+      };
+    },
+  },
+  secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === 'development',
+};

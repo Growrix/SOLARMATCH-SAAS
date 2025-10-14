@@ -42,19 +42,26 @@ const AdminSignInModal: React.FC<AdminSignInModalProps> = ({ isOpen, onClose, on
         callbackUrl: '/admin/dashboard',
       });
 
-      console.log(' SignIn result:', result);
+      console.log('🔐 SignIn result:', result);
 
       if (result?.error) {
-        console.log(' Auth failed:', result.error);
+        console.log('❌ Auth failed:', result.error);
         setError(result.error === 'CredentialsSignin' ? 'Invalid admin credentials' : result.error);
         setIsLoading(false);
+      } else if (result?.ok) {
+        console.log('✅ Auth successful, redirecting to dashboard...');
+        // Give time for session to be established
+        setTimeout(() => {
+          onSignInSuccess();
+        }, 500);
       } else {
-        console.log(' Auth successful, redirecting to dashboard...');
+        // Unexpected result state
+        console.error('⚠️ Unexpected auth result:', result);
+        setError('An unexpected error occurred. Please try again.');
         setIsLoading(false);
-        window.location.href = '/admin/dashboard';
       }
     } catch (error) {
-      console.error(' Admin login exception:', error);
+      console.error('💥 Admin login exception:', error);
       setError('An unexpected error occurred. Please try again.');
       setIsLoading(false);
     }

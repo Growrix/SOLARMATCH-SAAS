@@ -37,8 +37,8 @@ export const prisma =
   new PrismaClient({
     // Create new PrismaClient with configuration
     log: process.env.NODE_ENV === 'development' 
-      ? ['query', 'error', 'warn']  // In development: show all SQL queries (helpful for learning!)
-      : ['error'],                   // In production: only show errors (less noise)
+      ? ['error', 'warn']  // In development: only errors and warnings (query logs are too verbose for JWT)
+      : ['error'],          // In production: only show errors (less noise)
   });
 // TEACHING NOTE: The "??" is the "nullish coalescing operator"
 // It means: "If left side is null/undefined, use right side"

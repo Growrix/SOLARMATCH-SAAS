@@ -148,13 +148,13 @@ export default function AdminHomeownersAnalytics() {
                           {item.postcode || 'Not set'}
                         </span>
                         <span className="text-slate-500 dark:text-slate-400">
-                          {item.count} ({item.percentage.toFixed(1)}%)
+                          {item.count} ({item.percentage?.toFixed(1) || '0.0'}%)
                         </span>
                       </div>
                       <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
                         <div
                           className="bg-blue-600 dark:bg-blue-500 h-full rounded-full transition-all duration-500"
-                          style={{ width: `${item.percentage}%` }}
+                          style={{ width: `${item.percentage || 0}%` }}
                         />
                       </div>
                     </div>
@@ -184,13 +184,13 @@ export default function AdminHomeownersAnalytics() {
                           {item.location}
                         </span>
                         <span className="text-slate-500 dark:text-slate-400">
-                          {item.count} ({item.percentage.toFixed(1)}%)
+                          {item.count} ({item.percentage?.toFixed(1) || '0.0'}%)
                         </span>
                       </div>
                       <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
                         <div
                           className="bg-green-600 dark:bg-green-500 h-full rounded-full transition-all duration-500"
-                          style={{ width: `${item.percentage}%` }}
+                          style={{ width: `${item.percentage || 0}%` }}
                         />
                       </div>
                     </div>
@@ -238,7 +238,7 @@ export default function AdminHomeownersAnalytics() {
                           {item.count}
                         </td>
                         <td className="px-6 py-3 text-sm text-slate-500 dark:text-slate-400 text-right">
-                          {item.percentage.toFixed(1)}%
+                          {item.percentage?.toFixed(1) || '0.0'}%
                         </td>
                       </tr>
                     ))}
@@ -277,7 +277,7 @@ export default function AdminHomeownersAnalytics() {
                           {item.count}
                         </td>
                         <td className="px-6 py-3 text-sm text-slate-500 dark:text-slate-400 text-right">
-                          {item.percentage.toFixed(1)}%
+                          {item.percentage?.toFixed(1) || '0.0'}%
                         </td>
                       </tr>
                     ))}
