@@ -13,6 +13,49 @@
 
 ---
 
+## ⚠️ MANDATORY WORKFLOW FOR EACH PHASE
+
+### Before Starting Any Phase:
+1. **Pre-Phase Audit**: Run comprehensive audit to understand current state
+   - Read existing code structure and architecture
+   - Identify all related files and dependencies
+   - Check for potential conflicts with existing functionality
+   - Review any previous phase implementations
+   - Document current state in phase notes
+
+### During Phase Implementation:
+2. **Incremental Validation**: After completing each task
+   - Verify code compiles without errors
+   - Check TypeScript types are correct
+   - Ensure no broken imports or missing dependencies
+
+### After Completing All Phase Tasks:
+3. **Post-Phase Validation** (MUST COMPLETE BEFORE COMMIT):
+   - ✅ Run `npm run build` - MUST pass with 0 errors
+   - ✅ Run `npm run lint` - Fix any critical issues
+   - ✅ Check all task requirements are met
+   - ✅ Verify no regression in existing functionality
+   - ✅ Test key user flows related to phase
+   - ✅ Review all modified files for quality
+   - ✅ Document any issues or deviations
+
+4. **Commit Approval** (MANDATORY):
+   - ❌ **NEVER commit without explicit user approval**
+   - Present validation results to user
+   - Show build output, any warnings, files changed
+   - Wait for user confirmation: "Yes, commit this phase"
+   - Only then proceed with git commit
+
+### Phase Completion Criteria:
+- ✅ All tasks marked complete
+- ✅ Build passes (`npm run build`)
+- ✅ No TypeScript errors
+- ✅ No critical lint errors
+- ✅ User approval received
+- ✅ Git commit created with detailed message
+
+---
+
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and environment configuration
@@ -31,6 +74,16 @@
 - [ ] T012 [P] [Setup] Create S3 client singleton in `src/lib/s3.ts` with presigned URL helpers
 
 **Checkpoint**: External service clients configured and ready for use
+
+### Phase 1 Validation Checklist:
+- [ ] Pre-Phase Audit: Current state documented
+- [ ] All T001-T012 tasks completed
+- [ ] `npm run build` passes (0 errors)
+- [ ] All client singletons have proper error handling
+- [ ] Environment variables documented in .env
+- [ ] No TypeScript errors in service files
+- [ ] User approval received for commit
+- [ ] Git commit created with phase summary
 
 ---
 
@@ -57,6 +110,20 @@
 - [ ] T027 [Foundation] Seed Settings table with default values in `prisma/seed-settings.ts` (approval mode, default pricing)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+
+### Phase 2 Validation Checklist:
+- [ ] Pre-Phase Audit: Database schema and existing models reviewed
+- [ ] All T013-T027 tasks completed
+- [ ] Prisma migration applied successfully
+- [ ] `npm run build` passes (0 errors)
+- [ ] All TypeScript types compile correctly
+- [ ] State machine validates all transitions
+- [ ] Services integrate with Prisma client correctly
+- [ ] NextAuth types extended properly
+- [ ] Settings seeded successfully
+- [ ] No breaking changes to existing auth flow
+- [ ] User approval received for commit
+- [ ] Git commit created with phase summary
 
 ---
 
@@ -87,6 +154,21 @@
 
 **Checkpoint**: At this point, homeowners can submit leads (guest + logged-in flows), verify phone, and see verification badge. Leads appear in admin dashboard.
 
+### Phase 3 (User Story 1) Validation Checklist:
+- [ ] Pre-Phase Audit: Existing quote flow and modals reviewed
+- [ ] All T028-T043 tasks completed
+- [ ] `npm run build` passes (0 errors)
+- [ ] Lead submission API tested (guest + logged-in)
+- [ ] OTP verification flow tested (send + verify)
+- [ ] Phone number E.164 validation working
+- [ ] Rate limiting (3 OTP/hour) enforced
+- [ ] Lead count tracking accurate
+- [ ] Verification badge displays correctly
+- [ ] Notifications sent on lead creation
+- [ ] No regression in existing instant quote flow
+- [ ] User approval received for commit
+- [ ] Git commit created with phase summary
+
 ---
 
 ## Phase 4: User Story 2 - Admin Reviews and Approves Leads (Priority: P1) 🎯 MVP
@@ -116,6 +198,22 @@
 
 **Checkpoint**: Admins can switch modes, configure automation, manually approve/reject/price/assign leads. Auto-approved leads appear instantly in installer feeds.
 
+### Phase 4 (User Story 2) Validation Checklist:
+- [ ] Pre-Phase Audit: Existing admin dashboard structure reviewed
+- [ ] All T044-T059 tasks completed
+- [ ] `npm run build` passes (0 errors)
+- [ ] Admin can approve/reject leads
+- [ ] Mode switching (Manual ↔ Auto) works correctly
+- [ ] Automation rules engine tested
+- [ ] Lead pricing configuration works
+- [ ] Lead assignment UI functional
+- [ ] Status transitions via state machine validated
+- [ ] Notifications sent on approval/rejection
+- [ ] Admin role enforcement in middleware working
+- [ ] No unauthorized access to admin routes
+- [ ] User approval received for commit
+- [ ] Git commit created with phase summary
+
 ---
 
 ## Phase 5: User Story 3 - Installer Discovers and Purchases Lead (Priority: P1) 🎯 MVP
@@ -144,6 +242,24 @@
 
 **Checkpoint**: Verified installers can browse marketplace, purchase leads, see contact details, and access chat. Stripe payments processed successfully.
 
+### Phase 5 (User Story 3) Validation Checklist:
+- [ ] Pre-Phase Audit: Existing installer dashboard structure reviewed
+- [ ] All T060-T074 tasks completed
+- [ ] `npm run build` passes (0 errors)
+- [ ] Marketplace displays approved leads correctly
+- [ ] Lead purchase flow tested (Stripe integration)
+- [ ] Webhook handler processes payments correctly
+- [ ] Contact details revealed only after payment
+- [ ] Duplicate purchase prevention works
+- [ ] Installer verification flow tested
+- [ ] Document upload to S3 successful
+- [ ] Verified badge displays correctly
+- [ ] Notifications sent on purchase
+- [ ] Installer role enforcement working
+- [ ] No payment processing errors
+- [ ] User approval received for commit
+- [ ] Git commit created with phase summary
+
 ---
 
 ## Phase 6: User Story 4 - Lead Status Tracking and Updates (Priority: P2)
@@ -167,6 +283,20 @@
 - [ ] T085 [US4] Add audit log display in admin lead detail page (table with all actions, timestamps, users)
 
 **Checkpoint**: Status tracking and audit trail fully functional. All users see real-time updates and notifications.
+
+### Phase 6 (User Story 4) Validation Checklist:
+- [ ] Pre-Phase Audit: Existing lead detail pages reviewed
+- [ ] All T075-T085 tasks completed
+- [ ] `npm run build` passes (0 errors)
+- [ ] Status updates work via state machine
+- [ ] Audit trail displays correctly
+- [ ] Timeline component renders properly
+- [ ] Real-time Pusher updates tested
+- [ ] Status change notifications sent
+- [ ] All user roles see appropriate updates
+- [ ] No invalid status transitions allowed
+- [ ] User approval received for commit
+- [ ] Git commit created with phase summary
 
 ---
 
@@ -193,6 +323,20 @@
 - [ ] T098 [US5] Send notifications on account actions (suspend/verify)
 
 **Checkpoint**: Advanced admin controls fully functional. Leads can be resold, archived, and users managed.
+
+### Phase 7 (User Story 5) Validation Checklist:
+- [ ] Pre-Phase Audit: Admin lead management interface reviewed
+- [ ] All T086-T098 tasks completed
+- [ ] `npm run build` passes (0 errors)
+- [ ] Lead resale functionality tested
+- [ ] Archive functionality tested
+- [ ] Timer reset works correctly
+- [ ] User suspension/verification tested
+- [ ] Admin exception flow working
+- [ ] Notifications sent appropriately
+- [ ] No data loss on resale/archive
+- [ ] User approval received for commit
+- [ ] Git commit created with phase summary
 
 ---
 
@@ -228,6 +372,23 @@
 
 **Checkpoint**: Real-time chat and quote exchange fully functional. Admin can monitor chats. Written Quote approval workflow complete.
 
+### Phase 8 (User Story 6) Validation Checklist:
+- [ ] Pre-Phase Audit: Existing chat/messaging patterns reviewed
+- [ ] All T099-T119 tasks completed
+- [ ] `npm run build` passes (0 errors)
+- [ ] Chat messages persist correctly
+- [ ] Real-time Pusher chat tested
+- [ ] Quote submission flow tested
+- [ ] Quote approval/rejection works
+- [ ] File upload to S3 successful
+- [ ] Admin chat monitoring functional
+- [ ] Written Quote approval workflow tested
+- [ ] Call/Visit quote visibility correct
+- [ ] Notifications sent on messages/quotes
+- [ ] No message loss or duplication
+- [ ] User approval received for commit
+- [ ] Git commit created with phase summary
+
 ---
 
 ## Phase 9: User Story 7 - Installer Feedback and Lead Quality Rating (Priority: P3)
@@ -248,6 +409,18 @@
 - [ ] T127 [US7] Send notification to admin on low-quality lead feedback (e.g., rating < 3 stars)
 
 **Checkpoint**: Lead quality feedback system complete. Admins can identify and address poor quality leads.
+
+### Phase 9 (User Story 7) Validation Checklist:
+- [ ] Pre-Phase Audit: Feedback systems reviewed
+- [ ] All T120-T127 tasks completed
+- [ ] `npm run build` passes (0 errors)
+- [ ] Feedback submission tested
+- [ ] Rating display works correctly
+- [ ] Admin dashboard shows aggregates
+- [ ] Low-quality lead alerts working
+- [ ] One-time submission enforced
+- [ ] User approval received for commit
+- [ ] Git commit created with phase summary
 
 ---
 
@@ -274,6 +447,21 @@
 - [ ] T144 [Polish] Run quickstart.md validation (complete all 4 test scenarios)
 - [ ] T145 [Polish] Create feature demo video or screenshots for DOC/Records/
 - [ ] T146 [Polish] Update constitution.md with any new patterns established (if needed)
+
+### Phase 10 (Polish) Validation Checklist:
+- [ ] Pre-Phase Audit: Full application review
+- [ ] All T128-T146 tasks completed
+- [ ] `npm run build` passes (0 errors, 0 warnings)
+- [ ] All pages load without errors
+- [ ] Mobile responsiveness tested
+- [ ] Accessibility audit passed
+- [ ] Performance metrics acceptable (<200ms API)
+- [ ] Security audit passed
+- [ ] Code quality standards met
+- [ ] All quickstart scenarios validated
+- [ ] Documentation complete
+- [ ] User approval received for commit
+- [ ] Git commit created with phase summary
 
 ---
 
