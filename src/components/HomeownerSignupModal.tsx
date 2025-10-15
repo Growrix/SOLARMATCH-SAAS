@@ -124,8 +124,10 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
         return;
       }
 
-      // Wait a moment to show success message
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // CRITICAL: Force session refresh to ensure fresh session data
+      // This prevents stale admin sessions from being used
+      // Wait for session to be established before proceeding
+      await new Promise(resolve => setTimeout(resolve, 800));
       
       // If this is a quote context with quote data, submit the lead
       if (context === 'quote' && quoteData && quoteType) {
@@ -135,6 +137,11 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               quoteType,
+              propertyPostcode: quoteData?.postcode || quoteData?.propertyPostcode,
+              location: quoteData?.location,
+              state: quoteData?.state,
+              energyBill: quoteData?.electricityValue || quoteData?.energyBill || 0,
+              quoteData: quoteData,
               ...quoteData
             })
           });

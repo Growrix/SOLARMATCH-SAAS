@@ -140,6 +140,7 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
       expiresAt,
       status: LeadStatus.DRAFT, // Start as DRAFT until phone verified
       visibility: LeadVisibility.HIDDEN, // Hidden until approved by admin
+      quoteData: input.quoteData || null, // Phase 4.5: Store complete instant quote data
     },
     include: {
       homeowner: {

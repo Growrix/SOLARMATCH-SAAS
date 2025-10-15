@@ -41,6 +41,9 @@ export interface CreateLeadInput {
 
   // Phone verification
   phoneNumber: string; // E.164 format
+
+  // Quote Data (Phase 4.5: Complete instant quote calculation)
+  quoteData?: any; // Complete InstantQuoteForm data + calculation results
 }
 
 /**

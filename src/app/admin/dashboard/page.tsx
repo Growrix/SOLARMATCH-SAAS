@@ -57,6 +57,16 @@ const FileTextIcon = () => (
   </svg>
 );
 
+const ClipboardListIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+    <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
+    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+    <path d="M9 14h6"/>
+    <path d="M9 18h6"/>
+    <path d="M9 10h6"/>
+  </svg>
+);
+
 const PaintbrushIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
     <path d="M17 3a2.85 2.85 0 0 0-4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
@@ -182,6 +192,12 @@ const AdminSidebar: React.FC<{
           title="Dashboard" 
           onClick={() => setActivePage('Dashboard')} 
           isActive={activePage === 'Dashboard'} 
+        />
+        <NavItem 
+          icon={<ClipboardListIcon />} 
+          title="Leads" 
+          onClick={() => window.location.href = '/admin/leads'} 
+          isActive={false} 
         />
         <NavItem 
           icon={<HomeIcon />} 
@@ -315,6 +331,44 @@ const DevQuickAccessMenu: React.FC = () => {
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-slate-900 dark:text-white">Installer Homepage</p>
                   <p className="text-xs text-slate-500 dark:text-slate-400">Public installer page</p>
+                </div>
+              </a>
+
+              <div className="border-t border-gray-200 dark:border-slate-700 my-2"></div>
+
+              <a
+                href="/admin/leads"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors group"
+                onClick={() => setIsOpen(false)}
+              >
+                <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center group-hover:bg-orange-500/20 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="text-orange-500">
+                    <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                    <path d="M9 14h6"/>
+                    <path d="M9 18h6"/>
+                    <path d="M9 10h6"/>
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">Leads Management</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">View & manage all leads</p>
+                </div>
+              </a>
+
+              <a
+                href="/admin/instant-quotes"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors group"
+                onClick={() => setIsOpen(false)}
+              >
+                <div className="w-8 h-8 rounded-lg bg-teal-500/10 flex items-center justify-center group-hover:bg-teal-500/20 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="text-teal-500">
+                    <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">Instant Quotes</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">View quote submissions</p>
                 </div>
               </a>
 

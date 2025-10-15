@@ -57,51 +57,11 @@ const QuoteOptionsModal: React.FC<QuoteOptionsModalProps> = ({
     }
   }, [isOpen]);
 
-  // Handle lead submission
+  // Handle lead submission - simply pass selection to parent
+  // Parent component will handle auth check, lead submission, and OTP flow
   const handleSubmitLead = async (quoteType: 'call_visit' | 'written') => {
-    if (!session?.user) {
-      // Not logged in - pass to parent to show signup modal
-      onSelectOption(quoteType);
-      return;
-    }
-
-    setIsSubmitting(true);
-    setError(null);
-    setPendingQuoteType(quoteType);
-
-    try {
-      const response = await fetch('/api/leads', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          quoteType,
-          ...quoteData
-        })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        // Success! Lead created
-        onSelectOption(quoteType);
-      } else if (response.status === 403 && data.requiresVerification) {
-        // Phone verification required - trigger OTP flow
-        const phoneNumber = quoteData?.phone || quoteData?.phoneNumber || '';
-        if (phoneNumber) {
-          await handleSendOTP(phoneNumber);
-        } else {
-          setError('Phone number is required for verification.');
-        }
-      } else {
-        // Other error
-        setError(data.error || 'Failed to submit lead request. Please try again.');
-      }
-    } catch (err) {
-      console.error('[QuoteOptionsModal] Submit error:', err);
-      setError('An unexpected error occurred. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
+    // Always pass to parent - parent will decide whether to show signup or submit directly
+    onSelectOption(quoteType);
   };
 
   // Send OTP for verification

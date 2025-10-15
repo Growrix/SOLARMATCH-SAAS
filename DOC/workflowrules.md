@@ -286,107 +286,6 @@ grep "export.*CreateNotificationInput" src/types/notification.ts -A 10
 
 ---
 
-## Phase 4.5: CRITICAL REMEDIATION - Lead Quote Data Storage 🚨 BLOCKING
-
-**Priority**: 🔴 CRITICAL - MUST complete before Phase 5  
-**Purpose**: Fix 90% data loss issue discovered during Phase 4 testing  
-**Branch**: 002-lead-journey-life
-
-**Problem**: Lead model only stores 10 basic fields, but InstantQuoteForm collects 30+ fields (system size, costs, savings, ROI, preferences). When leads are created, 90% of valuable quote data is discarded.
-
-**Impact**: 
-- Installers purchasing leads have no context (no system size, cost, or savings info)
-- Admin approval decisions uninformed (can't see quote calculations)
-- Future phases (Chat, Quotes) lack baseline reference data
-- Homeowner expectations misaligned with installer proposals
-
-**Root Cause**: Schema design mismatch between data collection (InstantQuoteForm) and data storage (Lead model)
-
-**Solution**: Add `quoteData Json? @db.JsonB` field to Lead model to preserve complete instant quote data
-
-### Phase 4.5 Implementation Tasks
-
-#### Core Schema & Service Changes (BLOCKING)
-- [X] **T147** [Remediation] Add `quoteData Json? @db.JsonB` to Lead model in `prisma/schema.prisma`
-- [X] **T148** [Remediation] Run Prisma migration `npx prisma migrate dev --name add-lead-quote-data`
-- [X] **T149** [Remediation] Update `CreateLeadInput` interface in `src/lib/services/lead-service.ts` (ensure quoteData properly typed)
-- [X] **T150** [Remediation] Update `createLead()` function in lead-service.ts line ~118-140 to include `quoteData: input.quoteData || null` in Prisma create
-- [X] **T151** [Remediation] Update Lead type in `src/types/lead.ts` to include `quoteData?: any` field
-
-#### API Validation
-- [X] **T152** [Remediation] Update POST `/api/leads` route to validate quoteData is received (add temporary debug log)
-- [ ] **T153** [Remediation] Test lead creation: verify quoteData is saved to database (check with Prisma Studio `npx prisma studio`)
-
-#### Admin UI Enhancements
-- [X] **T154** [Remediation] Create QuoteDataDisplay component in `src/components/admin/QuoteDataDisplay.tsx` (displays system size, costs, savings, preferences)
-- [X] **T155** [Remediation] Add QuoteDataDisplay to admin lead detail page `src/app/admin/leads/[id]/page.tsx` (show quote calculations in card)
-- [ ] **T156** [Remediation] Add quote summary columns to admin leads list (system size, final cost) - optional enhancement
-
-#### Verification & Testing
-- [ ] **T157** [Remediation] Create new test lead with full quote data - verify quoteData JSON saved in database
-- [ ] **T158** [Remediation] Check existing leads in database - verify quoteData field exists (null for old leads is OK)
-- [ ] **T159** [Remediation] Admin views lead detail - verify quote data displays correctly in QuoteDataDisplay component
-- [ ] **T160** [Remediation] Verify no breaking changes to existing lead creation flow (guest + logged-in flows still work)
-
-**Checkpoint**: ✅ All leads now preserve complete instant quote data. Installers and admins can see full quote context. Ready for Phase 5.
-
-### Phase 4.5 Validation Checklist:
-
-**Pre-Phase Audit (30 min)**:
-- [X] Read LEAD-DATA-SCHEMA-AUDIT-2025-10-15.md and PHASE-4.5-REMEDIATION-AUDIT-2025-10-15.md
-- [ ] Review InstantQuoteForm.tsx lines 53-90 and 560-580 - understand quoteData structure
-- [ ] Review current Lead model in schema.prisma lines 560-650 - verify current fields
-- [ ] Check page.tsx line 76-107 - verify quoteData is passed to API (✅ already passing!)
-- [ ] Check HomeownerSignupModal.tsx line 136-148 - verify quoteData is passed (✅ already passing!)
-- [ ] Verify quoteData structure matches what InstantQuoteForm outputs
-
-**During Implementation**:
-- [ ] After T147-T151 (Schema Changes): Run `npx prisma validate` - must pass
-- [ ] After T148 (Migration): Run `npx prisma migrate dev` - verify migration successful
-- [ ] After T150 (Service Update): Run `npx tsc --noEmit` - fix any type errors
-- [ ] After T152-T153 (API Validation): Test POST /api/leads with curl or Postman
-- [ ] After T154-T155 (UI): Run `npm run build` - verify no errors
-- [ ] After T157-T160 (Testing): Complete end-to-end test scenario
-
-**Post-Phase Validation**:
-- [ ] Schema Validation: `npx prisma validate` passes (0 errors)
-- [ ] TypeScript: `npx tsc --noEmit` (0 errors)
-- [ ] Build: `npm run build` (0 errors, warnings OK)
-- [ ] Migration Applied: Check `prisma/migrations/` for `*_add-lead-quote-data/` folder
-- [ ] Database Check: Open Prisma Studio `npx prisma studio`, verify Lead table has `quoteData` column (type: Json)
-- [ ] Data Integrity Test:
-  - [ ] Create test lead via instant quote flow
-  - [ ] Check database: Lead record has populated quoteData JSON
-  - [ ] Verify quoteData contains: systemSize, costs, savings, preferences, etc.
-- [ ] UI Verification:
-  - [ ] Admin lead detail page shows QuoteDataDisplay component
-  - [ ] Quote calculations visible (system size, cost, savings)
-  - [ ] No layout breaks or errors
-- [ ] API Testing:
-  - [ ] POST /api/leads with quoteData - returns 201, data saved
-  - [ ] GET /api/leads/[id] - returns lead with quoteData field
-  - [ ] Verify quoteData structure matches InstantQuoteForm output
-- [ ] No Regression:
-  - [ ] Guest lead submission flow still works
-  - [ ] Logged-in homeowner lead submission still works
-  - [ ] Existing leads without quoteData don't break UI
-- [ ] All T147-T160 tasks completed with evidence
-- [ ] User approval received for commit
-- [ ] Git commit: "Phase 4.5: Add quote data storage to Lead model - fixes 90% data loss issue"
-
-**Expected Outcomes**:
-1. ✅ Lead model has quoteData field (JsonB in PostgreSQL)
-2. ✅ All new leads store complete instant quote data (30+ fields preserved)
-3. ✅ Admins can see quote calculation details when reviewing leads
-4. ✅ No data loss - full InstantQuoteForm output saved
-5. ✅ Foundation ready for Phase 5 (installers will see quote context when purchasing)
-6. ✅ Frontend changes: ZERO (page.tsx and HomeownerSignupModal already pass quoteData!)
-7. ✅ Backend changes: 3 files (schema, migration, lead-service)
-
-**Time Estimate**: 2-3 hours total (1 hour implementation + 1-2 hours testing)
-
----
-
 ## Phase 4: User Story 2 - Admin Reviews and Approves Leads (Priority: P1) 🎯 MVP
 
 **Goal**: Admin can switch between Auto-Approval Mode and Manual Review Mode, configure automation rules, and manually approve/reject/price/assign leads
@@ -398,16 +297,16 @@ grep "export.*CreateNotificationInput" src/types/notification.ts -A 10
 - [X] T044 [P] [US2] Create POST `/api/leads/[id]/approve` route in `src/app/api/leads/[id]/approve/route.ts` (admin approve lead)
 - [X] T045 [P] [US2] Create POST `/api/leads/[id]/reject` route in `src/app/api/leads/[id]/reject/route.ts` (admin reject lead)
 - [X] T046 [P] [US2] Create admin dashboard lead list page in `src/app/admin/leads/page.tsx` (table with filtering by status, verification, postcode)
-- [X] T047 [P] [US2] Create admin lead detail page in `src/app/admin/leads/[id]/page.tsx` (view full lead, set price, assign, approve/reject) + PATCH endpoint for updates
-- [X] T048 [P] [US2] Create admin settings page in `src/app/admin/settings/page.tsx` (switch modes MANUAL/AUTO, automation rules CRUD UI, global pricing for Call/Visit and Written Quote)
+- [ ] T047 [P] [US2] Create admin lead detail page in `src/app/admin/leads/[id]/page.tsx` (view full lead, set price, assign, approve/reject)
+- [ ] T048 [P] [US2] Create admin settings page in `src/app/admin/settings/page.tsx` (switch modes, configure automation rules, set global pricing)
 - [X] T049 [P] [US2] Create Settings API routes in `src/app/api/settings/route.ts` (GET/PATCH settings per spec)
 - [X] T050 [US2] Implement automation rules engine in `src/lib/services/automation-engine.ts` (evaluates rules, auto-approves matching leads)
-- [X] T051 [US2] Create automation rules UI in admin settings page (✅ COMPLETE: Full CRUD for rules - add/edit/delete/enable/disable)
-- [X] T052 [US2] Add mode-switching logic in Settings service (✅ COMPLETE: Admin settings page with MANUAL/AUTO toggle + save)
+- [ ] T051 [US2] Create automation rules UI in admin settings page (add/edit/delete rules for quote type, verification, postcode)
+- [ ] T052 [US2] Add mode-switching logic in Settings service (update database, validate mode change)
 - [X] T053 [US2] Add lead auto-approval trigger in POST `/api/leads` route (call automation engine if Auto Mode enabled)
-- [X] T054 [US2] Create global pricing configuration UI in admin settings (✅ COMPLETE: Call/Visit and Written Quote pricing in settings page)
-- [-] T055 [US2] Create lead assignment UI in admin lead detail page (⚠️ DEFERRED: Assignment logic in approve endpoint, UI enhancement can wait)
-- [-] T056 [US2] Add "hot" lead toggle in admin lead detail page (⚠️ DEFERRED: Non-critical feature, can be added in Phase 10 Polish)
+- [ ] T054 [US2] Create global pricing configuration UI in admin settings (Call/Visit default, Written Quote default)
+- [ ] T055 [US2] Create lead assignment UI in admin lead detail page (select installers by filter or "All Installers")
+- [ ] T056 [US2] Add "hot" lead toggle in admin lead detail page (mark lead as priority)
 - [X] T057 [US2] Add lead status change tracking in approve/reject routes (log to audit trail, update status via state machine)
 - [X] T058 [US2] Send notifications on lead approval/rejection (homeowner, assigned installers)
 - [X] T059 [US2] Add middleware check in admin routes to enforce ADMIN role (prevent non-admins from accessing)

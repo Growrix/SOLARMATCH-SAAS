@@ -10,6 +10,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { createLead, getLeads } from '@/lib/services/lead-service';
 import { createAuditLog, AUDIT_ACTIONS } from '@/lib/services/audit-logger';
+import { processLeadAutomation } from '@/lib/services/automation-engine';
 
 /**
  * POST /api/leads
@@ -40,6 +41,13 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+    
+    // Phase 4.5: Debug log to verify quoteData is received
+    console.log('[POST /api/leads] QuoteData received:', {
+      hasQuoteData: !!body.quoteData,
+      quoteDataKeys: body.quoteData ? Object.keys(body.quoteData).length : 0,
+      quoteType: body.quoteType
+    });
     
     // Validate required fields
     if (!body.quoteType || !body.propertyPostcode || !body.location) {
@@ -97,10 +105,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Process through automation engine (if Auto Mode enabled)
+    try {
+      const automationResult = await processLeadAutomation(result.lead.id);
+      
+      if (automationResult.approved) {
+        console.log(`✅ Lead ${result.lead.id} auto-approved by rule: ${automationResult.rule?.name}`);
+      }
+    } catch (automationError) {
+      // Log but don't fail the request - lead is still created
+      console.error('⚠️ Automation engine error (non-fatal):', automationError);
+    }
+
     return NextResponse.json(
       {
         lead: result.lead,
         message: 'Lead created successfully',
+        autoApproved: result.lead.status === 'APPROVED',
       },
       { status: 201 }
     );

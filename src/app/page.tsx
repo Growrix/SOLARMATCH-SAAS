@@ -59,7 +59,7 @@ export default function Home() {
     setQuoteData(data);
   }, []);
 
-  const handleQuoteOptionSelected = (type: 'call_visit' | 'written') => {
+  const handleQuoteOptionSelected = async (type: 'call_visit' | 'written') => {
     setSelectedQuoteType(type);
     setIsQuoteOptionsModalOpen(false);
     
@@ -73,12 +73,41 @@ export default function Home() {
         userEmail: session.user.email
       });
       
-      // TODO: In production, send quote request to backend API here
-      // Example: await fetch('/api/quotes/submit', { method: 'POST', body: JSON.stringify({ type, data: pendingQuoteData }) });
-      
-      // Show success modal directly
-      setIsQuoteSuccessModalOpen(true);
-      setPendingQuoteData(null);
+      try {
+        const response = await fetch('/api/leads', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            quoteType: type,
+            propertyPostcode: pendingQuoteData?.postcode || pendingQuoteData?.propertyPostcode,
+            location: pendingQuoteData?.location,
+            state: pendingQuoteData?.state,
+            energyBill: pendingQuoteData?.electricityValue || pendingQuoteData?.energyBill || 0,
+            quoteData: pendingQuoteData,
+            ...pendingQuoteData
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Success! Lead created - show success modal
+          setIsQuoteSuccessModalOpen(true);
+          setPendingQuoteData(null);
+        } else if (response.status === 403 && data.requiresVerification) {
+          // Phone verification required - for now, show error
+          // TODO: Implement OTP flow in parent component
+          console.error('Phone verification required:', data);
+          alert('Phone verification required for second submission. Feature coming soon!');
+        } else {
+          // Other error
+          console.error('Lead submission error:', data.error);
+          alert(data.error || 'Failed to submit lead request. Please try again.');
+        }
+      } catch (err) {
+        console.error('Lead submission error:', err);
+        alert('An unexpected error occurred. Please try again.');
+      }
     } else {
       // User is not logged in - show signup modal
       setIsHomeownerSignupModalOpen(true);

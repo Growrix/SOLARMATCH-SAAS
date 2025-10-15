@@ -598,6 +598,9 @@ model Lead {
   timeframe         String?    // urgent, within_3_months, etc.
   additionalNotes   String?    @db.Text
   
+  // QUOTE DATA (Phase 4.5: Complete instant quote calculation data)
+  quoteData     Json?          @db.JsonB  // Stores complete InstantQuoteForm data + calculations
+  
   // TIMESTAMPS
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt

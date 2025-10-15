@@ -21,6 +21,16 @@ const UsersIcon = () => (
   </svg>
 );
 
+const ClipboardListIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
+    <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
+    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+    <path d="M9 14h6"/>
+    <path d="M9 18h6"/>
+    <path d="M9 10h6"/>
+  </svg>
+);
+
 const PaintbrushIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
     <path d="M17 3a2.85 2.85 0 0 0-4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
@@ -85,16 +95,16 @@ const AdminBottomNavBar: React.FC<AdminBottomNavBarProps> = ({
           onClick={() => setActivePage('Dashboard')} 
         />
         <NavItem 
+          icon={<ClipboardListIcon />} 
+          label="Leads" 
+          isActive={false} 
+          onClick={() => window.location.href = '/admin/leads'} 
+        />
+        <NavItem 
           icon={<UsersIcon />} 
           label="Users" 
           isActive={activePage === 'User Management'} 
           onClick={() => setActivePage('User Management')} 
-        />
-        <NavItem 
-          icon={<PaintbrushIcon />} 
-          label="Theme" 
-          isActive={activePage === 'Theme Settings'} 
-          onClick={onThemeClick} 
         />
         <NavItem 
           icon={<MenuIcon />} 
