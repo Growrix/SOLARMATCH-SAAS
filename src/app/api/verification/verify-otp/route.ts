@@ -11,8 +11,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { phoneVerificationService } from "@/lib/services/phone-verification-service";
-import { auditLogger } from "@/lib/services/audit-logger";
-import { notificationService } from "@/lib/services/notification-service";
+import { createAuditLog } from "@/lib/services/audit-logger";
+import { createNotification } from "@/lib/services/notification-service";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
 
     if (!result.success) {
       // Log failed attempt
-      await auditLogger.log({
+      await createAuditLog({
         userId: session.user.id,
         action: 'OTP_VERIFY_FAILED',
         entityType: 'PHONE_VERIFICATION',
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Log successful verification
-    await auditLogger.log({
+    await createAuditLog({
       userId: session.user.id,
       action: 'PHONE_VERIFIED',
       entityType: 'USER',
@@ -95,14 +95,13 @@ export async function POST(request: NextRequest) {
     });
 
     // Send confirmation notification
-    await notificationService.notify({
+    await createNotification({
       userId: session.user.id,
-      type: 'VERIFICATION_COMPLETE',
-      priority: 'MEDIUM',
-      channels: ['IN_APP'],
-      data: {
-        title: 'Phone Verified',
-        message: 'Your phone number has been successfully verified. You can now submit additional lead requests.',
+      type: 'SYSTEM',
+      title: 'Phone Verified',
+      message: 'Your phone number has been successfully verified. You can now submit additional lead requests.',
+      metadata: {
+        verificationId: verificationId,
         timestamp: new Date().toISOString()
       }
     });

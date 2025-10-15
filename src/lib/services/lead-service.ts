@@ -16,8 +16,8 @@
 import { prisma } from '@/lib/prisma';
 import { LeadStatus, LeadVisibility, UserRole } from '@prisma/client';
 import { createAuditLog, AUDIT_ACTIONS } from './audit-logger';
-import { sendNotification } from './notification-service';
-import { getSetting } from './settings-service';
+import { createNotification } from './notification-service';
+import { getSetting, getSettingAsNumber } from './settings-service';
 
 /**
  * Create Lead Input
@@ -87,14 +87,8 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
   const currentCount = homeowner.leadSubmissionCount;
 
   // Get max submission limits from settings
-  const maxBeforeVerification = parseInt(
-    await getSetting('MAX_LEAD_SUBMISSIONS_BEFORE_VERIFICATION', '1'),
-    10
-  );
-  const maxTotal = parseInt(
-    await getSetting('MAX_LEAD_SUBMISSIONS_TOTAL', '5'),
-    10
-  );
+  const maxBeforeVerification = await getSettingAsNumber('MAX_LEAD_SUBMISSIONS_BEFORE_VERIFICATION');
+  const maxTotal = await getSettingAsNumber('MAX_LEAD_SUBMISSIONS_TOTAL');
 
   // Check if phone verification is required
   if (!homeowner.phoneVerified && currentCount >= maxBeforeVerification) {
@@ -116,10 +110,10 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
   const priceKey = input.quoteType === 'CALL_VISIT'
     ? 'LEAD_PRICE_CALL_VISIT'
     : 'LEAD_PRICE_WRITTEN_QUOTE';
-  const defaultPrice = parseFloat(await getSetting(priceKey, '25.00'));
+  const defaultPrice = await getSettingAsNumber(priceKey);
 
   // Calculate lead expiry date
-  const expiryDays = parseInt(await getSetting('LEAD_EXPIRY_DAYS', '30'), 10);
+  const expiryDays = await getSettingAsNumber('LEAD_EXPIRY_DAYS');
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + expiryDays);
 
@@ -184,8 +178,8 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
   });
 
   // Send notification to admin
-  const adminEmail = await getSetting('ADMIN_EMAIL', 'admin@solarmatch.com');
-  await sendNotification({
+  const adminEmail = await getSetting('ADMIN_EMAIL');
+  await createNotification({
     userId: adminEmail, // Will lookup admin user by email
     type: 'NEW_LEAD',
     title: 'New Lead Submitted',
@@ -353,7 +347,6 @@ export async function getLeadById(input: GetLeadByIdInput) {
           phone: true,
         },
       },
-      phoneVerification: true,
     },
   });
 

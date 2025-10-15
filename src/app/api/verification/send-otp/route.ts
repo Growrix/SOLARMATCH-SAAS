@@ -11,7 +11,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { phoneVerificationService } from "@/lib/services/phone-verification-service";
-import { auditLogger } from "@/lib/services/audit-logger";
+import { createAuditLog } from "@/lib/services/audit-logger";
 
 export async function POST(request: NextRequest) {
   try {
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     );
 
     // Log audit event
-    await auditLogger.log({
+    await createAuditLog({
       userId: session.user.id,
       action: 'OTP_SENT',
       entityType: 'PHONE_VERIFICATION',

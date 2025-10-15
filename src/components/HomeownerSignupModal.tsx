@@ -20,9 +20,19 @@ interface HomeownerSignupModalProps {
   onSuccess: () => void;
   onSwitchToSignIn: () => void;
   context?: 'header' | 'quote'; // Context determines text/button labels
+  quoteData?: any; // Quote form data to submit after signup
+  quoteType?: 'call_visit' | 'written'; // Type of quote request
 }
 
-const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({ isOpen, onClose, onSuccess, onSwitchToSignIn, context = 'header' }) => {
+const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  onSuccess, 
+  onSwitchToSignIn, 
+  context = 'header',
+  quoteData,
+  quoteType 
+}) => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isRecaptchaVerified, setIsRecaptchaVerified] = useState(false);
@@ -117,7 +127,31 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({ isOpen, onC
       // Wait a moment to show success message
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Call onSuccess to trigger redirect
+      // If this is a quote context with quote data, submit the lead
+      if (context === 'quote' && quoteData && quoteType) {
+        try {
+          const leadResponse = await fetch('/api/leads', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              quoteType,
+              ...quoteData
+            })
+          });
+
+          if (!leadResponse.ok) {
+            const leadData = await leadResponse.json();
+            console.error('[HomeownerSignupModal] Lead submission failed:', leadData.error);
+            // Don't show error to user - account was created successfully
+            // Just log it and continue to success
+          }
+        } catch (leadErr) {
+          console.error('[HomeownerSignupModal] Lead submission error:', leadErr);
+          // Don't show error to user - account was created successfully
+        }
+      }
+      
+      // Call onSuccess to trigger redirect or success modal
       onSuccess();
 
     } catch (err) {

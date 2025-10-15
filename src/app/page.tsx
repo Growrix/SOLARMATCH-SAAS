@@ -212,6 +212,7 @@ export default function Home() {
           isOpen={isQuoteOptionsModalOpen}
           onClose={() => setIsQuoteOptionsModalOpen(false)}
           onSelectOption={handleQuoteOptionSelected}
+          quoteData={pendingQuoteData}
         />
       )}
 
@@ -222,6 +223,8 @@ export default function Home() {
           onSuccess={handleHomeownerSignupSuccess}
           onSwitchToSignIn={() => setIsHomeownerSignupModalOpen(false)}
           context="quote"
+          quoteData={pendingQuoteData}
+          quoteType={selectedQuoteType || undefined}
         />
       )}
 

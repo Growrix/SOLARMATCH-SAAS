@@ -294,7 +294,7 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
           {code.map((digit, index) => (
             <input
               key={index}
-              ref={el => inputRefs.current[index] = el}
+              ref={el => { inputRefs.current[index] = el; }}
               type="text"
               inputMode="numeric"
               maxLength={1}
@@ -345,7 +345,9 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
         {/* Error Message */}
         {error && (
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 mb-4 flex items-start gap-2">
-            <AlertCircleIcon className="text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5" />
+            <div className="text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5">
+              <AlertCircleIcon />
+            </div>
             <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
           </div>
         )}

@@ -28,18 +28,16 @@
 
 import Pusher from 'pusher';
 
-// Validate environment variables at startup
-if (!process.env.PUSHER_APP_ID) {
-  throw new Error('PUSHER_APP_ID environment variable is required');
-}
-if (!process.env.PUSHER_KEY) {
-  throw new Error('PUSHER_KEY environment variable is required');
-}
-if (!process.env.PUSHER_SECRET) {
-  throw new Error('PUSHER_SECRET environment variable is required');
-}
-if (!process.env.PUSHER_CLUSTER) {
-  throw new Error('PUSHER_CLUSTER environment variable is required');
+// Validate environment variables at startup (optional for build-time)
+const hasRequiredEnvVars = !!(
+  process.env.PUSHER_APP_ID &&
+  process.env.PUSHER_KEY &&
+  process.env.PUSHER_SECRET &&
+  process.env.PUSHER_CLUSTER
+);
+
+if (!hasRequiredEnvVars && process.env.NODE_ENV !== 'production') {
+  console.warn('[Pusher] Environment variables not configured. Real-time features will be disabled.');
 }
 
 /**
@@ -55,13 +53,15 @@ if (!process.env.PUSHER_CLUSTER) {
  * - status-update: Lead status changed
  * - new-notification: New notification for user
  */
-export const pusherServer = new Pusher({
-  appId: process.env.PUSHER_APP_ID,
-  key: process.env.PUSHER_KEY,
-  secret: process.env.PUSHER_SECRET,
-  cluster: process.env.PUSHER_CLUSTER,
-  useTLS: true, // Always use encrypted connections
-});
+export const pusherServer = hasRequiredEnvVars
+  ? new Pusher({
+      appId: process.env.PUSHER_APP_ID!,
+      key: process.env.PUSHER_KEY!,
+      secret: process.env.PUSHER_SECRET!,
+      cluster: process.env.PUSHER_CLUSTER!,
+      useTLS: true, // Always use encrypted connections
+    })
+  : null as any; // Fallback for build-time when env vars aren't set
 
 /**
  * Helper function to trigger chat message event

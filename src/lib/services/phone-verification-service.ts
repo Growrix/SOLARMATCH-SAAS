@@ -58,16 +58,16 @@ class PhoneVerificationService {
   }
 
   /**
-   * Check rate limiting for a user/IP combination
+   * Check rate limiting for a phone number
    */
-  private async checkRateLimit(userId: string, clientIp: string): Promise<void> {
+  private async checkRateLimit(phoneNumber: string, clientIp: string): Promise<void> {
     const windowStart = new Date();
     windowStart.setMinutes(windowStart.getMinutes() - RATE_LIMIT_WINDOW_MINUTES);
 
-    // Count recent verification attempts
+    // Count recent verification attempts for this phone number
     const recentAttempts = await prisma.phoneVerification.count({
       where: {
-        userId,
+        phoneNumber,
         createdAt: {
           gte: windowStart
         }
@@ -76,7 +76,7 @@ class PhoneVerificationService {
 
     if (recentAttempts >= MAX_REQUESTS_PER_WINDOW) {
       const oldestAttempt = await prisma.phoneVerification.findFirst({
-        where: { userId },
+        where: { phoneNumber },
         orderBy: { createdAt: 'asc' },
         select: { createdAt: true }
       });
@@ -110,7 +110,7 @@ class PhoneVerificationService {
       }
 
       // Rate limiting check
-      await this.checkRateLimit(userId, clientIp);
+      await this.checkRateLimit(phoneNumber, clientIp);
 
       // Generate OTP
       const code = this.generateOTP();

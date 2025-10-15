@@ -410,9 +410,10 @@ model User {
   sessions      Session[]
   
   // RELATIONS - Lead Journey System
-  leadsAsHomeowner  Lead[]  @relation("homeowner_leads")
-  leadsAsInstaller  Lead[]  @relation("installer_leads")
-  quotesAsInstaller Quote[] @relation("installer_quotes")
+  leadsAsHomeowner    Lead[]                @relation("homeowner_leads")
+  leadsAsInstaller    Lead[]                @relation("installer_leads")
+  quotesAsInstaller   Quote[]               @relation("installer_quotes")
+  phoneVerifications  PhoneVerification[]
   
   @@map("users")
   @@index([email])
@@ -618,7 +619,6 @@ model Lead {
   stripePaymentIntentId String?  // Stripe payment ID
   
   // RELATIONS
-  phoneVerification PhoneVerification?
   documents        InstallDocument[]
   chatMessages     ChatMessage[]
   quotes           Quote[]
@@ -642,16 +642,17 @@ model Lead {
 model PhoneVerification {
   id              String    @id @default(cuid())
   
-  // LEAD RELATIONSHIP
-  leadId          String    @unique
-  lead            Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  // USER RELATIONSHIP (Who is verifying)
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   // VERIFICATION DETAILS
   phoneNumber     String    // E.164 format
-  verificationSid String?   // Twilio Verify SID
+  code            String    // Hashed OTP code
+  verificationSid String?   // Twilio Verify SID (optional)
   
   // STATUS
-  isVerified      Boolean   @default(false)
+  status          String    @default("PENDING") // PENDING, VERIFIED, EXPIRED, FAILED
   attempts        Int       @default(0)  // Max 3 attempts
   lastAttemptAt   DateTime?
   verifiedAt      DateTime?
@@ -662,7 +663,8 @@ model PhoneVerification {
   
   @@map("phone_verifications")
   @@index([phoneNumber])
-  @@index([leadId])
+  @@index([userId])
+  @@index([status])
 }
 
 // INSTALLER VERIFICATION DOCUMENTS MODEL
