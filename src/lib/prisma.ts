@@ -54,6 +54,19 @@ if (process.env.NODE_ENV !== 'production') {
 // This survives hot-reloads, preventing the "too many connections" error
 // In production, we don't need this because there's no hot-reload
 
+// ----------------------------------------------------------------------------
+// WARM UP DATABASE CONNECTION (Development Only)
+// ----------------------------------------------------------------------------
+// Connect to database immediately on server startup to avoid slow first query
+// This prevents the 18+ second delay on first session check
+if (process.env.NODE_ENV === 'development') {
+  prisma.$connect()
+    .then(() => console.log('✅ [Prisma] Database connection warmed up'))
+    .catch((err) => console.error('❌ [Prisma] Failed to warm up connection:', err));
+}
+// TEACHING NOTE: In production, let Prisma handle connection lazily
+// But in development, pre-connect to avoid slow startup delays
+
 // ============================================================================
 // HOW TO USE THIS IN YOUR CODE
 // ============================================================================

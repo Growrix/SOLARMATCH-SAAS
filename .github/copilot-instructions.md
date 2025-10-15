@@ -1,4 +1,4 @@
-# Solar Match - Next.js Project Instructions
+﻿# Solar Match - Next.js Project Instructions
 
 This is a Next.js solar lead generation web application with the following setup:
 

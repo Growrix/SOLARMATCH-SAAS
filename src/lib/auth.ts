@@ -52,17 +52,16 @@ export const authOptions: NextAuthOptions = {
         token.image = user.image || null;
       }
 
-      // DEBUG: Print token size and contents
-      try {
-        const tokenString = JSON.stringify(token);
-        console.log('[JWT DEBUG] Token size:', tokenString.length, 'bytes');
-        if (tokenString.length > 1000) {
-          console.log('[JWT DEBUG] Token (truncated):', tokenString.slice(0, 1000) + '...');
-        } else {
-          console.log('[JWT DEBUG] Token:', tokenString);
+      // DEBUG: Print token size (only in development, never expose token contents)
+      if (process.env.NODE_ENV === 'development') {
+        try {
+          const tokenString = JSON.stringify(token);
+          console.log('[JWT DEBUG] Token size:', tokenString.length, 'bytes');
+          // Security: Never log token contents, even in development
+          // Token contains sensitive authentication data
+        } catch (e) {
+          console.log('[JWT DEBUG] Error stringifying token:', e);
         }
-      } catch (e) {
-        console.log('[JWT DEBUG] Error stringifying token:', e);
       }
 
       // CRITICAL: Always return ONLY the fields we want
@@ -95,5 +94,6 @@ export const authOptions: NextAuthOptions = {
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
-  debug: process.env.NODE_ENV === 'development',
+  // Debug mode: Can be disabled via NEXTAUTH_DEBUG=false in .env
+  debug: process.env.NEXTAUTH_DEBUG === 'false' ? false : process.env.NODE_ENV === 'development',
 };
