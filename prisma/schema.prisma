@@ -400,9 +400,14 @@ model User {
   updatedAt     DateTime  @updatedAt
   lastLoginAt   DateTime?
   
-  // RELATIONS
+  // RELATIONS - Authentication
   accounts      Account[]
   sessions      Session[]
+  
+  // RELATIONS - Lead Journey System
+  leadsAsHomeowner  Lead[]  @relation("homeowner_leads")
+  leadsAsInstaller  Lead[]  @relation("installer_leads")
+  quotesAsInstaller Quote[] @relation("installer_quotes")
   
   @@map("users")
   @@index([email])
@@ -479,4 +484,434 @@ model VerificationToken {
 //    - Users can link multiple OAuth providers to one account
 //    - Soft delete with isActive flag
 //    - Email verification support
+// ============================================================================
+
+// ============================================================================
+// LEAD JOURNEY & LIFE CYCLE SYSTEM
+// ============================================================================
+// This section implements the complete lead management system:
+// - Lead creation, verification, and status tracking
+// - Real-time chat between homeowners and installers
+// - Quote management with pricing and attachments
+// - Payment processing via Stripe
+// - Feedback collection and audit logging
+// ============================================================================
+
+// LEAD STATUS ENUM
+// ----------------
+// Tracks the current state of a lead through its lifecycle
+enum LeadStatus {
+  DRAFT              // Initial creation, not yet submitted
+  PENDING_PHONE      // Awaiting phone verification (OTP)
+  PENDING_APPROVAL   // Awaiting admin approval
+  APPROVED           // Approved by admin, visible to installers
+  PURCHASED          // Purchased by an installer
+  QUOTED             // Installer sent quote(s)
+  ACCEPTED           // Homeowner accepted a quote
+  REJECTED           // Homeowner rejected all quotes
+  EXPIRED            // Lead expired (no action within time limit)
+  CANCELLED          // Homeowner cancelled the lead
+  FLAGGED            // Flagged for admin review
+}
+
+// LEAD VISIBILITY ENUM
+// --------------------
+// Controls who can see the lead in the feed
+enum LeadVisibility {
+  HIDDEN    // Not visible to anyone (draft, flagged, etc.)
+  PUBLIC    // Visible to all verified installers
+  PRIVATE   // Only visible to specific installers (future feature)
+}
+
+// PURCHASE STATUS ENUM
+// --------------------
+// Tracks payment status for lead purchases
+enum PurchaseStatus {
+  PENDING    // Payment initiated but not confirmed
+  COMPLETED  // Payment successful
+  FAILED     // Payment failed
+  REFUNDED   // Payment refunded
+}
+
+// NOTIFICATION TYPE ENUM
+// ----------------------
+// Different types of real-time notifications
+enum NotificationType {
+  NEW_LEAD           // New lead available in feed (installers)
+  LEAD_PURCHASED     // Your lead was purchased (homeowners)
+  LEAD_APPROVED      // Your lead was approved (homeowners)
+  LEAD_REJECTED      // Your lead was rejected (homeowners)
+  NEW_QUOTE          // New quote received (homeowners)
+  NEW_MESSAGE        // New chat message
+  QUOTE_ACCEPTED     // Your quote was accepted (installers)
+  QUOTE_REJECTED     // Your quote was rejected (installers)
+  PAYMENT_RECEIVED   // Payment confirmation
+  SYSTEM             // System announcements
+}
+
+// MAIN LEAD MODEL
+// ---------------
+// Core model for all lead requests created by homeowners
+model Lead {
+  id            String         @id @default(cuid())
+  
+  // HOMEOWNER RELATIONSHIP
+  homeownerId   String
+  homeowner     User           @relation("homeowner_leads", fields: [homeownerId], references: [id], onDelete: Cascade)
+  
+  // INSTALLER RELATIONSHIP (Set when lead is purchased)
+  installerId   String?
+  installer     User?          @relation("installer_leads", fields: [installerId], references: [id], onDelete: SetNull)
+  
+  // LEAD STATUS & VISIBILITY
+  status        LeadStatus     @default(DRAFT)
+  visibility    LeadVisibility @default(HIDDEN)
+  
+  // PHONE VERIFICATION
+  phoneVerified Boolean        @default(false)
+  phoneNumber   String?        // E.164 format (+447700900123)
+  
+  // PROJECT DETAILS
+  projectType   String         // residential, commercial
+  propertyType  String         // house, apartment, business, etc.
+  postcode      String
+  location      String         // Suburb/town name
+  state         String         // NSW, VIC, QLD, etc.
+  address       String?        // Full address (optional until approved)
+  
+  // ENERGY & REQUIREMENTS
+  energyBill    Float          // Current quarterly bill in £
+  billType      String         // quarterly, monthly
+  roofType      String
+  budgetRange   String
+  desiredOffset Int            // % of bill to offset (0-100)
+  
+  // PREFERENCES
+  batteryRequired    Boolean   @default(false)
+  batteryCapacity    String?   // 5kWh, 10kWh, etc.
+  timeframe         String?    // urgent, within_3_months, etc.
+  additionalNotes   String?    @db.Text
+  
+  // TIMESTAMPS
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  approvedAt    DateTime?
+  purchasedAt   DateTime?
+  expiresAt     DateTime?      // Lead expiry date (30 days after approval)
+  
+  // ADMIN MODERATION
+  adminNotes    String?        @db.Text
+  flaggedReason String?        @db.Text
+  moderatedBy   String?        // Admin user ID
+  moderatedAt   DateTime?
+  
+  // PRICING
+  leadPrice     Float?         // Price in £ for installers to purchase
+  
+  // PURCHASE DETAILS
+  purchaseStatus PurchaseStatus?
+  stripePaymentIntentId String?  // Stripe payment ID
+  
+  // RELATIONS
+  phoneVerification PhoneVerification?
+  documents        InstallDocument[]
+  chatMessages     ChatMessage[]
+  quotes           Quote[]
+  feedback         LeadFeedback[]
+  auditLogs        AuditLog[]
+  
+  @@map("leads")
+  @@index([homeownerId])
+  @@index([installerId])
+  @@index([status])
+  @@index([visibility])
+  @@index([postcode])
+  @@index([state])
+  @@index([createdAt])
+  @@index([expiresAt])
+}
+
+// PHONE VERIFICATION MODEL
+// ------------------------
+// Tracks OTP verification attempts for lead submission
+model PhoneVerification {
+  id              String    @id @default(cuid())
+  
+  // LEAD RELATIONSHIP
+  leadId          String    @unique
+  lead            Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  
+  // VERIFICATION DETAILS
+  phoneNumber     String    // E.164 format
+  verificationSid String?   // Twilio Verify SID
+  
+  // STATUS
+  isVerified      Boolean   @default(false)
+  attempts        Int       @default(0)  // Max 3 attempts
+  lastAttemptAt   DateTime?
+  verifiedAt      DateTime?
+  
+  // TIMESTAMPS
+  createdAt       DateTime  @default(now())
+  expiresAt       DateTime  // OTP expires after 10 minutes
+  
+  @@map("phone_verifications")
+  @@index([phoneNumber])
+  @@index([leadId])
+}
+
+// INSTALLER VERIFICATION DOCUMENTS MODEL
+// --------------------------------------
+// Stores S3 keys for installer verification documents
+model InstallDocument {
+  id          String    @id @default(cuid())
+  
+  // LEAD RELATIONSHIP
+  leadId      String
+  lead        Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  
+  // DOCUMENT DETAILS
+  documentType String   // insurance_certificate, license, etc.
+  fileName     String
+  fileSize     Int      // Size in bytes
+  contentType  String   // MIME type (application/pdf, image/jpeg, etc.)
+  s3Key        String   // S3 object key
+  
+  // STATUS
+  uploadedBy   String   // User ID (installer)
+  uploadedAt   DateTime @default(now())
+  
+  @@map("install_documents")
+  @@index([leadId])
+}
+
+// CHAT MESSAGE MODEL
+// ------------------
+// Real-time chat between homeowners and installers
+model ChatMessage {
+  id          String    @id @default(cuid())
+  
+  // LEAD RELATIONSHIP
+  leadId      String
+  lead        Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  
+  // MESSAGE DETAILS
+  senderId    String    // User ID (homeowner or installer)
+  senderRole  UserRole  // HOMEOWNER or INSTALLER
+  message     String    @db.Text
+  
+  // METADATA
+  isRead      Boolean   @default(false)
+  readAt      DateTime?
+  
+  // TIMESTAMPS
+  createdAt   DateTime  @default(now())
+  
+  @@map("chat_messages")
+  @@index([leadId])
+  @@index([senderId])
+  @@index([createdAt])
+}
+
+// QUOTE MODEL
+// -----------
+// Quotes submitted by installers for purchased leads
+model Quote {
+  id               String    @id @default(cuid())
+  
+  // LEAD RELATIONSHIP
+  leadId           String
+  lead             Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  
+  // INSTALLER DETAILS
+  installerId      String
+  installer        User      @relation("installer_quotes", fields: [installerId], references: [id], onDelete: Cascade)
+  
+  // QUOTE DETAILS
+  quoteType        QuoteType // FORMAL or INFORMAL
+  systemSize       Float     // kW
+  panelBrand       String?
+  inverterBrand    String?
+  batteryBrand     String?
+  batteryCapacity  Float?    // kWh
+  
+  // PRICING
+  totalPrice       Float     // Total project cost in £
+  federalRebate    Float?    // Government rebates
+  stateRebate      Float?
+  finalPrice       Float     // After rebates
+  
+  // DETAILS
+  description      String?   @db.Text
+  paybackYears     Float?    // Estimated payback period
+  annualSavings    Float?    // Estimated annual savings
+  warranty         String?   // Warranty details
+  installTimeline  String?   // Installation timeframe
+  
+  // ATTACHMENTS
+  attachmentS3Keys String[]  // Array of S3 keys for quote PDFs/images
+  
+  // STATUS
+  status           String    @default("pending")  // pending, accepted, rejected
+  acceptedAt       DateTime?
+  rejectedAt       DateTime?
+  rejectionReason  String?   @db.Text
+  
+  // TIMESTAMPS
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  expiresAt        DateTime  // Quote validity period (30 days)
+  
+  @@map("quotes")
+  @@index([leadId])
+  @@index([installerId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// QUOTE TYPE ENUM
+// ---------------
+enum QuoteType {
+  FORMAL      // Detailed formal quote with full breakdown
+  INFORMAL    // Quick estimate/ballpark figure
+}
+
+// LEAD FEEDBACK MODEL
+// -------------------
+// Homeowner feedback after lead completion
+model LeadFeedback {
+  id            String    @id @default(cuid())
+  
+  // LEAD RELATIONSHIP
+  leadId        String    @unique
+  lead          Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  
+  // RATINGS (1-5 stars)
+  overallRating       Int  // Overall experience
+  communicationRating Int? // Installer communication
+  timelinessRating    Int? // Response time
+  professionalismRating Int? // Professionalism
+  
+  // FEEDBACK TEXT
+  comments      String?   @db.Text
+  wouldRecommend Boolean?
+  
+  // TIMESTAMPS
+  createdAt     DateTime  @default(now())
+  
+  @@map("lead_feedback")
+  @@index([leadId])
+  @@index([overallRating])
+}
+
+// AUDIT LOG MODEL
+// ---------------
+// Tracks all important actions for compliance and debugging
+model AuditLog {
+  id          String    @id @default(cuid())
+  
+  // RELATED ENTITIES
+  leadId      String?
+  lead        Lead?     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  userId      String?   // User who performed the action
+  
+  // ACTION DETAILS
+  action      String    // lead_created, lead_approved, quote_submitted, etc.
+  entityType  String    // lead, quote, chat_message, etc.
+  entityId    String?   // ID of the affected entity
+  
+  // METADATA
+  metadata    Json?     // Additional context (old values, new values, etc.)
+  ipAddress   String?
+  userAgent   String?
+  
+  // TIMESTAMPS
+  createdAt   DateTime  @default(now())
+  
+  @@map("audit_logs")
+  @@index([leadId])
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+// NOTIFICATION MODEL
+// ------------------
+// Real-time notifications for users (delivered via Pusher)
+model Notification {
+  id            String           @id @default(cuid())
+  
+  // USER RELATIONSHIP
+  userId        String
+  
+  // NOTIFICATION DETAILS
+  type          NotificationType
+  title         String
+  message       String           @db.Text
+  actionUrl     String?          // Link to relevant page
+  
+  // METADATA
+  metadata      Json?            // Additional data (leadId, quoteId, etc.)
+  isRead        Boolean          @default(false)
+  readAt        DateTime?
+  
+  // TIMESTAMPS
+  createdAt     DateTime         @default(now())
+  
+  @@map("notifications")
+  @@index([userId])
+  @@index([type])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+// SYSTEM SETTINGS MODEL
+// ---------------------
+// Configurable system settings (lead prices, timeouts, etc.)
+model Settings {
+  id          String    @id @default(cuid())
+  
+  // SETTING KEY-VALUE
+  key         String    @unique  // lead_price_default, lead_expiry_days, etc.
+  value       String    // Stored as string, parsed in code
+  description String?   @db.Text
+  
+  // METADATA
+  updatedBy   String?   // Admin user ID
+  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime  @default(now())
+  
+  @@map("settings")
+  @@index([key])
+}
+
+// ============================================================================
+// WHAT THIS LEAD SYSTEM ENABLES
+// ============================================================================
+// 1. Complete Lead Lifecycle:
+//    - Homeowner creates lead → Phone verification → Admin approval
+//    - Lead appears in feed → Installer purchases → Real-time chat
+//    - Installer submits quotes → Homeowner accepts → Feedback collection
+//
+// 2. Real-Time Communication:
+//    - Chat between homeowner and installer (via Pusher)
+//    - Instant notifications for all state changes
+//    - Email notifications as async fallback (via SendGrid)
+//
+// 3. Payment Processing:
+//    - Stripe payment intents for lead purchases
+//    - Webhook verification for payment confirmation
+//    - Refund support if lead is fraudulent
+//
+// 4. Security & Compliance:
+//    - Phone verification prevents spam
+//    - Admin moderation before leads go live
+//    - Complete audit trail of all actions
+//    - Document verification for installers
+//
+// 5. Analytics & Insights:
+//    - Track conversion rates (leads → purchases → quotes → acceptances)
+//    - Monitor response times and communication quality
+//    - Collect feedback for continuous improvement
+//    - Audit logs for debugging and compliance
 // ============================================================================
