@@ -395,6 +395,11 @@ model User {
   businessAddress   String?  // Business address (installers only)
   postcode          String?  // Business postcode (installers only)
   
+  // LEAD JOURNEY FIELDS
+  phoneVerified         Boolean  @default(false)     // Phone verified via OTP
+  leadSubmissionCount   Int      @default(0)         // Number of leads submitted by homeowner
+  installerVerified     Boolean  @default(false)     // Installer verified (documents approved)
+  
   // TIMESTAMPS
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt

@@ -12,7 +12,18 @@ export const authOptions: NextAuthOptions = {
       
       const user = await prisma.user.findUnique({
         where: { email: credentials.email },
-        select: { id: true, email: true, password: true, name: true, role: true, image: true, isActive: true },
+        select: { 
+          id: true, 
+          email: true, 
+          password: true, 
+          name: true, 
+          role: true, 
+          image: true, 
+          isActive: true,
+          phoneVerified: true,
+          leadSubmissionCount: true,
+          installerVerified: true,
+        },
       });
 
       if (!user?.password) throw new Error("Invalid credentials");
@@ -29,7 +40,10 @@ export const authOptions: NextAuthOptions = {
         email: user.email, 
         name: user.name, 
         role: user.role, 
-        image: user.image // Safe now - admin has null image
+        image: user.image, // Safe now - admin has null image
+        phoneVerified: user.phoneVerified || false,
+        leadSubmissionCount: user.leadSubmissionCount || 0,
+        installerVerified: user.installerVerified || false,
       };
     },
   })],
@@ -50,6 +64,9 @@ export const authOptions: NextAuthOptions = {
         token.email = user.email || '';
         token.name = user.name || '';
         token.image = user.image || null;
+        token.phoneVerified = user.phoneVerified || false;
+        token.leadSubmissionCount = user.leadSubmissionCount || 0;
+        token.installerVerified = user.installerVerified || false;
       }
 
       // DEBUG: Print token size (only in development, never expose token contents)
@@ -73,6 +90,9 @@ export const authOptions: NextAuthOptions = {
         email: token.email,
         name: token.name,
         image: token.image,
+        phoneVerified: token.phoneVerified,
+        leadSubmissionCount: token.leadSubmissionCount,
+        installerVerified: token.installerVerified,
         iat: token.iat,
         exp: token.exp,
         jti: token.jti,
@@ -88,6 +108,9 @@ export const authOptions: NextAuthOptions = {
           email: token.email as string,
           name: token.name as string | null,
           image: token.image as string | null,
+          phoneVerified: token.phoneVerified as boolean,
+          leadSubmissionCount: token.leadSubmissionCount as number,
+          installerVerified: token.installerVerified as boolean,
         },
         expires: session.expires,
       };

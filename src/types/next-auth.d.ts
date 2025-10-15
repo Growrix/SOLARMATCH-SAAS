@@ -17,11 +17,17 @@ declare module "next-auth" {
       email: string;
       name: string | null;
       image: string | null;
+      phoneVerified: boolean;
+      leadSubmissionCount: number;
+      installerVerified: boolean;
     } & DefaultSession["user"];
   }
 
   interface User extends DefaultUser {
     role?: string;
+    phoneVerified?: boolean;
+    leadSubmissionCount?: number;
+    installerVerified?: boolean;
   }
 }
 
@@ -30,5 +36,8 @@ declare module "next-auth/jwt" {
   interface JWT {
     id: string;
     role: string;
+    phoneVerified: boolean;
+    leadSubmissionCount: number;
+    installerVerified: boolean;
   }
 }
