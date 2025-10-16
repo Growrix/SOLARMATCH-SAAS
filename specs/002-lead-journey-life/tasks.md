@@ -387,6 +387,81 @@ grep "export.*CreateNotificationInput" src/types/notification.ts -A 10
 
 ---
 
+## Phase 4.8: Homeowner Dashboard & Second Quote Requests (Priority: P1/P2 Hybrid)
+
+**Goal**: Surface per-homeowner lead metrics, enable verified homeowners to request additional quotes with OTP-protected phone verification, and give admins fine-grained control over per-homeowner quote limits.
+
+**Independent Test**: Logged-in homeowner opens dashboard → sees first lead, quote usage, remaining balance, and verification badge → clicks "Request More Quotes" → verifies phone (if not already verified) → pre-filled instant quote wizard opens → edits fields, recalculates → selects quote allocations within remaining balance → submits → dashboard updates counts and history instantly. Admin updates homeowner quote limit and sees change reflected after refresh.
+
+### Phase 4.8 Implementation Tasks
+
+#### Data Model & Auth Synchronisation
+- [ ] **T161** [US1] Add `quoteType` enum to Prisma (`enum LeadQuoteType { CALL_VISIT WRITTEN_QUOTE }`) and attach `quoteType LeadQuoteType` field to `Lead` model (default `CALL_VISIT`) in `prisma/schema.prisma` to align with spec.md data model.
+- [ ] **T162** [US1] Introduce `leadSubmissionLimit Int @default(5)` on `User` model (nullable? ❌) to track per-homeowner quote caps and run a single migration (`npx prisma migrate dev --name phase-4-8-lead-limits`).
+- [ ] **T163** [US1] Extend NextAuth types (`src/types/next-auth.d.ts`, `src/lib/auth.ts`) to include `quoteLimit` (derived from `leadSubmissionLimit`, fallback to settings) in JWT/session payloads.
+
+#### Services & Business Logic
+- [ ] **T164** [US1] Update `createLead` in `src/lib/services/lead-service.ts` to persist `quoteType`, honour per-user `leadSubmissionLimit`, and return remaining balance metadata for UI refresh.
+- [ ] **T165** [US1] Implement `getHomeownerLeadSummary(userId)` in `lead-service.ts` (or new `homeowner-dashboard-service.ts`) to compute totals, remaining balance, latest leads (status + timestamps), and verification state in one call.
+- [ ] **T166** [US2] Add admin helper in `settings-service` or new `homeowner-admin-service` to update a homeowner's `leadSubmissionLimit`, including audit log entry and optional notification.
+
+#### API Surface
+- [ ] **T167** [US1] Create GET `/api/homeowner/dashboard` in `src/app/api/homeowner/dashboard/route.ts` returning summary payload from T165 with caching headers set to `no-store`.
+- [ ] **T168** [US2] Create PATCH `/api/admin/homeowners/[id]/lead-limit` in `src/app/api/admin/homeowners/[id]/lead-limit/route.ts` (ADMIN only) to adjust quote limits, validate bounds (>= initial default), and log action.
+- [ ] **T169** [US1] Update POST `/api/leads` handler to interpret `quoteType` from request body safely, enforce remaining balance prior to creation, and return refreshed summary in response when successful.
+
+#### Homeowner Experience
+- [ ] **T170** [US1] Refactor `src/app/homeowner/dashboard/page.tsx` to fetch dashboard summary (SWR or `useEffect`), render metric cards (requested/limit remaining), verification badge, and per-lead status list with quote type labels.
+- [ ] **T171** [US1] Create `RequestMoreQuotesCTA` component (dashboard) that opens new multi-step flow only when `remaining > 0`; show disabled state + error copy otherwise.
+- [ ] **T172** [US1] Build `ContactVerificationModal` in `src/components/homeowner/ContactVerificationModal.tsx` with editable phone field, required message from spec, and OTP initiation using existing `/api/verification/send-otp` endpoint.
+- [ ] **T173** [US1] Integrate `OTPVerificationModal` into new flow so successful verification updates UI state, grants badge immediately, and memoises verification session (no OTP re-request during browser session).
+- [ ] **T174** [US1] Enhance `NewQuoteRequestModal` / `InstantQuoteForm` to accept initial values from the homeowner's previous lead, allow recalculation, and emit structured payload without auto-submitting lead.
+- [ ] **T175** [US1] Create `QuoteDistributionModal` to let homeowner choose Call/Visit vs Written counts within remaining balance, surface live counter, and prevent over-allocation with inline validation.
+- [ ] **T176** [US1] Wire the request flow: verification → quote form → distribution → call POST `/api/leads` per distribution selection (multiple lead creations if >1) and refresh dashboard summary on success without page reload.
+
+#### Admin Controls & Visibility
+- [ ] **T177** [US2] Extend `AdminHomeownersList` (and API response) to surface current quote limit and usage (columns + filter chips).
+- [ ] **T178** [US2] Add inline edit or modal in admin UI to update quote limit via T168 endpoint, showing success toast and immediate list refresh.
+- [ ] **T179** [US2] Update admin lead detail view to display homeowner's limit, submitted count, and remaining balance for quicker decisions.
+
+#### Validation & Regression Safety
+- [ ] **T180** [US1] Write integration test script (manual or Playwright note) covering verification → re-request flow → dashboard refresh, documenting expected API responses.
+- [ ] **T181** [US1/US2] Verify automation engine respects new `quoteType` enum values and that existing leads migrate safely (backfill data/script if required).
+
+### Phase 4.8 Validation Checklist
+
+**Pre-Phase (45-60 min):**
+- [ ] Re-read spec.md sections for Homeowner Dashboard enhancements + quote limits; cross-check data-model.md Lead/User fields.
+- [ ] Inspect current schema for missing `quoteType`/`leadSubmissionLimit` to avoid duplicate fields.
+- [ ] Review existing OTP flow (`QuoteOptionsModal`, `OTPVerificationModal`) and NewQuoteRequestModal capabilities.
+- [ ] Confirm admin homeowners API (`/api/admin/homeowners`) structure to extend with limit data.
+- [ ] List exact files to touch; plan migration impact and backfill strategy.
+
+**During Implementation:**
+- [ ] After schema + migration (T161-T163) run `npx prisma validate` and `npx tsc --noEmit`.
+- [ ] After services/APIs (T164-T169) run `npm run build` and exercise new endpoints via Thunder Client/Postman.
+- [ ] After UI work (T170-T179) run `npm run build` again and smoke-test flow in browser (`npm run dev`).
+
+**Post-Phase Validation:**
+- [ ] Prisma: `npx prisma validate` + ensure migration folder `*_phase-4-8-lead-limits` committed.
+- [ ] TypeScript: `npx tsc --noEmit` (0 errors).
+- [ ] Build: `npm run build` (0 errors, warnings reviewed).
+- [ ] API checks: GET `/api/homeowner/dashboard`, PATCH `/api/admin/homeowners/:id/lead-limit`, POST `/api/leads` with new `quoteType` combinations.
+- [ ] UI checks: Dashboard metrics accurate, Request More Quotes flow completes, admin limit edit persists.
+- [ ] Backfill: existing leads assigned default `quoteType` + users get default limit (document any manual SQL steps).
+- [ ] Notifications/Audit logs fired for limit changes and new leads.
+- [ ] Automation regression: auto-approval rules handle new enum values, simulations pass.
+- [ ] User approval received prior to commit.
+- [ ] Prepare commit draft: "Phase 4.8: Homeowner dashboard & second quote requests" (pending approval).
+
+**Risks & Mitigations:**
+1. ⚠️ Existing leads missing `quoteType` → mitigate with migration default/backfill script before deploy.
+2. ⚠️ Session cache stale after limit change → solution: refetch dashboard summary post-PATCH and document requirement to re-login if JWT payload extended.
+3. ⚠️ OTP spam/back button abuses → ensure verification context stored in state, throttle UI button, rely on existing rate-limit service.
+4. ⚠️ Multiple lead creation request collisions → centralise creation loop with Promise.allSettled, rollback UI counts on partial failure and surface toast.
+
+---
+
 ## Phase 4: User Story 2 - Admin Reviews and Approves Leads (Priority: P1) 🎯 MVP
 
 **Goal**: Admin can switch between Auto-Approval Mode and Manual Review Mode, configure automation rules, and manually approve/reject/price/assign leads
@@ -907,41 +982,6 @@ grep "export.*CreateNotificationInput" src/types/notification.ts -A 10
 
 ---
 
-## Phase 10: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T128 [P] [Polish] Add loading states to all forms and buttons (skeleton loaders, spinners)
-- [ ] T129 [P] [Polish] Add error boundary components for graceful error handling (`src/components/ErrorBoundary.tsx`)
-- [ ] T130 [P] [Polish] Add toast notifications for all user actions (success, error messages using react-hot-toast)
-- [ ] T131 [P] [Polish] Optimize database queries with Prisma select statements (reduce payload size)
-- [ ] T132 [P] [Polish] Add API response caching for frequently accessed data (React Query or SWR)
-- [ ] T133 [P] [Polish] Add pagination to all list endpoints (leads, notifications, audit logs)
-- [ ] T134 [P] [Polish] Add mobile-responsive design improvements for all dashboard pages
-- [ ] T135 [P] [Polish] Add dark mode support for new components (follow existing ThemeProvider)
-- [ ] T136 [P] [Polish] Add accessibility improvements (ARIA labels, keyboard navigation)
-- [ ] T137 [P] [Polish] Create comprehensive API documentation in `DOC/API-DOCUMENTATION.md` (all endpoints, examples)
-- [ ] T138 [P] [Polish] Update quickstart.md with actual test results (validate all 4 test scenarios)
-- [ ] T139 [P] [Polish] Add rate limiting to all API routes (prevent abuse)
-- [ ] T140 [P] [Polish] Add input validation middleware for all routes (Zod schemas)
-- [ ] T141 [P] [Polish] Security audit: Check for SQL injection, XSS, CSRF vulnerabilities
-- [ ] T142 [P] [Polish] Performance audit: Check all API routes < 200ms response time
-- [ ] T143 [Polish] Code cleanup: Remove console.logs, format code, fix linting errors
-- [ ] T144 [Polish] Run quickstart.md validation (complete all 4 test scenarios)
-- [ ] T145 [Polish] Create feature demo video or screenshots for DOC/Records/
-- [ ] T146 [Polish] Update constitution.md with any new patterns established (if needed)
-- [ ] Pre-Phase Audit: Feedback systems reviewed
-- [ ] All T120-T127 tasks completed
-- [ ] `npm run build` passes (0 errors)
-- [ ] Feedback submission tested
-- [ ] Rating display works correctly
-- [ ] Admin dashboard shows aggregates
-- [ ] Low-quality lead alerts working
-- [ ] One-time submission enforced
-- [ ] User approval received for commit
-- [ ] Git commit created with phase summary
-
----
 
 ## Phase 10: Polish & Cross-Cutting Concerns
 
@@ -1067,30 +1107,36 @@ grep "export.*CreateNotificationInput" src/types/notification.ts -A 10
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3-9)**: All depend on Foundational phase completion
-  - **User Story 1 (P1)**: Can start after Foundational - No dependencies on other stories
-  - **User Story 2 (P1)**: Can start after Foundational - No dependencies on other stories
-  - **User Story 3 (P1)**: Can start after Foundational - No dependencies on other stories (but logically follows US1+US2 for MVP flow)
-  - **User Story 4 (P2)**: Depends on US1, US2, US3 (requires leads to be created, approved, purchased)
-  - **User Story 5 (P3)**: Depends on US3 (requires purchased leads for resale)
-  - **User Story 6 (P2)**: Depends on US3 (requires purchased leads for chat/quotes)
-  - **User Story 7 (P3)**: Depends on US3 (requires purchased leads for feedback)
+  - **Phase 3 – User Story 1 (P1)**: Can start after Foundational
+  - **Phase 4.5 – Remediation (CRITICAL)**: Must complete before Phase 5; enhances Lead model with `quoteData`
+  - **Phase 4 – User Story 2 (P1)**: Can run after Foundational; no hard dependency on 4.5, but 4.5 improves admin context
+  - **Phase 4.8 – Homeowner Dashboard & Re-Requests (P1/P2)**: Depends on Phase 3 (leads + OTP) and benefits from 4.5 (quoteData). Optional for MVP but recommended
+  - **Phase 5 – User Story 3 (P1)**: Can start after Foundational; logically follows US1+US2 for transaction loop
+  - **Phase 6 – User Story 4 (P2)**: Depends on US1, US2, US3 (requires created, approved, purchased leads)
+  - **Phase 7 – User Story 5 (P3)**: Depends on US3 (requires purchased leads for resale)
+  - **Phase 8 – User Story 6 (P2)**: Depends on US3 (requires purchased leads for chat/quotes)
+  - **Phase 9 – User Story 7 (P3)**: Depends on US3 (requires purchased leads for feedback)
 - **Polish (Phase 10)**: Depends on all desired user stories being complete
 
 ### Recommended MVP Scope (Immediate Business Value)
 
-**Phase 1 + Phase 2 + User Stories 1-3 (P1)** = Complete transaction loop:
-1. Homeowner submits lead (US1)
-2. Admin approves/prices/assigns (US2)
-3. Installer purchases lead (US3)
+Minimum to transact and learn:
+- Phase 1 + Phase 2 + Phase 3 (US1) + Phase 4 (US2) + Phase 5 (US3)
 
-This delivers core revenue generation. Additional user stories (US4-US7) add transparency, lifecycle management, and quality control but are not strictly required for MVP launch.
+Strongly recommended near-MVP add-ons:
+- Phase 4.5 (quoteData remediation) so admins/installers see full context
+- Phase 4.8 (homeowner dashboard + re-requests) to drive repeat submissions within limits
+
+Later phases (6-9) add transparency, lifecycle, and quality control.
 
 ### Parallel Opportunities
 
 - **Setup Phase**: All tasks T001-T012 marked [P] can run in parallel
 - **Foundational Phase**: Tasks T017-T024 marked [P] can run in parallel (after schema is created)
 - **User Story 1**: Tasks T028-T034, T037, T039 marked [P] can run in parallel (different files)
+- **Phase 4.5**: T147-T151 (schema/service) should be done together, then T154-T155 (UI) in parallel
 - **User Story 2**: Tasks T044-T048 marked [P] can run in parallel (different files)
+- **Phase 4.8**: Split by layers → schema/auth (T161-T163), services/APIs (T164-T169), UI (T170-T176), admin (T177-T179)
 - **User Story 3**: Tasks T060-T063 marked [P] can run in parallel (different files)
 - **User Story 4**: Tasks T075-T077 marked [P] can run in parallel (different files)
 - **User Story 5**: Tasks T086-T091 marked [P] can run in parallel (different files)
