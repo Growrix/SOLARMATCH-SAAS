@@ -20,6 +20,7 @@ import { Lead, LeadStatus, LeadVisibility, PurchaseStatus } from '@prisma/client
 export interface CreateLeadInput {
   // Project details
   projectType: 'residential' | 'commercial';
+  quoteType: 'CALL_VISIT' | 'WRITTEN_QUOTE';
   propertyType: string;
   postcode: string;
   location: string;
@@ -73,6 +74,7 @@ export interface LeadWithDetails extends Lead {
 export interface LeadListItem {
   id: string;
   projectType: string;
+  quoteType: 'CALL_VISIT' | 'WRITTEN_QUOTE';
   postcode: string;
   location: string;
   state: string;
@@ -137,6 +139,7 @@ export interface LeadFilters {
   state?: string[];
   postcode?: string;
   projectType?: ('residential' | 'commercial')[];
+  quoteType?: ('CALL_VISIT' | 'WRITTEN_QUOTE')[];
   batteryRequired?: boolean;
   minBudget?: number;
   maxBudget?: number;

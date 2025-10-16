@@ -1,15 +1,20 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
+import { LeadStatus as LeadStatusEnum } from '@prisma/client';
 import { useTheme, type Theme } from '@/components/ThemeProvider';
 import HomeownerBottomNavBar from '@/components/HomeownerBottomNavBar';
 import HomeownerMobileSidebarMenu from '@/components/HomeownerMobileSidebarMenu';
 import NewQuoteRequestModal from '@/components/NewQuoteRequestModal';
 import MessagingModal from '@/components/MessagingModal';
 import ProfileManagement from '@/components/ProfileManagement';
+import VerifiedBadge from '@/components/VerifiedBadge';
+import RequestMoreQuotesCTA from '@/components/homeowner/RequestMoreQuotesCTA';
+import ContactVerificationModal from '@/components/homeowner/ContactVerificationModal';
+import OTPVerificationModal from '@/components/OTPVerificationModal';
 
 // --- Icon Components ---
 const SunIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>;
@@ -60,6 +65,161 @@ const NavItem: React.FC<{ icon: React.ReactNode; title: string; isActive: boolea
         )}
     </button>
 );
+
+type QuoteTypeOption = 'CALL_VISIT' | 'WRITTEN_QUOTE';
+
+type LeadStatus = (typeof LeadStatusEnum)[keyof typeof LeadStatusEnum];
+
+interface RecentLeadSummary {
+  id: string;
+  quoteType: QuoteTypeOption;
+  status: LeadStatus;
+  createdAt: string;
+  updatedAt: string;
+  leadPrice: number | null;
+  purchaseStatus: string | null;
+  purchasedAt: string | null;
+  visibility: string;
+}
+
+interface HomeownerDashboardSummary {
+  totalSubmitted: number;
+  quoteLimit: number;
+  remainingLeadAllowance: number;
+  phoneVerified: boolean;
+  requiresVerification: boolean;
+  verificationThreshold: number;
+  lastSubmissionAt: string | null;
+  statusBreakdown: Record<LeadStatus, number>;
+  recentLeads: RecentLeadSummary[];
+}
+
+interface PendingOTPState {
+  phoneNumber: string;
+  verificationId: string;
+  expiresAt: Date;
+  remainingAttempts: number;
+}
+
+const QUOTE_TYPE_LABELS: Record<QuoteTypeOption, string> = {
+  CALL_VISIT: 'Call or Site Visit',
+  WRITTEN_QUOTE: 'Written Quote',
+};
+
+const STATUS_LABELS: Record<LeadStatus, { label: string; description: string; accent: string }> = {
+  [LeadStatusEnum.DRAFT]: {
+    label: 'Draft',
+    description: 'Awaiting submission',
+    accent: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
+  },
+  [LeadStatusEnum.PENDING_PHONE]: {
+    label: 'Needs Verification',
+    description: 'Verify your phone to continue',
+    accent: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+  },
+  [LeadStatusEnum.PENDING_APPROVAL]: {
+    label: 'Awaiting Review',
+    description: 'Admin is reviewing your lead',
+    accent: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300',
+  },
+  [LeadStatusEnum.APPROVED]: {
+    label: 'Approved',
+    description: 'Visible to installers',
+    accent: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
+  },
+  [LeadStatusEnum.PURCHASED]: {
+    label: 'Purchased',
+    description: 'An installer has claimed this lead',
+    accent: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300',
+  },
+  [LeadStatusEnum.QUOTED]: {
+    label: 'Quotes Received',
+    description: 'Installers have responded',
+    accent: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300',
+  },
+  [LeadStatusEnum.ACCEPTED]: {
+    label: 'Accepted',
+    description: 'You selected a winning quote',
+    accent: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300',
+  },
+  [LeadStatusEnum.REJECTED]: {
+    label: 'Rejected',
+    description: 'Marked as not suitable',
+    accent: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
+  },
+  [LeadStatusEnum.EXPIRED]: {
+    label: 'Expired',
+    description: 'No activity for 30 days',
+    accent: 'bg-slate-200 text-slate-600 dark:bg-slate-900/40 dark:text-slate-400',
+  },
+  [LeadStatusEnum.CANCELLED]: {
+    label: 'Cancelled',
+    description: 'Removed by homeowner',
+    accent: 'bg-slate-200 text-slate-600 dark:bg-slate-900/40 dark:text-slate-400',
+  },
+  [LeadStatusEnum.FLAGGED]: {
+    label: 'Flagged',
+    description: 'Pending admin review',
+    accent: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
+  },
+};
+
+const formatCurrency = (value: number | null | undefined): string => {
+  if (typeof value !== 'number') return '—';
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: 'currency',
+      currency: 'AUD',
+      maximumFractionDigits: 0,
+    }).format(value);
+  } catch (error) {
+    return `$${value.toFixed(0)}`;
+  }
+};
+
+const formatDateTime = (value: string | null | undefined): string => {
+  if (!value) return '—';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '—';
+  return date.toLocaleString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
+
+const formatRelativeTime = (value: string | null | undefined): string => {
+  if (!value) return 'Never';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Never';
+  const diffMs = date.getTime() - Date.now();
+  const diffMinutes = Math.round(diffMs / 60000);
+  const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' });
+
+  if (Math.abs(diffMinutes) < 60) {
+    return rtf.format(Math.round(diffMinutes), 'minute');
+  }
+
+  const diffHours = Math.round(diffMinutes / 60);
+  if (Math.abs(diffHours) < 24) {
+    return rtf.format(diffHours, 'hour');
+  }
+
+  const diffDays = Math.round(diffHours / 24);
+  if (Math.abs(diffDays) < 30) {
+    return rtf.format(diffDays, 'day');
+  }
+
+  const diffMonths = Math.round(diffDays / 30);
+  if (Math.abs(diffMonths) < 12) {
+    return rtf.format(diffMonths, 'month');
+  }
+
+  const diffYears = Math.round(diffMonths / 12);
+  return rtf.format(diffYears, 'year');
+};
 
 // Sidebar Component
 interface HomeownerSidebarProps {
@@ -180,6 +340,7 @@ const DashboardOverviewContent: React.FC = () => {
 export default function HomeownerDashboardPage() {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
+  const { data: session, update: updateSession } = useSession();
   const [activePage, setActivePage] = useState('Dashboard Overview');
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -188,6 +349,14 @@ export default function HomeownerDashboardPage() {
   // Modal states
   const [isNewQuoteModalOpen, setIsNewQuoteModalOpen] = useState(false);
   const [isMessagingModalOpen, setIsMessagingModalOpen] = useState(false);
+  const [isContactVerificationOpen, setIsContactVerificationOpen] = useState(false);
+  const [pendingOTP, setPendingOTP] = useState<PendingOTPState | null>(null);
+  const [showOTPModal, setShowOTPModal] = useState(false);
+  const [isSubmittingRequest, setIsSubmittingRequest] = useState(false);
+
+  const [dashboardSummary, setDashboardSummary] = useState<HomeownerDashboardSummary | null>(null);
+  const [isLoadingSummary, setIsLoadingSummary] = useState(true);
+  const [summaryError, setSummaryError] = useState<string | null>(null);
 
   // User profile state
   const [userProfile, setUserProfile] = useState({
@@ -212,6 +381,38 @@ export default function HomeownerDashboardPage() {
       router.push('/');
     }
   };
+
+  // Fetch dashboard summary
+  const fetchDashboardSummary = useCallback(async () => {
+    setIsLoadingSummary(true);
+    setSummaryError(null);
+
+    try {
+      const response = await fetch('/api/homeowner/dashboard', {
+        method: 'GET',
+        headers: {
+          'Cache-Control': 'no-store',
+        },
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => ({}));
+        throw new Error(errorBody.error || 'Failed to load dashboard summary');
+      }
+
+      const summary = (await response.json()) as HomeownerDashboardSummary;
+      setDashboardSummary(summary);
+    } catch (error) {
+      console.error('[HomeownerDashboard] Failed to load summary:', error);
+      setSummaryError(error instanceof Error ? error.message : 'Failed to load summary');
+    } finally {
+      setIsLoadingSummary(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchDashboardSummary();
+  }, [fetchDashboardSummary]);
 
   // Scroll logic for header visibility
   useEffect(() => {
@@ -241,11 +442,93 @@ export default function HomeownerDashboardPage() {
   };
 
   const handleNewQuoteClick = () => {
+    if (!dashboardSummary) {
+      return;
+    }
+
+    if (dashboardSummary.requiresVerification) {
+      setIsContactVerificationOpen(true);
+      return;
+    }
+
     setIsNewQuoteModalOpen(true);
   };
 
   const handleMessagesClick = () => {
     setIsMessagingModalOpen(true);
+  };
+
+  const handleOTPRequested = (payload: PendingOTPState) => {
+    setPendingOTP(payload);
+    setIsContactVerificationOpen(false);
+    setShowOTPModal(true);
+  };
+
+  const handleOTPVerificationSuccess = async () => {
+    setShowOTPModal(false);
+    setPendingOTP(null);
+    
+    // Refresh session to get updated phoneVerified status
+    await updateSession();
+    
+    // Refresh dashboard summary
+    await fetchDashboardSummary();
+    
+    // Show success message or open quote modal
+    setIsNewQuoteModalOpen(true);
+  };
+
+  const handleResendOTP = async (): Promise<{
+    success: boolean;
+    verificationId?: string;
+    expiresAt?: Date;
+    error?: string;
+    retryAfter?: number;
+  }> => {
+    if (!pendingOTP) {
+      return {
+        success: false,
+        error: 'No pending verification',
+      };
+    }
+
+    try {
+      const response = await fetch('/api/verification/send-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ phoneNumber: pendingOTP.phoneNumber }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 429) {
+          return {
+            success: false,
+            error: data.error,
+            retryAfter: data.retryAfter,
+          };
+        }
+        return {
+          success: false,
+          error: data.error || 'Failed to resend code',
+        };
+      }
+
+      return {
+        success: true,
+        verificationId: data.verificationId,
+        expiresAt: new Date(data.expiresAt),
+      };
+    } catch (error) {
+      console.error('[Resend OTP] Error:', error);
+      return {
+        success: false,
+        error: 'Failed to resend code. Please try again.',
+      };
+    }
   };
 
   const renderContent = () => {

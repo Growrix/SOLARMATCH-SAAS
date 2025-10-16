@@ -396,19 +396,19 @@ grep "export.*CreateNotificationInput" src/types/notification.ts -A 10
 ### Phase 4.8 Implementation Tasks
 
 #### Data Model & Auth Synchronisation
-- [ ] **T161** [US1] Add `quoteType` enum to Prisma (`enum LeadQuoteType { CALL_VISIT WRITTEN_QUOTE }`) and attach `quoteType LeadQuoteType` field to `Lead` model (default `CALL_VISIT`) in `prisma/schema.prisma` to align with spec.md data model.
-- [ ] **T162** [US1] Introduce `leadSubmissionLimit Int @default(5)` on `User` model (nullable? ❌) to track per-homeowner quote caps and run a single migration (`npx prisma migrate dev --name phase-4-8-lead-limits`).
-- [ ] **T163** [US1] Extend NextAuth types (`src/types/next-auth.d.ts`, `src/lib/auth.ts`) to include `quoteLimit` (derived from `leadSubmissionLimit`, fallback to settings) in JWT/session payloads.
+- [X] **T161** [US1] Add `quoteType` enum to Prisma (`enum LeadQuoteType { CALL_VISIT WRITTEN_QUOTE }`) and attach `quoteType LeadQuoteType` field to `Lead` model (default `CALL_VISIT`) in `prisma/schema.prisma` to align with spec.md data model.
+- [X] **T162** [US1] Introduce `leadSubmissionLimit Int @default(5)` on `User` model (nullable? ❌) to track per-homeowner quote caps and run a single migration (`npx prisma migrate dev --name phase-4-8-lead-limits`).
+- [X] **T163** [US1] Extend NextAuth types (`src/types/next-auth.d.ts`, `src/lib/auth.ts`) to include `quoteLimit` (derived from `leadSubmissionLimit`, fallback to settings) in JWT/session payloads.
 
 #### Services & Business Logic
-- [ ] **T164** [US1] Update `createLead` in `src/lib/services/lead-service.ts` to persist `quoteType`, honour per-user `leadSubmissionLimit`, and return remaining balance metadata for UI refresh.
-- [ ] **T165** [US1] Implement `getHomeownerLeadSummary(userId)` in `lead-service.ts` (or new `homeowner-dashboard-service.ts`) to compute totals, remaining balance, latest leads (status + timestamps), and verification state in one call.
-- [ ] **T166** [US2] Add admin helper in `settings-service` or new `homeowner-admin-service` to update a homeowner's `leadSubmissionLimit`, including audit log entry and optional notification.
+- [X] **T164** [US1] Update `createLead` in `src/lib/services/lead-service.ts` to persist `quoteType`, honour per-user `leadSubmissionLimit`, and return remaining balance metadata for UI refresh.
+- [X] **T165** [US1] Implement `getHomeownerLeadSummary(userId)` in `lead-service.ts` (or new `homeowner-dashboard-service.ts`) to compute totals, remaining balance, latest leads (status + timestamps), and verification state in one call.
+- [X] **T166** [US2] Add admin helper in `settings-service` or new `homeowner-admin-service` to update a homeowner's `leadSubmissionLimit`, including audit log entry and optional notification.
 
 #### API Surface
-- [ ] **T167** [US1] Create GET `/api/homeowner/dashboard` in `src/app/api/homeowner/dashboard/route.ts` returning summary payload from T165 with caching headers set to `no-store`.
-- [ ] **T168** [US2] Create PATCH `/api/admin/homeowners/[id]/lead-limit` in `src/app/api/admin/homeowners/[id]/lead-limit/route.ts` (ADMIN only) to adjust quote limits, validate bounds (>= initial default), and log action.
-- [ ] **T169** [US1] Update POST `/api/leads` handler to interpret `quoteType` from request body safely, enforce remaining balance prior to creation, and return refreshed summary in response when successful.
+- [X] **T167** [US1] Create GET `/api/homeowner/dashboard` in `src/app/api/homeowner/dashboard/route.ts` returning summary payload from T165 with caching headers set to `no-store`.
+- [X] **T168** [US2] Create PATCH `/api/admin/homeowners/[id]/lead-limit` in `src/app/api/admin/homeowners/[id]/lead-limit/route.ts` (ADMIN only) to adjust quote limits, validate bounds (>= initial default), and log action.
+- [X] **T169** [US1] Update POST `/api/leads` handler to interpret `quoteType` from request body safely, enforce remaining balance prior to creation, and return refreshed summary in response when successful.
 
 #### Homeowner Experience
 - [ ] **T170** [US1] Refactor `src/app/homeowner/dashboard/page.tsx` to fetch dashboard summary (SWR or `useEffect`), render metric cards (requested/limit remaining), verification badge, and per-lead status list with quote type labels.

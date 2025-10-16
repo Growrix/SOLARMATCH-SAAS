@@ -14,7 +14,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
-import { LeadStatus, LeadVisibility, UserRole } from '@prisma/client';
+import { LeadStatus, LeadVisibility, PurchaseStatus, UserRole } from '@prisma/client';
 import { createAuditLog, AUDIT_ACTIONS } from './audit-logger';
 import { createNotification } from './notification-service';
 import { getSetting, getSettingAsNumber } from './settings-service';
@@ -52,6 +52,32 @@ export interface CreateLeadResult {
   requiresVerification?: boolean;
   limitReached?: boolean;
   leadSubmissionCount: number;
+  quoteLimit: number;
+  remainingLeadAllowance: number;
+}
+
+export interface HomeownerLeadSummaryItem {
+  id: string;
+  quoteType: 'CALL_VISIT' | 'WRITTEN_QUOTE';
+  status: LeadStatus;
+  createdAt: Date;
+  updatedAt: Date;
+  leadPrice: number | null;
+  purchaseStatus: PurchaseStatus | null;
+  purchasedAt: Date | null;
+  visibility: LeadVisibility;
+}
+
+export interface HomeownerLeadSummary {
+  totalSubmitted: number;
+  quoteLimit: number;
+  remainingLeadAllowance: number;
+  phoneVerified: boolean;
+  requiresVerification: boolean;
+  verificationThreshold: number;
+  lastSubmissionAt: Date | null;
+  statusBreakdown: Record<LeadStatus, number>;
+  recentLeads: HomeownerLeadSummaryItem[];
 }
 
 /**
@@ -77,6 +103,7 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
       id: true,
       phoneVerified: true,
       leadSubmissionCount: true,
+      leadSubmissionLimit: true,
     },
   });
 
@@ -88,21 +115,25 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
 
   // Get max submission limits from settings
   const maxBeforeVerification = await getSettingAsNumber('MAX_LEAD_SUBMISSIONS_BEFORE_VERIFICATION');
-  const maxTotal = await getSettingAsNumber('MAX_LEAD_SUBMISSIONS_TOTAL');
+  const submissionLimit = homeowner.leadSubmissionLimit ?? await getSettingAsNumber('MAX_LEAD_SUBMISSIONS_TOTAL');
 
   // Check if phone verification is required
   if (!homeowner.phoneVerified && currentCount >= maxBeforeVerification) {
     return {
       requiresVerification: true,
       leadSubmissionCount: currentCount,
+      quoteLimit: submissionLimit,
+      remainingLeadAllowance: Math.max(submissionLimit - currentCount, 0),
     };
   }
 
   // Check if total limit reached (even after verification)
-  if (currentCount >= maxTotal) {
+  if (currentCount >= submissionLimit) {
     return {
       limitReached: true,
       leadSubmissionCount: currentCount,
+      quoteLimit: submissionLimit,
+      remainingLeadAllowance: 0,
     };
   }
 
@@ -121,6 +152,7 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
   const lead = await prisma.lead.create({
     data: {
       homeownerId: input.homeownerId,
+      quoteType: input.quoteType,
       projectType: input.propertyType,
       propertyType: input.propertyType,
       postcode: input.propertyPostcode,
@@ -196,6 +228,8 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
   return {
     lead,
     leadSubmissionCount: currentCount + 1,
+    quoteLimit: submissionLimit,
+    remainingLeadAllowance: Math.max(submissionLimit - (currentCount + 1), 0),
   };
 }
 
@@ -258,7 +292,7 @@ export async function getLeads(input: GetLeadsInput) {
     whereClause.status = status as LeadStatus;
   }
   if (quoteType) {
-    whereClause.projectType = quoteType === 'CALL_VISIT' ? 'residential' : 'commercial';
+  whereClause.quoteType = quoteType as 'CALL_VISIT' | 'WRITTEN_QUOTE';
   }
   if (postcode) {
     whereClause.postcode = postcode;
@@ -301,6 +335,87 @@ export async function getLeads(input: GetLeadsInput) {
       total,
       totalPages: Math.ceil(total / limit),
     },
+  };
+}
+
+/**
+ * Build homeowner dashboard summary including quota metadata and recent leads.
+ */
+export async function getHomeownerLeadSummary(userId: string): Promise<HomeownerLeadSummary> {
+  const homeowner = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      phoneVerified: true,
+      leadSubmissionCount: true,
+      leadSubmissionLimit: true,
+    },
+  });
+
+  if (!homeowner) {
+    throw new Error('Homeowner not found');
+  }
+
+  const [verificationThreshold, recentLeads, groupedStatuses] = await Promise.all([
+    getSettingAsNumber('MAX_LEAD_SUBMISSIONS_BEFORE_VERIFICATION'),
+    prisma.lead.findMany({
+      where: { homeownerId: userId },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      select: {
+        id: true,
+        quoteType: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        leadPrice: true,
+        purchaseStatus: true,
+        purchasedAt: true,
+        visibility: true,
+      },
+    }),
+    prisma.lead.groupBy({
+      by: ['status'],
+      where: { homeownerId: userId },
+      _count: {
+        status: true,
+      },
+    }),
+  ]);
+
+  const quoteLimit = homeowner.leadSubmissionLimit ?? await getSettingAsNumber('MAX_LEAD_SUBMISSIONS_TOTAL');
+  const remainingLeadAllowance = Math.max(quoteLimit - homeowner.leadSubmissionCount, 0);
+  const requiresVerification = !homeowner.phoneVerified && homeowner.leadSubmissionCount >= verificationThreshold;
+
+  const statusBreakdown = Object.values(LeadStatus).reduce((acc, status) => {
+    acc[status] = 0;
+    return acc;
+  }, {} as Record<LeadStatus, number>);
+
+  for (const group of groupedStatuses) {
+    statusBreakdown[group.status as LeadStatus] = group._count.status;
+  }
+
+  return {
+    totalSubmitted: homeowner.leadSubmissionCount,
+    quoteLimit,
+    remainingLeadAllowance,
+    phoneVerified: homeowner.phoneVerified,
+    requiresVerification,
+    verificationThreshold,
+    lastSubmissionAt: recentLeads.length > 0 ? recentLeads[0].createdAt : null,
+    statusBreakdown,
+    recentLeads: recentLeads.map(lead => ({
+      id: lead.id,
+      quoteType: lead.quoteType as 'CALL_VISIT' | 'WRITTEN_QUOTE',
+      status: lead.status,
+      createdAt: lead.createdAt,
+      updatedAt: lead.updatedAt,
+      leadPrice: lead.leadPrice,
+      purchaseStatus: lead.purchaseStatus,
+      purchasedAt: lead.purchasedAt,
+      visibility: lead.visibility,
+    })),
   };
 }
 

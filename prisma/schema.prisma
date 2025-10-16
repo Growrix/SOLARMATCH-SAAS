@@ -370,6 +370,14 @@ enum UserRole {
   ADMIN      // System administrators
 }
 
+// LEAD QUOTE TYPE ENUM
+// --------------------
+// Differentiates between Call/Visit and Written Quote allocations
+enum LeadQuoteType {
+  CALL_VISIT
+  WRITTEN_QUOTE
+}
+
 // MAIN USER MODEL
 // ---------------
 model User {
@@ -398,6 +406,7 @@ model User {
   // LEAD JOURNEY FIELDS
   phoneVerified         Boolean  @default(false)     // Phone verified via OTP
   leadSubmissionCount   Int      @default(0)         // Number of leads submitted by homeowner
+  leadSubmissionLimit   Int      @default(5)         // Per-homeowner submission cap (admin adjustable)
   installerVerified     Boolean  @default(false)     // Installer verified (documents approved)
   
   // TIMESTAMPS
@@ -564,6 +573,7 @@ model Lead {
   // HOMEOWNER RELATIONSHIP
   homeownerId   String
   homeowner     User           @relation("homeowner_leads", fields: [homeownerId], references: [id], onDelete: Cascade)
+  quoteType     LeadQuoteType  @default(CALL_VISIT)
   
   // INSTALLER RELATIONSHIP (Set when lead is purchased)
   installerId   String?
@@ -633,6 +643,7 @@ model Lead {
   @@index([installerId])
   @@index([status])
   @@index([visibility])
+  @@index([quoteType])
   @@index([postcode])
   @@index([state])
   @@index([createdAt])

@@ -2,6 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { getSettingAsNumber } from "@/lib/services/settings-service";
 
 export const authOptions: NextAuthOptions = {
   providers: [CredentialsProvider({
@@ -22,6 +23,7 @@ export const authOptions: NextAuthOptions = {
           isActive: true,
           phoneVerified: true,
           leadSubmissionCount: true,
+          leadSubmissionLimit: true,
           installerVerified: true,
         },
       });
@@ -32,6 +34,16 @@ export const authOptions: NextAuthOptions = {
       if (!user.isActive) throw new Error("Account deactivated");
 
       prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() }, select: { id: true } }).catch(console.error);
+
+      let quoteLimit = user.leadSubmissionLimit ?? null;
+      if (quoteLimit === null || quoteLimit === undefined) {
+        try {
+          quoteLimit = await getSettingAsNumber('MAX_LEAD_SUBMISSIONS_TOTAL');
+        } catch (err) {
+          console.error('[NextAuth] Failed to load MAX_LEAD_SUBMISSIONS_TOTAL setting:', err);
+          quoteLimit = 5;
+        }
+      }
 
       // IMPORTANT: Only include image URL in JWT, never base64-encoded images
       // Base64 images should be stored elsewhere or fetched separately
@@ -44,6 +56,7 @@ export const authOptions: NextAuthOptions = {
         phoneVerified: user.phoneVerified || false,
         leadSubmissionCount: user.leadSubmissionCount || 0,
         installerVerified: user.installerVerified || false,
+        quoteLimit: quoteLimit ?? 5,
       };
     },
   })],
@@ -67,6 +80,20 @@ export const authOptions: NextAuthOptions = {
         token.phoneVerified = user.phoneVerified || false;
         token.leadSubmissionCount = user.leadSubmissionCount || 0;
         token.installerVerified = user.installerVerified || false;
+        token.quoteLimit = (user as any).quoteLimit ?? 5;
+      } else if ((token.quoteLimit === undefined || token.quoteLimit === null) && token.id) {
+        try {
+          const refreshedUser = await prisma.user.findUnique({
+            where: { id: token.id as string },
+          });
+
+          if (refreshedUser) {
+            token.quoteLimit = refreshedUser.leadSubmissionLimit ?? 5;
+          }
+        } catch (refreshError) {
+          console.error('[NextAuth] Failed to refresh quote limit from database:', refreshError);
+          token.quoteLimit = 5;
+        }
       }
 
       // DEBUG: Print token size (only in development, never expose token contents)
@@ -93,6 +120,7 @@ export const authOptions: NextAuthOptions = {
         phoneVerified: token.phoneVerified,
         leadSubmissionCount: token.leadSubmissionCount,
         installerVerified: token.installerVerified,
+        quoteLimit: token.quoteLimit ?? 5,
         iat: token.iat,
         exp: token.exp,
         jti: token.jti,
@@ -111,6 +139,7 @@ export const authOptions: NextAuthOptions = {
           phoneVerified: token.phoneVerified as boolean,
           leadSubmissionCount: token.leadSubmissionCount as number,
           installerVerified: token.installerVerified as boolean,
+          quoteLimit: (token.quoteLimit as number | undefined) ?? 5,
         },
         expires: session.expires,
       };

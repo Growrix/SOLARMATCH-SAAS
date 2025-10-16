@@ -8,8 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { createLead, getLeads } from '@/lib/services/lead-service';
-import { createAuditLog, AUDIT_ACTIONS } from '@/lib/services/audit-logger';
+import { createLead, getHomeownerLeadSummary, getLeads } from '@/lib/services/lead-service';
 import { processLeadAutomation } from '@/lib/services/automation-engine';
 
 /**
@@ -42,6 +41,8 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     
+    const validQuoteTypes: Array<'CALL_VISIT' | 'WRITTEN_QUOTE'> = ['CALL_VISIT', 'WRITTEN_QUOTE'];
+
     // Phase 4.5: Debug log to verify quoteData is received
     console.log('[POST /api/leads] QuoteData received:', {
       hasQuoteData: !!body.quoteData,
@@ -53,6 +54,13 @@ export async function POST(request: NextRequest) {
     if (!body.quoteType || !body.propertyPostcode || !body.location) {
       return NextResponse.json(
         { error: 'Missing required fields: quoteType, propertyPostcode, location' },
+        { status: 400 }
+      );
+    }
+
+    if (!validQuoteTypes.includes(body.quoteType)) {
+      return NextResponse.json(
+        { error: 'Invalid quoteType. Expected CALL_VISIT or WRITTEN_QUOTE' },
         { status: 400 }
       );
     }
@@ -87,6 +95,8 @@ export async function POST(request: NextRequest) {
           error: 'Phone verification required',
           message: 'You must verify your phone number before submitting additional leads',
           leadSubmissionCount: result.leadSubmissionCount,
+          quoteLimit: result.quoteLimit,
+          remainingLeadAllowance: result.remainingLeadAllowance,
           requiresVerification: true,
         },
         { status: 403 }
@@ -98,8 +108,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: 'Lead limit reached',
-          message: 'You have reached the maximum number of lead submissions (5 total)',
+          message: `You have reached the maximum number of lead submissions (${result.quoteLimit} total)`,
           leadSubmissionCount: result.leadSubmissionCount,
+          quoteLimit: result.quoteLimit,
+          remainingLeadAllowance: result.remainingLeadAllowance,
         },
         { status: 403 }
       );
@@ -117,11 +129,17 @@ export async function POST(request: NextRequest) {
       console.error('⚠️ Automation engine error (non-fatal):', automationError);
     }
 
+    const dashboardSummary = await getHomeownerLeadSummary(session.user.id);
+
     return NextResponse.json(
       {
         lead: result.lead,
         message: 'Lead created successfully',
         autoApproved: result.lead.status === 'APPROVED',
+        leadSubmissionCount: result.leadSubmissionCount,
+        quoteLimit: result.quoteLimit,
+        remainingLeadAllowance: result.remainingLeadAllowance,
+        dashboardSummary,
       },
       { status: 201 }
     );

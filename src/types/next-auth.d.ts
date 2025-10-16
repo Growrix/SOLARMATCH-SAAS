@@ -20,6 +20,7 @@ declare module "next-auth" {
       phoneVerified: boolean;
       leadSubmissionCount: number;
       installerVerified: boolean;
+      quoteLimit: number;
     } & DefaultSession["user"];
   }
 
@@ -28,6 +29,8 @@ declare module "next-auth" {
     phoneVerified?: boolean;
     leadSubmissionCount?: number;
     installerVerified?: boolean;
+    leadSubmissionLimit?: number;
+    quoteLimit?: number;
   }
 }
 
@@ -39,5 +42,6 @@ declare module "next-auth/jwt" {
     phoneVerified: boolean;
     leadSubmissionCount: number;
     installerVerified: boolean;
+    quoteLimit: number;
   }
 }

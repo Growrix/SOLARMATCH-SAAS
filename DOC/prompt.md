@@ -524,3 +524,31 @@ I want you to build Prisma, Tables, API , SQL migrations end to end for this :
   - Admins need visibility into the total number of guests who have generated instant quotes in real time with timestapm. (to be shown in the Admin Dashboard; modal/page not yet created, create the modal based on the table).
 
   *** Your Job is to Audit and understand the file attached and create tables based on the input fields. Also Audit the necessary files and folders in order to clean implimentation without messing up. Understand the scenario . after implimenting create a implimentation.md file where you will note what have you done and the clear users story. 
+
+
+
+  So far unitl the 4.5 is done and What I see now, The guests can create leads by sigining up and it is successfully genereated and available on the Admin's dashborad for approval and further process. This is the story of generating first lead by homeowners. But now here comes the second lead generation phase. Now the homeowners Should see their generatated first lead in the dashboard. Also they can see the total limit was 5 and requested 1 and remaining 4. The quote counts and balance should be updated live upon new quotes requested. The they can request further Quotes from their dashboard. THe second lead generation process should be this : 
+
+- Homeonwers click on requests for more quotes 
+- There will be a modal will be open to Verify the contact number with OTP , the contact number will be shown and the user can edit the number and do the verification.
+- In that modal, write some polite texts , that verify your contact number , we are protecting spam and fake request. Verify and Get serious attention from the Installers and request upto another 4 Quotes (Write it nicely).
+- After verification via OTP 
+- A modal will be opened that has all the fields are already filled up, which is actully the first lead inputs in the instantQuote caclulator. 
+- Homeowner can edit any fields if they want to modify or change. 
+- When they hit the calculate Again button , it will show the results just as the fisrt lead made. 
+- There will be another result generated as per the homeowner modify input fields. This process is just exactly same as like the first lead but modified version for the second lead. 
+- then they will see a send request button and after clicking on that button they will see a quoteOption modal to chose the quote type call/visit or Written Quote. within the both options should have options to select How many Installers they want to send quotes requests number.  
+- The both type of quotes should be limited to max 4. E.g Homeowners can select call/visit quotes 2 , Written quotes 1 or even 2. and the limit is over. The modal should show the limit balance and also update upon usage of the limit. there should be flexibility to select the number of quotes within the limit.
+- This limits can be updated only by the admin, If admin increase limit 4 to even 10, the Homeonwers can request more. 
+- In the admin panel there should be a full control of the Homeowners quote limits. 
+- after the request is sent , the homeowner should see the updated quote counts and balance in their dashboard.
+- The homeowner should see the full history of the quotes requested in their dashboard with status.
+- each quote should have a unique id and timestamp. that means, all the leads are unique and the process is same as the first lead generation. e.g if a homeowners requested 3 quotes, there should be 3 unique leads in the lead table with unique ids and timestamps. the admin admin panel should see all the leads in the lead table with unique ids and timestamps. and all the next process will be exactly same as the first lead generation process.
+
+
+***The current Situation*** you should understand , We have generated all the spec files earlier, but during the build process for the fist 4 phaase we faced some challenges and issues, so I had to modify and update the tasks.md file in order to make it more clear and clean build process. I did not update the spec.md file because it was already too much big and complex. So I just updated the tasks.md file to make it more clear and clean. Now you have to audit all the files and folders and understand the current situation and then build the above mentioned features. And it should be end to end and aligned with the current build. So, you should read the tasks.md file and understand the current situation and then build the above mentioned features. and also the spec.md file and decide from where you can take the references and build the above mentioned features. Because I think this part is crucial and important to build in the next phase. Once the homeowner and Admin functions are clear and done, then the next phase will be the Installer part.it will give us more clean roadmap and direction. either you can update the tasks.md file or create a new file for the next phase. But it should be clear and clean and aligned with the current build. 
+
+- 
+
+
+

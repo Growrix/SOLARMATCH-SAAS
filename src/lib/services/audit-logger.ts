@@ -263,4 +263,5 @@ export const AUDIT_ACTIONS = {
   ADMIN_USER_SUSPENDED: 'admin_user_suspended',
   ADMIN_USER_ACTIVATED: 'admin_user_activated',
   ADMIN_SETTINGS_CHANGED: 'admin_settings_changed',
+  ADMIN_HOMEOWNER_QUOTE_LIMIT_UPDATED: 'admin_homeowner_quote_limit_updated',
 } as const;
