@@ -87,6 +87,9 @@ const NavItem: React.FC<{
     </button>
 );
 
+
+import { useRouter } from 'next/navigation';
+
 const AdminMobileSidebarMenu: React.FC<AdminMobileSidebarMenuProps> = ({ 
     isOpen, 
     onClose, 
@@ -94,17 +97,15 @@ const AdminMobileSidebarMenu: React.FC<AdminMobileSidebarMenuProps> = ({
     setActivePage, 
     onLogoutClick 
 }) => {
-    
+    const router = useRouter();
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') onClose();
         };
-    
         if (isOpen) {
             document.addEventListener('keydown', handleKeyDown);
             document.body.style.overflow = 'hidden';
         }
-    
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
             document.body.style.overflow = 'auto';
@@ -116,6 +117,13 @@ const AdminMobileSidebarMenu: React.FC<AdminMobileSidebarMenuProps> = ({
     const handleNavClick = (page: string) => {
         setActivePage(page);
         onClose();
+        // Route to correct page
+        if (page === 'Dashboard') router.push('/admin/dashboard');
+        else if (page === 'Leads') router.push('/admin/leads');
+        else if (page === 'User Management') router.push('/admin/users');
+        else if (page === 'Content Management') router.push('/admin/newsletter');
+        else if (page === 'Theme Settings') router.push('/admin/settings');
+        else if (page === 'Global Settings') router.push('/admin/settings');
     };
 
     const handleLogoutClick = () => {
@@ -150,16 +158,16 @@ const AdminMobileSidebarMenu: React.FC<AdminMobileSidebarMenuProps> = ({
                         onClick={() => handleNavClick('Dashboard')} 
                     />
                     <NavItem 
+                        icon={<FileTextIcon />} 
+                        title="Leads" 
+                        isActive={activePage === 'Leads'} 
+                        onClick={() => handleNavClick('Leads')} 
+                    />
+                    <NavItem 
                         icon={<UsersIcon />} 
                         title="User Management" 
                         isActive={activePage === 'User Management'} 
                         onClick={() => handleNavClick('User Management')} 
-                    />
-                    <NavItem 
-                        icon={<FileTextIcon />} 
-                        title="Content Management" 
-                        isActive={activePage === 'Content Management'} 
-                        onClick={() => handleNavClick('Content Management')} 
                     />
                     <NavItem 
                         icon={<PaintbrushIcon />} 
@@ -174,7 +182,6 @@ const AdminMobileSidebarMenu: React.FC<AdminMobileSidebarMenuProps> = ({
                         onClick={() => handleNavClick('Global Settings')} 
                     />
                 </nav>
-                
                 <div className="mt-6 pt-6 border-t border-gray-200 dark:border-slate-800">
                     <button 
                         onClick={handleLogoutClick} 
