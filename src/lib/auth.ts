@@ -21,6 +21,7 @@ export const authOptions: NextAuthOptions = {
           role: true, 
           image: true, 
           isActive: true,
+          phone: true,
           phoneVerified: true,
           leadSubmissionCount: true,
           leadSubmissionLimit: true,
@@ -53,6 +54,7 @@ export const authOptions: NextAuthOptions = {
         name: user.name, 
         role: user.role, 
         image: user.image, // Safe now - admin has null image
+        phone: user.phone,
         phoneVerified: user.phoneVerified || false,
         leadSubmissionCount: user.leadSubmissionCount || 0,
         installerVerified: user.installerVerified || false,
@@ -69,7 +71,7 @@ export const authOptions: NextAuthOptions = {
     error: "/admin",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       // On sign in, add user data to token
       if (user) { 
         token.id = user.id;
@@ -77,6 +79,7 @@ export const authOptions: NextAuthOptions = {
         token.email = user.email || '';
         token.name = user.name || '';
         token.image = user.image || null;
+        token.phone = user.phone || null;
         token.phoneVerified = user.phoneVerified || false;
         token.leadSubmissionCount = user.leadSubmissionCount || 0;
         token.installerVerified = user.installerVerified || false;
@@ -93,6 +96,19 @@ export const authOptions: NextAuthOptions = {
         } catch (refreshError) {
           console.error('[NextAuth] Failed to refresh quote limit from database:', refreshError);
           token.quoteLimit = 5;
+        }
+      }
+
+      // Handle session updates (for phone number changes, verification status, etc.)
+      if (trigger === "update" && session) {
+        if (session.phone !== undefined) {
+          token.phone = session.phone;
+        }
+        if (session.phoneVerified !== undefined) {
+          token.phoneVerified = session.phoneVerified;
+        }
+        if (session.leadSubmissionCount !== undefined) {
+          token.leadSubmissionCount = session.leadSubmissionCount;
         }
       }
 
@@ -117,6 +133,7 @@ export const authOptions: NextAuthOptions = {
         email: token.email,
         name: token.name,
         image: token.image,
+        phone: token.phone,
         phoneVerified: token.phoneVerified,
         leadSubmissionCount: token.leadSubmissionCount,
         installerVerified: token.installerVerified,
@@ -136,6 +153,7 @@ export const authOptions: NextAuthOptions = {
           email: token.email as string,
           name: token.name as string | null,
           image: token.image as string | null,
+          phone: token.phone as string | null,
           phoneVerified: token.phoneVerified as boolean,
           leadSubmissionCount: token.leadSubmissionCount as number,
           installerVerified: token.installerVerified as boolean,

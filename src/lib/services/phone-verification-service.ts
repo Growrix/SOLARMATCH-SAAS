@@ -102,8 +102,11 @@ class PhoneVerificationService {
     clientIp: string = 'unknown'
   ): Promise<SendOTPResult> {
     try {
-      // Check Twilio configuration
-      if (!twilioClient || !process.env.TWILIO_PHONE_NUMBER) {
+      // Check Twilio configuration (skip in development)
+      const isDevelopment = process.env.NODE_ENV === 'development';
+      const twilioConfigured = twilioClient && process.env.TWILIO_PHONE_NUMBER;
+      
+      if (!twilioConfigured && !isDevelopment) {
         throw new Error(
           'Twilio is not configured. Please set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER environment variables.'
         );
@@ -143,27 +146,39 @@ class PhoneVerificationService {
         }
       });
 
-      // Send SMS via Twilio
-      try {
-        await twilioClient.messages.create({
-          body: `Your Solar Match verification code is: ${code}. Valid for ${OTP_EXPIRY_MINUTES} minutes.`,
-          from: process.env.TWILIO_PHONE_NUMBER,
-          to: phoneNumber
-        });
+      // Send SMS via Twilio (skip in development if not configured)
+      if (twilioConfigured) {
+        try {
+          await twilioClient.messages.create({
+            body: `Your Solar Match verification code is: ${code}. Valid for ${OTP_EXPIRY_MINUTES} minutes.`,
+            from: process.env.TWILIO_PHONE_NUMBER,
+            to: phoneNumber
+          });
 
-        console.log(`[PhoneVerification] OTP sent to ${phoneNumber.slice(-4)} for user ${userId}`);
-      } catch (twilioError: any) {
-        console.error('[PhoneVerification] Twilio error:', twilioError);
-        
-        // Mark verification as failed
-        await prisma.phoneVerification.update({
-          where: { id: verification.id },
-          data: { status: 'FAILED' }
-        });
+          console.log(`[PhoneVerification] OTP sent to ${phoneNumber.slice(-4)} for user ${userId}`);
+        } catch (twilioError: any) {
+          console.error('[PhoneVerification] Twilio error:', twilioError);
+          
+          // Mark verification as failed
+          await prisma.phoneVerification.update({
+            where: { id: verification.id },
+            data: { status: 'FAILED' }
+          });
 
-        throw new Error(
-          `Twilio SMS failed: ${twilioError.message || 'Unknown error'}`
-        );
+          throw new Error(
+            `Twilio SMS failed: ${twilioError.message || 'Unknown error'}`
+          );
+        }
+      } else {
+        // Development mode without Twilio - log the OTP to console
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('🔐 DEVELOPMENT MODE - OTP Generated');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log(`Phone: ${phoneNumber}`);
+        console.log(`OTP Code: ${code}`);
+        console.log(`User ID: ${userId}`);
+        console.log(`Expires: ${expiresAt.toLocaleString()}`);
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       }
 
       return {
@@ -246,7 +261,7 @@ class PhoneVerificationService {
 
       // Hash provided code
       const hashedCode = this.hashOTP(code);
-
+      
       // Compare codes
       if (hashedCode !== verification.code) {
         // Increment attempts

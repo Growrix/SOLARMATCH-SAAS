@@ -51,6 +51,12 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
+  // Sync verificationId and expiresAt when props change
+  useEffect(() => {
+    setVerificationId(initialVerificationId);
+    setExpiresAt(initialExpiresAt);
+  }, [initialVerificationId, initialExpiresAt]);
+
   // Calculate time remaining until expiry
   useEffect(() => {
     if (!isOpen || !expiresAt) return;
@@ -59,7 +65,15 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
       const now = new Date().getTime();
       const expiry = new Date(expiresAt).getTime();
       const diff = Math.max(0, expiry - now);
-      setTimeRemaining(Math.floor(diff / 1000)); // seconds
+      let remaining = Math.floor(diff / 1000); // seconds
+      
+      // In development, if time is expired or invalid, set to 10 minutes (600 seconds)
+      if (process.env.NODE_ENV === 'development' && remaining === 0) {
+        console.log('[OTP Modal] Date parsing issue detected, using 10 min default for dev mode');
+        remaining = 600; // 10 minutes
+      }
+      
+      setTimeRemaining(remaining);
     };
 
     calculateTimeRemaining();

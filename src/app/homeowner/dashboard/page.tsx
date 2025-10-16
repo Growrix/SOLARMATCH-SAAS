@@ -28,10 +28,10 @@ const MessageSquareIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="2
 const UserIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
 const BellIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>;
 const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>;
+const DollarSignIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>;
+const SparklesIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>;
 const HelpCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>;
 const LogOutIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>;
-const DollarSignIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>;
-const SparklesIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M12 3L9.5 9.5L3 12l6.5 2.5L12 21l2.5-6.5L21 12l-6.5-2.5L12 3z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>;
 const HomeIconNav = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
 const MenuIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6"><line x1="3" x2="21" y1="6" y2="6"/><line x1="3" x2="21" y1="12" y2="12"/><line x1="3" x2="21" y1="18" y2="18"/></svg>;
 
@@ -311,27 +311,212 @@ const PlaceholderContent: React.FC<{ title: string }> = ({ title }) => (
 );
 
 // Dashboard Overview Content
-const DashboardOverviewContent: React.FC = () => {
-  const StatCard: React.FC<{ icon: React.ReactNode; title: string; value: string; change: string; actionText: string; }> = ({ icon, title, value, change, actionText }) => (
+interface DashboardOverviewContentProps {
+  summary: HomeownerDashboardSummary | null;
+  isLoading: boolean;
+  error: string | null;
+  onRequestMoreQuotes: () => void;
+  onVerifyContact: () => void;
+}
+
+const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
+  summary,
+  isLoading,
+  error,
+  onRequestMoreQuotes,
+  onVerifyContact,
+}) => {
+  const StatCard: React.FC<{ 
+    icon: React.ReactNode; 
+    title: string; 
+    value: string; 
+    change: string; 
+    actionText: string; 
+    onClick?: () => void;
+  }> = ({ icon, title, value, change, actionText, onClick }) => (
     <div className="theme-card p-3 flex flex-col">
-        <div className="flex justify-between items-start"><p className="text-sm font-medium text-slate-500 dark:text-slate-400">{title}</p><div className="p-2 bg-primary/10 rounded-lg">{icon}</div></div>
-        <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-2">{value}</p>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{change}</p>
-        <div className="flex-grow" />
-        <button onClick={() => {}} className="text-sm font-semibold text-primary hover:text-teal-700 dark:hover:text-teal-400 transition-colors mt-4 text-left">{actionText} &rarr;</button>
+      <div className="flex justify-between items-start">
+        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{title}</p>
+        <div className="p-2 bg-primary/10 rounded-lg">{icon}</div>
+      </div>
+      <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-2">{value}</p>
+      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{change}</p>
+      <div className="flex-grow" />
+      <button 
+        onClick={onClick}
+        className="text-sm font-semibold text-primary hover:text-teal-700 dark:hover:text-teal-400 transition-colors mt-4 text-left"
+      >
+        {actionText} &rarr;
+      </button>
     </div>
   );
 
-  return (
-    <div className="animate-fade-in">
-        <h2 className="text-base sm:text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4 sm:mb-6">Good Morning, Homeowner!</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <StatCard icon={<FileTextIcon />} title="Active Requests" value="3" change="+1 this week" actionText="View Requests" />
-            <StatCard icon={<GavelIcon />} title="New Bids" value="2" change="+2 this week" actionText="Go to Bidding Room" />
-            <StatCard icon={<MessageSquareIcon />} title="Unread Messages" value="5" change="from 3 installers" actionText="Open Inbox" />
-            <StatCard icon={<DollarSignIcon />} title="Est. Annual Savings" value="$1,850" change="Based on 6.6kW system" actionText="View Breakdown" />
+  if (isLoading) {
+    return (
+      <div className="animate-fade-in">
+        <div className="animate-pulse">
+          <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-48 mb-6"></div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="theme-card p-3">
+                <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded mb-2"></div>
+                <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded mb-2"></div>
+                <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded"></div>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="mt-4 sm:mt-6 theme-card p-4 sm:p-6"><h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-4">Recent Activity</h3><div className="text-center py-10"><p className="text-slate-500 dark:text-slate-400">No recent activity to display.</p></div></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="animate-fade-in">
+        <div className="theme-card p-6 text-center">
+          <div className="text-red-500 dark:text-red-400 mb-2">
+            <svg className="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 15.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Failed to load dashboard</h3>
+          <p className="text-slate-500 dark:text-slate-400 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors"
+          >
+            Reload page
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!summary) {
+    return (
+      <div className="animate-fade-in">
+        <div className="theme-card p-6 text-center">
+          <p className="text-slate-500 dark:text-slate-400">No dashboard data available</p>
+        </div>
+      </div>
+    );
+  }
+
+  const activeLeads = summary.statusBreakdown[LeadStatusEnum.APPROVED] + 
+                    summary.statusBreakdown[LeadStatusEnum.PURCHASED] + 
+                    summary.statusBreakdown[LeadStatusEnum.QUOTED];
+
+  const pendingLeads = summary.statusBreakdown[LeadStatusEnum.PENDING_APPROVAL] + 
+                      summary.statusBreakdown[LeadStatusEnum.PENDING_PHONE];
+
+  return (
+    <div className="animate-fade-in space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 className="text-base sm:text-lg font-semibold text-slate-800 dark:text-slate-200">
+            Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'}!
+          </h2>
+          <div className="flex items-center gap-2 mt-1">
+            <VerifiedBadge 
+              verified={summary.phoneVerified} 
+              variant="inline" 
+              size="sm" 
+            />
+            {summary.requiresVerification && (
+              <span className="text-xs text-amber-600 dark:text-amber-400">
+                Verification required for more quotes
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <RequestMoreQuotesCTA
+        remaining={summary.remainingLeadAllowance}
+        quoteLimit={summary.quoteLimit}
+        requiresVerification={summary.requiresVerification}
+        onRequest={onRequestMoreQuotes}
+        onVerifyContact={onVerifyContact}
+        className="mb-6"
+      />
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <StatCard 
+          icon={<FileTextIcon />} 
+          title="Quote Requests" 
+          value={summary.totalSubmitted.toString()} 
+          change={`${summary.remainingLeadAllowance} remaining`}
+          actionText="View All Requests" 
+          onClick={() => {/* Navigate to requests */}}
+        />
+        <StatCard 
+          icon={<GavelIcon />} 
+          title="Active Leads" 
+          value={activeLeads.toString()} 
+          change={pendingLeads > 0 ? `${pendingLeads} pending review` : 'All approved'}
+          actionText="Go to Bidding Room" 
+          onClick={() => {/* Navigate to bidding */}}
+        />
+        <StatCard 
+          icon={<MessageSquareIcon />} 
+          title="Messages" 
+          value="0" 
+          change="No new messages"
+          actionText="Open Inbox" 
+          onClick={() => {/* Open messages */}}
+        />
+        <StatCard 
+          icon={<SparklesIcon />} 
+          title="Last Activity" 
+          value={summary.lastSubmissionAt ? formatRelativeTime(summary.lastSubmissionAt) : 'Never'} 
+          change="Quote submission"
+          actionText="View Timeline" 
+          onClick={() => {/* View activity */}}
+        />
+      </div>
+
+      <div className="theme-card p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-4">Recent Quote Requests</h3>
+        {summary.recentLeads.length === 0 ? (
+          <div className="text-center py-10">
+            <p className="text-slate-500 dark:text-slate-400">No quote requests yet.</p>
+            <button 
+              onClick={onRequestMoreQuotes}
+              className="mt-2 text-primary hover:text-teal-700 dark:hover:text-teal-300 font-semibold"
+            >
+              Create your first request &rarr;
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {summary.recentLeads.map((lead) => {
+              const statusInfo = STATUS_LABELS[lead.status as LeadStatus];
+              return (
+                <div key={lead.id} className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-sm font-medium text-slate-900 dark:text-white">
+                        {QUOTE_TYPE_LABELS[lead.quoteType]}
+                      </span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${statusInfo.accent}`}>
+                        {statusInfo.label}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                      Created {formatDateTime(lead.createdAt)} • {formatCurrency(lead.leadPrice)}
+                    </p>
+                  </div>
+                  <button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 ml-2">
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
@@ -349,7 +534,7 @@ export default function HomeownerDashboardPage() {
   // Modal states
   const [isNewQuoteModalOpen, setIsNewQuoteModalOpen] = useState(false);
   const [isMessagingModalOpen, setIsMessagingModalOpen] = useState(false);
-  const [isContactVerificationOpen, setIsContactVerificationOpen] = useState(false);
+  const [showContactVerificationModal, setShowContactVerificationModal] = useState(false);
   const [pendingOTP, setPendingOTP] = useState<PendingOTPState | null>(null);
   const [showOTPModal, setShowOTPModal] = useState(false);
   const [isSubmittingRequest, setIsSubmittingRequest] = useState(false);
@@ -357,6 +542,10 @@ export default function HomeownerDashboardPage() {
   const [dashboardSummary, setDashboardSummary] = useState<HomeownerDashboardSummary | null>(null);
   const [isLoadingSummary, setIsLoadingSummary] = useState(true);
   const [summaryError, setSummaryError] = useState<string | null>(null);
+
+  // Aliases for component compatibility
+  const isLoading = isLoadingSummary;
+  const error = summaryError;
 
   // User profile state
   const [userProfile, setUserProfile] = useState({
@@ -447,7 +636,7 @@ export default function HomeownerDashboardPage() {
     }
 
     if (dashboardSummary.requiresVerification) {
-      setIsContactVerificationOpen(true);
+      setShowContactVerificationModal(true);
       return;
     }
 
@@ -460,7 +649,7 @@ export default function HomeownerDashboardPage() {
 
   const handleOTPRequested = (payload: PendingOTPState) => {
     setPendingOTP(payload);
-    setIsContactVerificationOpen(false);
+    setShowContactVerificationModal(false);
     setShowOTPModal(true);
   };
 
@@ -468,14 +657,24 @@ export default function HomeownerDashboardPage() {
     setShowOTPModal(false);
     setPendingOTP(null);
     
-    // Refresh session to get updated phoneVerified status
-    await updateSession();
+    // Update session to reflect phone verification success
+    await updateSession({
+      phoneVerified: true
+    });
     
     // Refresh dashboard summary
     await fetchDashboardSummary();
     
     // Show success message or open quote modal
     setIsNewQuoteModalOpen(true);
+  };
+
+  const handleRequestMoreQuotes = () => {
+    if (dashboardSummary?.requiresVerification) {
+      setShowContactVerificationModal(true);
+    } else {
+      setIsNewQuoteModalOpen(true);
+    }
   };
 
   const handleResendOTP = async (): Promise<{
@@ -534,7 +733,15 @@ export default function HomeownerDashboardPage() {
   const renderContent = () => {
     switch (activePage) {
       case 'Dashboard Overview':
-        return <DashboardOverviewContent />;
+        return (
+          <DashboardOverviewContent 
+            summary={dashboardSummary}
+            isLoading={isLoading}
+            error={error}
+            onRequestMoreQuotes={handleRequestMoreQuotes}
+            onVerifyContact={() => setShowContactVerificationModal(true)}
+          />
+        );
       case 'Call/Visit Quotes':
         return <PlaceholderContent title="Call/Visit Quotes" />;
       case 'Written Quotes':
@@ -548,7 +755,15 @@ export default function HomeownerDashboardPage() {
       case 'My Profile':
         return <ProfileManagement onDeleteClick={handleDeleteAccount} />;
       default:
-        return <DashboardOverviewContent />;
+        return (
+          <DashboardOverviewContent 
+            summary={dashboardSummary}
+            isLoading={isLoading}
+            error={error}
+            onRequestMoreQuotes={handleRequestMoreQuotes}
+            onVerifyContact={() => setShowContactVerificationModal(true)}
+          />
+        );
     }
   };
 
@@ -620,6 +835,23 @@ export default function HomeownerDashboardPage() {
       <MessagingModal
         isOpen={isMessagingModalOpen}
         onClose={() => setIsMessagingModalOpen(false)}
+      />
+
+      <ContactVerificationModal
+        isOpen={showContactVerificationModal}
+        defaultPhone={session?.user?.phone || ''}
+        onClose={() => setShowContactVerificationModal(false)}
+        onOTPRequested={handleOTPRequested}
+      />
+
+      <OTPVerificationModal
+        isOpen={showOTPModal}
+        onClose={() => setShowOTPModal(false)}
+        phoneNumber={pendingOTP?.phoneNumber || session?.user?.phone || ''}
+        verificationId={pendingOTP?.verificationId || ''}
+        expiresAt={pendingOTP?.expiresAt || new Date()}
+        onVerificationSuccess={handleOTPVerificationSuccess}
+        onResendOTP={handleResendOTP}
       />
     </div>
   );

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 
 interface ContactVerificationModalProps {
   isOpen: boolean;
@@ -57,6 +58,7 @@ const ContactVerificationModal: React.FC<ContactVerificationModalProps> = ({
   onClose,
   onOTPRequested,
 }) => {
+  const { data: session, update: updateSession } = useSession();
   const [phoneNumber, setPhoneNumber] = useState(defaultPhone ?? '');
   const [error, setError] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -110,12 +112,44 @@ const ContactVerificationModal: React.FC<ContactVerificationModalProps> = ({
     setStatusMessage(null);
 
     try {
+      const trimmedPhone = phoneNumber.trim();
+      
+      // Check if phone number has changed from the current user's phone
+      const phoneHasChanged = session?.user?.phone !== trimmedPhone;
+      
+      // If phone number changed, update it in the database first
+      if (phoneHasChanged && session?.user?.phone !== null) {
+        const updateResponse = await fetch('/api/user/update-phone', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ phoneNumber: trimmedPhone }),
+        });
+
+        const updateData = await updateResponse.json();
+
+        if (!updateResponse.ok || !updateData.success) {
+          setError(updateData.error ?? 'Failed to update phone number. Please try again.');
+          return;
+        }
+
+        // Update the session with the new phone number
+        await updateSession({
+          phone: trimmedPhone,
+          phoneVerified: false // Reset verification status
+        });
+
+        setStatusMessage('Phone number updated. Sending verification code...');
+      }
+
+      // Send OTP to the (possibly updated) phone number
       const response = await fetch('/api/verification/send-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ phoneNumber: phoneNumber.trim() }),
+        body: JSON.stringify({ phoneNumber: trimmedPhone }),
       });
 
       const data: Partial<SendOtpResponse> & { error?: string; retryAfter?: number } = await response.json();
@@ -132,7 +166,7 @@ const ContactVerificationModal: React.FC<ContactVerificationModalProps> = ({
 
       setStatusMessage('Verification code sent!');
       onOTPRequested({
-        phoneNumber: phoneNumber.trim(),
+        phoneNumber: trimmedPhone,
         verificationId: data.verificationId,
         expiresAt: new Date(data.expiresAt),
         remainingAttempts: data.remainingAttempts ?? 3,
