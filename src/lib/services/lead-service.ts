@@ -455,6 +455,8 @@ export async function getLeadById(input: GetLeadByIdInput) {
           email: true,
           phone: true,
           phoneVerified: true,
+          leadSubmissionLimit: true,
+          leadSubmissionCount: true,
         },
       },
       installer: {

@@ -57,6 +57,8 @@ interface Lead {
     name: string | null;
     email: string | null;
     phoneVerified: boolean;
+    leadSubmissionLimit: number;
+    leadSubmissionCount: number;
   };
   installer?: {
     id: string;
@@ -423,6 +425,64 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
               </div>
             </div>
           </div>
+
+          {/* HOMEOWNER QUOTE QUOTA */}
+          {lead.homeowner && (
+            <div className={`p-6 rounded-lg ${theme === 'dark' ? 'bg-[#1A1F2E]' : 'bg-white'} shadow-sm`}>
+              <h2 className={`text-xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                📊 Quote Request Quota
+              </h2>
+              <div className="space-y-4">
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="text-center">
+                    <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Total Limit</p>
+                    <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-blue-400' : 'text-blue-600'}`}>
+                      {lead.homeowner.leadSubmissionLimit}
+                    </p>
+                  </div>
+                  <div className="text-center">
+                    <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Submitted</p>
+                    <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-yellow-400' : 'text-yellow-600'}`}>
+                      {lead.homeowner.leadSubmissionCount}
+                    </p>
+                  </div>
+                  <div className="text-center">
+                    <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Remaining</p>
+                    <p className={`text-2xl font-bold ${
+                      lead.homeowner.leadSubmissionLimit - lead.homeowner.leadSubmissionCount > 0
+                        ? theme === 'dark' ? 'text-green-400' : 'text-green-600'
+                        : theme === 'dark' ? 'text-red-400' : 'text-red-600'
+                    }`}>
+                      {Math.max(0, lead.homeowner.leadSubmissionLimit - lead.homeowner.leadSubmissionCount)}
+                    </p>
+                  </div>
+                </div>
+                
+                {/* Progress Bar */}
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                  <div
+                    className={`h-3 rounded-full transition-all ${
+                      lead.homeowner.leadSubmissionCount >= lead.homeowner.leadSubmissionLimit
+                        ? 'bg-red-500'
+                        : lead.homeowner.leadSubmissionCount / lead.homeowner.leadSubmissionLimit > 0.8
+                        ? 'bg-yellow-500'
+                        : 'bg-green-500'
+                    }`}
+                    style={{
+                      width: `${Math.min(100, (lead.homeowner.leadSubmissionCount / lead.homeowner.leadSubmissionLimit) * 100)}%`
+                    }}
+                  />
+                </div>
+                
+                {/* Status Message */}
+                {lead.homeowner.leadSubmissionCount >= lead.homeowner.leadSubmissionLimit && (
+                  <div className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-red-500/20 text-red-300' : 'bg-red-100 text-red-700'}`}>
+                    <p className="text-sm font-medium">⚠️ Quota limit reached</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* PROJECT DETAILS */}
           <div className={`p-6 rounded-lg ${theme === 'dark' ? 'bg-[#1A1F2E]' : 'bg-white'} shadow-sm`}>

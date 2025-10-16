@@ -40,6 +40,7 @@
      - Missing field? Check spec - should it exist in schema?
      - Wrong type? Check spec - is service signature correct?
    - **No Spec Drift**: If you modify Prisma schema, update it ONCE at start of phase, not mid-phase
+   - **Manual QA Checklist Required**: For any task that includes BOTH backend and frontend changes, add a short "Manual QA Checklist" directly under that task with steps to validate UI states, API calls (success and one error path), and data accuracy. Keep it observable and role-specific (Admin/Homeowner).
 
 3. **Post-Phase Validation** (MUST COMPLETE BEFORE COMMIT):
    - ✅ **Schema Validation**: Run `npx prisma validate` - schema must match spec
@@ -410,26 +411,45 @@ grep "export.*CreateNotificationInput" src/types/notification.ts -A 10
 #### Services & Business Logic
 - [X] **T164** [US1] Update `createLead` in `src/lib/services/lead-service.ts` to persist `quoteType`, honour per-user `leadSubmissionLimit`, and return remaining balance metadata for UI refresh.
 - [X] **T165** [US1] Implement `getHomeownerLeadSummary(userId)` in `lead-service.ts` (or new `homeowner-dashboard-service.ts`) to compute totals, remaining balance, latest leads (status + timestamps), and verification state in one call.
-- [X] **T166** [US2] Add admin helper in `settings-service` or new `homeowner-admin-service` to update a homeowner's `leadSubmissionLimit`, including audit log entry and optional notification.
+- [X] **T166** [US2] Add admin helper in `settings-service` or new `homeowner-admin-service` to update a homeowner's `leadSubmissionLimit`, including audit log entry and optional notification. ✅ (Verified: `homeowner-admin-service.ts` exists with `updateHomeownerQuoteLimit`)
 
 #### API Surface
 - [X] **T167** [US1] Create GET `/api/homeowner/dashboard` in `src/app/api/homeowner/dashboard/route.ts` returning summary payload from T165 with caching headers set to `no-store`.
-- [X] **T168** [US2] Create PATCH `/api/admin/homeowners/[id]/lead-limit` in `src/app/api/admin/homeowners/[id]/lead-limit/route.ts` (ADMIN only) to adjust quote limits, validate bounds (>= initial default), and log action.
+- [X] **T168** [US2] Create PATCH `/api/admin/homeowners/[id]/lead-limit` in `src/app/api/admin/homeowners/[id]/lead-limit/route.ts` (ADMIN only) to adjust quote limits, validate bounds (>= initial default), and log action. ✅ (Verified: File exists at `src/app/api/admin/homeowners/[id]/lead-limit/route.ts`)
 - [X] **T169** [US1] Update POST `/api/leads` handler to interpret `quoteType` from request body safely, enforce remaining balance prior to creation, and return refreshed summary in response when successful.
 
 #### Homeowner Experience (Backend Complete ✅, Frontend Partial ⚠️)
 - [X] **T170** [US1] Refactor `src/app/homeowner/dashboard/page.tsx` to fetch dashboard summary (SWR or `useEffect`), render metric cards (requested/limit remaining), verification badge, and per-lead status list with quote type labels. (✅ COMPLETE: Dashboard fetches and displays real data)
 - [X] **T171** [US1] Create `RequestMoreQuotesCTA` component (dashboard) that opens new multi-step flow only when `remaining > 0`; show disabled state + error copy otherwise. (✅ COMPLETE: Component created with quota display)
 - [X] **T172** [US1] Build `ContactVerificationModal` in `src/components/homeowner/ContactVerificationModal.tsx` with editable phone field, required message from spec, and OTP initiation using existing `/api/verification/send-otp` endpoint. (⚠️ PARTIAL: Modal exists but phone not pre-populated from user profile on load)
+  - Note: Phone pre-population was completed in Phase 4.9 (see T186-T189). Leaving task checked here for Phase 4.8 continuity.
 - [X] **T173** [US1] Integrate `OTPVerificationModal` into new flow so successful verification updates UI state, grants badge immediately, and memoises verification session (no OTP re-request during browser session). (✅ COMPLETE: OTP flow integrated with session updates)
 - [X] **T174** [US1] Enhance `NewQuoteRequestModal` / `InstantQuoteForm` to accept initial values from the homeowner's previous lead, allow recalculation, and emit structured payload without auto-submitting lead. (✅ COMPLETE: Dashboard passes recent lead quoteData, modal pre-fills fields, and form recalculates on update)
 - [ ] **T175** [US1] Create `QuoteDistributionModal` to let homeowner choose Call/Visit vs Written counts within remaining balance, surface live counter, and prevent over-allocation with inline validation. (⚠️ DEFERRED: Single quote type selection sufficient for MVP)
 - [X] **T176** [US1] Wire the request flow: verification → quote form → distribution → call POST `/api/leads` per distribution selection (multiple lead creations if >1) and refresh dashboard summary on success without page reload. (✅ COMPLETE: Flow works, dashboard refreshes after submission)
 
 #### Admin Controls & Visibility
-- [ ] **T177** [US2] Extend `AdminHomeownersList` (and API response) to surface current quote limit and usage (columns + filter chips).
-- [ ] **T178** [US2] Add inline edit or modal in admin UI to update quote limit via T168 endpoint, showing success toast and immediate list refresh.
-- [ ] **T179** [US2] Update admin lead detail view to display homeowner's limit, submitted count, and remaining balance for quicker decisions.
+- [X] **T177** [US2] Extend `AdminHomeownersList` (and API response) to surface current quote limit and usage (columns + filter chips). ✅ (Complete: quota filter chips added, Lead Usage/Remaining columns added, phone verified badge added, API returns quota data)
+  - Manual QA Checklist:
+    - [ ] Table shows columns: Lead Usage (X/Y), Remaining, Phone Verified badge
+    - [ ] Quota filter chips work (All/Available/Exhausted) and counts reflect filtered data
+    - [ ] API: Network GET `/api/admin/homeowners` returns limit/count for rows
+    - [ ] No console errors; pagination/search/postcode filter still work
+    - [ ] Dark/Light mode visuals OK
+- [X] **T178** [US2] Add inline edit or modal in admin UI to update quote limit via T168 endpoint, showing success toast and immediate list refresh. ✅ (Complete: Added inline edit state, handlers, input field, and save/cancel buttons in AdminHomeownersList with API integration)
+  - Manual QA Checklist:
+    - [ ] Clicking Edit shows input + Save/Cancel
+    - [ ] Save calls PATCH `/api/admin/homeowners/:id/lead-limit` with new number
+    - [ ] Success toast appears and table refreshes with updated limit
+    - [ ] Validation: negative/zero rejected with error message
+    - [ ] Cancel reverts to display mode without changes
+- [X] **T179** [US2] Update admin lead detail view to display homeowner's limit, submitted count, and remaining balance for quicker decisions. ✅ (Complete: Extended lead-service.ts to include leadSubmissionLimit/Count, updated Lead interface, added quota display card with progress bar in admin lead detail page)
+  - Manual QA Checklist:
+    - [ ] Lead detail shows Quote Request Quota card with Total Limit (blue), Submitted (yellow), Remaining (green/red)
+    - [ ] Progress bar fills according to usage; warning appears when remaining = 0
+    - [ ] Data matches DB after editing limit in homeowners list (consistency)
+    - [ ] API: GET `/api/leads/:id` includes homeowner.leadSubmissionLimit/Count
+    - [ ] No visual regressions in other lead detail sections
 
 #### Validation & Regression Safety
 - [ ] **T180** [US1] Write integration test script (manual or Playwright note) covering verification → re-request flow → dashboard refresh, documenting expected API responses.
@@ -467,7 +487,15 @@ grep "export.*CreateNotificationInput" src/types/notification.ts -A 10
 3. ⚠️ OTP spam/back button abuses → ensure verification context stored in state, throttle UI button, rely on existing rate-limit service.
 4. ⚠️ Multiple lead creation request collisions → centralise creation loop with Promise.allSettled, rollback UI counts on partial failure and surface toast.
 
-**Phase 4.8 Status:** ✅ Backend Complete, ⚠️ Frontend Partial - See Phase 4.9 for remaining work
+**Phase 4.8 Status:** ✅ Backend Complete, ✅ Admin UI Complete
+
+Status notes (2025-10-16):
+- T161-T169: ✅ ALL COMPLETE (schema, services, APIs verified)
+- T170-T176: ✅ Homeowner experience complete
+- T177: ✅ COMPLETE (admin list shows quotas + filters)
+- T178: ✅ COMPLETE (inline edit with save/cancel in AdminHomeownersList)
+- T179: ✅ COMPLETE (quota display card with progress bar in lead detail)
+- T172 pre-fill issue addressed in Phase 4.9.
 
 ---
 

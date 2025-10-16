@@ -9,6 +9,10 @@
 
 This document defines the database schema for the Lead Journey & Life Cycle feature. All models follow Prisma conventions and the project constitution. Models are designed to support full audit trail, role-based access, and GDPR compliance.
 
+Alignment notes (2025-10-16):
+- User model includes `leadSubmissionLimit Int @default(5)` used for homeowner quotas.
+- Lead model uses `QuoteType` enum (CALL_VISIT, WRITTEN_QUOTE) consistent with implementation.
+
 ---
 
 ## Entity Relationship Diagram

@@ -552,3 +552,9 @@ I want you to build Prisma, Tables, API , SQL migrations end to end for this :
 
 
 
+I am getting confused after done each phase with what to test eactly manually . I need the exact checklist in real time after done a backend+ frontend done. E.g 
+- You should see a OTP verification modal
+- Then verify OTP 
+- After that see a reqest more quotes. 
+
+*** I want the clear checklist to for manual check after each Backend+frontend done. It should be mentioed in the workflow. 

@@ -20,6 +20,10 @@ interface Homeowner {
   image: string | null;
   isActive: boolean;
   createdAt: string;
+  phoneVerified: boolean;
+  leadSubmissionCount: number;
+  leadSubmissionLimit: number;
+  remainingLeadAllowance: number;
 }
 
 interface ApiResponse {
@@ -35,6 +39,7 @@ interface FilterState {
   status: string;
   from: string;
   to: string;
+  quota: string;
 }
 
 export default function AdminHomeownersList() {
@@ -51,9 +56,13 @@ export default function AdminHomeownersList() {
     postcode: '',
     status: '',
     from: '',
-    to: ''
+    to: '',
+    quota: ''
   });
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState<number>(0);
+  const [updating, setUpdating] = useState(false);
 
   // Debounce search input
   useEffect(() => {
@@ -74,7 +83,8 @@ export default function AdminHomeownersList() {
       if (filters.postcode) params.append('postcode', filters.postcode);
       if (filters.status) params.append('status', filters.status);
       if (filters.from) params.append('from', filters.from);
-      if (filters.to) params.append('to', filters.to);
+    if (filters.to) params.append('to', filters.to);
+    if (filters.quota) params.append('quota', filters.quota);
       params.append('page', page.toString());
       params.append('pageSize', pageSize.toString());
 
@@ -111,13 +121,24 @@ export default function AdminHomeownersList() {
     setPage(1); // Reset to first page on filter change
   };
 
-  const clearFilters = () => {
-    setSearchInput('');
-    setFilters({ q: '', postcode: '', status: '', from: '', to: '' });
+  const toggleQuotaFilter = (value: string) => {
+    setFilters(prev => ({ ...prev, quota: prev.quota === value ? '' : value }));
     setPage(1);
   };
 
-  const hasActiveFilters = searchInput || filters.postcode || filters.status || filters.from || filters.to;
+  const clearFilters = () => {
+    setSearchInput('');
+    setFilters({ q: '', postcode: '', status: '', from: '', to: '', quota: '' });
+    setPage(1);
+  };
+
+  const hasActiveFilters =
+    searchInput ||
+    filters.postcode ||
+    filters.status ||
+    filters.from ||
+    filters.to ||
+    filters.quota;
 
   const totalPages = Math.ceil(total / pageSize);
 
@@ -127,6 +148,51 @@ export default function AdminHomeownersList() {
       month: 'short',
       year: 'numeric'
     });
+  };
+
+  const quotaChipOptions = [
+    { value: 'available', label: 'Has Remaining Quota' },
+    { value: 'exhausted', label: 'At Limit' },
+  ];
+
+  const handleEditClick = (homeowner: Homeowner) => {
+    setEditingId(homeowner.id);
+    setEditValue(homeowner.leadSubmissionLimit);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditValue(0);
+  };
+
+  const handleSaveEdit = async (homeownerId: string) => {
+    if (editValue <= 0 || !Number.isFinite(editValue)) {
+      alert('Quote limit must be a positive number');
+      return;
+    }
+
+    setUpdating(true);
+    try {
+      const response = await fetch(`/api/admin/homeowners/${homeownerId}/lead-limit`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quoteLimit: editValue, notify: true }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update quote limit');
+      }
+
+      // Refresh the list
+      await fetchHomeowners();
+      setEditingId(null);
+      setEditValue(0);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to update quote limit');
+    } finally {
+      setUpdating(false);
+    }
   };
 
   return (
@@ -165,6 +231,37 @@ export default function AdminHomeownersList() {
           placeholder="Search by name, email, phone, or postcode..."
           className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-800 dark:text-white placeholder-slate-400"
         />
+      </div>
+
+      {/* Quota Filter Chips */}
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Quota:</span>
+        {quotaChipOptions.map((option) => {
+          const isActive = filters.quota === option.value;
+          return (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => toggleQuotaFilter(option.value)}
+              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors border ${
+                isActive
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                  : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+              }`}
+            >
+              {option.label}
+            </button>
+          );
+        })}
+        {filters.quota && (
+          <button
+            type="button"
+            onClick={() => toggleQuotaFilter(filters.quota)}
+            className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+          >
+            Clear
+          </button>
+        )}
       </div>
 
       {/* Filters Panel */}
@@ -294,6 +391,12 @@ export default function AdminHomeownersList() {
                     Status
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    Lead Usage
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    Remaining
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     Registered
                   </th>
                 </tr>
@@ -323,8 +426,22 @@ export default function AdminHomeownersList() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-slate-900 dark:text-white">
-                        {homeowner.phone || 'No phone'}
+                      <div className="flex flex-col">
+                        <span className="text-sm text-slate-900 dark:text-white">
+                          {homeowner.phone || 'No phone'}
+                        </span>
+                        {homeowner.phone && (
+                          <span className={`mt-1 inline-flex items-center gap-1 text-xs font-medium ${
+                            homeowner.phoneVerified
+                              ? 'text-green-600 dark:text-green-300'
+                              : 'text-slate-500 dark:text-slate-400'
+                          }`}>
+                            <span className={`inline-block h-2 w-2 rounded-full ${
+                              homeowner.phoneVerified ? 'bg-green-500' : 'bg-slate-400'
+                            }`}></span>
+                            {homeowner.phoneVerified ? 'Verified' : 'Unverified'}
+                          </span>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -339,6 +456,59 @@ export default function AdminHomeownersList() {
                           : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
                       }`}>
                         {homeowner.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-slate-900 dark:text-white">
+                          {homeowner.leadSubmissionCount}/
+                          {editingId === homeowner.id ? (
+                            <input
+                              type="number"
+                              min="1"
+                              value={editValue}
+                              onChange={(e) => setEditValue(Number(e.target.value))}
+                              className="w-16 px-2 py-1 text-sm border border-blue-500 rounded focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-blue-400"
+                              disabled={updating}
+                            />
+                          ) : (
+                            homeowner.leadSubmissionLimit
+                          )}
+                        </span>
+                        {editingId === homeowner.id ? (
+                          <div className="flex gap-1">
+                            <button
+                              onClick={() => handleSaveEdit(homeowner.id)}
+                              disabled={updating}
+                              className="px-2 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+                            >
+                              {updating ? '...' : '✓'}
+                            </button>
+                            <button
+                              onClick={handleCancelEdit}
+                              disabled={updating}
+                              className="px-2 py-1 text-xs bg-slate-500 text-white rounded hover:bg-slate-600 disabled:opacity-50"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => handleEditClick(homeowner)}
+                            className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
+                          >
+                            Edit
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        homeowner.remainingLeadAllowance > 0
+                          ? 'bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-200'
+                          : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200'
+                      }`}>
+                        {homeowner.remainingLeadAllowance}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
@@ -382,10 +552,29 @@ export default function AdminHomeownersList() {
                   <div>
                     <span className="text-slate-500 dark:text-slate-400">Phone:</span>
                     <div className="text-slate-900 dark:text-white">{homeowner.phone || 'No phone'}</div>
+                    {homeowner.phone && (
+                      <div className={`text-xs font-medium ${
+                        homeowner.phoneVerified
+                          ? 'text-green-600 dark:text-green-300'
+                          : 'text-slate-500 dark:text-slate-400'
+                      }`}>
+                        {homeowner.phoneVerified ? 'Verified' : 'Unverified'}
+                      </div>
+                    )}
                   </div>
                   <div>
                     <span className="text-slate-500 dark:text-slate-400">Postcode:</span>
                     <div className="text-slate-900 dark:text-white">{homeowner.postcode || 'Not set'}</div>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 dark:text-slate-400">Lead Usage:</span>
+                    <div className="text-slate-900 dark:text-white">
+                      {homeowner.leadSubmissionCount}/{homeowner.leadSubmissionLimit}
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 dark:text-slate-400">Remaining:</span>
+                    <div className="text-slate-900 dark:text-white">{homeowner.remainingLeadAllowance}</div>
                   </div>
                   <div className="col-span-2">
                     <span className="text-slate-500 dark:text-slate-400">Registered:</span>
