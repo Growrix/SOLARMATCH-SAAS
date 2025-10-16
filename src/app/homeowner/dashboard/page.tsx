@@ -80,6 +80,7 @@ interface RecentLeadSummary {
   purchaseStatus: string | null;
   purchasedAt: string | null;
   visibility: string;
+  quoteData: Record<string, unknown> | null;
 }
 
 interface HomeownerDashboardSummary {
@@ -542,6 +543,7 @@ export default function HomeownerDashboardPage() {
   const [dashboardSummary, setDashboardSummary] = useState<HomeownerDashboardSummary | null>(null);
   const [isLoadingSummary, setIsLoadingSummary] = useState(true);
   const [summaryError, setSummaryError] = useState<string | null>(null);
+  const [quoteFormInitialData, setQuoteFormInitialData] = useState<Record<string, unknown> | null>(null);
 
   // Aliases for component compatibility
   const isLoading = isLoadingSummary;
@@ -572,7 +574,7 @@ export default function HomeownerDashboardPage() {
   };
 
   // Fetch dashboard summary
-  const fetchDashboardSummary = useCallback(async () => {
+  const fetchDashboardSummary = useCallback(async (): Promise<HomeownerDashboardSummary | null> => {
     setIsLoadingSummary(true);
     setSummaryError(null);
 
@@ -591,13 +593,21 @@ export default function HomeownerDashboardPage() {
 
       const summary = (await response.json()) as HomeownerDashboardSummary;
       setDashboardSummary(summary);
+      return summary;
     } catch (error) {
       console.error('[HomeownerDashboard] Failed to load summary:', error);
       setSummaryError(error instanceof Error ? error.message : 'Failed to load summary');
+      return null;
     } finally {
       setIsLoadingSummary(false);
     }
   }, []);
+
+  const getLatestQuoteData = useCallback(
+    (summary: HomeownerDashboardSummary | null): Record<string, unknown> | null =>
+      summary?.recentLeads?.[0]?.quoteData ?? null,
+    [],
+  );
 
   useEffect(() => {
     fetchDashboardSummary();
@@ -635,6 +645,8 @@ export default function HomeownerDashboardPage() {
       return;
     }
 
+    setQuoteFormInitialData(getLatestQuoteData(dashboardSummary));
+
     if (dashboardSummary.requiresVerification) {
       setShowContactVerificationModal(true);
       return;
@@ -659,17 +671,20 @@ export default function HomeownerDashboardPage() {
     
     // Update session to reflect phone verification success
     await updateSession({
-      phoneVerified: true
+      phoneVerified: true,
     });
     
     // Refresh dashboard summary
-    await fetchDashboardSummary();
+    const updatedSummary = await fetchDashboardSummary();
+    setQuoteFormInitialData(getLatestQuoteData(updatedSummary ?? dashboardSummary));
     
     // Show success message or open quote modal
     setIsNewQuoteModalOpen(true);
   };
 
   const handleRequestMoreQuotes = () => {
+    setQuoteFormInitialData(getLatestQuoteData(dashboardSummary ?? null));
+
     if (dashboardSummary?.requiresVerification) {
       setShowContactVerificationModal(true);
     } else {
@@ -824,12 +839,14 @@ export default function HomeownerDashboardPage() {
         onQuoteCalculated={(data) => {
           console.log('Quote calculated:', data);
           // Handle quote data - could store in state or navigate to quote details
+          setQuoteFormInitialData(data as Record<string, unknown>);
         }}
         onProceedToDetailedQuote={() => {
           setIsNewQuoteModalOpen(false);
           // Navigate to detailed quote page or show detailed quote form
           setActivePage('Quote Requests');
         }}
+        initialData={quoteFormInitialData}
       />
 
       <MessagingModal

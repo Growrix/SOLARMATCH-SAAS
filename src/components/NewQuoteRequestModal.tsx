@@ -10,13 +10,15 @@ interface NewQuoteRequestModalProps {
   onClose: () => void;
   onQuoteCalculated: (data: any) => void;
   onProceedToDetailedQuote: () => void;
+  initialData?: Record<string, unknown> | null;
 }
 
 const NewQuoteRequestModal: React.FC<NewQuoteRequestModalProps> = ({ 
   isOpen, 
   onClose,
   onQuoteCalculated,
-  onProceedToDetailedQuote
+  onProceedToDetailedQuote,
+  initialData,
 }) => {
   useEffect(() => {
     if (!isOpen) return;
@@ -54,6 +56,7 @@ const NewQuoteRequestModal: React.FC<NewQuoteRequestModalProps> = ({
         <InstantQuoteForm 
           onQuoteCalculated={onQuoteCalculated}
           onProceedToDetailedQuote={onProceedToDetailedQuote}
+          initialData={initialData ?? null}
         />
       </div>
     </div>

@@ -56,6 +56,13 @@
    - ✅ **Task Checklist**: Every task T### must be checked off with proof
    - ✅ **Regression Check**: Run dev server, verify existing features still work
 
+### Manual QA Checklist (After Backend + Frontend Work)
+- Start with a clean browser session (incognito or cleared storage) to avoid cached data during validation.
+- Walk through every new UI entry point in sequence; e.g., dashboard → OTP verification modal → verify code → Request More Quotes flow → confirm prefilled instant quote fields → submit and observe dashboard refresh.
+- Exercise at least one error path for the updated feature (invalid OTP, missing required field, exhausted quota) and ensure UI messaging matches spec with no console errors.
+- Inspect network requests in dev tools or Thunder Client while executing the flow to confirm payloads and responses match the API contracts.
+- Document findings (successes, failures, screenshots) and extend this checklist with feature-specific steps before handing off for review.
+
 4. **Commit Approval** (MANDATORY):
    - ❌ **NEVER commit without explicit user approval**
    - Present validation results:
@@ -415,7 +422,7 @@ grep "export.*CreateNotificationInput" src/types/notification.ts -A 10
 - [X] **T171** [US1] Create `RequestMoreQuotesCTA` component (dashboard) that opens new multi-step flow only when `remaining > 0`; show disabled state + error copy otherwise. (✅ COMPLETE: Component created with quota display)
 - [X] **T172** [US1] Build `ContactVerificationModal` in `src/components/homeowner/ContactVerificationModal.tsx` with editable phone field, required message from spec, and OTP initiation using existing `/api/verification/send-otp` endpoint. (⚠️ PARTIAL: Modal exists but phone not pre-populated from user profile on load)
 - [X] **T173** [US1] Integrate `OTPVerificationModal` into new flow so successful verification updates UI state, grants badge immediately, and memoises verification session (no OTP re-request during browser session). (✅ COMPLETE: OTP flow integrated with session updates)
-- [ ] **T174** [US1] Enhance `NewQuoteRequestModal` / `InstantQuoteForm` to accept initial values from the homeowner's previous lead, allow recalculation, and emit structured payload without auto-submitting lead. (⚠️ DEFERRED: Can reuse existing instant quote flow for MVP)
+- [X] **T174** [US1] Enhance `NewQuoteRequestModal` / `InstantQuoteForm` to accept initial values from the homeowner's previous lead, allow recalculation, and emit structured payload without auto-submitting lead. (✅ COMPLETE: Dashboard passes recent lead quoteData, modal pre-fills fields, and form recalculates on update)
 - [ ] **T175** [US1] Create `QuoteDistributionModal` to let homeowner choose Call/Visit vs Written counts within remaining balance, surface live counter, and prevent over-allocation with inline validation. (⚠️ DEFERRED: Single quote type selection sufficient for MVP)
 - [X] **T176** [US1] Wire the request flow: verification → quote form → distribution → call POST `/api/leads` per distribution selection (multiple lead creations if >1) and refresh dashboard summary on success without page reload. (✅ COMPLETE: Flow works, dashboard refreshes after submission)
 

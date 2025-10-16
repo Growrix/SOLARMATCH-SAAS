@@ -28,13 +28,15 @@ const InfoTooltip = ({ text }: { text: string }) => (
 interface InstantQuoteFormProps {
   onProceedToDetailedQuote: () => void;
   onQuoteCalculated: (data: any) => void;
+  initialData?: Record<string, unknown> | null;
 }
 
-const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailedQuote, onQuoteCalculated }) => {
+const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailedQuote, onQuoteCalculated, initialData = null }) => {
   const [quoteType, setQuoteType] = useState<'residential' | 'commercial'>('residential');
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isPrefilling, setIsPrefilling] = useState(false);
   
   // Generate or retrieve session ID for tracking
   const [sessionId] = useState(() => {
@@ -155,6 +157,117 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
   };
 
   useEffect(() => {
+    if (!initialData) {
+      return;
+    }
+
+    const data = initialData as Record<string, unknown>;
+
+    const pickString = (keys: string[], fallback: string): string => {
+      for (const key of keys) {
+        const value = data[key];
+        if (typeof value === 'string') {
+          return value;
+        }
+        if (typeof value === 'number' && !Number.isNaN(value)) {
+          return String(value);
+        }
+      }
+      return fallback;
+    };
+
+    const pickNumber = (keys: string[], fallback: number): number => {
+      for (const key of keys) {
+        const value = data[key];
+        if (typeof value === 'number' && !Number.isNaN(value)) {
+          return value;
+        }
+        if (typeof value === 'string' && value.trim() !== '') {
+          const parsed = Number(value);
+          if (!Number.isNaN(parsed)) {
+            return parsed;
+          }
+        }
+      }
+      return fallback;
+    };
+
+    const pickBoolean = (keys: string[], fallback: boolean): boolean => {
+      for (const key of keys) {
+        const value = data[key];
+        if (typeof value === 'boolean') {
+          return value;
+        }
+      }
+      return fallback;
+    };
+
+    const pickArray = <T,>(key: string, fallback: T[]): T[] => {
+      const value = data[key];
+      return Array.isArray(value) ? (value as T[]) : fallback;
+    };
+
+    setIsPrefilling(true);
+
+  const nextQuoteTypeRaw = pickString(['propertyType', 'quoteType'], 'residential');
+    const nextQuoteType = nextQuoteTypeRaw === 'commercial' ? 'commercial' : 'residential';
+    setQuoteType((prev) => (prev === nextQuoteType ? prev : nextQuoteType));
+
+    setFormData((prev) => ({
+      ...prev,
+      postcode: pickString(['postcode', 'propertyPostcode'], prev.postcode),
+      location: pickString(['location'], prev.location),
+      state: pickString(['state'], prev.state),
+      roofType: pickString(['roofType'], prev.roofType),
+      budgetRange: pickString(['budgetRange'], prev.budgetRange),
+      batteryIncluded: pickBoolean(['batteryIncluded', 'batteryRequired'], prev.batteryIncluded),
+      batteryCapacity: pickString(['batteryCapacity'], prev.batteryCapacity),
+      batteryBrand: pickString(['batteryBrand'], prev.batteryBrand),
+      customBatteryCapacity: pickString(['customBatteryCapacity'], prev.customBatteryCapacity),
+      backupCritical: pickString(['backupCritical'], prev.backupCritical),
+      batteryUsage: pickString(['batteryUsage'], prev.batteryUsage),
+      includeVPP: pickBoolean(['includeVPP'], prev.includeVPP),
+      includeEVCharging: pickBoolean(['includeEVCharging'], prev.includeEVCharging),
+      includeSmartHome: pickBoolean(['includeSmartHome'], prev.includeSmartHome),
+      includeGridServices: pickBoolean(['includeGridServices'], prev.includeGridServices),
+      desiredOffset: pickNumber(['desiredOffset'], prev.desiredOffset),
+      hasExistingSystem: pickBoolean(['hasExistingSystem'], prev.hasExistingSystem),
+      existingSystemSize: pickString(['existingSystemSize'], prev.existingSystemSize),
+      panelOrientation: pickString(['panelOrientation'], prev.panelOrientation),
+      roofTilt: pickString(['roofTilt'], prev.roofTilt),
+      shadingLevel: pickString(['shadingLevel'], prev.shadingLevel),
+      usagePattern: pickString(['usagePattern'], prev.usagePattern),
+      customRetailRate: pickString(['customRetailRate'], prev.customRetailRate),
+      customFeedInRate: pickString(['customFeedInRate'], prev.customFeedInRate),
+      retailer: pickString(['retailer'], prev.retailer),
+      tariffPlan: pickString(['tariffPlan'], prev.tariffPlan),
+      panelBrand: pickString(['panelBrand'], prev.panelBrand),
+      includeOptimizers: pickBoolean(['includeOptimizers'], prev.includeOptimizers),
+      includeMicroinverters: pickBoolean(['includeMicroinverters'], prev.includeMicroinverters),
+      peakDemand: pickString(['peakDemand'], prev.peakDemand),
+      isThreePhase: pickBoolean(['isThreePhase'], prev.isThreePhase),
+      projectPriority: pickString(['projectPriority'], prev.projectPriority),
+      additionalArrays: pickArray('additionalArrays', prev.additionalArrays),
+      systemSizeOverride: pickString(['systemSizeOverride'], prev.systemSizeOverride),
+    }));
+
+  const usageTypeRaw = pickString(['electricityUsageType'], 'monthly');
+    setElectricityUsageType(usageTypeRaw === 'quarterly' ? 'quarterly' : 'monthly');
+    setElectricityValue(pickString(['electricityValue'], ''));
+
+    setErrors({});
+    setCurrentStep(1);
+    setQuoteResult(null);
+    setLoading(false);
+
+    const timeoutId = setTimeout(() => setIsPrefilling(false), 0);
+    return () => {
+      clearTimeout(timeoutId);
+      setIsPrefilling(false);
+    };
+  }, [initialData]);
+
+  useEffect(() => {
     const postcode = formData.postcode;
     if (postcode && postcode.length === 4) {
       fetchSTCZone(postcode).then(z => setStcZoneMultiplier(z)).catch(() => setStcZoneMultiplier(null));
@@ -165,8 +278,11 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
   
   // When quote type changes, reset the entire form to prevent result mismatches
   useEffect(() => {
+    if (isPrefilling) {
+      return;
+    }
     handleStartOver();
-  }, [quoteType]);
+  }, [quoteType, isPrefilling]);
 
   // === Enhanced validation helpers ===
   const validateField = (name: string, value: any): string => {

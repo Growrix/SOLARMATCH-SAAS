@@ -66,6 +66,7 @@ export interface HomeownerLeadSummaryItem {
   purchaseStatus: PurchaseStatus | null;
   purchasedAt: Date | null;
   visibility: LeadVisibility;
+  quoteData: any | null; // Preserve instant quote inputs for pre-fill experiences
 }
 
 export interface HomeownerLeadSummary {
@@ -372,6 +373,7 @@ export async function getHomeownerLeadSummary(userId: string): Promise<Homeowner
         purchaseStatus: true,
         purchasedAt: true,
         visibility: true,
+        quoteData: true,
       },
     }),
     prisma.lead.groupBy({
@@ -415,6 +417,7 @@ export async function getHomeownerLeadSummary(userId: string): Promise<Homeowner
       purchaseStatus: lead.purchaseStatus,
       purchasedAt: lead.purchasedAt,
       visibility: lead.visibility,
+      quoteData: lead.quoteData,
     })),
   };
 }
