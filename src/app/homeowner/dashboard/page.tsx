@@ -9,12 +9,14 @@ import { useTheme, type Theme } from '@/components/ThemeProvider';
 import HomeownerBottomNavBar from '@/components/HomeownerBottomNavBar';
 import HomeownerMobileSidebarMenu from '@/components/HomeownerMobileSidebarMenu';
 import NewQuoteRequestModal from '@/components/NewQuoteRequestModal';
+import QuoteOptionsModal from '@/components/QuoteOptionsModal';
 import MessagingModal from '@/components/MessagingModal';
 import ProfileManagement from '@/components/ProfileManagement';
 import VerifiedBadge from '@/components/VerifiedBadge';
 import RequestMoreQuotesCTA from '@/components/homeowner/RequestMoreQuotesCTA';
 import ContactVerificationModal from '@/components/homeowner/ContactVerificationModal';
 import OTPVerificationModal from '@/components/OTPVerificationModal';
+import FirstQuoteSuccessModal from '@/components/homeowner/FirstQuoteSuccessModal';
 
 // --- Icon Components ---
 const SunIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>;
@@ -435,6 +437,7 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
       <RequestMoreQuotesCTA
         remaining={summary.remainingLeadAllowance}
         quoteLimit={summary.quoteLimit}
+        totalSubmitted={summary.totalSubmitted}
         requiresVerification={summary.requiresVerification}
         onRequest={onRequestMoreQuotes}
         onVerifyContact={onVerifyContact}
@@ -534,11 +537,20 @@ export default function HomeownerDashboardPage() {
   
   // Modal states
   const [isNewQuoteModalOpen, setIsNewQuoteModalOpen] = useState(false);
+  const [isQuoteOptionsModalOpen, setIsQuoteOptionsModalOpen] = useState(false);
   const [isMessagingModalOpen, setIsMessagingModalOpen] = useState(false);
   const [showContactVerificationModal, setShowContactVerificationModal] = useState(false);
   const [pendingOTP, setPendingOTP] = useState<PendingOTPState | null>(null);
   const [showOTPModal, setShowOTPModal] = useState(false);
   const [isSubmittingRequest, setIsSubmittingRequest] = useState(false);
+  const [pendingQuoteData, setPendingQuoteData] = useState<any>(null);
+  const [selectedQuoteType, setSelectedQuoteType] = useState<'CALL_VISIT' | 'WRITTEN_QUOTE' | null>(null);
+  const [showFirstQuoteSuccessModal, setShowFirstQuoteSuccessModal] = useState(false);
+  const [firstQuoteSuccessData, setFirstQuoteSuccessData] = useState<{
+    quoteType: 'CALL_VISIT' | 'WRITTEN_QUOTE';
+    remainingQuotes: number;
+    totalQuoteLimit: number;
+  } | null>(null);
 
   const [dashboardSummary, setDashboardSummary] = useState<HomeownerDashboardSummary | null>(null);
   const [isLoadingSummary, setIsLoadingSummary] = useState(true);
@@ -838,8 +850,10 @@ export default function HomeownerDashboardPage() {
         onClose={() => setIsNewQuoteModalOpen(false)}
         onQuoteCalculated={(data) => {
           console.log('Quote calculated:', data);
-          // Handle quote data - could store in state or navigate to quote details
-          setQuoteFormInitialData(data as Record<string, unknown>);
+          // Store quote data and open QuoteOptionsModal to select quote type
+          setPendingQuoteData(data);
+          setIsNewQuoteModalOpen(false);
+          setIsQuoteOptionsModalOpen(true);
         }}
         onProceedToDetailedQuote={() => {
           setIsNewQuoteModalOpen(false);
@@ -847,6 +861,102 @@ export default function HomeownerDashboardPage() {
           setActivePage('Quote Requests');
         }}
         initialData={quoteFormInitialData}
+      />
+
+      <QuoteOptionsModal
+        isOpen={isQuoteOptionsModalOpen}
+        onClose={() => {
+          setIsQuoteOptionsModalOpen(false);
+          setPendingQuoteData(null);
+        }}
+        onSelectOption={async (quoteType: 'call_visit' | 'written') => {
+          console.log('[Dashboard] Quote type selected (raw):', quoteType);
+          
+          // Transform to API format: 'call_visit' -> 'CALL_VISIT', 'written' -> 'WRITTEN_QUOTE'
+          const apiQuoteType: 'CALL_VISIT' | 'WRITTEN_QUOTE' = 
+            quoteType === 'call_visit' ? 'CALL_VISIT' : 'WRITTEN_QUOTE';
+          
+          console.log('[Dashboard] Quote type (transformed):', apiQuoteType);
+          console.log('[Dashboard] Pending quote data:', pendingQuoteData);
+          setSelectedQuoteType(apiQuoteType);
+          setIsQuoteOptionsModalOpen(false);
+          setIsSubmittingRequest(true);
+
+          try {
+            const payload = {
+              quoteType: apiQuoteType,
+              quoteData: pendingQuoteData,
+              propertyPostcode: pendingQuoteData?.postcode || '',
+              location: pendingQuoteData?.location || '',
+              state: pendingQuoteData?.state || '',
+              propertyType: pendingQuoteData?.propertyType || 'residential',
+              roofType: pendingQuoteData?.roofType || '',
+              energyBill: pendingQuoteData?.electricityUsage || 0,
+              billType: pendingQuoteData?.electricityUsageType || 'quarterly',
+              budgetRange: pendingQuoteData?.budgetRange || '',
+              desiredOffset: pendingQuoteData?.desiredOffset || 100,
+              batteryRequired: pendingQuoteData?.batteryIncluded || false,
+              batteryCapacity: pendingQuoteData?.batteryCapacity || '',
+            };
+            
+            console.log('[Dashboard] Submitting payload:', payload);
+
+            // Submit lead directly since user is already authenticated
+            const response = await fetch('/api/leads', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+              // Handle verification required
+              if (result.requiresVerification) {
+                alert('Phone verification required. Please verify your phone number to submit more quotes.');
+                setShowContactVerificationModal(true);
+                return;
+              }
+
+              // Handle limit reached
+              if (result.limitReached) {
+                alert(`You have reached your quote limit (${result.quoteLimit} total).`);
+                return;
+              }
+
+              throw new Error(result.error || 'Failed to submit lead');
+            }
+
+            // Success! Refresh dashboard
+            console.log('✅ Lead submitted successfully:', result);
+            
+            // Check if this was the first quote submission
+            const isFirstQuote = result.leadSubmissionCount === 1;
+            
+            if (isFirstQuote && apiQuoteType && result.remainingLeadAllowance !== undefined && result.quoteLimit) {
+              // Show first quote success modal with details
+              setFirstQuoteSuccessData({
+                quoteType: apiQuoteType,
+                remainingQuotes: result.remainingLeadAllowance,
+                totalQuoteLimit: result.quoteLimit,
+              });
+              setShowFirstQuoteSuccessModal(true);
+            } else {
+              // Show regular success message for subsequent quotes
+              alert('Quote request submitted successfully! We\'ll match you with verified installers soon.');
+            }
+            
+            await fetchDashboardSummary();
+            setPendingQuoteData(null);
+            setSelectedQuoteType(null);
+          } catch (error) {
+            console.error('Failed to submit lead:', error);
+            alert(error instanceof Error ? error.message : 'Failed to submit quote request. Please try again.');
+          } finally {
+            setIsSubmittingRequest(false);
+          }
+        }}
+        quoteData={pendingQuoteData}
       />
 
       <MessagingModal
@@ -870,6 +980,24 @@ export default function HomeownerDashboardPage() {
         onVerificationSuccess={handleOTPVerificationSuccess}
         onResendOTP={handleResendOTP}
       />
+
+      {/* First Quote Success Modal */}
+      {firstQuoteSuccessData && (
+        <FirstQuoteSuccessModal
+          isOpen={showFirstQuoteSuccessModal}
+          onClose={() => {
+            setShowFirstQuoteSuccessModal(false);
+            setFirstQuoteSuccessData(null);
+          }}
+          onVerifyContact={() => {
+            setShowFirstQuoteSuccessModal(false);
+            setShowContactVerificationModal(true);
+          }}
+          quoteType={firstQuoteSuccessData.quoteType}
+          remainingQuotes={firstQuoteSuccessData.remainingQuotes}
+          totalQuoteLimit={firstQuoteSuccessData.totalQuoteLimit}
+        />
+      )}
     </div>
   );
 }

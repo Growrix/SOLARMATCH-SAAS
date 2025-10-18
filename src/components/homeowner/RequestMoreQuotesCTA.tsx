@@ -3,6 +3,7 @@ import React from 'react';
 interface RequestMoreQuotesCTAProps {
   remaining: number;
   quoteLimit: number;
+  totalSubmitted: number;
   requiresVerification: boolean;
   onRequest: () => void;
   onVerifyContact: () => void;
@@ -13,12 +14,14 @@ interface RequestMoreQuotesCTAProps {
 const RequestMoreQuotesCTA: React.FC<RequestMoreQuotesCTAProps> = ({
   remaining,
   quoteLimit,
+  totalSubmitted,
   requiresVerification,
   onRequest,
   onVerifyContact,
   isProcessing = false,
   className = '',
 }) => {
+  const isFirstQuote = totalSubmitted === 0;
   const used = Math.max(0, quoteLimit - remaining);
   const progress = quoteLimit > 0 ? Math.min(100, (used / quoteLimit) * 100) : 0;
   const hasRemaining = remaining > 0;
@@ -36,33 +39,57 @@ const RequestMoreQuotesCTA: React.FC<RequestMoreQuotesCTAProps> = ({
         <div>
           <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Quote Requests</p>
           <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-            {requiresVerification ? 'Verify your phone to unlock more quotes' : 'Request additional quotes'}
+            {isFirstQuote 
+              ? 'Request Your First Quote'
+              : requiresVerification 
+                ? 'Verify your phone to unlock more quotes' 
+                : 'Request additional quotes'}
           </h2>
           <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-            You have used <strong>{used}</strong> of your <strong>{quoteLimit}</strong> available quote requests.
+            {isFirstQuote 
+              ? 'Get started with your solar journey - request your first quote from verified installers.'
+              : `You have used ${used} of your ${quoteLimit} available quote requests.`}
           </p>
         </div>
-        <div className="text-right">
-          <p className="text-xs text-slate-500 dark:text-slate-400">Remaining balance</p>
-          <p className="text-2xl font-bold text-primary">{Math.max(remaining, 0)}</p>
-        </div>
+        {!isFirstQuote && (
+          <div className="text-right">
+            <p className="text-xs text-slate-500 dark:text-slate-400">Remaining balance</p>
+            <p className="text-2xl font-bold text-primary">{Math.max(remaining, 0)}</p>
+          </div>
+        )}
       </header>
 
-      <div className="mb-4">
-        <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
-          <div
-            className="h-full bg-primary/80 transition-all"
-            style={{ width: `${progress}%` }}
-            aria-hidden="true"
-          />
+      {!isFirstQuote && (
+        <div className="mb-4">
+          <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+            <div
+              className="h-full bg-primary/80 transition-all"
+              style={{ width: `${progress}%` }}
+              aria-hidden="true"
+            />
+          </div>
+          <div className="mt-2 flex justify-between text-xs text-slate-500 dark:text-slate-400">
+            <span>{used} used</span>
+            <span>{remaining} remaining</span>
+          </div>
         </div>
-        <div className="mt-2 flex justify-between text-xs text-slate-500 dark:text-slate-400">
-          <span>{used} used</span>
-          <span>{remaining} remaining</span>
-        </div>
-      </div>
+      )}
 
-      {requiresVerification ? (
+      {isFirstQuote ? (
+        <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
+          <p className="text-sm text-slate-600 dark:text-slate-400">
+            Welcome! You&apos;re ready to get quotes from verified solar installers. No phone verification required for your first quote.
+          </p>
+          <button
+            type="button"
+            onClick={onRequest}
+            disabled={isProcessing}
+            className={`${baseButtonClasses} ${primaryButtonClasses}`}
+          >
+            {isProcessing ? 'Opening…' : 'Get Started'}
+          </button>
+        </div>
+      ) : requiresVerification ? (
         <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
           <p className="text-sm text-amber-600 dark:text-amber-400">
             Your phone number must be verified before you can request more quotes. This keeps the marketplace fair and secure.

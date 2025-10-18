@@ -558,3 +558,27 @@ I am getting confused after done each phase with what to test eactly manually . 
 - After that see a reqest more quotes. 
 
 *** I want the clear checklist to for manual check after each Backend+frontend done. It should be mentioed in the workflow. 
+
+
+
+I want you to add one more phase before this phase ## Phase 4: User Story 2 - Admin Reviews and Approves. make the phase name , Homeowners Quote Request after singin (phase 4.9.5) in the tasks.md  .
+
+***Current Scenario*** The guest users can generate instant quotes and sign up to become homeowners. The homeowners can create their first lead which is visible to the admin for further processing. There are two states here : 
+- Guest User : can generate instant quotes and sign up.
+- Homeowner : can create their first lead which also will be visible to the admin if they start the signup process from the signup modal. (at this moment the homeowners are unable to Generate their first lead while they are just newly signed up, who did not start generating quote they way the guests do).
+
+*** Now in this new phase 4.9.5*** , the homeowners started requesting their first quote After signe up. the flow will be as mentioned below. 
+
+- they should go throuh the exactly same flow as like the guests do but they will not see the signup modal again because they are already signed up as homeowners. and all the next flows will be exactly same as the guest user flow. 
+
+***Important Note*** : the scenario is slightly different here because the homeowners are already signed up users. so they will not see the signup modal again. they will directly see the instant quote form modal with all the fields empty to fill up and generate instant quote. and all the next flows will be exactly same as the guest user flow. 
+
+***how to plan the phase*** : Audit the current files and folders and understand the current flow of the guest user instant quote generation and signup flow. then build the homeowners instant quote generation flow after signup. it should be exactly same as the guest user flow except the signup modal part.  
+
+- Understand the scenario clearly
+- Identify the files and folders to edit or add
+- must be aligned with the current build and flow
+- Ensure all changes are well-documented and communicated to the tasks.md file for clarity. before starting the implementation of this phase.
+- this plan and the work process should be match and synced with the current workflow and build process based on the Tasks.md file.
+
+

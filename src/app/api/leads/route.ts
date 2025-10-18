@@ -50,6 +50,9 @@ export async function POST(request: NextRequest) {
       quoteType: body.quoteType
     });
     
+    // DEBUGGING: Log full body to identify where bad quoteType comes from
+    console.log('[POST /api/leads] FULL BODY:', JSON.stringify(body, null, 2));
+    
     // Validate required fields
     if (!body.quoteType || !body.propertyPostcode || !body.location) {
       return NextResponse.json(
