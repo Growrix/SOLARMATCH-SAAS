@@ -29,9 +29,10 @@ interface InstantQuoteFormProps {
   onProceedToDetailedQuote: () => void;
   onQuoteCalculated: (data: any) => void;
   initialData?: Record<string, unknown> | null;
+  hideSubmitButton?: boolean; // Hide "Get Detailed Quotes" button for homeowners with existing quotes
 }
 
-const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailedQuote, onQuoteCalculated, initialData = null }) => {
+const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailedQuote, onQuoteCalculated, initialData = null, hideSubmitButton = false }) => {
   const [quoteType, setQuoteType] = useState<'residential' | 'commercial'>('residential');
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -1597,6 +1598,23 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
           <div className="animate-slide-in-top">
             <div className="text-center mb-8"><div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10"><CheckCircle /></div><h2 className="text-2xl font-bold text-slate-900 dark:text-white mt-4 mb-2">Your Instant {quoteType === 'commercial' ? 'Commercial' : 'Residential'} Solar Quote</h2><p className="text-slate-600 dark:text-slate-400">An estimate based on your provided details</p></div>
             
+            {/* Informational banner for homeowners with existing quotes */}
+            {hideSubmitButton && (
+              <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
+                <div className="flex items-start space-x-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 16v-4" />
+                    <path d="M12 8h.01" />
+                  </svg>
+                  <div>
+                    <h4 className="font-semibold text-slate-900 dark:text-white mb-1">Viewing Mode</h4>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">You already have an active quote request. You can view instant quote estimates here, but cannot submit new requests at this time. Check your dashboard to manage your existing quotes.</p>
+                  </div>
+                </div>
+              </div>
+            )}
+            
             {/* Enhanced Residential Results */}
             {quoteResult.quoteType === 'residential' && (
               <div className="space-y-8">
@@ -1813,7 +1831,15 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
             
             <div className="my-8"><SavingsChart finalPrice={quoteResult.finalPrice} annualSavings={quoteResult.annualSavings} currentAnnualBill={quoteResult.currentAnnualBill} /></div>
             <div className="mt-8 bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4"><h4 className="text-yellow-600 dark:text-yellow-400 font-semibold mb-2">Important Information</h4><ul className="text-yellow-700 dark:text-yellow-200 text-sm space-y-1">{quoteResult.disclaimers.map((d: string, i: number) => (<li key={i} className="flex items-start space-x-2"><span className="text-yellow-500 dark:text-yellow-400 mt-1">•</span><span>{d}</span></li>))}</ul></div>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8"><button onClick={onProceedToDetailedQuote} className="bg-primary text-white px-8 py-3 rounded-xl font-semibold hover:bg-teal-700 transition-all transform hover:scale-105 flex items-center justify-center space-x-2"><span>Get Detailed Quotes from Installers</span><ArrowRight /></button><button onClick={handleStartOver} className="bg-gray-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-6 py-3 rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-slate-600 transition-all">Get Another Quote</button></div>
+            
+            {/* Action Buttons - Hide submit button if hideSubmitButton is true */}
+            {hideSubmitButton ? (
+              <div className="flex justify-center mt-8">
+                <button onClick={handleStartOver} className="bg-gray-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-6 py-3 rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-slate-600 transition-all">Get Another Quote</button>
+              </div>
+            ) : (
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8"><button onClick={onProceedToDetailedQuote} className="bg-primary text-white px-8 py-3 rounded-xl font-semibold hover:bg-teal-700 transition-all transform hover:scale-105 flex items-center justify-center space-x-2"><span>Get Detailed Quotes from Installers</span><ArrowRight /></button><button onClick={handleStartOver} className="bg-gray-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-6 py-3 rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-slate-600 transition-all">Get Another Quote</button></div>
+            )}
           </div>
         )}
       </div>

@@ -47,11 +47,35 @@ export default function Home() {
   const [selectedQuoteType, setSelectedQuoteType] = useState<'call_visit' | 'written' | null>(null);
   const [quoteData, setQuoteData] = useState<any>(null);
   const [pendingQuoteData, setPendingQuoteData] = useState<any>(null);
+  const [homeownerLeadCount, setHomeownerLeadCount] = useState<number>(0);
+  const [isLoadingLeadCount, setIsLoadingLeadCount] = useState<boolean>(false);
 
   // Ensure page starts at top on mount
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  // Fetch homeowner's lead count if authenticated
+  useEffect(() => {
+    const fetchLeadCount = async () => {
+      if (status === 'authenticated' && session?.user?.role === 'HOMEOWNER') {
+        setIsLoadingLeadCount(true);
+        try {
+          const response = await fetch('/api/homeowner/dashboard');
+          if (response.ok) {
+            const data = await response.json();
+            setHomeownerLeadCount(data.totalSubmitted || 0);
+          }
+        } catch (error) {
+          console.error('Failed to fetch lead count:', error);
+        } finally {
+          setIsLoadingLeadCount(false);
+        }
+      }
+    };
+
+    fetchLeadCount();
+  }, [status, session]);
 
   // Captures quote data from the form and stores it pending authentication
   const handleQuoteCalculated = useCallback((data: any) => {
@@ -228,6 +252,7 @@ export default function Home() {
             <InstantQuoteForm 
               onProceedToDetailedQuote={() => setIsQuoteOptionsModalOpen(true)}
               onQuoteCalculated={handleQuoteCalculated}
+              hideSubmitButton={status === 'authenticated' && session?.user?.role === 'HOMEOWNER' && homeownerLeadCount > 0}
             />
           ) : (
             <RebateCalculatorForm onGetQuotesClick={() => setIsQuoteOptionsModalOpen(true)} />
