@@ -662,6 +662,100 @@ During Phase 4.8 testing, the following critical UX issues were identified:
 
 ---
 
+
+## Phase 4.9.5: Homeowners Quote Request After Sign-in (Priority: P1)
+
+Goal: Allow newly signed-in homeowners who did not start from the guest flow to request their first quote directly. The flow must be identical to the guest instant quote flow but without the signup modal. Show the Instant Quote form with empty fields, calculate results, choose quote type, and submit lead(s). If homeowner already has 1+ leads, fall back to Phase 4.8 flow (may require OTP and may prefill from most recent lead).
+
+Independent Test: Create a homeowner account that has zero leads → open dashboard → see “Request Your First Quote” CTA → clicking opens InstantQuoteForm modal directly (no signup modal) with empty fields → calculate → choose quote type and count within limits → submit → dashboard shows 1 requested of 5, remaining 4; admin leads table shows the new lead with timestamp and chosen type.
+
+### Implementation Tasks (US1 extension)
+
+- [ ] T195 [US1] Show first-quote CTA when homeowner has zero leads
+  - Update `src/app/homeowner/dashboard/page.tsx` to detect `summary.totalRequested === 0` and render a prominent “Request Your First Quote” button.
+  - Wire click to open the existing `NewQuoteRequestModal` in a new mode: `{ context: 'first-quote' }`.
+  - Manual QA Checklist Required.
+
+- [ ] T196 [US1] Bypass signup modal for signed-in homeowners and open InstantQuoteForm empty
+  - Reuse `NewQuoteRequestModal` → ensure it renders `InstantQuoteForm` directly when `context === 'first-quote'` and user is authenticated (role HOMEOWNER).
+  - Ensure initialValues are empty (do not prefill from previous lead when totalRequested === 0).
+  - Ensure the same calculation UI/UX and results panel from guest flow are shown.
+  - Manual QA Checklist Required.
+
+- [ ] T197 [US1] Quote type selection and count with limit checks
+  - After calculation, show the existing quote type choice flow (Call/Visit, Written) and count selector respecting `quoteLimit` and remaining balance.
+  - Guardrails: total selected across types ≤ remaining; surface inline validation messages.
+  - Manual QA Checklist Required.
+
+- [ ] T198 [US1] Lead creation API path for first quote
+  - Confirm POST `/api/leads` path works with signed-in homeowner and no OTP when `summary.totalRequested === 0`.
+  - If needed, add a server-side guard in `src/app/api/leads/route.ts`: require OTP only when `leadSubmissionCount >= 1` (existing Phase 4.8 behavior for subsequent quotes), but allow first quote creation for authenticated homeowners with zero leads.
+  - Return refreshed dashboard summary in response.
+  - Manual QA Checklist Required.
+
+- [ ] T199 [US1] Dashboard refresh and success UX
+  - On success, show toast (“Request sent”) and refresh the dashboard summary to reflect requested/remaining.
+  - Add small success copy guiding next steps.
+  - Manual QA Checklist Required.
+
+- [ ] T200 [US1] Admin visibility (no new UI beyond existing)
+  - Verify the newly created lead(s) appear in `/admin/leads` with correct status, quoteType, and timestamp.
+  - Optional badge (future): “First quote”. Defer unless requested.
+
+- [ ] T201 [US1] Analytics and audit
+  - Emit events (optional): `first_quote_started`, `first_quote_submitted`.
+  - Ensure `createAuditLog` records creation action.
+
+### Manual QA Checklist (First-Quote After Sign-in)
+Role: Homeowner (no existing leads)
+
+1) Entry & modal behavior
+   - Log in as a homeowner with zero leads; open Dashboard.
+   - You should see a prominent “Request Your First Quote” CTA.
+   - Click it: You should NOT see any signup/login modal.
+   - The InstantQuoteForm modal should open with all fields empty.
+
+2) Form and calculation
+   - Fill the form and click “Calculate” (or equivalent); results should render as in guest flow.
+   - Change inputs and recalc; results update accordingly; no console errors.
+
+3) Quote type and limits
+   - Choose Call/Visit or Written Quote; pick counts within your remaining limit (e.g., 1 of 5).
+   - Attempt to exceed remaining; UI should prevent and show an error.
+
+4) Submission and dashboard refresh
+   - Submit; request should succeed; see success toast.
+   - Dashboard metrics should update: Requested 1 / Limit 5, Remaining 4.
+   - Network: POST `/api/leads` should be 200, response contains refreshed summary.
+
+5) Admin visibility
+   - In admin `/admin/leads`, the new lead appears with correct quoteType and createdAt.
+
+6) Edge cases & errors
+   - Reload the page; metrics persist and remain correct.
+   - Try to access first-quote CTA when you already have leads; CTA should be hidden and Phase 4.8 flow should be used instead.
+   - Leave required fields empty → submission blocked with inline validation.
+
+### Validation & Regression
+During Implementation:
+- [ ] TypeScript: `npx tsc --noEmit` (0 errors)
+- [ ] Build: `npm run build` (0 errors)
+- [ ] API: Manually test POST `/api/leads` with/without prior leads to validate OTP gating rules remain intact (OTP only required for subsequent quotes per Phase 4.8).
+
+Post-Phase Validation:
+- [ ] Dashboard: first-quote CTA shows only when totalRequested === 0
+- [ ] Modal: opens InstantQuoteForm directly; no signup modal appears
+- [ ] Limits: selection obeys remaining balance; UI prevents overflow
+- [ ] Admin: lead visible with correct metadata
+- [ ] No regressions: guest flow, Phase 4.8 re-request flow, and OTP logic remain correct
+- [ ] User approval received for commit
+- [ ] Git commit: "Phase 4.9.5: Homeowner first-quote after sign-in (instant quote flow without signup)"
+
+Notes:
+- This phase reuses existing components (NewQuoteRequestModal, InstantQuoteForm) with a new `context: 'first-quote'` and conditional logic based on lead count.
+- OTP remains enforced for second and subsequent quotes per Phase 4.8. First quote after sign-in does not prompt OTP.
+
+
 ## Phase 4: User Story 2 - Admin Reviews and Approves Leads (Priority: P1) 🎯 MVP
 
 **Goal**: Admin can switch between Auto-Approval Mode and Manual Review Mode, configure automation rules, and manually approve/reject/price/assign leads
