@@ -15,6 +15,54 @@
 
 ## ⚠️ MANDATORY WORKFLOW FOR EACH PHASE
 
+## Persona-ordered roadmap (for navigation only)
+
+To reduce confusion while keeping the existing plan intact, this roadmap lists phases in the logical execution order by persona. It does not change any tasks—only clarifies the reading/doing sequence. Phase numbers below reference the legacy headings further down.
+
+- Guests first
+  - Phase 4.5: CRITICAL REMEDIATION – Lead Quote Data Storage (cross-cutting, but required for guest instant quote data integrity)
+  - Phase 4.9: Phone Verification UX Fixes (affects guest→signup→verification continuity)
+- Homeowners next
+  - Phase 3: US1 – Homeowner Submits Lead Request (core)
+  - Phase 4.8: Homeowner Dashboard & Second Quote Requests
+  - Phase 4.9.5: Homeowners Quote Request After Sign-in (first-quote flow without signup)
+- Admin after Homeowners
+  - Phase 4: US2 – Admin Reviews and Approves Leads
+- Installers last
+  - Phase 5: US3 – Installer Discovers and Purchases Lead
+  - Phase 6: US4 – Lead Status Tracking and Updates (all personas, primarily affects installer visibility)
+  - Phase 7: US5 – Admin Manages Lead Lifecycle and Resale (admin-led, impacts installer/homeowner indirectly)
+  - Phase 8: US6 – Internal Chat and Quote Exchange (installer↔homeowner; admin visibility)
+  - Phase 9: US7 – Installer Feedback and Lead Quality Rating
+- Always-on phases
+  - Phase 1: Setup (shared infrastructure)
+  - Phase 2: Foundational (blocking prerequisites)
+  - Phase 10: Polish & Cross-Cutting Concerns
+
+Tip: When executing, follow this persona order but keep the original phase sections as the single source of truth.
+
+### New execution order → Legacy phase mapping
+
+1) Guests
+  - New G1 → Legacy Phase 4.5 (CRITICAL REMEDIATION – Lead Quote Data Storage)
+  - New G2 → Legacy Phase 4.9 (Phone Verification UX Fixes)
+2) Homeowners
+  - New H1 → Legacy Phase 3 (US1 – Homeowner Submits Lead Request)
+  - New H2 → Legacy Phase 4.8 (Homeowner Dashboard & Second Quote Requests)
+  - New H3 → Legacy Phase 4.9.5 (Homeowners Quote Request After Sign-in)
+3) Admin
+  - New A1 → Legacy Phase 4 (US2 – Admin Reviews and Approves Leads)
+4) Installers
+  - New I1 → Legacy Phase 5 (US3 – Installer Discovers and Purchases Lead)
+  - New I2 → Legacy Phase 6 (US4 – Lead Status Tracking and Updates)
+  - New I3 → Legacy Phase 7 (US5 – Admin Manages Lead Lifecycle and Resale)
+  - New I4 → Legacy Phase 8 (US6 – Internal Chat and Quote Exchange)
+  - New I5 → Legacy Phase 9 (US7 – Installer Feedback and Lead Quality Rating)
+5) Cross-cutting
+  - New C1 → Legacy Phase 1 (Setup)
+  - New C2 → Legacy Phase 2 (Foundational)
+  - New C3 → Legacy Phase 10 (Polish & Cross-Cutting Concerns)
+
 ### Before Starting Any Phase:
 1. **Pre-Phase Audit & Planning** (30-60 minutes):
    - Read ALL spec files thoroughly (`spec.md`, `data-model.md`, `contracts/*.openapi.yaml`)
@@ -156,7 +204,7 @@ grep "export.*CreateNotificationInput" src/types/notification.ts -A 10
 
 ---
 
-## Phase 1: Setup (Shared Infrastructure) ✅ COMPLETE
+## Phase 1: Setup (Shared Infrastructure) ✅ COMPLETE (Persona: Cross-cutting)
 
 **Purpose**: Project initialization and environment configuration
 
@@ -187,7 +235,7 @@ grep "export.*CreateNotificationInput" src/types/notification.ts -A 10
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites) ✅ COMPLETE
+## Phase 2: Foundational (Blocking Prerequisites) ✅ COMPLETE (Persona: Cross-cutting)
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
@@ -227,7 +275,7 @@ grep "export.*CreateNotificationInput" src/types/notification.ts -A 10
 
 ---
 
-## Phase 3: User Story 1 - Homeowner Submits Lead Request (Priority: P1) 🎯 MVP
+## Phase 3: User Story 1 - Homeowner Submits Lead Request (Priority: P1) 🎯 MVP (Persona: Homeowner)
 
 **Goal**: Enable homeowners to submit quote requests via existing UI flow, with OTP verification for subsequent submissions
 
@@ -294,7 +342,7 @@ grep "export.*CreateNotificationInput" src/types/notification.ts -A 10
 
 ---
 
-## Phase 4.5: CRITICAL REMEDIATION - Lead Quote Data Storage 🚨 BLOCKING
+## Phase 4.5: CRITICAL REMEDIATION - Lead Quote Data Storage 🚨 BLOCKING (Persona: Cross-cutting)
 
 **Priority**: 🔴 CRITICAL - MUST complete before Phase 5  
 **Purpose**: Fix 90% data loss issue discovered during Phase 4 testing  
@@ -395,7 +443,7 @@ grep "export.*CreateNotificationInput" src/types/notification.ts -A 10
 
 ---
 
-## Phase 4.8: Homeowner Dashboard & Second Quote Requests (Priority: P1/P2 Hybrid)
+## Phase 4.8: Homeowner Dashboard & Second Quote Requests (Priority: P1/P2 Hybrid) (Persona: Homeowner)
 
 **Goal**: Surface per-homeowner lead metrics, enable verified homeowners to request additional quotes with OTP-protected phone verification, and give admins fine-grained control over per-homeowner quote limits.
 
@@ -499,7 +547,7 @@ Status notes (2025-10-16):
 
 ---
 
-## Phase 4.9: Phone Verification UX Fixes (Priority: P1 - CRITICAL)
+## Phase 4.9: Phone Verification UX Fixes (Priority: P1 - CRITICAL) (Persona: Guest + Homeowner)
 
 **Goal**: Fix phone number pre-population and profile synchronization issues discovered during Phase 4.8 testing.
 
@@ -663,11 +711,35 @@ During Phase 4.8 testing, the following critical UX issues were identified:
 ---
 
 
-## Phase 4.9.5: Homeowners Quote Request After Sign-in (Priority: P1)
+## Phase 4.9.5: Homeowners Quote Request After Sign-in (Priority: P1) (Persona: Homeowner)
+
+**Status**: ✅ PARTIALLY COMPLETE - Core UX features implemented (October 18, 2025)
 
 Goal: Allow newly signed-in homeowners who did not start from the guest flow to request their first quote directly. The flow must be identical to the guest instant quote flow but without the signup modal. Show the Instant Quote form with empty fields, calculate results, choose quote type, and submit lead(s). If homeowner already has 1+ leads, fall back to Phase 4.8 flow (may require OTP and may prefill from most recent lead).
 
 Independent Test: Create a homeowner account that has zero leads → open dashboard → see “Request Your First Quote” CTA → clicking opens InstantQuoteForm modal directly (no signup modal) with empty fields → calculate → choose quote type and count within limits → submit → dashboard shows 1 requested of 5, remaining 4; admin leads table shows the new lead with timestamp and chosen type.
+
+---
+
+### ✅ Completed Features (October 18, 2025)
+
+#### Feature 1: First Quote Success Modal (Commit: d2bb20f)
+- [X] **T202** Created `FirstQuoteSuccessModal` component (`src/components/homeowner/FirstQuoteSuccessModal.tsx`)
+  - Success message with emerald verification CTA, quote balance display, bidding info card
+- [X] **T203** Integrated into dashboard (`src/app/homeowner/dashboard/page.tsx`)
+  - Shows when leadSubmissionCount === 1, connects to ContactVerificationModal
+- [X] **T204** Documentation: `DOC/Records/FIRST-QUOTE-SUCCESS-MODAL-2025-10-18.md`
+
+#### Feature 2: View-Only Instant Quote Mode (Commit: 87713d6)
+- [X] **T205** View-only restriction (`src/components/InstantQuoteForm.tsx`)
+  - hideSubmitButton prop, informational banner, preserved calculator functionality
+- [X] **T206** Homepage integration (`src/app/page.tsx`)
+  - Fetches lead count, hides submit button for homeowners with existing quotes
+- [X] **T207** Documentation: `DOC/Records/INSTANT-QUOTE-VIEW-ONLY-MODE-2025-10-18.md`
+
+**Testing**: ✅ TypeScript (0 errors), ✅ Commits created, ✅ No breaking changes
+
+---
 
 ### Implementation Tasks (US1 extension)
 
@@ -755,8 +827,736 @@ Notes:
 - This phase reuses existing components (NewQuoteRequestModal, InstantQuoteForm) with a new `context: 'first-quote'` and conditional logic based on lead count.
 - OTP remains enforced for second and subsequent quotes per Phase 4.8. First quote after sign-in does not prompt OTP.
 
+---
 
-## Phase 4: User Story 2 - Admin Reviews and Approves Leads (Priority: P1) 🎯 MVP
+## Phase 4.9.6: Homeowners Second Quote Generation Process and Bidding System (Priority: P1) (Persona: Homeowner)
+
+**Status**: 🚧 IN PROGRESS - Audit and planning phase
+
+**Goal**: Enable verified homeowners to request multiple additional quotes with flexible distribution (call/visit vs written), implement competitive bidding for written quotes, and allow quote editing until installer visibility.
+
+**User Journey**: Homeowner completes first quote → verifies phone → clicks "Request More Quotes" → sees pre-filled form with all first quote data → edits any fields → recalculates → selects quote distribution (e.g., 2 call/visit + 2 written, max 4 total) → submits → receives success confirmation → optionally opens ONE written quote for bidding → multiple installers compete → homeowner reviews bids in dedicated Bidding Dashboard.
+
+**Independent Test**: 
+1. Second Quote Flow: Login as verified homeowner (leadSubmissionCount >= 1) → open dashboard → click "Request More Quotes" → verify form pre-filled with most recent lead data → edit address, system size → click "Calculate Again" → results update → select 2 call/visit + 2 written quotes → submit → verify dashboard shows 4 new leads, quota updated
+2. Bidding Flow: Click "Open for Bidding" on one written quote → confirm modal → verify status changes to BIDDING_OPEN → check Bidding page shows lead → verify installer marketplace shows "Bidding Available" badge → confirm other written quotes no longer have bidding option
+3. Lead Editing: Click edit on DRAFT or PENDING_APPROVAL lead → modify fields → save → verify changes persisted → approve lead (as admin) → verify edit button hidden once APPROVED
+
+---
+
+### Pre-Phase Audit Summary (Completed October 18, 2025)
+
+**Current Implementation Analysis:**
+
+✅ **Existing Working Components:**
+1. **RequestMoreQuotesCTA** (`src/components/homeowner/RequestMoreQuotesCTA.tsx`)
+   - Shows remaining quota, used/limit progress bar
+   - Handles first quote vs subsequent quote CTAs
+   - Integrates verification flow trigger
+   - Status: COMPLETE ✅
+
+2. **NewQuoteRequestModal** (`src/components/NewQuoteRequestModal.tsx`)
+   - Wraps InstantQuoteForm
+   - Accepts `initialData` prop for pre-filling
+   - Status: COMPLETE ✅
+
+3. **InstantQuoteForm** (pre-fill capability)
+   - Accepts `initialData` prop
+   - Pre-fills all fields from previous quote
+   - Recalculation works correctly
+   - Status: COMPLETE ✅
+
+4. **Dashboard Integration** (`src/app/homeowner/dashboard/page.tsx`)
+   - Fetches dashboard summary with `recentLeads` array
+   - Passes `quoteData` from most recent lead to modal
+   - `getLatestQuoteData()` function extracts pre-fill data
+   - Status: COMPLETE ✅
+
+5. **API Endpoints**
+   - POST `/api/leads` - Creates single lead
+   - GET `/api/homeowner/dashboard` - Returns lead summary with quoteData
+   - Status: CREATE endpoint exists, BATCH creation needed
+
+6. **Data Model** (`prisma/schema.prisma`)
+   - Lead model has `quoteData Json? @db.JsonB` field (Phase 4.5)
+   - Lead model has `quoteType LeadQuoteType` enum (CALL_VISIT | WRITTEN_QUOTE)
+   - Lead model has `status LeadStatus` enum
+   - User model has `leadSubmissionLimit Int @default(5)` and `leadSubmissionCount Int @default(0)`
+   - Status: Schema supports pre-fill and quota ✅
+
+**Current LeadStatus Enum Values:**
+```prisma
+enum LeadStatus {
+  DRAFT              // Initial creation, not yet submitted
+  PENDING_PHONE      // Awaiting phone verification (OTP)
+  PENDING_APPROVAL   // Awaiting admin approval
+  APPROVED           // Approved by admin, visible to installers
+  PURCHASED          // Purchased by an installer
+  QUOTED             // Installer sent quote(s)
+  ACCEPTED           // Homeowner accepted a quote
+  REJECTED           // Homeowner rejected all quotes
+  EXPIRED            // Lead expired (no action within time limit)
+  CANCELLED          // Homeowner cancelled the lead
+  FLAGGED            // Flagged for admin review
+}
+```
+
+❌ **Missing/Needed Implementations:**
+
+1. **Quote Count Distribution UI** - NOT IMPLEMENTED
+   - No modal to select how many call/visit vs written quotes
+   - Current flow only creates ONE lead per submission
+   - Need: `QuoteTypeDistributionModal` component with live counter
+
+2. **Batch Lead Creation** - NOT IMPLEMENTED
+   - POST `/api/leads` only creates single lead
+   - Need: Support creating multiple leads in one request
+   - Need: Maintain quoteData consistency across all created leads
+
+3. **Bidding System** - NOT IMPLEMENTED
+   - No "Open for Bidding" button on written quotes
+   - No BIDDING_OPEN status in LeadStatus enum
+   - No `/homeowner/bidding` dashboard page
+   - No "Bidding Available" badge for installers
+   - No one-time activation enforcement (only one written quote can be opened for bidding)
+   - Need: Complete bidding infrastructure
+
+4. **Lead Editing** - NOT IMPLEMENTED
+   - No edit button in dashboard lead list
+   - No PATCH `/api/leads/[id]` endpoint
+   - No status-based edit restrictions (allow edit only until APPROVED)
+   - Need: Edit modal, API endpoint, permission logic
+
+5. **Installer Bidding Visibility** - NOT IMPLEMENTED
+   - No "Bidding Available" badge in installer marketplace
+   - No bidding context in installer lead detail view
+   - Need: Installer-facing bidding UI enhancements
+
+**Architectural Gaps Identified:**
+
+1. **Schema Changes Required:**
+   - Add `BIDDING_OPEN` to LeadStatus enum
+   - Add `biddingOpenedAt DateTime?` to Lead model (track when bidding was activated)
+   - Add `biddingOpenedBy String?` to Lead model (track which homeowner opened bidding)
+   - Consider: `canOpenForBidding Boolean @default(true)` flag to enforce one-time rule
+
+2. **Business Logic Extensions:**
+   - lead-service.ts: Add `createMultipleLeads()` function
+   - lead-service.ts: Add `updateLead()` function (with status validation)
+   - lead-service.ts: Add `openLeadForBidding()` function (validate: written quote, not already opened, homeowner hasn't opened another)
+   - lead-service.ts: Add `canEditLead()` validator (status must be DRAFT, PENDING_PHONE, or PENDING_APPROVAL)
+
+3. **API Contract Extensions:**
+   - POST `/api/leads` - Add support for array of quote distributions: `{ quoteData, distributions: [{ type: 'CALL_VISIT', count: 2 }, { type: 'WRITTEN_QUOTE', count: 2 }] }`
+   - PATCH `/api/leads/[id]` - Update lead fields (restricted by status)
+   - POST `/api/leads/[id]/open-bidding` - Activate bidding (validate eligibility)
+   - GET `/api/homeowner/bidding` - Fetch active bidding leads with installer bids
+
+4. **Frontend Components Needed:**
+   - `QuoteTypeDistributionModal.tsx` - Select quote type counts
+   - `BiddingConfirmationModal.tsx` - Confirm bidding activation
+   - `BiddingDashboard.tsx` - Page at `/homeowner/bidding`
+   - `LeadEditModal.tsx` - Edit lead details
+   - `BiddingAvailableBadge.tsx` - Installer marketplace badge
+
+**Dependencies & Blockers:**
+- ✅ Phase 4.8 complete (second quote flow exists, verification working)
+- ✅ Phase 4.9 complete (phone pre-fill, session sync working)
+- ✅ Phase 4.9.5 complete (first quote success modal, view-only mode)
+- ⚠️ No blockers, ready to implement
+
+**Testing Strategy:**
+1. Manual QA checklist (end-to-end flow, edge cases)
+2. Database validation (multiple leads created, bidding status correct)
+3. Permission testing (edit restrictions, bidding eligibility)
+4. UI/UX validation (quota display, badge visibility, modal flows)
+5. Regression testing (existing single quote flow, verification flow, admin approval)
+
+---
+
+### Phase 4.9.6 Implementation Tasks
+
+#### Data Model & Schema (BLOCKING) 🔴
+- [ ] **T208** [US1] Extend LeadStatus enum in `prisma/schema.prisma`:
+  - Add `BIDDING_OPEN` status value (after APPROVED, before PURCHASED)
+  - Run migration: `npx prisma migrate dev --name add-bidding-status`
+  - Update TypeScript types in `src/types/lead.ts`
+  - Manual QA: Verify enum in Prisma Studio
+
+- [ ] **T209** [US1] Add bidding tracking fields to Lead model in `prisma/schema.prisma`:
+  - `biddingOpenedAt DateTime?` - Timestamp when bidding was activated
+  - `biddingOpenedBy String?` - User ID who opened bidding (for audit)
+  - `biddingClosedAt DateTime?` - When bidding ended (future use)
+  - Run migration: `npx prisma migrate dev --name add-bidding-tracking`
+  - Manual QA: Check Lead table schema in Prisma Studio
+
+#### Business Logic & Services 🟡
+- [ ] **T210** [US1] Create batch lead creation in `src/lib/services/lead-service.ts`:
+  - Add `createMultipleLeads(input: CreateLeadInput, distributions: QuoteDistribution[]): Promise<CreateLeadResult[]>`
+  - Function creates N leads with same quoteData but different quoteType values
+  - Validate total count against remaining quota
+  - Return array of created leads with updated quota
+  - Call createAuditLog for each lead creation
+  - Call createNotification once for batch (avoid spam)
+  - Manual QA Checklist:
+    * Create 3 leads in one request (2 call/visit + 1 written)
+    * Verify all 3 leads have identical quoteData in database
+    * Verify leadSubmissionCount increments by 3
+    * Verify remaining quota decreases by 3
+    * Attempt to exceed quota (e.g., remaining 2, request 3) → expect error
+    * Check audit log has 3 entries with correct timestamps
+
+- [ ] **T211** [US1] Implement lead update service in `src/lib/services/lead-service.ts`:
+  - Add `updateLead(leadId: string, homeownerId: string, updates: Partial<CreateLeadInput>): Promise<Lead>`
+  - Validate lead belongs to homeowner (security)
+  - Validate status allows editing: `canEditLead(status) => status in [DRAFT, PENDING_PHONE, PENDING_APPROVAL]`
+  - If status is APPROVED or later → throw error "Cannot edit lead after approval"
+  - Update quoteData field to preserve edited values
+  - Call createAuditLog with LEAD_UPDATED action
+  - Manual QA Checklist:
+    * Edit DRAFT lead → verify success, changes saved
+    * Edit PENDING_APPROVAL lead → verify success
+    * Edit APPROVED lead → expect 403 error
+    * Edit another homeowner's lead → expect 403 error
+    * Update propertyPostcode, energyBill → verify quoteData updated
+
+- [ ] **T212** [US1] Create bidding activation service in `src/lib/services/lead-service.ts`:
+  - Add `openLeadForBidding(leadId: string, homeownerId: string): Promise<{ success: boolean; lead?: Lead; error?: string }>`
+  - Validate:
+    * Lead exists and belongs to homeowner
+    * quoteType === 'WRITTEN_QUOTE' (bidding only for written quotes)
+    * status === 'APPROVED' (must be approved first)
+    * biddingOpenedAt === null (not already opened for bidding)
+  - Check homeowner hasn't opened another lead for bidding (one-time rule):
+    * Query: `prisma.lead.findFirst({ where: { homeownerId, biddingOpenedAt: { not: null } } })`
+    * If found → return error: "You can only open one quote for bidding"
+  - If valid:
+    * Update lead: `status = BIDDING_OPEN`, `biddingOpenedAt = now()`, `biddingOpenedBy = homeownerId`
+    * Call createAuditLog with LEAD_BIDDING_OPENED action
+    * Call createNotification to all installers: "New bidding opportunity available"
+  - Return success with updated lead
+  - Manual QA Checklist:
+    * Open APPROVED written quote for bidding → verify status changes to BIDDING_OPEN
+    * Verify biddingOpenedAt timestamp set correctly
+    * Attempt to open second written quote → expect error message
+    * Attempt to open call/visit quote → expect error (not written quote)
+    * Attempt to open DRAFT quote → expect error (not approved yet)
+    * Check all installers receive notification
+    * Verify audit log entry created
+
+#### API Endpoints 🟢
+- [ ] **T213** [US1] Update POST `/api/leads` to support batch creation in `src/app/api/leads/route.ts`:
+  - Accept new request body format:
+    ```json
+    {
+      "quoteData": { /* InstantQuote results */ },
+      "distributions": [
+        { "type": "CALL_VISIT", "count": 2 },
+        { "type": "WRITTEN_QUOTE", "count": 2 }
+      ],
+      "propertyPostcode": "2000",
+      "location": "Sydney",
+      ...
+    }
+    ```
+  - Backwards compatible: if `distributions` missing, create single lead (existing behavior)
+  - Validate total count: `sum(distributions.count) <= remainingQuota`
+  - Call `createMultipleLeads()` service function
+  - Return array of created leads + updated quota:
+    ```json
+    {
+      "leads": [ /* array of created leads */ ],
+      "totalCreated": 4,
+      "remainingQuota": 1,
+      "requiresVerification": false
+    }
+    ```
+  - Manual QA Checklist:
+    * POST with distributions: [CALL_VISIT: 2, WRITTEN_QUOTE: 2] → verify 4 leads created
+    * POST without distributions (legacy format) → verify 1 lead created
+    * POST with count > remaining quota → expect 400 error
+    * Verify response includes all created lead IDs
+    * Check dashboard shows updated quota immediately
+
+- [ ] **T214** [US1] Create PATCH `/api/leads/[id]` route in `src/app/api/leads/[id]/route.ts`:
+  - Validate user is authenticated (session)
+  - Validate user role === HOMEOWNER
+  - Extract leadId from URL params
+  - Accept partial lead updates in body (same fields as CreateLeadInput)
+  - Call `updateLead(leadId, session.user.id, updates)` service function
+  - Handle errors:
+    * 403: Cannot edit lead after approval
+    * 404: Lead not found
+    * 403: Lead doesn't belong to user
+  - Return updated lead with quoteData
+  - Manual QA Checklist:
+    * PATCH DRAFT lead with updated energyBill → verify success
+    * PATCH APPROVED lead → expect 403 error
+    * PATCH lead owned by different user → expect 403 error
+    * PATCH with invalid fields → expect validation error
+    * Verify updated fields reflected in database
+
+- [ ] **T215** [US1] Create POST `/api/leads/[id]/open-bidding` route in `src/app/api/leads/[id]/open-bidding/route.ts`:
+  - Validate user is authenticated (session)
+  - Validate user role === HOMEOWNER
+  - Extract leadId from URL params
+  - Call `openLeadForBidding(leadId, session.user.id)` service function
+  - Handle errors:
+    * 400: Not a written quote
+    * 400: Lead not approved yet
+    * 400: Already opened for bidding
+    * 400: You can only open one quote for bidding
+    * 404: Lead not found
+    * 403: Lead doesn't belong to user
+  - Return success response:
+    ```json
+    {
+      "success": true,
+      "lead": { /* updated lead with BIDDING_OPEN status */ },
+      "message": "Lead opened for bidding successfully"
+    }
+    ```
+  - Manual QA Checklist:
+    * POST with valid written quote → verify status changes to BIDDING_OPEN
+    * POST with second written quote → expect 400 error
+    * POST with call/visit quote → expect 400 error
+    * POST with unapproved lead → expect 400 error
+    * Verify installer marketplace updates immediately
+
+- [ ] **T216** [US1] Create GET `/api/homeowner/bidding` route in `src/app/api/homeowner/bidding/route.ts`:
+  - Validate user is authenticated (session)
+  - Validate user role === HOMEOWNER
+  - Query leads with:
+    * homeownerId = session.user.id
+    * status = BIDDING_OPEN
+    * Include: bids from installers (future: Quote model relation)
+  - Return array of bidding leads with metadata:
+    ```json
+    {
+      "biddingLeads": [
+        {
+          "id": "lead123",
+          "quoteData": { /* original quote data */ },
+          "biddingOpenedAt": "2025-10-18T10:00:00Z",
+          "bidsCount": 3,
+          "highestBid": 5000,
+          "lowestBid": 4200
+        }
+      ]
+    }
+    ```
+  - Manual QA Checklist:
+    * GET as homeowner with bidding lead → verify lead returned
+    * GET as homeowner without bidding leads → expect empty array
+    * GET as guest → expect 401 error
+    * Verify bidsCount accurate (when bidding implemented)
+
+#### Frontend Components 🎨
+- [ ] **T217** [US1] Create `QuoteTypeDistributionModal` in `src/components/homeowner/QuoteTypeDistributionModal.tsx`:
+  - Props: `isOpen`, `onClose`, `onSubmit(distributions)`, `remainingQuota`, `quoteData`
+  - UI Layout:
+    * Header: "Select Quote Distribution" with remaining quota display
+    * Two sections: "Call or Site Visit Quotes" and "Written Quotes"
+    * Each section has:
+      - Count selector (0-4 buttons or input)
+      - Description of quote type
+      - Live preview of total selected
+    * Footer:
+      - Total count display: "Selected: 3 of 4 remaining"
+      - Validation message if count exceeds quota
+      - "Confirm" button (disabled if invalid)
+      - "Cancel" button
+  - Validation:
+    * Total count <= remainingQuota
+    * Total count > 0 (at least one quote)
+    * Real-time feedback on count changes
+  - On submit:
+    * Call onSubmit with distributions: `[{ type: 'CALL_VISIT', count: 2 }, { type: 'WRITTEN_QUOTE', count: 1 }]`
+    * Close modal
+  - Styling: Match theme-card, glass-effect, responsive
+  - Manual QA Checklist:
+    * Select 2 call/visit + 2 written → verify total shows "4"
+    * Attempt to select 5 (quota is 4) → verify error message, confirm button disabled
+    * Change counts dynamically → verify total updates in real-time
+    * Click cancel → modal closes without submitting
+    * Submit valid distribution → verify parent receives correct data structure
+
+- [ ] **T218** [US1] Create `BiddingConfirmationModal` in `src/components/homeowner/BiddingConfirmationModal.tsx`:
+  - Props: `isOpen`, `onClose`, `onConfirm`, `leadId`, `quoteData`
+  - UI Layout:
+    * Header: "Open Lead for Bidding"
+    * Icon: Gavel icon (bidding symbol)
+    * Message: "By opening this lead for bidding, multiple installers will be able to place their bids for your project. This increases your chances of getting competitive offers and finding the best fit for your solar installation needs."
+    * Quote details preview: Show system size, location, budget from quoteData
+    * Warning: "⚠️ You can only open ONE quote for bidding. Once activated, this action cannot be undone."
+    * Buttons:
+      - "Confirm & Open Bidding" (primary button, emerald)
+      - "Cancel" (secondary button)
+  - On confirm:
+    * Call POST `/api/leads/[leadId]/open-bidding`
+    * Show loading state
+    * On success: Show toast "Lead opened for bidding!", close modal, trigger parent refresh
+    * On error: Show error message (e.g., "You can only open one quote for bidding")
+  - Manual QA Checklist:
+    * Open modal → verify message displayed correctly
+    * Click confirm → verify API called, loading state shown
+    * Success → verify toast, modal closes, dashboard refreshes
+    * Error (already opened another) → verify error message displayed
+    * Click cancel → modal closes without API call
+
+- [ ] **T219** [US1] Create `BiddingDashboard` page in `src/app/homeowner/bidding/page.tsx`:
+  - Fetch bidding leads from GET `/api/homeowner/bidding`
+  - UI Layout:
+    * Header: "Bidding Room" with gavel icon
+    * If no bidding leads: Empty state "You haven't opened any quotes for bidding yet"
+    * For each bidding lead:
+      - Lead card with quote details (system size, location, budget)
+      - "Opened for bidding on: {date}"
+      - Bids count: "3 installers have placed bids"
+      - Bids list (future: when Quote model implemented):
+        * Installer name, company, bid amount
+        * "View Details" button
+      - Placeholder message: "Installers will place bids soon" (if no bids yet)
+    * Sidebar navigation: Link back to "Dashboard Overview"
+  - Responsive: Mobile-friendly card layout
+  - Manual QA Checklist:
+    * No bidding leads → verify empty state displays
+    * One bidding lead → verify card shows correct quote details
+    * Multiple bidding leads → verify all displayed
+    * Click lead card → navigate to lead detail (future feature)
+    * Mobile view → verify cards stack correctly
+
+- [ ] **T220** [US1] Create `LeadEditModal` in `src/components/homeowner/LeadEditModal.tsx`:
+  - Props: `isOpen`, `onClose`, `leadId`, `initialData`, `onSaveSuccess`
+  - Reuse `InstantQuoteForm` component for editing
+  - Pre-fill all fields from `initialData` (from lead.quoteData)
+  - Allow recalculation on field changes
+  - On save:
+    * Call PATCH `/api/leads/[leadId]` with updated fields
+    * Show loading state
+    * On success: Show toast "Lead updated!", close modal, trigger parent refresh
+    * On error (403 cannot edit): Show error "This lead cannot be edited anymore"
+  - Validation: Same as original quote form
+  - Manual QA Checklist:
+    * Edit DRAFT lead → change energyBill, click save → verify success
+    * Recalculate after editing → verify new results shown
+    * Edit APPROVED lead → expect 403 error, show message
+    * Cancel editing → modal closes without saving
+    * Check database → verify updated values saved
+
+- [ ] **T221** [US1] Add edit button to dashboard lead list in `src/app/homeowner/dashboard/page.tsx`:
+  - In "Recent Leads" section (existing Dashboard Overview page)
+  - For each lead card, add conditional edit button:
+    * Show if: `status in ['DRAFT', 'PENDING_PHONE', 'PENDING_APPROVAL']`
+    * Hide if: `status in ['APPROVED', 'PURCHASED', 'QUOTED', ...]`
+  - Button icon: Pencil or edit icon
+  - On click: Open `LeadEditModal` with lead data
+  - After successful edit: Refresh dashboard summary
+  - Manual QA Checklist:
+    * DRAFT lead → verify edit button visible and clickable
+    * APPROVED lead → verify edit button hidden
+    * Click edit → modal opens with correct data pre-filled
+    * Save edit → dashboard refreshes, shows updated values
+    * Status changes from PENDING_APPROVAL to APPROVED → edit button disappears
+
+- [ ] **T222** [US1] Add "Open for Bidding" button to written quote cards in `src/app/homeowner/dashboard/page.tsx`:
+  - In lead card (Recent Leads section)
+  - Show button only if:
+    * quoteType === 'WRITTEN_QUOTE'
+    * status === 'APPROVED'
+    * biddingOpenedAt === null (not already opened)
+  - Button: "Open for Bidding" with gavel icon
+  - On click: Open `BiddingConfirmationModal`
+  - After successful activation: Refresh dashboard, button changes to "Bidding Active" (disabled)
+  - Manual QA Checklist:
+    * APPROVED written quote → verify "Open for Bidding" button visible
+    * Call/visit quote → verify button hidden
+    * Click button → confirmation modal opens
+    * Confirm bidding → verify button changes to "Bidding Active"
+    * Already opened another quote → verify error message in modal
+    * Check dashboard after activation → verify status badge shows "Bidding Open"
+
+- [ ] **T223** [US1] Integrate `QuoteTypeDistributionModal` into quote request flow in `src/app/homeowner/dashboard/page.tsx`:
+  - Update `handleNewQuoteClick()` or `handleRequestMoreQuotes()` flow:
+    * After InstantQuoteForm calculates results
+    * Before calling POST `/api/leads`
+    * Show `QuoteTypeDistributionModal` to select counts
+  - New flow:
+    1. User clicks "Request More Quotes"
+    2. If requiresVerification → show ContactVerificationModal → OTP flow
+    3. Show `NewQuoteRequestModal` (InstantQuoteForm) with pre-filled data
+    4. User edits fields, clicks "Calculate Again" → results shown
+    5. User clicks "Submit" or "Next"
+    6. **NEW:** Show `QuoteTypeDistributionModal` (select counts)
+    7. User confirms distribution (e.g., 2 call/visit + 2 written)
+    8. Call POST `/api/leads` with distributions array
+    9. Show success modal (FirstQuoteSuccessModal or new batch success modal)
+    10. Refresh dashboard
+  - Manual QA Checklist:
+    * Complete full flow → verify distribution modal appears after quote calculation
+    * Select 3 quotes → verify API receives correct distribution
+    * Cancel distribution selection → flow stops, no leads created
+    * Submit distribution → verify multiple leads created in database
+    * Verify dashboard quota updates correctly (e.g., 5 → 1 remaining)
+
+#### Installer-Facing Features 🔧
+- [ ] **T224** [US3] Create `BiddingAvailableBadge` component in `src/components/installer/BiddingAvailableBadge.tsx`:
+  - Props: `isActive` (boolean), `size` ('sm' | 'md' | 'lg')
+  - UI: Badge with gavel icon + "Bidding Available" text
+  - Styling: Blue/violet background, white text, rounded badge
+  - Sizes: Small (for cards), Medium (for detail view), Large (for headers)
+  - Animation: Subtle pulse effect to attract attention
+  - Manual QA Checklist:
+    * Render badge → verify icon and text displayed
+    * Test all three sizes → verify proper scaling
+    * Dark mode → verify colors readable
+
+- [ ] **T225** [US3] Add bidding badge to installer marketplace in `src/app/(dashboard)/installer/marketplace/page.tsx`:
+  - For each lead card:
+    * Check if `status === 'BIDDING_OPEN'` and `quoteType === 'WRITTEN_QUOTE'`
+    * If true: Show `BiddingAvailableBadge` in card header
+  - Position: Top-right corner of lead card or next to quote type label
+  - Manual QA Checklist:
+    * Open marketplace as installer
+    * Verify bidding leads show badge
+    * Non-bidding leads → verify no badge
+    * Click on bidding lead → navigate to detail view
+    * Filter by quote type → verify bidding badges persist
+
+- [ ] **T226** [US3] Add bidding context to installer lead detail view in `src/app/(dashboard)/installer/leads/[id]/page.tsx`:
+  - If `status === 'BIDDING_OPEN'`:
+    * Show prominent banner: "🔨 This lead is open for bidding"
+    * Display: "Opened for bidding on {date}"
+    * Message: "Submit your competitive bid to win this project"
+    * Future: Show bid form (deferred to bidding implementation phase)
+  - If `status === 'APPROVED'` (not bidding):
+    * Show normal purchase flow
+  - Manual QA Checklist:
+    * View BIDDING_OPEN lead → verify banner displayed
+    * View APPROVED lead → verify normal purchase button shown
+    * Verify bidding date formatted correctly
+
+#### Dashboard Navigation & Sidebar 📋
+- [ ] **T227** [US1] Add "Bidding Room" link to homeowner sidebar in `src/app/homeowner/dashboard/page.tsx`:
+  - Update `HomeownerSidebar` component
+  - Add new NavItem: `<NavItem icon={<GavelIcon />} title="Bidding Room" ... />`
+  - On click: Navigate to `/homeowner/bidding` page
+  - Active state: Highlight when on bidding page
+  - Manual QA Checklist:
+    * Click "Bidding Room" in sidebar → navigate to /homeowner/bidding
+    * Verify active state when on bidding page
+    * Return to dashboard → verify sidebar link still visible
+    * Mobile view → verify link in mobile sidebar menu
+
+#### Status Display & Labels 🏷️
+- [ ] **T228** [US1] Update STATUS_LABELS in `src/app/homeowner/dashboard/page.tsx`:
+  - Add new status label for BIDDING_OPEN:
+    ```typescript
+    [LeadStatusEnum.BIDDING_OPEN]: {
+      label: 'Bidding Open',
+      description: 'Installers are competing for your project',
+      accent: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300',
+    }
+    ```
+  - Update existing labels if needed (consistency check)
+  - Manual QA Checklist:
+    * Lead with BIDDING_OPEN status → verify label displays correctly
+    * Verify accent color matches design system
+    * Dark mode → verify label readable
+
+#### Validation & Testing 🧪
+- [ ] **T229** [US1] End-to-end manual testing - Second Quote Flow:
+  - Test Scenario:
+    1. Login as homeowner with leadSubmissionCount = 1, quoteLimit = 5 (4 remaining)
+    2. Dashboard shows "Request More Quotes" CTA
+    3. Click CTA → verify form pre-filled with first lead data
+    4. Edit fields: Change energyBill from 400 to 500, roofType from "Tile" to "Metal"
+    5. Click "Calculate Again" → verify results update
+    6. Click "Submit" → QuoteTypeDistributionModal opens
+    7. Select: 2 Call/Visit + 2 Written quotes
+    8. Click "Confirm" → API creates 4 leads
+    9. Success modal shows: "4 quotes requested"
+    10. Dashboard refreshes: Shows 5 total submitted, 1 remaining
+    11. Verify database: 4 new leads exist, all have same quoteData (edited version)
+  - Expected Results: ✅ All steps pass, quota accurate, leads created correctly
+
+- [ ] **T230** [US1] End-to-end manual testing - Bidding Flow:
+  - Test Scenario:
+    1. Login as homeowner with 2 APPROVED written quotes
+    2. Navigate to dashboard → see two written quote cards
+    3. Click "Open for Bidding" on first written quote
+    4. BiddingConfirmationModal opens with warning message
+    5. Click "Confirm & Open Bidding"
+    6. API call succeeds → toast shows "Lead opened for bidding!"
+    7. Dashboard refreshes: First quote shows "Bidding Active" status
+    8. Second written quote: "Open for Bidding" button still visible
+    9. Click "Open for Bidding" on second quote
+    10. Error: "You can only open one quote for bidding"
+    11. Click "Bidding Room" in sidebar
+    12. /homeowner/bidding page shows first quote with bidding details
+    13. Login as installer → view marketplace
+    14. First written quote shows "Bidding Available" badge
+    15. Second written quote: No badge (not opened for bidding)
+  - Expected Results: ✅ One-time rule enforced, badge visible, error handling works
+
+- [ ] **T231** [US1] End-to-end manual testing - Lead Editing:
+  - Test Scenario:
+    1. Login as homeowner with 3 leads: 1 DRAFT, 1 PENDING_APPROVAL, 1 APPROVED
+    2. DRAFT lead: Edit button visible → click edit
+    3. LeadEditModal opens with pre-filled data
+    4. Change propertyPostcode from "2000" to "2010"
+    5. Recalculate → results update
+    6. Click "Save" → API returns success
+    7. Dashboard refreshes → DRAFT lead shows updated postcode
+    8. Check database → quoteData updated with new postcode
+    9. PENDING_APPROVAL lead: Edit button visible → repeat edit flow → success
+    10. APPROVED lead: Edit button HIDDEN (cannot edit after approval)
+    11. Attempt direct API call to edit APPROVED lead → 403 error
+  - Expected Results: ✅ Edit works for DRAFT/PENDING_APPROVAL, blocked for APPROVED
+
+- [ ] **T232** [US1] Edge case testing - Quota enforcement:
+  - Test Scenarios:
+    * Homeowner with 1 remaining quota → attempt to request 2 quotes → expect error
+    * Homeowner with 0 remaining quota → "Request More Quotes" button disabled
+    * Concurrent requests: Submit 2 quote requests simultaneously → expect one to fail (race condition test)
+    * API validation: POST /api/leads with count > remaining → 400 error
+  - Expected Results: ✅ Quota enforcement strict, no over-allocation
+
+- [ ] **T233** [US1] Edge case testing - Bidding restrictions:
+  - Test Scenarios:
+    * Open CALL_VISIT quote for bidding → expect 400 error (only written quotes)
+    * Open DRAFT quote for bidding → expect 400 error (must be approved first)
+    * Already opened one quote → attempt to open second → expect 400 error
+    * Two homeowners: Homeowner A opens bidding on own quote → Homeowner B cannot open bidding on different quote (verify independence)
+  - Expected Results: ✅ All validations enforced, clear error messages
+
+- [ ] **T234** [US1] Performance & regression testing:
+  - Test Scenarios:
+    * Create 4 leads in one batch → measure response time (< 2 seconds)
+    * Dashboard load time with 20 leads → < 1 second
+    * Existing single quote flow → verify still works (backwards compatibility)
+    * Existing verification flow → verify not broken
+    * Admin lead approval → verify new BIDDING_OPEN status visible in admin dashboard
+  - Expected Results: ✅ Performance acceptable, no regressions
+
+#### Documentation & Records 📝
+- [ ] **T235** [US1] Create implementation record in `DOC/Records/PHASE-4.9.6-SECOND-QUOTE-BIDDING-2025-10-18.md`:
+  - Document audit findings
+  - Architecture decisions (batch API design, one-time bidding rule)
+  - Schema changes (BIDDING_OPEN status, tracking fields)
+  - API contract changes (POST /api/leads with distributions)
+  - Component hierarchy (QuoteTypeDistributionModal flow)
+  - Testing results (all T229-T234 scenarios)
+  - Known limitations (bidding implementation details deferred)
+  - Future enhancements (installer bid submission, bid comparison UI)
+
+- [ ] **T236** [US1] Update API contracts in `specs/002-lead-journey-life/contracts/`:
+  - Update `leads.openapi.yaml`:
+    * POST /api/leads - Add distributions parameter
+    * Add PATCH /api/leads/{id} endpoint
+    * Add POST /api/leads/{id}/open-bidding endpoint
+    * Add GET /api/homeowner/bidding endpoint
+  - Update request/response examples
+  - Add error codes documentation (400, 403 for bidding restrictions)
+
+- [ ] **T237** [US1] Update tasks.md with completed task status:
+  - Mark all T208-T236 tasks as complete (✅)
+  - Add "Phase 4.9.6 Status: ✅ COMPLETE" banner
+  - Update Phase 4.9.6 validation checklist
+  - Add "Checkpoint" summary with outcomes
+
+---
+
+### Phase 4.9.6 Validation Checklist
+
+**Pre-Phase (60 min):**
+- [X] Complete audit of existing implementation (see Audit Summary above)
+- [ ] Review spec.md for second quote generation requirements
+- [ ] Review data-model.md for Lead model, LeadStatus enum, User quota fields
+- [ ] Check existing dashboard flow: RequestMoreQuotesCTA, NewQuoteRequestModal integration
+- [ ] Verify InstantQuoteForm pre-fill capability (initialData prop)
+- [ ] List all files to create/modify: 29 tasks across schema, services, APIs, components
+- [ ] Plan migration strategy: 2 migrations (bidding status, tracking fields)
+
+**During Implementation:**
+- [ ] After T208-T209 (Schema): Run `npx prisma validate`, `npx prisma migrate dev`
+- [ ] After T210-T212 (Services): Run `npx tsc --noEmit` (0 errors)
+- [ ] After T213-T216 (APIs): Test all endpoints with Thunder Client/Postman
+- [ ] After T217-T223 (Frontend): Run `npm run build` (0 errors)
+- [ ] After T224-T228 (Installer UI + Status): Visual QA in browser
+
+**Post-Phase Validation:**
+- [ ] Schema Validation: `npx prisma validate` passes (0 errors)
+- [ ] TypeScript: `npx tsc --noEmit` passes (0 errors)
+- [ ] Build: `npm run build` passes (0 errors, warnings reviewed)
+- [ ] Database Check: Open Prisma Studio, verify:
+  * LeadStatus enum includes BIDDING_OPEN
+  * Lead table has biddingOpenedAt, biddingOpenedBy columns
+  * Test leads exist with status BIDDING_OPEN
+- [ ] API Testing (all endpoints):
+  * POST /api/leads with distributions → 4 leads created
+  * PATCH /api/leads/[id] → DRAFT lead updated successfully
+  * PATCH /api/leads/[id] → APPROVED lead returns 403
+  * POST /api/leads/[id]/open-bidding → status changes to BIDDING_OPEN
+  * POST /api/leads/[id]/open-bidding (second time) → 400 error
+  * GET /api/homeowner/bidding → returns bidding leads
+- [ ] UI Testing (all flows):
+  * Second quote request → form pre-fills correctly
+  * Distribution modal → count selection works, validation enforced
+  * Bidding activation → confirmation modal, success toast, status update
+  * Lead editing → edit button visible/hidden based on status
+  * Bidding dashboard → shows active bidding leads
+  * Installer marketplace → bidding badge visible on correct leads
+- [ ] Business Logic Validation:
+  * One-time bidding rule enforced (database + API level)
+  * Quota enforcement strict (no over-allocation possible)
+  * Edit restrictions work (status-based permission)
+  * Batch creation atomic (all or nothing)
+- [ ] Manual QA Complete: T229-T234 all scenarios pass
+- [ ] Performance: Batch lead creation < 2 seconds, dashboard load < 1 second
+- [ ] No Regressions: Existing single quote flow, verification flow, admin approval all working
+- [ ] User approval received for commit
+- [ ] Git commit: "Phase 4.9.6: Second quote generation with bidding system"
+
+**Expected Outcomes:**
+1. ✅ Homeowners can request multiple quotes in one submission (call/visit + written distribution)
+2. ✅ Pre-fill works: Second quote request shows all data from first quote
+3. ✅ Quote count selection UI intuitive with live validation
+4. ✅ Bidding system: One written quote can be opened for competitive bidding
+5. ✅ One-time bidding rule enforced: Homeowner can only open ONE quote for bidding
+6. ✅ Bidding dashboard: Dedicated page shows active bidding leads
+7. ✅ Installer visibility: "Bidding Available" badge on marketplace
+8. ✅ Lead editing: Homeowners can edit leads until approved
+9. ✅ Quota enforcement: No over-allocation, real-time quota display
+10. ✅ Database integrity: All leads have correct quoteData, status, timestamps
+11. ✅ API backwards compatible: Existing single quote flow still works
+12. ✅ Foundation ready: Bidding infrastructure in place for installer bid submission (Phase 8)
+
+**Time Estimate:** 12-16 hours total
+- Schema + Services: 3 hours
+- API Endpoints: 3 hours
+- Frontend Components: 5 hours
+- Testing + QA: 3 hours
+- Documentation: 2 hours
+
+**Dependencies Met:**
+- ✅ Phase 4.8 complete (second quote flow, quota system)
+- ✅ Phase 4.9 complete (phone verification, session sync)
+- ✅ Phase 4.9.5 complete (first quote success modal)
+- ✅ Lead model has quoteData field (Phase 4.5)
+- ✅ Dashboard fetches recentLeads with quoteData (Phase 4.8)
+
+**Notes:**
+- Bidding system is **infrastructure-only** in this phase (enables activation, visibility)
+- Actual installer bid submission and bid comparison UI deferred to Phase 8 (Chat & Quotes)
+- One-time bidding rule enforced at multiple levels: database query, API validation, UI state
+- QuoteTypeDistributionModal replaces QuoteOptionsModal in second+ quote flow
+- First quote flow remains unchanged (QuoteOptionsModal still used for first submission)
+
+---
+
+
+## Phase 4: User Story 2 - Admin Reviews and Approves Leads (Priority: P1) 🎯 MVP (Persona: Admin)
 
 **Goal**: Admin can switch between Auto-Approval Mode and Manual Review Mode, configure automation rules, and manually approve/reject/price/assign leads
 
@@ -835,7 +1635,7 @@ Notes:
 
 ---
 
-## Phase 5: User Story 3 - Installer Discovers and Purchases Lead (Priority: P1) 🎯 MVP
+## Phase 5: User Story 3 - Installer Discovers and Purchases Lead (Priority: P1) 🎯 MVP (Persona: Installer)
 
 **Goal**: Verified installers browse marketplace, purchase leads via Stripe, unlock contact details and chat
 
@@ -927,7 +1727,7 @@ Notes:
 
 ---
 
-## Phase 6: User Story 4 - Lead Status Tracking and Updates (Priority: P2)
+## Phase 6: User Story 4 - Lead Status Tracking and Updates (Priority: P2) (Persona: All, emphasis on Installer)
 
 **Goal**: All users see real-time status updates and full audit trail in their dashboards
 
@@ -1005,7 +1805,7 @@ Notes:
 
 ---
 
-## Phase 7: User Story 5 - Admin Manages Lead Lifecycle and Resale (Priority: P3)
+## Phase 7: User Story 5 - Admin Manages Lead Lifecycle and Resale (Priority: P3) (Persona: Admin)
 
 **Goal**: Admins can resell leads, reset timers, archive leads, and manage user accounts
 
@@ -1091,7 +1891,7 @@ Notes:
 
 ---
 
-## Phase 8: User Story 6 - Internal Chat and Quote Exchange (Priority: P2)
+## Phase 8: User Story 6 - Internal Chat and Quote Exchange (Priority: P2) (Persona: Installer + Homeowner, Admin visibility)
 
 **Goal**: Real-time chat between homeowner and installer after purchase, with admin monitoring. Quote submission with admin review for Written Quotes.
 
@@ -1199,7 +1999,7 @@ Notes:
 
 ---
 
-## Phase 9: User Story 7 - Installer Feedback and Lead Quality Rating (Priority: P3)
+## Phase 9: User Story 7 - Installer Feedback and Lead Quality Rating (Priority: P3) (Persona: Installer)
 
 **Goal**: Installers can rate and comment on lead quality, visible to admins
 
@@ -1277,7 +2077,7 @@ Notes:
 ---
 
 
-## Phase 10: Polish & Cross-Cutting Concerns
+## Phase 10: Polish & Cross-Cutting Concerns (Persona: Cross-cutting)
 
 **Purpose**: Improvements that affect multiple user stories
 
