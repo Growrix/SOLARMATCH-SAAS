@@ -839,7 +839,7 @@ Notes:
 
 **Independent Test**: 
 1. Second Quote Flow: Login as verified homeowner (leadSubmissionCount >= 1) → open dashboard → click "Request More Quotes" → verify form pre-filled with most recent lead data → edit address, system size → click "Calculate Again" → results update → select 2 call/visit + 2 written quotes → submit → verify dashboard shows 4 new leads, quota updated
-2. Bidding Flow: Click "Open for Bidding" on one written quote → confirm modal → verify status changes to BIDDING_OPEN → check Bidding page shows lead → verify installer marketplace shows "Bidding Available" badge → confirm other written quotes no longer have bidding option
+2. Bidding Flow: Click "Open for Bidding" on one written quote → confirm modal → verify status changes to BIDDING_OPEN → check Bidding page shows lead → confirm other written quotes no longer have bidding option
 3. Lead Editing: Click edit on DRAFT or PENDING_APPROVAL lead → modify fields → save → verify changes persisted → approve lead (as admin) → verify edit button hidden once APPROVED
 
 ---
@@ -917,7 +917,7 @@ enum LeadStatus {
    - No "Open for Bidding" button on written quotes
    - No BIDDING_OPEN status in LeadStatus enum
    - No `/homeowner/bidding` dashboard page
-   - No "Bidding Available" badge for installers
+  - Installer-facing indicators (e.g., badges) are out of scope for this Homeowner-only phase
    - No one-time activation enforcement (only one written quote can be opened for bidding)
    - Need: Complete bidding infrastructure
 
@@ -928,7 +928,7 @@ enum LeadStatus {
    - Need: Edit modal, API endpoint, permission logic
 
 5. **Installer Bidding Visibility** - NOT IMPLEMENTED
-   - No "Bidding Available" badge in installer marketplace
+  - Installer marketplace indicators are out of scope for this Homeowner-only phase
    - No bidding context in installer lead detail view
    - Need: Installer-facing bidding UI enhancements
 
@@ -957,7 +957,7 @@ enum LeadStatus {
    - `BiddingConfirmationModal.tsx` - Confirm bidding activation
    - `BiddingDashboard.tsx` - Page at `/homeowner/bidding`
    - `LeadEditModal.tsx` - Edit lead details
-   - `BiddingAvailableBadge.tsx` - Installer marketplace badge
+  - Installer marketplace badge (deferred to Installer-focused phase)
 
 **Dependencies & Blockers:**
 - ✅ Phase 4.8 complete (second quote flow exists, verification working)
@@ -977,21 +977,32 @@ enum LeadStatus {
 ### Phase 4.9.6 Implementation Tasks
 
 #### Data Model & Schema (BLOCKING) 🔴
-- [ ] **T208** [US1] Extend LeadStatus enum in `prisma/schema.prisma`:
+- [X] **T208** [US1] Extend LeadStatus enum in `prisma/schema.prisma`:
   - Add `BIDDING_OPEN` status value (after APPROVED, before PURCHASED)
   - Run migration: `npx prisma migrate dev --name add-bidding-status`
   - Update TypeScript types in `src/types/lead.ts`
   - Manual QA: Verify enum in Prisma Studio
+  - ✅ COMPLETE: Migration 20251018095320_add_bidding_status applied, state machine updated
 
-- [ ] **T209** [US1] Add bidding tracking fields to Lead model in `prisma/schema.prisma`:
+- [X] **T209** [US1] Add bidding tracking fields to Lead model in `prisma/schema.prisma`:
   - `biddingOpenedAt DateTime?` - Timestamp when bidding was activated
   - `biddingOpenedBy String?` - User ID who opened bidding (for audit)
   - `biddingClosedAt DateTime?` - When bidding ended (future use)
   - Run migration: `npx prisma migrate dev --name add-bidding-tracking`
   - Manual QA: Check Lead table schema in Prisma Studio
+  - ✅ COMPLETE: Fields added to schema, included in migration 20251018095320_add_bidding_status
 
 #### Business Logic & Services 🟡
-- [ ] **T210** [US1] Create batch lead creation in `src/lib/services/lead-service.ts`:
+- [X] **T210** [US1] Create batch lead creation in `src/lib/services/lead-service.ts`:
+  - ✅ **COMPLETE** (2025-10-18): createMultipleLeads() function implemented with full validation
+    * Added QuoteDistribution and BatchCreateLeadResult interfaces
+    * Validates total count against remaining quota before creating any leads
+    * Creates N leads with same quoteData but different quoteType values in loop
+    * Increments leadSubmissionCount by total created (atomic operation)
+    * Creates audit log entry for each individual lead with batch metadata
+    * Sends single notification to admin to avoid spam (includes all lead IDs)
+    * Returns array of created leads with updated quota information
+    * TypeScript compilation passes, ready for API integration
   - Add `createMultipleLeads(input: CreateLeadInput, distributions: QuoteDistribution[]): Promise<CreateLeadResult[]>`
   - Function creates N leads with same quoteData but different quoteType values
   - Validate total count against remaining quota
@@ -1006,7 +1017,16 @@ enum LeadStatus {
     * Attempt to exceed quota (e.g., remaining 2, request 3) → expect error
     * Check audit log has 3 entries with correct timestamps
 
-- [ ] **T211** [US1] Implement lead update service in `src/lib/services/lead-service.ts`:
+- [X] **T211** [US1] Implement lead update service in `src/lib/services/lead-service.ts`:
+  - ✅ **COMPLETE** (2025-10-18): updateLead() function implemented with security validation
+    * Added canEditLead() helper function for status validation
+    * Validates lead ownership (security: only owner can edit)
+    * Validates editable status (only DRAFT, PENDING_PHONE, PENDING_APPROVAL)
+    * Throws clear error if trying to edit APPROVED or later status leads
+    * Updates all lead fields conditionally (only fields provided in updates)
+    * Preserves quoteData field when provided
+    * Creates audit log with LEAD_UPDATED action (added to AUDIT_ACTIONS)
+    * TypeScript compilation passes, ready for API integration
   - Add `updateLead(leadId: string, homeownerId: string, updates: Partial<CreateLeadInput>): Promise<Lead>`
   - Validate lead belongs to homeowner (security)
   - Validate status allows editing: `canEditLead(status) => status in [DRAFT, PENDING_PHONE, PENDING_APPROVAL]`
@@ -1020,7 +1040,7 @@ enum LeadStatus {
     * Edit another homeowner's lead → expect 403 error
     * Update propertyPostcode, energyBill → verify quoteData updated
 
-- [ ] **T212** [US1] Create bidding activation service in `src/lib/services/lead-service.ts`:
+- [X] **T212** [US1] Create bidding activation service in `src/lib/services/lead-service.ts`:
   - Add `openLeadForBidding(leadId: string, homeownerId: string): Promise<{ success: boolean; lead?: Lead; error?: string }>`
   - Validate:
     * Lead exists and belongs to homeowner
@@ -1035,6 +1055,7 @@ enum LeadStatus {
     * Call createAuditLog with LEAD_BIDDING_OPENED action
     * Call createNotification to all installers: "New bidding opportunity available"
   - Return success with updated lead
+  - ✅ COMPLETE: Function implemented with all validations, notifications to all verified installers
   - Manual QA Checklist:
     * Open APPROVED written quote for bidding → verify status changes to BIDDING_OPEN
     * Verify biddingOpenedAt timestamp set correctly
@@ -1045,7 +1066,17 @@ enum LeadStatus {
     * Verify audit log entry created
 
 #### API Endpoints 🟢
-- [ ] **T213** [US1] Update POST `/api/leads` to support batch creation in `src/app/api/leads/route.ts`:
+- [X] **T213** [US1] Update POST `/api/leads` to support batch creation in `src/app/api/leads/route.ts`:
+  - ✅ **COMPLETE** (2025-10-18): POST /api/leads extended with batch mode support
+    * Added import for createMultipleLeads service function
+    * Detects batch mode by checking for distributions array parameter
+    * Validates distributions array structure (type, count for each entry)
+    * Calculates total count and validates against remaining quota
+    * Routes to createMultipleLeads() or createLead() based on mode
+    * Processes all created leads through automation engine (loop for batch)
+    * Returns batch response (leads array, totalCreated) or single response (lead object)
+    * Maintains full backwards compatibility with existing single lead creation
+    * Build passes, TypeScript compilation successful
   - Accept new request body format:
     ```json
     {
@@ -1078,7 +1109,16 @@ enum LeadStatus {
     * Verify response includes all created lead IDs
     * Check dashboard shows updated quota immediately
 
-- [ ] **T214** [US1] Create PATCH `/api/leads/[id]` route in `src/app/api/leads/[id]/route.ts`:
+- [X] **T214** [US1] Create PATCH `/api/leads/[id]` route in `src/app/api/leads/[id]/route.ts`:
+  - ✅ **COMPLETE** (2025-10-18): PATCH /api/leads/[id] extended for homeowner edits
+    * Refactored existing PATCH handler to route based on user role
+    * Added handleAdminEdit() function for admin edits (price, notes) - existing functionality preserved
+    * Added handleHomeownerEdit() function for homeowner edits (lead data in DRAFT/PENDING only)
+    * Homeowner handler calls updateLead service with full validation
+    * Handles all service errors with appropriate HTTP status codes (404, 403, 400)
+    * Maintains security: only owner can edit, only editable status allowed
+    * Added import for updateLead service function
+    * Build passes, TypeScript compilation successful
   - Validate user is authenticated (session)
   - Validate user role === HOMEOWNER
   - Extract leadId from URL params
@@ -1096,7 +1136,12 @@ enum LeadStatus {
     * PATCH with invalid fields → expect validation error
     * Verify updated fields reflected in database
 
-- [ ] **T215** [US1] Create POST `/api/leads/[id]/open-bidding` route in `src/app/api/leads/[id]/open-bidding/route.ts`:
+- [X] **T215** [US1] Create POST `/api/leads/[id]/open-bidding` route in `src/app/api/leads/[id]/open-bidding/route.ts`:
+  - ✅ **COMPLETE** (2025-10-18): API endpoint implemented with full authentication and authorization
+    * Session authentication with role check (HOMEOWNER only)
+    * Calls openLeadForBidding service with comprehensive error handling
+    * Returns success response with updated lead object
+    * Validated with TypeScript compilation and build passes
   - Validate user is authenticated (session)
   - Validate user role === HOMEOWNER
   - Extract leadId from URL params
@@ -1123,7 +1168,12 @@ enum LeadStatus {
     * POST with unapproved lead → expect 400 error
     * Verify installer marketplace updates immediately
 
-- [ ] **T216** [US1] Create GET `/api/homeowner/bidding` route in `src/app/api/homeowner/bidding/route.ts`:
+- [X] **T216** [US1] Create GET `/api/homeowner/bidding` route in `src/app/api/homeowner/bidding/route.ts`:
+  - ✅ **COMPLETE** (2025-10-18): API endpoint implemented with authentication and placeholder bid data
+    * Session authentication with role check (HOMEOWNER only)
+    * Queries leads with status=BIDDING_OPEN, ordered by biddingOpenedAt desc
+    * Returns biddingLeads array with placeholder bidsCount (0 until Quote model implemented)
+    * Validated with TypeScript compilation and build passes
   - Validate user is authenticated (session)
   - Validate user role === HOMEOWNER
   - Query leads with:
@@ -1152,7 +1202,7 @@ enum LeadStatus {
     * Verify bidsCount accurate (when bidding implemented)
 
 #### Frontend Components 🎨
-- [ ] **T217** [US1] Create `QuoteTypeDistributionModal` in `src/components/homeowner/QuoteTypeDistributionModal.tsx`:
+- [X] **T217** [US1] Create `QuoteTypeDistributionModal` in `src/components/homeowner/QuoteTypeDistributionModal.tsx`:
   - Props: `isOpen`, `onClose`, `onSubmit(distributions)`, `remainingQuota`, `quoteData`
   - UI Layout:
     * Header: "Select Quote Distribution" with remaining quota display
@@ -1181,7 +1231,7 @@ enum LeadStatus {
     * Click cancel → modal closes without submitting
     * Submit valid distribution → verify parent receives correct data structure
 
-- [ ] **T218** [US1] Create `BiddingConfirmationModal` in `src/components/homeowner/BiddingConfirmationModal.tsx`:
+- [X] **T218** [US1] Create `BiddingConfirmationModal` in `src/components/homeowner/BiddingConfirmationModal.tsx`:
   - Props: `isOpen`, `onClose`, `onConfirm`, `leadId`, `quoteData`
   - UI Layout:
     * Header: "Open Lead for Bidding"
@@ -1204,7 +1254,7 @@ enum LeadStatus {
     * Error (already opened another) → verify error message displayed
     * Click cancel → modal closes without API call
 
-- [ ] **T219** [US1] Create `BiddingDashboard` page in `src/app/homeowner/bidding/page.tsx`:
+- [X] **T219** [US1] Create `BiddingDashboard` page in `src/app/homeowner/bidding/page.tsx`:
   - Fetch bidding leads from GET `/api/homeowner/bidding`
   - UI Layout:
     * Header: "Bidding Room" with gavel icon
@@ -1226,7 +1276,7 @@ enum LeadStatus {
     * Click lead card → navigate to lead detail (future feature)
     * Mobile view → verify cards stack correctly
 
-- [ ] **T220** [US1] Create `LeadEditModal` in `src/components/homeowner/LeadEditModal.tsx`:
+- [X] **T220** [US1] Create `LeadEditModal` in `src/components/homeowner/LeadEditModal.tsx`:
   - Props: `isOpen`, `onClose`, `leadId`, `initialData`, `onSaveSuccess`
   - Reuse `InstantQuoteForm` component for editing
   - Pre-fill all fields from `initialData` (from lead.quoteData)
@@ -1244,7 +1294,7 @@ enum LeadStatus {
     * Cancel editing → modal closes without saving
     * Check database → verify updated values saved
 
-- [ ] **T221** [US1] Add edit button to dashboard lead list in `src/app/homeowner/dashboard/page.tsx`:
+- [X] **T221** [US1] Add edit button to dashboard lead list in `src/app/homeowner/dashboard/page.tsx`:
   - In "Recent Leads" section (existing Dashboard Overview page)
   - For each lead card, add conditional edit button:
     * Show if: `status in ['DRAFT', 'PENDING_PHONE', 'PENDING_APPROVAL']`
@@ -1259,7 +1309,7 @@ enum LeadStatus {
     * Save edit → dashboard refreshes, shows updated values
     * Status changes from PENDING_APPROVAL to APPROVED → edit button disappears
 
-- [ ] **T222** [US1] Add "Open for Bidding" button to written quote cards in `src/app/homeowner/dashboard/page.tsx`:
+- [X] **T222** [US1] Add "Open for Bidding" button to written quote cards in `src/app/homeowner/dashboard/page.tsx`:
   - In lead card (Recent Leads section)
   - Show button only if:
     * quoteType === 'WRITTEN_QUOTE'
@@ -1276,7 +1326,7 @@ enum LeadStatus {
     * Already opened another quote → verify error message in modal
     * Check dashboard after activation → verify status badge shows "Bidding Open"
 
-- [ ] **T223** [US1] Integrate `QuoteTypeDistributionModal` into quote request flow in `src/app/homeowner/dashboard/page.tsx`:
+- [X] **T223** [US1] Integrate `QuoteTypeDistributionModal` into quote request flow in `src/app/homeowner/dashboard/page.tsx`:
   - Update `handleNewQuoteClick()` or `handleRequestMoreQuotes()` flow:
     * After InstantQuoteForm calculates results
     * Before calling POST `/api/leads`
@@ -1300,41 +1350,7 @@ enum LeadStatus {
     * Verify dashboard quota updates correctly (e.g., 5 → 1 remaining)
 
 #### Installer-Facing Features 🔧
-- [ ] **T224** [US3] Create `BiddingAvailableBadge` component in `src/components/installer/BiddingAvailableBadge.tsx`:
-  - Props: `isActive` (boolean), `size` ('sm' | 'md' | 'lg')
-  - UI: Badge with gavel icon + "Bidding Available" text
-  - Styling: Blue/violet background, white text, rounded badge
-  - Sizes: Small (for cards), Medium (for detail view), Large (for headers)
-  - Animation: Subtle pulse effect to attract attention
-  - Manual QA Checklist:
-    * Render badge → verify icon and text displayed
-    * Test all three sizes → verify proper scaling
-    * Dark mode → verify colors readable
-
-- [ ] **T225** [US3] Add bidding badge to installer marketplace in `src/app/(dashboard)/installer/marketplace/page.tsx`:
-  - For each lead card:
-    * Check if `status === 'BIDDING_OPEN'` and `quoteType === 'WRITTEN_QUOTE'`
-    * If true: Show `BiddingAvailableBadge` in card header
-  - Position: Top-right corner of lead card or next to quote type label
-  - Manual QA Checklist:
-    * Open marketplace as installer
-    * Verify bidding leads show badge
-    * Non-bidding leads → verify no badge
-    * Click on bidding lead → navigate to detail view
-    * Filter by quote type → verify bidding badges persist
-
-- [ ] **T226** [US3] Add bidding context to installer lead detail view in `src/app/(dashboard)/installer/leads/[id]/page.tsx`:
-  - If `status === 'BIDDING_OPEN'`:
-    * Show prominent banner: "🔨 This lead is open for bidding"
-    * Display: "Opened for bidding on {date}"
-    * Message: "Submit your competitive bid to win this project"
-    * Future: Show bid form (deferred to bidding implementation phase)
-  - If `status === 'APPROVED'` (not bidding):
-    * Show normal purchase flow
-  - Manual QA Checklist:
-    * View BIDDING_OPEN lead → verify banner displayed
-    * View APPROVED lead → verify normal purchase button shown
-    * Verify bidding date formatted correctly
+Installer UI work (badges, marketplace, installer lead detail) is intentionally deferred and out of scope for Phase 4.9.6 Homeowner delivery.
 
 #### Dashboard Navigation & Sidebar 📋
 - [ ] **T227** [US1] Add "Bidding Room" link to homeowner sidebar in `src/app/homeowner/dashboard/page.tsx`:
@@ -1394,10 +1410,8 @@ enum LeadStatus {
     10. Error: "You can only open one quote for bidding"
     11. Click "Bidding Room" in sidebar
     12. /homeowner/bidding page shows first quote with bidding details
-    13. Login as installer → view marketplace
-    14. First written quote shows "Bidding Available" badge
-    15. Second written quote: No badge (not opened for bidding)
-  - Expected Results: ✅ One-time rule enforced, badge visible, error handling works
+  13. Installer marketplace verification is deferred (out of scope for this phase)
+  - Expected Results: ✅ One-time rule enforced, homeowner UI updates correctly, error handling works
 
 - [ ] **T231** [US1] End-to-end manual testing - Lead Editing:
   - Test Scenario:
@@ -1482,8 +1496,8 @@ enum LeadStatus {
 - [ ] After T208-T209 (Schema): Run `npx prisma validate`, `npx prisma migrate dev`
 - [ ] After T210-T212 (Services): Run `npx tsc --noEmit` (0 errors)
 - [ ] After T213-T216 (APIs): Test all endpoints with Thunder Client/Postman
-- [ ] After T217-T223 (Frontend): Run `npm run build` (0 errors)
-- [ ] After T224-T228 (Installer UI + Status): Visual QA in browser
+- [ ] After T217-T223 (Homeowner Frontend): Run `npm run build` (0 errors)
+  
 
 **Post-Phase Validation:**
 - [ ] Schema Validation: `npx prisma validate` passes (0 errors)
@@ -1506,7 +1520,6 @@ enum LeadStatus {
   * Bidding activation → confirmation modal, success toast, status update
   * Lead editing → edit button visible/hidden based on status
   * Bidding dashboard → shows active bidding leads
-  * Installer marketplace → bidding badge visible on correct leads
 - [ ] Business Logic Validation:
   * One-time bidding rule enforced (database + API level)
   * Quota enforcement strict (no over-allocation possible)
@@ -1525,7 +1538,7 @@ enum LeadStatus {
 4. ✅ Bidding system: One written quote can be opened for competitive bidding
 5. ✅ One-time bidding rule enforced: Homeowner can only open ONE quote for bidding
 6. ✅ Bidding dashboard: Dedicated page shows active bidding leads
-7. ✅ Installer visibility: "Bidding Available" badge on marketplace
+7. ⏭️ Installer visibility: Deferred to Installer phase
 8. ✅ Lead editing: Homeowners can edit leads until approved
 9. ✅ Quota enforcement: No over-allocation, real-time quota display
 10. ✅ Database integrity: All leads have correct quoteData, status, timestamps
