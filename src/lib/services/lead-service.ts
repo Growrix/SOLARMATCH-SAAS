@@ -784,7 +784,7 @@ export async function cancelLead(
   }
 
   // Update lead status to CANCELLED
-  // @ts-ignore - Prisma type cache hasn't updated yet for cancelledAt, cancelledReason, cancelledBy
+  // @ts-ignore - Prisma type cache issue with new cancellation fields
   const cancelledLead = await prisma.lead.update({
     where: { id: leadId },
     data: {

@@ -41,10 +41,10 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
   isLoading = false
 }) => {
   const [quoteType, setQuoteType] = useState<'residential' | 'commercial'>('residential');
-  const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isPrefilling, setIsPrefilling] = useState(false);
+  const [showResults, setShowResults] = useState(false);
   
   // Generate or retrieve session ID for tracking
   const [sessionId] = useState(() => {
@@ -113,55 +113,46 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
   const [stateRebateRules, setStateRebateRules] = useState<any>(null);
 
   const handleStartOver = () => {
-    // First scroll to position, then reset state to prevent jump
-    const calculatorSection = document.getElementById('calculator-section');
-    if (calculatorSection) {
-      calculatorSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-    
-    // Delay state reset slightly to allow scroll to start
-    setTimeout(() => {
-      setCurrentStep(1);
-      setQuoteResult(null);
-      setErrors({});
-      setFormData({
-        postcode: '',
-        location: '',
-        state: '',
-        roofType: '',
-        budgetRange: '',
-        batteryIncluded: false,
-        batteryCapacity: '',
-        batteryBrand: '',
-        customBatteryCapacity: '',
-        backupCritical: 'essential',
-        batteryUsage: 'self-consumption',
-        includeVPP: false,
-        includeEVCharging: false,
-        includeSmartHome: false,
-        includeGridServices: false,
-        desiredOffset: 100,
-        hasExistingSystem: false,
-        existingSystemSize: '',
-        panelOrientation: 'north',
-        roofTilt: 'optimal',
-        shadingLevel: 'none',
-        usagePattern: 'spread',
-        customRetailRate: '',
-        customFeedInRate: '',
-        retailer: '',
-        tariffPlan: '',
-        panelBrand: '',
-        includeOptimizers: false,
-        includeMicroinverters: false,
-        peakDemand: '',
-        isThreePhase: false,
-        projectPriority: 'reduce_bills',
-        additionalArrays: [],
-        systemSizeOverride: '',
-      });
-      setElectricityValue('');
-    }, 50);
+    setShowResults(false);
+    setQuoteResult(null);
+    setErrors({});
+    setFormData({
+      postcode: '',
+      location: '',
+      state: '',
+      roofType: '',
+      budgetRange: '',
+      batteryIncluded: false,
+      batteryCapacity: '',
+      batteryBrand: '',
+      customBatteryCapacity: '',
+      backupCritical: 'essential',
+      batteryUsage: 'self-consumption',
+      includeVPP: false,
+      includeEVCharging: false,
+      includeSmartHome: false,
+      includeGridServices: false,
+      desiredOffset: 100,
+      hasExistingSystem: false,
+      existingSystemSize: '',
+      panelOrientation: 'north',
+      roofTilt: 'optimal',
+      shadingLevel: 'none',
+      usagePattern: 'spread',
+      customRetailRate: '',
+      customFeedInRate: '',
+      retailer: '',
+      tariffPlan: '',
+      panelBrand: '',
+      includeOptimizers: false,
+      includeMicroinverters: false,
+      peakDemand: '',
+      isThreePhase: false,
+      projectPriority: 'reduce_bills',
+      additionalArrays: [],
+      systemSizeOverride: '',
+    });
+    setElectricityValue('');
   };
 
   useEffect(() => {
@@ -264,7 +255,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
     setElectricityValue(pickString(['electricityValue'], ''));
 
     setErrors({});
-    setCurrentStep(1);
+    setShowResults(false);
     setQuoteResult(null);
     setLoading(false);
 
@@ -283,14 +274,6 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
       fetchStateRebates(formData.state).then(r => setStateRebateRules(r)).catch(() => setStateRebateRules(null));
     }
   }, [formData.postcode, formData.state]);
-  
-  // When quote type changes, reset the entire form to prevent result mismatches
-  useEffect(() => {
-    if (isPrefilling) {
-      return;
-    }
-    handleStartOver();
-  }, [quoteType, isPrefilling]);
 
   // === Enhanced validation helpers ===
   const validateField = (name: string, value: any): string => {
@@ -396,28 +379,6 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
     setElectricityUsageType(type);
     setElectricityValue(value);
     if (errors.electricityValue) setErrors(prev => ({...prev, electricityValue: ''}));
-  };
-
-  const handleNextStep = () => {
-    const fieldsToValidate = ['postcode', 'location', 'state'];
-    const step1Errors: Record<string, string> = {};
-    
-    fieldsToValidate.forEach(field => {
-        const error = validateField(field, formData[field as keyof typeof formData]);
-        if (error) step1Errors[field] = error;
-    });
-
-    if (Object.keys(step1Errors).length > 0) {
-        setErrors(step1Errors);
-        return;
-    }
-    setErrors({});
-    setCurrentStep(2);
-  };
-
-  const handlePrevStep = () => {
-    setErrors({});
-    setCurrentStep(1);
   };
 
   // === Enhanced calculation logic ===
@@ -569,22 +530,34 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
   };
 
   const handleCalculateQuote = async () => {
-    const fields = [
-        {field: 'electricityValue', value: electricityValue},
-        {field: 'budgetRange', value: formData.budgetRange},
-        {field: 'roofType', value: formData.roofType},
-        {field: 'peakDemand', value: formData.peakDemand},
+    // Validate all required fields at once
+    const allErrors: Record<string, string> = {};
+    
+    // Step 1 fields
+    ['postcode', 'location', 'state'].forEach(field => {
+      const error = validateField(field, formData[field as keyof typeof formData]);
+      if (error) allErrors[field] = error;
+    });
+    
+    // Step 2 fields
+    const step2Fields = [
+      {field: 'electricityValue', value: electricityValue},
+      {field: 'budgetRange', value: formData.budgetRange},
+      {field: 'roofType', value: formData.roofType},
+      {field: 'peakDemand', value: formData.peakDemand},
     ];
+    
+    step2Fields.forEach(({field, value}) => {
+      const error = validateField(field, value);
+      if (error) allErrors[field] = error;
+    });
 
-    const step2Errors = fields.reduce((acc, {field, value}) => {
-        const error = validateField(field, value);
-        if (error) acc[field] = error;
-        return acc;
-    }, {} as Record<string, string>);
-
-    if (Object.keys(step2Errors).length > 0) {
-        setErrors(step2Errors);
-        return;
+    if (Object.keys(allErrors).length > 0) {
+      setErrors(allErrors);
+      // Scroll to first error
+      const firstErrorField = Object.keys(allErrors)[0];
+      document.getElementById(firstErrorField)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
     }
 
     setLoading(true);
@@ -690,6 +663,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
       }
 
       setQuoteResult(resultData);
+      setShowResults(true);
       
       // Save quote to database (non-blocking)
       console.log('Attempting to save quote to database...');
@@ -701,11 +675,9 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
         // Don't block user experience if save fails
       });
       
-      setCurrentStep(3);
-      
       // Scroll to show result at top of viewport
       setTimeout(() => {
-        document.getElementById('calculator-section')?.scrollIntoView({ 
+        document.getElementById('quote-results')?.scrollIntoView({ 
           behavior: 'smooth', 
           block: 'start' 
         });
@@ -777,24 +749,18 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
               </div>
           </button>
       </div>
-      <div className="flex items-center justify-center mb-8">
-        <div className="flex items-center space-x-4">
-          {[1, 2, 3].map((step) => (
-            <React.Fragment key={step}>
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${currentStep >= step ? 'bg-primary text-white' : 'bg-gray-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400'}`}>
-                {step === 3 && quoteResult ? <CheckCircle /> : step}
-              </div>
-              {step < 3 && <div className={`w-12 h-1 transition-colors ${currentStep > step ? 'bg-primary' : 'bg-gray-200 dark:bg-slate-800'}`}></div>}
-            </React.Fragment>
-          ))}
-        </div>
-      </div>
 
-      <div className="theme-card p-4 sm:p-8 lg:p-12">
-        {currentStep === 1 && (
-          <div className="animate-fade-in" role="tabpanel" aria-labelledby="step-1" id="step-1-content">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Step 1: Your Property Details</h2>
-            <form noValidate>
+      {/* Form Section */}
+      {!showResults && (
+        <div className="theme-card p-4 sm:p-8 lg:p-12">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Quote Request Details</h2>
+          <form noValidate className="space-y-8">
+            
+            {/* Section 1: Property Location */}
+            <fieldset className="pb-6 border-b border-gray-200 dark:border-slate-800">
+              <legend className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+                📍 Property Location
+              </legend>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="postcode" className="block text-slate-600 dark:text-slate-300 text-sm font-semibold mb-2">
@@ -933,31 +899,14 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                   )}
                 </div>
               </div>
-            </form>
+            </fieldset>
             
-            <div className="flex justify-end mt-8">
-              <button 
-                onClick={handleNextStep} 
-                className="bg-primary text-white px-8 py-3 rounded-xl font-semibold hover:bg-teal-700 transition-all transform hover:scale-105 flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-              >
-                <span>Next Step</span><ArrowRight />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {currentStep === 2 && (
-          <div className="animate-fade-in">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Step 2: Energy & System Details</h2>
-            <div className="space-y-6">
-              {/* Enhanced Energy Usage */}
-              <fieldset>
-                <legend className="block text-slate-600 dark:text-slate-300 text-sm font-semibold mb-4">
-                  <Zap />How would you like to tell us about your electricity usage? *
-                  <InfoTooltip text="We can calculate your system size from either your bill amount or kWh usage. Choose what's easier for you." />
-                </legend>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Section 2: Energy Usage & System Details */}
+            <fieldset className="pb-6 border-b border-gray-200 dark:border-slate-800">
+              <legend className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+                ⚡ Energy Usage & System Details
+              </legend>
+              <div className="space-y-6">
                   <div className={`step-2-option p-4 rounded-xl border-2 cursor-pointer transition-all focus-within:ring-2 focus-within:ring-primary ${electricityUsageType === 'monthly' && electricityValue.includes('kwh') ? 'selected border-primary bg-primary/10' : 'border-gray-300 dark:border-slate-700 bg-gray-100/20 dark:bg-slate-800/20 hover:border-slate-400'}`}>
                     <label className="cursor-pointer">
                       <div className="flex items-center space-x-3">
@@ -1594,13 +1543,37 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                   </div>
                 )}
               </fieldset>
-            </div>
+            
+            {/* Error Message */}
             {errors.general && (<div className="mt-6 bg-red-500/20 border border-red-500/30 rounded-xl p-4 flex items-center space-x-3"><AlertCircle /><p className="text-red-400 text-sm">{errors.general}</p></div>)}
-            <div className="flex justify-between mt-8"><button onClick={handlePrevStep} className="bg-gray-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-6 py-3 rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-slate-600 transition-all flex items-center space-x-2"><ArrowLeft /><span>Back</span></button><button onClick={handleCalculateQuote} disabled={loading} className="bg-primary text-white px-8 py-3 rounded-xl font-semibold hover:bg-teal-700 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2">{loading ? (<><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div><span>Calculating...</span></>) : (<><Calculator /><span>Get My Quote</span></>)}</button></div>
-          </div>
-        )}
+            
+            {/* Submit Button */}
+            <div className="flex justify-end mt-8">
+              <button 
+                onClick={handleCalculateQuote} 
+                disabled={loading} 
+                className="bg-primary text-white px-8 py-3 rounded-xl font-semibold hover:bg-teal-700 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              >
+                {loading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Calculating...</span>
+                  </>
+                ) : (
+                  <>
+                    <Calculator />
+                    <span>Calculate Quote</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
 
-        {currentStep === 3 && quoteResult && (
+      {/* Quote Results Section */}
+      {showResults && quoteResult && (
+        <div id="quote-results" className="theme-card p-4 sm:p-8 lg:p-12 mt-6">
           <div className="animate-slide-in-top">
             <div className="text-center mb-8"><div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10"><CheckCircle /></div><h2 className="text-2xl font-bold text-slate-900 dark:text-white mt-4 mb-2">Your Instant {quoteType === 'commercial' ? 'Commercial' : 'Residential'} Solar Quote</h2><p className="text-slate-600 dark:text-slate-400">An estimate based on your provided details</p></div>
             
@@ -1847,8 +1820,8 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
               </button>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }
