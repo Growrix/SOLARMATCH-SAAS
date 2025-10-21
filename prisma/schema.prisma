@@ -94,6 +94,7 @@ model User {
   leadSubmissionCount Int                 @default(0)
   phoneVerified       Boolean             @default(false)
   leadSubmissionLimit Int                 @default(5)
+  biddingLeadsSubmitted Int               @default(0)
   accounts            Account[]
   leadsAsHomeowner    Lead[]              @relation("homeowner_leads")
   leadsAsInstaller    Lead[]              @relation("installer_leads")

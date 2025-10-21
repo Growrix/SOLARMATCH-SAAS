@@ -25,7 +25,7 @@ import { getSetting, getSettingAsNumber } from './settings-service';
 export interface CreateLeadInput {
   homeownerId: string;
   quoteData?: any; // InstantQuote calculation results
-  quoteType: 'CALL_VISIT' | 'WRITTEN_QUOTE';
+  quoteType: 'CALL_VISIT' | 'WRITTEN_QUOTE' | 'BIDDING';
   propertyAddress?: string;
   propertyPostcode: string;
   location: string;
@@ -58,7 +58,7 @@ export interface CreateLeadResult {
 
 export interface HomeownerLeadSummaryItem {
   id: string;
-  quoteType: 'CALL_VISIT' | 'WRITTEN_QUOTE';
+  quoteType: 'CALL_VISIT' | 'WRITTEN_QUOTE' | 'BIDDING';
   status: LeadStatus;
   createdAt: Date;
   updatedAt: Date;
@@ -73,6 +73,7 @@ export interface HomeownerLeadSummary {
   totalSubmitted: number;
   quoteLimit: number;
   remainingLeadAllowance: number;
+  biddingQuotaRemaining: number;
   phoneVerified: boolean;
   requiresVerification: boolean;
   verificationThreshold: number;
@@ -105,6 +106,7 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
       phoneVerified: true,
       leadSubmissionCount: true,
       leadSubmissionLimit: true,
+      biddingLeadsSubmitted: true,
     },
   });
 
@@ -113,6 +115,14 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
   }
 
   const currentCount = homeowner.leadSubmissionCount;
+
+  // Check BIDDING quota limit (max 1 per user)
+  if (input.quoteType === 'BIDDING') {
+    if (homeowner.biddingLeadsSubmitted >= 1) {
+      throw new Error('BIDDING quota exceeded. You can only create 1 bidding quote per account.');
+    }
+  }
+
 
   // Get max submission limits from settings
   const maxBeforeVerification = await getSettingAsNumber('MAX_LEAD_SUBMISSIONS_BEFORE_VERIFICATION');
@@ -139,9 +149,14 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
   }
 
   // Get default pricing from settings
-  const priceKey = input.quoteType === 'CALL_VISIT'
-    ? 'LEAD_PRICE_CALL_VISIT'
-    : 'LEAD_PRICE_WRITTEN_QUOTE';
+  let priceKey: string;
+  if (input.quoteType === 'CALL_VISIT') {
+    priceKey = 'LEAD_PRICE_CALL_VISIT';
+  } else if (input.quoteType === 'WRITTEN_QUOTE') {
+    priceKey = 'LEAD_PRICE_WRITTEN_QUOTE';
+  } else {
+    priceKey = 'LEAD_PRICE_BIDDING'; // For BIDDING type
+  }
   const defaultPrice = await getSettingAsNumber(priceKey);
 
   // Calculate lead expiry date
@@ -189,9 +204,16 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
   });
 
   // Increment lead submission count
+  const updateData: any = { leadSubmissionCount: currentCount + 1 };
+  
+  // Increment BIDDING counter if this is a bidding lead
+  if (input.quoteType === 'BIDDING') {
+    updateData.biddingLeadsSubmitted = { increment: 1 };
+  }
+  
   await prisma.user.update({
     where: { id: input.homeownerId },
-    data: { leadSubmissionCount: currentCount + 1 },
+    data: updateData,
   });
 
   // Log audit trail
@@ -350,6 +372,7 @@ export async function getHomeownerLeadSummary(userId: string): Promise<Homeowner
       phoneVerified: true,
       leadSubmissionCount: true,
       leadSubmissionLimit: true,
+      biddingLeadsSubmitted: true,
     },
   });
 
@@ -387,6 +410,7 @@ export async function getHomeownerLeadSummary(userId: string): Promise<Homeowner
 
   const quoteLimit = homeowner.leadSubmissionLimit ?? await getSettingAsNumber('MAX_LEAD_SUBMISSIONS_TOTAL');
   const remainingLeadAllowance = Math.max(quoteLimit - homeowner.leadSubmissionCount, 0);
+  const biddingQuotaRemaining = Math.max(1 - homeowner.biddingLeadsSubmitted, 0);
   const requiresVerification = !homeowner.phoneVerified && homeowner.leadSubmissionCount >= verificationThreshold;
 
   const statusBreakdown = Object.values(LeadStatus).reduce((acc, status) => {
@@ -402,6 +426,7 @@ export async function getHomeownerLeadSummary(userId: string): Promise<Homeowner
     totalSubmitted: homeowner.leadSubmissionCount,
     quoteLimit,
     remainingLeadAllowance,
+    biddingQuotaRemaining,
     phoneVerified: homeowner.phoneVerified,
     requiresVerification,
     verificationThreshold,
@@ -409,7 +434,7 @@ export async function getHomeownerLeadSummary(userId: string): Promise<Homeowner
     statusBreakdown,
     recentLeads: recentLeads.map(lead => ({
       id: lead.id,
-      quoteType: lead.quoteType as 'CALL_VISIT' | 'WRITTEN_QUOTE',
+      quoteType: lead.quoteType as 'CALL_VISIT' | 'WRITTEN_QUOTE' | 'BIDDING',
       status: lead.status,
       createdAt: lead.createdAt,
       updatedAt: lead.updatedAt,
@@ -505,3 +530,262 @@ export async function getLeadById(input: GetLeadByIdInput) {
 
   return lead;
 }
+
+/**
+ * Check if a lead can be edited
+ * 
+ * @param lead - Lead object
+ * @returns True if lead can be edited (status is PENDING_APPROVAL)
+ * 
+ * Business Rule: Only leads awaiting admin approval can be edited.
+ * After approval (APPROVED) or purchase (PURCHASED), editing is disabled.
+ */
+export function canEditLead(lead: { status: LeadStatus }): boolean {
+  return lead.status === LeadStatus.PENDING_APPROVAL;
+}
+
+/**
+ * Check if a lead can be cancelled
+ * 
+ * @param lead - Lead object
+ * @returns True if lead can be cancelled (not PURCHASED)
+ * 
+ * Business Rule: Leads can be cancelled unless they've been purchased by an installer.
+ * Cancelling restores 1 quota to the homeowner's balance.
+ */
+export function canCancelLead(lead: { status: LeadStatus }): boolean {
+  return lead.status !== LeadStatus.PURCHASED;
+}
+
+/**
+ * Update Lead Input
+ */
+export interface UpdateLeadInput {
+  propertyAddress?: string;
+  propertyPostcode?: string;
+  location?: string;
+  state?: string;
+  propertyType?: string;
+  roofType?: string;
+  energyBill?: number;
+  billType?: string;
+  budgetRange?: string;
+  desiredOffset?: number;
+  batteryRequired?: boolean;
+  batteryCapacity?: string;
+  timeframe?: string;
+  additionalNotes?: string;
+  quoteData?: any;
+}
+
+/**
+ * Update an existing lead
+ * 
+ * @param leadId - Lead ID
+ * @param userId - User ID (for authorization)
+ * @param input - Updated lead data
+ * @returns Updated lead object
+ * 
+ * Validations:
+ * - Lead must exist
+ * - User must be the lead owner
+ * - Lead status must be PENDING_APPROVAL (cannot edit after approval)
+ * 
+ * Example:
+ *   const updated = await updateLead('lead123', 'user456', {
+ *     energyBill: 500,
+ *     batteryRequired: true
+ *   });
+ */
+export async function updateLead(
+  leadId: string,
+  userId: string,
+  input: UpdateLeadInput,
+  ipAddress?: string,
+  userAgent?: string
+) {
+  // Fetch existing lead
+  const existingLead = await prisma.lead.findUnique({
+    where: { id: leadId },
+    select: {
+      id: true,
+      homeownerId: true,
+      status: true,
+      quoteType: true,
+      postcode: true,
+      location: true,
+    },
+  });
+
+  if (!existingLead) {
+    throw new Error('Lead not found');
+  }
+
+  // Verify ownership
+  if (existingLead.homeownerId !== userId) {
+    throw new Error('Unauthorized: You can only edit your own leads');
+  }
+
+  // Verify editable status
+  if (!canEditLead(existingLead)) {
+    throw new Error('Lead cannot be edited after admin approval');
+  }
+
+  // Update lead in database
+  const updatedLead = await prisma.lead.update({
+    where: { id: leadId },
+    data: {
+      address: input.propertyAddress,
+      postcode: input.propertyPostcode,
+      location: input.location,
+      state: input.state,
+      propertyType: input.propertyType,
+      projectType: input.propertyType,
+      roofType: input.roofType,
+      energyBill: input.energyBill,
+      billType: input.billType,
+      budgetRange: input.budgetRange,
+      desiredOffset: input.desiredOffset,
+      batteryRequired: input.batteryRequired,
+      batteryCapacity: input.batteryCapacity,
+      timeframe: input.timeframe,
+      additionalNotes: input.additionalNotes,
+      quoteData: input.quoteData,
+      updatedAt: new Date(),
+    },
+    include: {
+      homeowner: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+        },
+      },
+    },
+  });
+
+  // Log audit trail
+  await createAuditLog({
+    action: AUDIT_ACTIONS.LEAD_UPDATED,
+    entityType: 'lead',
+    entityId: leadId,
+    leadId: leadId,
+    userId: userId,
+    metadata: {
+      updatedFields: Object.keys(input),
+      quoteType: existingLead.quoteType,
+      postcode: input.propertyPostcode || existingLead.postcode,
+    },
+    ipAddress,
+    userAgent,
+  });
+
+  return updatedLead;
+}
+
+/**
+ * Cancel a lead
+ * 
+ * @param leadId - Lead ID
+ * @param userId - User ID (for authorization)
+ * @param reason - Cancellation reason
+ * @returns Cancelled lead object
+ * 
+ * Business Logic:
+ * - Lead status changes to CANCELLED
+ * - Homeowner's quota balance is restored (+1)
+ * - Cancellation is logged with timestamp, reason, and user
+ * - Cannot cancel if lead has been purchased by installer
+ * 
+ * Example:
+ *   const cancelled = await cancelLead('lead123', 'user456', 'Changed my mind');
+ */
+export async function cancelLead(
+  leadId: string,
+  userId: string,
+  reason: string,
+  ipAddress?: string,
+  userAgent?: string
+) {
+  // Fetch existing lead
+  const existingLead = await prisma.lead.findUnique({
+    where: { id: leadId },
+    select: {
+      id: true,
+      homeownerId: true,
+      status: true,
+      quoteType: true,
+      postcode: true,
+      location: true,
+    },
+  });
+
+  if (!existingLead) {
+    throw new Error('Lead not found');
+  }
+
+  // Verify ownership
+  if (existingLead.homeownerId !== userId) {
+    throw new Error('Unauthorized: You can only cancel your own leads');
+  }
+
+  // Verify cancellable status
+  if (!canCancelLead(existingLead)) {
+    throw new Error('Lead cannot be cancelled after installer purchase');
+  }
+
+  // Update lead status to CANCELLED
+  const cancelledLead = await prisma.lead.update({
+    where: { id: leadId },
+    data: {
+      status: LeadStatus.CANCELLED,
+      cancelledAt: new Date(),
+      cancelledReason: reason,
+      cancelledBy: userId,
+      updatedAt: new Date(),
+    },
+    include: {
+      homeowner: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          leadSubmissionCount: true,
+          leadSubmissionLimit: true,
+        },
+      },
+    },
+  });
+
+  // Restore quota to homeowner (decrement submission count)
+  await prisma.user.update({
+    where: { id: existingLead.homeownerId },
+    data: {
+      leadSubmissionCount: {
+        decrement: 1,
+      },
+    },
+  });
+
+  // Log audit trail
+  await createAuditLog({
+    action: AUDIT_ACTIONS.LEAD_CANCELLED,
+    entityType: 'lead',
+    entityId: leadId,
+    leadId: leadId,
+    userId: userId,
+    metadata: {
+      reason,
+      quoteType: existingLead.quoteType,
+      postcode: existingLead.postcode,
+      location: existingLead.location,
+      quotaRestored: true,
+    },
+    ipAddress,
+    userAgent,
+  });
+
+  return cancelledLead;
+}
+

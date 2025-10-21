@@ -67,11 +67,13 @@ export async function GET(
 
 /**
  * PATCH /api/leads/[id]
- * Update lead details (admin only - price and notes)
+ * Update lead details
+ * - Homeowners can update their own pending leads (full form data)
+ * - Admins can update price and notes
  * 
- * @access Admin only
+ * @access Authenticated (HOMEOWNER for own pending leads, ADMIN for any lead)
  * @param id - Lead ID
- * @body { leadPrice?: number, adminNotes?: string }
+ * @body Homeowner: { propertyAddress, energyBill, etc. } | Admin: { leadPrice, adminNotes }
  * @returns 200 OK + Updated lead
  * @errors 401 Unauthorized, 403 Forbidden, 404 Not Found, 400 Bad Request
  */
@@ -90,88 +92,117 @@ export async function PATCH(
       );
     }
 
-    // Check admin role
-    if (session.user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Admin access required' },
-        { status: 403 }
-      );
-    }
-
     const leadId = params.id;
     const body = await request.json();
+    const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+    const userAgent = request.headers.get('user-agent') || 'unknown';
 
-    // Validate lead exists
-    const existingLead = await prisma.lead.findUnique({
-      where: { id: leadId },
-    });
-
-    if (!existingLead) {
-      return NextResponse.json(
-        { error: 'Lead not found' },
-        { status: 404 }
-      );
-    }
-
-    // Prepare update data
-    const updateData: any = {
-      updatedAt: new Date(),
-    };
-
-    if (body.leadPrice !== undefined) {
-      const price = parseFloat(body.leadPrice);
-      if (isNaN(price) || price < 0) {
-        return NextResponse.json(
-          { error: 'Invalid lead price' },
-          { status: 400 }
+    // Handle based on user role
+    if (session.user.role === 'HOMEOWNER') {
+      // Homeowner updating their own lead (full form update)
+      const { updateLead } = await import('@/lib/services/lead-service');
+      
+      try {
+        const updatedLead = await updateLead(
+          leadId,
+          session.user.id,
+          {
+            propertyAddress: body.propertyAddress,
+            propertyPostcode: body.propertyPostcode,
+            location: body.location,
+            state: body.state,
+            propertyType: body.propertyType,
+            roofType: body.roofType,
+            energyBill: body.energyBill,
+            billType: body.billType,
+            budgetRange: body.budgetRange,
+            desiredOffset: body.desiredOffset,
+            batteryRequired: body.batteryRequired,
+            batteryCapacity: body.batteryCapacity,
+            timeframe: body.timeframe,
+            additionalNotes: body.additionalNotes,
+            quoteData: body.quoteData,
+          },
+          ipAddress,
+          userAgent
         );
+
+        return NextResponse.json({
+          success: true,
+          message: 'Lead updated successfully',
+          lead: {
+            id: updatedLead.id,
+            quoteType: updatedLead.quoteType,
+            status: updatedLead.status,
+            updatedAt: updatedLead.updatedAt,
+          },
+        });
+      } catch (error: any) {
+        if (error.message === 'Lead not found') {
+          return NextResponse.json({ error: 'Lead not found' }, { status: 404 });
+        }
+        if (error.message === 'Unauthorized: You can only edit your own leads') {
+          return NextResponse.json({ error: 'Unauthorized. This lead does not belong to you.' }, { status: 403 });
+        }
+        if (error.message === 'Lead cannot be edited after admin approval') {
+          return NextResponse.json({ error: 'Lead cannot be edited after admin approval' }, { status: 403 });
+        }
+        throw error;
       }
-      updateData.leadPrice = price;
-    }
+    } else if (session.user.role === 'ADMIN') {
+      // Admin updating price/notes (existing logic)
+      const existingLead = await prisma.lead.findUnique({
+        where: { id: leadId },
+      });
 
-    if (body.adminNotes !== undefined) {
-      updateData.adminNotes = body.adminNotes;
-    }
+      if (!existingLead) {
+        return NextResponse.json({ error: 'Lead not found' }, { status: 404 });
+      }
 
-    // Update lead
-    const updatedLead = await prisma.lead.update({
-      where: { id: leadId },
-      data: updateData,
-      include: {
-        homeowner: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            phoneVerified: true,
+      const updateData: any = { updatedAt: new Date() };
+
+      if (body.leadPrice !== undefined) {
+        const price = parseFloat(body.leadPrice);
+        if (isNaN(price) || price < 0) {
+          return NextResponse.json({ error: 'Invalid lead price' }, { status: 400 });
+        }
+        updateData.leadPrice = price;
+      }
+
+      if (body.adminNotes !== undefined) {
+        updateData.adminNotes = body.adminNotes;
+      }
+
+      const updatedLead = await prisma.lead.update({
+        where: { id: leadId },
+        data: updateData,
+        include: {
+          homeowner: {
+            select: { id: true, name: true, email: true, phoneVerified: true },
+          },
+          installer: {
+            select: { id: true, name: true, email: true },
           },
         },
-        installer: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
+      });
+
+      await createAuditLog({
+        userId: session.user.id,
+        action: 'LEAD_UPDATED',
+        entityType: 'lead',
+        entityId: leadId,
+        metadata: {
+          updatedFields: Object.keys(updateData),
+          leadPrice: body.leadPrice,
+          adminNotes: body.adminNotes ? 'Updated' : undefined,
         },
-      },
-    });
+      });
 
-    // Create audit log
-    await createAuditLog({
-      userId: session.user.id,
-      action: 'LEAD_UPDATED',
-      entityType: 'lead',
-      entityId: leadId,
-      metadata: {
-        updatedFields: Object.keys(updateData),
-        leadPrice: body.leadPrice,
-        adminNotes: body.adminNotes ? 'Updated' : undefined,
-      },
-    });
-
-    console.log(`✅ [PATCH /api/leads/${leadId}] Lead updated by admin:`, session.user.id);
-
-    return NextResponse.json(updatedLead, { status: 200 });
+      console.log(`✅ [PATCH /api/leads/${leadId}] Lead updated by admin:`, session.user.id);
+      return NextResponse.json(updatedLead, { status: 200 });
+    } else {
+      return NextResponse.json({ error: 'Forbidden. Invalid role.' }, { status: 403 });
+    }
   } catch (error) {
     console.error(`❌ [PATCH /api/leads/${params.id}] Error:`, error);
     
@@ -181,3 +212,4 @@ export async function PATCH(
     );
   }
 }
+
