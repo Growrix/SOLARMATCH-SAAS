@@ -333,9 +333,11 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
         
         // Realistic usage validation
         if (electricityUsageType === 'monthly') {
-          if (numValue < 50) return 'Monthly bill seems too low. Please check the amount.';
-          if (numValue > 2000) return 'Monthly bill seems very high. Please verify.';
+          // Monthly is in kWh
+          if (numValue < 200) return 'Monthly kWh seems too low. Typical range: 200-2000 kWh.';
+          if (numValue > 5000) return 'Monthly kWh seems very high. Please verify.';
         } else if (electricityUsageType === 'quarterly') {
+          // Quarterly is in dollars
           if (numValue < 150) return 'Quarterly bill seems too low. Please check the amount.';
           if (numValue > 6000) return 'Quarterly bill seems very high. Please verify.';
         }
@@ -924,7 +926,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                 ⚡ Energy Usage & System Details
               </legend>
               <div className="space-y-6">
-                  <div className={`step-2-option p-4 rounded-xl border-2 cursor-pointer transition-all focus-within:ring-2 focus-within:ring-primary ${electricityUsageType === 'monthly' && electricityValue.includes('kwh') ? 'selected border-primary bg-primary/10' : 'border-gray-300 dark:border-slate-700 bg-gray-100/20 dark:bg-slate-800/20 hover:border-slate-400'}`}>
+                  <div className={`step-2-option p-4 rounded-xl border-2 cursor-pointer transition-all focus-within:ring-2 focus-within:ring-primary ${electricityUsageType === 'monthly' ? 'selected border-primary bg-primary/10' : 'border-gray-300 dark:border-slate-700 bg-gray-100/20 dark:bg-slate-800/20 hover:border-slate-400'}`}>
                     <label className="cursor-pointer">
                       <div className="flex items-center space-x-3">
                         <input 
@@ -949,7 +951,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                           onChange={(e) => handleElectricityUsageChange('monthly', e.target.value)} 
                           onBlur={handleBlur} 
                           placeholder="e.g., 800" 
-                          min="50"
+                          min="200"
                           max="5000"
                           className={`${baseInputClasses} mt-3 ${errors.electricityValue ? 'border-red-500' : ''}`}
                           aria-describedby="monthly-kwh-help"
