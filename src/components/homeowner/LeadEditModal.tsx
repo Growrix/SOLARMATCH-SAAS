@@ -50,11 +50,14 @@ export default function LeadEditModal({
 
   if (!isOpen) return null;
 
-  const handleSubmit = async (formData: any) => {
+  const handleSubmit = async (quoteResult: any) => {
     setIsLoading(true);
     setError(null);
 
     try {
+      // Extract form data from quoteResult (it contains all the form fields plus calculated results)
+      const formData = quoteResult;
+      
       const response = await fetch(`/api/leads/${leadId}`, {
         method: 'PATCH',
         headers: {
@@ -65,7 +68,7 @@ export default function LeadEditModal({
           propertyPostcode: formData.postcode,
           location: formData.location,
           state: formData.state,
-          propertyType: formData.propertyType || 'residential',
+          propertyType: formData.propertyType || formData.quoteType || 'residential',
           
           // Energy usage
           energyBill: Number(formData.electricityValue || formData.energyBill),
