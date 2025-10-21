@@ -1,7 +1,23 @@
+/**
+ * LeadEditModal Component
+ * 
+ * Purpose: Modal for editing existing leads (before admin approval)
+ * Used by: HomeownerDashboard lead cards
+ * 
+ * Features:
+ * - Uses SimplifiedQuoteForm with pre-filled data
+ * - Calls PATCH /api/leads/[id] endpoint
+ * - Only available for PENDING_APPROVAL status leads
+ * - Shows success/error feedback
+ * - Refreshes dashboard on successful edit
+ * 
+ * Phase 4.11: Enhanced CRUD operations
+ */
+
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import InstantQuoteForm from '../InstantQuoteForm';
+import React, { useState } from 'react';
+import SimplifiedQuoteForm from './SimplifiedQuoteForm';
 
 // Icon components
 const XIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>;
@@ -17,11 +33,9 @@ interface LeadEditModalProps {
 /**
  * LeadEditModal
  * 
- * Allows homeowners to edit their DRAFT, PENDING_PHONE, or PENDING_APPROVAL leads.
- * Reuses the InstantQuoteForm component with pre-filled data.
- * On save, sends PATCH request to update the lead's quoteData.
- * 
- * Phase 4.9.7: Lost Feature Recovery
+ * Allows homeowners to edit their PENDING_APPROVAL leads.
+ * Uses SimplifiedQuoteForm (single-page) with pre-filled data.
+ * On save, sends PATCH request to /api/leads/[id].
  */
 export default function LeadEditModal({
   isOpen,
@@ -30,33 +44,14 @@ export default function LeadEditModal({
   initialData,
   onSaveSuccess,
 }: LeadEditModalProps) {
-  const [isSaving, setIsSaving] = useState(false);
-  const [updatedQuoteData, setUpdatedQuoteData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
-  // Reset state when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      setUpdatedQuoteData(null);
-      setError(null);
-      setIsSaving(false);
-    }
-  }, [isOpen]);
+  if (!isOpen) return null;
 
-  // Handle quote calculation (user made changes)
-  const handleQuoteCalculated = (data: any) => {
-    console.log('[LeadEditModal] Quote recalculated:', data);
-    setUpdatedQuoteData(data);
-  };
-
-  // Handle save
-  const handleSave = async () => {
-    if (!updatedQuoteData) {
-      setError('Please recalculate the quote before saving');
-      return;
-    }
-
-    setIsSaving(true);
+  const handleSubmit = async (formData: any) => {
+    setIsLoading(true);
     setError(null);
 
     try {
@@ -66,104 +61,133 @@ export default function LeadEditModal({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          quoteData: updatedQuoteData,
-          postcode: updatedQuoteData.postcode,
-          location: updatedQuoteData.location,
-          state: updatedQuoteData.state,
-          propertyType: updatedQuoteData.propertyType,
-          roofType: updatedQuoteData.roofType,
-          energyBill: updatedQuoteData.electricity,
-          budgetRange: updatedQuoteData.budgetRange,
-          desiredOffset: updatedQuoteData.desiredOffset,
-          batteryRequired: updatedQuoteData.batteryIncluded,
-          batteryCapacity: updatedQuoteData.batteryCapacity,
+          propertyAddress: formData.address,
+          propertyPostcode: formData.postcode,
+          location: formData.location,
+          state: formData.state,
+          propertyType: formData.propertyType,
+          roofType: formData.roofType,
+          energyBill: formData.energyBill,
+          billType: formData.billType,
+          budgetRange: formData.budgetRange,
+          desiredOffset: formData.desiredOffset,
+          batteryRequired: formData.batteryIncluded,
+          batteryCapacity: formData.batteryCapacity,
+          timeframe: formData.timeframe,
+          additionalNotes: formData.additionalNotes,
+          quoteData: formData, // Store complete form data
         }),
       });
 
-      const result = await response.json();
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to update lead');
+        throw new Error(data.error || 'Failed to update lead');
       }
 
-      console.log('[LeadEditModal] Lead updated successfully:', result);
-      
+      console.log('[LeadEditModal] Lead updated successfully:', data);
+
       // Show success message
-      alert('Quote updated successfully!');
+      setSuccess(true);
       
-      // Call success callback
-      onSaveSuccess();
-      
-      // Close modal
-      onClose();
-    } catch (err) {
-      console.error('[LeadEditModal] Failed to save:', err);
-      setError(err instanceof Error ? err.message : 'Failed to save changes');
+      // Wait a moment then close and refresh
+      setTimeout(() => {
+        onSaveSuccess();
+        onClose();
+      }, 1500);
+
+    } catch (err: any) {
+      console.error('[LeadEditModal] Error updating lead:', err);
+      setError(err.message || 'An unexpected error occurred');
     } finally {
-      setIsSaving(false);
+      setIsLoading(false);
     }
   };
 
-  if (!isOpen) return null;
+  const handleCancel = () => {
+    if (!isLoading) {
+      onClose();
+    }
+  };
 
   return (
     <div 
       className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center px-4 py-8 animate-fade-in"
-      onClick={onClose}
+      onClick={handleCancel}
     >
       <div 
         className="theme-card relative w-full max-w-5xl p-4 sm:p-6 lg:p-8 animate-slide-in-up max-h-[95vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="sticky top-0 z-10 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 px-6 py-4 flex items-center justify-between rounded-t-lg -mx-4 sm:-mx-6 lg:-mx-8 -mt-4 sm:-mt-6 lg:-mt-8 mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Edit Quote</h2>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+              Edit Quote Request
+            </h2>
             <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-              Update your quote details and recalculate. Changes will be saved to your existing lead.
+              Update your quote details before installer assignment
             </p>
           </div>
           <button
-            onClick={onClose}
-            className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors p-2 rounded-lg"
+            onClick={handleCancel}
+            disabled={isLoading}
+            className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors p-2 rounded-lg disabled:opacity-50"
             aria-label="Close"
           >
             <XIcon />
           </button>
         </div>
 
-        {/* Error Message */}
-        {error && (
-          <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-            <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+        {/* Success Message */}
+        {success && (
+          <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-center gap-2 text-green-700 dark:text-green-400">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <span className="font-medium">Lead updated successfully!</span>
           </div>
         )}
 
-        {/* Quote Form */}
-        <InstantQuoteForm 
-          onQuoteCalculated={handleQuoteCalculated}
-          onProceedToDetailedQuote={() => {}}
-          initialData={initialData}
-          hideSubmitButton={true}
-        />
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-2 text-red-700 dark:text-red-400">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 mt-0.5">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <div>
+              <p className="font-medium">Failed to update lead</p>
+              <p className="text-sm mt-1">{error}</p>
+            </div>
+          </div>
+        )}
 
-        {/* Save Button */}
-        <div className="mt-6 flex justify-end gap-3">
-          <button
-            onClick={onClose}
-            disabled={isSaving}
-            className="px-6 py-2.5 rounded-xl font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={isSaving || !updatedQuoteData}
-            className="px-6 py-2.5 rounded-xl font-semibold text-white bg-primary hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSaving ? 'Saving...' : 'Save Changes'}
-          </button>
+        {/* Info Banner */}
+        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+          <div className="flex items-start gap-2 text-blue-700 dark:text-blue-400">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 mt-0.5">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+            <div className="text-sm">
+              <p className="font-medium">You can edit this quote because it hasn't been approved yet.</p>
+              <p className="mt-1">Once an admin approves your request, you won't be able to make changes.</p>
+            </div>
+          </div>
         </div>
+
+        {/* Form */}
+        <SimplifiedQuoteForm
+          initialData={initialData}
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+          submitButtonText="Save Changes"
+          isLoading={isLoading}
+        />
       </div>
     </div>
   );
