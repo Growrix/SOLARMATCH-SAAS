@@ -17,6 +17,8 @@ import RequestMoreQuotesCTA from '@/components/homeowner/RequestMoreQuotesCTA';
 import ContactVerificationModal from '@/components/homeowner/ContactVerificationModal';
 import OTPVerificationModal from '@/components/OTPVerificationModal';
 import FirstQuoteSuccessModal from '@/components/homeowner/FirstQuoteSuccessModal';
+import LeadEditModal from '@/components/homeowner/LeadEditModal';
+import LeadPreviewModal from '@/components/homeowner/LeadPreviewModal';
 
 // --- Icon Components ---
 const SunIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>;
@@ -36,6 +38,9 @@ const HelpCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" 
 const LogOutIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>;
 const HomeIconNav = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
 const MenuIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6"><line x1="3" x2="21" y1="6" y2="6"/><line x1="3" x2="21" y1="12" y2="12"/><line x1="3" x2="21" y1="18" y2="18"/></svg>;
+const EditIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>;
+const EyeIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
+const XCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>;
 
 // ThemeSwitcher Component
 const ThemeSwitcher: React.FC<{ theme: Theme; setTheme: (theme: Theme) => void }> = ({ theme, setTheme }) => {
@@ -495,8 +500,12 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
           <div className="space-y-3">
             {summary.recentLeads.map((lead) => {
               const statusInfo = STATUS_LABELS[lead.status as LeadStatus];
+              const canEdit = lead.status === LeadStatusEnum.PENDING_APPROVAL;
+              const canCancel = lead.status !== LeadStatusEnum.PURCHASED;
+              const canPreview = [LeadStatusEnum.APPROVED, LeadStatusEnum.PURCHASED, LeadStatusEnum.QUOTED, LeadStatusEnum.ACCEPTED].includes(lead.status as LeadStatusEnum);
+              
               return (
-                <div key={lead.id} className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                <div key={lead.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors gap-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-sm font-medium text-slate-900 dark:text-white">
@@ -510,11 +519,39 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
                       Created {formatDateTime(lead.createdAt)} • {formatCurrency(lead.leadPrice)}
                     </p>
                   </div>
-                  <button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 ml-2">
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
+                  
+                  {/* Action Buttons */}
+                  <div className="flex items-center gap-1.5">
+                    {canEdit && (
+                      <button
+                        onClick={() => handleEditLead(lead)}
+                        className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 transition-colors flex items-center gap-1"
+                        title="Edit lead"
+                      >
+                        <EditIcon /> Edit
+                      </button>
+                    )}
+                    
+                    {canPreview && (
+                      <button
+                        onClick={() => handlePreviewLead(lead)}
+                        className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-50 text-slate-700 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors flex items-center gap-1"
+                        title="View details"
+                      >
+                        <EyeIcon /> View
+                      </button>
+                    )}
+                    
+                    {canCancel && (
+                      <button
+                        onClick={() => handleCancelLead(lead)}
+                        className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50 transition-colors flex items-center gap-1"
+                        title="Cancel lead"
+                      >
+                        <XCircleIcon /> Cancel
+                      </button>
+                    )}
+                  </div>
                 </div>
               );
             })}
@@ -556,6 +593,11 @@ export default function HomeownerDashboardPage() {
   const [isLoadingSummary, setIsLoadingSummary] = useState(true);
   const [summaryError, setSummaryError] = useState<string | null>(null);
   const [quoteFormInitialData, setQuoteFormInitialData] = useState<Record<string, unknown> | null>(null);
+
+  // Phase 4.11: Lead CRUD modal states
+  const [editLeadModalOpen, setEditLeadModalOpen] = useState(false);
+  const [previewLeadModalOpen, setPreviewLeadModalOpen] = useState(false);
+  const [selectedLead, setSelectedLead] = useState<RecentLeadSummary | null>(null);
 
   // Aliases for component compatibility
   const isLoading = isLoadingSummary;
@@ -702,6 +744,57 @@ export default function HomeownerDashboardPage() {
     } else {
       setIsNewQuoteModalOpen(true);
     }
+  };
+
+  // Phase 4.11: Lead CRUD handlers
+  const handleEditLead = (lead: RecentLeadSummary) => {
+    setSelectedLead(lead);
+    setEditLeadModalOpen(true);
+  };
+
+  const handlePreviewLead = (lead: RecentLeadSummary) => {
+    setSelectedLead(lead);
+    setPreviewLeadModalOpen(true);
+  };
+
+  const handleCancelLead = async (lead: RecentLeadSummary) => {
+    if (!confirm(`Are you sure you want to cancel this ${QUOTE_TYPE_LABELS[lead.quoteType]} request? This action cannot be undone.`)) {
+      return;
+    }
+
+    const reason = prompt('Please provide a reason for cancellation (optional):');
+
+    try {
+      const response = await fetch(`/api/leads/${lead.id}/cancel`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: reason || 'Cancelled by homeowner' }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        alert(`Failed to cancel lead: ${error.error || 'Unknown error'}`);
+        return;
+      }
+
+      const result = await response.json();
+      alert(result.quotaRestored
+        ? '✅ Lead cancelled successfully! Your quote allowance has been restored.'
+        : '✅ Lead cancelled successfully!');
+
+      // Refresh dashboard
+      await fetchDashboardSummary();
+    } catch (error) {
+      console.error('[handleCancelLead] Error:', error);
+      alert('Failed to cancel lead. Please try again.');
+    }
+  };
+
+  const handleLeadEditSuccess = async () => {
+    setEditLeadModalOpen(false);
+    setSelectedLead(null);
+    // Refresh dashboard to show updated lead
+    await fetchDashboardSummary();
   };
 
   const handleResendOTP = async (): Promise<{
@@ -996,6 +1089,39 @@ export default function HomeownerDashboardPage() {
           quoteType={firstQuoteSuccessData.quoteType}
           remainingQuotes={firstQuoteSuccessData.remainingQuotes}
           totalQuoteLimit={firstQuoteSuccessData.totalQuoteLimit}
+        />
+      )}
+
+      {/* Phase 4.11: Lead Edit Modal */}
+      {selectedLead && (
+        <LeadEditModal
+          isOpen={editLeadModalOpen}
+          onClose={() => {
+            setEditLeadModalOpen(false);
+            setSelectedLead(null);
+          }}
+          leadId={selectedLead.id}
+          initialData={selectedLead.quoteData || {}}
+          onSaveSuccess={handleLeadEditSuccess}
+        />
+      )}
+
+      {/* Phase 4.11: Lead Preview Modal */}
+      {selectedLead && (
+        <LeadPreviewModal
+          isOpen={previewLeadModalOpen}
+          onClose={() => {
+            setPreviewLeadModalOpen(false);
+            setSelectedLead(null);
+          }}
+          lead={{
+            id: selectedLead.id,
+            quoteType: selectedLead.quoteType,
+            status: selectedLead.status,
+            createdAt: selectedLead.createdAt,
+            updatedAt: selectedLead.updatedAt,
+            quoteData: selectedLead.quoteData || {},
+          }}
         />
       )}
     </div>
