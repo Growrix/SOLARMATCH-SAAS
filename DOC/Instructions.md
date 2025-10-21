@@ -1,0 +1,10 @@
+
+commit all the changes to your local repository:
+
+    git add .
+    git commit -m "Your commit message"
+Push the changes to the remote repository:
+    git push origin your-branch-name version 3 
+
+    ***instruction***
+    each time you make commits, you must update the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\gitstatus.md file with the latest commit information to keep track of changes effectively. with the commit id ,timestamp, and a brief description of the changes made in that commit.
