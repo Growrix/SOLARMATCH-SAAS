@@ -61,21 +61,62 @@ export default function LeadEditModal({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          propertyAddress: formData.address,
+          // Location fields
           propertyPostcode: formData.postcode,
           location: formData.location,
           state: formData.state,
-          propertyType: formData.propertyType,
+          propertyType: formData.propertyType || 'residential',
+          
+          // Energy usage
+          energyBill: Number(formData.electricityValue || formData.energyBill),
+          billType: formData.electricityUsageType || formData.billType,
+          
+          // Property details
           roofType: formData.roofType,
-          energyBill: formData.energyBill,
-          billType: formData.billType,
           budgetRange: formData.budgetRange,
-          desiredOffset: formData.desiredOffset,
-          batteryRequired: formData.batteryIncluded,
-          batteryCapacity: formData.batteryCapacity,
+          panelOrientation: formData.panelOrientation,
+          roofTilt: formData.roofTilt,
+          shadingLevel: formData.shadingLevel,
+          usagePattern: formData.usagePattern,
+          
+          // System preferences
+          desiredOffset: Number(formData.desiredOffset || 100),
+          hasExistingSystem: Boolean(formData.hasExistingSystem),
+          existingSystemSize: formData.existingSystemSize || null,
           timeframe: formData.timeframe,
-          additionalNotes: formData.additionalNotes,
-          quoteData: formData, // Store complete form data
+          
+          // Battery storage
+          batteryRequired: Boolean(formData.batteryIncluded),
+          batteryCapacity: formData.batteryCapacity || formData.customBatteryCapacity || null,
+          batteryBrand: formData.batteryBrand || null,
+          batteryUsage: formData.batteryUsage || null,
+          backupCritical: formData.backupCritical || null,
+          includeVPP: Boolean(formData.includeVPP),
+          
+          // Additional features
+          includeEVCharging: Boolean(formData.includeEVCharging),
+          includeSmartHome: Boolean(formData.includeSmartHome),
+          includeGridServices: Boolean(formData.includeGridServices),
+          
+          // Equipment preferences
+          panelBrand: formData.panelBrand || null,
+          systemSizeOverride: formData.systemSizeOverride || null,
+          includeOptimizers: Boolean(formData.includeOptimizers),
+          includeMicroinverters: Boolean(formData.includeMicroinverters),
+          
+          // Tariff details
+          retailer: formData.retailer || null,
+          tariffPlan: formData.tariffPlan || null,
+          customRetailRate: formData.customRetailRate ? Number(formData.customRetailRate) : null,
+          customFeedInRate: formData.customFeedInRate ? Number(formData.customFeedInRate) : null,
+          
+          // Commercial fields (if applicable)
+          peakDemand: formData.peakDemand ? Number(formData.peakDemand) : null,
+          isThreePhase: Boolean(formData.isThreePhase),
+          projectPriority: formData.projectPriority || null,
+          
+          // Store complete form data for future reference
+          quoteData: formData,
         }),
       });
 

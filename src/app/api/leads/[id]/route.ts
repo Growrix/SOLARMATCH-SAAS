@@ -107,6 +107,7 @@ export async function PATCH(
           leadId,
           session.user.id,
           {
+            // Core database fields
             propertyAddress: body.propertyAddress,
             propertyPostcode: body.propertyPostcode,
             location: body.location,
@@ -121,6 +122,34 @@ export async function PATCH(
             batteryCapacity: body.batteryCapacity,
             timeframe: body.timeframe,
             additionalNotes: body.additionalNotes,
+            
+            // Extended fields (passed through even if not in DB schema - stored in quoteData)
+            panelOrientation: body.panelOrientation,
+            roofTilt: body.roofTilt,
+            shadingLevel: body.shadingLevel,
+            usagePattern: body.usagePattern,
+            hasExistingSystem: body.hasExistingSystem,
+            existingSystemSize: body.existingSystemSize,
+            batteryBrand: body.batteryBrand,
+            batteryUsage: body.batteryUsage,
+            backupCritical: body.backupCritical,
+            includeVPP: body.includeVPP,
+            includeEVCharging: body.includeEVCharging,
+            includeSmartHome: body.includeSmartHome,
+            includeGridServices: body.includeGridServices,
+            panelBrand: body.panelBrand,
+            systemSizeOverride: body.systemSizeOverride,
+            includeOptimizers: body.includeOptimizers,
+            includeMicroinverters: body.includeMicroinverters,
+            retailer: body.retailer,
+            tariffPlan: body.tariffPlan,
+            customRetailRate: body.customRetailRate,
+            customFeedInRate: body.customFeedInRate,
+            peakDemand: body.peakDemand,
+            isThreePhase: body.isThreePhase,
+            projectPriority: body.projectPriority,
+            
+            // Complete form data for future use
             quoteData: body.quoteData,
           },
           ipAddress,

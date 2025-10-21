@@ -11,14 +11,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/next-auth-config';
+import { authOptions } from '@/lib/auth';
 import { cancelLead } from '@/lib/services/lead-service';
-import { z } from 'zod';
-
-// Validation schema for cancel request
-const cancelLeadSchema = z.object({
-  reason: z.string().min(1, 'Cancellation reason is required'),
-});
 
 export async function PATCH(
   req: NextRequest,
@@ -47,18 +41,13 @@ export async function PATCH(
     const body = await req.json();
 
     // Validate request body
-    const validationResult = cancelLeadSchema.safeParse(body);
-    if (!validationResult.success) {
+    const reason = body.reason;
+    if (!reason || typeof reason !== 'string' || reason.trim().length === 0) {
       return NextResponse.json(
-        { 
-          error: 'Invalid request data',
-          details: validationResult.error.errors 
-        },
+        { error: 'Cancellation reason is required' },
         { status: 400 }
       );
     }
-
-    // Get request metadata
     const ipAddress = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
     const userAgent = req.headers.get('user-agent') || 'unknown';
 
@@ -66,7 +55,7 @@ export async function PATCH(
     const cancelledLead = await cancelLead(
       leadId,
       session.user.id,
-      validationResult.data.reason,
+      reason,
       ipAddress,
       userAgent
     );
@@ -78,8 +67,8 @@ export async function PATCH(
         id: cancelledLead.id,
         quoteType: cancelledLead.quoteType,
         status: cancelledLead.status,
-        cancelledAt: cancelledLead.cancelledAt,
-        cancelledReason: cancelledLead.cancelledReason,
+        cancelledAt: (cancelledLead as any).cancelledAt,
+        cancelledReason: (cancelledLead as any).cancelledReason,
       },
       quotaRestored: true,
     });

@@ -280,31 +280,31 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {data.includeEVCharging && (
                   <div className="flex items-center gap-2">
-                    <CheckIcon className="text-green-600 dark:text-green-400" />
+                    <div className="text-green-600 dark:text-green-400"><CheckIcon /></div>
                     <span className="text-slate-700 dark:text-slate-300">EV Charging</span>
                   </div>
                 )}
                 {data.includeSmartHome && (
                   <div className="flex items-center gap-2">
-                    <CheckIcon className="text-green-600 dark:text-green-400" />
+                    <div className="text-green-600 dark:text-green-400"><CheckIcon /></div>
                     <span className="text-slate-700 dark:text-slate-300">Smart Home Integration</span>
                   </div>
                 )}
                 {data.includeGridServices && (
                   <div className="flex items-center gap-2">
-                    <CheckIcon className="text-green-600 dark:text-green-400" />
+                    <div className="text-green-600 dark:text-green-400"><CheckIcon /></div>
                     <span className="text-slate-700 dark:text-slate-300">Grid Services</span>
                   </div>
                 )}
                 {data.includeOptimizers && (
                   <div className="flex items-center gap-2">
-                    <CheckIcon className="text-green-600 dark:text-green-400" />
+                    <div className="text-green-600 dark:text-green-400"><CheckIcon /></div>
                     <span className="text-slate-700 dark:text-slate-300">Panel Optimizers</span>
                   </div>
                 )}
                 {data.includeMicroinverters && (
                   <div className="flex items-center gap-2">
-                    <CheckIcon className="text-green-600 dark:text-green-400" />
+                    <div className="text-green-600 dark:text-green-400"><CheckIcon /></div>
                     <span className="text-slate-700 dark:text-slate-300">Microinverters</span>
                   </div>
                 )}

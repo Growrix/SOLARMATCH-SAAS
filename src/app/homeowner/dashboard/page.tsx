@@ -327,6 +327,9 @@ interface DashboardOverviewContentProps {
   error: string | null;
   onRequestMoreQuotes: () => void;
   onVerifyContact: () => void;
+  onEditLead: (lead: RecentLeadSummary) => void;
+  onPreviewLead: (lead: RecentLeadSummary) => void;
+  onCancelLead: (lead: RecentLeadSummary) => void;
 }
 
 const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
@@ -335,6 +338,9 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
   error,
   onRequestMoreQuotes,
   onVerifyContact,
+  onEditLead,
+  onPreviewLead,
+  onCancelLead,
 }) => {
   const StatCard: React.FC<{ 
     icon: React.ReactNode; 
@@ -469,10 +475,10 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
           </div>
           <div className="text-right">
             <div className="text-2xl font-bold text-amber-900 dark:text-amber-100">
-              {summary.biddingQuotaRemaining || 0} / 1
+              {summary.biddingQuotaRemaining ?? 0} / 1
             </div>
             <div className="text-xs text-amber-700 dark:text-amber-300">
-              {summary.biddingQuotaRemaining === 1 ? 'Available' : 'Used'}
+              {(summary.biddingQuotaRemaining ?? 0) === 1 ? 'Available' : 'Used'}
             </div>
           </div>
         </div>
@@ -531,7 +537,7 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
               const statusInfo = STATUS_LABELS[lead.status as LeadStatus];
               const canEdit = lead.status === LeadStatusEnum.PENDING_APPROVAL;
               const canCancel = lead.status !== LeadStatusEnum.PURCHASED;
-              const canPreview = [LeadStatusEnum.APPROVED, LeadStatusEnum.PURCHASED, LeadStatusEnum.QUOTED, LeadStatusEnum.ACCEPTED].includes(lead.status as LeadStatusEnum);
+              const canPreview = [LeadStatusEnum.APPROVED as string, LeadStatusEnum.PURCHASED as string, LeadStatusEnum.QUOTED as string, LeadStatusEnum.ACCEPTED as string].includes(lead.status);
               
               return (
                 <div key={lead.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors gap-2">
@@ -553,7 +559,7 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
                   <div className="flex items-center gap-1.5">
                     {canEdit && (
                       <button
-                        onClick={() => handleEditLead(lead)}
+                        onClick={() => onEditLead(lead)}
                         className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 transition-colors flex items-center gap-1"
                         title="Edit lead"
                       >
@@ -563,7 +569,7 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
                     
                     {canPreview && (
                       <button
-                        onClick={() => handlePreviewLead(lead)}
+                        onClick={() => onPreviewLead(lead)}
                         className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-50 text-slate-700 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors flex items-center gap-1"
                         title="View details"
                       >
@@ -573,7 +579,7 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
                     
                     {canCancel && (
                       <button
-                        onClick={() => handleCancelLead(lead)}
+                        onClick={() => onCancelLead(lead)}
                         className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50 transition-colors flex items-center gap-1"
                         title="Cancel lead"
                       >
@@ -889,6 +895,9 @@ export default function HomeownerDashboardPage() {
             error={error}
             onRequestMoreQuotes={handleRequestMoreQuotes}
             onVerifyContact={() => setShowContactVerificationModal(true)}
+            onEditLead={handleEditLead}
+            onPreviewLead={handlePreviewLead}
+            onCancelLead={handleCancelLead}
           />
         );
       case 'Call/Visit Quotes':
@@ -911,6 +920,9 @@ export default function HomeownerDashboardPage() {
             error={error}
             onRequestMoreQuotes={handleRequestMoreQuotes}
             onVerifyContact={() => setShowContactVerificationModal(true)}
+            onEditLead={handleEditLead}
+            onPreviewLead={handlePreviewLead}
+            onCancelLead={handleCancelLead}
           />
         );
     }
