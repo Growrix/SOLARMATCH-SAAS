@@ -294,7 +294,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error: 'Database error occurred',
-          details: process.env.NODE_ENV === 'development' ? error.message : undefined,
+          details: error.message,
         },
         { status: 500 }
       );

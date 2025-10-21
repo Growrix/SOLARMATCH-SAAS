@@ -1568,6 +1568,370 @@ Installer UI work (badges, marketplace, installer lead detail) is intentionally 
 
 ---
 
+## Phase 4.10: Guest Flow Critical Fixes (Priority: P0 - BLOCKING) 🔴 (Persona: Guest + Homeowner)
+
+**Status**: 🚧 IN PROGRESS - Audit completed October 21, 2025
+
+**Goal**: Fix critical bugs blocking guest instant quote flow - ensure leads appear in dashboards, enable editing/cancellation, enforce edit restrictions
+
+**Audit Document**: `DOC/Records/GUEST-FLOW-AUDIT-2025-10-21.md`
+
+**User Journey**: 
+1. **Guest Flow**: Guest uses InstantQuote calculator → clicks "Request Quote from Installer" → selects quote type → signup modal → after signup, lead MUST appear in both homeowner & admin dashboards
+2. **Edit Flow**: Homeowner clicks "Edit" on DRAFT/PENDING_APPROVAL lead → modal opens with ALL InstantQuote fields pre-filled → edits fields → recalculates → saves → dashboard updates
+3. **Cancel Flow**: Homeowner clicks "Cancel" on lead (before purchase) → confirmation → lead cancelled → quota restored (5 used → 4 used)
+4. **Preview Flow**: After admin approval, homeowner clicks "Preview" → read-only modal showing all quote details → no edit capability
+
+**Independent Test**: 
+1. **Guest Signup Test**: Logout → fill InstantQuote → select "Written Quote" → signup → verify lead appears in homeowner dashboard with status PENDING_APPROVAL → verify lead appears in admin dashboard
+2. **Edit Test**: Login with DRAFT lead → click Edit → verify ALL fields pre-filled (address, system size, costs, savings, preferences) → edit system size → click Calculate → results update → Save → verify database updated
+3. **Cancel Test**: Login with 1 PENDING_APPROVAL lead, quota 1/5 → click Cancel → confirm → verify status CANCELLED, quota 0/5
+4. **Preview Test**: Admin approves lead → homeowner clicks Preview → verify read-only modal, no edit button
+
+---
+
+### Critical Issues Identified (Audit October 21, 2025)
+
+**Issue #1: Leads Not Appearing in Dashboards**
+- **Root Cause**: Lead created in `HomeownerSignupModal` BEFORE NextAuth session is fully established
+- **Impact**: API call to POST /api/leads gets 401 Unauthorized or uses stale session
+- **Evidence**: 800ms arbitrary timeout in HomeownerSignupModal line 132, not guaranteed
+- **User Experience**: Guest signs up, sees success message, opens dashboard → NO LEAD VISIBLE
+
+**Issue #2: No Edit Modal**
+- **Current**: No UI component to edit leads after creation
+- **Expected**: Pre-filled modal with all 30+ InstantQuote fields + calculation results
+- **User Experience**: Homeowner wants to update address or system size → no way to edit
+
+**Issue #3: No Cancellation**
+- **Current**: No cancel button, no API endpoint, no quota restoration
+- **Expected**: Cancel before installer purchase, quota restored (e.g., 5 used → 4 used)
+- **User Experience**: Homeowner changes mind → lead stuck forever
+
+**Issue #4: No Edit Restrictions**
+- **Current**: No validation preventing edits after admin approval
+- **Expected**: Edit only allowed for DRAFT, PENDING_PHONE, PENDING_APPROVAL
+- **User Experience**: Confusing UX, potential data corruption if edited after installer sees it
+
+---
+
+### Phase 4.10 Implementation Tasks
+
+#### Data Model & Schema (BLOCKING) 🔴
+- [ ] **T238** [US1] Add cancellation fields to Lead model in `prisma/schema.prisma`:
+  - Add `cancelledAt DateTime?` - Timestamp when lead was cancelled
+  - Add `cancelledReason String? @db.Text` - Optional reason for cancellation
+  - Add `cancelledBy String?` - User ID who cancelled (homeowner or admin)
+  - Run migration: `npx prisma migrate dev --name add_lead_cancellation_fields`
+
+#### Business Logic & Services 🟡
+- [ ] **T239** [US1] Create lead edit validator in `src/lib/services/lead-service.ts`:
+  - Add `canEditLead(status: LeadStatus): boolean` function
+  - Editable statuses: DRAFT, PENDING_PHONE, PENDING_APPROVAL
+  - Non-editable: APPROVED, PURCHASED, QUOTED, ACCEPTED, CANCELLED, REJECTED, EXPIRED, FLAGGED
+  - Return boolean for UI to show/hide edit button
+
+- [ ] **T240** [US1] Create lead update service in `src/lib/services/lead-service.ts`:
+  - Add `updateLead(leadId, homeownerId, updates): Promise<{ success, lead?, error? }>` function
+  - Validate ownership (homeownerId matches lead.homeownerId)
+  - Validate status (call canEditLead)
+  - Update quoteData and other editable fields
+  - Create audit log entry (LEAD_UPDATED action)
+  - Return updated lead or error
+
+- [ ] **T241** [US1] Create lead cancellation service in `src/lib/services/lead-service.ts`:
+  - Add `cancelLead(leadId, homeownerId, reason?): Promise<{ success, error?, quotaRestored? }>` function
+  - Validate ownership (homeownerId matches lead.homeownerId)
+  - Validate NOT purchased (lead.purchasedAt === null)
+  - Update lead: status → CANCELLED, set cancelledAt, cancelledReason, cancelledBy
+  - Decrement user.leadSubmissionCount (quota restoration)
+  - Use Prisma transaction to ensure atomic update
+  - Create audit log entry (LEAD_CANCELLED action)
+  - Return success with quotaRestored flag
+
+#### API Endpoints 🟢
+- [ ] **T242** [US1] Create PATCH `/api/leads/[id]` route in `src/app/api/leads/[id]/route.ts`:
+  - Validate authentication (session required, role = HOMEOWNER)
+  - Parse request body (quoteData, propertyPostcode, location, etc.)
+  - Call updateLead() service function
+  - Return 200 OK with updated lead, or 400/403/404 error
+  - Handle edge cases: lead not found, unauthorized, cannot edit status
+
+- [ ] **T243** [US1] Create PATCH `/api/leads/[id]/cancel` route in `src/app/api/leads/[id]/cancel/route.ts`:
+  - Validate authentication (session required, role = HOMEOWNER)
+  - Parse optional cancellation reason from body
+  - Call cancelLead() service function
+  - Return 200 OK with success message + quota info, or 400/403/404 error
+  - Handle edge cases: already purchased, not found, unauthorized
+
+#### Frontend Components 🎨
+- [ ] **T244** [US1] Create `LeadEditModal` component in `src/components/homeowner/LeadEditModal.tsx`:
+  - Props: `isOpen`, `onClose`, `leadId`, `initialQuoteData`, `onSaveSuccess`
+  - Render InstantQuoteForm-like UI (single-step, not wizard)
+  - Pre-fill ALL fields from quoteData (address, postcode, energyBill, systemSize, costs, savings, preferences, etc.)
+  - Include "Calculate Again" button to recalculate results
+  - "Save Changes" button calls PATCH /api/leads/[id]
+  - Show loading state during save
+  - On success: call onSaveSuccess, close modal, show toast
+  - On error: display error message inline
+
+- [ ] **T245** [US1] Create `QuotePreviewModal` component in `src/components/homeowner/QuotePreviewModal.tsx`:
+  - Props: `isOpen`, `onClose`, `quoteData`, `leadStatus`, `quoteType`
+  - Render read-only view of all quote details
+  - Display sections: Location, Energy Details, System Size, Costs, Savings, Preferences
+  - Show status badge (e.g., "Approved - Visible to Installers")
+  - No edit fields, no save button
+  - "Close" button only
+  - Clean, professional design matching dashboard theme
+
+- [ ] **T246** [US1] Add edit/cancel buttons to dashboard lead list in `src/app/homeowner/dashboard/page.tsx`:
+  - In "Recent Leads" section, add button group to each lead card
+  - **Edit Button**:
+    - Visible when: canEditLead(lead.status) returns true
+    - onClick: open LeadEditModal with lead.quoteData
+    - Icon: pencil/edit icon
+    - Label: "Edit Request"
+  - **Cancel Button**:
+    - Visible when: status !== PURCHASED && status !== CANCELLED
+    - onClick: show confirmation modal ("Are you sure? This will free up 1 quote.")
+    - On confirm: call PATCH /api/leads/[id]/cancel
+    - Icon: X or trash icon
+    - Label: "Cancel Request"
+  - **Preview Button**:
+    - Visible when: status === APPROVED || status === PURCHASED
+    - onClick: open QuotePreviewModal with lead.quoteData
+    - Icon: eye icon
+    - Label: "View Details"
+
+#### Guest Flow Fix (CRITICAL) 🔴
+- [ ] **T247** [US1] Fix lead creation timing in `src/components/HomeownerSignupModal.tsx`:
+  - **REMOVE** lines 136-148 (lead creation logic)
+  - Keep signup and auto-login logic
+  - After successful login, call onSuccess() immediately
+  - Do NOT create lead in this component anymore
+  - Comment explaining: "Lead creation moved to parent component to ensure session is ready"
+
+- [ ] **T248** [US1] Move lead creation to parent in `src/app/page.tsx`:
+  - Update `handleHomeownerSignupSuccess()` function:
+    ```typescript
+    const handleHomeownerSignupSuccess = async () => {
+      setIsHomeownerSignupModalOpen(false);
+      
+      // Session polling: Wait for NextAuth session to be ready
+      let sessionReady = false;
+      let attempts = 0;
+      const maxAttempts = 25; // 5 seconds max (25 * 200ms)
+      
+      while (!sessionReady && attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 200));
+        const response = await fetch('/api/auth/session');
+        const session = await response.json();
+        
+        if (session?.user?.role === 'HOMEOWNER') {
+          sessionReady = true;
+          break;
+        }
+        attempts++;
+      }
+      
+      if (!sessionReady) {
+        alert('Login successful but session not ready. Please create your quote from the dashboard.');
+        router.push('/homeowner/dashboard');
+        return;
+      }
+      
+      // NOW session is ready - create lead via API
+      try {
+        const response = await fetch('/api/leads', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            quoteType: selectedQuoteType,
+            propertyPostcode: pendingQuoteData?.postcode || pendingQuoteData?.propertyPostcode,
+            location: pendingQuoteData?.location,
+            state: pendingQuoteData?.state,
+            energyBill: pendingQuoteData?.electricityValue || pendingQuoteData?.energyBill || 0,
+            quoteData: pendingQuoteData,
+            ...pendingQuoteData
+          })
+        });
+        
+        if (response.ok) {
+          setIsQuoteSuccessModalOpen(true);
+          setPendingQuoteData(null);
+        } else {
+          const data = await response.json();
+          console.error('Lead creation failed:', data);
+          alert(data.error || 'Failed to create lead. Please try again from your dashboard.');
+          router.push('/homeowner/dashboard');
+        }
+      } catch (err) {
+        console.error('Lead creation error:', err);
+        alert('Failed to create lead. Please try again from your dashboard.');
+        router.push('/homeowner/dashboard');
+      }
+    };
+    ```
+
+#### Validation & Testing 🧪
+- [ ] **T249** [US1] End-to-end manual testing - Guest Flow:
+  - Test Scenario:
+    1. Logout completely (clear cookies)
+    2. Visit homepage, fill InstantQuoteForm (all fields)
+    3. Click "Request Quote from Installer"
+    4. Select "Written Quote" in QuoteOptionsModal
+    5. Fill signup form (name, email, phone, address, password)
+    6. Submit signup
+    7. Wait for success message
+    8. Verify redirect to homeowner dashboard
+    9. **EXPECTED**: Lead appears in "Recent Leads" section
+    10. Open new tab, login as admin
+    11. Navigate to /admin/leads
+    12. **EXPECTED**: Same lead appears in admin list
+    13. **EXPECTED**: Status = PENDING_APPROVAL
+    14. **EXPECTED**: quoteData field populated (check in Prisma Studio)
+  - Expected Results: ✅ All steps pass, lead visible in both dashboards
+
+- [ ] **T250** [US1] End-to-end manual testing - Edit Flow:
+  - Test Scenario:
+    1. Login as homeowner with 1 DRAFT lead
+    2. Open dashboard → see lead card
+    3. Click "Edit Request" button
+    4. **EXPECTED**: LeadEditModal opens
+    5. **EXPECTED**: ALL fields pre-filled (address, postcode, energyBill, systemSize, monthlySavings, roofType, batteryRequired, etc.)
+    6. Edit systemSize from 6.6kW to 8.0kW
+    7. Click "Calculate Again"
+    8. **EXPECTED**: Results update (costs, savings recalculated)
+    9. Click "Save Changes"
+    10. **EXPECTED**: Success toast, modal closes, dashboard refreshes
+    11. Open Prisma Studio → verify quoteData updated with new systemSize
+    12. Admin approves lead
+    13. Homeowner refreshes dashboard
+    14. **EXPECTED**: "Edit" button hidden, "Preview" button visible
+    15. Click "Preview"
+    16. **EXPECTED**: QuotePreviewModal opens (read-only)
+  - Expected Results: ✅ Edit works before approval, blocked after
+
+- [ ] **T251** [US1] End-to-end manual testing - Cancel Flow:
+  - Test Scenario:
+    1. Login as homeowner with 1 PENDING_APPROVAL lead
+    2. Dashboard shows: "1 of 5 quotes used, 4 remaining"
+    3. Click "Cancel Request" button on lead card
+    4. **EXPECTED**: Confirmation modal: "Are you sure? This will free up 1 quote from your limit."
+    5. Click "Cancel"
+    6. **EXPECTED**: Success toast: "Lead cancelled. Quota restored."
+    7. **EXPECTED**: Dashboard updates: "0 of 5 quotes used, 5 remaining"
+    8. **EXPECTED**: Lead card shows status "Cancelled"
+    9. Open Prisma Studio → verify:
+       - lead.status = CANCELLED
+       - lead.cancelledAt = timestamp
+       - user.leadSubmissionCount = 0
+    10. Try to cancel same lead again
+    11. **EXPECTED**: Error: "Lead already cancelled"
+    12. Admin purchases a different lead → try to cancel
+    13. **EXPECTED**: Error: "Cannot cancel purchased lead"
+  - Expected Results: ✅ Cancel works, quota restored, purchased leads cannot be cancelled
+
+- [ ] **T252** [US1] Edge case testing - Session timing:
+  - Test Scenarios:
+    1. Slow network: Throttle network to 3G → signup → verify lead still created (polling waits)
+    2. Session timeout: Wait 5+ seconds during signup → verify fallback to dashboard works
+    3. Multiple signups: Signup, immediately logout, signup again → verify no duplicate leads
+  - Expected Results: ✅ Robust session handling, no race conditions
+
+- [ ] **T253** [US1] Performance & regression testing:
+  - Test Scenarios:
+    1. Dashboard load time with 5 leads: < 1 second
+    2. Edit modal open time: < 500ms
+    3. Cancel operation: < 1 second
+    4. Existing logged-in user quote flow: Still works (no regression)
+    5. Admin approval flow: Still works (no regression)
+  - Expected Results: ✅ Performance acceptable, no regressions
+
+#### Documentation & Records 📝
+- [ ] **T254** [US1] Update implementation record:
+  - Create `DOC/Records/PHASE-4.10-GUEST-FLOW-FIXES-2025-10-21.md`
+  - Document all changes made (schema, services, APIs, components)
+  - Include before/after screenshots
+  - List testing results
+  - Note any edge cases discovered
+
+---
+
+### Phase 4.10 Validation Checklist
+
+**Pre-Phase (30 min):**
+- [X] Audit complete: `DOC/Records/GUEST-FLOW-AUDIT-2025-10-21.md` reviewed
+- [ ] Review current HomeownerSignupModal lead creation logic (lines 136-148)
+- [ ] Review current page.tsx handleHomeownerSignupSuccess flow
+- [ ] Check Lead model for existing cancellation fields (none found)
+- [ ] Verify canEditLead validator doesn't exist yet
+- [ ] List all files to create/modify: 17 tasks across schema, services, APIs, components
+
+**During Implementation:**
+- [ ] After T238 (Schema): Run `npx prisma validate`, `npx prisma migrate dev`
+- [ ] After T239-T241 (Services): Run `npx tsc --noEmit` (0 errors)
+- [ ] After T242-T243 (APIs): Test all endpoints with Thunder Client/Postman
+- [ ] After T244-T246 (Components): Run `npm run build` (0 errors)
+- [ ] After T247-T248 (Guest Flow Fix): Test signup → lead creation → dashboard visibility
+
+**Post-Phase Validation:**
+- [ ] Schema Validation: `npx prisma validate` passes (0 errors)
+- [ ] TypeScript: `npx tsc --noEmit` passes (0 errors)
+- [ ] Build: `npm run build` passes (0 errors, warnings reviewed)
+- [ ] Database Check: Open Prisma Studio, verify:
+  * Lead model has cancelledAt, cancelledReason, cancelledBy fields
+  * Test lead with status CANCELLED exists
+  * User.leadSubmissionCount decremented after cancellation
+- [ ] API Testing (all endpoints):
+  * PATCH /api/leads/[id] → edit success (200), cannot edit after approval (403)
+  * PATCH /api/leads/[id]/cancel → cancel success (200), quota restored
+  * POST /api/leads (guest flow) → 201 created after signup
+- [ ] UI Testing (all flows):
+  * Guest signup → lead appears in homeowner dashboard
+  * Guest signup → lead appears in admin dashboard
+  * Edit modal → all fields pre-filled correctly
+  * Cancel → quota restored (5 used → 4 used)
+  * Preview modal → read-only view after approval
+- [ ] Business Logic Validation:
+  * canEditLead() returns true for DRAFT/PENDING_APPROVAL
+  * canEditLead() returns false for APPROVED/PURCHASED
+  * Cancellation blocked after purchase
+  * Quota restoration atomic (transaction ensures no race conditions)
+- [ ] Manual QA Complete: T249-T253 all scenarios pass
+- [ ] Performance: Edit modal < 500ms, cancel < 1s, dashboard load < 1s
+- [ ] No Regressions: Existing logged-in quote flow, admin approval, second quote flow all working
+- [ ] User approval received for commit
+- [ ] Git commit: "Phase 4.10: Guest flow critical fixes - dashboard visibility, edit/cancel functionality"
+
+**Expected Outcomes:**
+1. ✅ Guest signup → lead immediately visible in both homeowner & admin dashboards
+2. ✅ Edit modal shows ALL 30+ InstantQuote fields with calculation capability
+3. ✅ Edit blocked after admin approval (status-based restriction)
+4. ✅ Cancel button works, quota restored correctly (atomic transaction)
+5. ✅ Preview modal for approved leads (read-only view)
+6. ✅ Session timing fixed (polling ensures session ready before API call)
+7. ✅ Database integrity: cancellation fields tracked, audit logs created
+8. ✅ No regressions: existing flows (logged-in quote, admin approval) still work
+
+**Time Estimate:** 8-10 hours total
+- Schema + Services: 2 hours
+- API Endpoints: 2 hours
+- Components (Edit/Preview modals): 3 hours
+- Guest Flow Fix: 1 hour
+- Testing + QA: 2 hours
+
+**Blockers:** None - all dependencies exist
+
+**Success Criteria:**
+- Manual QA checklist 100% pass rate
+- Zero TypeScript/build errors
+- No console errors during flows
+- Prisma Studio shows correct data after each operation
+- User approval received before commit
+
+---
+
 
 ## Phase 4: User Story 2 - Admin Reviews and Approves Leads (Priority: P1) 🎯 MVP (Persona: Admin)
 

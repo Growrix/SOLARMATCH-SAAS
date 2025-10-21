@@ -124,41 +124,11 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
         return;
       }
 
-      // CRITICAL: Force session refresh to ensure fresh session data
-      // This prevents stale admin sessions from being used
-      // Wait for session to be established before proceeding
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // Phase 4.10: Lead creation moved to parent component (page.tsx)
+      // This ensures NextAuth session is fully established before creating lead
+      // Session polling in parent handles proper timing
       
-      // If this is a quote context with quote data, submit the lead
-      if (context === 'quote' && quoteData && quoteType) {
-        try {
-          const leadResponse = await fetch('/api/leads', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              quoteType,
-              propertyPostcode: quoteData?.postcode || quoteData?.propertyPostcode,
-              location: quoteData?.location,
-              state: quoteData?.state,
-              energyBill: quoteData?.electricityValue || quoteData?.energyBill || 0,
-              quoteData: quoteData,
-              ...quoteData
-            })
-          });
-
-          if (!leadResponse.ok) {
-            const leadData = await leadResponse.json();
-            console.error('[HomeownerSignupModal] Lead submission failed:', leadData.error);
-            // Don't show error to user - account was created successfully
-            // Just log it and continue to success
-          }
-        } catch (leadErr) {
-          console.error('[HomeownerSignupModal] Lead submission error:', leadErr);
-          // Don't show error to user - account was created successfully
-        }
-      }
-      
-      // Call onSuccess to trigger redirect or success modal
+      // Call onSuccess to trigger parent's lead creation flow
       onSuccess();
 
     } catch (err) {

@@ -1,460 +1,130 @@
-// ============================================================================
-// PRISMA SCHEMA FILE
-// ============================================================================
-// This file is the "blueprint" for your database structure.
-// Think of it like an architect's drawing before building a house.
-//
-// What Prisma does with this file:
-// 1. Generates TypeScript code so you can talk to your database easily
-// 2. Creates SQL migration files (instructions to create tables)
-// 3. Keeps your code and database in sync
-//
-// TEACHING NOTE: You never write SQL by hand with Prisma. You write this
-// schema, and Prisma writes the SQL for you!
-// ============================================================================
-
-// ----------------------------------------------------------------------------
-// DATABASE CONNECTION SETTINGS
-// ----------------------------------------------------------------------------
-datasource db {
-  provider = "postgresql"
-  url = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
-  // TEACHING NOTE: env("DATABASE_URL") is for pooled connections (app runtime)
-  // directUrl is for migrations (direct connection)
-  // Both are set in your .env file as recommended by Supabase
-}
-
-// ----------------------------------------------------------------------------
-// CODE GENERATION SETTINGS
-// ----------------------------------------------------------------------------
 generator client {
   provider = "prisma-client-js"
-  // TEACHING NOTE: This tells Prisma to generate JavaScript/TypeScript code
-  // After running "npx prisma generate", you can import { PrismaClient }
-  // and use it to query your database with autocomplete!
 }
 
-// ============================================================================
-// NEWSLETTER SUBSCRIBER MODEL
-// ============================================================================
-// This defines the structure of our "newsletter_subscribers" table
-// Each model becomes a table in the database
-// Each field becomes a column in that table
-// ============================================================================
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
 
 model NewsletterSubscriber {
-  // PRIMARY KEY (Unique Identifier)
-  // --------------------------------
-  id String @id @default(cuid())
-  // TEACHING NOTE: Every table needs a unique ID to identify each record
-  // @id = This is the primary key
-  // @default(cuid()) = Auto-generate a unique ID when creating new records
-  // "cuid" = Collision-resistant Unique ID (better than random numbers)
-  // Example: "clx1a2b3c4d5e6f7g8h9"
-  
-  // EMAIL ADDRESS (Main data we're collecting)
-  // ------------------------------------------
-  email String @unique
-  // TEACHING NOTE: @unique prevents duplicate emails
-  // If someone tries to subscribe twice, the database will reject it
-  // This is enforced at the database level, not just in your code
-  
-  // SUBSCRIPTION DATE (When they joined)
-  // ------------------------------------
-  subscribedAt DateTime @default(now())
-  // TEACHING NOTE: @default(now()) automatically sets to current date/time
-  // You don't need to manually set this when creating a new subscriber
-  // Example: "2025-10-11T14:30:00.000Z"
-  
-  // ACTIVE STATUS (Are they still subscribed?)
-  // -------------------------------------------
-  isActive Boolean @default(true)
-  // TEACHING NOTE: @default(true) means new subscribers are active by default
-  // We use Boolean (true/false) instead of deleting records
-  // This is called "soft delete" - keeps data for analytics
-  
-  // UNSUBSCRIBE DATE (When they left, if they did)
-  // -----------------------------------------------
+  id             String    @id @default(cuid())
+  email          String    @unique
+  subscribedAt   DateTime  @default(now())
+  isActive       Boolean   @default(true)
   unsubscribedAt DateTime?
-  // TEACHING NOTE: The "?" means this field is OPTIONAL (can be null/empty)
-  // Only set this when someone unsubscribes
-  // If isActive = true, this should be null
-  // If isActive = false, this should have a date
-  
-  // TABLE NAME MAPPING
-  // ------------------
+
   @@map("newsletter_subscribers")
-  // TEACHING NOTE: By default, Prisma uses the model name as table name
-  // @@map changes it to "newsletter_subscribers" (snake_case)
-  // This is a common convention in databases (lowercase with underscores)
-  // Without this, the table would be called "NewsletterSubscriber"
 }
-
-// ============================================================================
-// WHAT HAPPENS NEXT?
-// ============================================================================
-// 1. Run: npx prisma migrate dev --name add_newsletter_subscribers
-//    - This creates SQL migration files
-//    - Creates the table in your database
-//    - Generates TypeScript code
-//
-// 2. Run: npx prisma generate
-//    - Regenerates TypeScript code if you only changed comments
-//
-// 3. Use in your code:
-//    import { prisma } from '@/lib/prisma';
-//    const subscriber = await prisma.newsletterSubscriber.create({
-//      data: { email: 'user@example.com' }
-//    });
-//
-// ============================================================================
-// COMMON PRISMA FIELD TYPES
-// ============================================================================
-// String    → Text (emails, names, descriptions)
-// Int       → Whole numbers (age, count, price in cents)
-// Float     → Decimal numbers (ratings, percentages)
-// Boolean   → True/False (isActive, hasAccess)
-// DateTime  → Date and time (createdAt, publishedAt)
-// Json      → JSON data (settings, metadata)
-//
-// ============================================================================
-// COMMON PRISMA DECORATORS
-// ============================================================================
-// @id              → Primary key (unique identifier)
-// @unique          → No duplicates allowed
-// @default(value)  → Auto-set this value when creating new records
-// @updatedAt       → Auto-update timestamp when record changes
-// Field?           → Optional field (can be null)
-//
-// ============================================================================
-
-// ============================================================================
-// GUEST INSTANT QUOTE MODEL
-// ============================================================================
-// This stores all instant solar quote submissions from guests (non-registered users).
-// Each quote captures user inputs, calculated results, and metadata for analytics.
-// Admins can view quote trends, conversion rates, and popular configurations.
-// ============================================================================
 
 model GuestInstantQuote {
-  // PRIMARY KEY (Unique Identifier)
-  // --------------------------------
-  id String @id @default(cuid())
-  // Auto-generated unique ID for each quote
-  
-  // SESSION & TRACKING
-  // ------------------
-  sessionId String?
-  // Browser session ID to track user journey (for analytics)
-  // Optional because some users may have tracking disabled
-  
-  ipAddress String?
-  // IP address for fraud detection and location analytics
-  // Stored as string (e.g., "192.168.1.1")
-  
-  userAgent String?
-  // Browser/device info for UX analytics
-  
-  // TIMESTAMPS
-  // ----------
-  createdAt DateTime @default(now())
-  // When the quote was generated
-  
-  updatedAt DateTime @updatedAt
-  // Auto-updates when record changes
-  
-  // PROPERTY TYPE
-  // -------------
-  quoteType String
-  // "residential" or "commercial"
-  // Determines which calculation logic was used
-  
-  // LOCATION DATA
-  // -------------
-  postcode String
-  // 4-digit Australian postcode (e.g., "2000")
-  
-  location String
-  // Suburb name (e.g., "Sydney")
-  
-  state String
-  // Australian state code (NSW, VIC, QLD, etc.)
-  
-  // ENERGY USAGE
-  // ------------
-  electricityUsageType String
-  // "monthly" or "quarterly"
-  
-  electricityValue Float
-  // Usage amount (bill $ or kWh)
-  
-  // SYSTEM CONFIGURATION
-  // --------------------
-  roofType String
-  // Metal, tile, colorbond, etc.
-  
-  budgetRange String
-  // User's budget bracket
-  
-  panelOrientation String
-  // north, northeast, east, etc.
-  
-  roofTilt String
-  // flat, low, optimal, steep
-  
-  shadingLevel String
-  // none, minimal, partial, moderate, heavy
-  
-  desiredOffset Int
-  // Target % of electricity bill to offset (e.g., 100)
-  
-  usagePattern String?
-  // daytime, evening, spread (residential only)
-  
-  // BATTERY OPTIONS
-  // ---------------
-  batteryIncluded Boolean @default(false)
-  
-  batteryCapacity String?
-  // Battery size in kWh if included
-  
-  batteryBrand String?
-  // Tesla, Enphase, etc.
-  
+  id                    String    @id @default(cuid())
+  sessionId             String?
+  ipAddress             String?
+  userAgent             String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  quoteType             String
+  postcode              String
+  location              String
+  state                 String
+  electricityUsageType  String
+  roofType              String
+  budgetRange           String
+  panelOrientation      String
+  roofTilt              String
+  shadingLevel          String
+  desiredOffset         Int
+  usagePattern          String?
+  batteryIncluded       Boolean   @default(false)
+  batteryCapacity       String?
+  batteryBrand          String?
+  batteryUsage          String?
+  includeVPP            Boolean   @default(false)
+  peakDemand            String?
+  isThreePhase          Boolean   @default(false)
+  projectPriority       String?
+  retailer              String?
+  tariffPlan            String?
+  customRetailRate      String?
+  customFeedInRate      String?
+  panelBrand            String?
+  includeOptimizers     Boolean   @default(false)
+  includeMicroinverters Boolean   @default(false)
+  includeEVCharging     Boolean   @default(false)
+  includeSmartHome      Boolean   @default(false)
+  includeGridServices   Boolean   @default(false)
+  hasExistingSystem     Boolean   @default(false)
+  existingSystemSize    String?
+  systemSizeOverride    String?
+  results               Json
+  adminNotes            String?
+  isConverted           Boolean   @default(false)
+  conversionDate        DateTime?
+  electricityValue      Float
+  additionalArrays      Json?
+  backupCritical        String?
   customBatteryCapacity String?
-  // Custom battery capacity if user specified their own value
-  
-  backupCritical String?
-  // Backup priority: essential, whole-home, etc.
-  
-  batteryUsage String?
-  // self-consumption, backup, etc.
-  
-  includeVPP Boolean @default(false)
-  // Virtual Power Plant participation
-  
-  // COMMERCIAL-SPECIFIC
-  // -------------------
-  peakDemand String?
-  // Peak demand in kW (commercial only)
-  
-  isThreePhase Boolean @default(false)
-  
-  projectPriority String?
-  // reduce_bills, sustainability, etc.
-  
-  // ADVANCED OPTIONS
-  // ----------------
-  retailer String?
-  // Energy retailer name
-  
-  tariffPlan String?
-  // Tariff structure (single, time-of-use, etc.)
-  
-  additionalArrays Json?
-  // Complex roof layouts with multiple arrays (stored as JSON)
-  
-  customRetailRate String?
-  // User-provided rate in cents/kWh
-  
-  customFeedInRate String?
-  // User-provided feed-in tariff
-  
-  panelBrand String?
-  // Preferred panel manufacturer
-  
-  includeOptimizers Boolean @default(false)
-  
-  includeMicroinverters Boolean @default(false)
-  
-  includeEVCharging Boolean @default(false)
-  
-  includeSmartHome Boolean @default(false)
-  
-  includeGridServices Boolean @default(false)
-  
-  hasExistingSystem Boolean @default(false)
-  
-  existingSystemSize String?
-  
-  systemSizeOverride String?
-  // User-specified system size override
-  
-  // CALCULATED RESULTS (JSON)
-  // --------------------------
-  results Json
-  // Stores the complete calculation output as JSON:
-  // {
-  //   systemSize: 6.6,
-  //   annualProduction: 9500,
-  //   annualSavings: 1250,
-  //   currentAnnualBill: 1800,
-  //   totalCost: 8500,
-  //   federalRebate: 2100,
-  //   batteryRebate: 0,
-  //   stateRebate: 1400,
-  //   finalPrice: 5000,
-  //   simplePaybackYears: 4.0,
-  //   disclaimers: [...]
-  // }
-  
-  // ADMIN NOTES & FLAGS
-  // -------------------
-  adminNotes String?
-  // Internal notes from admin review
-  
-  isConverted Boolean @default(false)
-  // True if guest later signed up and created a quote request
-  
-  conversionDate DateTime?
-  // When they converted (if applicable)
-  
-  // TABLE NAME MAPPING
-  // ------------------
-  @@map("guest_instant_quotes")
-  
-  // INDEXES FOR PERFORMANCE
-  // -----------------------
+
   @@index([createdAt])
-  // Fast filtering by date
-  
   @@index([state])
-  // Group quotes by state
-  
   @@index([quoteType])
-  // Filter residential vs commercial
-  
   @@index([sessionId])
-  // Track user journey
+  @@map("guest_instant_quotes")
 }
 
-// ============================================================================
-// WHAT THIS MODEL ENABLES
-// ============================================================================
-// 1. Admin Dashboard Metrics:
-//    - Total quotes generated per day/week/month
-//    - Popular system sizes and configurations
-//    - Geographic distribution (state/postcode heatmaps)
-//    - Conversion funnel (guests → signups → quote requests)
-//
-// 2. Marketing Insights:
-//    - Peak usage times and user behavior
-//    - Budget preferences and price sensitivity
-//    - Feature adoption (battery, EV charging, etc.)
-//
-// 3. Product Improvements:
-//    - Identify common user configurations
-//    - A/B testing different pricing models
-//    - Optimize calculator accuracy
-//
-// 4. User Journey:
-//    - Link anonymous quotes to user accounts later (via sessionId)
-//    - Pre-fill forms when guests sign up
-//    - Track conversion from quote → signup → purchase
-// ============================================================================
-
-// ============================================================================
-// USER AUTHENTICATION & ACCOUNTS
-// ============================================================================
-// NextAuth.js compatible schema for user authentication
-// Supports multiple authentication providers (email/password, Google, Apple)
-// ============================================================================
-
-// USER ROLES ENUM
-// ---------------
-enum UserRole {
-  GUEST      // Unauthenticated users (default)
-  HOMEOWNER  // Residential customers requesting quotes
-  INSTALLER  // Solar installers purchasing leads
-  ADMIN      // System administrators
-}
-
-// LEAD QUOTE TYPE ENUM
-// --------------------
-// Differentiates between Call/Visit and Written Quote allocations
-enum LeadQuoteType {
-  CALL_VISIT
-  WRITTEN_QUOTE
-}
-
-// MAIN USER MODEL
-// ---------------
 model User {
-  // PRIMARY KEY
-  id            String    @id @default(cuid())
-  
-  // CORE AUTHENTICATION
-  email         String    @unique
-  emailVerified DateTime?
-  password      String?   // Hashed with bcrypt (null for OAuth-only users)
-  
-  // USER ROLE & STATUS
-  role          UserRole  @default(HOMEOWNER)
-  isActive      Boolean   @default(true)
-  
-  // PROFILE INFO (Common to all users)
-  name          String?   // Full name for homeowners, contact name for installers
-  phone         String?
-  image         String?   // Profile picture URL
-  
-  // INSTALLER-SPECIFIC FIELDS
-  companyName       String?  // Company name (installers only)
-  businessAddress   String?  // Business address (installers only)
-  postcode          String?  // Business postcode (installers only)
-  
-  // LEAD JOURNEY FIELDS
-  phoneVerified         Boolean  @default(false)     // Phone verified via OTP
-  leadSubmissionCount   Int      @default(0)         // Number of leads submitted by homeowner
-  leadSubmissionLimit   Int      @default(5)         // Per-homeowner submission cap (admin adjustable)
-  installerVerified     Boolean  @default(false)     // Installer verified (documents approved)
-  
-  // TIMESTAMPS
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  lastLoginAt   DateTime?
-  
-  // RELATIONS - Authentication
-  accounts      Account[]
-  sessions      Session[]
-  
-  // RELATIONS - Lead Journey System
-  leadsAsHomeowner    Lead[]                @relation("homeowner_leads")
-  leadsAsInstaller    Lead[]                @relation("installer_leads")
-  quotesAsInstaller   Quote[]               @relation("installer_quotes")
+  id                  String              @id @default(cuid())
+  email               String              @unique
+  emailVerified       DateTime?
+  password            String?
+  role                UserRole            @default(HOMEOWNER)
+  isActive            Boolean             @default(true)
+  name                String?
+  phone               String?
+  image               String?
+  companyName         String?
+  businessAddress     String?
+  postcode            String?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  lastLoginAt         DateTime?
+  installerVerified   Boolean             @default(false)
+  leadSubmissionCount Int                 @default(0)
+  phoneVerified       Boolean             @default(false)
+  leadSubmissionLimit Int                 @default(5)
+  accounts            Account[]
+  leadsAsHomeowner    Lead[]              @relation("homeowner_leads")
+  leadsAsInstaller    Lead[]              @relation("installer_leads")
   phoneVerifications  PhoneVerification[]
-  
-  @@map("users")
+  quotesAsInstaller   Quote[]             @relation("installer_quotes")
+  sessions            Session[]
+
   @@index([email])
   @@index([role])
+  @@map("users")
 }
 
-// NEXTAUTH ACCOUNT MODEL (OAuth Providers)
-// ----------------------------------------
-// Stores OAuth provider info (Google, Apple, etc.)
 model Account {
   id                String  @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
 }
 
-// NEXTAUTH SESSION MODEL
-// ----------------------
-// Stores active user sessions
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique
@@ -465,9 +135,6 @@ model Session {
   @@map("sessions")
 }
 
-// NEXTAUTH VERIFICATION TOKEN MODEL
-// ----------------------------------
-// For email verification and password reset
 model VerificationToken {
   identifier String
   token      String   @unique
@@ -477,168 +144,54 @@ model VerificationToken {
   @@map("verification_tokens")
 }
 
-// ============================================================================
-// WHAT THIS AUTHENTICATION SYSTEM ENABLES
-// ============================================================================
-// 1. Multiple Login Methods:
-//    - Email/Password (stored securely with bcrypt)
-//    - Google OAuth
-//    - Apple OAuth
-//
-// 2. Role-Based Access Control:
-//    - Homeowners: Create quote requests, view their requests
-//    - Installers: View lead feed, purchase leads, manage purchased leads
-//    - Admins: View all data, manage users, moderate content
-//
-// 3. Session Management:
-//    - Secure JWT-based sessions
-//    - Automatic session expiry
-//    - Track last login time
-//
-// 4. Account Flexibility:
-//    - Users can link multiple OAuth providers to one account
-//    - Soft delete with isActive flag
-//    - Email verification support
-// ============================================================================
-
-// ============================================================================
-// LEAD JOURNEY & LIFE CYCLE SYSTEM
-// ============================================================================
-// This section implements the complete lead management system:
-// - Lead creation, verification, and status tracking
-// - Real-time chat between homeowners and installers
-// - Quote management with pricing and attachments
-// - Payment processing via Stripe
-// - Feedback collection and audit logging
-// ============================================================================
-
-// LEAD STATUS ENUM
-// ----------------
-// Tracks the current state of a lead through its lifecycle
-enum LeadStatus {
-  DRAFT              // Initial creation, not yet submitted
-  PENDING_PHONE      // Awaiting phone verification (OTP)
-  PENDING_APPROVAL   // Awaiting admin approval
-  APPROVED           // Approved by admin, visible to installers
-  PURCHASED          // Purchased by an installer
-  QUOTED             // Installer sent quote(s)
-  ACCEPTED           // Homeowner accepted a quote
-  REJECTED           // Homeowner rejected all quotes
-  EXPIRED            // Lead expired (no action within time limit)
-  CANCELLED          // Homeowner cancelled the lead
-  FLAGGED            // Flagged for admin review
-}
-
-// LEAD VISIBILITY ENUM
-// --------------------
-// Controls who can see the lead in the feed
-enum LeadVisibility {
-  HIDDEN    // Not visible to anyone (draft, flagged, etc.)
-  PUBLIC    // Visible to all verified installers
-  PRIVATE   // Only visible to specific installers (future feature)
-}
-
-// PURCHASE STATUS ENUM
-// --------------------
-// Tracks payment status for lead purchases
-enum PurchaseStatus {
-  PENDING    // Payment initiated but not confirmed
-  COMPLETED  // Payment successful
-  FAILED     // Payment failed
-  REFUNDED   // Payment refunded
-}
-
-// NOTIFICATION TYPE ENUM
-// ----------------------
-// Different types of real-time notifications
-enum NotificationType {
-  NEW_LEAD           // New lead available in feed (installers)
-  LEAD_PURCHASED     // Your lead was purchased (homeowners)
-  LEAD_APPROVED      // Your lead was approved (homeowners)
-  LEAD_REJECTED      // Your lead was rejected (homeowners)
-  NEW_QUOTE          // New quote received (homeowners)
-  NEW_MESSAGE        // New chat message
-  QUOTE_ACCEPTED     // Your quote was accepted (installers)
-  QUOTE_REJECTED     // Your quote was rejected (installers)
-  PAYMENT_RECEIVED   // Payment confirmation
-  SYSTEM             // System announcements
-}
-
-// MAIN LEAD MODEL
-// ---------------
-// Core model for all lead requests created by homeowners
 model Lead {
-  id            String         @id @default(cuid())
-  
-  // HOMEOWNER RELATIONSHIP
-  homeownerId   String
-  homeowner     User           @relation("homeowner_leads", fields: [homeownerId], references: [id], onDelete: Cascade)
-  quoteType     LeadQuoteType  @default(CALL_VISIT)
-  
-  // INSTALLER RELATIONSHIP (Set when lead is purchased)
-  installerId   String?
-  installer     User?          @relation("installer_leads", fields: [installerId], references: [id], onDelete: SetNull)
-  
-  // LEAD STATUS & VISIBILITY
-  status        LeadStatus     @default(DRAFT)
-  visibility    LeadVisibility @default(HIDDEN)
-  
-  // PHONE VERIFICATION
-  phoneVerified Boolean        @default(false)
-  phoneNumber   String?        // E.164 format (+447700900123)
-  
-  // PROJECT DETAILS
-  projectType   String         // residential, commercial
-  propertyType  String         // house, apartment, business, etc.
-  postcode      String
-  location      String         // Suburb/town name
-  state         String         // NSW, VIC, QLD, etc.
-  address       String?        // Full address (optional until approved)
-  
-  // ENERGY & REQUIREMENTS
-  energyBill    Float          // Current quarterly bill in £
-  billType      String         // quarterly, monthly
-  roofType      String
-  budgetRange   String
-  desiredOffset Int            // % of bill to offset (0-100)
-  
-  // PREFERENCES
-  batteryRequired    Boolean   @default(false)
-  batteryCapacity    String?   // 5kWh, 10kWh, etc.
-  timeframe         String?    // urgent, within_3_months, etc.
-  additionalNotes   String?    @db.Text
-  
-  // QUOTE DATA (Phase 4.5: Complete instant quote calculation data)
-  quoteData     Json?          @db.JsonB  // Stores complete InstantQuoteForm data + calculations
-  
-  // TIMESTAMPS
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  approvedAt    DateTime?
-  purchasedAt   DateTime?
-  expiresAt     DateTime?      // Lead expiry date (30 days after approval)
-  
-  // ADMIN MODERATION
-  adminNotes    String?        @db.Text
-  flaggedReason String?        @db.Text
-  moderatedBy   String?        // Admin user ID
-  moderatedAt   DateTime?
-  
-  // PRICING
-  leadPrice     Float?         // Price in £ for installers to purchase
-  
-  // PURCHASE DETAILS
-  purchaseStatus PurchaseStatus?
-  stripePaymentIntentId String?  // Stripe payment ID
-  
-  // RELATIONS
-  documents        InstallDocument[]
-  chatMessages     ChatMessage[]
-  quotes           Quote[]
-  feedback         LeadFeedback[]
-  auditLogs        AuditLog[]
-  
-  @@map("leads")
+  id                    String            @id @default(cuid())
+  homeownerId           String
+  installerId           String?
+  status                LeadStatus        @default(DRAFT)
+  visibility            LeadVisibility    @default(HIDDEN)
+  phoneVerified         Boolean           @default(false)
+  phoneNumber           String?
+  projectType           String
+  propertyType          String
+  postcode              String
+  location              String
+  state                 String
+  address               String?
+  energyBill            Float
+  billType              String
+  roofType              String
+  budgetRange           String
+  desiredOffset         Int
+  batteryRequired       Boolean           @default(false)
+  batteryCapacity       String?
+  timeframe             String?
+  additionalNotes       String?
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+  approvedAt            DateTime?
+  purchasedAt           DateTime?
+  expiresAt             DateTime?
+  cancelledAt           DateTime?
+  cancelledReason       String?
+  cancelledBy           String?
+  adminNotes            String?
+  flaggedReason         String?
+  moderatedBy           String?
+  moderatedAt           DateTime?
+  leadPrice             Float?
+  purchaseStatus        PurchaseStatus?
+  stripePaymentIntentId String?
+  quoteData             Json?
+  quoteType             LeadQuoteType     @default(CALL_VISIT)
+  auditLogs             AuditLog[]
+  chatMessages          ChatMessage[]
+  documents             InstallDocument[]
+  feedback              LeadFeedback?
+  homeowner             User              @relation("homeowner_leads", fields: [homeownerId], references: [id], onDelete: Cascade)
+  installer             User?             @relation("installer_leads", fields: [installerId], references: [id])
+  quotes                Quote[]
+
   @@index([homeownerId])
   @@index([installerId])
   @@index([status])
@@ -648,291 +201,222 @@ model Lead {
   @@index([state])
   @@index([createdAt])
   @@index([expiresAt])
+  @@map("leads")
 }
 
-// PHONE VERIFICATION MODEL
-// ------------------------
-// Tracks OTP verification attempts for lead submission
 model PhoneVerification {
   id              String    @id @default(cuid())
-  
-  // USER RELATIONSHIP (Who is verifying)
-  userId          String
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  // VERIFICATION DETAILS
-  phoneNumber     String    // E.164 format
-  code            String    // Hashed OTP code
-  verificationSid String?   // Twilio Verify SID (optional)
-  
-  // STATUS
-  status          String    @default("PENDING") // PENDING, VERIFIED, EXPIRED, FAILED
-  attempts        Int       @default(0)  // Max 3 attempts
+  phoneNumber     String
+  verificationSid String?
+  attempts        Int       @default(0)
   lastAttemptAt   DateTime?
   verifiedAt      DateTime?
-  
-  // TIMESTAMPS
   createdAt       DateTime  @default(now())
-  expiresAt       DateTime  // OTP expires after 10 minutes
-  
-  @@map("phone_verifications")
+  expiresAt       DateTime
+  code            String
+  status          String    @default("PENDING")
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([phoneNumber])
   @@index([userId])
   @@index([status])
+  @@map("phone_verifications")
 }
 
-// INSTALLER VERIFICATION DOCUMENTS MODEL
-// --------------------------------------
-// Stores S3 keys for installer verification documents
 model InstallDocument {
-  id          String    @id @default(cuid())
-  
-  // LEAD RELATIONSHIP
-  leadId      String
-  lead        Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  
-  // DOCUMENT DETAILS
-  documentType String   // insurance_certificate, license, etc.
+  id           String   @id @default(cuid())
+  leadId       String
+  documentType String
   fileName     String
-  fileSize     Int      // Size in bytes
-  contentType  String   // MIME type (application/pdf, image/jpeg, etc.)
-  s3Key        String   // S3 object key
-  
-  // STATUS
-  uploadedBy   String   // User ID (installer)
+  fileSize     Int
+  contentType  String
+  s3Key        String
+  uploadedBy   String
   uploadedAt   DateTime @default(now())
-  
-  @@map("install_documents")
+  lead         Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
   @@index([leadId])
+  @@map("install_documents")
 }
 
-// CHAT MESSAGE MODEL
-// ------------------
-// Real-time chat between homeowners and installers
 model ChatMessage {
-  id          String    @id @default(cuid())
-  
-  // LEAD RELATIONSHIP
-  leadId      String
-  lead        Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  
-  // MESSAGE DETAILS
-  senderId    String    // User ID (homeowner or installer)
-  senderRole  UserRole  // HOMEOWNER or INSTALLER
-  message     String    @db.Text
-  
-  // METADATA
-  isRead      Boolean   @default(false)
-  readAt      DateTime?
-  
-  // TIMESTAMPS
-  createdAt   DateTime  @default(now())
-  
-  @@map("chat_messages")
+  id         String    @id @default(cuid())
+  leadId     String
+  senderId   String
+  senderRole UserRole
+  message    String
+  isRead     Boolean   @default(false)
+  readAt     DateTime?
+  createdAt  DateTime  @default(now())
+  lead       Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
   @@index([leadId])
   @@index([senderId])
   @@index([createdAt])
+  @@map("chat_messages")
 }
 
-// QUOTE MODEL
-// -----------
-// Quotes submitted by installers for purchased leads
 model Quote {
   id               String    @id @default(cuid())
-  
-  // LEAD RELATIONSHIP
   leadId           String
-  lead             Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  
-  // INSTALLER DETAILS
   installerId      String
-  installer        User      @relation("installer_quotes", fields: [installerId], references: [id], onDelete: Cascade)
-  
-  // QUOTE DETAILS
-  quoteType        QuoteType // FORMAL or INFORMAL
-  systemSize       Float     // kW
+  quoteType        QuoteType
+  systemSize       Float
   panelBrand       String?
   inverterBrand    String?
   batteryBrand     String?
-  batteryCapacity  Float?    // kWh
-  
-  // PRICING
-  totalPrice       Float     // Total project cost in £
-  federalRebate    Float?    // Government rebates
+  batteryCapacity  Float?
+  totalPrice       Float
+  federalRebate    Float?
   stateRebate      Float?
-  finalPrice       Float     // After rebates
-  
-  // DETAILS
-  description      String?   @db.Text
-  paybackYears     Float?    // Estimated payback period
-  annualSavings    Float?    // Estimated annual savings
-  warranty         String?   // Warranty details
-  installTimeline  String?   // Installation timeframe
-  
-  // ATTACHMENTS
-  attachmentS3Keys String[]  // Array of S3 keys for quote PDFs/images
-  
-  // STATUS
-  status           String    @default("pending")  // pending, accepted, rejected
+  finalPrice       Float
+  description      String?
+  paybackYears     Float?
+  annualSavings    Float?
+  warranty         String?
+  installTimeline  String?
+  attachmentS3Keys String[]
+  status           String    @default("pending")
   acceptedAt       DateTime?
   rejectedAt       DateTime?
-  rejectionReason  String?   @db.Text
-  
-  // TIMESTAMPS
+  rejectionReason  String?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
-  expiresAt        DateTime  // Quote validity period (30 days)
-  
-  @@map("quotes")
+  expiresAt        DateTime
+  installer        User      @relation("installer_quotes", fields: [installerId], references: [id], onDelete: Cascade)
+  lead             Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
   @@index([leadId])
   @@index([installerId])
   @@index([status])
   @@index([createdAt])
+  @@map("quotes")
 }
 
-// QUOTE TYPE ENUM
-// ---------------
-enum QuoteType {
-  FORMAL      // Detailed formal quote with full breakdown
-  INFORMAL    // Quick estimate/ballpark figure
-}
-
-// LEAD FEEDBACK MODEL
-// -------------------
-// Homeowner feedback after lead completion
 model LeadFeedback {
-  id            String    @id @default(cuid())
-  
-  // LEAD RELATIONSHIP
-  leadId        String    @unique
-  lead          Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  
-  // RATINGS (1-5 stars)
-  overallRating       Int  // Overall experience
-  communicationRating Int? // Installer communication
-  timelinessRating    Int? // Response time
-  professionalismRating Int? // Professionalism
-  
-  // FEEDBACK TEXT
-  comments      String?   @db.Text
-  wouldRecommend Boolean?
-  
-  // TIMESTAMPS
-  createdAt     DateTime  @default(now())
-  
-  @@map("lead_feedback")
+  id                    String   @id @default(cuid())
+  leadId                String   @unique
+  overallRating         Int
+  communicationRating   Int?
+  timelinessRating      Int?
+  professionalismRating Int?
+  comments              String?
+  wouldRecommend        Boolean?
+  createdAt             DateTime @default(now())
+  lead                  Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
   @@index([leadId])
   @@index([overallRating])
+  @@map("lead_feedback")
 }
 
-// AUDIT LOG MODEL
-// ---------------
-// Tracks all important actions for compliance and debugging
 model AuditLog {
-  id          String    @id @default(cuid())
-  
-  // RELATED ENTITIES
-  leadId      String?
-  lead        Lead?     @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  userId      String?   // User who performed the action
-  
-  // ACTION DETAILS
-  action      String    // lead_created, lead_approved, quote_submitted, etc.
-  entityType  String    // lead, quote, chat_message, etc.
-  entityId    String?   // ID of the affected entity
-  
-  // METADATA
-  metadata    Json?     // Additional context (old values, new values, etc.)
-  ipAddress   String?
-  userAgent   String?
-  
-  // TIMESTAMPS
-  createdAt   DateTime  @default(now())
-  
-  @@map("audit_logs")
+  id         String   @id @default(cuid())
+  leadId     String?
+  userId     String?
+  action     String
+  entityType String
+  entityId   String?
+  metadata   Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  lead       Lead?    @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
   @@index([leadId])
   @@index([userId])
   @@index([action])
   @@index([createdAt])
+  @@map("audit_logs")
 }
 
-// NOTIFICATION MODEL
-// ------------------
-// Real-time notifications for users (delivered via Pusher)
 model Notification {
-  id            String           @id @default(cuid())
-  
-  // USER RELATIONSHIP
-  userId        String
-  
-  // NOTIFICATION DETAILS
-  type          NotificationType
-  title         String
-  message       String           @db.Text
-  actionUrl     String?          // Link to relevant page
-  
-  // METADATA
-  metadata      Json?            // Additional data (leadId, quoteId, etc.)
-  isRead        Boolean          @default(false)
-  readAt        DateTime?
-  
-  // TIMESTAMPS
-  createdAt     DateTime         @default(now())
-  
-  @@map("notifications")
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  actionUrl String?
+  metadata  Json?
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
   @@index([userId])
   @@index([type])
   @@index([isRead])
   @@index([createdAt])
+  @@map("notifications")
 }
 
-// SYSTEM SETTINGS MODEL
-// ---------------------
-// Configurable system settings (lead prices, timeouts, etc.)
 model Settings {
-  id          String    @id @default(cuid())
-  
-  // SETTING KEY-VALUE
-  key         String    @unique  // lead_price_default, lead_expiry_days, etc.
-  value       String    // Stored as string, parsed in code
-  description String?   @db.Text
-  
-  // METADATA
-  updatedBy   String?   // Admin user ID
-  updatedAt   DateTime  @updatedAt
-  createdAt   DateTime  @default(now())
-  
-  @@map("settings")
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String
+  description String?
+  updatedBy   String?
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+
   @@index([key])
+  @@map("settings")
 }
 
-// ============================================================================
-// WHAT THIS LEAD SYSTEM ENABLES
-// ============================================================================
-// 1. Complete Lead Lifecycle:
-//    - Homeowner creates lead → Phone verification → Admin approval
-//    - Lead appears in feed → Installer purchases → Real-time chat
-//    - Installer submits quotes → Homeowner accepts → Feedback collection
-//
-// 2. Real-Time Communication:
-//    - Chat between homeowner and installer (via Pusher)
-//    - Instant notifications for all state changes
-//    - Email notifications as async fallback (via SendGrid)
-//
-// 3. Payment Processing:
-//    - Stripe payment intents for lead purchases
-//    - Webhook verification for payment confirmation
-//    - Refund support if lead is fraudulent
-//
-// 4. Security & Compliance:
-//    - Phone verification prevents spam
-//    - Admin moderation before leads go live
-//    - Complete audit trail of all actions
-//    - Document verification for installers
-//
-// 5. Analytics & Insights:
-//    - Track conversion rates (leads → purchases → quotes → acceptances)
-//    - Monitor response times and communication quality
-//    - Collect feedback for continuous improvement
-//    - Audit logs for debugging and compliance
-// ============================================================================
+enum UserRole {
+  GUEST
+  HOMEOWNER
+  INSTALLER
+  ADMIN
+}
+
+enum LeadQuoteType {
+  CALL_VISIT
+  WRITTEN_QUOTE
+  BIDDING
+}
+
+enum LeadStatus {
+  DRAFT
+  PENDING_PHONE
+  PENDING_APPROVAL
+  APPROVED
+  PURCHASED
+  QUOTED
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  CANCELLED
+  FLAGGED
+}
+
+enum LeadVisibility {
+  HIDDEN
+  PUBLIC
+  PRIVATE
+}
+
+enum PurchaseStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum NotificationType {
+  NEW_LEAD
+  LEAD_PURCHASED
+  LEAD_APPROVED
+  LEAD_REJECTED
+  NEW_QUOTE
+  NEW_MESSAGE
+  QUOTE_ACCEPTED
+  QUOTE_REJECTED
+  PAYMENT_RECEIVED
+  SYSTEM
+}
+
+enum QuoteType {
+  FORMAL
+  INFORMAL
+}

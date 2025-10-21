@@ -171,8 +171,8 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
       additionalNotes: input.additionalNotes,
       leadPrice: defaultPrice,
       expiresAt,
-      status: LeadStatus.DRAFT, // Start as DRAFT until phone verified
-      visibility: LeadVisibility.HIDDEN, // Hidden until approved by admin
+      status: LeadStatus.PENDING_APPROVAL, // Show in dashboards immediately, awaiting admin approval
+      visibility: LeadVisibility.PENDING, // Visible to homeowner/admin, hidden from installers until approved
       quoteData: input.quoteData || null, // Phase 4.5: Store complete instant quote data
     },
     include: {

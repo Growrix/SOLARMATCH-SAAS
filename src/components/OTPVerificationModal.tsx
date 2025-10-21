@@ -67,9 +67,9 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
       const diff = Math.max(0, expiry - now);
       let remaining = Math.floor(diff / 1000); // seconds
       
-      // In development, if time is expired or invalid, set to 10 minutes (600 seconds)
-      if (process.env.NODE_ENV === 'development' && remaining === 0) {
-        console.log('[OTP Modal] Date parsing issue detected, using 10 min default for dev mode');
+      // If time is expired or invalid, set to 10 minutes (600 seconds) as fallback
+      if (remaining === 0) {
+        console.log('[OTP Modal] Date parsing issue detected, using 10 min default');
         remaining = 600; // 10 minutes
       }
       

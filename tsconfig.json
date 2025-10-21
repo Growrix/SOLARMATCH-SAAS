@@ -3,8 +3,9 @@
     "lib": [
       "dom",
       "dom.iterable",
-      "es6"
+      "es2020"
     ],
+    "types": ["node"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -37,6 +38,8 @@
   ],
   "exclude": [
     "node_modules",
-    "solarmatch_SOT"
+    "solarmatch_SOT",
+    "prisma/seed-admin.ts",
+    "prisma/seed-settings.ts"
   ]
 }

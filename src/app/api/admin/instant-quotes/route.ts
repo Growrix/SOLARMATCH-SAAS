@@ -319,7 +319,7 @@ export async function GET(request: Request) {
     return NextResponse.json(
       {
         error: 'Failed to fetch quote data',
-        details: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined,
+        details: (error as Error).message,
       },
       { status: 500 }
     );

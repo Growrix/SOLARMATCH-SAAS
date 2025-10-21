@@ -246,7 +246,7 @@ const AdminSidebar: React.FC<{
 // Development Quick Access Menu (Admin Dashboard Navigation)
 const DevQuickAccessMenu: React.FC = () => {
   const [isOpen, setIsOpen] = React.useState(false);
-  const isDevelopment = process.env.NODE_ENV === 'development';
+  const isDevelopment = typeof window !== 'undefined' && window.location.hostname === 'localhost';
   
   if (!isDevelopment) return null;
 
