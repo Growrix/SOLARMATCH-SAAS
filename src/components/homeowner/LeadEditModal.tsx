@@ -70,9 +70,15 @@ export default function LeadEditModal({
           state: formData.state,
           propertyType: formData.propertyType || formData.quoteType || 'residential',
           
-          // Energy usage
-          energyBill: Number(formData.electricityValue || formData.energyBill),
-          billType: formData.electricityUsageType || formData.billType,
+          // Energy usage - CRITICAL: energyBill is required in database
+          energyBill: (() => {
+            const value = Number(formData.electricityValue) || Number(formData.energyBill);
+            if (!value || isNaN(value)) {
+              throw new Error('Energy bill value is required but missing from form data');
+            }
+            return value;
+          })(),
+          billType: formData.electricityUsageType || formData.billType || 'monthly',
           
           // Property details
           roofType: formData.roofType,

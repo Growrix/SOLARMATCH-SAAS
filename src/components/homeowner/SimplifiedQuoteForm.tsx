@@ -1816,7 +1816,14 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
               <button 
-                onClick={() => onSubmit(quoteResult)} 
+                onClick={() => onSubmit({
+                  ...quoteResult,
+                  // Include all form data so parent can update database
+                  ...formData,
+                  electricityValue,
+                  electricityUsageType,
+                  quoteType
+                })} 
                 disabled={isLoading}
                 className="bg-primary text-white px-8 py-3 rounded-xl font-semibold hover:bg-teal-700 transition-all transform hover:scale-105 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
