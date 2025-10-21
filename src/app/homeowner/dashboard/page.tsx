@@ -9,6 +9,7 @@ import { useTheme, type Theme } from '@/components/ThemeProvider';
 import HomeownerBottomNavBar from '@/components/HomeownerBottomNavBar';
 import HomeownerMobileSidebarMenu from '@/components/HomeownerMobileSidebarMenu';
 import NewQuoteRequestModal from '@/components/NewQuoteRequestModal';
+import SimplifiedQuoteFormModal from '@/components/homeowner/SimplifiedQuoteFormModal';
 import QuoteOptionsModal from '@/components/QuoteOptionsModal';
 import MessagingModal from '@/components/MessagingModal';
 import ProfileManagement from '@/components/ProfileManagement';
@@ -609,6 +610,7 @@ export default function HomeownerDashboardPage() {
   
   // Modal states
   const [isNewQuoteModalOpen, setIsNewQuoteModalOpen] = useState(false);
+  const [isSimplifiedQuoteModalOpen, setIsSimplifiedQuoteModalOpen] = useState(false);
   const [isQuoteOptionsModalOpen, setIsQuoteOptionsModalOpen] = useState(false);
   const [isMessagingModalOpen, setIsMessagingModalOpen] = useState(false);
   const [showContactVerificationModal, setShowContactVerificationModal] = useState(false);
@@ -702,6 +704,15 @@ export default function HomeownerDashboardPage() {
     fetchDashboardSummary();
   }, [fetchDashboardSummary]);
 
+  // Debug: Log modal states
+  useEffect(() => {
+    console.log('[Modal States]', {
+      isNewQuoteModalOpen,
+      isSimplifiedQuoteModalOpen,
+      isQuoteOptionsModalOpen,
+    });
+  }, [isNewQuoteModalOpen, isSimplifiedQuoteModalOpen, isQuoteOptionsModalOpen]);
+
   // Scroll logic for header visibility
   useEffect(() => {
     const handleScroll = () => {
@@ -741,7 +752,14 @@ export default function HomeownerDashboardPage() {
       return;
     }
 
-    setIsNewQuoteModalOpen(true);
+    // Check if this is the first quote (0 submissions) or subsequent quotes
+    if (dashboardSummary.totalSubmitted === 0) {
+      // First quote: Show InstantQuoteForm (multi-step modal)
+      setIsNewQuoteModalOpen(true);
+    } else {
+      // Subsequent quotes: Show SimplifiedQuoteForm (single-page pre-filled form)
+      setIsSimplifiedQuoteModalOpen(true);
+    }
   };
 
   const handleMessagesClick = () => {
@@ -767,17 +785,35 @@ export default function HomeownerDashboardPage() {
     const updatedSummary = await fetchDashboardSummary();
     setQuoteFormInitialData(getLatestQuoteData(updatedSummary ?? dashboardSummary));
     
-    // Show success message or open quote modal
-    setIsNewQuoteModalOpen(true);
+    // Check if this is the first quote or subsequent quotes
+    if ((updatedSummary ?? dashboardSummary)?.totalSubmitted === 0) {
+      setIsNewQuoteModalOpen(true);
+    } else {
+      setIsSimplifiedQuoteModalOpen(true);
+    }
   };
 
   const handleRequestMoreQuotes = () => {
+    console.log('[handleRequestMoreQuotes] Dashboard Summary:', dashboardSummary);
+    console.log('[handleRequestMoreQuotes] totalSubmitted:', dashboardSummary?.totalSubmitted);
+    console.log('[handleRequestMoreQuotes] Condition check (totalSubmitted === 0):', dashboardSummary?.totalSubmitted === 0);
+    
     setQuoteFormInitialData(getLatestQuoteData(dashboardSummary ?? null));
 
     if (dashboardSummary?.requiresVerification) {
+      console.log('[handleRequestMoreQuotes] → Opening ContactVerificationModal (verification required)');
       setShowContactVerificationModal(true);
     } else {
-      setIsNewQuoteModalOpen(true);
+      // Check if this is the first quote (0 submissions) or subsequent quotes
+      if (dashboardSummary?.totalSubmitted === 0) {
+        // First quote: Show InstantQuoteForm (multi-step modal)
+        console.log('[handleRequestMoreQuotes] → Opening InstantQuoteForm (first quote, totalSubmitted = 0)');
+        setIsNewQuoteModalOpen(true);
+      } else {
+        // Subsequent quotes: Show SimplifiedQuoteForm (single-page pre-filled form)
+        console.log('[handleRequestMoreQuotes] → Opening SimplifiedQuoteForm (returning user, totalSubmitted =', dashboardSummary?.totalSubmitted, ')');
+        setIsSimplifiedQuoteModalOpen(true);
+      }
     }
   };
 
@@ -993,6 +1029,20 @@ export default function HomeownerDashboardPage() {
           setIsNewQuoteModalOpen(false);
           // Navigate to detailed quote page or show detailed quote form
           setActivePage('Quote Requests');
+        }}
+        initialData={quoteFormInitialData}
+      />
+
+      {/* SimplifiedQuoteFormModal for returning users (1+ quotes) */}
+      <SimplifiedQuoteFormModal
+        isOpen={isSimplifiedQuoteModalOpen}
+        onClose={() => setIsSimplifiedQuoteModalOpen(false)}
+        onSubmit={(data) => {
+          console.log('Simplified quote form submitted:', data);
+          // Store quote data and open QuoteOptionsModal to select quote type
+          setPendingQuoteData(data);
+          setIsSimplifiedQuoteModalOpen(false);
+          setIsQuoteOptionsModalOpen(true);
         }}
         initialData={quoteFormInitialData}
       />
