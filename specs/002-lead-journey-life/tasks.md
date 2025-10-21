@@ -2697,4 +2697,363 @@ All can work in parallel after Foundational phase completes.
 
 ---
 
+## Phase 4.11: Enhanced Homeowner Quote Request Flow (Priority: P1) 🎯 ACTIVE (Persona: Homeowner)
+
+**Goal**: Enable homeowners with existing leads to request additional quotes through a streamlined prefilled form, with quote type distribution modal supporting BIDDING (1x limit), CALL_VISIT, and WRITTEN_QUOTE. Add full CRUD operations (Edit, Update, Cancel, Preview) for leads before admin approval or installer action.
+
+**Context**: After Phase 4.10 fix (guest flow working, leads appearing in dashboards), users now have 1 lead. They need ability to:
+1. Request more quotes using prefilled form (not multi-step)
+2. Distribute quote types within remaining balance (BIDDING limited to 1)
+3. Edit/update leads before admin approval
+4. Cancel leads before installer purchase
+5. Preview approved leads in read-only mode
+
+**User Journey**:
+```
+Homeowner Dashboard (1 lead exists, 4 remaining)
+  ↓
+Click "Request More Quotes" button
+  ↓
+Pre-filled InstantQuoteForm opens (single-page, not multi-step)
+  - Fetches data from most recent lead's quoteData
+  - All fields editable
+  - Click "Calculate" → Shows results
+  ↓
+Click "Request Quote" button
+  ↓
+QuoteTypeDistributionModal opens
+  - BIDDING: 0/1 (trophy icon) - max 1 total per homeowner lifetime
+  - CALL_VISIT: 0-4 (phone icon) - unlimited within balance
+  - WRITTEN_QUOTE: 0-4 (document icon) - unlimited within balance
+  - Shows remaining balance: 4
+  - Validates: total <= remaining, bidding <= 1
+  ↓
+User selects: 1 BIDDING + 2 CALL_VISIT + 1 WRITTEN_QUOTE = 4 total
+  ↓
+Click "Submit Requests"
+  ↓
+4 separate leads created, dashboard refreshes
+  - Remaining balance: 0/5
+
+Dashboard Lead Cards (existing leads):
+  - Before Admin Approval: [Edit] [Cancel] buttons
+  - After Admin Approval: [Preview] button (read-only)
+  - After Installer Purchase: No action buttons
+```
+
+### Phase 4.11 Pre-Implementation Audit
+
+**Current State Analysis**:
+- ✅ InstantQuoteForm exists (src/components/InstantQuoteForm.tsx) - multi-step, complex
+- ✅ QuoteTypeDistributionModal exists (src/components/homeowner/QuoteTypeDistributionModal.tsx) - basic structure
+- ✅ Lead model has quoteData field (JsonB) - stores full instant quote data
+- ✅ Lead model has quoteType enum (CALL_VISIT, WRITTEN_QUOTE, BIDDING) - ready for distribution
+- ✅ Lead model has cancelledAt, cancelledReason, cancelledBy fields - Phase 4.10 migration
+- ✅ POST /api/leads route exists - creates leads with validation
+- ❌ No lead edit/update functionality
+- ❌ No lead cancellation functionality  
+- ❌ No lead preview modal
+- ❌ No simplified single-page quote form
+- ❌ No tracking of BIDDING lead count per homeowner
+- ❌ Price (leadPrice) visible to homeowners in dashboard (should be hidden)
+
+**Required Schema Changes**:
+```prisma
+model User {
+  // Add bidding lead tracking
+  biddingLeadsSubmitted Int @default(0) // Track how many BIDDING leads user has created
+}
+```
+
+**API Endpoints Needed**:
+- PATCH /api/leads/[id] - Update lead (before admin approval only)
+- PATCH /api/leads/[id]/cancel - Cancel lead (before installer purchase only)
+- GET /api/leads/[id]/preview - Get lead details for preview modal
+
+**UI Components Needed**:
+1. SimplifiedQuoteForm - Single-page version of InstantQuoteForm (no steps)
+2. LeadEditModal - Uses SimplifiedQuoteForm for editing
+3. LeadPreviewModal - Read-only view of lead with all inputs + results
+4. QuoteTypeDistributionModal enhancements:
+   - Add BIDDING option with trophy icon
+   - Add icons for CALL_VISIT (phone) and WRITTEN_QUOTE (document)
+   - Add bidding limit validation (1 per homeowner)
+   - Remove price display from quote cards
+5. Dashboard lead card enhancements:
+   - Add Edit/Cancel buttons (conditional)
+   - Add Preview button (conditional)
+   - Remove price display
+
+### Phase 4.11 Implementation Tasks
+
+#### Schema & Database
+- [ ] **T255** [P] [US1] Add `biddingLeadsSubmitted Int @default(0)` to User model in `prisma/schema.prisma` to track BIDDING lead usage per homeowner
+- [ ] **T256** [Foundation] Run migration: `npx prisma migrate dev --name add-bidding-tracking`
+- [ ] **T257** [Foundation] Generate Prisma Client: `npx prisma generate`
+
+#### Services & Business Logic
+- [ ] **T258** [P] [US1] Create `canEditLead(leadId, userId)` function in `src/lib/services/lead-service.ts` - returns boolean, checks if lead status allows editing (DRAFT, PENDING_PHONE, PENDING_APPROVAL only)
+  - Validation: Lead must belong to user, status must be pre-approval, not purchased
+  - Returns: `{ canEdit: boolean, reason?: string }`
+
+- [ ] **T259** [P] [US1] Create `updateLead(leadId, userId, updateData)` function in `lead-service.ts` - updates lead with new quote data, validates ownership and edit permissions
+  - Validates: User owns lead, lead is editable (via canEditLead)
+  - Updates: quoteData, propertyPostcode, location, state, energyBill, roofType, etc.
+  - Audit: Logs update action with before/after diff
+  - Returns: Updated lead object
+
+- [ ] **T260** [P] [US1] Create `canCancelLead(leadId, userId)` function in `lead-service.ts` - checks if lead can be cancelled (not purchased, not accepted)
+  - Validation: Lead not in PURCHASED, ACCEPTED, EXPIRED, CANCELLED states
+  - Returns: `{ canCancel: boolean, reason?: string }`
+
+- [ ] **T261** [P] [US1] Create `cancelLead(leadId, userId, reason)` function in `lead-service.ts` - cancels lead, restores quota, updates user's leadSubmissionCount
+  - Validates: User owns lead, lead is cancellable (via canCancelLead)
+  - Updates: status → CANCELLED, cancelledAt → now, cancelledReason, cancelledBy → userId
+  - Quota: Decrements user.leadSubmissionCount (restores 1 quota)
+  - Bidding: If quoteType === BIDDING, decrements user.biddingLeadsSubmitted
+  - Audit: Logs cancellation action
+  - Notification: Notifies admin of cancellation
+  - Returns: Success status + restored quota info
+
+- [ ] **T262** [P] [US1] Update `createLead()` in `lead-service.ts` to check and enforce BIDDING limit
+  - Before creating BIDDING lead: Check if user.biddingLeadsSubmitted >= 1
+  - If limit reached: Return error `{ error: 'BIDDING_LIMIT_REACHED', message: 'You have already used your one-time bidding quote' }`
+  - After successful BIDDING lead creation: Increment user.biddingLeadsSubmitted
+  - Returns: Lead object + bidding quota info
+
+- [ ] **T263** [P] [US1] Update `getHomeownerLeadSummary()` in `lead-service.ts` to include bidding quota
+  - Add fields: `biddingLeadsSubmitted: number`, `biddingLeadsRemaining: number` (always 0 or 1)
+  - Returns: Extended summary with bidding quota info
+
+#### API Endpoints
+- [ ] **T264** [P] [US1] Create PATCH `/api/leads/[id]` in `src/app/api/leads/[id]/route.ts` - Update lead endpoint
+  - Auth: HOMEOWNER only, verify ownership
+  - Body: Partial lead update (quoteData, postcode, location, etc.)
+  - Validation: Call canEditLead(), return 403 if not editable
+  - Action: Call updateLead() service
+  - Response: 200 + updated lead object OR 403 + reason
+  - Error Handling: 400 (validation), 401 (auth), 404 (not found), 500 (server)
+
+- [ ] **T265** [P] [US1] Create PATCH `/api/leads/[id]/cancel` in `src/app/api/leads/[id]/cancel/route.ts` - Cancel lead endpoint
+  - Auth: HOMEOWNER only, verify ownership
+  - Body: `{ reason: string }` (optional, user explanation)
+  - Validation: Call canCancelLead(), return 403 if not cancellable
+  - Action: Call cancelLead() service
+  - Response: 200 + restored quota info OR 403 + reason
+  - Error Handling: 400 (validation), 401 (auth), 404 (not found), 500 (server)
+
+- [ ] **T266** [P] [US1] Update GET `/api/homeowner/dashboard` to include bidding quota in summary
+  - Add fields: `biddingLeadsSubmitted`, `biddingLeadsRemaining` from service
+  - Response: Extended summary with bidding info
+
+#### UI Components - Simplified Quote Form
+- [ ] **T267** [P] [US1] Create `SimplifiedQuoteForm.tsx` in `src/components/homeowner/SimplifiedQuoteForm.tsx` - Single-page quote form (no steps)
+  - Purpose: Lightweight version of InstantQuoteForm for quick quote requests
+  - Features:
+    - All fields on one page (no multi-step wizard)
+    - Pre-fill from initialData prop (quoteData from existing lead)
+    - Calculate button → Shows results inline
+    - Request Quote button → Opens QuoteTypeDistributionModal
+  - Props: `{ initialData?: any, onCalculated: (data) => void, onRequestQuote: () => void }`
+  - Layout: Grid layout, collapsible sections, mobile-responsive
+  - Validation: Same as InstantQuoteForm (postcode, energy bill, etc.)
+
+- [ ] **T268** [P] [US1] Create `LeadEditModal.tsx` in `src/components/homeowner/LeadEditModal.tsx` - Modal for editing existing lead
+  - Purpose: Edit lead before admin approval
+  - Features:
+    - Uses SimplifiedQuoteForm with lead's quoteData as initialData
+    - Shows lead ID, created date, current status
+    - Calculate → Updates results in real-time
+    - Save Changes button → Calls PATCH /api/leads/[id]
+    - Cancel button → Closes modal without saving
+  - Props: `{ isOpen: boolean, lead: Lead, onClose: () => void, onSaved: () => void }`
+  - Validation: Client-side + API validation
+  - Loading states: Show spinner during save
+  - Success: Toast notification + refresh dashboard
+
+- [ ] **T269** [P] [US1] Create `LeadPreviewModal.tsx` in `src/components/homeowner/LeadPreviewModal.tsx` - Read-only lead preview
+  - Purpose: View approved lead details (inputs + results)
+  - Features:
+    - Shows all input fields (read-only, disabled inputs)
+    - Shows calculation results (cost, savings, system size, etc.)
+    - Shows lead metadata (created date, status, quote type, installer if purchased)
+    - Close button only (no edit/save actions)
+  - Props: `{ isOpen: boolean, lead: Lead, onClose: () => void }`
+  - Layout: Same as LeadEditModal but all fields disabled
+  - Styling: Gray background for disabled fields, clear "Read Only" indicator
+
+#### UI Components - Quote Type Distribution Modal Enhancements
+- [ ] **T270** [P] [US1] Update `QuoteTypeDistributionModal.tsx` - Add BIDDING support with icons
+  - Add bidding counter: `<input type="number" min="0" max="1" value={biddingCount} />`
+  - Add trophy icon for BIDDING (using lucide-react or svg)
+  - Add phone icon for CALL_VISIT
+  - Add document icon for WRITTEN_QUOTE
+  - Fetch user's bidding quota from dashboard summary prop
+  - Disable bidding input if `userAlreadyHasBiddingLead === true`
+  - Show tooltip: "You've already used your one-time bidding quote" when disabled
+  - Update total calculation: `totalRequested = callVisitCount + writtenQuoteCount + biddingCount`
+  - Validation: `totalRequested <= remainingQuota && biddingCount <= (userAlreadyHasBiddingLead ? 0 : 1)`
+  - Error states: Red border + message if validation fails
+  - Submit: Return array of distributions including BIDDING if selected
+
+- [ ] **T271** [US1] Remove price display from QuoteTypeDistributionModal
+  - Remove `leadPrice` or any price-related fields from quote type cards
+  - Homeowners should not see pricing (installer-only information)
+  - Keep description, benefits, turnaround time info only
+
+#### Dashboard Integration
+- [ ] **T272** [US1] Update `src/app/homeowner/dashboard/page.tsx` - Add Edit/Cancel/Preview buttons to lead cards
+  - Add conditional button rendering based on lead status:
+    ```tsx
+    {canEdit && <button onClick={() => openEditModal(lead)}>Edit</button>}
+    {canCancel && <button onClick={() => openCancelConfirm(lead)}>Cancel</button>}
+    {isApproved && <button onClick={() => openPreviewModal(lead)}>Preview</button>}
+    ```
+  - Button visibility logic:
+    - Edit: status in [DRAFT, PENDING_PHONE, PENDING_APPROVAL] AND not purchased
+    - Cancel: status not in [CANCELLED, EXPIRED] AND purchaseStatus !== COMPLETED
+    - Preview: status in [APPROVED, PURCHASED, QUOTED, ACCEPTED]
+  - Import modals: LeadEditModal, LeadPreviewModal
+  - Add cancel confirmation dialog: "Are you sure? This will restore 1 quote to your balance"
+  - Remove price display from lead cards (leadPrice should not be shown to homeowners)
+
+- [ ] **T273** [US1] Update "Request More Quotes" button flow in dashboard
+  - On click: Check if user has any existing leads
+  - If yes: Open SimplifiedQuoteForm modal with most recent lead's quoteData as initialData
+  - If no: Redirect to homepage instant quote form
+  - After calculation: Open QuoteTypeDistributionModal with bidding quota info
+  - After distribution selection: Create multiple leads via POST /api/leads (loop)
+  - After success: Refresh dashboard summary, show success toast with count
+
+- [ ] **T274** [US1] Add bidding quota indicator to dashboard header
+  - Show: "Bidding Quote: [Used/Available]" or "Bidding: ✓ Used" or "Bidding: Available (1x)"
+  - Styling: Badge or small card next to main quota display
+  - Tooltip: "One-time premium quote type for competitive bidding among installers"
+
+#### Testing & Validation
+- [ ] **T275** [US1] Test edit lead flow end-to-end
+  - Create lead → Dashboard → Click Edit → Modify fields → Calculate → Save
+  - Verify: Lead updated in database, quoteData changed, audit log created
+  - Verify: Can edit before approval, cannot edit after approval
+  - Error test: Try editing after approval → Should show "Cannot edit after approval"
+
+- [ ] **T276** [US1] Test cancel lead flow end-to-end
+  - Create lead → Dashboard → Click Cancel → Confirm → Lead cancelled
+  - Verify: Lead status = CANCELLED, cancelledAt timestamp set
+  - Verify: leadSubmissionCount decremented (quota restored)
+  - Verify: If BIDDING lead cancelled, biddingLeadsSubmitted decremented
+  - Error test: Try cancelling purchased lead → Should show "Cannot cancel after purchase"
+
+- [ ] **T277** [US1] Test preview lead flow
+  - Create lead → Admin approves → Dashboard → Click Preview
+  - Verify: Modal opens, shows all fields (read-only), calculation results visible
+  - Verify: No edit/save buttons, only close button
+
+- [ ] **T278** [US1] Test BIDDING quota enforcement
+  - Create 1 BIDDING lead → Try creating 2nd BIDDING lead
+  - Verify: API returns error "BIDDING_LIMIT_REACHED"
+  - Verify: QuoteTypeDistributionModal disables bidding counter with tooltip
+  - Cancel BIDDING lead → Try creating new BIDDING lead
+  - Verify: Now allowed (quota restored after cancellation)
+
+- [ ] **T279** [US1] Test quote type distribution with multiple types
+  - Request quotes → Select 1 BIDDING + 2 CALL_VISIT + 1 WRITTEN_QUOTE = 4 total
+  - Verify: 4 separate lead records created in database
+  - Verify: 1 has quoteType=BIDDING, 2 have CALL_VISIT, 1 has WRITTEN_QUOTE
+  - Verify: All have same quoteData (from simplified form)
+  - Verify: Dashboard shows all 4 leads, remaining balance = 1 (if started with 5)
+
+- [ ] **T280** [US1] Test price visibility removal
+  - Dashboard: Verify leadPrice field not displayed on lead cards
+  - QuoteTypeDistributionModal: Verify no price information shown
+  - LeadPreviewModal: Verify no price shown to homeowner
+  - Admin dashboard: Verify price still visible (admin-only info)
+
+### Phase 4.11 Validation Checklist
+
+**Pre-Phase Audit**:
+- [X] Reviewed current homeowner dashboard implementation
+- [X] Reviewed InstantQuoteForm component (multi-step, complex)
+- [X] Reviewed QuoteTypeDistributionModal (basic structure exists)
+- [X] Reviewed lead-service.ts functions (createLead, getHomeownerLeadSummary)
+- [X] Reviewed Lead model schema (quoteData, quoteType, cancellation fields exist)
+- [ ] Documented current state vs required changes
+
+**Schema Validation**:
+- [ ] After T255-T257: Run `npx prisma validate` - must pass
+- [ ] After T256: Verify migration created `*_add-bidding-tracking` folder
+- [ ] After T257: Verify User model has biddingLeadsSubmitted field in Prisma Studio
+
+**Service Validation**:
+- [ ] After T258-T263: Run `npx tsc --noEmit` - 0 errors
+- [ ] After T258: Test canEditLead() with various lead statuses
+- [ ] After T260: Test canCancelLead() with various lead states
+- [ ] After T262: Test BIDDING limit enforcement (create 1, try 2nd should fail)
+
+**API Validation**:
+- [ ] After T264: Test PATCH /api/leads/[id] with curl/Postman
+  - Test success: Update editable lead (200)
+  - Test error: Try updating approved lead (403)
+  - Test error: Try updating someone else's lead (403)
+- [ ] After T265: Test PATCH /api/leads/[id]/cancel
+  - Test success: Cancel pending lead (200, quota restored)
+  - Test error: Try cancelling purchased lead (403)
+- [ ] After T266: Test GET /api/homeowner/dashboard returns bidding quota
+
+**UI Validation**:
+- [ ] After T267: SimplifiedQuoteForm renders, accepts initialData, calculates results
+- [ ] After T268: LeadEditModal opens, saves changes via API, shows success toast
+- [ ] After T269: LeadPreviewModal opens, displays read-only data, no edit buttons
+- [ ] After T270-T271: QuoteTypeDistributionModal shows bidding option with icons, enforces limit
+- [ ] After T272-T274: Dashboard shows Edit/Cancel/Preview buttons conditionally, no prices visible
+
+**End-to-End Testing**:
+- [ ] Complete flow: Dashboard → Request More → SimplifiedForm → Calculate → Distribute (1 BIDDING + 2 CALL_VISIT) → Submit → Verify 3 leads created
+- [ ] Edit flow: Create lead → Edit → Change postcode → Recalculate → Save → Verify updated
+- [ ] Cancel flow: Create lead → Cancel → Verify quota restored → Check DB status = CANCELLED
+- [ ] Preview flow: Create lead → Admin approve → Preview → Verify read-only display
+- [ ] Bidding limit: Create BIDDING lead → Try 2nd BIDDING → Verify error → Cancel 1st → Try again → Success
+
+**Build & Deployment**:
+- [ ] Run `npm run build` - 0 errors (warnings OK)
+- [ ] No TypeScript errors: `npx tsc --noEmit`
+- [ ] No console errors in browser during testing
+- [ ] All modals close properly, no memory leaks
+- [ ] Responsive design: Test mobile, tablet, desktop layouts
+
+**Post-Phase Validation**:
+- [ ] All T255-T280 tasks completed with evidence
+- [ ] Schema migration applied and validated
+- [ ] All API endpoints tested with success/error cases
+- [ ] All UI components render without errors
+- [ ] End-to-end user journeys tested and working
+- [ ] Price information hidden from homeowners
+- [ ] BIDDING quota enforced at all levels (DB, API, UI)
+- [ ] Quota restoration working on cancellation
+- [ ] User approval received for commit
+- [ ] Git commit created: "Phase 4.11: Enhanced homeowner quote request flow with BIDDING support and lead CRUD operations"
+
+**Expected Outcomes**:
+1. ✅ Homeowners can request additional quotes using simplified prefilled form
+2. ✅ Quote type distribution supports BIDDING (1x limit), CALL_VISIT, WRITTEN_QUOTE
+3. ✅ BIDDING quota tracked per user (biddingLeadsSubmitted field)
+4. ✅ Edit/Update functionality working for leads before admin approval
+5. ✅ Cancel functionality working with quota restoration
+6. ✅ Preview functionality showing read-only lead details for approved leads
+7. ✅ Price information hidden from homeowners in all views
+8. ✅ Icons added to quote type options (trophy, phone, document)
+9. ✅ Bidding quota indicator visible in dashboard
+10. ✅ All validation and error handling in place
+
+**Time Estimate**: 8-10 hours total
+- Schema + Services: 2 hours
+- API Endpoints: 2 hours
+- UI Components: 3-4 hours
+- Testing + Fixes: 2 hours
+- Documentation + Commit: 1 hour
+
+**Checkpoint**: Homeowners now have complete control over their quote requests with full CRUD operations and enhanced quote type selection including premium BIDDING option.
+
+---
+
 **Ready to implement!** Each task is specific enough for immediate execution. Follow the phase order, leverage parallel opportunities, and use the quickstart.md for testing guidance.
