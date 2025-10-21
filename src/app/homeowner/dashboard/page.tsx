@@ -41,6 +41,7 @@ const MenuIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height
 const EditIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>;
 const EyeIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
 const XCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>;
+const TrophyIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>;
 
 // ThemeSwitcher Component
 const ThemeSwitcher: React.FC<{ theme: Theme; setTheme: (theme: Theme) => void }> = ({ theme, setTheme }) => {
@@ -100,6 +101,7 @@ interface HomeownerDashboardSummary {
   lastSubmissionAt: string | null;
   statusBreakdown: Record<LeadStatus, number>;
   recentLeads: RecentLeadSummary[];
+  biddingQuotaRemaining: number; // Phase 4.11: BIDDING quota tracking
 }
 
 interface PendingOTPState {
@@ -448,6 +450,33 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
         onVerifyContact={onVerifyContact}
         className="mb-6"
       />
+
+      {/* Phase 4.11: Bidding Quota Indicator */}
+      <div className="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-amber-100 dark:bg-amber-900/50 rounded-lg">
+              <TrophyIcon />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-amber-900 dark:text-amber-100">
+                Competitive Bidding Quota
+              </h3>
+              <p className="text-xs text-amber-700 dark:text-amber-300">
+                One-time bidding request per homeowner
+              </p>
+            </div>
+          </div>
+          <div className="text-right">
+            <div className="text-2xl font-bold text-amber-900 dark:text-amber-100">
+              {summary.biddingQuotaRemaining || 0} / 1
+            </div>
+            <div className="text-xs text-amber-700 dark:text-amber-300">
+              {summary.biddingQuotaRemaining === 1 ? 'Available' : 'Used'}
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <StatCard 
