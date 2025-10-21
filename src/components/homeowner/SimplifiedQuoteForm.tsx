@@ -160,18 +160,25 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
       return;
     }
 
+    console.log('🔍 SimplifiedQuoteForm: Pre-filling with initialData:', initialData);
+
+    // InitialData might be just quoteData (JSON) or a mix of lead fields + quoteData
+    // We need to flatten everything into one object for easy access
     const data = initialData as Record<string, unknown>;
 
     const pickString = (keys: string[], fallback: string): string => {
       for (const key of keys) {
         const value = data[key];
-        if (typeof value === 'string') {
+        if (typeof value === 'string' && value.trim() !== '') {
+          console.log(`✅ Found ${key}: "${value}"`);
           return value;
         }
         if (typeof value === 'number' && !Number.isNaN(value)) {
+          console.log(`✅ Found ${key}: ${value} (number converted to string)`);
           return String(value);
         }
       }
+      console.log(`⚠️ No value found for keys ${JSON.stringify(keys)}, using fallback: "${fallback}"`);
       return fallback;
     };
 
@@ -197,6 +204,11 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
         if (typeof value === 'boolean') {
           return value;
         }
+        // Handle string "true"/"false"
+        if (typeof value === 'string') {
+          if (value.toLowerCase() === 'true') return true;
+          if (value.toLowerCase() === 'false') return false;
+        }
       }
       return fallback;
     };
@@ -208,7 +220,8 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
 
     setIsPrefilling(true);
 
-  const nextQuoteTypeRaw = pickString(['propertyType', 'quoteType'], 'residential');
+    // Property type can be in multiple fields
+    const nextQuoteTypeRaw = pickString(['propertyType', 'quoteType', 'projectType'], 'residential');
     const nextQuoteType = nextQuoteTypeRaw === 'commercial' ? 'commercial' : 'residential';
     setQuoteType((prev) => (prev === nextQuoteType ? prev : nextQuoteType));
 
@@ -250,9 +263,13 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
       systemSizeOverride: pickString(['systemSizeOverride'], prev.systemSizeOverride),
     }));
 
-  const usageTypeRaw = pickString(['electricityUsageType'], 'monthly');
+    // Energy usage fields (database uses billType and energyBill, form uses electricityUsageType and electricityValue)
+    const usageTypeRaw = pickString(['billType', 'electricityUsageType'], 'monthly');
     setElectricityUsageType(usageTypeRaw === 'quarterly' ? 'quarterly' : 'monthly');
-    setElectricityValue(pickString(['electricityValue'], ''));
+    
+    // Energy bill value - try both names and handle string/number conversion
+    const energyValue = pickString(['energyBill', 'electricityValue'], '');
+    setElectricityValue(energyValue);
 
     setErrors({});
     setShowResults(false);
