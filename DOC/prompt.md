@@ -660,6 +660,7 @@ When the admin approved the leads , it should add a countdown timer bar on the t
 2. Ensure that the countdown timer for lead expiry is functional and meets all specified requirements.
 3. Test the system thoroughly to confirm that all features work as intended and that there are no regressions in existing functionality.
 4. Document any changes made to the codebase, including new features and modifications to existing ones.
+6. Follow the mandatory pre and post implementation checklist rules as mentioned in the workflow tasks.md file (D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\002-lead-journey-life\tasks.md) instructions.
 
 
 

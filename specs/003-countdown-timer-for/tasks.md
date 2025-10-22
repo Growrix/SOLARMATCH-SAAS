@@ -152,9 +152,9 @@ grep "expiresAt" node_modules/.prisma/client/index.d.ts
 
 **Purpose**: Project initialization and configuration for countdown timer feature
 
-- [ ] T001 [P] [Setup] Add default countdown setting to `prisma/seed-settings.ts` (`LEAD_COUNTDOWN_DEFAULT_DAYS = 7`)
-- [ ] T002 [Setup] Run seed script `npx tsx prisma/seed-settings.ts` to populate settings table
-- [ ] T003 [Setup] Verify setting in database using `npx prisma studio` → Settings table shows `LEAD_COUNTDOWN_DEFAULT_DAYS`
+- [X] T001 [P] [Setup] Add default countdown setting to `prisma/seed-settings.ts` (`LEAD_COUNTDOWN_DEFAULT_DAYS = 7`)
+- [X] T002 [Setup] Run seed script `npx tsx prisma/seed-settings.ts` to populate settings table
+- [X] T003 [Setup] Verify setting in database using `npx prisma studio` → Settings table shows `LEAD_COUNTDOWN_DEFAULT_DAYS`
 
 **Checkpoint**: ✅ Default countdown duration configured and ready for use
 
@@ -174,20 +174,20 @@ grep "expiresAt" node_modules/.prisma/client/index.d.ts
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [Foundation] Create countdown TypeScript types in `src/types/countdown.ts` (CountdownTimer, CountdownManagementRequest, CountdownManagementResponse interfaces from data-model.md)
-- [ ] T005 [Foundation] Create countdown service in `src/lib/services/countdown-service.ts` with core functions:
+- [X] T004 [Foundation] Create countdown TypeScript types in `src/types/countdown.ts` (CountdownTimer, CountdownManagementRequest, CountdownManagementResponse interfaces from data-model.md)
+- [X] T005 [Foundation] Create countdown service in `src/lib/services/countdown-service.ts` with core functions:
   - `calculateCountdown(expiresAt: Date | null): CountdownTimer | null`
   - `calculateExpiresAt(countdownDays: number): Date`
   - `validateCountdownDuration(days: number): { isValid: boolean, error?: string }`
   - `getColorClass(daysRemaining: number): 'green' | 'yellow' | 'red'`
   - `getDisplayText(daysRemaining: number, hoursRemaining: number): string`
-- [ ] T006 [Foundation] Add countdown audit actions to `src/lib/services/audit-logger.ts`:
+- [X] T006 [Foundation] Add countdown audit actions to `src/lib/services/audit-logger.ts`:
   - `countdown_timer_added`
   - `countdown_timer_reset`
   - `countdown_timer_removed`
   - `lead_reactivated`
-- [ ] T007 [Foundation] Run TypeScript check `npx tsc --noEmit` - verify all types compile correctly
-- [ ] T008 [Foundation] Test countdown service functions in Node REPL or create temporary test file:
+- [X] T007 [Foundation] Run TypeScript check `npx tsc --noEmit` - verify all types compile correctly
+- [X] T008 [Foundation] Test countdown service functions in Node REPL or create temporary test file:
   - Test `calculateCountdown()` with 7-day future date → expect green color, "7 days left"
   - Test `calculateCountdown()` with 2-day future date → expect red color, "2 days left"
   - Test `validateCountdownDuration(45)` → expect `{ isValid: true }`

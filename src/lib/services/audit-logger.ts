@@ -239,6 +239,12 @@ export const AUDIT_ACTIONS = {
   LEAD_EXPIRED: 'lead_expired',
   LEAD_CANCELLED: 'lead_cancelled',
 
+  // Countdown timer management
+  COUNTDOWN_TIMER_ADDED: 'countdown_timer_added',
+  COUNTDOWN_TIMER_RESET: 'countdown_timer_reset',
+  COUNTDOWN_TIMER_REMOVED: 'countdown_timer_removed',
+  LEAD_REACTIVATED: 'lead_reactivated',
+
   // Quotes
   QUOTE_SUBMITTED: 'quote_submitted',
   QUOTE_ACCEPTED: 'quote_accepted',

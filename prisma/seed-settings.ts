@@ -47,6 +47,11 @@ async function main() {
       description: 'Number of days before an approved lead expires',
     },
     {
+      key: 'LEAD_COUNTDOWN_DEFAULT_DAYS',
+      value: '7',
+      description: 'Default countdown timer duration (in days) when admin approves a lead with countdown enabled',
+    },
+    {
       key: 'OTP_RATE_LIMIT_PER_HOUR',
       value: '3',
       description: 'Maximum OTP verification requests per hour per phone number',
