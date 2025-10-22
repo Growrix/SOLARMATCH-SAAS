@@ -573,7 +573,7 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
                       </span>
                     </div>
                     <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                      Created {formatDateTime(lead.createdAt)} • {formatCurrency(lead.leadPrice)}
+                      Created {formatDateTime(lead.createdAt)}
                     </p>
                   </div>
                   

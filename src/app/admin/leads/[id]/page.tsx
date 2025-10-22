@@ -24,6 +24,7 @@ interface Lead {
   visibility: string;
   phoneVerified: boolean;
   phoneNumber: string | null;
+  quoteType?: 'CALL_VISIT' | 'WRITTEN_QUOTE' | 'BIDDING'; // Phase 4.12: Quote type
   projectType: string;
   propertyType: string;
   postcode: string;
@@ -143,6 +144,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
 
   useEffect(() => {
     fetchLead();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
 
   const fetchLead = async () => {
@@ -327,6 +329,25 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
     return colors[status as keyof typeof colors] || colors.DRAFT;
   };
 
+  // Phase 4.12: Quote Type helpers
+  const getQuoteTypeLabel = (quoteType?: string) => {
+    const labels: Record<string, string> = {
+      CALL_VISIT: 'Call/Visit',
+      WRITTEN_QUOTE: 'Written Quote',
+      BIDDING: 'Competitive Bidding',
+    };
+    return quoteType ? labels[quoteType] || quoteType : 'Not specified';
+  };
+
+  const getQuoteTypeIcon = (quoteType?: string) => {
+    const icons: Record<string, string> = {
+      CALL_VISIT: '📞',
+      WRITTEN_QUOTE: '📄',
+      BIDDING: '🏆',
+    };
+    return quoteType ? icons[quoteType] || '❓' : '❓';
+  };
+
   // ============================================================================
   // RENDER
   // ============================================================================
@@ -371,9 +392,15 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
             <h1 className={`text-3xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
               Lead Details
             </h1>
-            <p className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>
-              ID: {lead.id}
-            </p>
+            <div className="flex items-center gap-4">
+              <p className={`font-mono text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                Quote ID: <span className="font-semibold">Q-{lead.id.slice(-8).toUpperCase()}</span>
+              </p>
+              <span className={`text-sm ${theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>•</span>
+              <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                Created: {formatDate(lead.createdAt)}
+              </p>
+            </div>
           </div>
 
           <div className="flex items-center gap-3">
@@ -412,15 +439,25 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
                 </p>
               </div>
               <div>
-                <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Phone</p>
+                <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Contact Number</p>
                 <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-                  {lead.phoneNumber || 'N/A'}
+                  {lead.phoneNumber || 'Not provided'}
+                  {lead.phoneNumber && (
+                    <span className="ml-2">
+                      {lead.phoneVerified ? (
+                        <span className="text-green-500 text-xs">✓ Verified</span>
+                      ) : (
+                        <span className="text-red-500 text-xs">✗ Not verified</span>
+                      )}
+                    </span>
+                  )}
                 </p>
               </div>
               <div>
-                <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Verified</p>
+                <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Quote Type</p>
                 <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-                  {lead.homeowner?.phoneVerified ? 'Yes ✓' : 'No'}
+                  <span className="mr-2">{getQuoteTypeIcon(lead.quoteType)}</span>
+                  {getQuoteTypeLabel(lead.quoteType)}
                 </p>
               </div>
             </div>

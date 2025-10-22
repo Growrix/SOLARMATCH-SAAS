@@ -13,6 +13,7 @@ interface Lead {
   status: string;
   visibility: string;
   phoneVerified: boolean;
+  quoteType?: 'CALL_VISIT' | 'WRITTEN_QUOTE' | 'BIDDING'; // Added for Phase 4.12
   postcode: string;
   location: string;
   energyBill: number;
@@ -32,6 +33,7 @@ export default function AdminLeadsPage() {
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [verificationFilter, setVerificationFilter] = useState<string>('ALL');
   const [postcodeFilter, setPostcodeFilter] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>(''); // Phase 4.12: Search functionality
   
   // Pagination
   const [page, setPage] = useState(1);
@@ -39,6 +41,7 @@ export default function AdminLeadsPage() {
 
   useEffect(() => {
     fetchLeads();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter, verificationFilter, postcodeFilter, page]);
 
   const fetchLeads = async () => {
@@ -103,18 +106,87 @@ export default function AdminLeadsPage() {
     return status.replace(/_/g, ' ');
   };
 
+  // Phase 4.12: Quote Type helpers
+  const getQuoteTypeLabel = (quoteType?: string) => {
+    const labels: Record<string, string> = {
+      CALL_VISIT: 'Call/Visit',
+      WRITTEN_QUOTE: 'Written Quote',
+      BIDDING: 'Competitive Bidding',
+    };
+    return quoteType ? labels[quoteType] || quoteType : '—';
+  };
+
+  const getQuoteTypeIcon = (quoteType?: string) => {
+    const icons: Record<string, string> = {
+      CALL_VISIT: '📞',
+      WRITTEN_QUOTE: '📄',
+      BIDDING: '🏆',
+    };
+    return quoteType ? icons[quoteType] || '' : '';
+  };
+
+  // Phase 4.12: Client-side search filtering
+  const filteredAndSearchedLeads = leads.filter(lead => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      lead.homeowner.name.toLowerCase().includes(query) ||
+      lead.homeowner.email.toLowerCase().includes(query) ||
+      lead.id.toLowerCase().includes(query)
+    );
+  });
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
+        {/* Phase 4.12: Back Button + Header */}
         <div className="mb-8">
+          <button
+            onClick={() => router.push('/admin/dashboard')}
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-4"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <path d="m12 19-7-7 7-7"/>
+              <path d="M19 12H5"/>
+            </svg>
+            <span>Back to Dashboard</span>
+          </button>
           <h1 className="text-3xl font-bold text-foreground mb-2">Lead Management</h1>
           <p className="text-muted-foreground">Review, approve, and manage all lead requests</p>
         </div>
 
-        {/* Filters */}
+        {/* Phase 4.12: Search Bar */}
         <div className="bg-card rounded-lg shadow-sm p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Search Leads
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search by homeowner name, email, or quote ID..."
+                className="w-full px-4 py-2 pl-10 pr-10 border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-transparent"
+              />
+              <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
+          </div>
+
+        {/* Filters */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Status Filter */}
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
@@ -193,7 +265,7 @@ export default function AdminLeadsPage() {
         )}
 
         {/* Leads Table */}
-        {!loading && leads.length > 0 && (
+        {!loading && filteredAndSearchedLeads.length > 0 && (
           <div className="bg-card rounded-lg shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -204,6 +276,9 @@ export default function AdminLeadsPage() {
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       Location
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Quote Type
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       Status
@@ -226,7 +301,7 @@ export default function AdminLeadsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {leads.map((lead) => (
+                  {filteredAndSearchedLeads.map((lead) => (
                     <tr
                       key={lead.id}
                       className="hover:bg-muted/50 cursor-pointer transition-colors"
@@ -247,15 +322,31 @@ export default function AdminLeadsPage() {
                         <div className="text-sm text-muted-foreground">{lead.postcode}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-2 text-sm text-foreground">
+                          <span className="text-lg">{getQuoteTypeIcon(lead.quoteType)}</span>
+                          <span>{getQuoteTypeLabel(lead.quoteType)}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(lead.status)}`}>
                           {formatStatus(lead.status)}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {lead.phoneVerified ? (
-                          <span className="text-green-600 dark:text-green-400">✓ Verified</span>
+                          <div className="flex items-center gap-1" title="Verified">
+                            <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+                            </svg>
+                            <span className="sr-only">Verified</span>
+                          </div>
                         ) : (
-                          <span className="text-muted-foreground">Not Verified</span>
+                          <div className="flex items-center gap-1" title="Not Verified">
+                            <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"/>
+                            </svg>
+                            <span className="sr-only">Not Verified</span>
+                          </div>
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
@@ -312,7 +403,7 @@ export default function AdminLeadsPage() {
         )}
 
         {/* Empty State */}
-        {!loading && leads.length === 0 && (
+        {!loading && filteredAndSearchedLeads.length === 0 && (
           <div className="bg-card rounded-lg shadow-sm p-12 text-center">
             <svg
               className="mx-auto h-12 w-12 text-muted-foreground mb-4"
@@ -329,7 +420,9 @@ export default function AdminLeadsPage() {
             </svg>
             <h3 className="text-lg font-medium text-foreground mb-2">No leads found</h3>
             <p className="text-muted-foreground">
-              {statusFilter !== 'ALL' || postcodeFilter
+              {searchQuery
+                ? 'No leads match your search query. Try different keywords.'
+                : statusFilter !== 'ALL' || postcodeFilter
                 ? 'Try adjusting your filters'
                 : 'Leads will appear here when homeowners submit quote requests'}
             </p>
