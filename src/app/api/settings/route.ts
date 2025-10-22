@@ -135,7 +135,7 @@ export async function PATCH(request: NextRequest) {
       updatedSettings.push(updated);
 
       // Create audit log for sensitive settings
-      if (['approval_mode', 'lead_price_default', 'lead_price_call_visit', 'lead_price_written_quote'].includes(setting.key)) {
+      if (['approval_mode', 'lead_price_default', 'lead_price_call_visit', 'lead_price_written_quote', 'lead_price_bidding'].includes(setting.key)) {
         await createAuditLog({
           userId: session.user.id,
           action: AUDIT_ACTIONS.ADMIN_SETTINGS_CHANGED,

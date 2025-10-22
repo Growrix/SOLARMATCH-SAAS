@@ -37,6 +37,11 @@ async function main() {
       description: 'Default price in £ for Written Quote type leads',
     },
     {
+      key: 'LEAD_PRICE_BIDDING',
+      value: '75.00',
+      description: 'Default price in £ for Competitive Bidding quote type leads (premium pricing)',
+    },
+    {
       key: 'LEAD_EXPIRY_DAYS',
       value: '30',
       description: 'Number of days before an approved lead expires',
