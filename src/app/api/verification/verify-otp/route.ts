@@ -83,6 +83,15 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    // Phase 4.13: Update ALL existing leads for this homeowner with verified status
+    const updatedLeads = await prisma.lead.updateMany({
+      where: { homeownerId: session.user.id },
+      data: { 
+        phoneVerified: true,
+        phoneNumber: result.phoneNumber
+      }
+    });
+
     // Log successful verification
     await createAuditLog({
       userId: session.user.id,
@@ -90,7 +99,8 @@ export async function POST(request: NextRequest) {
       entityType: 'USER',
       metadata: {
         verificationId,
-        phoneNumber: result.phoneNumber?.slice(-4) // Last 4 digits only
+        phoneNumber: result.phoneNumber?.slice(-4), // Last 4 digits only
+        leadsUpdated: updatedLeads.count // Phase 4.13: Track how many leads were updated
       }
     });
 
@@ -99,9 +109,10 @@ export async function POST(request: NextRequest) {
       userId: session.user.id,
       type: 'SYSTEM',
       title: 'Phone Verified',
-      message: 'Your phone number has been successfully verified. You can now submit additional lead requests.',
+      message: `Your phone number has been successfully verified. ${updatedLeads.count > 0 ? `All ${updatedLeads.count} of your lead(s) have been updated with verified status.` : 'You can now submit additional lead requests.'}`,
       metadata: {
         verificationId: verificationId,
+        leadsUpdated: updatedLeads.count, // Phase 4.13
         timestamp: new Date().toISOString()
       }
     });
@@ -109,7 +120,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: "Phone number verified successfully",
-      phoneNumber: result.phoneNumber
+      phoneNumber: result.phoneNumber,
+      leadsUpdated: updatedLeads.count // Phase 4.13: Return count of updated leads
     });
 
   } catch (error: any) {

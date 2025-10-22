@@ -39,8 +39,19 @@ export default function AdminLeadsPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  // Phase 4.13: Fetch leads on filter/page change
   useEffect(() => {
     fetchLeads();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [statusFilter, verificationFilter, postcodeFilter, page]);
+
+  // Phase 4.13: Auto-refresh every 10 seconds for real-time verification updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchLeads();
+    }, 10000); // 10 seconds
+
+    return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter, verificationFilter, postcodeFilter, page]);
 

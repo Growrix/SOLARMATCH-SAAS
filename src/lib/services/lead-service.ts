@@ -167,6 +167,12 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + expiryDays);
 
+  // Get homeowner data for phone verification
+  const homeowner = await prisma.user.findUnique({
+    where: { id: input.homeownerId },
+    select: { phoneVerified: true, phone: true }
+  });
+
   // Create lead in database
   const lead = await prisma.lead.create({
     data: {
@@ -192,6 +198,8 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
       status: LeadStatus.PENDING_APPROVAL, // Show in dashboards immediately, awaiting admin approval
       visibility: LeadVisibility.HIDDEN, // Visible to homeowner/admin, hidden from installers until approved
       quoteData: input.quoteData || null, // Phase 4.5: Store complete instant quote data
+      phoneVerified: homeowner?.phoneVerified || false, // Phase 4.13: Copy verification status from homeowner
+      phoneNumber: homeowner?.phone || null, // Phase 4.13: Copy phone number from homeowner
     },
     include: {
       homeowner: {

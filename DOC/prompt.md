@@ -624,3 +624,46 @@ Now I am having issues with creating the bidding quote, the other 2 typers were 
 ***instructions*** 
 
 first keep in mind that the admin lead managenemt was created earlier, but during the build process we faced some issues and challenges, so I had to modify the tasks.md file to make it more clear and clean. So you need to audit all the files and folders related to the admin lead management and understand the current situation. So now I see the admin lead management page has 2 different type of response and actions. the leads were generated earlier has the approve/redeject options, but the newly generated leads does not have approve/reject options. so you need to identify the issues and fix them. also implement the above mentioned requirements in the lastest lead generation process. you need to indentfy the dual response with old vs newly implimented lead generation process. you need to focus on the new version of lead generation process. and replace the old process with the new one. make sure there are only one process is left, no reduant or duplicate system should be there. Audit, analyze, understand the current situation and then plan the implementation accordingly. do not impliment if you are not clear about the situation. create a phase in the tasks.md and start implimenting. The goal is to have a clean and clear admin lead management system with all the above mentioned requirements. you also can read back the tasks.md file to understand what have we done earlier for this admin lead management system. this is crucial. 
+
+
+
+***User Verification Status Update Feature***
+
+now I can see the user verification status does not show on the admin lead management page , it should be updated immidiately after user has verified their phone number. all the leads should be updated with the verfiried badge. the icos should indicate that the contact is verified. 
+- e.g the homewoners generated the first lead without OTP verifications, so the lead shows unverified status. then when the homeowner requests for more quotes and verifies the contact number via OTP, then all the leads of that homeowner should be updated with verified status automatically.
+- the lead card will show the verified badhe icon accordingly. and visisble to all users including the admin,homeowners and installers on their respective dashboards.
+- make sure the verified status is updated immidiately after the OTP verification is successful. notify the admin dashboard to update the status immidiately without refreshing the page.
+
+***instructions***
+- audit and understand the current API, prisma schema, db tables and frontend files and folders related to the lead management system. then plan the implementation accordingly without breaking any existing functionality. create a new phase in the tasks.md file and start implementing. make sure to document all the changes made in an implementation.md file with clear user stories.
+
+
+***Countdown Timer for Lead Expiry Feature***
+
+When the admin approved the leads , it should add a countdown timer bar on the top of the lead card that will show a 7 days countdown time for the expiry of this leads. And the leads should be expire and gets deactivated after 7 days autonmatically. The countdown timer should be visible to both the admin and the homeowner on their respective dashboards. After expiry , the lead status should be updated to expired automatically.
+
+- The admin should have options to add/remove/restet the countdown timer for each lead from the lead details modal.
+- The homeowner should also see the countdown timer on their dashboard lead cards for each lead they have requested.
+- The countdown timer should be in days format e.g 7 days left, 6 days left etc.
+- The countdown timer should be in red color when there are 2 days left to expiry.
+- The countdown timer should be in green color when there are more than 5 days left to expiry.
+- This countdown timer feature should be added to the existing lead management system without breaking any existing functionality. and it should be visible to homeowners,admin and also installers. but the admin should have the control to reset/add/remove the countdown timer. 
+- admin should decide either to add contdown timer or not while approving the lead. if they choose to add countdown timer, then it will be added with 7 days by default. if they choose not to add countdown timer, then no countdown timer will be added.
+- admin can set custom days for the countdown timer while approving the lead. e.g instead of 7 days, they can set 10 days or 5 days etc.  
+- admins can reactivate any leads that are expired from the lead details modal. upon reactivation , the countdown timer will be reset to 7 days by default but admin can change it while reactivating. - installers should also see the countdown timer on their purchased leads dashboard for each lead they have purchased.
+- the countdown timers automatically tunred off if a installer purchaed it (call/vist or written) . but for bidding leads it will remain until expiry unless admin reactivates it. 
+- each leads should be unique with unique ids and timestamps and should be manageable with countdown timers individually. 
+
+***Instructions*** 
+1. audit and understand the current API, prisma schema, db tables and frontend files and folders related to the lead management system. then plan the implementation accordingly without breaking any existing functionality. create a new phase in the tasks.md file and start implementing. make sure to document all the changes made in an implementation.md file with clear user stories.
+1. Implement the user verification status update feature as described.
+2. Ensure that the countdown timer for lead expiry is functional and meets all specified requirements.
+3. Test the system thoroughly to confirm that all features work as intended and that there are no regressions in existing functionality.
+4. Document any changes made to the codebase, including new features and modifications to existing ones.
+
+
+
+
+
+
+I am not giving you any specific tasks but Instructions that how I want to work furhter with this speckit.
