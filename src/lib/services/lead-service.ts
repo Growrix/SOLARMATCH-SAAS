@@ -99,12 +99,13 @@ export interface HomeownerLeadSummary {
  *   });
  */
 export async function createLead(input: CreateLeadInput): Promise<CreateLeadResult> {
-  // Fetch homeowner with current submission count
+  // Fetch homeowner with current submission count and phone verification status
   const homeowner = await prisma.user.findUnique({
     where: { id: input.homeownerId },
     select: {
       id: true,
-      phoneVerified: true,
+      phone: true, // Phase 4.13: For copying to lead
+      phoneVerified: true, // Phase 4.13: For copying to lead
       leadSubmissionCount: true,
       leadSubmissionLimit: true,
     },
@@ -166,12 +167,6 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
   const expiryDays = await getSettingAsNumber('LEAD_EXPIRY_DAYS');
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + expiryDays);
-
-  // Get homeowner data for phone verification
-  const homeowner = await prisma.user.findUnique({
-    where: { id: input.homeownerId },
-    select: { phoneVerified: true, phone: true }
-  });
 
   // Create lead in database
   const lead = await prisma.lead.create({
@@ -339,7 +334,19 @@ export async function getLeads(input: GetLeadsInput) {
       skip,
       take: limit,
       orderBy: { createdAt: 'desc' },
-      include: {
+      select: {
+        id: true,
+        status: true,
+        visibility: true,
+        phoneVerified: true, // Phase 4.13: Include lead verification status
+        phoneNumber: true, // Phase 4.13: Include lead phone number
+        quoteType: true,
+        postcode: true,
+        location: true,
+        energyBill: true,
+        leadPrice: true,
+        createdAt: true,
+        approvedAt: true,
         homeowner: {
           select: {
             id: true,

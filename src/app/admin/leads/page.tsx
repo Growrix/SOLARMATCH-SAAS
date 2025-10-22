@@ -25,6 +25,7 @@ interface Lead {
 export default function AdminLeadsPage() {
   const router = useRouter();
   const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -39,21 +40,28 @@ export default function AdminLeadsPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  // Handle client-side mounting to prevent hydration errors
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Phase 4.13: Fetch leads on filter/page change
   useEffect(() => {
+    if (!mounted) return;
     fetchLeads();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [statusFilter, verificationFilter, postcodeFilter, page]);
+  }, [mounted, statusFilter, verificationFilter, postcodeFilter, page]);
 
   // Phase 4.13: Auto-refresh every 10 seconds for real-time verification updates
   useEffect(() => {
+    if (!mounted) return;
     const interval = setInterval(() => {
       fetchLeads();
     }, 10000); // 10 seconds
 
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [statusFilter, verificationFilter, postcodeFilter, page]);
+  }, [mounted, statusFilter, verificationFilter, postcodeFilter, page]);
 
   const fetchLeads = async () => {
     try {
@@ -146,6 +154,11 @@ export default function AdminLeadsPage() {
       lead.id.toLowerCase().includes(query)
     );
   });
+
+  // Prevent hydration errors by only rendering after client mount
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background">

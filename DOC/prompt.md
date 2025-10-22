@@ -666,4 +666,9 @@ When the admin approved the leads , it should add a countdown timer bar on the t
 
 
 
-I am not giving you any specific tasks but Instructions that how I want to work furhter with this speckit.
+I am not giving you any specific tasks but Instructions that how I want to work furhter with this speckit. My workflow is like this :
+- You should follow the task planning and execution rules accordingly.
+- I will always give you tasks by asking to create a phase in the tasks.md file. becuase pre-planned tasks always dont meet the results, so always I have to modify and update the plan on the go. So , from now now I will always ask you to create a phase in the tasks.md file based on the current situation and then start implementing accordingly. So that all the tasks will be performed as per the tasks.md files . 
+
+
+
