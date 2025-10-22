@@ -9,7 +9,7 @@
  */
 
 import { prisma } from "@/lib/prisma";
-import crypto from "crypto";
+import { randomInt, createHash } from "crypto";
 import twilio from "twilio";
 
 // Twilio client initialization
@@ -44,15 +44,14 @@ class PhoneVerificationService {
    * Generate a random 6-digit OTP code
    */
   private generateOTP(): string {
-    return crypto.randomInt(100000, 999999).toString();
+    return randomInt(100000, 999999).toString();
   }
 
   /**
    * Hash OTP code for secure storage
    */
   private hashOTP(code: string): string {
-    return crypto
-      .createHash('sha256')
+    return createHash('sha256')
       .update(code)
       .digest('hex');
   }

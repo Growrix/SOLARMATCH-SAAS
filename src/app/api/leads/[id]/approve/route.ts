@@ -12,6 +12,11 @@ import { createAuditLog, AUDIT_ACTIONS } from '@/lib/services/audit-logger';
 import { createNotification } from '@/lib/services/notification-service';
 import { transitionLeadStatus } from '@/lib/services/lead-state';
 import { getSettingAsNumber } from '@/lib/services/settings-service';
+import { 
+  validateCountdownDuration, 
+  calculateExpiresAt, 
+  calculateCountdown 
+} from '@/lib/services/countdown-service';
 
 /**
  * POST /api/leads/[id]/approve
@@ -19,8 +24,14 @@ import { getSettingAsNumber } from '@/lib/services/settings-service';
  * 
  * @access Admin only
  * @param id - Lead ID
- * @body { price?: number, assignTo?: 'ALL' | string[], isHot?: boolean }
- * @returns 200 OK + Updated lead
+ * @body { 
+ *   price?: number, 
+ *   assignTo?: 'ALL' | string[], 
+ *   isHot?: boolean,
+ *   enableCountdown?: boolean,
+ *   countdownDays?: number 
+ * }
+ * @returns 200 OK + Updated lead + countdown state
  * @errors 401 Unauthorized, 403 Forbidden, 404 Not Found, 400 Bad Request
  */
 export async function POST(
@@ -85,10 +96,27 @@ export async function POST(
     // Determine visibility based on assignment
     const visibility = body.assignTo === 'ALL' ? 'PUBLIC' : 'PRIVATE';
 
-    // Set expiry date (default 30 days from now)
-    const expiryDays = await getSettingAsNumber('lead_expiry_days');
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + expiryDays);
+    // Handle countdown timer configuration
+    const enableCountdown = body.enableCountdown !== undefined ? body.enableCountdown : true;
+    let expiresAt: Date | null = null;
+
+    if (enableCountdown) {
+      // Get countdown days from request or default setting
+      const defaultCountdownDays = await getSettingAsNumber('LEAD_COUNTDOWN_DEFAULT_DAYS');
+      const countdownDays = body.countdownDays || defaultCountdownDays;
+
+      // Validate countdown duration
+      const validation = validateCountdownDuration(countdownDays);
+      if (!validation.isValid) {
+        return NextResponse.json(
+          { error: validation.error },
+          { status: 400 }
+        );
+      }
+
+      // Calculate expiry timestamp
+      expiresAt = calculateExpiresAt(countdownDays);
+    }
 
     // Update lead with approval
     const updatedLead = await prisma.lead.update({
@@ -129,6 +157,9 @@ export async function POST(
         visibility,
         isHot: body.isHot || false,
         assignTo: body.assignTo || 'ALL',
+        countdownEnabled: enableCountdown,
+        countdownDays: enableCountdown ? body.countdownDays || await getSettingAsNumber('LEAD_COUNTDOWN_DEFAULT_DAYS') : null,
+        expiresAt: expiresAt?.toISOString() || null,
       },
     });
 
@@ -166,6 +197,7 @@ export async function POST(
     return NextResponse.json({
       success: true,
       lead: updatedLead,
+      countdown: calculateCountdown(updatedLead.expiresAt),
     });
 
   } catch (error) {

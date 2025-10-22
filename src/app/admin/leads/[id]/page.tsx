@@ -137,6 +137,10 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
   // Modal states
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [showApproveModal, setShowApproveModal] = useState(false);
+  
+  // Phase 3: Countdown timer states
+  const [enableCountdown, setEnableCountdown] = useState(true);
+  const [countdownDays, setCountdownDays] = useState(7);
 
   // ============================================================================
   // FETCH LEAD DATA
@@ -182,16 +186,25 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          leadPrice: leadPrice ? parseFloat(leadPrice) : undefined,
-          visibility: 'PUBLIC',
-          assignToAll: true, // Default: assign to all installers
+          price: leadPrice ? parseFloat(leadPrice) : undefined,
+          assignTo: 'ALL',
+          enableCountdown,
+          countdownDays: enableCountdown ? countdownDays : undefined,
         }),
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Failed to approve lead');
+        throw new Error(error.error || 'Failed to approve lead');
       }
+
+      const data = await response.json();
+      
+      // Show success message with countdown info
+      const message = data.countdown 
+        ? `Lead approved with ${data.countdown.daysRemaining} days countdown!` 
+        : 'Lead approved successfully!';
+      alert(message);
 
       // Refresh lead data
       await fetchLead();
@@ -782,6 +795,48 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
               This will approve the lead and make it visible to installers in the marketplace.
               {!leadPrice && ' Please set a price first.'}
             </p>
+            
+            {/* Phase 3: Countdown Timer Controls */}
+            <div className={`mb-6 p-4 rounded-lg border ${theme === 'dark' ? 'bg-[#0A0F1E] border-gray-700' : 'bg-gray-50 border-gray-300'}`}>
+              <div className="flex items-center gap-2 mb-3">
+                <input
+                  type="checkbox"
+                  id="enableCountdown"
+                  checked={enableCountdown}
+                  onChange={(e) => setEnableCountdown(e.target.checked)}
+                  className="w-4 h-4 text-blue-600 rounded"
+                />
+                <label 
+                  htmlFor="enableCountdown" 
+                  className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}
+                >
+                  Enable countdown timer
+                </label>
+              </div>
+              {enableCountdown && (
+                <div>
+                  <label className={`block text-sm mb-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Days until expiry
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="90"
+                    value={countdownDays}
+                    onChange={(e) => setCountdownDays(parseInt(e.target.value) || 7)}
+                    className={`w-full px-4 py-2 rounded-lg border ${
+                      theme === 'dark'
+                        ? 'bg-[#0A0F1E] border-gray-700 text-white'
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
+                  />
+                  <p className={`text-xs mt-1 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>
+                    Lead will expire in {countdownDays} day{countdownDays !== 1 ? 's' : ''} (1-90 days range)
+                  </p>
+                </div>
+              )}
+            </div>
+            
             <div className="flex gap-3">
               <button
                 onClick={() => setShowApproveModal(false)}
