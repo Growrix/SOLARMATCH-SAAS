@@ -601,3 +601,26 @@ now when a homeowner clickes on the Request more quotes -  it opens the pre-fill
 
 
 Now I am having issues with creating the bidding quote, the other 2 typers were successfully generated. Audit and understand the scenarion and identify the issues . here are terminal output if it helps you : 
+
+
+
+
+***Admin Dashboard Lead Management***
+-the admin dashboard lead management page has no back button the visit back to the dashbaord. update it by adding a back button
+- the lead management page has : Homeowner	Location	Status	Verified	Energy Bill	Price	Created	Actions . You need to add Quote type column after Location column to show the type of quote requested by the homeowner. e.g Call/Visit, Written, Bidding.
+- when the users verifeied their contact number via OTP during the quote request process, the verified column should show a green checkmark icon. if not verified it should show a red cross icon.
+- In the Actions column, there is a view button to view the lead details in a modal. 
+  - In that modal, you need to show the Quote Type field to show the type of quote requested by the homeowner. 
+  - Also show the contact number field in that modal. 
+  - Also show the unique quote id and timestamp in that modal.
+- In the lead management page, there is no search functionality to search leads by homeowner name or quote id. add a search bar to search leads by homeowner name or quote id.
+- there is no approve/reject functionality for the leads in the lead details page. add approve and reject buttons in the Actions column to approve or reject the leads. make sure it updates the lead status accordingly. 
+- The lead price should not be shown in the homeowners dashboard in the lead cards. it should be shown only in the admin dashboard. 
+- The details lead page should fetch exactly all the data that users inputs during the quote request process. 
+- currently it is not showing the contact numbers. also the Energy Bill.
+- there is a lead deatils already existed, you need to update that lead details as per the above mentioned requirements. 
+
+
+***instructions*** 
+
+first keep in mind that the admin lead managenemt was created earlier, but during the build process we faced some issues and challenges, so I had to modify the tasks.md file to make it more clear and clean. So you need to audit all the files and folders related to the admin lead management and understand the current situation. So now I see the admin lead management page has 2 different type of response and actions. the leads were generated earlier has the approve/redeject options, but the newly generated leads does not have approve/reject options. so you need to identify the issues and fix them. also implement the above mentioned requirements in the lastest lead generation process. you need to indentfy the dual response with old vs newly implimented lead generation process. you need to focus on the new version of lead generation process. and replace the old process with the new one. make sure there are only one process is left, no reduant or duplicate system should be there. Audit, analyze, understand the current situation and then plan the implementation accordingly. do not impliment if you are not clear about the situation. create a phase in the tasks.md and start implimenting. The goal is to have a clean and clear admin lead management system with all the above mentioned requirements. you also can read back the tasks.md file to understand what have we done earlier for this admin lead management system. this is crucial. 

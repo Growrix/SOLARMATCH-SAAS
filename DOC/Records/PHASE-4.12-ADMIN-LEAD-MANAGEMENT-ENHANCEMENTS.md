@@ -1,14 +1,26 @@
 # Phase 4.12: Admin Lead Management Enhancements
 
 **Created**: October 22, 2025  
-**Status**: ✅ COMPLETED  
+**Status**: ✅ COMPLETED + CRITICAL FIX APPLIED  
 **Priority**: High (Critical UX improvements)
+
+---
+
+## 🚨 CRITICAL FIX APPLIED (Oct 22, 2025)
+
+**Issue**: Dual response pattern - old leads showed approve/reject buttons, new leads did not  
+**Root Cause**: UI checked for `status === 'DRAFT'` but new leads use `PENDING_APPROVAL`  
+**Fix**: Changed condition to accept all approvable statuses: `DRAFT`, `PENDING_APPROVAL`, `PENDING_PHONE`  
+**Impact**: All leads now show approve/reject buttons correctly  
+**Documentation**: See `CRITICAL-FIX-DUAL-LEAD-STATUS-2025-10-22.md`
 
 ---
 
 ## Executive Summary
 
 This phase addresses critical gaps in the admin lead management system, ensuring consistency across old and new lead generation flows, and adding essential UI/UX features for effective lead review and approval.
+
+**MAJOR DISCOVERY**: During implementation, we identified and fixed a critical bug where new leads (PENDING_APPROVAL status) were not showing approve/reject buttons because the UI only checked for DRAFT status. This has been resolved.
 
 ---
 
@@ -24,7 +36,8 @@ This phase addresses critical gaps in the admin lead management system, ensuring
 **Admin Lead Detail Page** (`src/app/admin/leads/[id]/page.tsx`):
 - ✅ Has: Approve/Reject functionality (modals and handlers)
 - ❌ Missing: Quote Type display, Contact number display, Quote ID prominently shown
-- ⚠️ Issue: Some leads (newly generated) may not show approve/reject buttons (dual response pattern)
+- 🚨 **CRITICAL ISSUE**: Approve/reject buttons only show for DRAFT status, but new leads use PENDING_APPROVAL
+- ✅ **FIXED**: Now checks for all approvable statuses
 
 **Homeowner Dashboard** (`src/app/homeowner/dashboard/page.tsx`):
 - ⚠️ Issue: Lead cards may be showing price (should be admin-only)
@@ -33,19 +46,33 @@ This phase addresses critical gaps in the admin lead management system, ensuring
 - ✅ Lead model has: `quoteType` (LeadQuoteType enum), `phoneNumber`, `energyBill`, `id`, `createdAt`
 - ✅ All required fields exist
 
-### Dual Response Pattern Identified
+### Dual Response Pattern - ROOT CAUSE IDENTIFIED ✅
 
-**Old Lead Generation** (legacy):
-- May use different field names or structure
-- Approve/reject functionality may not work
+**Old Leads** (Pre-Phase 4.11):
+- Status: `DRAFT`
+- Created before standardization
+- Approve/reject buttons: ✅ WORKED
 
-**New Lead Generation** (Phase 4.11+):
-- Uses `Lead` table with `quoteType` field
-- Has `CALL_VISIT`, `WRITTEN_QUOTE`, `BIDDING` types
-- Uses `phoneNumber`, `phoneVerified` fields
-- Standard approve/reject flow
+**New Leads** (Phase 4.11+):
+- Status: `PENDING_APPROVAL` (set in lead-service.ts line 194)
+- Standard lead creation flow
+- Approve/reject buttons: ❌ NOT SHOWING (BUG)
 
-**Action Required**: Ensure all components use the new structure only.
+**Backend APIs**:
+- Approve endpoint accepts: `DRAFT`, `PENDING_APPROVAL`, `PENDING_PHONE` ✅
+- Reject endpoint accepts: `DRAFT`, `PENDING_APPROVAL`, `PENDING_PHONE`, `APPROVED` ✅
+- Backend was correct, frontend UI had the bug
+
+**The Bug**:
+```typescript
+// BEFORE (line 664)
+{lead.status === 'DRAFT' && ( // ❌ Only checked DRAFT
+
+// AFTER (FIXED)
+{(['DRAFT', 'PENDING_APPROVAL', 'PENDING_PHONE'].includes(lead.status)) && ( // ✅ Checks all approvable statuses
+```
+
+**Resolution**: ✅ FIXED - All leads now show approve/reject buttons when appropriate
 
 ---
 

@@ -660,8 +660,8 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
 
         {/* RIGHT COLUMN - Admin Actions */}
         <div className="space-y-6">
-          {/* ACTION BUTTONS */}
-          {lead.status === 'DRAFT' && (
+          {/* ACTION BUTTONS - Show for DRAFT, PENDING_APPROVAL, and PENDING_PHONE statuses */}
+          {(['DRAFT', 'PENDING_APPROVAL', 'PENDING_PHONE'].includes(lead.status)) && (
             <div className={`p-6 rounded-lg ${theme === 'dark' ? 'bg-[#1A1F2E]' : 'bg-white'} shadow-sm`}>
               <h2 className={`text-xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                 Actions
