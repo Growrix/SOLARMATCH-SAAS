@@ -11,6 +11,7 @@ import HomeownerMobileSidebarMenu from '@/components/HomeownerMobileSidebarMenu'
 import NewQuoteRequestModal from '@/components/NewQuoteRequestModal';
 import SimplifiedQuoteFormModal from '@/components/homeowner/SimplifiedQuoteFormModal';
 import QuoteOptionsModal from '@/components/QuoteOptionsModal';
+import QuoteTypeDistributionModal from '@/components/homeowner/QuoteTypeDistributionModal';
 import MessagingModal from '@/components/MessagingModal';
 import ProfileManagement from '@/components/ProfileManagement';
 import VerifiedBadge from '@/components/VerifiedBadge';
@@ -75,7 +76,7 @@ const NavItem: React.FC<{ icon: React.ReactNode; title: string; isActive: boolea
     </button>
 );
 
-type QuoteTypeOption = 'CALL_VISIT' | 'WRITTEN_QUOTE';
+type QuoteTypeOption = 'CALL_VISIT' | 'WRITTEN_QUOTE' | 'BIDDING';
 
 type LeadStatus = (typeof LeadStatusEnum)[keyof typeof LeadStatusEnum];
 
@@ -116,6 +117,7 @@ interface PendingOTPState {
 const QUOTE_TYPE_LABELS: Record<QuoteTypeOption, string> = {
   CALL_VISIT: 'Call or Site Visit',
   WRITTEN_QUOTE: 'Written Quote',
+  BIDDING: 'Competitive Bidding',
 };
 
 const STATUS_LABELS: Record<LeadStatus, { label: string; description: string; accent: string }> = {
@@ -231,6 +233,20 @@ const formatRelativeTime = (value: string | null | undefined): string => {
 
   const diffYears = Math.round(diffMonths / 12);
   return rtf.format(diffYears, 'year');
+};
+
+// Phase 4.11: Helper to get quote type icon
+const getQuoteTypeIcon = (quoteType: QuoteTypeOption) => {
+  switch (quoteType) {
+    case 'CALL_VISIT':
+      return <PhoneCallIcon />;
+    case 'WRITTEN_QUOTE':
+      return <FileSignatureIcon />;
+    case 'BIDDING':
+      return <TrophyIcon />;
+    default:
+      return null;
+  }
 };
 
 // Sidebar Component
@@ -545,6 +561,10 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
                 <div key={lead.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors gap-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
+                      {/* Phase 4.11: Quote type icon */}
+                      <span className="flex-shrink-0 text-primary">
+                        {getQuoteTypeIcon(lead.quoteType)}
+                      </span>
                       <span className="text-sm font-medium text-slate-900 dark:text-white">
                         {QUOTE_TYPE_LABELS[lead.quoteType]}
                       </span>
@@ -613,6 +633,7 @@ export default function HomeownerDashboardPage() {
   const [isNewQuoteModalOpen, setIsNewQuoteModalOpen] = useState(false);
   const [isSimplifiedQuoteModalOpen, setIsSimplifiedQuoteModalOpen] = useState(false);
   const [isQuoteOptionsModalOpen, setIsQuoteOptionsModalOpen] = useState(false);
+  const [isQuoteTypeDistributionModalOpen, setIsQuoteTypeDistributionModalOpen] = useState(false);
   const [isMessagingModalOpen, setIsMessagingModalOpen] = useState(false);
   const [showContactVerificationModal, setShowContactVerificationModal] = useState(false);
   const [pendingOTP, setPendingOTP] = useState<PendingOTPState | null>(null);
@@ -815,6 +836,94 @@ export default function HomeownerDashboardPage() {
         console.log('[handleRequestMoreQuotes] → Opening SimplifiedQuoteForm (returning user, totalSubmitted =', dashboardSummary?.totalSubmitted, ')');
         setIsSimplifiedQuoteModalOpen(true);
       }
+    }
+  };
+
+  // Phase 4.11: Distribution handler for second+ quotes
+  const handleDistributionSubmit = async (distributions: Array<{type: 'CALL_VISIT' | 'WRITTEN_QUOTE' | 'BIDDING'; count: number}>) => {
+    console.log('[handleDistributionSubmit] Distributions:', distributions);
+    console.log('[handleDistributionSubmit] Pending quote data:', pendingQuoteData);
+    
+    setIsQuoteTypeDistributionModalOpen(false);
+    setIsSubmittingRequest(true);
+
+    try {
+      const totalLeadsToCreate = distributions.reduce((sum, d) => sum + d.count, 0);
+      console.log(`[handleDistributionSubmit] Creating ${totalLeadsToCreate} leads...`);
+
+      // Create leads sequentially for each distribution
+      const createdLeads = [];
+      for (const distribution of distributions) {
+        const { type: quoteType, count } = distribution;
+        
+        for (let i = 0; i < count; i++) {
+          const payload = {
+            quoteType,
+            quoteData: pendingQuoteData,
+            propertyPostcode: pendingQuoteData?.postcode || '',
+            location: pendingQuoteData?.location || '',
+            state: pendingQuoteData?.state || '',
+            propertyType: pendingQuoteData?.propertyType || 'residential',
+            roofType: pendingQuoteData?.roofType || '',
+            energyBill: pendingQuoteData?.electricityUsage || 0,
+            billType: pendingQuoteData?.electricityUsageType || 'quarterly',
+            budgetRange: pendingQuoteData?.budgetRange || '',
+            desiredOffset: pendingQuoteData?.desiredOffset || 100,
+            batteryRequired: pendingQuoteData?.batteryIncluded || false,
+            batteryCapacity: pendingQuoteData?.batteryCapacity || '',
+          };
+          
+          console.log(`[handleDistributionSubmit] Creating lead ${i + 1}/${count} for ${quoteType}`, payload);
+
+          const response = await fetch('/api/leads', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+
+          const result = await response.json();
+
+          if (!response.ok) {
+            // Handle verification required
+            if (result.requiresVerification) {
+              alert('Phone verification required. Please verify your phone number to submit more quotes.');
+              setShowContactVerificationModal(true);
+              throw new Error('Verification required');
+            }
+
+            // Handle limit reached
+            if (result.limitReached) {
+              alert(`You have reached your quote limit (${result.quoteLimit} total).`);
+              throw new Error('Limit reached');
+            }
+
+            // Handle BIDDING quota exhausted
+            if (result.biddingQuotaExhausted) {
+              alert('You have already submitted a BIDDING lead. Only 1 bidding lead allowed per homeowner.');
+              throw new Error('Bidding quota exhausted');
+            }
+
+            throw new Error(result.error || 'Failed to submit lead');
+          }
+
+          createdLeads.push(result);
+          console.log(`✅ Lead ${i + 1}/${count} created successfully:`, result);
+        }
+      }
+
+      // Success! Refresh dashboard
+      console.log(`✅ All ${totalLeadsToCreate} leads created successfully:`, createdLeads);
+      alert(`Successfully created ${totalLeadsToCreate} quote request(s)! We'll match you with verified installers soon.`);
+      
+      await fetchDashboardSummary();
+      setPendingQuoteData(null);
+    } catch (error) {
+      console.error('[handleDistributionSubmit] Failed to submit leads:', error);
+      if (error instanceof Error && error.message !== 'Verification required' && error.message !== 'Limit reached') {
+        alert(error.message || 'Failed to submit quote requests. Please try again.');
+      }
+    } finally {
+      setIsSubmittingRequest(false);
     }
   };
 
@@ -1040,10 +1149,10 @@ export default function HomeownerDashboardPage() {
         onClose={() => setIsSimplifiedQuoteModalOpen(false)}
         onSubmit={(data) => {
           console.log('Simplified quote form submitted:', data);
-          // Store quote data and open QuoteOptionsModal to select quote type
+          // Store quote data and open QuoteTypeDistributionModal for second+ quotes
           setPendingQuoteData(data);
           setIsSimplifiedQuoteModalOpen(false);
-          setIsQuoteOptionsModalOpen(true);
+          setIsQuoteTypeDistributionModalOpen(true); // Changed from QuoteOptionsModal
         }}
         initialData={quoteFormInitialData}
       />
@@ -1142,6 +1251,19 @@ export default function HomeownerDashboardPage() {
           }
         }}
         quoteData={pendingQuoteData}
+      />
+
+      {/* Phase 4.11: Quote Type Distribution Modal for second+ quotes */}
+      <QuoteTypeDistributionModal
+        isOpen={isQuoteTypeDistributionModalOpen}
+        onClose={() => {
+          setIsQuoteTypeDistributionModalOpen(false);
+          setPendingQuoteData(null);
+        }}
+        onSubmit={handleDistributionSubmit}
+        remainingQuota={dashboardSummary?.remainingLeadAllowance || 0}
+        quoteData={pendingQuoteData}
+        userAlreadyHasBiddingLead={(dashboardSummary?.biddingQuotaRemaining ?? 1) === 0}
       />
 
       <MessagingModal
