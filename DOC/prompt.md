@@ -596,3 +596,8 @@ now when a homeowner clickes on the Request more quotes -  it opens the pre-fill
 - modify the current lead cards with icons to show as per the lead type. e.g show tropy icon in bidding leads on the dashboard. 
 
 ***Instructions*** do a deep audit and analyze the existing flow, files, api, prisma, db etc to get the clear picture of the current situation. Then identify the next impimentation workflow plan and update the tasks.md by creating a new phase and start implimenting accordingly. 
+
+
+
+
+Now I am having issues with creating the bidding quote, the other 2 typers were successfully generated. Audit and understand the scenarion and identify the issues . here are terminal output if it helps you : 
