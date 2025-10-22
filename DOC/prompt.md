@@ -668,7 +668,133 @@ When the admin approved the leads , it should add a countdown timer bar on the t
 
 I am not giving you any specific tasks but Instructions that how I want to work furhter with this speckit. My workflow is like this :
 - You should follow the task planning and execution rules accordingly.
-- I will always give you tasks by asking to create a phase in the tasks.md file. becuase pre-planned tasks always dont meet the results, so always I have to modify and update the plan on the go. So , from now now I will always ask you to create a phase in the tasks.md file based on the current situation and then start implementing accordingly. So that all the tasks will be performed as per the tasks.md files . 
+- I will always give you tasks by asking to create a phase in the tasks.md file. becuase pre-planned tasks always dont meet the results, so always I have to modify and update the plan on the go. So , from now now I will always ask you to create a phase in the tasks.md file based on the current situation and then start implementing accordingly. So that all the tasks will be performed as per the tasks.md files . As I am working in an exsiting project , so I need to keep the tasks.md file always updated and aligned with the current situation to avoid any messup situation. 
 
 
 
+### Before Starting Any Phase:
+1. **Pre-Phase Audit & Planning** (30-60 minutes):
+   - Read ALL spec files thoroughly (`spec.md`, `data-model.md`, `contracts/*.openapi.yaml`)
+   - must audit the current state of the site related to the planned tasks. Understand existing flows, identify gaps. Analyze API,DB,Prisma schema,frontend files etc.
+   - must get a clear picture of the current state before start implimenting.
+   - Never start any blind implimentation. Stop the process if you are not clear about my instructions vs the audit findings. Ask me to clarify.
+   - Map out EXACT data structures from spec (don't invent new ones)
+   - Identify existing code patterns to follow (auth, services, API routes)
+   - Check Prisma schema matches spec BEFORE writing any code
+   - List all files to create/modify with their exact purposes
+   - Verify external dependencies are installed and configured
+   - Document any spec ambiguities - ASK USER before assuming
+   - **RULE**: If spec says PhoneVerification links to User, schema MUST link to User. Don't change mid-implementation.
+
+### During Phase Implementation:
+2. **Spec-Driven Implementation** (Task by Task):
+   - **For each task**: Re-read relevant spec section FIRST
+   - Never migrate entire database without my permission. 
+   - you are only allowed to migrate DB for the specific parts. discuss with me further if needed.
+   - no need to ask me if you are creating new tables in the DB 
+   - Copy exact field names, types, and structures from spec
+   - Follow existing code patterns (e.g., how other services are structured)
+   - Use EXISTING utilities (don't reinvent: getSetting, createAuditLog, etc.)
+   - Check function signatures in services BEFORE calling them
+   - **Incremental Build Check**: After every 3-5 tasks, run `npm run build`
+     - If errors appear: FIX according to spec, not by changing architecture
+     - Don't create "temporary workarounds" that contradict spec
+   - **Type Safety First**: Let TypeScript errors guide you to spec compliance
+     - Missing field? Check spec - should it exist in schema?
+     - Wrong type? Check spec - is service signature correct?
+   - **No Spec Drift**: If you modify Prisma schema, update it ONCE at start of phase, not mid-phase
+   - **Manual QA Checklist Required**: For any task that includes BOTH backend and frontend changes, add a short "Manual QA Checklist" directly under that task with steps to validate UI states, API calls (success and one error path), and data accuracy. Keep it observable and role-specific (Admin/Homeowner).
+
+3. **Post-Phase Validation** (MUST COMPLETE BEFORE COMMIT):
+   - ✅ **Schema Validation**: Run `npx prisma validate` - schema must match spec
+   - ✅ **Type Check**: Run `npx tsc --noEmit` - all TypeScript must be valid
+   - ✅ **Build**: Run `npm run build` - MUST pass with 0 errors
+     - **Build Error Protocol**:
+       1. Read error message carefully
+       2. Check spec: Is implementation following spec exactly?
+       3. Fix by aligning with spec, NOT by changing architecture
+       4. If spec is ambiguous: STOP, document issue, ask user
+       5. **Time Limit**: If fixing takes >30 min, STOP and report to user
+   - ✅ **Lint**: Run `npm run lint` - fix critical issues only
+   - ✅ **Manual Spot Check**: Open 2-3 key files, verify they match spec intent
+   - ✅ **Task Checklist**: Every task T### must be checked off with proof
+   - ✅ **Regression Check**: Run dev server, verify existing features still work
+
+### Manual QA Checklist (After Backend + Frontend Work)
+- Start with a clean browser session (incognito or cleared storage) to avoid cached data during validation.
+- Walk through every new UI entry point in sequence; e.g., dashboard → OTP verification modal → verify code → Request More Quotes flow → confirm prefilled instant quote fields → submit and observe dashboard refresh.
+- Exercise at least one error path for the updated feature (invalid OTP, missing required field, exhausted quota) and ensure UI messaging matches spec with no console errors.
+- Inspect network requests in dev tools or Thunder Client while executing the flow to confirm payloads and responses match the API contracts.
+- Document findings (successes, failures, screenshots) and extend this checklist with feature-specific steps before handing off for review.
+
+4. **Commit Approval** (MANDATORY):
+   - ❌ **NEVER commit without explicit user approval**
+   - Present validation results:
+     - Build output (success/warnings)
+     - Files changed count
+     - Key changes summary
+     - Any deviations from spec (with justification)
+   - Wait for user confirmation: "Yes, commit this phase"
+   - Only then: `git add .` → `git commit -m "Phase X: <summary>"`
+
+### Phase Completion Criteria:
+- ✅ All tasks marked complete with evidence
+- ✅ Implementation matches spec exactly (data model, API contracts, types)
+- ✅ Prisma schema validated
+- ✅ TypeScript compiles with no errors
+- ✅ Build passes (`npm run build`)
+- ✅ No critical lint errors
+- ✅ No spec drift or architectural changes mid-phase
+- ✅ User approval received
+- ✅ Git commit created with detailed message
+
+### 🚨 RED FLAGS - STOP IMMEDIATELY:
+- Schema doesn't match spec → Review spec, fix schema ONCE
+- Service function signatures differ from usage → Check existing services, align
+- Build errors persist >30 minutes → Report to user, don't spiral
+- Creating new patterns not in existing codebase → Use existing patterns
+- Inventing field names not in spec → Use exact spec names
+- "I'll fix it later" thoughts → Fix now according to spec, or ask user
+
+---
+
+## 🛡️ BUILD ERROR PREVENTION CHECKLIST
+
+**Use this BEFORE writing any integration code:**
+
+### 1. Schema Verification (5 min)
+```bash
+# Check Prisma schema for exact model structure
+cat prisma/schema.prisma | grep -A 20 "model YourModel"
+
+# Validate schema is correct
+npx prisma validate
+
+# Check what relations exist
+grep -E "model (User|Lead|PhoneVerification)" prisma/schema.prisma -A 15
+```
+
+### 2. Service Signature Verification (10 min)
+```bash
+# Check what a service actually exports
+grep "^export" src/lib/services/your-service.ts
+
+# Check function signatures
+grep "export async function" src/lib/services/your-service.ts -A 3
+
+# Example: Before calling getSetting()
+grep "export.*getSetting" src/lib/services/settings-service.ts -A 5
+# Result: getSetting(key: string) - only ONE parameter!
+```
+
+### 3. Type Verification (5 min)
+```bash
+# Check NextAuth session type
+grep -A 20 "interface Session" src/types/next-auth.d.ts
+
+# Check if field exists in session.user
+grep "interface.*User" src/lib/auth.ts -A 10
+
+# Check Prisma Client types
+grep "export.*CreateNotificationInput" src/types/notification.ts -A 10
+```
