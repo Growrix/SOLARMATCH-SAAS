@@ -102,7 +102,8 @@ interface HomeownerDashboardSummary {
   lastSubmissionAt: string | null;
   statusBreakdown: Record<LeadStatus, number>;
   recentLeads: RecentLeadSummary[];
-  biddingQuotaRemaining: number; // Phase 4.11: BIDDING quota tracking
+  biddingLeadsSubmitted: number; // T263: BIDDING quota usage count (0 or 1)
+  biddingQuotaRemaining: number; // T263: BIDDING quota remaining (0 or 1)
 }
 
 interface PendingOTPState {

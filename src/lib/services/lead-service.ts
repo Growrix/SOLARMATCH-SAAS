@@ -73,7 +73,8 @@ export interface HomeownerLeadSummary {
   totalSubmitted: number;
   quoteLimit: number;
   remainingLeadAllowance: number;
-  biddingQuotaRemaining: number;
+  biddingLeadsSubmitted: number; // T263: Track BIDDING quota usage (max 1)
+  biddingQuotaRemaining: number; // T263: Remaining BIDDING quota (0 or 1)
   phoneVerified: boolean;
   requiresVerification: boolean;
   verificationThreshold: number;
@@ -374,11 +375,10 @@ export async function getHomeownerLeadSummary(userId: string): Promise<Homeowner
       phoneVerified: true,
       leadSubmissionCount: true,
       leadSubmissionLimit: true,
+      biddingLeadsSubmitted: true, // T263: Fetch BIDDING quota usage
     },
-  }) as any; // Type assertion
+  });
   
-  const homeownerWithBidding = homeowner as typeof homeowner & { biddingLeadsSubmitted: number };
-
   if (!homeowner) {
     throw new Error('Homeowner not found');
   }
@@ -413,7 +413,7 @@ export async function getHomeownerLeadSummary(userId: string): Promise<Homeowner
 
   const quoteLimit = homeowner.leadSubmissionLimit ?? await getSettingAsNumber('MAX_LEAD_SUBMISSIONS_TOTAL');
   const remainingLeadAllowance = Math.max(quoteLimit - homeowner.leadSubmissionCount, 0);
-  const biddingQuotaRemaining = Math.max(1 - homeownerWithBidding.biddingLeadsSubmitted, 0);
+  const biddingQuotaRemaining = Math.max(1 - homeowner.biddingLeadsSubmitted, 0); // T263: Calculate from actual field
   const requiresVerification = !homeowner.phoneVerified && homeowner.leadSubmissionCount >= verificationThreshold;
 
   const statusBreakdown = Object.values(LeadStatus).reduce((acc, status) => {
@@ -429,7 +429,8 @@ export async function getHomeownerLeadSummary(userId: string): Promise<Homeowner
     totalSubmitted: homeowner.leadSubmissionCount,
     quoteLimit,
     remainingLeadAllowance,
-    biddingQuotaRemaining,
+    biddingLeadsSubmitted: homeowner.biddingLeadsSubmitted, // T263: Return BIDDING usage count
+    biddingQuotaRemaining, // T263: Return remaining BIDDING quota (0 or 1)
     phoneVerified: homeowner.phoneVerified,
     requiresVerification,
     verificationThreshold,

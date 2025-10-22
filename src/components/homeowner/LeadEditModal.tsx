@@ -224,8 +224,8 @@ export default function LeadEditModal({
               <line x1="12" y1="8" x2="12.01" y2="8"/>
             </svg>
             <div className="text-sm">
-              <p className="font-medium">You can edit this quote because it hasn't been approved yet.</p>
-              <p className="mt-1">Once an admin approves your request, you won't be able to make changes.</p>
+              <p className="font-medium">You can edit this quote because it hasn&apos;t been approved yet.</p>
+              <p className="mt-1">Once an admin approves your request, you won&apos;t be able to make changes.</p>
             </div>
           </div>
         </div>
