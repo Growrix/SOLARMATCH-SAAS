@@ -582,3 +582,17 @@ I want you to add one more phase before this phase ## Phase 4: User Story 2 - Ad
 - this plan and the work process should be match and synced with the current workflow and build process based on the Tasks.md file.
 
 
+
+
+
+
+now when a homeowner clickes on the Request more quotes -  it opens the pre-filled modal and calculate  - then when they click on submit Quote request there is a quote option modals open. 
+
+***what is to change*** 
+- Instead of this quoteoption modal, it should open a Quote Distribution modal.  In this modal use icons on each type of leads. 
+- there should be 3 types of options to chose within the remaining balance of the users
+- Call/visit, Written Quote , Bidding (Bidding quote can be requested only 1), and the rest can be used to generate the other 2 types of leads within the remaining balance. 
+- all leads are unique and should be generated separately according to their types. 
+- modify the current lead cards with icons to show as per the lead type. e.g show tropy icon in bidding leads on the dashboard. 
+
+***Instructions*** do a deep audit and analyze the existing flow, files, api, prisma, db etc to get the clear picture of the current situation. Then identify the next impimentation workflow plan and update the tasks.md by creating a new phase and start implimenting accordingly. 

@@ -82,7 +82,7 @@ const BUCKET_NAME = process.env.AWS_S3_BUCKET || '';
  *   );
  */
 export async function uploadFile(
-  fileBuffer: Buffer,
+  fileBuffer: any, // Buffer type - using any to avoid Node type issues
   key: string,
   contentType: string
 ): Promise<string> {
