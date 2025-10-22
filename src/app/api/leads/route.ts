@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     
-    const validQuoteTypes: Array<'CALL_VISIT' | 'WRITTEN_QUOTE'> = ['CALL_VISIT', 'WRITTEN_QUOTE'];
+    const validQuoteTypes: Array<'CALL_VISIT' | 'WRITTEN_QUOTE' | 'BIDDING'> = ['CALL_VISIT', 'WRITTEN_QUOTE', 'BIDDING'];
 
     // Phase 4.5: Debug log to verify quoteData is received
     console.log('[POST /api/leads] QuoteData received:', {
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
 
     if (!validQuoteTypes.includes(body.quoteType)) {
       return NextResponse.json(
-        { error: 'Invalid quoteType. Expected CALL_VISIT or WRITTEN_QUOTE' },
+        { error: 'Invalid quoteType. Expected CALL_VISIT, WRITTEN_QUOTE, or BIDDING' },
         { status: 400 }
       );
     }
