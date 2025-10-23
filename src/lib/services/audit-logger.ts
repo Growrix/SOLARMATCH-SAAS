@@ -270,4 +270,14 @@ export const AUDIT_ACTIONS = {
   ADMIN_USER_ACTIVATED: 'admin_user_activated',
   ADMIN_SETTINGS_CHANGED: 'admin_settings_changed',
   ADMIN_HOMEOWNER_QUOTE_LIMIT_UPDATED: 'admin_homeowner_quote_limit_updated',
+
+  // Phase 7: Admin lead assignment and lifecycle
+  LEAD_ASSIGNED: 'lead_assigned',
+  LEAD_RESOLD: 'lead_resold',
+  LEAD_ARCHIVED: 'lead_archived',
+  LEAD_UNARCHIVED: 'lead_unarchived',
+  TIMER_RESET: 'timer_reset',
+  ASSIGNMENT_REMOVED: 'assignment_removed',
+  ASSIGNMENT_ACCEPTED: 'assignment_accepted',
 } as const;
+

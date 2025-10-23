@@ -876,3 +876,450 @@ export async function cancelLead(
   return cancelledLead;
 }
 
+/**
+ * ========================================
+ * PHASE 7: ADMIN LEAD ASSIGNMENT FUNCTIONS
+ * ========================================
+ */
+
+/**
+ * Assign Lead Input
+ */
+export interface AssignLeadInput {
+  leadId: string;
+  installerIds: string[];
+  assignedBy: string; // Admin user ID
+  notes?: string;
+  mode: 'exclusive' | 'competitive';
+  notifyInstallers?: boolean;
+}
+
+/**
+ * Assign lead to specific installer(s) - ADMIN ONLY
+ * Sets visibility to PRIVATE so only assigned installers see it
+ * 
+ * @param input - Assignment parameters
+ * @returns Created LeadAssignment records
+ */
+export async function assignLeadToInstallers(input: AssignLeadInput) {
+  const { leadId, installerIds, assignedBy, notes, mode, notifyInstallers = true } = input;
+
+  // Validate exclusive mode
+  if (mode === 'exclusive' && installerIds.length > 1) {
+    throw new Error('Exclusive mode allows only one installer');
+  }
+
+  // Update lead visibility to PRIVATE and set assignment metadata
+  const lead = await prisma.lead.update({
+    where: { id: leadId },
+    data: {
+      visibility: LeadVisibility.PRIVATE,
+      assignedAt: new Date(),
+      assignedBy: assignedBy,
+      assignmentNotes: notes,
+    },
+    include: {
+      homeowner: {
+        select: {
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
+
+  // Create LeadAssignment records for each installer
+  const assignments = await Promise.all(
+    installerIds.map((installerId) =>
+      prisma.leadAssignment.create({
+        data: {
+          leadId,
+          installerId,
+          assignedBy,
+          notes,
+          notified: false,
+        },
+        include: {
+          installer: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      })
+    )
+  );
+
+  // Send notifications to assigned installers
+  if (notifyInstallers) {
+    await Promise.all(
+      assignments.map((assignment) =>
+        createNotification({
+          userId: assignment.installerId,
+          type: 'LEAD_ASSIGNED',
+          title: 'New Lead Assigned',
+          message: `You have been assigned a new lead by admin${notes ? ': ' + notes : ''}`,
+          metadata: {
+            leadId,
+            assignmentMode: mode,
+            homeownerName: lead.homeowner.name,
+            location: lead.location,
+            quoteType: lead.quoteType,
+          },
+        })
+      )
+    );
+
+    // Mark assignments as notified
+    await prisma.leadAssignment.updateMany({
+      where: {
+        id: { in: assignments.map((a) => a.id) },
+      },
+      data: {
+        notified: true,
+      },
+    });
+  }
+
+  // Create audit log
+  await createAuditLog({
+    action: AUDIT_ACTIONS.LEAD_ASSIGNED,
+    entityType: 'lead',
+    entityId: leadId,
+    leadId,
+    userId: assignedBy,
+    metadata: {
+      installerIds,
+      installerNames: assignments.map((a) => a.installer.name),
+      mode,
+      notes,
+      visibility: 'PRIVATE',
+    },
+  });
+
+  return assignments;
+}
+
+/**
+ * Get leads assigned to specific installer
+ * 
+ * @param installerId - Installer user ID
+ * @returns Leads with assignment metadata
+ */
+export async function getInstallerAssignedLeads(installerId: string) {
+  const assignments = await prisma.leadAssignment.findMany({
+    where: {
+      installerId,
+      lead: {
+        installerId: null, // Only show leads not yet accepted
+        archivedAt: null, // Exclude archived leads
+      },
+    },
+    include: {
+      lead: {
+        include: {
+          homeowner: {
+            select: {
+              name: true,
+              email: true,
+            },
+          },
+          assignments: {
+            select: {
+              installerId: true,
+            },
+          },
+        },
+      },
+      admin: {
+        select: {
+          name: true,
+        },
+      },
+    },
+    orderBy: {
+      assignedAt: 'desc',
+    },
+  });
+
+  return assignments.map((assignment) => ({
+    ...assignment.lead,
+    assignmentMetadata: {
+      assignedAt: assignment.assignedAt,
+      assignedBy: assignment.assignedBy,
+      assignedByName: assignment.admin.name,
+      notes: assignment.notes,
+      mode: assignment.lead.assignments.length > 1 ? 'competitive' : 'exclusive',
+      competitorCount: assignment.lead.assignments.length,
+    },
+  }));
+}
+
+/**
+ * Remove lead assignment from specific installer
+ * 
+ * @param leadId - Lead ID
+ * @param installerId - Installer user ID
+ * @param removedBy - Admin user ID
+ * @returns Success status
+ */
+export async function removeLeadAssignment(
+  leadId: string,
+  installerId: string,
+  removedBy: string
+) {
+  // Delete the assignment
+  await prisma.leadAssignment.delete({
+    where: {
+      leadId_installerId: {
+        leadId,
+        installerId,
+      },
+    },
+  });
+
+  // Check if this was the last assignment
+  const remainingAssignments = await prisma.leadAssignment.count({
+    where: { leadId },
+  });
+
+  // If no assignments left, set visibility to HIDDEN
+  if (remainingAssignments === 0) {
+    await prisma.lead.update({
+      where: { id: leadId },
+      data: {
+        visibility: LeadVisibility.HIDDEN,
+      },
+    });
+  }
+
+  // Notify installer
+  await createNotification({
+    userId: installerId,
+    type: 'ASSIGNMENT_REMOVED',
+    title: 'Lead Assignment Removed',
+    message: `Your assignment to lead #${leadId.slice(-8)} has been removed by admin`,
+    metadata: {
+      leadId,
+    },
+  });
+
+  // Create audit log
+  await createAuditLog({
+    action: AUDIT_ACTIONS.ASSIGNMENT_REMOVED,
+    entityType: 'lead',
+    entityId: leadId,
+    leadId,
+    userId: removedBy,
+    metadata: {
+      installerId,
+      remainingAssignments,
+      visibilityChanged: remainingAssignments === 0 ? 'HIDDEN' : 'unchanged',
+    },
+  });
+
+  return { success: true, remainingAssignments };
+}
+
+/**
+ * Resell lead - clear installer and optionally return to marketplace
+ * 
+ * @param leadId - Lead ID
+ * @param toMarketplace - If true, set visibility to PUBLIC
+ * @param resoldBy - Admin user ID
+ * @returns Updated lead
+ */
+export async function resellLead(
+  leadId: string,
+  toMarketplace: boolean,
+  resoldBy: string
+) {
+  const existingLead = await prisma.lead.findUnique({
+    where: { id: leadId },
+    include: {
+      installer: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  });
+
+  if (!existingLead) {
+    throw new Error('Lead not found');
+  }
+
+  if (!existingLead.installerId) {
+    throw new Error('Lead has not been purchased');
+  }
+
+  const previousInstallerId = existingLead.installerId;
+
+  // Clear purchase data but keep assignment history for audit
+  const resoldLead = await prisma.lead.update({
+    where: { id: leadId },
+    data: {
+      installerId: null,
+      purchaseStatus: null,
+      purchasedAt: null,
+      stripePaymentIntentId: null,
+      visibility: toMarketplace ? LeadVisibility.PUBLIC : LeadVisibility.HIDDEN,
+    },
+  });
+
+  // Notify previous installer
+  await createNotification({
+    userId: previousInstallerId,
+    type: 'LEAD_RESOLD',
+    title: 'Lead Resold',
+    message: `Lead #${leadId.slice(-8)} has been resold by admin and removed from your purchased leads`,
+    metadata: {
+      leadId,
+      returnedToMarketplace: toMarketplace,
+    },
+  });
+
+  // Create audit log
+  await createAuditLog({
+    action: AUDIT_ACTIONS.LEAD_RESOLD,
+    entityType: 'lead',
+    entityId: leadId,
+    leadId,
+    userId: resoldBy,
+    metadata: {
+      previousInstallerId,
+      previousInstallerName: existingLead.installer?.name,
+      toMarketplace,
+      newVisibility: resoldLead.visibility,
+    },
+  });
+
+  return resoldLead;
+}
+
+/**
+ * Archive lead - soft delete
+ * 
+ * @param leadId - Lead ID
+ * @param archivedBy - Admin user ID
+ * @param reason - Optional reason for archiving
+ * @returns Archived lead
+ */
+export async function archiveLead(
+  leadId: string,
+  archivedBy: string,
+  reason?: string
+) {
+  const archivedLead = await prisma.lead.update({
+    where: { id: leadId },
+    data: {
+      archivedAt: new Date(),
+    },
+  });
+
+  // Create audit log
+  await createAuditLog({
+    action: AUDIT_ACTIONS.LEAD_ARCHIVED,
+    entityType: 'lead',
+    entityId: leadId,
+    leadId,
+    userId: archivedBy,
+    metadata: {
+      reason,
+      postcode: archivedLead.postcode,
+      status: archivedLead.status,
+    },
+  });
+
+  return archivedLead;
+}
+
+/**
+ * Unarchive lead - restore from soft delete
+ * 
+ * @param leadId - Lead ID
+ * @param unarchivedBy - Admin user ID
+ * @returns Restored lead
+ */
+export async function unarchiveLead(leadId: string, unarchivedBy: string) {
+  const restoredLead = await prisma.lead.update({
+    where: { id: leadId },
+    data: {
+      archivedAt: null,
+    },
+  });
+
+  // Create audit log
+  await createAuditLog({
+    action: AUDIT_ACTIONS.LEAD_UNARCHIVED,
+    entityType: 'lead',
+    entityId: leadId,
+    leadId,
+    userId: unarchivedBy,
+    metadata: {
+      postcode: restoredLead.postcode,
+      status: restoredLead.status,
+      visibility: restoredLead.visibility,
+    },
+  });
+
+  return restoredLead;
+}
+
+/**
+ * Reset lead timer - extend expiry date
+ * 
+ * @param leadId - Lead ID
+ * @param days - Number of days to extend (default 7)
+ * @param resetBy - Admin user ID
+ * @returns Updated lead with new expiry
+ */
+export async function resetLeadTimer(
+  leadId: string,
+  days: number = 7,
+  resetBy: string
+) {
+  const existingLead = await prisma.lead.findUnique({
+    where: { id: leadId },
+  });
+
+  if (!existingLead) {
+    throw new Error('Lead not found');
+  }
+
+  const newExpiryDate = new Date();
+  newExpiryDate.setDate(newExpiryDate.getDate() + days);
+
+  const updatedLead = await prisma.lead.update({
+    where: { id: leadId },
+    data: {
+      expiresAt: newExpiryDate,
+      createdAt: new Date(), // Reset countdown base
+    },
+  });
+
+  // Create audit log
+  await createAuditLog({
+    action: AUDIT_ACTIONS.TIMER_RESET,
+    entityType: 'lead',
+    entityId: leadId,
+    leadId,
+    userId: resetBy,
+    metadata: {
+      previousExpiry: existingLead.expiresAt,
+      newExpiry: newExpiryDate,
+      daysExtended: days,
+    },
+  });
+
+  return {
+    lead: updatedLead,
+    newExpiryDate,
+    daysExtended: days,
+  };
+}
+
+
