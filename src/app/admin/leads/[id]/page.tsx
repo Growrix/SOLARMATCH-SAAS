@@ -11,6 +11,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/components/ThemeProvider';
 import QuoteDataDisplay from '@/components/admin/QuoteDataDisplay';
+import InstallerSelectorModal from '@/components/admin/InstallerSelectorModal';
+import AssignmentHistoryTable from '@/components/admin/AssignmentHistoryTable';
 
 // ============================================================================
 // TYPES
@@ -53,6 +55,12 @@ interface Lead {
   leadPrice: number | null;
   purchaseStatus: string | null;
   stripePaymentIntentId: string | null;
+  // Phase 7: Assignment fields
+  archivedAt: string | null;
+  assignedAt: string | null;
+  assignedBy: string | null;
+  assignmentNotes: string | null;
+  assignments?: Assignment[];
   homeowner?: {
     id: string;
     name: string | null;
@@ -66,6 +74,17 @@ interface Lead {
     name: string | null;
     email: string | null;
   };
+}
+
+interface Assignment {
+  id: string;
+  installerId: string;
+  installerName: string;
+  installerEmail: string;
+  assignedAt: string;
+  assignedByName: string;
+  notes: string | null;
+  status: 'pending' | 'accepted' | 'removed';
 }
 
 // ============================================================================
@@ -137,10 +156,18 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
   // Modal states
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [showApproveModal, setShowApproveModal] = useState(false);
+  const [showAssignModal, setShowAssignModal] = useState(false); // Phase 7
   
   // Phase 3: Countdown timer states
   const [enableCountdown, setEnableCountdown] = useState(true);
   const [countdownDays, setCountdownDays] = useState(7);
+
+  // Phase 7: Lifecycle action states
+  const [reselling, setReselling] = useState(false);
+  const [archiving, setArchiving] = useState(false);
+  const [unarchiving, setUnarchiving] = useState(false);
+  const [resettingTimer, setResettingTimer] = useState(false);
+  const [resetDays, setResetDays] = useState(7);
 
   // ============================================================================
   // FETCH LEAD DATA
@@ -312,6 +339,178 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
       alert(err instanceof Error ? err.message : 'Failed to update notes');
     } finally {
       setSavingNotes(false);
+    }
+  };
+
+  // ============================================================================
+  // PHASE 7: ASSIGN TO INSTALLERS
+  // ============================================================================
+
+  const handleAssign = async (data: {
+    installerIds: string[];
+    mode: 'exclusive' | 'competitive';
+    notes?: string;
+    notifyInstallers: boolean;
+  }) => {
+    if (!lead) return;
+
+    try {
+      const response = await fetch(`/api/admin/leads/${lead.id}/assign`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to assign lead');
+      }
+
+      alert('Lead assigned successfully!');
+      setShowAssignModal(false);
+      await fetchLead();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to assign lead');
+    }
+  };
+
+  // ============================================================================
+  // PHASE 7: REMOVE ASSIGNMENT
+  // ============================================================================
+
+  const handleRemoveAssignment = async (installerId: string) => {
+    if (!lead) return;
+
+    try {
+      const response = await fetch(
+        `/api/admin/leads/${lead.id}/assignments/${installerId}`,
+        { method: 'DELETE' }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to remove assignment');
+      }
+
+      alert('Assignment removed successfully');
+      await fetchLead();
+    } catch (err) {
+      throw new Error(err instanceof Error ? err.message : 'Failed to remove assignment');
+    }
+  };
+
+  // ============================================================================
+  // PHASE 7: RESELL LEAD
+  // ============================================================================
+
+  const handleResell = async () => {
+    if (!lead) return;
+    if (!confirm('Resell this lead? This will clear the current installer and return it to marketplace.')) return;
+
+    try {
+      setReselling(true);
+      const response = await fetch(`/api/leads/${lead.id}/resell`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ toMarketplace: true }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to resell lead');
+      }
+
+      alert('Lead resold successfully!');
+      await fetchLead();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to resell lead');
+    } finally {
+      setReselling(false);
+    }
+  };
+
+  // ============================================================================
+  // PHASE 7: ARCHIVE/UNARCHIVE LEAD
+  // ============================================================================
+
+  const handleArchive = async () => {
+    if (!lead) return;
+    if (!confirm('Archive this lead? It will be hidden from all views.')) return;
+
+    try {
+      setArchiving(true);
+      const response = await fetch(`/api/leads/${lead.id}/archive`, {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to archive lead');
+      }
+
+      alert('Lead archived successfully');
+      await fetchLead();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to archive lead');
+    } finally {
+      setArchiving(false);
+    }
+  };
+
+  const handleUnarchive = async () => {
+    if (!lead) return;
+
+    try {
+      setUnarchiving(true);
+      const response = await fetch(`/api/leads/${lead.id}/unarchive`, {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to unarchive lead');
+      }
+
+      alert('Lead unarchived successfully');
+      await fetchLead();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to unarchive lead');
+    } finally {
+      setUnarchiving(false);
+    }
+  };
+
+  // ============================================================================
+  // PHASE 7: RESET TIMER
+  // ============================================================================
+
+  const handleResetTimer = async () => {
+    if (!lead) return;
+    if (!resetDays || resetDays < 1 || resetDays > 365) {
+      alert('Please enter days between 1 and 365');
+      return;
+    }
+
+    try {
+      setResettingTimer(true);
+      const response = await fetch(`/api/leads/${lead.id}/reset-timer`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ days: resetDays }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to reset timer');
+      }
+
+      const data = await response.json();
+      alert(`Timer extended! New expiry: ${formatDate(data.lead.expiresAt)}`);
+      await fetchLead();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to reset timer');
+    } finally {
+      setResettingTimer(false);
     }
   };
 
@@ -631,6 +830,28 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
             </div>
           )}
 
+          {/* ASSIGNMENT HISTORY (Phase 7) */}
+          <div className={`p-6 rounded-lg ${theme === 'dark' ? 'bg-[#1A1F2E]' : 'bg-white'} shadow-sm`}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className={`text-xl font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                📋 Assignment History
+              </h2>
+              {!lead.archivedAt && (
+                <button
+                  onClick={() => setShowAssignModal(true)}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm font-medium"
+                >
+                  + Assign to Installer
+                </button>
+              )}
+            </div>
+            <AssignmentHistoryTable
+              assignments={lead.assignments || []}
+              leadId={lead.id}
+              onRemoveAssignment={handleRemoveAssignment}
+            />
+          </div>
+
           {/* TIMESTAMPS */}
           <div className={`p-6 rounded-lg ${theme === 'dark' ? 'bg-[#1A1F2E]' : 'bg-white'} shadow-sm`}>
             <h2 className={`text-xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
@@ -781,6 +1002,88 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
               </div>
             </div>
           )}
+
+          {/* LIFECYCLE ACTIONS (Phase 7) */}
+          {!lead.archivedAt && (
+            <div className={`p-6 rounded-lg ${theme === 'dark' ? 'bg-[#1A1F2E]' : 'bg-white'} shadow-sm`}>
+              <h2 className={`text-xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                Lead Lifecycle
+              </h2>
+              <div className="space-y-3">
+                {/* Resell Button - Only if purchased */}
+                {lead.installerId && (
+                  <button
+                    onClick={handleResell}
+                    disabled={reselling}
+                    className="w-full px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 text-sm font-medium flex items-center justify-center gap-2"
+                  >
+                    {reselling ? <LoadingIcon /> : '🔄'}
+                    Resell Lead
+                  </button>
+                )}
+
+                {/* Reset Timer - Only if has expiry */}
+                {lead.expiresAt && (
+                  <div className="space-y-2">
+                    <input
+                      type="number"
+                      value={resetDays}
+                      onChange={(e) => setResetDays(parseInt(e.target.value) || 7)}
+                      min="1"
+                      max="365"
+                      placeholder="Days to extend"
+                      className={`w-full px-3 py-2 rounded-lg border text-sm ${
+                        theme === 'dark'
+                          ? 'bg-[#0A0F1E] border-gray-700 text-white'
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                    />
+                    <button
+                      onClick={handleResetTimer}
+                      disabled={resettingTimer}
+                      className="w-full px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 disabled:opacity-50 text-sm font-medium flex items-center justify-center gap-2"
+                    >
+                      {resettingTimer ? <LoadingIcon /> : '⏰'}
+                      Extend Timer (+{resetDays}d)
+                    </button>
+                  </div>
+                )}
+
+                {/* Archive Button */}
+                <button
+                  onClick={handleArchive}
+                  disabled={archiving}
+                  className="w-full px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 disabled:opacity-50 text-sm font-medium flex items-center justify-center gap-2"
+                >
+                  {archiving ? <LoadingIcon /> : '🗄️'}
+                  Archive Lead
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* UNARCHIVE SECTION */}
+          {lead.archivedAt && (
+            <div className={`p-6 rounded-lg ${theme === 'dark' ? 'bg-yellow-900/20 border-2 border-yellow-600' : 'bg-yellow-50 border-2 border-yellow-400'}`}>
+              <h2 className={`text-xl font-semibold mb-2 ${theme === 'dark' ? 'text-yellow-300' : 'text-yellow-900'}`}>
+                🗄️ Archived
+              </h2>
+              <p className={`text-sm mb-4 ${theme === 'dark' ? 'text-yellow-200' : 'text-yellow-700'}`}>
+                This lead is archived and hidden from all views.
+              </p>
+              <p className={`text-xs mb-4 ${theme === 'dark' ? 'text-yellow-400/70' : 'text-yellow-600'}`}>
+                Archived: {formatDate(lead.archivedAt)}
+              </p>
+              <button
+                onClick={handleUnarchive}
+                disabled={unarchiving}
+                className="w-full px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 text-sm font-medium flex items-center justify-center gap-2"
+              >
+                {unarchiving ? <LoadingIcon /> : '📤'}
+                Restore Lead
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -907,6 +1210,16 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
             </div>
           </div>
         </div>
+      )}
+
+      {/* ASSIGN TO INSTALLER MODAL (Phase 7) */}
+      {showAssignModal && (
+        <InstallerSelectorModal
+          isOpen={showAssignModal}
+          onClose={() => setShowAssignModal(false)}
+          onAssign={handleAssign}
+          leadId={lead.id}
+        />
       )}
     </div>
   );
