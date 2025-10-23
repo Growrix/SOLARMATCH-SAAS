@@ -35,7 +35,8 @@ interface CreatePurchaseIntentResult {
 interface ConfirmPurchaseInput {
   leadId: string;
   installerId: string;
-  paymentIntentId?: string; // Optional in bypass mode
+  paymentIntentId?: string; // Optional in bypass mode or admin assignment
+  adminAssigned?: boolean; // Phase 7: Skip payment for admin-assigned leads
 }
 
 interface ConfirmPurchaseResult {
@@ -200,7 +201,7 @@ export async function confirmPurchase(
   input: ConfirmPurchaseInput
 ): Promise<ConfirmPurchaseResult> {
   try {
-    const { leadId, installerId, paymentIntentId } = input;
+    const { leadId, installerId, paymentIntentId, adminAssigned = false } = input;
 
     // 1. Verify lead exists
     const lead = await prisma.lead.findUnique({
@@ -220,7 +221,86 @@ export async function confirmPurchase(
       return { success: false, error: 'Lead not found' };
     }
 
-    // 2. Verify purchase is in PENDING status
+    // Phase 7: Admin-assigned leads bypass payment and use different workflow
+    if (adminAssigned) {
+      console.log('✅ ADMIN ASSIGNED LEAD: Accepting assignment without payment');
+      console.log(`Installer ${installerId} accepting assignment for lead ${leadId}`);
+
+      // Verify installer has a pending assignment for this lead
+      const assignment = await prisma.leadAssignment.findFirst({
+        where: {
+          leadId: leadId,
+          installerId: installerId,
+        },
+      });
+
+      if (!assignment) {
+        return { success: false, error: 'No assignment found for this lead' };
+      }
+
+      // Update lead with completed assignment acceptance
+      const updatedLead = await prisma.lead.update({
+        where: { id: leadId },
+        data: {
+          installerId: installerId,
+          purchasedAt: new Date(),
+          status: 'PURCHASED',
+          visibility: 'PRIVATE', // Lead becomes private after acceptance
+        },
+        include: {
+          homeowner: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      });
+
+      // Audit log with ASSIGNMENT_ACCEPTED action
+      await createAuditLog({
+        action: 'ASSIGNMENT_ACCEPTED',
+        entityType: 'lead',
+        entityId: leadId,
+        leadId: leadId,
+        userId: installerId,
+        metadata: {
+          adminAssigned: true,
+          assignmentId: assignment.id,
+          assignedBy: assignment.assignedBy,
+          assignedAt: assignment.assignedAt.toISOString(),
+        },
+      });
+
+      // Notify homeowner
+      await createNotification({
+        userId: lead.homeownerId,
+        type: 'LEAD_PURCHASED',
+        title: 'Your Lead Is Being Processed',
+        message: `An installer has accepted your ${lead.quoteType?.replace('_', ' ').toLowerCase() || 'quote'} request.`,
+        metadata: { leadId },
+      });
+
+      // Notify admin who assigned the lead
+      if (assignment.assignedBy) {
+        await createNotification({
+          userId: assignment.assignedBy,
+          type: 'ASSIGNMENT_ACCEPTED_COMPETITIVE',
+          title: 'Assignment Accepted',
+          message: `Installer has accepted the lead assignment for ${lead.location}, ${lead.state}.`,
+          metadata: { leadId, installerId },
+        });
+      }
+
+      return {
+        success: true,
+        lead: updatedLead,
+        bypassed: true,
+      };
+    }
+
+    // 2. Verify purchase is in PENDING status (for marketplace purchases)
     if (lead.purchaseStatus !== 'PENDING') {
       return { success: false, error: 'Lead purchase is not pending' };
     }
@@ -269,7 +349,7 @@ export async function confirmPurchase(
         userId: lead.homeownerId,
         type: 'LEAD_PURCHASED',
         title: 'Your Lead Has Been Purchased',
-        message: `An installer has purchased your ${lead.quoteType.replace('_', ' ').toLowerCase()} request.`,
+        message: `An installer has purchased your ${(lead.quoteType || 'quote').replace('_', ' ').toLowerCase()} request.`,
         metadata: { leadId },
       });
 
@@ -336,7 +416,7 @@ export async function confirmPurchase(
       userId: lead.homeownerId,
       type: 'LEAD_PURCHASED',
       title: 'Your Lead Has Been Purchased',
-      message: `An installer has purchased your ${lead.quoteType.replace('_', ' ').toLowerCase()} request.`,
+      message: `An installer has purchased your ${(lead.quoteType || 'quote').replace('_', ' ').toLowerCase()} request.`,
       metadata: { leadId },
     });
 
