@@ -276,6 +276,7 @@ export interface GetLeadsInput {
     postcode?: string;
     marketplace?: boolean;
     purchased?: boolean;
+    assigned?: boolean;
     page: number;
     limit: number;
   };
@@ -294,9 +295,23 @@ export interface GetLeadsInput {
  */
 export async function getLeads(input: GetLeadsInput) {
   const { userId, userRole, filters } = input;
-  const { page, limit, status, quoteType, postcode, marketplace, purchased } = filters;
+  const { page, limit, status, quoteType, postcode, marketplace, purchased, assigned } = filters;
 
   const skip = (page - 1) * limit;
+
+  // If installer requests assigned leads, use dedicated function
+  if (userRole === 'INSTALLER' && assigned) {
+    const assignedLeads = await getInstallerAssignedLeads(userId);
+    return {
+      leads: assignedLeads.slice(skip, skip + limit),
+      pagination: {
+        page,
+        limit,
+        total: assignedLeads.length,
+        totalPages: Math.ceil(assignedLeads.length / limit),
+      },
+    };
+  }
 
   // Build where clause based on role
   let whereClause: any = {};

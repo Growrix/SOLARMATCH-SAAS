@@ -185,6 +185,7 @@ export async function GET(request: NextRequest) {
     
     const isMarketplace = searchParams.get('marketplace') === 'true';
     const isPurchased = searchParams.get('purchased') === 'true';
+    const isAssigned = searchParams.get('assigned') === 'true';
     
     const filters = {
       status: searchParams.get('status') || undefined,
@@ -192,6 +193,7 @@ export async function GET(request: NextRequest) {
       postcode: searchParams.get('postcode') || undefined,
       marketplace: isMarketplace,
       purchased: isPurchased,
+      assigned: isAssigned,
       page: parseInt(searchParams.get('page') || '1', 10),
       limit: parseInt(searchParams.get('limit') || '20', 10),
     };
