@@ -2712,87 +2712,469 @@ Installer UI work (badges, marketplace, installer lead detail) is intentionally 
 
 ## Phase 7: User Story 5 - Admin Manages Lead Lifecycle and Resale (Priority: P3) (Persona: Admin)
 
-**Goal**: Admins can resell leads, reset timers, archive leads, and manage user accounts
+**Goal**: Admins can manually assign leads to specific installers, manage lead lifecycle (resale, archive, timer reset), and override verification requirements.
 
-**Independent Test**: Admin takes purchased lead → marks for resale → reset timer → lead reappears in marketplace. Archive lead → verify removed from feeds. Suspend user → verify access blocked.
+**CRITICAL CONTEXT**: Phase 5 marketplace is COMPLETE. This phase adds a parallel PRIVATE assignment system that coexists with the existing PUBLIC marketplace. DO NOT modify marketplace logic.
 
-### Implementation for User Story 5
+**Independent Test**: Admin assigns lead to specific installer → installer sees in "Assigned Leads" (no payment) → accepts assignment. Admin resells purchased lead → clears installer → lead reappears. Admin archives lead → removed from all feeds. Admin resets timer → expiry extended.
 
-- [ ] T086 [P] [US5] Create POST `/api/leads/[id]/resell` route in `src/app/api/leads/[id]/resell/route.ts` (reset purchase, mark available)
-- [ ] T087 [P] [US5] Create POST `/api/leads/[id]/archive` route in `src/app/api/leads/[id]/archive/route.ts` (set archivedAt, remove from feeds)
-- [ ] T088 [P] [US5] Create POST `/api/leads/[id]/reset-timer` route in `src/app/api/leads/[id]/reset-timer/route.ts` (update createdAt to now)
-- [ ] T089 [P] [US5] Create admin user management page in `src/app/(dashboard)/admin/users/page.tsx` (list users with filters)
-- [ ] T090 [P] [US5] Create POST `/api/admin/users/[id]/suspend` route in `src/app/api/admin/users/[id]/suspend/route.ts` (suspend user account)
-- [ ] T091 [P] [US5] Create POST `/api/admin/users/[id]/verify` route in `src/app/api/admin/users/[id]/verify/route.ts` (manually verify user)
-- [ ] T092 [US5] Add resale button to admin lead detail page (call resell endpoint)
-- [ ] T093 [US5] Add archive button to admin lead detail page (call archive endpoint with confirmation)
-- [ ] T094 [US5] Add timer reset button to admin lead detail page (call reset-timer endpoint)
-- [ ] T095 [US5] Create user action buttons (suspend/verify) in admin user management page
-- [ ] T096 [US5] Add archived leads filter in admin leads page (show/hide archived)
-- [ ] T097 [US5] Implement admin exception flow for unverified installer lead access (assign lead to specific unverified installer)
-- [ ] T098 [US5] Send notifications on account actions (suspend/verify)
+**📋 Audit Report**: See `DOC/Records/PHASE-7-AUDIT-2025-10-23.md` for comprehensive analysis
 
-**Checkpoint**: Advanced admin controls fully functional. Leads can be resold, archived, and users managed.
+### Key Implementation Strategy
+
+**Two Parallel Systems**:
+| System | Visibility | Discovery | Payment | Verification |
+|--------|-----------|-----------|---------|--------------|
+| Marketplace (Phase 5) | PUBLIC | Self-service | Required | Required |
+| Admin Assignment (Phase 7) | PRIVATE | Admin selects | Bypassed | Bypassed |
+
+### Pre-Phase Setup: Schema Migration
+
+- [ ] T000-PH7 [US5] Add Lead model fields to Prisma schema in `prisma/schema.prisma`:
+  - `archivedAt DateTime?` - Soft delete timestamp for archived leads
+  - `assignedAt DateTime?` - When admin assigned lead
+  - `assignedBy String?` - Admin user ID who assigned
+  - `assignmentNotes String?` - Admin notes on assignment reasoning
+  
+- [ ] T001-PH7 [US5] Create LeadAssignment model in `prisma/schema.prisma`:
+```prisma
+model LeadAssignment {
+  id            String   @id @default(cuid())
+  leadId        String
+  installerId   String
+  assignedBy    String   // Admin user ID
+  assignedAt    DateTime @default(now())
+  notes         String?  // Admin notes
+  notified      Boolean  @default(false)
+  
+  lead          Lead     @relation("lead_assignments", fields: [leadId], references: [id], onDelete: Cascade)
+  installer     User     @relation("installer_assignments", fields: [installerId], references: [id], onDelete: Cascade)
+  admin         User     @relation("admin_assignments", fields: [assignedBy], references: [id])
+  
+  @@unique([leadId, installerId])
+  @@index([leadId])
+  @@index([installerId])
+  @@index([assignedBy])
+  @@map("lead_assignments")
+}
+```
+
+- [ ] T002-PH7 [US5] Update User model relations in `prisma/schema.prisma`:
+  - Add `installerAssignments LeadAssignment[] @relation("installer_assignments")`
+  - Add `adminAssignments LeadAssignment[] @relation("admin_assignments")`
+
+- [ ] T003-PH7 [US5] Update Lead model relations in `prisma/schema.prisma`:
+  - Add `assignments LeadAssignment[] @relation("lead_assignments")`
+
+- [ ] T004-PH7 [US5] Run migration: `npx prisma migrate dev --name phase7-admin-assignments`
+
+- [ ] T005-PH7 [US5] Regenerate Prisma client: `npx prisma generate`
+
+**Checkpoint**: Schema supports many-to-many lead assignments with metadata
+
+### Backend Services: Lead Assignment & Lifecycle
+
+- [ ] T086 [P] [US5] Create `assignLeadToInstallers()` in `src/lib/services/lead-service.ts`:
+  - Accept `{ leadId, installerIds: string[], assignedBy, notes, mode: 'exclusive'|'competitive' }`
+  - Set lead visibility to PRIVATE
+  - Create LeadAssignment records for each installer
+  - Call `createNotification()` for each installer (LEAD_ASSIGNED type)
+  - Call `createAuditLog()` with action LEAD_ASSIGNED
+  - Return assignment records
+
+- [ ] T087 [P] [US5] Create `resellLead()` in `src/lib/services/lead-service.ts`:
+  - Clear `installerId`, `purchaseStatus`, `purchasedAt`
+  - Optionally change visibility (PRIVATE → PUBLIC for marketplace, or keep PRIVATE for reassignment)
+  - Keep `assignedAt`/`assignedBy` for audit history
+  - Call `createNotification()` to previous installer (LEAD_RESOLD)
+  - Call `createAuditLog()` with action LEAD_RESOLD
+  - Return updated lead
+
+- [ ] T088 [P] [US5] Create `archiveLead()` in `src/lib/services/lead-service.ts`:
+  - Set `archivedAt` timestamp (soft delete)
+  - Keep all lead data intact
+  - Call `createAuditLog()` with action LEAD_ARCHIVED
+  - Return archived lead
+
+- [ ] T089 [P] [US5] Create `unarchiveLead()` in `src/lib/services/lead-service.ts`:
+  - Clear `archivedAt` timestamp
+  - Optionally restore visibility
+  - Call `createAuditLog()` with action LEAD_UNARCHIVED
+  - Return restored lead
+
+- [ ] T090 [P] [US5] Create `resetLeadTimer()` in `src/lib/services/lead-service.ts`:
+  - Extend `expiresAt` by specified days (default 7)
+  - Update `createdAt` to now (reset countdown)
+  - Call `createAuditLog()` with action TIMER_RESET
+  - Return updated lead
+
+- [ ] T091 [P] [US5] Create `removeLeadAssignment()` in `src/lib/services/lead-service.ts`:
+  - Delete specific LeadAssignment record by leadId + installerId
+  - Call `createNotification()` to installer (ASSIGNMENT_REMOVED)
+  - If last assignment removed → set visibility to HIDDEN
+  - Call `createAuditLog()` with action ASSIGNMENT_REMOVED
+  - Return success status
+
+- [ ] T092 [P] [US5] Create `getInstallerAssignedLeads()` in `src/lib/services/lead-service.ts`:
+  - Query leads with LeadAssignment WHERE installerId = userId
+  - Include assignment metadata (notes, assignedBy, assignedAt)
+  - Filter out leads where installerId is already set (accepted by another installer in competitive mode)
+  - Return leads with assignment details
+
+**Checkpoint**: All backend service functions implemented with audit logging and notifications
+
+### API Endpoints: Assignment & Lifecycle Management
+
+- [ ] T093 [P] [US5] Create POST `/api/admin/leads/[id]/assign` in `src/app/api/admin/leads/[id]/assign/route.ts`:
+  - **Auth**: ADMIN role required
+  - **Body**: `{ installerIds: string[], mode: 'exclusive'|'competitive', notes?: string, notifyInstallers: boolean }`
+  - **Logic**: 
+    * Call `assignLeadToInstallers()` service
+    * If `mode='exclusive'` and multiple IDs → return 400 error
+    * If `mode='competitive'` → all installers see lead, first to accept wins
+    * If `notifyInstallers=true` → send notifications
+  - **Response**: `{ success: true, assignments: LeadAssignment[] }`
+  - **Errors**: 401, 403 (not admin), 404 (lead not found), 400 (invalid params)
+
+- [ ] T094 [P] [US5] Create DELETE `/api/admin/leads/[id]/assignments/[installerId]` in `src/app/api/admin/leads/[id]/assignments/[installerId]/route.ts`:
+  - **Auth**: ADMIN role required
+  - **Logic**: Call `removeLeadAssignment()` service
+  - **Response**: `{ success: true, message: 'Assignment removed' }`
+  - **Errors**: 401, 403, 404
+
+- [ ] T095 [P] [US5] Create POST `/api/leads/[id]/resell` in `src/app/api/leads/[id]/resell/route.ts`:
+  - **Auth**: ADMIN role required
+  - **Body**: `{ toMarketplace: boolean }` (if true → visibility=PUBLIC, else HIDDEN)
+  - **Logic**: Call `resellLead()` service
+  - **Response**: `{ success: true, lead: Lead }`
+  - **Errors**: 401, 403, 404, 400 (lead not purchased)
+
+- [ ] T096 [P] [US5] Create POST `/api/leads/[id]/archive` in `src/app/api/leads/[id]/archive/route.ts`:
+  - **Auth**: ADMIN role required
+  - **Body**: `{ reason?: string }`
+  - **Logic**: Call `archiveLead()` service
+  - **Response**: `{ success: true, lead: Lead }`
+  - **Errors**: 401, 403, 404
+
+- [ ] T097 [P] [US5] Create POST `/api/leads/[id]/unarchive` in `src/app/api/leads/[id]/unarchive/route.ts`:
+  - **Auth**: ADMIN role required
+  - **Logic**: Call `unarchiveLead()` service
+  - **Response**: `{ success: true, lead: Lead }`
+  - **Errors**: 401, 403, 404
+
+- [ ] T098 [P] [US5] Create POST `/api/leads/[id]/reset-timer` in `src/app/api/leads/[id]/reset-timer/route.ts`:
+  - **Auth**: ADMIN role required
+  - **Body**: `{ days: number }` (default 7)
+  - **Logic**: Call `resetLeadTimer()` service
+  - **Response**: `{ success: true, lead: Lead, newExpiryDate: string }`
+  - **Errors**: 401, 403, 404
+
+- [ ] T099 [P] [US5] Update GET `/api/leads` in `src/app/api/leads/route.ts`:
+  - Add support for `assigned=true` query parameter (installer role only)
+  - If assigned=true → call `getInstallerAssignedLeads()` service
+  - **Do NOT modify existing marketplace or purchased filters**
+
+**Checkpoint**: All API endpoints functional with proper auth and error handling
+
+### UI Components: Admin Assignment Interface
+
+- [ ] T100 [US5] Create installer selector modal in `src/components/admin/InstallerSelectorModal.tsx`:
+  - Multi-select dropdown with search (fetch all installers from `/api/admin/users?role=INSTALLER`)
+  - Individual installer cards with:
+    * Name, company, email
+    * Verification status badge
+    * "Select" checkbox
+  - Special options:
+    * "All Verified Installers" checkbox
+    * "Include Unverified" toggle (admin override)
+  - Assignment mode radio: Exclusive vs Competitive
+  - Assignment notes textarea
+  - "Assign Lead" button → calls POST /api/admin/leads/[id]/assign
+  - Loading and error states
+
+- [ ] T101 [US5] Create assignment history table in `src/components/admin/AssignmentHistoryTable.tsx`:
+  - Columns: Installer Name, Assigned Date, Assigned By, Notes, Status, Actions
+  - Status: "Pending" (not accepted), "Accepted" (installerId set), "Removed"
+  - Actions column: "Remove Assignment" button (DELETE endpoint)
+  - Real-time updates when assignments change
+  - Empty state: "No assignments yet"
+
+- [ ] T102 [US5] Add assignment section to admin lead detail page in `src/app/admin/leads/[id]/page.tsx`:
+  - New "Lead Assignment" section (after approval section)
+  - "Assign to Installer" button → opens InstallerSelectorModal
+  - <AssignmentHistoryTable> component showing current assignments
+  - Only visible if lead status is APPROVED or DRAFT
+  - Hidden if lead is EXPIRED or CANCELLED
+
+- [ ] T103 [US5] Add lifecycle action buttons to admin lead detail page in `src/app/admin/leads/[id]/page.tsx`:
+  - **Resale Button** (only if installerId is set):
+    * Label: "Resale Lead"
+    * Confirmation modal: "Remove current installer and return to marketplace?"
+    * Options: "Return to Marketplace" (PUBLIC) or "Keep Private" (HIDDEN)
+    * Calls POST /api/leads/[id]/resell
+  - **Archive Button**:
+    * Label: "Archive Lead"
+    * Confirmation modal: "Archive this lead? It will be removed from all views."
+    * Calls POST /api/leads/[id]/archive
+  - **Unarchive Button** (only if archivedAt is set):
+    * Label: "Unarchive Lead"
+    * Calls POST /api/leads/[id]/unarchive
+  - **Reset Timer Button**:
+    * Label: "Reset Timer"
+    * Input: Number of days (default 7)
+    * Calls POST /api/leads/[id]/reset-timer
+  - All buttons with loading states and success/error toasts
+
+**Checkpoint**: Admin can assign leads to installers via UI with full assignment management
+
+### UI Components: Installer Assigned Leads View
+
+- [ ] T104 [US5] Create assigned leads component in `src/components/InstallerAssignedLeads.tsx`:
+  - Fetch assigned leads from GET /api/leads?assigned=true
+  - Lead cards similar to marketplace but with differences:
+    * Show "Admin Assigned" badge
+    * Show assignment notes from admin
+    * Show assigned date
+    * No price display (free assignment)
+    * "Accept Assignment" button (instead of "Purchase")
+  - Filter by assignment mode:
+    * "Exclusive" - only you can accept
+    * "Competitive" - multiple installers, first to accept wins
+  - Empty state: "No assigned leads yet"
+  - Accept assignment flow:
+    * Click "Accept" → Call POST /api/leads/[id]/purchase with { adminAssigned: true }
+    * No Stripe payment required
+    * Sets installerId immediately
+    * Navigates to lead detail page
+
+- [ ] T105 [US5] Add "Assigned Leads" navigation to installer dashboard in `src/app/installer/dashboard/page.tsx`:
+  - Add NavItem titled "Assigned Leads" (between "Marketplace" and "My Purchased Leads")
+  - Icon: Assignment/clipboard icon
+  - Badge count: Show number of unnotified assignments
+  - On click: setActivePage('Assigned Leads')
+  - Add case in renderContent(): return <InstallerAssignedLeads />
+
+- [ ] T106 [US5] Update purchase service bypass logic in `src/lib/services/purchase-service.ts`:
+  - Modify `confirmPurchase()` to accept `adminAssigned?: boolean` parameter
+  - If adminAssigned=true:
+    * Skip Stripe payment verification
+    * Skip purchaseStatus update (keep null for assignments)
+    * Set installerId directly
+    * Create audit log with action ASSIGNMENT_ACCEPTED (not LEAD_PURCHASED)
+
+**Checkpoint**: Installers can view and accept assigned leads without payment
+
+### Integration & Notifications
+
+- [ ] T107 [US5] Add notification types to `src/lib/services/notification-service.ts`:
+  - LEAD_ASSIGNED_TO_INSTALLER - "You have been assigned a new lead by admin"
+  - LEAD_REASSIGNED - "A lead you were assigned to has been reassigned"
+  - LEAD_RESOLD - "A lead you purchased has been resold"
+  - ASSIGNMENT_REMOVED - "Your assignment to lead #{id} has been removed"
+  - ASSIGNMENT_ACCEPTED_COMPETITIVE - "Lead #{id} was accepted by another installer" (for competitive mode losers)
+
+- [ ] T108 [US5] Add audit actions to `src/lib/services/audit-logger.ts`:
+  - LEAD_ASSIGNED - "Admin assigned lead to installer(s)"
+  - LEAD_RESOLD - "Admin resold lead (cleared installer)"
+  - LEAD_ARCHIVED - "Admin archived lead"
+  - LEAD_UNARCHIVED - "Admin unarchived lead"
+  - TIMER_RESET - "Admin reset lead timer"
+  - ASSIGNMENT_REMOVED - "Admin removed installer assignment"
+  - ASSIGNMENT_ACCEPTED - "Installer accepted admin assignment"
+
+- [ ] T109 [US5] Update admin lead list page in `src/app/admin/leads/page.tsx`:
+  - Add "Archived" filter toggle (show/hide archived leads)
+  - Add "Assigned" column showing installer names or "Unassigned"
+  - Add quick action menu per lead:
+    * "Assign" → opens InstallerSelectorModal
+    * "Archive" → quick archive with confirmation
+  - Add archived leads count to header
+
+- [ ] T110 [US5] Create admin user management page in `src/app/(dashboard)/admin/users/page.tsx`:
+  - List all users with filters (role, verified status)
+  - User cards showing:
+    * Name, email, role, company (if installer)
+    * Verification status
+    * isActive status
+    * Registration date
+  - Actions per user:
+    * Suspend/Unsuspend toggle
+    * Verify installer (set installerVerified=true)
+    * View user details
+  - Search by name/email
+  - Pagination
+
+- [ ] T111 [US5] Create POST `/api/admin/users/[id]/suspend` in `src/app/api/admin/users/[id]/suspend/route.ts`:
+  - **Auth**: ADMIN role
+  - **Body**: `{ suspend: boolean, reason?: string }`
+  - **Logic**: Update User.isActive field
+  - **Side Effects**: 
+    * If suspending → log out user, block future logins
+    * Create audit log
+    * Send notification to user
+  - **Response**: `{ success: true, user: User }`
+
+- [ ] T112 [US5] Create POST `/api/admin/users/[id]/verify` in `src/app/api/admin/users/[id]/verify/route.ts`:
+  - **Auth**: ADMIN role
+  - **Logic**: Set User.installerVerified = true (manual verification bypass)
+  - **Side Effects**:
+    * Create audit log
+    * Send notification to installer
+    * Grant marketplace access
+  - **Response**: `{ success: true, user: User }`
+
+**Checkpoint**: Full admin control over lead lifecycle and user management with notifications
+
+### Testing & Validation
+
+- [ ] T113 [US5] Test admin assigns lead to single installer:
+  1. Admin navigates to /admin/leads/[id]
+  2. Clicks "Assign to Installer"
+  3. Selects single installer, mode=exclusive, adds notes
+  4. Clicks "Assign" → success toast
+  5. Verify LeadAssignment created in database
+  6. Verify lead visibility = PRIVATE
+  7. Installer receives notification
+  8. Installer sees lead in "Assigned Leads" tab
+  9. Installer clicks "Accept Assignment"
+  10. Verify installerId set, lead removed from assignments
+
+- [ ] T114 [US5] Test admin assigns lead to multiple installers (competitive):
+  1. Admin selects 3 installers, mode=competitive
+  2. All 3 installers see lead in "Assigned Leads"
+  3. First installer accepts → installerId set
+  4. Other 2 installers see "No longer available" notification
+  5. Lead removed from other installers' assigned feeds
+  6. Verify only 1 installer got the lead
+
+- [ ] T115 [US5] Test lead resale flow:
+  1. Admin views purchased lead (installerId set)
+  2. Clicks "Resale Lead"
+  3. Confirms "Return to Marketplace"
+  4. Verify installerId cleared
+  5. Verify purchaseStatus reset
+  6. Verify visibility = PUBLIC
+  7. Lead appears in marketplace again
+  8. Previous installer receives notification
+
+- [ ] T116 [US5] Test lead archive/unarchive:
+  1. Admin clicks "Archive Lead"
+  2. Confirms action
+  3. Verify archivedAt timestamp set
+  4. Lead removed from marketplace, installer feeds, homeowner dashboard
+  5. Admin sees lead in "Archived Leads" filter
+  6. Admin clicks "Unarchive"
+  7. Verify archivedAt cleared
+  8. Lead reappears in appropriate feed
+
+- [ ] T117 [US5] Test timer reset:
+  1. Admin views lead with expiresAt = tomorrow
+  2. Clicks "Reset Timer", sets 7 days
+  3. Verify expiresAt = now + 7 days
+  4. Verify countdown bar updated
+  5. Lead extended availability
+
+- [ ] T118 [US5] Test admin override for unverified installer:
+  1. Admin assigns lead to unverified installer
+  2. Installer (installerVerified=false) sees lead in assignments
+  3. Installer accepts without verification error
+  4. Verify access granted despite verification status
+
+- [ ] T119 [US5] Verify marketplace unchanged:
+  1. Verified installer visits /installer/marketplace
+  2. Sees only PUBLIC leads
+  3. Purchase flow works normally
+  4. Purchased leads appear in "My Purchased Leads"
+  5. No regressions from Phase 5
+
+**Checkpoint**: All Phase 7 functionality tested and validated, no regressions in existing features
+
+---
 
 ### Phase 7 (User Story 5) Validation Checklist:
-**Pre-Phase (30-60 min):**
-- [ ] Read spec.md User Story 5 section completely
-- [ ] Review Lead model fields: archivedAt, expiresAt, createdAt, purchaseStatus
+
+**Pre-Phase (60-90 min):**
+- [ ] Read `DOC/Records/PHASE-7-AUDIT-2025-10-23.md` completely
+- [ ] Review Lead model in `prisma/schema.prisma` (lines 148-210)
 - [ ] Review User model fields: isActive, installerVerified
-- [ ] Check lead-service.ts for existing lead update patterns
-- [ ] Review existing admin lead detail page structure
+- [ ] Review LeadVisibility enum: HIDDEN, PUBLIC, **PRIVATE** (UNUSED until now)
+- [ ] Check existing marketplace implementation (Phase 5)
+- [ ] Understand coexistence strategy: PUBLIC (marketplace) vs PRIVATE (admin assigned)
 - [ ] List all files to create/modify for this phase
-- [ ] Verify state machine allows status changes for resale
+- [ ] Plan schema migration steps carefully (breaking change risk)
 
 **During Implementation:**
-- [ ] After T086-T091 (API routes): Run `npx tsc --noEmit`
-- [ ] After T092-T098 (UI integration): Run `npm run build`
+- [ ] After T000-T005 (Schema migration): Run `npx prisma migrate dev`, verify models
+- [ ] After T086-T092 (Services): Run `npx tsc --noEmit`, test each service function
+- [ ] After T093-T099 (APIs): Run `npm run build`, test each endpoint with Postman/curl
+- [ ] After T100-T106 (UI): Run `npm run build`, verify UI renders correctly
+- [ ] After T107-T112 (Integration): Test notifications and audit logs
+- [ ] After T113-T119 (Testing): Manual QA all flows
 
 **Post-Phase Validation:**
-- [ ] Schema Validation: `npx prisma validate`
+- [ ] Schema Validation: `npx prisma validate` (0 errors)
 - [ ] TypeScript: `npx tsc --noEmit` (0 errors)
 - [ ] Build: `npm run build` (0 errors, warnings OK)
-- [ ] All T086-T098 tasks completed
-- [ ] Service Integrations Verified:
-  - [ ] Resale route resets purchaseStatus correctly
-  - [ ] Archive route sets archivedAt without deleting
-  - [ ] Suspend route updates User.isActive
-  - [ ] All routes call createAuditLog
+- [ ] All T086-T119 tasks completed
+- [ ] Database Integrity:
+  - [ ] LeadAssignment records created correctly
+  - [ ] Lead.archivedAt soft deletes work
+  - [ ] Lead.visibility PRIVATE handled correctly
+  - [ ] User relations (installerAssignments, adminAssignments) functional
+- [ ] Service Integrations:
+  - [ ] All assignment functions call createAuditLog
+  - [ ] All assignment functions call createNotification
+  - [ ] resellLead() clears installer correctly
+  - [ ] archiveLead() soft deletes (no data loss)
+  - [ ] resetLeadTimer() extends expiresAt correctly
 - [ ] API Testing:
-  - [ ] POST /api/leads/[id]/resell (resets purchase, clears installer)
-  - [ ] POST /api/leads/[id]/archive (sets archivedAt timestamp)
-  - [ ] POST /api/leads/[id]/reset-timer (updates createdAt/expiresAt)
-  - [ ] POST /api/admin/users/[id]/suspend (blocks user access)
-  - [ ] POST /api/admin/users/[id]/verify (sets installerVerified)
+  - [ ] POST /api/admin/leads/[id]/assign (single & multiple installers)
+  - [ ] DELETE /api/admin/leads/[id]/assignments/[installerId]
+  - [ ] POST /api/leads/[id]/resell (to marketplace & private)
+  - [ ] POST /api/leads/[id]/archive
+  - [ ] POST /api/leads/[id]/unarchive
+  - [ ] POST /api/leads/[id]/reset-timer
+  - [ ] GET /api/leads?assigned=true (installer view)
+  - [ ] POST /api/admin/users/[id]/suspend
+  - [ ] POST /api/admin/users/[id]/verify
 - [ ] UI Testing:
-  - [ ] Resale button appears in admin lead detail
-  - [ ] Archive confirmation modal works
-  - [ ] Timer reset updates expiry display
-  - [ ] User management page lists users correctly
-  - [ ] Suspend/verify actions update UI immediately
+  - [ ] InstallerSelectorModal opens and search works
+  - [ ] Assignment history table displays correctly
+  - [ ] Lifecycle buttons (Resale/Archive/Reset) functional
+  - [ ] "Assigned Leads" nav item appears in installer dashboard
+  - [ ] InstallerAssignedLeads component displays assigned leads
+  - [ ] Accept assignment button works without payment
+  - [ ] Admin user management page functional
 - [ ] Business Logic:
-  - [ ] Resold leads reappear in marketplace
+  - [ ] Admin can assign to single installer (exclusive mode)
+  - [ ] Admin can assign to multiple installers (competitive mode)
+  - [ ] First installer to accept in competitive mode wins
+  - [ ] Admin can assign to unverified installer (bypass)
+  - [ ] Admin can remove specific assignment
+  - [ ] Resold leads return to marketplace or stay private
   - [ ] Archived leads hidden from all feeds
+  - [ ] Unarchived leads restore visibility
   - [ ] Timer reset extends lead availability
-  - [ ] Suspended users cannot log in
-  - [ ] Manual verification bypasses document upload
-  - [ ] Admin exception allows unverified installer access
   - [ ] All actions logged to audit trail
-  - [ ] Notifications sent on user account changes
-- [ ] Data Integrity:
-  - [ ] No data loss on resale (lead data preserved)
-  - [ ] Archive reversible (archivedAt can be cleared)
-  - [ ] Timer reset doesn't affect other timestamps
-  - [ ] User suspension doesn't delete user data
+  - [ ] All actions trigger notifications
+- [ ] Coexistence Validation (CRITICAL):
+  - [ ] ✅ Marketplace still shows PUBLIC leads only
+  - [ ] ✅ Marketplace purchase flow unchanged
+  - [ ] ✅ Purchased leads still appear in "My Purchased Leads"
+  - [ ] ✅ Verification still required for marketplace
+  - [ ] ✅ No PRIVATE leads appear in marketplace
+  - [ ] ✅ Assigned leads separate from marketplace
 - [ ] No Regression: Phase 1-6 functionality still working
 - [ ] User approval received for commit
 - [ ] Git commit with detailed message
 
 **Build Error Prevention Applied:**
-- ✅ Verified Lead model has all required timestamp fields
-- ✅ Checked User model isActive and verification fields
-- ✅ Reviewed existing Prisma update patterns
-- ✅ Confirmed no breaking changes to lead filtering logic
+- ✅ Verified LeadAssignment model structure before migration
+- ✅ Confirmed User relations won't break existing queries
+- ✅ Tested PRIVATE visibility doesn't affect PUBLIC marketplace
+- ✅ Validated admin assignment bypass doesn't break purchase service
+
+---
 
 ---
 

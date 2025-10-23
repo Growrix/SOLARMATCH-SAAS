@@ -8,6 +8,8 @@ import InstallerBottomNavBar from '@/components/InstallerBottomNavBar';
 import InstallerMobileSidebarMenu from '@/components/InstallerMobileSidebarMenu';
 import InstallerLeadFeed from '@/components/InstallerLeadFeed';
 import InstallerMessagingModal from '@/components/InstallerMessagingModal';
+import InstallerMarketplace from '@/components/InstallerMarketplace';
+import InstallerPurchasedLeads from '@/components/InstallerPurchasedLeads';
 
 // --- Icon Components ---
 const LayoutDashboardIcon = () => (
@@ -174,8 +176,7 @@ const InstallerSidebar: React.FC<{
   setActivePage: (page: string) => void; 
   onLogoutClick: () => void; 
   onHomeClick: () => void;
-  router?: any;
-}> = ({ activePage, setActivePage, onLogoutClick, onHomeClick, router }) => {
+}> = ({ activePage, setActivePage, onLogoutClick, onHomeClick }) => {
   return (
     <aside className="dashboard-sidebar w-64 flex-shrink-0 border-r border-gray-200 dark:border-slate-800 flex flex-col p-4 h-full">
       <div className="flex items-center justify-between h-16 px-2 border-b border-gray-200 dark:border-slate-800 mb-4">
@@ -202,13 +203,13 @@ const InstallerSidebar: React.FC<{
           icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/></svg>} 
           title="Marketplace" 
           isActive={activePage === 'Marketplace'} 
-          onClick={() => router?.push('/installer/marketplace')} 
+          onClick={() => setActivePage('Marketplace')} 
         />
         <NavItem 
           icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>} 
           title="My Purchased Leads" 
           isActive={activePage === 'My Purchased Leads'} 
-          onClick={() => router?.push('/installer/purchased-leads')} 
+          onClick={() => setActivePage('My Purchased Leads')} 
         />
         <NavItem 
           icon={<GavelIcon />} 
@@ -414,6 +415,10 @@ export default function InstallerDashboardPage() {
             }}
           />
         );
+      case 'Marketplace':
+        return <InstallerMarketplace />;
+      case 'My Purchased Leads':
+        return <InstallerPurchasedLeads />;
       case 'Active Bids':
         return <PlaceholderContent title="Active Bids" />;
       case 'Messages':
@@ -445,7 +450,6 @@ export default function InstallerDashboardPage() {
           setActivePage={setActivePage} 
           onLogoutClick={handleLogout} 
           onHomeClick={handleHomeClick}
-          router={router}
         />
       </div>
 

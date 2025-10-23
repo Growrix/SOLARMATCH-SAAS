@@ -308,24 +308,25 @@ export async function getLeads(input: GetLeadsInput) {
     // Handle marketplace filter (available leads only)
     if (marketplace) {
       whereClause.visibility = LeadVisibility.PUBLIC;
-      whereClause.purchaseStatus = 'AVAILABLE';
+      whereClause.status = LeadStatus.APPROVED; // Only approved leads
       whereClause.installerId = null; // Not yet purchased
     } 
     // Handle purchased filter (purchased leads only)
     else if (purchased) {
       whereClause.installerId = userId; // Their purchased leads
-      whereClause.purchaseStatus = 'PURCHASED';
+      whereClause.purchaseStatus = PurchaseStatus.COMPLETED; // Successfully purchased
     }
     // Default: Show both available and purchased leads
     else {
       whereClause.OR = [
         {
           visibility: LeadVisibility.PUBLIC,
-          purchaseStatus: 'AVAILABLE',
+          status: LeadStatus.APPROVED,
           installerId: null, // Not yet purchased
         },
         {
           installerId: userId, // Their purchased leads
+          purchaseStatus: PurchaseStatus.COMPLETED,
         },
       ];
     }
