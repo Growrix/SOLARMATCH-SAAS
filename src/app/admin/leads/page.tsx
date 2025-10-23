@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/components/ThemeProvider';
-import { CountdownTimerCompact } from '@/components/CountdownTimer';
+import { LiveCountdownBar } from '@/components/LiveCountdownBar';
 
 interface Lead {
   id: string;
@@ -363,11 +363,12 @@ export default function AdminLeadsPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {lead.expiresAt && (
-                          <CountdownTimerCompact
+                          <LiveCountdownBar
                             expiresAt={lead.expiresAt}
                             leadId={lead.id}
                             leadStatus={lead.status}
                             quoteType={lead.quoteType}
+                            position="inline"
                           />
                         )}
                       </td>

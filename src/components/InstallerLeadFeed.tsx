@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import QuoteBuilderModal from './QuoteBuilderModal';
-import { CountdownTimerCompact } from '@/components/CountdownTimer';
+import { LiveCountdownBar } from '@/components/LiveCountdownBar';
 
 // --- Icon Components ---
 const FilterIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3z"/></svg>;
@@ -340,9 +340,13 @@ const LeadCard: React.FC<{
         <div className="space-y-2">
           <div className="flex items-center space-x-2 text-sm">
             <CalendarIcon className="h-4 w-4 text-slate-500 dark:text-slate-400" />
-            <span className="text-slate-900 dark:text-white">
-              Expires: {lead.expiresAt.toLocaleDateString()}
-            </span>
+            <LiveCountdownBar
+              expiresAt={lead.expiresAt.toISOString()}
+              leadId={lead.id}
+              leadStatus={lead.status}
+              quoteType="instant"
+              position="inline"
+            />
           </div>
           
           <div className="flex items-center space-x-2 text-sm">

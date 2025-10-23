@@ -21,7 +21,7 @@ import OTPVerificationModal from '@/components/OTPVerificationModal';
 import FirstQuoteSuccessModal from '@/components/homeowner/FirstQuoteSuccessModal';
 import LeadEditModal from '@/components/homeowner/LeadEditModal';
 import LeadPreviewModal from '@/components/homeowner/LeadPreviewModal';
-import { CountdownTimerCompact } from '@/components/CountdownTimer';
+import { LiveCountdownBar } from '@/components/LiveCountdownBar'; // Phase 4.5: Enhanced live countdown
 
 // --- Icon Components ---
 const SunIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>;
@@ -561,48 +561,51 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
               const canPreview = [LeadStatusEnum.APPROVED as string, LeadStatusEnum.PURCHASED as string, LeadStatusEnum.QUOTED as string, LeadStatusEnum.ACCEPTED as string].includes(lead.status);
               
               return (
-                <div key={lead.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors gap-2">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      {/* Phase 4.11: Quote type icon */}
-                      <span className="flex-shrink-0 text-primary">
-                        {getQuoteTypeIcon(lead.quoteType)}
-                      </span>
-                      <span className="text-sm font-medium text-slate-900 dark:text-white">
-                        {QUOTE_TYPE_LABELS[lead.quoteType]}
-                      </span>
-                      
-                      {/* Phase 4.13: Verification badge */}
-                      {lead.phoneVerified && (
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300" title="Verified Contact">
-                          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
-                          </svg>
-                          <span className="text-xs font-medium">Verified</span>
-                        </span>
-                      )}
-                      
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${statusInfo.accent}`}>
-                        {statusInfo.label}
-                      </span>
-                      
-                      {/* Countdown timer */}
-                      {lead.expiresAt && (
-                        <CountdownTimerCompact
-                          expiresAt={lead.expiresAt}
-                          leadId={lead.id}
-                          leadStatus={lead.status}
-                          quoteType={lead.quoteType}
-                        />
-                      )}
-                    </div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                      Created {formatDateTime(lead.createdAt)}
-                    </p>
-                  </div>
+                <div key={lead.id} className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden hover:shadow-md transition-all">
+                  {/* Phase 4.5: Live countdown bar at top of card */}
+                  {lead.expiresAt && (
+                    <LiveCountdownBar
+                      expiresAt={lead.expiresAt}
+                      leadId={lead.id}
+                      leadStatus={lead.status}
+                      quoteType={lead.quoteType}
+                      position="top"
+                    />
+                  )}
                   
-                  {/* Action Buttons */}
-                  <div className="flex items-center gap-1.5">
+                  {/* Lead card content */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors gap-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        {/* Phase 4.11: Quote type icon */}
+                        <span className="flex-shrink-0 text-primary">
+                          {getQuoteTypeIcon(lead.quoteType)}
+                        </span>
+                        <span className="text-sm font-medium text-slate-900 dark:text-white">
+                          {QUOTE_TYPE_LABELS[lead.quoteType]}
+                        </span>
+                        
+                        {/* Phase 4.13: Verification badge */}
+                        {lead.phoneVerified && (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300" title="Verified Contact">
+                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                            </svg>
+                            <span className="text-xs font-medium">Verified</span>
+                          </span>
+                        )}
+                        
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${statusInfo.accent}`}>
+                          {statusInfo.label}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                        Created {formatDateTime(lead.createdAt)}
+                      </p>
+                    </div>
+                    
+                    {/* Action Buttons */}
+                    <div className="flex items-center gap-1.5">
                     {canEdit && (
                       <button
                         onClick={() => onEditLead(lead)}
@@ -632,6 +635,7 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
                         <XCircleIcon /> Cancel
                       </button>
                     )}
+                  </div>
                   </div>
                 </div>
               );
