@@ -274,6 +274,8 @@ export interface GetLeadsInput {
     status?: string;
     quoteType?: string;
     postcode?: string;
+    marketplace?: boolean;
+    purchased?: boolean;
     page: number;
     limit: number;
   };
@@ -292,7 +294,7 @@ export interface GetLeadsInput {
  */
 export async function getLeads(input: GetLeadsInput) {
   const { userId, userRole, filters } = input;
-  const { page, limit, status, quoteType, postcode } = filters;
+  const { page, limit, status, quoteType, postcode, marketplace, purchased } = filters;
 
   const skip = (page - 1) * limit;
 
@@ -303,18 +305,30 @@ export async function getLeads(input: GetLeadsInput) {
     // Homeowners see only their own leads
     whereClause.homeownerId = userId;
   } else if (userRole === 'INSTALLER') {
-    // Installers see:
-    // 1. Approved leads they haven't purchased (PUBLIC visibility)
-    // 2. Leads they have purchased
-    whereClause.OR = [
-      {
-        visibility: LeadVisibility.PUBLIC,
-        installerId: null, // Not yet purchased
-      },
-      {
-        installerId: userId, // Their purchased leads
-      },
-    ];
+    // Handle marketplace filter (available leads only)
+    if (marketplace) {
+      whereClause.visibility = LeadVisibility.PUBLIC;
+      whereClause.purchaseStatus = 'AVAILABLE';
+      whereClause.installerId = null; // Not yet purchased
+    } 
+    // Handle purchased filter (purchased leads only)
+    else if (purchased) {
+      whereClause.installerId = userId; // Their purchased leads
+      whereClause.purchaseStatus = 'PURCHASED';
+    }
+    // Default: Show both available and purchased leads
+    else {
+      whereClause.OR = [
+        {
+          visibility: LeadVisibility.PUBLIC,
+          purchaseStatus: 'AVAILABLE',
+          installerId: null, // Not yet purchased
+        },
+        {
+          installerId: userId, // Their purchased leads
+        },
+      ];
+    }
   }
   // ADMIN sees all leads (no filter)
 

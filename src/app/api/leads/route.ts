@@ -164,6 +164,8 @@ export async function POST(request: NextRequest) {
  * @query status - Filter by lead status
  * @query quoteType - Filter by quote type (CALL_VISIT or WRITTEN_QUOTE)
  * @query postcode - Filter by postcode
+ * @query marketplace - Show available marketplace leads (installers only)
+ * @query purchased - Show purchased leads (installers only)
  * @query page - Page number (default: 1)
  * @query limit - Items per page (default: 20)
  * @returns 200 OK + { leads[], pagination }
@@ -181,10 +183,15 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     
+    const isMarketplace = searchParams.get('marketplace') === 'true';
+    const isPurchased = searchParams.get('purchased') === 'true';
+    
     const filters = {
       status: searchParams.get('status') || undefined,
       quoteType: searchParams.get('quoteType') || undefined,
       postcode: searchParams.get('postcode') || undefined,
+      marketplace: isMarketplace,
+      purchased: isPurchased,
       page: parseInt(searchParams.get('page') || '1', 10),
       limit: parseInt(searchParams.get('limit') || '20', 10),
     };
