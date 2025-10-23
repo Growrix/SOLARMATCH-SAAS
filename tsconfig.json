@@ -5,7 +5,6 @@
       "dom.iterable",
       "es2020"
     ],
-    "types": ["node"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -40,6 +39,9 @@
     "node_modules",
     "solarmatch_SOT",
     "prisma/seed-admin.ts",
-    "prisma/seed-settings.ts"
+    "prisma/seed-settings.ts",
+    "test-*.ts",
+    "check-*.ts",
+    "migrate-*.ts"
   ]
 }

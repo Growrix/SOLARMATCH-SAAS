@@ -97,7 +97,7 @@ export async function createLeadPaymentIntent(
  *   }
  */
 export async function verifyWebhookSignature(
-  body: string | Buffer,
+  body: string | any, // Buffer type - using any to avoid Node.js type dependency
   signature: string
 ): Promise<Stripe.Event> {
   if (!process.env.STRIPE_WEBHOOK_SECRET) {

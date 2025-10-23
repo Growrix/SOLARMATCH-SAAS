@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/components/ThemeProvider';
+import { CountdownTimerCompact } from '@/components/CountdownTimer';
 
 interface Lead {
   id: string;
@@ -20,6 +21,7 @@ interface Lead {
   leadPrice: number | null;
   createdAt: string;
   approvedAt: string | null;
+  expiresAt: string | null; // Countdown timer feature
 }
 
 export default function AdminLeadsPage() {
@@ -308,6 +310,9 @@ export default function AdminLeadsPage() {
                       Status
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Countdown
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       Verified
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
@@ -355,6 +360,16 @@ export default function AdminLeadsPage() {
                         <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(lead.status)}`}>
                           {formatStatus(lead.status)}
                         </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {lead.expiresAt && (
+                          <CountdownTimerCompact
+                            expiresAt={lead.expiresAt}
+                            leadId={lead.id}
+                            leadStatus={lead.status}
+                            quoteType={lead.quoteType}
+                          />
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {lead.phoneVerified ? (
