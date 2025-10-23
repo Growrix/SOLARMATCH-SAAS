@@ -426,6 +426,36 @@ grep "expiresAt" node_modules/.prisma/client/index.d.ts
 - [ ] Tab switching: Countdown pauses when tab inactive, resumes when active
 - [ ] Accessibility: Screen readers announce countdown state properly
 
+---
+
+## Phase 4.6: Critical Bugfix - Status Restriction (Priority: P0)
+
+**Date**: October 23, 2025  
+**Issue**: Countdown timer displaying on all lead statuses (PENDING_APPROVAL, CANCELLED, etc.)  
+**Expected**: Countdown should ONLY show on APPROVED leads per specification
+
+- [X] T019H [P0] [Bugfix] Document issue in audit report: `DOC/Records/COUNTDOWN-TIMER-STATUS-AUDIT-2025-10-23.md`
+
+- [X] T019I [P0] [Bugfix] Fix homeowner dashboard (`src/app/homeowner/dashboard/page.tsx`):
+  - Add status check: `lead.status === LeadStatusEnum.APPROVED`
+  - Only render `LiveCountdownBar` when both `expiresAt` exists AND status is APPROVED
+
+- [X] T019J [P0] [Bugfix] Fix admin leads table (`src/app/admin/leads/page.tsx`):
+  - Add status check: `lead.status === 'APPROVED'`
+  - Hide countdown column for non-approved leads
+
+- [X] T019K [P0] [Bugfix] Fix installer feed (`src/components/InstallerLeadFeed.tsx`):
+  - Add status check for mock data: `lead.status === 'new'` (equivalent to approved)
+  - Note: Real API will use proper LeadStatus enum
+
+- [X] T019L [P0] [Bugfix] Verify build passes: `npm run build` (0 errors)
+
+- [X] T019M [P0] [Bugfix] Commit fix with detailed message
+
+**Checkpoint**: Countdown timer now correctly restricted to APPROVED leads only (per FR-001, US-001)
+
+---
+
 ### Phase 4.5 Validation Checklist:
 - [ ] All T019A-T019G tasks completed
 - [ ] Build passes: `npm run build` (0 errors)
@@ -781,20 +811,21 @@ graph TD
 
 ## Task Summary
 
-**Total Tasks**: 53 (T001-T046 + T019A-T019G)  
+**Total Tasks**: 59 (T001-T046 + T019A-T019M)  
 **Setup Tasks**: 3 (Phase 1)  
 **Foundation Tasks**: 5 (Phase 2)  
-**User Story Tasks**: 38 (Phases 3-7)
+**User Story Tasks**: 44 (Phases 3-7)
   - US1 (Admin Approval): 4 tasks
   - US5 (Visual Display - Basic): 7 tasks (T013-T019)
-  - **US5 (Visual Display - Enhanced): 7 tasks (T019A-T019G)** ⬅️ **NEW**
+  - **US5 (Visual Display - Enhanced): 7 tasks (T019A-T019G)** ✅ **COMPLETE**
+  - **US5 (Visual Display - Bugfix): 6 tasks (T019H-T019M)** ✅ **COMPLETE**
   - US2 (Auto-Expiry): 4 tasks
   - US3 (Auto-Disable): 5 tasks
   - US4 (Admin Management): 11 tasks
 **Polish Tasks**: 7 (Phase 8)  
-**Parallelizable Tasks**: 21 marked with [P] (includes Phase 4.5)
+**Parallelizable Tasks**: 21 marked with [P] (includes Phase 4.5-4.6)
 
-**Estimated Total Implementation Time**: 25 hours
+**Estimated Total Implementation Time**: 26 hours
 
 **MVP Scope** (minimum viable product):
 - Phase 1 (Setup): 1 hour ✅
