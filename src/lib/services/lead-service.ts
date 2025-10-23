@@ -67,6 +67,8 @@ export interface HomeownerLeadSummaryItem {
   purchasedAt: Date | null;
   visibility: LeadVisibility;
   quoteData: any | null; // Preserve instant quote inputs for pre-fill experiences
+  phoneVerified: boolean; // Phone verification status for homeowner
+  expiresAt: Date | null; // Countdown timer expiry timestamp
 }
 
 export interface HomeownerLeadSummary {
@@ -347,6 +349,7 @@ export async function getLeads(input: GetLeadsInput) {
         leadPrice: true,
         createdAt: true,
         approvedAt: true,
+        expiresAt: true, // Countdown timer feature
         homeowner: {
           select: {
             id: true,
@@ -415,6 +418,8 @@ export async function getHomeownerLeadSummary(userId: string): Promise<Homeowner
         purchasedAt: true,
         visibility: true,
         quoteData: true,
+        expiresAt: true, // Countdown timer feature
+        phoneVerified: true, // For verification status
       },
     }),
     prisma.lead.groupBy({
@@ -462,6 +467,8 @@ export async function getHomeownerLeadSummary(userId: string): Promise<Homeowner
       purchasedAt: lead.purchasedAt,
       visibility: lead.visibility,
       quoteData: lead.quoteData,
+      phoneVerified: lead.phoneVerified,
+      expiresAt: lead.expiresAt,
     })),
   };
 }
