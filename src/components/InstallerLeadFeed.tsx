@@ -338,16 +338,19 @@ const LeadCard: React.FC<{
         </div>
 
         <div className="space-y-2">
-          <div className="flex items-center space-x-2 text-sm">
-            <CalendarIcon className="h-4 w-4 text-slate-500 dark:text-slate-400" />
-            <LiveCountdownBar
-              expiresAt={lead.expiresAt.toISOString()}
-              leadId={lead.id}
-              leadStatus={lead.status}
-              quoteType="instant"
-              position="inline"
-            />
-          </div>
+          {/* Countdown timer - Show for active marketplace leads (mock data uses 'new' for approved leads) */}
+          {lead.status === 'new' && (
+            <div className="flex items-center space-x-2 text-sm">
+              <CalendarIcon className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+              <LiveCountdownBar
+                expiresAt={lead.expiresAt.toISOString()}
+                leadId={lead.id}
+                leadStatus={lead.status}
+                quoteType="instant"
+                position="inline"
+              />
+            </div>
+          )}
           
           <div className="flex items-center space-x-2 text-sm">
             <FileTextIcon className="h-4 w-4 text-slate-500 dark:text-slate-400" />

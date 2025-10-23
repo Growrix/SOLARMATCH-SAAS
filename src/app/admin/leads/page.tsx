@@ -362,7 +362,7 @@ export default function AdminLeadsPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {lead.expiresAt && (
+                        {lead.expiresAt && lead.status === 'APPROVED' && (
                           <LiveCountdownBar
                             expiresAt={lead.expiresAt}
                             leadId={lead.id}

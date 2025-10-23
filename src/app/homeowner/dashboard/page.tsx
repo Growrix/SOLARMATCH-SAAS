@@ -562,8 +562,8 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
               
               return (
                 <div key={lead.id} className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden hover:shadow-md transition-all">
-                  {/* Phase 4.5: Live countdown bar at top of card */}
-                  {lead.expiresAt && (
+                  {/* Phase 4.5: Live countdown bar at top of card - ONLY for APPROVED leads */}
+                  {lead.expiresAt && lead.status === LeadStatusEnum.APPROVED && (
                     <LiveCountdownBar
                       expiresAt={lead.expiresAt}
                       leadId={lead.id}
