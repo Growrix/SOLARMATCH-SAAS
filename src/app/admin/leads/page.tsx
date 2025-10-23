@@ -163,28 +163,27 @@ export default function AdminLeadsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Phase 4.12: Back Button + Header */}
-        <div className="mb-8">
-          <button
-            onClick={() => router.push('/admin/dashboard')}
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-4"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-              <path d="m12 19-7-7 7-7"/>
-              <path d="M19 12H5"/>
-            </svg>
-            <span>Back to Dashboard</span>
-          </button>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Lead Management</h1>
-          <p className="text-muted-foreground">Review, approve, and manage all lead requests</p>
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-[#0A0F1E]' : 'bg-gray-50'}`}>
+      {/* Page Header */}
+      <div className={`sticky top-0 z-10 ${theme === 'dark' ? 'bg-[#1A1F2E] border-b border-gray-800' : 'bg-white border-b border-gray-200'} px-6 py-4`}>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+              Lead Management
+            </h1>
+            <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'} mt-1`}>
+              Review, approve, and manage all lead requests
+            </p>
+          </div>
         </div>
+      </div>
 
-        {/* Phase 4.12: Search Bar */}
-        <div className="bg-card rounded-lg shadow-sm p-6 mb-6">
+      {/* Main Content */}
+      <div className="p-6">
+        {/* Search & Filters Card */}
+        <div className={`${theme === 'dark' ? 'bg-[#1A1F2E]' : 'bg-white'} rounded-lg shadow-sm p-6 mb-6`}>
           <div className="mb-4">
-            <label className="block text-sm font-medium text-foreground mb-2">
+            <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
               Search Leads
             </label>
             <div className="relative">
@@ -193,17 +192,21 @@ export default function AdminLeadsPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by homeowner name, email, or quote ID..."
-                className="w-full px-4 py-2 pl-10 pr-10 border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={`w-full px-4 py-2 pl-10 pr-10 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent ${
+                  theme === 'dark'
+                    ? 'bg-[#0A0F1E] border-gray-700 text-white placeholder-gray-500'
+                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
+                }`}
               />
-              <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className={`absolute right-3 top-1/2 transform -translate-y-1/2 ${theme === 'dark' ? 'text-gray-500 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'}`}
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
@@ -215,13 +218,17 @@ export default function AdminLeadsPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Status Filter */}
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
+              <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
                 Status
               </label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent ${
+                  theme === 'dark'
+                    ? 'bg-[#0A0F1E] border-gray-700 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
+                }`}
               >
                 <option value="ALL">All Statuses</option>
                 <option value="DRAFT">Draft</option>
@@ -236,13 +243,17 @@ export default function AdminLeadsPage() {
 
             {/* Verification Filter */}
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
+              <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
                 Verification
               </label>
               <select
                 value={verificationFilter}
                 onChange={(e) => setVerificationFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent ${
+                  theme === 'dark'
+                    ? 'bg-[#0A0F1E] border-gray-700 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
+                }`}
               >
                 <option value="ALL">All</option>
                 <option value="VERIFIED">Verified Only</option>
@@ -252,7 +263,7 @@ export default function AdminLeadsPage() {
 
             {/* Postcode Filter */}
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
+              <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
                 Postcode
               </label>
               <input
@@ -260,7 +271,11 @@ export default function AdminLeadsPage() {
                 value={postcodeFilter}
                 onChange={(e) => setPostcodeFilter(e.target.value)}
                 placeholder="e.g., SW1A"
-                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent ${
+                  theme === 'dark'
+                    ? 'bg-[#0A0F1E] border-gray-700 text-white placeholder-gray-500'
+                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
+                }`}
               />
             </div>
 
@@ -268,9 +283,25 @@ export default function AdminLeadsPage() {
             <div className="flex items-end">
               <button
                 onClick={fetchLeads}
-                className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+                disabled={loading}
+                className="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                Refresh
+                {loading ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Loading...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <span>Refresh</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -278,80 +309,86 @@ export default function AdminLeadsPage() {
 
         {/* Error Message */}
         {error && (
-          <div className="bg-destructive/10 border border-destructive text-destructive px-4 py-3 rounded-md mb-6">
-            {error}
+          <div className={`${theme === 'dark' ? 'bg-red-900/20 border-red-800 text-red-300' : 'bg-red-50 border-red-200 text-red-800'} border px-4 py-3 rounded-lg mb-6 flex items-center gap-3`}>
+            <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+            </svg>
+            <span>{error}</span>
           </div>
         )}
 
         {/* Loading State */}
         {loading && (
-          <div className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <div className={`${theme === 'dark' ? 'bg-[#1A1F2E]' : 'bg-white'} rounded-lg shadow-sm p-12`}>
+            <div className="flex flex-col items-center justify-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+              <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Loading leads...</p>
+            </div>
           </div>
         )}
 
         {/* Leads Table */}
         {!loading && filteredAndSearchedLeads.length > 0 && (
-          <div className="bg-card rounded-lg shadow-sm overflow-hidden">
+          <div className={`${theme === 'dark' ? 'bg-[#1A1F2E]' : 'bg-white'} rounded-lg shadow-sm overflow-hidden`}>
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-muted">
+                <thead className={theme === 'dark' ? 'bg-[#0A0F1E]' : 'bg-gray-50'}>
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    <th className={`px-6 py-3 text-left text-xs font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider`}>
                       Homeowner
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    <th className={`px-6 py-3 text-left text-xs font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider`}>
                       Location
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    <th className={`px-6 py-3 text-left text-xs font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider`}>
                       Quote Type
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    <th className={`px-6 py-3 text-left text-xs font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider`}>
                       Status
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    <th className={`px-6 py-3 text-left text-xs font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider`}>
                       Countdown
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    <th className={`px-6 py-3 text-left text-xs font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider`}>
                       Verified
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    <th className={`px-6 py-3 text-left text-xs font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider`}>
                       Energy Bill
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    <th className={`px-6 py-3 text-left text-xs font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider`}>
                       Price
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    <th className={`px-6 py-3 text-left text-xs font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider`}>
                       Created
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    <th className={`px-6 py-3 text-right text-xs font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider`}>
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border">
+                <tbody className={`divide-y ${theme === 'dark' ? 'divide-gray-800' : 'divide-gray-200'}`}>
                   {filteredAndSearchedLeads.map((lead) => (
                     <tr
                       key={lead.id}
-                      className="hover:bg-muted/50 cursor-pointer transition-colors"
+                      className={`${theme === 'dark' ? 'hover:bg-gray-800/50' : 'hover:bg-gray-50'} cursor-pointer transition-colors`}
                       onClick={() => router.push(`/admin/leads/${lead.id}`)}
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
-                          <div className="text-sm font-medium text-foreground">
+                          <div className={`text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                             {lead.homeowner.name}
                           </div>
-                          <div className="text-sm text-muted-foreground">
+                          <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
                             {lead.homeowner.email}
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-foreground">{lead.location}</div>
-                        <div className="text-sm text-muted-foreground">{lead.postcode}</div>
+                        <div className={`text-sm ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{lead.location}</div>
+                        <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>{lead.postcode}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2 text-sm text-foreground">
+                        <div className={`flex items-center gap-2 text-sm ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                           <span className="text-lg">{getQuoteTypeIcon(lead.quoteType)}</span>
                           <span>{getQuoteTypeLabel(lead.quoteType)}</span>
                         </div>
@@ -389,13 +426,13 @@ export default function AdminLeadsPage() {
                           </div>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                      <td className={`px-6 py-4 whitespace-nowrap text-sm ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                         £{lead.energyBill.toFixed(2)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                      <td className={`px-6 py-4 whitespace-nowrap text-sm ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                         {lead.leadPrice ? `£${lead.leadPrice.toFixed(2)}` : '—'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                      <td className={`px-6 py-4 whitespace-nowrap text-sm ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                         {formatDate(lead.createdAt)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -404,7 +441,7 @@ export default function AdminLeadsPage() {
                             e.stopPropagation();
                             router.push(`/admin/leads/${lead.id}`);
                           }}
-                          className="text-primary hover:text-primary/80"
+                          className="text-primary hover:text-primary/80 font-medium"
                         >
                           View →
                         </button>
@@ -417,22 +454,30 @@ export default function AdminLeadsPage() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="px-6 py-4 border-t border-border flex justify-between items-center">
-                <div className="text-sm text-muted-foreground">
+              <div className={`px-6 py-4 border-t ${theme === 'dark' ? 'border-gray-800' : 'border-gray-200'} flex justify-between items-center`}>
+                <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
                   Page {page} of {totalPages}
                 </div>
                 <div className="flex gap-2">
                   <button
                     onClick={() => setPage(p => Math.max(1, p - 1))}
                     disabled={page === 1}
-                    className="px-3 py-1 border border-input rounded-md text-sm hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
+                    className={`px-4 py-2 border rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                      theme === 'dark'
+                        ? 'border-gray-700 text-white hover:bg-gray-800'
+                        : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                    }`}
                   >
                     Previous
                   </button>
                   <button
                     onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                     disabled={page === totalPages}
-                    className="px-3 py-1 border border-input rounded-md text-sm hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
+                    className={`px-4 py-2 border rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                      theme === 'dark'
+                        ? 'border-gray-700 text-white hover:bg-gray-800'
+                        : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                    }`}
                   >
                     Next
                   </button>
@@ -444,9 +489,9 @@ export default function AdminLeadsPage() {
 
         {/* Empty State */}
         {!loading && filteredAndSearchedLeads.length === 0 && (
-          <div className="bg-card rounded-lg shadow-sm p-12 text-center">
+          <div className={`${theme === 'dark' ? 'bg-[#1A1F2E]' : 'bg-white'} rounded-lg shadow-sm p-12 text-center`}>
             <svg
-              className="mx-auto h-12 w-12 text-muted-foreground mb-4"
+              className={`mx-auto h-12 w-12 ${theme === 'dark' ? 'text-gray-600' : 'text-gray-400'} mb-4`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -458,8 +503,8 @@ export default function AdminLeadsPage() {
                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
               />
             </svg>
-            <h3 className="text-lg font-medium text-foreground mb-2">No leads found</h3>
-            <p className="text-muted-foreground">
+            <h3 className={`text-lg font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'} mb-2`}>No leads found</h3>
+            <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
               {searchQuery
                 ? 'No leads match your search query. Try different keywords.'
                 : statusFilter !== 'ALL' || postcodeFilter
