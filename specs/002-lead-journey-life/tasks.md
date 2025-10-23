@@ -2018,27 +2018,555 @@ Installer UI work (badges, marketplace, installer lead detail) is intentionally 
 
 **Independent Test**: Verified installer views marketplace → selects lead (contact hidden) → purchases (Stripe payment) → lead moves to "Purchased Leads" → contact revealed → can chat.
 
+**Audit Status**: ✅ **AUDIT COMPLETE** (October 23, 2025) - See `DOC/Records/PHASE-5-AUDIT-2025-10-23.md`  
+**Infrastructure**: ✅ 95% Ready (Schema complete, Services 95%, APIs 50%, UI 40%)  
+**Recommendation**: ✅ APPROVED FOR IMPLEMENTATION - Follow refined sequence below
+
+---
+
+### Pre-Phase Setup (User Action Required)
+
+- [ ] **T000** [Setup] Add Stripe test keys to `.env` file:
+  - STRIPE_SECRET_KEY="sk_test_..."
+  - STRIPE_PUBLISHABLE_KEY="pk_test_..."
+  - STRIPE_WEBHOOK_SECRET="whsec_..." (get from Stripe CLI or dashboard)
+  - **Action**: Sign up at stripe.com → Developers → API keys → Reveal test keys
+
+- [ ] **T001** [Setup] Create 2-3 test approved leads for marketplace testing:
+  - Login as admin → Navigate to /admin/leads
+  - Find PENDING_APPROVAL leads → Click "Approve"
+  - Verify leads have visibility = PUBLIC, status = APPROVED
+  - Note lead IDs for testing
+
+- [ ] **T002** [Setup] Verify Settings seeded with lead pricing:
+  - Open Prisma Studio: `npx prisma studio`
+  - Check Settings table for LEAD_PRICE_CALL_VISIT (£25), LEAD_PRICE_WRITTEN_QUOTE (£50)
+  - If missing: Run `npx prisma db seed` to re-seed settings
+
+**Checkpoint**: ✅ Stripe keys configured, test leads approved, pricing settings verified
+
+---
+
 ### Implementation for User Story 3
 
-- [ ] T060 [P] [US3] Create installer marketplace page in `src/app/(dashboard)/installer/marketplace/page.tsx` (list approved leads with filters)
-- [ ] T061 [P] [US3] Create installer purchased leads page in `src/app/(dashboard)/installer/purchased-leads/page.tsx` (list purchased leads)
-- [ ] T062 [P] [US3] Create installer lead detail page in `src/app/(dashboard)/installer/leads/[id]/page.tsx` (view lead, purchase button, chat UI)
-- [ ] T063 [P] [US3] Create POST `/api/leads/[id]/purchase` route in `src/app/api/leads/[id]/purchase/route.ts` (Stripe payment integration per leads.openapi.yaml)
-- [ ] T064 [P] [US3] Create Stripe webhook handler in `src/app/api/webhooks/stripe/route.ts` (confirm payment, update lead purchaseStatus)
-- [ ] T065 [US3] Implement lead purchase service in `src/lib/services/purchase-service.ts` (create Stripe payment intent, verify payment, update lead)
-- [ ] T066 [US3] Add contact details reveal logic in installer lead detail page (show only after purchaseStatus = PAID)
-- [ ] T067 [US3] Add "Purchased" badge to marketplace lead cards (prevent duplicate purchase attempts)
-- [ ] T068 [US3] Add installer verification check in marketplace page (redirect unverified to verification flow)
-- [ ] T069 [US3] Create installer verification modal in `src/components/modals/InstallerVerificationModal.tsx` (phone OTP + document upload)
-- [ ] T070 [US3] Create POST `/api/installer/verify` route in `src/app/api/installer/verify/route.ts` (handle document upload to S3)
-- [ ] T071 [US3] Add "Verified Installer" badge display in installer profile and marketplace
-- [ ] T072 [US3] Implement simultaneous purchase prevention in purchase route (optimistic locking or transaction)
-- [ ] T073 [US3] Send notifications on lead purchase (homeowner, admin)
-- [ ] T074 [US3] Add middleware check in installer routes to enforce INSTALLER role
+**IMPLEMENTATION ORDER** (follow MANDATORY WORKFLOW):
+1. Services → APIs → UI Pages → Integration & Polish
+2. Read all spec sections BEFORE starting each task
+3. Verify service signatures BEFORE calling them
+4. Test each layer before moving to next
 
-**Checkpoint**: Verified installers can browse marketplace, purchase leads, see contact details, and access chat. Stripe payments processed successfully.
+---
+
+#### Service Layer (Day 1) - BLOCKING for all other tasks
+
+- [ ] **T065** [US3] Create purchase service in `src/lib/services/purchase-service.ts`:
+  - **Purpose**: Handle Stripe payment flow and lead purchase logic
+  - **Functions to implement**:
+    ```typescript
+    // Create Stripe payment intent for lead purchase
+    export async function createPurchaseIntent(
+      leadId: string,
+      installerId: string,
+      amount: number // in pence (£25.00 = 2500)
+    ): Promise<{ clientSecret: string; paymentIntentId: string }> {
+      // 1. Verify lead exists and available (installerId === null)
+      // 2. Create Stripe payment intent: stripe.paymentIntents.create()
+      // 3. Create audit log: PAYMENT_INITIATED
+      // 4. Return clientSecret for Stripe Checkout
+    }
+
+    // Confirm purchase after webhook receives payment success
+    export async function confirmPurchase(
+      paymentIntentId: string,
+      leadId: string,
+      installerId: string
+    ): Promise<Lead> {
+      // 1. Use Prisma transaction for atomic update
+      // 2. Check lead.installerId === null (prevent duplicate)
+      // 3. Update lead: installerId, purchasedAt, purchaseStatus, stripePaymentIntentId
+      // 4. Create audit log: PAYMENT_COMPLETED
+      // 5. Call createNotification() for homeowner and admin
+      // 6. Return updated lead
+    }
+
+    // Prevent race condition duplicate purchases
+    export async function preventDuplicatePurchase(leadId: string): Promise<boolean> {
+      // Query: WHERE id = leadId AND installerId IS NULL
+      // Return: true if available, false if already purchased
+    }
+    ```
+  - **Imports needed**:
+    - `import { stripe } from '@/lib/stripe';`
+    - `import { prisma } from '@/lib/prisma';`
+    - `import { createAuditLog, AUDIT_ACTIONS } from '@/lib/services/audit-logger';`
+    - `import { createNotification } from '@/lib/services/notification-service';`
+    - `import { PurchaseStatus } from '@prisma/client';`
+  - **Error handling**: Stripe API errors, duplicate purchase errors, database errors
+  - **Validation**: Run `npx tsc --noEmit` after creation
+
+**Checkpoint**: ✅ Purchase service created, TypeScript compiles, no errors
+
+---
+
+#### API Routes (Day 2) - BLOCKING for frontend
+
+- [ ] **T063** [P] [US3] Create POST `/api/leads/[id]/purchase` route in `src/app/api/leads/[id]/purchase/route.ts`:
+  - **Purpose**: Initiate lead purchase, create Stripe payment intent
+  - **Authentication**: 
+    ```typescript
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== 'INSTALLER') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    if (!session.user.installerVerified) {
+      return NextResponse.json({ error: 'Installer verification required' }, { status: 403 });
+    }
+    ```
+  - **Validation**:
+    ```typescript
+    const lead = await prisma.lead.findUnique({ where: { id: params.id } });
+    if (!lead) return NextResponse.json({ error: 'Lead not found' }, { status: 404 });
+    if (lead.status !== 'APPROVED') return NextResponse.json({ error: 'Lead not available' }, { status: 400 });
+    if (lead.installerId !== null) return NextResponse.json({ error: 'Lead already purchased' }, { status: 409 });
+    ```
+  - **Logic**:
+    ```typescript
+    // Get lead price (from lead.leadPrice or Settings)
+    const amount = lead.leadPrice || await getSettingAsNumber(`LEAD_PRICE_${lead.quoteType}`);
+    
+    // Create payment intent via purchase service
+    const { clientSecret, paymentIntentId } = await createPurchaseIntent(
+      lead.id,
+      session.user.id,
+      amount * 100 // Convert to pence
+    );
+    
+    return NextResponse.json({
+      clientSecret,
+      amount,
+      leadId: lead.id,
+      quoteType: lead.quoteType
+    });
+    ```
+  - **Error responses**: 401 (unauthorized), 403 (unverified), 404 (not found), 409 (already purchased), 500 (server error)
+  - **Testing**: Use Thunder Client/Postman to call endpoint, verify clientSecret returned
+
+- [ ] **T064** [P] [US3] Create Stripe webhook handler in `src/app/api/webhooks/stripe/route.ts`:
+  - **Purpose**: Receive Stripe payment confirmation, update lead ownership
+  - **Webhook signature verification** (CRITICAL for security):
+    ```typescript
+    import { stripe } from '@/lib/stripe';
+    import { headers } from 'next/headers';
+
+    const body = await request.text();
+    const sig = headers().get('stripe-signature');
+
+    let event;
+    try {
+      event = stripe.webhooks.constructEvent(
+        body,
+        sig!,
+        process.env.STRIPE_WEBHOOK_SECRET!
+      );
+    } catch (err) {
+      return NextResponse.json({ error: 'Webhook signature verification failed' }, { status: 400 });
+    }
+    ```
+  - **Event handling**:
+    ```typescript
+    if (event.type === 'payment_intent.succeeded') {
+      const paymentIntent = event.data.object;
+      const { leadId, installerId } = paymentIntent.metadata;
+      
+      // Confirm purchase via service
+      await confirmPurchase(paymentIntent.id, leadId, installerId);
+      
+      return NextResponse.json({ received: true });
+    }
+
+    // Handle payment_intent.payment_failed
+    if (event.type === 'payment_intent.payment_failed') {
+      // Update lead.purchaseStatus = FAILED, create audit log
+    }
+    ```
+  - **Database updates**: Use `confirmPurchase()` from purchase-service.ts
+  - **Notifications**: Sent within `confirmPurchase()` function
+  - **Audit logs**: Track PAYMENT_COMPLETED or PAYMENT_FAILED
+  - **Testing**: Use Stripe CLI `stripe listen --forward-to localhost:3000/api/webhooks/stripe`
+
+**Checkpoint**: ✅ Purchase API works, webhook verified, payment flow tested end-to-end
+
+---
+
+#### Frontend Pages (Day 3-4)
+
+- [ ] **T060** [P] [US3] Create installer marketplace page in `src/app/installer/marketplace/page.tsx`:
+  - **Purpose**: Display approved leads available for purchase
+  - **Data fetching**:
+    ```typescript
+    const { data: leads } = await fetch('/api/leads?role=INSTALLER');
+    // Server-side filters: visibility=PUBLIC, installerId=null (from lead-service.ts)
+    ```
+  - **UI Structure**:
+    ```tsx
+    <div className="marketplace-container">
+      <h1>Lead Marketplace</h1>
+      <Filters /> {/* By postcode, quoteType, price range */}
+      <LeadGrid>
+        {leads.map(lead => (
+          <LeadCard
+            key={lead.id}
+            lead={lead}
+            onPurchase={() => handlePurchase(lead.id)}
+            contactMasked={true} {/* Server masks phone/email */}
+          />
+        ))}
+      </LeadGrid>
+    </div>
+    ```
+  - **Lead card display**:
+    - Postcode, location, state (NOT exact address)
+    - Energy bill, quote type, lead price
+    - "Purchase for £{price}" button
+    - Phone/email: Show "HIDDEN" (masked by lead-service.ts)
+  - **Verification check**:
+    ```typescript
+    const { data: session } = useSession();
+    if (!session?.user?.installerVerified) {
+      return <VerificationPrompt />;
+    }
+    ```
+  - **Purchase flow**:
+    ```typescript
+    const handlePurchase = async (leadId) => {
+      const response = await fetch(`/api/leads/${leadId}/purchase`, { method: 'POST' });
+      const { clientSecret } = await response.json();
+      
+      // Open Stripe Checkout
+      const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
+      await stripe.redirectToCheckout({ sessionId: clientSecret });
+    };
+    ```
+  - **Empty state**: "No leads available" with filters suggestion
+  - **Testing**: Login as installer, verify leads visible, contact masked, purchase button works
+
+- [ ] **T061** [P] [US3] Create installer purchased leads page in `src/app/installer/purchased-leads/page.tsx`:
+  - **Purpose**: Display leads purchased by this installer
+  - **Data fetching**:
+    ```typescript
+    const { data: leads } = await fetch('/api/leads'); 
+    // Server filters: installerId === session.user.id (from lead-service.ts)
+    ```
+  - **UI Structure**:
+    ```tsx
+    <div className="purchased-leads-container">
+      <h1>My Purchased Leads</h1>
+      <LeadList>
+        {leads.map(lead => (
+          <LeadCard
+            key={lead.id}
+            lead={lead}
+            contactRevealed={true} {/* Full phone/email visible */}
+            onViewDetails={() => router.push(`/installer/leads/${lead.id}`)}
+          />
+        ))}
+      </LeadList>
+    </div>
+    ```
+  - **Lead card display**:
+    - Full contact details: phone, email, exact address
+    - Lead status (PURCHASED, QUOTED, ACCEPTED, etc.)
+    - Purchase date, amount paid
+    - "View Details" button → lead detail page
+  - **Empty state**: "No purchased leads yet" with marketplace link
+  - **Testing**: Purchase a lead, verify it appears here with full contact
+
+- [ ] **T062** [P] [US3] Create installer lead detail page in `src/app/installer/leads/[id]/page.tsx`:
+  - **Purpose**: Detailed view of purchased lead
+  - **Data fetching**:
+    ```typescript
+    const lead = await fetch(`/api/leads/${params.id}`);
+    // Server checks: lead.installerId === session.user.id, else 404
+    ```
+  - **UI Sections**:
+    1. **Contact Details Card**:
+       - Homeowner name, phone, email, full address
+       - "Call Now" and "Email" action buttons
+    2. **Instant Quote Details**:
+       - Display all fields from `lead.quoteData` (from Phase 4.5)
+       - System size, costs, savings, preferences, roof type, etc.
+    3. **Lead Timeline**:
+       - Status history: Created → Approved → Purchased
+       - Timestamps for each status change
+    4. **Chat Section** (Placeholder for Phase 8):
+       - Message: "Chat feature coming soon"
+    5. **Quote Submission** (Placeholder for Phase 8):
+       - Message: "Quote submission coming soon"
+  - **Access control**:
+    ```typescript
+    if (lead.installerId !== session.user.id) {
+      return <NotFound message="Lead not found" />;
+    }
+    ```
+  - **Back navigation**: Link back to /installer/purchased-leads
+  - **Testing**: Open purchased lead, verify all details visible
+
+**Checkpoint**: ✅ All 3 pages created, navigation works, data displays correctly
+
+---
+
+#### UI Components (Day 4)
+
+- [ ] **T075** [US3] Create `LeadPurchaseButton` component in `src/components/installer/LeadPurchaseButton.tsx`:
+  - **Props**: `leadId: string`, `leadPrice: number`, `quoteType: string`, `onSuccess: () => void`
+  - **States**: idle, loading, success, error
+  - **Logic**:
+    ```typescript
+    const handleClick = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`/api/leads/${leadId}/purchase`, { method: 'POST' });
+        const { clientSecret } = await response.json();
+        
+        const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
+        const { error } = await stripe.redirectToCheckout({ clientSecret });
+        
+        if (error) throw error;
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    ```
+  - **UI**: 
+    - Button text: "Purchase for £{leadPrice}" (idle)
+    - Button text: "Processing..." (loading)
+    - Error toast: Show error message (unverified, already purchased, etc.)
+
+- [ ] **T076** [US3] Create `PurchaseConfirmationModal` component in `src/components/installer/PurchaseConfirmationModal.tsx`:
+  - **Props**: `isOpen: boolean`, `onClose: () => void`, `leadPrice: number`, `quoteType: string`, `onConfirm: () => void`
+  - **UI**:
+    ```tsx
+    <Modal isOpen={isOpen} onClose={onClose}>
+      <h2>Confirm Purchase</h2>
+      <p>You are about to purchase a {quoteType} lead for £{leadPrice}.</p>
+      <p>Full homeowner contact details will be revealed after payment.</p>
+      <div className="actions">
+        <Button onClick={onConfirm}>Confirm Purchase</Button>
+        <Button variant="secondary" onClick={onClose}>Cancel</Button>
+      </div>
+    </Modal>
+    ```
+
+- [ ] **T077** [US3] Create `ContactDetailsCard` component in `src/components/installer/ContactDetailsCard.tsx`:
+  - **Props**: `homeowner: User`, `isPurchased: boolean`
+  - **UI**:
+    ```tsx
+    <Card>
+      <h3>Homeowner Contact</h3>
+      {isPurchased ? (
+        <>
+          <p>Name: {homeowner.name}</p>
+          <p>Phone: {homeowner.phone}</p>
+          <p>Email: {homeowner.email}</p>
+          <p>Address: {homeowner.address}</p>
+        </>
+      ) : (
+        <>
+          <p>Phone: HIDDEN</p>
+          <p>Email: {homeowner.email[0]}***@***</p>
+          <p>Address: {location}, {state}</p>
+          <Alert>Purchase this lead to reveal full contact details</Alert>
+        </>
+      )}
+    </Card>
+    ```
+
+**Checkpoint**: ✅ All UI components created, purchase flow smooth
+
+---
+
+#### Integration & Verification (Day 5)
+
+- [ ] **T066** [US3] Add contact details reveal logic in installer lead detail page:
+  - **Logic**: Already implemented in `lead-service.ts` (lines 546-560)
+  - **Verification**:
+    ```typescript
+    // In lead detail page
+    const lead = await getLeadById(params.id, session.user.id, 'INSTALLER');
+    // If lead.installerId === session.user.id, homeowner contact NOT masked
+    // If lead.installerId !== session.user.id, homeowner contact MASKED
+    ```
+  - **UI**: Use `ContactDetailsCard` component with `isPurchased` prop
+  - **Testing**: Compare unpurchased vs purchased lead detail pages
+
+- [ ] **T067** [P] [US3] Add "Purchased" badge to marketplace lead cards:
+  - **Logic**: Check `lead.installerId !== null` in marketplace page
+  - **UI**:
+    ```tsx
+    {lead.installerId && (
+      <Badge variant="gray" className="purchased-badge">
+        Already Purchased
+      </Badge>
+    )}
+    ```
+  - **Optional**: Filter out purchased leads from marketplace (UI setting)
+
+- [ ] **T068** [P] [US3] Add installer verification check in marketplace page:
+  - **Session check**:
+    ```typescript
+    const { data: session } = useSession();
+    
+    if (!session?.user?.installerVerified) {
+      return (
+        <VerificationPrompt>
+          <h2>Verification Required</h2>
+          <p>Complete installer verification to purchase leads.</p>
+          <Button onClick={() => router.push('/installer/verification')}>
+            Get Verified
+          </Button>
+        </VerificationPrompt>
+      );
+    }
+    ```
+  - **Purchase button**: Disabled if not verified, tooltip: "Verification required"
+
+- [ ] **T069** [US3] Create installer verification modal in `src/components/modals/InstallerVerificationModal.tsx` (OPTIONAL - can defer):
+  - **Props**: `isOpen: boolean`, `onClose: () => void`, `onSuccess: () => void`
+  - **UI**:
+    ```tsx
+    <Modal isOpen={isOpen}>
+      <h2>Installer Verification</h2>
+      <p>Upload certification documents to get verified:</p>
+      <FileUpload
+        label="Certification Document"
+        accept=".pdf,.jpg,.png"
+        onUpload={handleUpload}
+      />
+      <FileUpload
+        label="Insurance Certificate"
+        accept=".pdf"
+        onUpload={handleUpload}
+      />
+      <Button onClick={handleSubmit}>Submit for Verification</Button>
+    </Modal>
+    ```
+  - **Note**: For MVP, can show "Contact admin for verification" message instead
+
+- [ ] **T070** [US3] Create POST `/api/installer/verify` route in `src/app/api/installer/verify/route.ts` (OPTIONAL - can defer):
+  - **Purpose**: Handle installer verification document uploads
+  - **File upload**:
+    ```typescript
+    // Use S3 presigned URL for direct browser upload
+    import { uploadFile } from '@/lib/s3';
+    
+    const s3Key = await uploadFile(fileBuffer, `verification/${session.user.id}/${fileName}`, contentType);
+    
+    // Create InstallDocument record
+    await prisma.installDocument.create({
+      data: {
+        leadId: null, // Verification docs not tied to lead
+        documentType: 'VERIFICATION_CERT',
+        fileName,
+        fileSize,
+        contentType,
+        s3Key,
+        uploadedBy: session.user.id
+      }
+    });
+    ```
+  - **Admin notification**: Alert admin to review verification request
+  - **Note**: For MVP, admin can manually set `installerVerified = true` in database
+
+- [ ] **T071** [P] [US3] Add "Verified Installer" badge display in installer profile and marketplace:
+  - **Component**: `src/components/VerifiedInstallerBadge.tsx`
+  - **Logic**:
+    ```tsx
+    const VerifiedInstallerBadge = ({ verified }: { verified: boolean }) => {
+      if (!verified) return null;
+      return (
+        <Badge variant="success" className="verified-badge">
+          <CheckCircleIcon className="h-4 w-4" />
+          Verified Installer
+        </Badge>
+      );
+    };
+    ```
+  - **Usage**: Display in header, profile page, lead cards
+
+- [ ] **T072** [US3] Implement simultaneous purchase prevention in purchase route (optimistic locking or transaction):
+  - **Already in purchase-service.ts `confirmPurchase()`**:
+    ```typescript
+    await prisma.$transaction(async (tx) => {
+      // Atomic check: only update if installerId still null
+      const lead = await tx.lead.findFirst({
+        where: { id: leadId, installerId: null }
+      });
+      
+      if (!lead) {
+        throw new Error('Lead already purchased');
+      }
+      
+      await tx.lead.update({
+        where: { id: leadId },
+        data: { installerId, purchasedAt: new Date(), purchaseStatus: 'COMPLETED' }
+      });
+    });
+    ```
+  - **Testing**: Open same lead in 2 browser tabs, click purchase simultaneously
+  - **Expected**: One succeeds, one fails with 409 Conflict
+
+- [ ] **T073** [US3] Send notifications on lead purchase (homeowner, admin):
+  - **Already in `confirmPurchase()` function**:
+    ```typescript
+    // Notify homeowner
+    await createNotification({
+      userId: lead.homeownerId,
+      type: 'LEAD_PURCHASED',
+      title: 'Your lead has been purchased',
+      message: `Installer ${installer.name} purchased your lead.`,
+      relatedEntityType: 'lead',
+      relatedEntityId: leadId
+    });
+    
+    // Notify admin
+    await createNotification({
+      userId: adminId, // Get from Settings or User where role=ADMIN
+      type: 'LEAD_PURCHASED',
+      title: 'Lead purchased',
+      message: `${installer.name} purchased lead ${leadId}.`,
+      relatedEntityType: 'lead',
+      relatedEntityId: leadId
+    });
+    ```
+  - **Testing**: Purchase lead, check homeowner dashboard for notification
+
+- [ ] **T074** [P] [US3] Add middleware check in installer routes to enforce INSTALLER role:
+  - **File**: `src/app/installer/layout.tsx` (if exists) or add to each page
+  - **Logic**:
+    ```typescript
+    import { redirect } from 'next/navigation';
+    import { getServerSession } from 'next-auth';
+    
+    export default async function InstallerLayout({ children }) {
+      const session = await getServerSession(authOptions);
+      
+      if (!session || session.user.role !== 'INSTALLER') {
+        redirect('/');
+      }
+      
+      return <>{children}</>;
+    }
+    ```
+  - **Apply to**: `/installer/marketplace`, `/installer/purchased-leads`, `/installer/leads/[id]`
+
+**Checkpoint**: At this point, installers can browse marketplace, purchase leads, see contact details, and access chat. Stripe payments processed successfully.
+
+---
 
 ### Phase 5 (User Story 3) Validation Checklist:
+
 **Pre-Phase (30-60 min):**
 - [ ] Read spec.md User Story 3 section completely
 - [ ] Read contracts/leads.openapi.yaml for purchase endpoint
