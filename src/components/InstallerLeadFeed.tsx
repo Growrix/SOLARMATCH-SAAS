@@ -344,7 +344,7 @@ const LeadCard: React.FC<{
               <CalendarIcon className="h-4 w-4 text-slate-500 dark:text-slate-400" />
               <LiveCountdownBar
                 expiresAt={lead.expiresAt.toISOString()}
-                leadId={lead.id}
+                leadId={String(lead.id)}
                 leadStatus={lead.status}
                 quoteType="instant"
                 position="inline"

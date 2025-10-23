@@ -4,6 +4,9 @@
  * Purpose: Process payments for lead purchases by installers
  * Used for: Creating payment intents, processing charges, handling webhooks
  * 
+ * 🔴 DEVELOPMENT MODE: Supports bypass mode for testing without Stripe API keys
+ * Set STRIPE_BYPASS_MODE=true in .env to skip Stripe initialization
+ * 
  * Why singleton pattern?
  * - Reuses Stripe instance across requests (more efficient)
  * - Centralizes configuration
@@ -19,16 +22,19 @@
  *     metadata: { leadId: '123' }
  *   });
  * 
- * Environment Variables Required:
- * - STRIPE_SECRET_KEY: Your Stripe secret key (starts with sk_test_ or sk_live_)
- * - STRIPE_WEBHOOK_SECRET: Your Stripe webhook signing secret (for webhook verification)
+ * Environment Variables:
+ * - STRIPE_BYPASS_MODE: Set to 'true' to bypass Stripe (development only)
+ * - STRIPE_SECRET_KEY: Your Stripe secret key (required if not in bypass mode)
+ * - STRIPE_WEBHOOK_SECRET: Your Stripe webhook signing secret
  */
 
 import Stripe from 'stripe';
 
-// Validate environment variable at startup
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('STRIPE_SECRET_KEY environment variable is required');
+const BYPASS_MODE = process.env.STRIPE_BYPASS_MODE === 'true';
+
+// Validate environment variable at startup (unless in bypass mode)
+if (!BYPASS_MODE && !process.env.STRIPE_SECRET_KEY) {
+  throw new Error('STRIPE_SECRET_KEY environment variable is required (or set STRIPE_BYPASS_MODE=true for development)');
 }
 
 /**
@@ -38,15 +44,19 @@ if (!process.env.STRIPE_SECRET_KEY) {
  * - API version: Latest stable version
  * - TypeScript support: Full type safety
  * - App info: For Stripe dashboard identification
+ * 
+ * In bypass mode, this will be a mock Stripe instance
  */
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2025-09-30.clover', // Use latest stable API version
-  typescript: true,
-  appInfo: {
-    name: 'SolarMatch',
-    version: '1.0.0',
-  },
-});
+export const stripe = BYPASS_MODE 
+  ? null as any as Stripe // Bypass mode - no real Stripe client
+  : new Stripe(process.env.STRIPE_SECRET_KEY!, {
+      apiVersion: '2025-09-30.clover', // Use latest stable API version
+      typescript: true,
+      appInfo: {
+        name: 'SolarMatch',
+        version: '1.0.0',
+      },
+    });
 
 /**
  * Helper function to create a payment intent for lead purchase
