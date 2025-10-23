@@ -327,6 +327,120 @@ grep "expiresAt" node_modules/.prisma/client/index.d.ts
 
 ---
 
+## Phase 4.5: Enhanced Live Countdown UI (UI/UX Improvement)
+
+**Goal**: Upgrade countdown timer to show live updates with "Xd Yh Zm Ws" format and full-width progress bar at top of lead cards
+
+**User Feedback**: Current countdown shows static "7 days remaining" badge. Need live countdown with days:hours:minutes:seconds updating every second, positioned as a full-width bar at the top of each lead card.
+
+**Specification**: See `/specs/003-countdown-timer-for/ui-improvement-spec.md` for detailed visual design
+
+### Visual Design Goals
+- **Live Updates**: Countdown updates every 1 second (not 10 seconds)
+- **Time Format**: "5d 23h 45m 30s remaining" (show all units)
+- **Position**: Full-width progress bar at **top** of lead card
+- **Progress Bar**: Visual bar showing time remaining percentage
+- **Color Coding**: Same as Phase 4 (green/yellow/red based on days remaining)
+- **Smooth Animations**: Transitions between time updates
+
+### Implementation for Phase 4.5
+
+- [ ] T019A [P] [US5-Enhanced] Create new client-side utility in `src/lib/utils/countdown-client.ts`:
+  - Add function `calculateLiveCountdown(expiresAt: string)` returning:
+    ```typescript
+    {
+      days: number,
+      hours: number,
+      minutes: number,
+      seconds: number,
+      totalSeconds: number,
+      progressPercent: number,
+      colorClass: 'green' | 'yellow' | 'red' | 'expired',
+      isExpired: boolean,
+      displayText: string  // "5d 23h 45m 30s remaining"
+    }
+    ```
+  - Add function `formatLiveCountdown(days, hours, minutes, seconds)` for display text
+  - Keep existing functions for backward compatibility
+
+- [ ] T019B [P] [US5-Enhanced] Create new `LiveCountdownBar` component in `src/components/LiveCountdownBar.tsx`:
+  - Accept props: `expiresAt: string | null`, `leadId: string`, `position?: 'top' | 'inline'`
+  - Use `useState` to store live countdown state (days, hours, minutes, seconds)
+  - Use `useEffect` with **1-second interval** (not 10 seconds) for live updates
+  - Render full-width progress bar (width based on `progressPercent`)
+  - Display text: "Xd Yh Zm Ws remaining" format
+  - Color-coded background based on days remaining
+  - Use `document.visibilityState` to pause updates when tab inactive (battery optimization)
+  - Support both `position="top"` (full-width bar) and `position="inline"` (compact)
+  - Add dark mode support with Tailwind classes
+  - Include ARIA labels: `role="timer"`, `aria-live="polite"`
+
+- [ ] T019C [US5-Enhanced] Update homeowner dashboard in `src/app/homeowner/dashboard/page.tsx`:
+  - Import `LiveCountdownBar` component
+  - Replace `CountdownTimerCompact` with `LiveCountdownBar`
+  - Position at **top** of each lead card: `<LiveCountdownBar expiresAt={lead.expiresAt} leadId={lead.id} position="top" />`
+  - Ensure full-width bar appears above card content
+
+- [ ] T019D [P] [US5-Enhanced] Update admin leads table in `src/app/admin/leads/page.tsx`:
+  - Import `LiveCountdownBar` component
+  - Replace `CountdownTimerCompact` with `LiveCountdownBar` in countdown column
+  - Use `position="inline"` for table cell: `<LiveCountdownBar expiresAt={lead.expiresAt} leadId={lead.id} position="inline" />`
+  - Verify column width accommodates "Xd Yh Zm Ws" format
+
+- [ ] T019E [P] [US5-Enhanced] Update installer feed in `src/components/InstallerLeadFeed.tsx`:
+  - Import `LiveCountdownBar` component
+  - Add to top of lead cards (when connected to real API)
+  - Use `position="top"` for full-width bar
+  - Note: Currently uses mock data, will work when API integrated
+
+- [ ] T019F [US5-Enhanced] Run build check: `npm run build` (must pass)
+
+- [ ] T019G [US5-Enhanced] Test live countdown display:
+  - Start dev server: `npm run dev`
+  - Open homeowner dashboard with approved leads that have countdown timers
+  - Verify countdown shows "Xd Yh Zm Ws remaining" format
+  - **Watch for 60 seconds** - verify seconds decrease in real-time
+  - Verify progress bar width decreases smoothly
+  - Test color transitions (create leads with 7 days, 4 days, 1 day)
+  - Test expired state (create lead with expiresAt in past)
+  - Switch browser tab away and back - verify countdown continues correctly
+  - Test dark mode appearance
+  - Test mobile responsive design
+
+**Checkpoint**: At this point, countdown timers display live updates with "Xd Yh Zm Ws" format on all dashboards
+
+### Manual QA Checklist for Phase 4.5:
+- [ ] Countdown displays "Xd Yh Zm Ws remaining" format (not just "X days")
+- [ ] Seconds tick down every second (visible live updates)
+- [ ] Minutes decrement when seconds reach 0
+- [ ] Hours decrement when minutes reach 0
+- [ ] Days decrement when hours reach 0
+- [ ] Progress bar positioned at top of lead card (full width)
+- [ ] Progress bar width reflects time remaining accurately
+- [ ] Color coding works: green (6+ days), yellow (3-5 days), red (1-2 days)
+- [ ] Smooth transitions when time changes (no flicker)
+- [ ] Expired leads show "EXPIRED" text with gray background
+- [ ] Dark mode: All colors visible with proper contrast
+- [ ] Mobile: Countdown bar responsive, text readable on small screens
+- [ ] Performance: No lag or high CPU usage with multiple countdowns on screen
+- [ ] Tab switching: Countdown pauses when tab inactive, resumes when active
+- [ ] Accessibility: Screen readers announce countdown state properly
+
+### Phase 4.5 Validation Checklist:
+- [ ] All T019A-T019G tasks completed
+- [ ] Build passes: `npm run build` (0 errors)
+- [ ] TypeScript compiles: `npx tsc --noEmit` (0 errors)
+- [ ] Live countdown updates every 1 second (verified manually)
+- [ ] Display format matches spec: "Xd Yh Zm Ws remaining"
+- [ ] Progress bar positioned at top of lead cards
+- [ ] Color coding works correctly
+- [ ] Dark mode tested and working
+- [ ] Performance acceptable (no lag with 10+ countdowns)
+- [ ] User approval received for commit
+- [ ] Git commit created: "Phase 4.5: Enhanced live countdown UI with real-time updates"
+
+---
+
 ## Phase 5: User Story 2 - Automatic Lead Expiry (Priority: P1)
 
 **Goal**: Leads with countdown timers automatically expire when countdown reaches zero
@@ -629,13 +743,14 @@ graph TD
 **Recommended Implementation Order**:
 1. Phase 1 (Setup) + Phase 2 (Foundation) - ~4 hours
 2. Phase 3 (US1 Approval) - ~3 hours - ✅ MVP READY HERE
-3. Phase 4 (US5 Visual Display) - ~4 hours
-4. Phase 5 (US2 Auto-Expiry) - ~3 hours
-5. Phase 6 (US3 Auto-Disable) - ~2 hours
-6. Phase 7 (US4 Admin Management) - ~4 hours
-7. Phase 8 (Polish) - ~2 hours
+3. Phase 4 (US5 Visual Display - Basic) - ~4 hours - ✅ COMPLETED
+4. **Phase 4.5 (US5 Visual Display - Enhanced Live UI) - ~3 hours** ⬅️ **CURRENT PHASE**
+5. Phase 5 (US2 Auto-Expiry) - ~3 hours
+6. Phase 6 (US3 Auto-Disable) - ~2 hours
+7. Phase 7 (US4 Admin Management) - ~4 hours
+8. Phase 8 (Polish) - ~2 hours
 
-**Total Estimated Time**: 22 hours (~3 days at 7-8 hours/day)
+**Total Estimated Time**: 25 hours (~3-4 days at 7-8 hours/day)
 
 ---
 
@@ -666,29 +781,31 @@ graph TD
 
 ## Task Summary
 
-**Total Tasks**: 46 (T001-T046)  
+**Total Tasks**: 53 (T001-T046 + T019A-T019G)  
 **Setup Tasks**: 3 (Phase 1)  
 **Foundation Tasks**: 5 (Phase 2)  
-**User Story Tasks**: 31 (Phases 3-7)
+**User Story Tasks**: 38 (Phases 3-7)
   - US1 (Admin Approval): 4 tasks
-  - US5 (Visual Display): 7 tasks
+  - US5 (Visual Display - Basic): 7 tasks (T013-T019)
+  - **US5 (Visual Display - Enhanced): 7 tasks (T019A-T019G)** ⬅️ **NEW**
   - US2 (Auto-Expiry): 4 tasks
   - US3 (Auto-Disable): 5 tasks
   - US4 (Admin Management): 11 tasks
 **Polish Tasks**: 7 (Phase 8)  
-**Parallelizable Tasks**: 18 marked with [P]
+**Parallelizable Tasks**: 21 marked with [P] (includes Phase 4.5)
 
-**Estimated Total Implementation Time**: 22 hours
+**Estimated Total Implementation Time**: 25 hours
 
 **MVP Scope** (minimum viable product):
-- Phase 1 (Setup): 1 hour
-- Phase 2 (Foundation): 3 hours
-- Phase 3 (US1 - Admin Approval): 3 hours
-- Phase 4 (US5 - Visual Display): 4 hours
-- **MVP Total**: 11 hours - Delivers core countdown timer functionality
+- Phase 1 (Setup): 1 hour ✅
+- Phase 2 (Foundation): 3 hours ✅
+- Phase 3 (US1 - Admin Approval): 3 hours ✅
+- Phase 4 (US5 - Visual Display - Basic): 4 hours ✅
+- **Phase 4.5 (US5 - Enhanced Live UI): 3 hours** ⬅️ **CURRENT**
+- **Enhanced MVP Total**: 14 hours - Delivers polished countdown timer with live updates
 
 **Implementation Strategy**:
-1. **Week 1**: Complete MVP (Phases 1-4) - Admin can approve with countdown, users see countdown display
+1. **Week 1**: Complete Enhanced MVP (Phases 1-4.5) - Admin approves with countdown, live updates with "Xd Yh Zm Ws" format ✅
 2. **Week 2**: Add automation and management (Phases 5-7) - Auto-expiry, purchase behavior, admin controls
 3. **Week 3**: Polish and finalize (Phase 8) - Documentation, testing, performance optimization
 
