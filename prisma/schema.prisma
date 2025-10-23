@@ -75,32 +75,34 @@ model GuestInstantQuote {
 }
 
 model User {
-  id                  String              @id @default(cuid())
-  email               String              @unique
-  emailVerified       DateTime?
-  password            String?
-  role                UserRole            @default(HOMEOWNER)
-  isActive            Boolean             @default(true)
-  name                String?
-  phone               String?
-  image               String?
-  companyName         String?
-  businessAddress     String?
-  postcode            String?
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
-  lastLoginAt         DateTime?
-  installerVerified   Boolean             @default(false)
-  leadSubmissionCount Int                 @default(0)
-  phoneVerified       Boolean             @default(false)
-  leadSubmissionLimit Int                 @default(5)
-  biddingLeadsSubmitted Int               @default(0)
-  accounts            Account[]
-  leadsAsHomeowner    Lead[]              @relation("homeowner_leads")
-  leadsAsInstaller    Lead[]              @relation("installer_leads")
-  phoneVerifications  PhoneVerification[]
-  quotesAsInstaller   Quote[]             @relation("installer_quotes")
-  sessions            Session[]
+  id                    String              @id @default(cuid())
+  email                 String              @unique
+  emailVerified         DateTime?
+  password              String?
+  role                  UserRole            @default(HOMEOWNER)
+  isActive              Boolean             @default(true)
+  name                  String?
+  phone                 String?
+  image                 String?
+  companyName           String?
+  businessAddress       String?
+  postcode              String?
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  lastLoginAt           DateTime?
+  installerVerified     Boolean             @default(false)
+  leadSubmissionCount   Int                 @default(0)
+  phoneVerified         Boolean             @default(false)
+  leadSubmissionLimit   Int                 @default(5)
+  biddingLeadsSubmitted Int                 @default(0)
+  accounts              Account[]
+  leadsAsHomeowner      Lead[]              @relation("homeowner_leads")
+  leadsAsInstaller      Lead[]              @relation("installer_leads")
+  phoneVerifications    PhoneVerification[]
+  quotesAsInstaller     Quote[]             @relation("installer_quotes")
+  sessions              Session[]
+  installerAssignments  LeadAssignment[]    @relation("installer_assignments")
+  adminAssignments      LeadAssignment[]    @relation("admin_assignments")
 
   @@index([email])
   @@index([role])
@@ -173,9 +175,6 @@ model Lead {
   approvedAt            DateTime?
   purchasedAt           DateTime?
   expiresAt             DateTime?
-  cancelledAt           DateTime?
-  cancelledReason       String?
-  cancelledBy           String?
   adminNotes            String?
   flaggedReason         String?
   moderatedBy           String?
@@ -185,6 +184,13 @@ model Lead {
   stripePaymentIntentId String?
   quoteData             Json?
   quoteType             LeadQuoteType     @default(CALL_VISIT)
+  cancelledAt           DateTime?
+  cancelledBy           String?
+  cancelledReason       String?
+  archivedAt            DateTime?
+  assignedAt            DateTime?
+  assignedBy            String?
+  assignmentNotes       String?
   auditLogs             AuditLog[]
   chatMessages          ChatMessage[]
   documents             InstallDocument[]
@@ -192,6 +198,7 @@ model Lead {
   homeowner             User              @relation("homeowner_leads", fields: [homeownerId], references: [id], onDelete: Cascade)
   installer             User?             @relation("installer_leads", fields: [installerId], references: [id])
   quotes                Quote[]
+  assignments           LeadAssignment[]  @relation("lead_assignments")
 
   @@index([homeownerId])
   @@index([installerId])
@@ -203,6 +210,26 @@ model Lead {
   @@index([createdAt])
   @@index([expiresAt])
   @@map("leads")
+}
+
+model LeadAssignment {
+  id            String   @id @default(cuid())
+  leadId        String
+  installerId   String
+  assignedBy    String
+  assignedAt    DateTime @default(now())
+  notes         String?
+  notified      Boolean  @default(false)
+  
+  lead          Lead     @relation("lead_assignments", fields: [leadId], references: [id], onDelete: Cascade)
+  installer     User     @relation("installer_assignments", fields: [installerId], references: [id], onDelete: Cascade)
+  admin         User     @relation("admin_assignments", fields: [assignedBy], references: [id])
+  
+  @@unique([leadId, installerId])
+  @@index([leadId])
+  @@index([installerId])
+  @@index([assignedBy])
+  @@map("lead_assignments")
 }
 
 model PhoneVerification {
