@@ -138,7 +138,6 @@ export default function AdminLeadsPage() {
   useEffect(() => {
     if (!mounted) return;
     fetchLeads();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted, statusFilter, verificationFilter, postcodeFilter, page]);
 
   useEffect(() => {
@@ -147,7 +146,6 @@ export default function AdminLeadsPage() {
       fetchLeads();
     }, 10000);
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted, statusFilter, verificationFilter, postcodeFilter, page]);
 
   const fetchLeads = async () => {
@@ -535,7 +533,12 @@ export default function AdminLeadsPage() {
       </div>
       
       <div className="hidden md:fixed md:inset-y-0 md:left-0 md:z-40 md:flex">
-        <AdminSidebar activePage="Leads" />
+        <AdminSidebar 
+          activePage="Leads" 
+          setActivePage={handleSetActivePage} 
+          onHomeClick={handleHomeClick} 
+          onLogoutClick={handleLogoutClick} 
+        />
       </div>
 
       <AdminBottomNavBar
