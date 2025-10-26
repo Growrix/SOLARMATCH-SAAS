@@ -206,6 +206,12 @@ const AdminSidebar: React.FC<{
           isActive={activePage === 'Homeowners'} 
         />
         <NavItem 
+          icon={<UsersIcon />} 
+          title="Installers" 
+          onClick={() => window.location.href = '/admin/installers'} 
+          isActive={false} 
+        />
+        <NavItem 
           icon={<BarChartIcon />} 
           title="Analytics" 
           onClick={() => setActivePage('Analytics')} 
