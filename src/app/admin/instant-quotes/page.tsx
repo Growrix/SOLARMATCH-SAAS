@@ -337,44 +337,26 @@ export default function GuestInstantQuotesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 p-6">
+    <div className="p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-2 mb-6">
           <button
-            onClick={() => router.push('/admin/dashboard')}
-            className="mb-4 inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-700 font-medium"
+            onClick={fetchQuotes}
+            disabled={loading}
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
           >
-            <ArrowLeftIcon />
-            Back to Admin Dashboard
+            <RefreshIcon />
+            Refresh
           </button>
-          <div className="flex items-center justify-between mb-2">
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
-              <CalculatorIcon />
-              Guest Instant Quotes
-            </h1>
-            <div className="flex gap-2">
-              <button
-                onClick={fetchQuotes}
-                disabled={loading}
-                className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
-              >
-                <RefreshIcon />
-                Refresh
-              </button>
-              <button
-                onClick={exportToCSV}
-                disabled={!quotes || quotes.length === 0}
-                className="flex items-center gap-2 px-4 py-2 bg-slate-700 dark:bg-slate-600 text-white rounded-lg hover:bg-slate-600 dark:hover:bg-slate-500 transition-colors disabled:opacity-50"
-              >
-                <DownloadIcon />
-                Export CSV
-              </button>
-            </div>
-          </div>
-          <p className="text-slate-600 dark:text-slate-400">
-            Real-time tracking of guest instant quote submissions with timestamps
-          </p>
+          <button
+            onClick={exportToCSV}
+            disabled={!quotes || quotes.length === 0}
+            className="flex items-center gap-2 px-4 py-2 bg-slate-700 dark:bg-slate-600 text-white rounded-lg hover:bg-slate-600 dark:hover:bg-slate-500 transition-colors disabled:opacity-50"
+          >
+            <DownloadIcon />
+            Export CSV
+          </button>
         </div>
 
         {/* Metrics Dashboard */}

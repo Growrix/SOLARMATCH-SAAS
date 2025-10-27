@@ -48,6 +48,21 @@ const MailIcon = () => (
   </svg>
 );
 
+const CalculatorIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+    <rect width="16" height="20" x="4" y="2" rx="2"/>
+    <line x1="8" x2="16" y1="6" y2="6"/>
+    <line x1="16" x2="16" y1="14" y2="18"/>
+    <path d="M16 10h.01"/>
+    <path d="M12 10h.01"/>
+    <path d="M8 10h.01"/>
+    <path d="M12 14h.01"/>
+    <path d="M8 14h.01"/>
+    <path d="M12 18h.01"/>
+    <path d="M8 18h.01"/>
+  </svg>
+);
+
 const ClipboardListIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
     <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
@@ -153,6 +168,7 @@ const AdminMobileSidebarMenu: React.FC<AdminMobileSidebarMenuProps> = ({
         else if (page === 'Homeowners') router.push('/admin/homeowners');
         else if (page === 'Installers') router.push('/admin/installers');
         else if (page === 'Newsletter') router.push('/admin/newsletter');
+        else if (page === 'Instant Quotes') router.push('/admin/instant-quotes');
     };
 
     const handleLogoutClick = () => {
@@ -209,6 +225,12 @@ const AdminMobileSidebarMenu: React.FC<AdminMobileSidebarMenuProps> = ({
                         title="Newsletter" 
                         isActive={activePage === 'Newsletter'} 
                         onClick={() => handleNavClick('Newsletter')} 
+                    />
+                    <NavItem 
+                        icon={<CalculatorIcon />} 
+                        title="Instant Quotes" 
+                        isActive={activePage === 'Instant Quotes'} 
+                        onClick={() => handleNavClick('Instant Quotes')} 
                     />
                 </nav>
                 <div className="mt-6 pt-6 border-t border-gray-200 dark:border-slate-800">

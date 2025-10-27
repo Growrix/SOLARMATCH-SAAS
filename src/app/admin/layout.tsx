@@ -16,6 +16,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 		if (pathname.includes('/homeowners')) return 'Homeowners';
 		if (pathname.includes('/installers')) return 'Installers';
 		if (pathname.includes('/newsletter')) return 'Newsletter';
+		if (pathname.includes('/instant-quotes')) return 'Instant Quotes';
 		if (pathname.includes('/analytics')) return 'Analytics';
 		if (pathname.includes('/users')) return 'User Management';
 		if (pathname.includes('/content')) return 'Content Management';
@@ -32,6 +33,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 		if (pathname.includes('/homeowners')) return 'Homeowners';
 		if (pathname.includes('/installers')) return 'Installer Management';
 		if (pathname.includes('/newsletter')) return 'Newsletter Subscribers';
+		if (pathname.includes('/instant-quotes')) return 'Guest Instant Quotes';
 		return 'Dashboard';
 	};
 	
