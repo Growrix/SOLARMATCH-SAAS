@@ -474,7 +474,12 @@ const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [showUnlockModal, setShowUnlockModal] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
+  // Ensure lastUpdated is set only on the client to avoid SSR hydration mismatch
+  useEffect(() => {
+    setLastUpdated(new Date());
+  }, []);
 
   // Mock leads data
   const mockLeads: Lead[] = [
@@ -649,7 +654,7 @@ const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({
           </button>
           
           <div className="text-sm text-slate-500 dark:text-slate-400">
-            Updated: {lastUpdated.toLocaleTimeString()}
+            Updated: {lastUpdated ? lastUpdated.toLocaleTimeString() : ''}
           </div>
         </div>
       </div>
