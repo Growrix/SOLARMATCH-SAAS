@@ -2,7 +2,40 @@
 **Date:** January 27, 2025  
 **Project:** SolarMatch - Solar Lead Generation Platform  
 **Branch:** ERROR-CONTROL  
-**Auditor:** GitHub Copilot AI Assistant
+**Auditor:** GitHub Copilot AI Assistant  
+**Status:** ✅ **LEGACY SYSTEM CLEANUP COMPLETED - October 27, 2025**
+
+---
+
+## ⚠️ LEGACY SYSTEM REMOVAL NOTICE
+
+**Cleanup Date:** October 27, 2025  
+**Action Taken:** Complete removal of incomplete legacy profile/verification system
+
+### What Was Removed:
+1. ✅ `src/app/installer/profile/page.tsx` (1216 lines) - Deleted
+2. ✅ `src/app/api/installer/profile/route.ts` (161 lines) - Deleted
+3. ✅ `src/app/api/installer/upload-logo/` - Deleted
+4. ✅ `src/app/api/installer/` (empty folder) - Deleted
+5. ✅ Company Profile navigation link from dashboard - Removed
+6. ✅ Company Profile navigation link from mobile menu - Removed
+
+### Why Removed:
+- Profile page imported non-existent `CompanyVerificationModal` component
+- Expected database tables that don't exist (`service_postcodes`, `company_contacts`, `verification_documents`)
+- API endpoints only used by deleted profile page
+- No other components depended on this system
+- Would cause build errors and 404s
+
+### What Was Kept:
+- ✅ `VerifiedBadge.tsx` - Used in homeowner dashboard (active feature)
+- ✅ `InstallerEligibilityModal.tsx` - Used in signup flow (active feature)
+- ✅ `InstallerMarketplace` page - Functional and independent
+- ✅ `PurchasedLeads` page - Functional and independent
+- ✅ Basic installer auth and dashboard features
+
+**Decision:** Legacy profile system removed per audit recommendation (Option B).  
+**Next Steps:** If profile management needed in future, rebuild from scratch with proper database schema and API-first approach.
 
 ---
 

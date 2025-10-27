@@ -180,12 +180,7 @@ const InstallerMobileSidebarMenu: React.FC<InstallerMobileSidebarMenuProps> = ({
             onClick={() => handleNavClick('Messages')} 
             badgeCount={unreadMessagesCount} 
           />
-          <NavItem 
-            icon={<BuildingIcon />} 
-            title="Company Profile" 
-            isActive={activePage === 'Company Profile'} 
-            onClick={() => handleNavClick('Company Profile')} 
-          />
+          {/* Company Profile removed - legacy incomplete feature */}
         </nav>
         
         <div className="mt-6 pt-6 border-t border-gray-200 dark:border-slate-800">

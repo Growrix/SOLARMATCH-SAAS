@@ -239,12 +239,7 @@ const InstallerSidebar: React.FC<{
           onClick={() => setActivePage('Messages')} 
           badgeCount={3} 
         />
-        <NavItem 
-          icon={<BuildingIcon />} 
-          title="Company Profile" 
-          isActive={activePage === 'Company Profile'} 
-          onClick={() => setActivePage('Company Profile')} 
-        />
+        {/* Company Profile removed - legacy incomplete feature */}
       </nav>
       <div className="mt-auto">
         <button 
@@ -440,8 +435,7 @@ export default function InstallerDashboardPage() {
         return <PlaceholderContent title="Active Bids" />;
       case 'Messages':
         return <PlaceholderContent title="Messages" />;
-      case 'Company Profile':
-        return <PlaceholderContent title="Company Profile" />;
+      // Company Profile removed - legacy incomplete feature
       default:
         return <PlaceholderContent title="Dashboard Overview" />;
     }
