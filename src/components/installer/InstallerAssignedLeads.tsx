@@ -141,7 +141,7 @@ export default function InstallerAssignedLeads() {
         </svg>
         <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">No Assigned Leads</h3>
         <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-          You don't have any leads assigned by admin at the moment.
+          You don&apos;t have any leads assigned by admin at the moment.
         </p>
       </div>
     );

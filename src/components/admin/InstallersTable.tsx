@@ -12,7 +12,8 @@
  * - Dark mode support
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 
 interface Installer {
   id: string;
@@ -55,7 +56,7 @@ const InstallersTable: React.FC = () => {
   const limit = 20;
 
   // Fetch installers
-  const fetchInstallers = async () => {
+  const fetchInstallers = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -94,14 +95,15 @@ const InstallersTable: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, searchQuery, phoneVerifiedFilter, installerVerifiedFilter]);
 
   // Fetch on mount and when filters change
   useEffect(() => {
     fetchInstallers();
-  }, [currentPage, searchQuery, phoneVerifiedFilter, installerVerifiedFilter]);
+  }, [fetchInstallers]);
 
-  // Reset to page 1 when filters change
+  // Reset to page 1 when filters change (setCurrentPage is stable)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (currentPage !== 1) {
       setCurrentPage(1);
@@ -231,10 +233,12 @@ const InstallersTable: React.FC = () => {
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10">
                             {installer.image ? (
-                              <img
+                              <Image
                                 src={installer.image}
                                 alt={installer.name || 'Installer'}
-                                className="h-10 w-10 rounded-full object-cover"
+                                width={40}
+                                height={40}
+                                className="rounded-full object-cover"
                               />
                             ) : (
                               <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -307,10 +311,12 @@ const InstallersTable: React.FC = () => {
                   <div className="flex items-start gap-3 mb-3">
                     <div className="flex-shrink-0">
                       {installer.image ? (
-                        <img
+                        <Image
                           src={installer.image}
                           alt={installer.name || 'Installer'}
-                          className="h-12 w-12 rounded-full object-cover"
+                          width={48}
+                          height={48}
+                          className="rounded-full object-cover"
                         />
                       ) : (
                         <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">

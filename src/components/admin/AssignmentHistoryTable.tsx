@@ -74,7 +74,7 @@ export default function AssignmentHistoryTable({
           No assignments yet
         </p>
         <p className="text-xs text-gray-500 dark:text-gray-500">
-          Click "Assign to Installer" to assign this lead
+          Click &ldquo;Assign to Installer&rdquo; to assign this lead
         </p>
       </div>
     );
