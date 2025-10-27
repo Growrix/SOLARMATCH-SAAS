@@ -41,6 +41,13 @@ const WrenchIcon = () => (
   </svg>
 );
 
+const MailIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+    <rect width="20" height="16" x="2" y="4" rx="2"/>
+    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+  </svg>
+);
+
 const ClipboardListIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
     <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
@@ -145,10 +152,7 @@ const AdminMobileSidebarMenu: React.FC<AdminMobileSidebarMenuProps> = ({
         else if (page === 'Leads') router.push('/admin/leads');
         else if (page === 'Homeowners') router.push('/admin/homeowners');
         else if (page === 'Installers') router.push('/admin/installers');
-        else if (page === 'User Management') router.push('/admin/users');
-        else if (page === 'Content Management') router.push('/admin/newsletter');
-        else if (page === 'Theme Settings') router.push('/admin/settings');
-        else if (page === 'Global Settings') router.push('/admin/settings');
+        else if (page === 'Newsletter') router.push('/admin/newsletter');
     };
 
     const handleLogoutClick = () => {
@@ -201,22 +205,10 @@ const AdminMobileSidebarMenu: React.FC<AdminMobileSidebarMenuProps> = ({
                         onClick={() => handleNavClick('Installers')} 
                     />
                     <NavItem 
-                        icon={<UsersIcon />} 
-                        title="User Management" 
-                        isActive={activePage === 'User Management'} 
-                        onClick={() => handleNavClick('User Management')} 
-                    />
-                    <NavItem 
-                        icon={<PaintbrushIcon />} 
-                        title="Theme Settings" 
-                        isActive={activePage === 'Theme Settings'} 
-                        onClick={() => handleNavClick('Theme Settings')} 
-                    />
-                    <NavItem 
-                        icon={<SettingsIcon />} 
-                        title="Global Settings" 
-                        isActive={activePage === 'Global Settings'} 
-                        onClick={() => handleNavClick('Global Settings')} 
+                        icon={<MailIcon />} 
+                        title="Newsletter" 
+                        isActive={activePage === 'Newsletter'} 
+                        onClick={() => handleNavClick('Newsletter')} 
                     />
                 </nav>
                 <div className="mt-6 pt-6 border-t border-gray-200 dark:border-slate-800">
