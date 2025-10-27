@@ -3,8 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTheme, type Theme } from '@/components/ThemeProvider';
-import AdminBottomNavBar from '@/components/AdminBottomNavBar';
-import AdminMobileSidebarMenu from '@/components/AdminMobileSidebarMenu';
 import AdminHomeownersList from '@/components/AdminHomeownersList';
 import AdminHomeownersAnalytics from '@/components/AdminHomeownersAnalytics';
 
@@ -97,157 +95,6 @@ const MenuIcon = () => (
     <line x1="3" x2="21" y1="18" y2="18"/>
   </svg>
 );
-
-// Theme Switcher Component
-const ThemeSwitcher: React.FC<{ theme: Theme; setTheme: (theme: Theme) => void }> = ({ theme, setTheme }) => {
-  const options: { name: Theme; label: string; icon: React.ReactNode }[] = [
-    { 
-      name: 'light', 
-      label: 'Light', 
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-        </svg>
-      ) 
-    },
-    { 
-      name: 'dark', 
-      label: 'Dark', 
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-        </svg>
-      ) 
-    },
-    { 
-      name: 'system', 
-      label: 'System', 
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-        </svg>
-      ) 
-    },
-  ];
-
-  return (
-    <div className="flex items-center p-1 rounded-full bg-gray-100 dark:bg-slate-800">
-      {options.map((opt) => (
-        <button 
-          key={opt.name} 
-          onClick={() => setTheme(opt.name)} 
-          className={`p-1.5 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-slate-800 focus:ring-primary ${
-            theme === opt.name 
-              ? 'bg-white dark:bg-slate-700 shadow-sm' 
-              : 'text-gray-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white'
-          }`} 
-          aria-label={`Switch to ${opt.name} theme`} 
-          title={`Switch to ${opt.name} theme`}
-        >
-          {opt.icon}
-        </button>
-      ))}
-    </div>
-  );
-};
-
-// Sidebar for desktop
-const AdminSidebar: React.FC<{ 
-  activePage: string; 
-  setActivePage: (page: string) => void; 
-  onHomeClick: () => void; 
-  onLogoutClick: () => void; 
-}> = ({ activePage, setActivePage, onHomeClick, onLogoutClick }) => {
-  const NavItem: React.FC<{ 
-    icon: React.ReactNode; 
-    title: string; 
-    isActive?: boolean; 
-    onClick?: () => void; 
-  }> = ({ icon, title, isActive, onClick }) => (
-    <button 
-      onClick={onClick} 
-      className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium ${
-        isActive 
-          ? 'bg-primary/10 text-primary dark:bg-primary/20' 
-          : 'text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800'
-      }`}
-    >
-      {icon}
-      <span>{title}</span>
-    </button>
-  );
-
-  return (
-    <aside className="dashboard-sidebar w-64 flex-shrink-0 border-r border-gray-200 dark:border-slate-800 flex flex-col p-4 h-full">
-      <div className="flex items-center justify-between h-16 px-2 border-b border-gray-200 dark:border-slate-800 mb-4">
-        <button onClick={onHomeClick} className="flex items-center space-x-3">
-          <SunIcon />
-          <span className="text-xl font-bold text-primary">SolarMatch</span>
-        </button>
-      </div>
-      <p className="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Admin Panel</p>
-      <nav className="flex-grow space-y-1">
-        <NavItem 
-          icon={<LayoutDashboardIcon />} 
-          title="Dashboard" 
-          onClick={() => setActivePage('Dashboard')} 
-          isActive={activePage === 'Dashboard'} 
-        />
-        <NavItem 
-          icon={<ClipboardListIcon />} 
-          title="Leads" 
-          onClick={() => window.location.href = '/admin/leads'} 
-          isActive={false} 
-        />
-        <NavItem 
-          icon={<HomeIcon />} 
-          title="Homeowners" 
-          onClick={() => setActivePage('Homeowners')} 
-          isActive={activePage === 'Homeowners'} 
-        />
-        <NavItem 
-          icon={<UsersIcon />} 
-          title="Installers" 
-          onClick={() => window.location.href = '/admin/installers'} 
-          isActive={false} 
-        />
-        <NavItem 
-          icon={<BarChartIcon />} 
-          title="Analytics" 
-          onClick={() => setActivePage('Analytics')} 
-          isActive={activePage === 'Analytics'} 
-        />
-        <NavItem 
-          icon={<UsersIcon />} 
-          title="User Management" 
-          onClick={() => setActivePage('User Management')} 
-          isActive={activePage === 'User Management'} 
-        />
-        <NavItem 
-          icon={<FileTextIcon />} 
-          title="Content Management" 
-          onClick={() => setActivePage('Content Management')} 
-          isActive={activePage === 'Content Management'}
-        />
-        <NavItem 
-          icon={<PaintbrushIcon />} 
-          title="Theme Settings" 
-          onClick={() => setActivePage('Theme Settings')} 
-          isActive={activePage === 'Theme Settings'} 
-        />
-        <NavItem 
-          icon={<SettingsIcon />} 
-          title="Global Settings" 
-          onClick={() => setActivePage('Global Settings')} 
-          isActive={activePage === 'Global Settings'}
-        />
-      </nav>
-      <div className="mt-auto">
-        <NavItem icon={<LogOutIcon />} title="Logout" onClick={onLogoutClick} />
-      </div>
-    </aside>
-  );
-};
 
 // Development Quick Access Menu (Admin Dashboard Navigation)
 const DevQuickAccessMenu: React.FC = () => {
@@ -408,23 +255,6 @@ const DevQuickAccessMenu: React.FC = () => {
   );
 };
 
-// Header for mobile and desktop - with dev menu
-const AdminHeader: React.FC<{ 
-  pageTitle: string; 
-  theme: Theme; 
-  setTheme: (theme: Theme) => void; 
-}> = ({ pageTitle, theme, setTheme }) => (
-  <header className="glass-header h-20 flex-shrink-0 flex items-center justify-between px-4 sm:px-8">
-    <div className="flex items-center space-x-4">
-      <h1 className="text-lg font-bold text-slate-900 dark:text-white">{pageTitle}</h1>
-    </div>
-    <div className="flex items-center gap-3">
-      <DevQuickAccessMenu />
-      <ThemeSwitcher theme={theme} setTheme={setTheme} />
-    </div>
-  </header>
-);
-
 // Placeholder Content
 const PlaceholderContent: React.FC<{ title: string }> = ({ title }) => (
   <div className="flex items-center justify-center h-full bg-white dark:bg-black/50 rounded-2xl border-2 border-dashed border-gray-300 dark:border-slate-700">
@@ -439,7 +269,6 @@ export default function AdminDashboardPage() {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const [activePage, setActivePage] = useState('Dashboard');
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
 
@@ -458,19 +287,8 @@ export default function AdminDashboardPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleHomeClick = () => {
-    router.push('/');
-  };
-
-  const handleLogoutClick = async () => {
-    // Use NextAuth signOut
-    const { signOut } = await import('next-auth/react');
-    await signOut({ callbackUrl: '/' });
-  };
-
   const handleSetActivePage = (page: string) => {
     setActivePage(page);
-    setIsMobileMenuOpen(false);
   };
 
   const renderContent = () => {
@@ -612,45 +430,8 @@ export default function AdminDashboardPage() {
   };
 
   return (
-    <div className="homeowner-dashboard-bg min-h-screen text-slate-800 dark:text-slate-200 animate-fade-in">
-      <AdminMobileSidebarMenu
-        isOpen={isMobileMenuOpen}
-        onClose={() => setIsMobileMenuOpen(false)}
-        activePage={activePage}
-        setActivePage={handleSetActivePage}
-        onLogoutClick={handleLogoutClick}
-      />
-
-      <div className="md:pl-64">
-        <div className="flex flex-col min-h-screen">
-          <div className={`sticky top-0 z-20 transition-transform duration-300 ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
-            <AdminHeader 
-              pageTitle={activePage} 
-              theme={theme} 
-              setTheme={setTheme} 
-            />
-          </div>
-          <main className="flex-1 p-4 sm:p-6 md:p-8 pb-24 md:pb-8">
-            {renderContent()}
-          </main>
-        </div>
-      </div>
-      
-      <div className="hidden md:fixed md:inset-y-0 md:left-0 md:z-40 md:flex">
-        <AdminSidebar 
-          activePage={activePage} 
-          setActivePage={handleSetActivePage} 
-          onHomeClick={handleHomeClick} 
-          onLogoutClick={handleLogoutClick} 
-        />
-      </div>
-
-      <AdminBottomNavBar
-        activePage={activePage}
-        setActivePage={handleSetActivePage}
-        onThemeClick={() => handleSetActivePage('Theme Settings')}
-        onMenuClick={() => setIsMobileMenuOpen(true)}
-      />
+    <div className="homeowner-dashboard-bg min-h-screen text-slate-800 dark:text-slate-200 animate-fade-in p-4 sm:p-6 md:p-8">
+      {renderContent()}
     </div>
   );
 }

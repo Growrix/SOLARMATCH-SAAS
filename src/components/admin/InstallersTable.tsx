@@ -120,17 +120,7 @@ const InstallersTable: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-            Installers
-          </h2>
-          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-            {total} total installer{total !== 1 ? 's' : ''}
-          </p>
-        </div>
-      </div>
+
 
       {/* Filters */}
       <div className="theme-card p-4 sm:p-6">

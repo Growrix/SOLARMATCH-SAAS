@@ -28,6 +28,29 @@ const UsersIcon = () => (
   </svg>
 );
 
+const HomeIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+    <path d="M3 9.5L12 4l9 5.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9.5z" />
+    <path d="M9 22V12h6v10" />
+  </svg>
+);
+
+const WrenchIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+  </svg>
+);
+
+const ClipboardListIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+    <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
+    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+    <path d="M9 14h6" />
+    <path d="M9 18h6" />
+    <path d="M9 10h6" />
+  </svg>
+);
+
 const FileTextIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
     <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
@@ -120,6 +143,8 @@ const AdminMobileSidebarMenu: React.FC<AdminMobileSidebarMenuProps> = ({
         // Route to correct page
         if (page === 'Dashboard') router.push('/admin/dashboard');
         else if (page === 'Leads') router.push('/admin/leads');
+        else if (page === 'Homeowners') router.push('/admin/homeowners');
+        else if (page === 'Installers') router.push('/admin/installers');
         else if (page === 'User Management') router.push('/admin/users');
         else if (page === 'Content Management') router.push('/admin/newsletter');
         else if (page === 'Theme Settings') router.push('/admin/settings');
@@ -158,10 +183,22 @@ const AdminMobileSidebarMenu: React.FC<AdminMobileSidebarMenuProps> = ({
                         onClick={() => handleNavClick('Dashboard')} 
                     />
                     <NavItem 
-                        icon={<FileTextIcon />} 
+                        icon={<ClipboardListIcon />} 
                         title="Leads" 
                         isActive={activePage === 'Leads'} 
                         onClick={() => handleNavClick('Leads')} 
+                    />
+                    <NavItem 
+                        icon={<HomeIcon />} 
+                        title="Homeowners" 
+                        isActive={activePage === 'Homeowners'} 
+                        onClick={() => handleNavClick('Homeowners')} 
+                    />
+                    <NavItem 
+                        icon={<WrenchIcon />} 
+                        title="Installers" 
+                        isActive={activePage === 'Installers'} 
+                        onClick={() => handleNavClick('Installers')} 
                     />
                     <NavItem 
                         icon={<UsersIcon />} 

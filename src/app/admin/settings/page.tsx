@@ -1,43 +1,4 @@
-// ============================================================================
-// ADMIN SETTINGS PAGE
-// ============================================================================
-// Manage system-wide settings: approval mode switching, automation rules,
-// global pricing configuration
-// ============================================================================
 
-'use client';
-
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useTheme } from '@/components/ThemeProvider';
-
-// ============================================================================
-// TYPES
-// ============================================================================
-
-interface AutomationRule {
-  id: string;
-  name: string;
-  enabled: boolean;
-  conditions: {
-    quoteType?: 'CALL_VISIT' | 'WRITTEN_QUOTE' | 'ANY';
-    phoneVerified?: boolean;
-    postcodes?: string[];
-    minEnergyBill?: number;
-    maxEnergyBill?: number;
-  };
-  actions: {
-    approve: boolean;
-    setPrice?: number;
-    visibility?: 'PUBLIC' | 'PRIVATE';
-    assignTo?: 'ALL' | string[];
-    markHot?: boolean;
-  };
-}
-
-interface Settings {
-  approval_mode: string;
-  automation_rules: string;
   lead_price_call_visit: string;
   lead_price_written_quote: string;
 }
