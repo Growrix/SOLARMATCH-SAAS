@@ -8,12 +8,221 @@
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
+**CRITICAL**: This tasks.md file implements the **Phase 0 UI-First, Spec-Driven Workflow** mandated by `DOC/constitution.md` Section 0. Review constitution before starting implementation.
+
+---
+
+## 🎯 Phase 0 Workflow Reminder (from Constitution)
+
+**YOU ARE HERE** → Phase 0 Complete ✅ (SpecKit planning done)
+
+**NEXT STEPS** (Mandatory Workflow):
+1. **Phase 1: UI/UX First** - Build Storybook stories and design token showcase BEFORE migrating pages
+2. **Phase 2: Spec Alignment** - Update spec.md, tasks.md, changelog.md as you discover issues
+3. **Phase 3: Backend/Migration** - Only after UI tokens proven and approved
+
+**Reference**: See `DOC/constitution.md` Section 0 and `.specify/memory/WORKFLOW-MANAGEMENT.md` for complete workflow details.
+
 ---
 
 ## Format: `[ID] [P?] [Story] Description`
 - **[P]**: Can run in parallel (different files, no dependencies)
 - **[Story]**: Which user story this task belongs to (US1-US10)
 - File paths are absolute to repository root
+
+---
+
+## ⚠️ MANDATORY WORKFLOW FOR EACH PHASE
+
+### Before Starting Any Phase:
+1. **Pre-Phase Audit & Planning** (30-60 minutes):
+   - Read ALL spec files thoroughly (`spec.md`, `plan.md`, `data-model.md`, `research.md`, `contracts/`)
+   - Map out EXACT data structures from data-model.md (TypeScript interfaces for all token types)
+   - Identify existing code patterns to follow (Tailwind config, component structure, hooks)
+   - Verify design token structure matches spec BEFORE writing any code
+   - List all files to create/modify with their exact purposes
+   - Verify external dependencies are installed (Storybook, Chromatic addons)
+   - Document any spec ambiguities - ASK USER before assuming
+   - **RULE**: Follow two-tier token system (primitives → semantic). No skipping layers.
+
+### During Phase Implementation:
+2. **Spec-Driven Implementation** (Task by Task):
+   - **For each task**: Re-read relevant spec section FIRST (spec.md user story + data-model.md types)
+   - Copy exact type names, token names, and structures from data-model.md
+   - Follow existing code patterns (e.g., how Tailwind config extends theme)
+   - Use EXISTING utilities (don't reinvent: useTheme, responsive breakpoints, etc.)
+   - Check TypeScript interfaces in data-model.md BEFORE implementing tokens
+   - **Incremental Build Check**: After every 3-5 tasks, run `npm run build`
+     - If errors appear: FIX according to spec, not by changing token architecture
+     - Don't create "temporary workarounds" that contradict two-tier system
+   - **Type Safety First**: Let TypeScript errors guide you to spec compliance
+     - Missing token? Check data-model.md - should it exist in semantic layer?
+     - Wrong type? Check data-model.md - is interface correct (ResponsiveFontSize, ThemeColor)?
+   - **No Spec Drift**: If you modify token files, structure should match data-model.md exactly
+   - **Chromatic Verification**: For any UI-related task, capture Chromatic snapshot after implementation
+   - **Manual QA Checklist Required**: For any task that includes BOTH token creation and Storybook story, add a short "Manual QA Checklist" directly under that task with steps to validate:
+     - Token values rendered correctly in Storybook
+     - Theme switching works (Light/Dark/System)
+     - Responsive behavior at 320px/768px/1024px breakpoints
+     - Visual regression baseline captured in Chromatic
+
+3. **Post-Phase Validation** (MUST COMPLETE BEFORE COMMIT):
+   - ✅ **Type Check**: Run `npx tsc --noEmit` - all TypeScript must be valid
+   - ✅ **Build**: Run `npm run build` - MUST pass with 0 errors
+     - **Build Error Protocol**:
+       1. Read error message carefully
+       2. Check data-model.md: Is token structure following spec exactly?
+       3. Fix by aligning with spec, NOT by changing token architecture
+       4. If spec is ambiguous: STOP, document issue, ask user
+       5. **Time Limit**: If fixing takes >30 min, STOP and report to user
+   - ✅ **Lint**: Run `npm run lint` - fix critical issues only
+   - ✅ **Tailwind Build Test**: Verify Tailwind generates custom token classes (check generated CSS)
+   - ✅ **Storybook Build** (if applicable): Run `npm run build-storybook` - MUST pass
+   - ✅ **Chromatic Baseline** (if applicable): Run `npm run chromatic` - capture snapshots
+   - ✅ **Manual Spot Check**: Open 2-3 key files, verify they match spec intent
+   - ✅ **Task Checklist**: Every task T### must be checked off with proof
+   - ✅ **Regression Check**: Run dev server (`npm run dev`), verify existing pages still render
+   - ✅ **Theme Toggle Test**: Verify Light/Dark/System theme switching works in browser
+
+4. **Commit Approval** (MANDATORY):
+   - ❌ **NEVER commit without explicit user approval**
+   - Present validation results:
+     - Build output (success/warnings)
+     - Files changed count
+     - Key changes summary (tokens created, stories added, pages migrated)
+     - Chromatic snapshot link (if applicable)
+     - Any deviations from spec (with justification)
+   - Wait for user confirmation: "Yes, commit this phase"
+   - Only then: `git add .` → `git commit -m "Phase X: <summary>"`
+   - Update `DOC/gitstatus.md` with commit info (commit ID, timestamp, description)
+
+### Phase Completion Criteria:
+- ✅ All tasks marked complete with evidence
+- ✅ Implementation matches spec exactly (data-model.md types, token structure, contracts)
+- ✅ TypeScript compiles with no errors
+- ✅ Build passes (`npm run build`)
+- ✅ Storybook builds successfully (if applicable)
+- ✅ Chromatic snapshots captured (if applicable)
+- ✅ No critical lint errors
+- ✅ No spec drift or architectural changes mid-phase
+- ✅ Theme switching verified in browser (Light/Dark/System)
+- ✅ Responsive breakpoints tested (320px, 768px, 1024px)
+- ✅ User approval received
+- ✅ Git commit created with detailed message
+- ✅ `DOC/gitstatus.md` updated with commit info
+
+### 🚨 RED FLAGS - STOP IMMEDIATELY:
+- Token structure doesn't match data-model.md → Review spec, verify two-tier system
+- TypeScript interfaces differ from data-model.md → Use exact interfaces from spec
+- Build errors persist >30 minutes → Report to user, don't spiral
+- Creating new token patterns not in spec → Use exact patterns from data-model.md
+- Inventing token names not in spec → Use exact names from semantic/*.ts specs
+- "I'll fix it later" thoughts → Fix now according to spec, or ask user
+- Skipping Chromatic snapshots → Visual regression testing is MANDATORY for this feature
+- Breaking existing pages during migration → Stop, revert, analyze impact first
+- Hardcoding values instead of using tokens → Follow constitution: utility-first, token-based
+
+---
+
+## 🛡️ BUILD ERROR PREVENTION CHECKLIST
+
+**Use this BEFORE writing any design token or component code:**
+
+### 1. Token Structure Verification (5 min)
+```bash
+# Check data-model.md for exact TypeScript interfaces
+cat specs/004-centralized-theme-color/data-model.md | grep -A 30 "interface ThemeColor"
+
+# Verify two-tier system: primitives → semantic
+cat specs/004-centralized-theme-color/data-model.md | grep -A 10 "Primitive Tokens"
+
+# Check token naming conventions
+cat specs/004-centralized-theme-color/data-model.md | grep "colors.primary"
+```
+
+### 2. TypeScript Type Verification (10 min)
+```bash
+# Check existing types in data-model.md
+grep "^interface" specs/004-centralized-theme-color/data-model.md
+
+# Check Tailwind config structure
+cat tailwind.config.js | grep "extend:"
+
+# Verify token export patterns
+grep "export const" specs/004-centralized-theme-color/data-model.md -A 3
+```
+
+### 3. Existing Patterns Review (10 min)
+- Open existing Tailwind config: `tailwind.config.js`
+- Note how theme is extended: `theme: { extend: { colors: {...} } }`
+- Check existing component patterns: `src/components/` (how they use className)
+- Check existing hook patterns: `src/hooks/` (if any theme-related hooks exist)
+- Review constitution Section VI (Styling & Theming) for mandatory patterns
+- Copy-paste patterns, don't reinvent
+
+### 4. Storybook & Chromatic Setup Verification (10 min)
+```bash
+# Verify Storybook installed
+npm list @storybook/nextjs
+
+# Verify Chromatic installed
+npm list chromatic
+
+# Check if Storybook config exists
+ls -la .storybook/
+
+# Verify Storybook scripts in package.json
+grep "storybook" package.json
+```
+
+### 5. Pre-Implementation Checklist
+- [ ] Read spec.md user story for this phase completely
+- [ ] Read data-model.md section for token types I'll create
+- [ ] Verified TypeScript interfaces match data-model.md exactly
+- [ ] Confirmed two-tier token system: primitives → semantic (no shortcuts)
+- [ ] Reviewed contracts/ for Tailwind integration pattern (theme.extend)
+- [ ] Reviewed existing Tailwind config structure
+- [ ] Identified all imports needed (types, primitives, semantic tokens)
+- [ ] Know exact token names from data-model.md (colors.primary.light, not primary-light)
+- [ ] Chromatic project token available (if Phase 3+)
+- [ ] Understand responsive strategy from research.md (mobile-first, 320px base)
+
+**TIME INVESTMENT**: 35 minutes of verification SAVES 4+ hours of build/visual regression errors
+
+---
+
+## 📋 PER-TASK MANUAL QA CHECKLIST TEMPLATE
+
+**Use this template for any task involving UI changes (Storybook stories, component migration):**
+
+### Task TXX: [Task Name]
+**Manual QA Steps:**
+1. **Visual Verification**:
+   - [ ] Component renders correctly in Storybook
+   - [ ] All token values displayed accurately (colors, spacing, typography)
+   - [ ] No console errors in browser DevTools
+
+2. **Theme Testing**:
+   - [ ] Light theme: Colors contrast correctly, readable
+   - [ ] Dark theme: Dark variants applied automatically
+   - [ ] System theme: Respects OS preference
+
+3. **Responsive Testing**:
+   - [ ] Mobile (320px): Layout not broken, text readable, no overflow
+   - [ ] Tablet (768px): Responsive scaling works
+   - [ ] Desktop (1024px): Full layout, proper spacing
+
+4. **Chromatic Verification**:
+   - [ ] Snapshot captured for this component/page
+   - [ ] Baseline accepted (first run) OR diffs reviewed and approved
+   - [ ] No unintended visual regressions
+
+5. **Token Usage Verification**:
+   - [ ] No hardcoded colors (no `#hex`, no `bg-teal-600` - use semantic tokens)
+   - [ ] No hardcoded spacing (no `p-4` - use `p-card-padding`)
+   - [ ] No hardcoded font sizes (no `text-lg` - use typography tokens)
+
+**Pass Criteria**: All 5 categories checked ✅ before marking task complete
 
 ---
 
@@ -36,6 +245,20 @@
 - [ ] **T011** [P] Create contract directory for migration tracking: `specs/004-centralized-theme-color/audits/`
 
 **Checkpoint**: Development infrastructure ready for token creation
+
+### Phase 1 Validation Checklist:
+- [ ] **Pre-Phase Audit**: Reviewed existing Tailwind config, component patterns, project structure (30 min)
+- [ ] All T001-T011 tasks completed and checked off
+- [ ] Storybook installed and runs: `npm run storybook` (opens on http://localhost:6006)
+- [ ] Chromatic installed: `npm list chromatic` (shows version)
+- [ ] Directory structure created: `src/design-tokens/`, `src/hooks/`, `.storybook/`, `stories/`
+- [ ] `.storybook/main.ts` and `.storybook/preview.ts` configured
+- [ ] TypeScript compiles: `npx tsc --noEmit` (0 errors)
+- [ ] Build passes: `npm run build` (0 errors)
+- [ ] No critical lint errors: `npm run lint`
+- [ ] User approval received for commit
+- [ ] Git commit created: `git add . && git commit -m "Phase 1: Setup Storybook, Chromatic, and design token infrastructure"`
+- [ ] Update `DOC/gitstatus.md` with commit ID, timestamp, description
 
 ---
 
@@ -81,6 +304,24 @@
 
 **Checkpoint**: Foundation complete - all design tokens available, Tailwind configured, build succeeds
 
+### Phase 2 Validation Checklist:
+- [ ] **Pre-Phase Audit**: Reviewed data-model.md for exact TypeScript interfaces, verified two-tier token system (60 min)
+- [ ] All T012-T025 tasks completed and checked off
+- [ ] Primitive tokens created: `src/design-tokens/primitives/colors.ts`, `fontSizes.ts`, `spacingScale.ts`
+- [ ] TypeScript types defined: `src/design-tokens/types.ts` (all interfaces match data-model.md)
+- [ ] Semantic tokens created: `src/design-tokens/semantic/colors.ts`, `typography.ts`, `spacing.ts`, `shadows.ts`, `animations.ts`, `borders.ts`
+- [ ] Barrel export created: `src/design-tokens/index.ts` (single import point)
+- [ ] Tailwind config updated: `tailwind.config.js` (imports tokens, extends theme)
+- [ ] Global styles updated: `src/globals.css` (minimal custom CSS)
+- [ ] TypeScript compiles: `npx tsc --noEmit` (0 errors)
+- [ ] Build passes: `npm run build` (0 errors, check that Tailwind generates custom token classes)
+- [ ] Storybook builds: `npm run build-storybook` (0 errors)
+- [ ] No critical lint errors: `npm run lint`
+- [ ] Manual verification: Open dev server `npm run dev`, verify existing pages still render
+- [ ] User approval received for commit
+- [ ] Git commit created: `git add . && git commit -m "Phase 2: Foundation - Create all design tokens (primitives + semantic) and integrate with Tailwind"`
+- [ ] Update `DOC/gitstatus.md` with commit ID, timestamp, description
+
 ---
 
 ## Phase 3: User Story 1 - Designer Changes Primary Brand Color (Priority: P1) 🎯 MVP
@@ -120,6 +361,23 @@
 
 **Checkpoint**: User Story 1 complete - Color token system proven, instant rebranding works, visual regression tests pass
 
+### Phase 3 Validation Checklist (US1):
+- [ ] **Pre-Phase Audit**: Reviewed spec.md US1, data-model.md color types, existing button/chart components (30 min)
+- [ ] All T026-T037 tasks completed and checked off
+- [ ] Hooks created: `src/hooks/useThemeColors.ts`, `src/hooks/useChartColors.ts`
+- [ ] Storybook stories created: `stories/design-tokens/Colors.stories.tsx`, `stories/components/Button.stories.tsx`, `stories/components/DashboardChart.stories.tsx`, `stories/pages/SampleDashboard.stories.tsx`
+- [ ] Chromatic project configured and baseline captured: `npm run chromatic` (first run, accept all baselines)
+- [ ] Color change test passed: Changed primary from teal to blue, ran Chromatic, verified diffs only show color changes
+- [ ] Color change guide documented: `specs/004-centralized-theme-color/audits/color-change-guide.md`
+- [ ] TypeScript compiles: `npx tsc --noEmit` (0 errors)
+- [ ] Build passes: `npm run build` (0 errors)
+- [ ] Storybook builds: `npm run build-storybook` (0 errors)
+- [ ] Manual QA complete: Tested Light/Dark/System themes, verified all colors render correctly
+- [ ] Chromatic visual regression passed: Zero unintended diffs
+- [ ] User approval received for commit
+- [ ] Git commit created: `git add . && git commit -m "Phase 3 (US1): Color token system with instant rebranding capability + Chromatic visual regression"`
+- [ ] Update `DOC/gitstatus.md` with commit ID, timestamp, description
+
 ---
 
 ## Phase 4: User Story 6 - Designer Updates Typography System (Priority: P1)
@@ -154,6 +412,22 @@
 - [ ] **T048** [US6] Test typography at 1024px: Verify full desktop sizes (16px body, larger headings)
 
 **Checkpoint**: User Story 6 complete - Typography token system proven, instant font changes work, hierarchy maintained
+
+### Phase 4 Validation Checklist (US6):
+- [ ] **Pre-Phase Audit**: Reviewed spec.md US6, data-model.md typography types, existing text components (20 min)
+- [ ] All T038-T048 tasks completed and checked off
+- [ ] Storybook stories created: `stories/design-tokens/Typography.stories.tsx`, `stories/design-tokens/TypographyScales.stories.tsx`, `stories/components/Card.stories.tsx`, `stories/components/Form.stories.tsx`
+- [ ] Typography baseline captured in Chromatic
+- [ ] Font size change test passed: Changed body from 16px to 18px, all text scaled proportionally
+- [ ] Font family change test passed: Changed from Inter to Roboto, entire app adopted new font
+- [ ] Typography change guide documented: `specs/004-centralized-theme-color/audits/typography-change-guide.md`
+- [ ] Mobile-first testing complete: 320px/768px/1024px breakpoints verified
+- [ ] TypeScript compiles: `npx tsc --noEmit` (0 errors)
+- [ ] Build passes: `npm run build` (0 errors)
+- [ ] Chromatic visual regression passed
+- [ ] User approval received for commit
+- [ ] Git commit created: `git add . && git commit -m "Phase 4 (US6): Typography token system with responsive scaling and hierarchy preservation"`
+- [ ] Update `DOC/gitstatus.md` with commit ID, timestamp, description
 
 ---
 
@@ -192,6 +466,22 @@
 
 **Checkpoint**: User Story 7 complete - Spacing token system proven, consistent spacing achievable, responsive spacing works
 
+### Phase 5 Validation Checklist (US7):
+- [ ] **Pre-Phase Audit**: Reviewed spec.md US7, data-model.md spacing types, existing card/form layouts (20 min)
+- [ ] All T049-T058 tasks completed and checked off
+- [ ] Hook created: `src/hooks/useResponsiveSpacing.ts`
+- [ ] Storybook stories created: `stories/design-tokens/Spacing.stories.tsx`, `stories/design-tokens/SpacingGrid.stories.tsx`, `stories/components/SemanticCard.stories.tsx`, `stories/components/SemanticForm.stories.tsx`
+- [ ] Spacing baseline captured in Chromatic
+- [ ] Spacing change test passed: Adjusted card-padding, all cards updated consistently
+- [ ] Responsive spacing verified: Mobile (12px) vs desktop (24px) at different breakpoints
+- [ ] Developer documentation updated: `quickstart.md` and `audits/spacing-patterns.md`
+- [ ] TypeScript compiles: `npx tsc --noEmit` (0 errors)
+- [ ] Build passes: `npm run build` (0 errors)
+- [ ] Chromatic visual regression passed
+- [ ] User approval received for commit
+- [ ] Git commit created: `git add . && git commit -m "Phase 5 (US7): Spacing token system with responsive 8-point grid and semantic naming"`
+- [ ] Update `DOC/gitstatus.md` with commit ID, timestamp, description
+
 ---
 
 ## Phase 6: User Story 2 - Developer Implements New Component with Theme Support (Priority: P1)
@@ -219,6 +509,19 @@
 - [ ] **T065** [US2] Create theme testing checklist: `specs/004-centralized-theme-color/checklists/theme-testing-checklist.md`
 
 **Checkpoint**: User Story 2 complete - New components automatically theme-aware, no custom theme logic needed
+
+### Phase 6 Validation Checklist (US2):
+- [ ] **Pre-Phase Audit**: Reviewed spec.md US2, existing component patterns, theme context usage (15 min)
+- [ ] All T059-T065 tasks completed and checked off
+- [ ] Sample components created: `stories/components/StatusBadge.stories.tsx`, `stories/components/Alert.stories.tsx`
+- [ ] Theme testing complete: Light/Dark/System themes verified, WCAG AA contrast ratios met
+- [ ] Developer documentation updated: `quickstart.md` and `checklists/theme-testing-checklist.md`
+- [ ] TypeScript compiles: `npx tsc --noEmit` (0 errors)
+- [ ] Build passes: `npm run build` (0 errors)
+- [ ] Chromatic visual regression passed (all themes)
+- [ ] User approval received for commit
+- [ ] Git commit created: `git add . && git commit -m "Phase 6 (US2): Theme-aware component pattern - automatic Light/Dark/System support"`
+- [ ] Update `DOC/gitstatus.md` with commit ID, timestamp, description
 
 ---
 
@@ -250,6 +553,20 @@
 
 **Checkpoint**: User Story 8 complete - Elevation system established, visual hierarchy clear, theme-aware shadows work
 
+### Phase 7 Validation Checklist (US8):
+- [ ] **Pre-Phase Audit**: Reviewed spec.md US8, data-model.md shadow types, existing elevated components (15 min)
+- [ ] All T066-T074 tasks completed and checked off
+- [ ] Storybook stories created: `stories/design-tokens/Shadows.stories.tsx`, `stories/design-tokens/ElevationHierarchy.stories.tsx`, `stories/components/ElevatedButton.stories.tsx`, `stories/components/Dropdown.stories.tsx`, `stories/components/Modal.stories.tsx`
+- [ ] Shadow baseline captured in Chromatic (Light and Dark themes)
+- [ ] Elevation hierarchy verified: Button < Card < Dropdown < Modal
+- [ ] Documentation complete: `audits/elevation-system-guide.md`
+- [ ] TypeScript compiles: `npx tsc --noEmit` (0 errors)
+- [ ] Build passes: `npm run build` (0 errors)
+- [ ] Chromatic visual regression passed
+- [ ] User approval received for commit
+- [ ] Git commit created: `git add . && git commit -m "Phase 7 (US8): 5-level elevation system with theme-aware shadows"`
+- [ ] Update `DOC/gitstatus.md` with commit ID, timestamp, description
+
 ---
 
 ## Phase 8: User Story 9 - Developer Standardizes Border Radius (Priority: P2)
@@ -273,6 +590,19 @@
 
 **Checkpoint**: User Story 9 complete - Border radius standardized, consistent corner rounding across UI
 
+### Phase 8 Validation Checklist (US9):
+- [ ] **Pre-Phase Audit**: Reviewed spec.md US9, data-model.md border types (10 min)
+- [ ] All T075-T079 tasks completed and checked off
+- [ ] Storybook stories created: `stories/design-tokens/BorderRadius.stories.tsx`, `stories/components/RoundedComponents.stories.tsx`
+- [ ] Border radius consistency verified: All buttons use radius-button, all cards use radius-card
+- [ ] Documentation complete: `audits/radius-patterns.md`
+- [ ] TypeScript compiles: `npx tsc --noEmit` (0 errors)
+- [ ] Build passes: `npm run build` (0 errors)
+- [ ] Chromatic visual regression passed
+- [ ] User approval received for commit
+- [ ] Git commit created: `git add . && git commit -m "Phase 8 (US9): Standardize border radius tokens across UI elements"`
+- [ ] Update `DOC/gitstatus.md` with commit ID, timestamp, description
+
 ---
 
 ## Phase 9: User Story 10 - Designer Centralizes Animation System (Priority: P3)
@@ -295,6 +625,19 @@
 - [ ] **T084** [US10] Document animation patterns: `specs/004-centralized-theme-color/audits/animation-patterns.md`
 
 **Checkpoint**: User Story 10 complete - Animation system centralized, consistent motion design
+
+### Phase 9 Validation Checklist (US10):
+- [ ] **Pre-Phase Audit**: Reviewed spec.md US10, data-model.md animation types (10 min)
+- [ ] All T080-T084 tasks completed and checked off
+- [ ] Storybook stories created: `stories/design-tokens/Animations.stories.tsx`, `stories/components/AnimatedComponents.stories.tsx`
+- [ ] Animation timings manually verified: Transitions feel smooth and consistent
+- [ ] Documentation complete: `audits/animation-patterns.md`
+- [ ] TypeScript compiles: `npx tsc --noEmit` (0 errors)
+- [ ] Build passes: `npm run build` (0 errors)
+- [ ] Chromatic baseline captured (with animations disabled for consistent snapshots)
+- [ ] User approval received for commit
+- [ ] Git commit created: `git add . && git commit -m "Phase 9 (US10): Centralize animation tokens (durations, easing, keyframes)"`
+- [ ] Update `DOC/gitstatus.md` with commit ID, timestamp, description
 
 ---
 
@@ -323,6 +666,19 @@
 
 **Checkpoint**: User Story 4 complete - QA can efficiently test themes, automated visual testing catches regressions
 
+### Phase 10 Validation Checklist (US4):
+- [ ] **Pre-Phase Audit**: Reviewed spec.md US4, existing QA processes (15 min)
+- [ ] All T085-T090 tasks completed and checked off
+- [ ] QA tools created: `stories/pages/ThemeConsistencyTest.stories.tsx`, `stories/pages/AccessibilityTest.stories.tsx`
+- [ ] QA documentation complete: `checklists/theme-qa-checklist.md`, `audits/theme-testing-workflow.md`
+- [ ] Full Chromatic regression suite executed: All stories in all themes captured
+- [ ] Theme consistency report documented: Any issues found and fix tasks created
+- [ ] TypeScript compiles: `npx tsc --noEmit` (0 errors)
+- [ ] Build passes: `npm run build` (0 errors)
+- [ ] User approval received for commit
+- [ ] Git commit created: `git add . && git commit -m "Phase 10 (US4): QA tools for theme consistency testing + Chromatic automation"`
+- [ ] Update `DOC/gitstatus.md` with commit ID, timestamp, description
+
 ---
 
 ## Phase 11: User Story 3 - Business Rebrands or Creates White-Label Version (Priority: P2)
@@ -345,6 +701,21 @@
 - [ ] **T095** [US3] Document white-label process: `specs/004-centralized-theme-color/audits/white-label-guide.md`
 
 **Checkpoint**: User Story 3 complete - White-label capability proven, rebrand process documented
+
+### Phase 11 Validation Checklist (US3):
+- [ ] **Pre-Phase Audit**: Reviewed spec.md US3, existing theme structure (10 min)
+- [ ] All T091-T095 tasks completed and checked off
+- [ ] White-label infrastructure created: `src/design-tokens/themes/` directory structure
+- [ ] Sample white-label theme created: `src/design-tokens/themes/client-blue.ts`
+- [ ] White-label demo story created: `stories/pages/WhiteLabelDemo.stories.tsx`
+- [ ] WCAG compliance verified: White-label colors meet contrast requirements
+- [ ] Documentation complete: `audits/white-label-guide.md`
+- [ ] TypeScript compiles: `npx tsc --noEmit` (0 errors)
+- [ ] Build passes: `npm run build` (0 errors)
+- [ ] Chromatic visual regression passed (default vs white-label comparison)
+- [ ] User approval received for commit
+- [ ] Git commit created: `git add . && git commit -m "Phase 11 (US3): White-label infrastructure for client-specific branding"`
+- [ ] Update `DOC/gitstatus.md` with commit ID, timestamp, description
 
 ---
 
@@ -418,6 +789,24 @@
 
 **Checkpoint**: User Story 5 complete - 40-50 pages migrated, 98% hardcoded values eliminated, visual consistency achieved
 
+### Phase 12 Validation Checklist (US5):
+- [ ] **Pre-Phase Audit**: Reviewed spec.md US5, ran hardcoded value scanner, created migration dashboard (60 min)
+- [ ] All T096-T318 tasks completed and checked off (223 tasks total)
+- [ ] Migration tools created: `scripts/scan-hardcoded-values.ts`, `audits/migration-progress.md`
+- [ ] All high-priority pages migrated (Week 1): Homepage, Instant Quote Form, Guest Quote Request Form, Login Page, Register Page, Homeowner Dashboard, Installer Dashboard, Lead Details Page, Settings Page, Profile Page
+- [ ] All secondary pages migrated (Week 2): Admin Dashboard, Admin Users Page, Admin Settings, Reports Page, Notifications Page, Help/Support Page, Lead Assignment Modal, Confirmation Modals, Filter/Search Modals, Image Upload Modals, 5 additional secondary pages
+- [ ] All edge cases migrated (Week 3): 404 Error Page, 500 Error Page, Loading States/Skeleton Screens, Empty States, Onboarding Flow, Landing Pages, Pricing Page, About Page, Blog Pages
+- [ ] Final hardcoded value scan complete: <10 remaining hardcoded values (98% reduction verified)
+- [ ] Full Chromatic regression suite passed: All pages, all themes, all breakpoints (zero unintended visual regressions)
+- [ ] Final QA audit complete: Cross-browser testing (Chrome, Firefox, Safari, Mobile Safari)
+- [ ] Migration progress dashboard updated: Mark feature complete, document final stats (before: 450+ hardcoded values → after: <10)
+- [ ] TypeScript compiles: `npx tsc --noEmit` (0 errors)
+- [ ] Build passes: `npm run build` (0 errors)
+- [ ] All pages render correctly in production build: `npm run start` (manual verification)
+- [ ] User approval received for commit
+- [ ] Git commit created: `git add . && git commit -m "Phase 12 (US5): Complete page-by-page migration - 40-50 pages, 98% hardcoded values eliminated, zero visual regressions"`
+- [ ] Update `DOC/gitstatus.md` with commit ID, timestamp, comprehensive migration stats
+
 ---
 
 ## Phase 13: Polish & Cross-Cutting Concerns
@@ -450,6 +839,22 @@
 - [ ] **T329** Get stakeholder sign-off: Final review and approval
 
 **Checkpoint**: Feature complete - All user stories delivered, documentation complete, CI/CD integrated, production-ready
+
+### Phase 13 Validation Checklist (Polish):
+- [ ] **Pre-Phase Audit**: Reviewed all previous phases, identified gaps in documentation/CI/CD (15 min)
+- [ ] All T319-T329 tasks completed and checked off
+- [ ] Documentation complete: README updated, `DOC/Records/DESIGN-TOKEN-SYSTEM-ADR.md` created, constitution Section VI updated with visual regression requirement
+- [ ] CI/CD integrated: `.github/workflows/chromatic.yml` created, `CHROMATIC_PROJECT_TOKEN` added to GitHub Secrets, test PR created and Chromatic runs automatically
+- [ ] Performance audited: CSS bundle size increase <5%, build time acceptable
+- [ ] Full production build passes: `npm run build` (0 errors)
+- [ ] Staging deployment complete: All migrated pages tested in staging environment
+- [ ] Stakeholder sign-off received: Final review and approval for production
+- [ ] TypeScript compiles: `npx tsc --noEmit` (0 errors)
+- [ ] All lint errors fixed: `npm run lint` (0 errors)
+- [ ] User approval received for commit
+- [ ] Git commit created: `git add . && git commit -m "Phase 13: Polish - Documentation, CI/CD, performance optimization, stakeholder approval"`
+- [ ] Update `DOC/gitstatus.md` with commit ID, timestamp, feature completion announcement
+- [ ] Final deployment: Merge to main branch, deploy to production
 
 ---
 

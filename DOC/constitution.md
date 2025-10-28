@@ -5,6 +5,48 @@
 
 ## Core Principles
 
+### 0. Development Workflow (UI-First, Spec-Driven) 🎯 MANDATORY
+
+**Phase 0: SpecKit Planning - BEFORE Implementation**
+- ALL features MUST start with complete SpecKit documentation
+- Create/update ALL SpecKit files BEFORE any code:
+  - `spec.md`: Complete functional requirements, user stories, success criteria
+  - `plan.md`: Technical implementation plan, architecture decisions, constitution compliance
+  - `research.md`: Technical decisions, tool selections, architectural patterns
+  - `data-model.md`: Complete TypeScript interfaces, database schemas, API contracts
+  - `contracts/`: API contracts, configuration contracts, integration patterns
+  - `quickstart.md`: Developer usage guide for the feature
+  - `tasks.md`: Complete task breakdown organized by user story with mandatory workflows
+- **SpecKit Validation**: Run `.specify/scripts/powershell/validate-spec.ps1` to verify all required files exist
+- **Approval Gate**: Developer confirms SpecKit is complete before writing ANY implementation code
+
+**Phase 1: UI/UX First - MANDATORY**
+- ALL features MUST start with UI/UX implementation
+- Build complete UI mockup in isolation (Storybook or page preview)
+- No backend work until UI is reviewed and approved
+- Iterate on UI based on feedback WITHOUT touching backend
+- **Visual Regression**: Capture Chromatic/Percy baseline for all new UI components
+- **Approval Gate**: Developer confirms UI/UX meets requirements before proceeding
+
+**Phase 2: Spec Alignment - MANDATORY**
+- Update ALL SpecKit files AFTER UI changes or discoveries:
+  - `spec.md`: Update functional requirements, success criteria (if UI reveals new needs)
+  - `tasks.md`: Update task status, add new tasks as discovered, mark completed tasks
+  - `execution-plan.md`: Update phase status, timelines, scope changes
+  - `changelog.md`: Document what changed and why (design decisions, errors fixed, lessons learned)
+- Every UI change triggers spec update (no exceptions)
+- Every error fix triggers spec update (document lesson learned)
+- Every new task discovered triggers spec update (add to tasks.md + spec.md)
+- **Weekly Sync**: Batch update specs every Friday (30 min) - see `.specify/memory/WORKFLOW-MANAGEMENT.md`
+
+**Phase 3: Backend Implementation - After UI Approval**
+- Implement backend only after UI approved and specs updated
+- Use approved UI as contract for API requirements
+- Backend changes that affect UI require returning to Phase 1
+- Follow pre-task/during-task/post-task workflows from `tasks.md`
+
+**Workflow Rule**: SpecKit Planning (Phase 0) → UI First (Phase 1) → Spec Update (Phase 2) → Backend (Phase 3) → Never Backend First
+
 ### I. Next.js App Router First
 **All features must use Next.js 14+ App Router architecture**
 - Server Components by default (use 'use client' only when necessary)
@@ -52,10 +94,24 @@
 - Admin operations require ADMIN role verification
 
 ### VI. Styling & Theming
-**Tailwind CSS with dark mode support**
+**Tailwind CSS with dark mode support and centralized design tokens**
 - Utility-first CSS approach (no custom CSS unless justified)
 - Dark mode: Class-based (`darkMode: 'class'` in `tailwind.config.js`)
 - ThemeProvider Context API for global theme state
+- **Design Token System**: All visual properties (colors, typography, spacing, shadows, animations, borders) centralized in token files (`src/design-tokens/`)
+- **Two-Tier Token Architecture**: Primitive tokens (`primitives/`) → Semantic tokens (`semantic/`) - NEVER skip layers
+- **Storybook Required**: All UI component migrations MUST include Storybook stories for isolated visual testing
+- **Visual Regression Testing**: Chromatic REQUIRED for all design token and UI changes (not optional)
+- **Atomic Migration**: Only ONE component/page per commit during migrations (no batch refactoring)
+- **Manual QA Checklist**: MANDATORY for each component migration (Light/Dark/System themes, 320px/768px/1024px breakpoints, all states)
+- Custom color palette: Primary (teal-600), Secondary (amber-400) - defined in design tokens
+- **Mobile-First Responsive Design**: MANDATORY - design for mobile (320px-640px) FIRST, then scale up to tablet/desktop
+- **App-Like Mobile Experience**: Mobile UI must feel like native app (larger touch targets, bottom navigation, simplified layouts)
+- **Responsive Typography**: Font sizes MUST scale down on mobile (base 14px mobile, 16px desktop)
+- **Responsive Spacing**: Tighter spacing on mobile (50-75% of desktop spacing - use semantic spacing tokens)
+- **Responsive Components**: Cards, modals, forms MUST have mobile-specific layouts (full-width on mobile, constrained on desktop)
+- **Touch-Friendly**: All interactive elements minimum 44px × 44px on mobile (WCAG 2.5.5)
+- Consistent spacing, typography, and component styling via design tokens
 - Custom color palette: Primary (teal-600), Secondary (amber-400)
 - Responsive design: Mobile-first with `sm:`, `md:`, `lg:` breakpoints
 - Consistent spacing, typography, and component styling
@@ -346,6 +402,111 @@ export default withAuth(
 
 ---
 
+## SpecKit Management System 📚 MANDATORY
+
+### What is SpecKit?
+
+**SpecKit** is the comprehensive documentation system that defines a feature BEFORE implementation begins. All features MUST have complete SpecKit documentation.
+
+**Required SpecKit Files** (in `specs/[feature-number]-[feature-name]/`):
+1. **spec.md** - Feature specification (user stories, functional requirements, success criteria, acceptance tests)
+2. **plan.md** - Implementation plan (technical approach, architecture decisions, constitution compliance, project structure)
+3. **research.md** - Technical research (tool selections, architectural patterns, decisions made, alternatives considered)
+4. **data-model.md** - Data models (TypeScript interfaces, database schemas, API contracts, type definitions)
+5. **contracts/** - API contracts (OpenAPI specs, configuration contracts, integration patterns)
+6. **quickstart.md** - Developer guide (how to use the feature, code examples, common patterns)
+7. **tasks.md** - Task breakdown (organized by user story, with mandatory pre/during/post-task workflows)
+8. **audits/** - Audit files (migration tracking, hardcoded value scans, QA checklists)
+9. **checklists/** - Testing checklists (manual QA, theme testing, accessibility testing)
+
+### SpecKit Validation
+
+**Before Starting Implementation**:
+```powershell
+# Validate SpecKit is complete
+.\.specify\scripts\powershell\validate-spec.ps1
+
+# Check prerequisites for tasks
+.\.specify\scripts\powershell\check-prerequisites.ps1 -Json
+```
+
+### SpecKit Workflow Integration
+
+**Phase 0 (Planning)**:
+- Execute: `/.github/prompts/speckit.plan.prompt.md`
+- Generates: spec.md, plan.md, research.md, data-model.md, contracts/, quickstart.md
+- Validates: Constitution compliance, completeness, clarity
+
+**Phase 0.5 (Tasks)**:
+- Execute: `/.github/prompts/speckit.tasks.prompt.md`
+- Generates: tasks.md (organized by user story, with mandatory workflows)
+- Validates: All user stories have tasks, independent test criteria defined
+
+**Phase 1-N (Implementation)**:
+- Follow tasks.md workflows (pre-task audit, during-task checks, post-task validation)
+- Update tasks.md in real-time (30 seconds per task)
+- Update changelog.md daily (2 minutes end of day)
+- Weekly sync: Update spec.md + execution-plan.md (30 minutes Friday)
+
+**Reference**: See `.specify/memory/WORKFLOW-MANAGEMENT.md` for complete SpecKit maintenance workflow
+
+### Mandatory SpecKit Standards
+
+**Spec Completion Criteria**:
+- [ ] All functional requirements defined with FR-XXX IDs
+- [ ] All user stories have acceptance scenarios
+- [ ] All success criteria measurable and testable
+- [ ] Technical constraints documented (performance, security, compatibility)
+- [ ] Edge cases identified and handled
+- [ ] Error scenarios documented
+- [ ] Mobile-first responsive requirements specified (if UI feature)
+- [ ] Visual regression testing requirements specified (if UI feature)
+
+**Plan Completion Criteria**:
+- [ ] Technical approach clearly explained
+- [ ] Architecture decisions justified
+- [ ] Constitution compliance verified (all 8 core principles)
+- [ ] Dependencies identified (packages, services, APIs)
+- [ ] Project structure defined (files to create/modify)
+- [ ] Implementation phases outlined
+- [ ] Risk assessment completed
+
+**Tasks Completion Criteria**:
+- [ ] All tasks organized by user story (not by file type)
+- [ ] Each user story has independent test criteria
+- [ ] Mandatory workflows included (pre/during/post-task)
+- [ ] Build error prevention checklist included
+- [ ] Manual QA checklist template included
+- [ ] Parallel execution opportunities marked with [P]
+- [ ] Story labels added [Story: US1-USN]
+- [ ] Duration estimates provided
+
+### SpecKit Maintenance Rules
+
+**Real-Time Updates** (30 seconds per task):
+- ✅ Mark tasks complete in tasks.md immediately
+- ✅ Add discovered tasks to tasks.md immediately
+- ✅ Update task status as you work
+
+**Daily Updates** (2 minutes end of day):
+- ✅ Update changelog.md with what changed and why
+- ✅ Document errors fixed and lessons learned
+- ✅ Note design decisions made
+
+**Weekly Sync** (30 minutes Friday 4pm):
+- ✅ Update spec.md with new requirements from discovered tasks
+- ✅ Mark success criteria complete
+- ✅ Update execution-plan.md with phase status and timeline adjustments
+- ✅ Commit all SpecKit changes with clear message
+
+**No Spec Drift Rule**: 
+- ❌ Never let implementation diverge from spec without updating spec
+- ❌ Never skip spec updates "I'll do it later"
+- ❌ Never commit code changes without updating tasks.md
+- ✅ Specs are living documents that reflect reality
+
+---
+
 ## Development Workflow
 
 ### Feature Implementation Cycle
@@ -385,6 +546,65 @@ export default withAuth(
 - [ ] Database operations (create, read, update work correctly)
 - [ ] Responsive design (mobile, tablet, desktop)
 - [ ] Dark mode (components render correctly in both themes)
+
+### Phase Validation Checklist (MANDATORY for Each Phase) ⚠️
+
+**Every phase in tasks.md MUST end with a Phase Validation Checklist**
+
+**Required Elements**:
+1. **Pre-Phase Audit** - Verification of spec review, time spent (e.g., "Reviewed spec.md US1, data-model.md color types, existing components (30 min)")
+2. **All Tasks Completed** - Checkbox for all TXX-TYY tasks in the phase
+3. **Files Created/Modified** - List of specific files that should exist
+4. **Pre-Commit Commands** (MANDATORY - Run in this order):
+   ```powershell
+   # TypeScript compilation check
+   npx tsc --noEmit
+   # Expected: 0 errors
+
+   # Production build test
+   npm run build
+   # Expected: 0 errors, 0 warnings
+
+   # Lint check (if applicable)
+   npm run lint
+   # Expected: 0 critical errors
+
+   # Storybook build (if UI feature)
+   npm run build-storybook
+   # Expected: 0 errors
+
+   # Chromatic visual regression (if UI feature)
+   npm run chromatic
+   # Expected: Baseline captured or diffs reviewed and approved
+
+   # Prisma validation (if schema changes)
+   npx prisma validate
+   # Expected: Schema is valid
+   ```
+5. **Manual Verification** - Specific tests to run (e.g., "Test Light/Dark/System themes", "Verify 320px/768px/1024px breakpoints")
+6. **User Approval** - Checkbox: "User approval received for commit"
+7. **Git Commit** - Exact command: `git add . && git commit -m "Phase X: <summary>"`
+8. **DOC/gitstatus.md Update** - Checkbox: "Update DOC/gitstatus.md with commit ID, timestamp, description"
+
+**Example Phase Validation Checklist**:
+```markdown
+### Phase X Validation Checklist:
+- [ ] **Pre-Phase Audit**: Reviewed spec.md, data-model.md, existing patterns (30 min)
+- [ ] All T001-T010 tasks completed and checked off
+- [ ] Files created: `src/lib/service.ts`, `src/types/model.ts`
+- [ ] TypeScript compiles: `npx tsc --noEmit` (0 errors)
+- [ ] Build passes: `npm run build` (0 errors)
+- [ ] Manual verification: Tested feature in browser, all states work
+- [ ] User approval received for commit
+- [ ] Git commit created: `git add . && git commit -m "Phase X: Feature implementation"`
+- [ ] Update `DOC/gitstatus.md` with commit ID, timestamp, description
+```
+
+**Enforcement**:
+- ❌ **Cannot proceed to next phase** without completing current phase validation checklist
+- ❌ **Cannot commit** without user approval checkbox marked
+- ❌ **Cannot skip** any pre-commit commands - all must pass
+- ✅ **Every phase** = Pre-audit → Implementation → Validation → Approval → Commit → Next phase
 
 ---
 
