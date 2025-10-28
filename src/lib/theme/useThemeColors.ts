@@ -21,7 +21,6 @@
  */
 
 import { colorTokens, getColorByStatus, type SemanticColor } from './colors';
-import { cn } from '@/lib/utils'; // Assuming you have a cn utility
 
 export function useThemeColors() {
   /**

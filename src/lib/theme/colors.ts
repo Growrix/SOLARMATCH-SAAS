@@ -124,7 +124,7 @@ export const statusColorMap = {
  */
 export type ColorToken = typeof colorTokens;
 export type StatusKey = keyof typeof statusColorMap;
-export type SemanticColor = keyof typeof colorTokens.semantic;
+export type SemanticColor = keyof typeof colorTokens.semantic | 'neutral';
 
 /**
  * Helper function to get semantic color by status
