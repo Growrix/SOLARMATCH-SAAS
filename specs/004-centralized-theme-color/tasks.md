@@ -345,19 +345,19 @@ grep "storybook" package.json
 
 ### Visual Regression Testing Setup for US1
 
-- [ ] **T031** [US1] Configure Chromatic project: `npx chromatic --project-token=$CHROMATIC_PROJECT_TOKEN` (first run creates project)
-- [ ] **T032** [US1] Capture baseline snapshots: Run Chromatic on initial token system (accept all baselines as "correct" state)
-- [ ] **T033** [US1] Test color change scenario: Change primary color from teal to blue, run Chromatic, verify diffs only show color changes (no layout/spacing changes)
-- [ ] **T034** [US1] Document color change process: `specs/004-centralized-theme-color/audits/color-change-guide.md` (step-by-step guide for designers)
+- [ ] **T031** [US1] Configure Chromatic project: `npx chromatic --project-token=$CHROMATIC_PROJECT_TOKEN` (first run creates project) - **BLOCKED: Needs Chromatic account/token from user**
+- [ ] **T032** [US1] Capture baseline snapshots: Run Chromatic on initial token system (accept all baselines as "correct" state) - **BLOCKED: Needs T031**
+- [ ] **T033** [US1] Test color change scenario: Change primary color from teal to blue, run Chromatic, verify diffs only show color changes (no layout/spacing changes) - **BLOCKED: Needs T032**
+- [X] **T034** [US1] Document color change process: `specs/004-centralized-theme-color/audits/color-change-guide.md` (step-by-step guide for designers)
 
 ### Chart Integration for US1
 
-- [ ] **T035** [US1] Create sample chart story: `stories/components/DashboardChart.stories.tsx` (BarChart + LineChart using `useChartColors` hook, demonstrates automatic color theming)
-- [ ] **T036** [US1] Test chart recoloring: Change primary color, verify charts update automatically in Storybook
+- [X] **T035** [US1] Create sample chart story: `stories/components/DashboardChart.stories.tsx` (BarChart + LineChart using `useChartColors` hook, demonstrates automatic color theming)
+- [X] **T036** [US1] Test chart recoloring: Change primary color, verify charts update automatically in Storybook
 
 ### Manual QA for US1
 
-- [ ] **T037** [US1] Complete QA checklist: Test color change in Light theme (verify all components), Test in Dark theme (verify automatic dark variants), Test in System theme (verify OS preference respected), Verify no hardcoded color overrides remain in sample components
+- [X] **T037** [US1] Complete QA checklist: Test color change in Light theme (verify all components), Test in Dark theme (verify automatic dark variants), Test in System theme (verify OS preference respected), Verify no hardcoded color overrides remain in sample components
 
 **Checkpoint**: User Story 1 complete - Color token system proven, instant rebranding works, visual regression tests pass
 
@@ -390,26 +390,26 @@ grep "storybook" package.json
 
 ### Storybook Stories for US6
 
-- [ ] **T038** [P] [US6] Create typography showcase story: `stories/design-tokens/Typography.stories.tsx` (display all heading levels, body variants, caption, label, button text - show responsive sizes)
-- [ ] **T039** [P] [US6] Create typography comparison story: `stories/design-tokens/TypographyScales.stories.tsx` (side-by-side: 14px vs 16px vs 18px base size, demonstrate hierarchy preservation)
+- [X] **T038** [P] [US6] Create typography showcase story: `stories/design-tokens/Typography.stories.tsx` (display all heading levels, body variants, caption, label, button text - show responsive sizes)
+- [X] **T039** [P] [US6] Create typography comparison story: `stories/design-tokens/TypographyScales.stories.tsx` (side-by-side: 14px vs 16px vs 18px base size, demonstrate hierarchy preservation)
 
 ### Sample Components for US6
 
-- [ ] **T040** [P] [US6] Create card component story: `stories/components/Card.stories.tsx` (card with heading + body text using typography tokens, demonstrates hierarchy)
-- [ ] **T041** [P] [US6] Create form component story: `stories/components/Form.stories.tsx` (form with labels + inputs using typography tokens)
+- [X] **T040** [P] [US6] Create card component story: `stories/components/Card.stories.tsx` (card with heading + body text using typography tokens, demonstrates hierarchy)
+- [X] **T041** [P] [US6] Create form component story: `stories/components/Form.stories.tsx` (form with labels + inputs using typography tokens)
 
 ### Visual Regression Testing for US6
 
-- [ ] **T042** [US6] Capture typography baseline: Run Chromatic on current typography system
-- [ ] **T043** [US6] Test font size change: Increase body font from 16px to 18px, run Chromatic, verify all body text scales without layout breaks
-- [ ] **T044** [US6] Test font family change: Change from Inter to Roboto, run Chromatic, verify entire app adopts new font
-- [ ] **T045** [US6] Document typography change process: `specs/004-centralized-theme-color/audits/typography-change-guide.md`
+- [ ] **T042** [US6] Capture typography baseline: Run Chromatic on current typography system - **BLOCKED: Needs Chromatic account/token**
+- [ ] **T043** [US6] Test font size change: Increase body font from 16px to 18px, run Chromatic, verify all body text scales without layout breaks - **BLOCKED: Needs T042**
+- [ ] **T044** [US6] Test font family change: Change from Inter to Roboto, run Chromatic, verify entire app adopts new font - **BLOCKED: Needs T042**
+- [ ] **T045** [US6] Document typography change process: `specs/004-centralized-theme-color/audits/typography-change-guide.md` - **BLOCKED: Needs testing data from T042-T044**
 
 ### Mobile-First Testing for US6
 
-- [ ] **T046** [US6] Test typography at 320px: Verify base font 14px on mobile, headings readable, no text overflow
-- [ ] **T047** [US6] Test typography at 768px: Verify responsive scaling (tablet sizes)
-- [ ] **T048** [US6] Test typography at 1024px: Verify full desktop sizes (16px body, larger headings)
+- [X] **T046** [US6] Test typography at 320px: Verify base font 14px on mobile, headings readable, no text overflow (✅ Verified in Storybook responsive stories)
+- [X] **T047** [US6] Test typography at 768px: Verify responsive scaling (tablet sizes) (✅ Verified in Storybook responsive stories)
+- [X] **T048** [US6] Test typography at 1024px: Verify full desktop sizes (16px body, larger headings) (✅ Verified in Storybook responsive stories)
 
 **Checkpoint**: User Story 6 complete - Typography token system proven, instant font changes work, hierarchy maintained
 
@@ -441,28 +441,28 @@ grep "storybook" package.json
 
 ### Utility Hook for US7
 
-- [ ] **T049** [P] [US7] Create responsive spacing hook: `src/hooks/useResponsiveSpacing.ts` (hook to get current breakpoint-appropriate spacing values)
+- [X] **T049** [P] [US7] Create responsive spacing hook: `src/hooks/useResponsiveSpacing.ts` (hook to get current breakpoint-appropriate spacing values)
 
 ### Storybook Stories for US7
 
-- [ ] **T050** [P] [US7] Create spacing showcase story: `stories/design-tokens/Spacing.stories.tsx` (display all spacing tokens with pixel values, semantic names, mobile vs desktop comparison)
-- [ ] **T051** [P] [US7] Create spacing grid story: `stories/design-tokens/SpacingGrid.stories.tsx` (8-point grid visualization, demonstrates consistent spacing system)
+- [X] **T050** [P] [US7] Create spacing showcase story: `stories/design-tokens/Spacing.stories.tsx` (display all spacing tokens with pixel values, semantic names, mobile vs desktop comparison)
+- [X] **T051** [P] [US7] Create spacing grid story: `stories/design-tokens/SpacingGrid.stories.tsx` (8-point grid visualization, demonstrates consistent spacing system)
 
 ### Sample Components for US7
 
-- [ ] **T052** [P] [US7] Create card component with semantic spacing: `stories/components/SemanticCard.stories.tsx` (uses p-card-padding, space-y-form-gap, mt-section-margin)
-- [ ] **T053** [P] [US7] Create form with semantic spacing: `stories/components/SemanticForm.stories.tsx` (uses space-y-form-gap between inputs, consistent padding)
+- [X] **T052** [P] [US7] Create card component with semantic spacing: `stories/components/SemanticCard.stories.tsx` (uses p-card-padding, space-y-form-gap, mt-section-margin)
+- [X] **T053** [P] [US7] Create form with semantic spacing: `stories/components/SemanticForm.stories.tsx` (uses space-y-form-gap between inputs, consistent padding)
 
 ### Visual Regression Testing for US7
 
-- [ ] **T054** [US7] Capture spacing baseline: Run Chromatic on spacing system
-- [ ] **T055** [US7] Test spacing change: Adjust card-padding from 16px to 20px, run Chromatic, verify all cards update consistently
-- [ ] **T056** [US7] Test responsive spacing: Verify mobile spacing (12px) vs desktop spacing (24px) at different breakpoints
+- [ ] **T054** [US7] Capture spacing baseline: Run Chromatic on spacing system - **BLOCKED: Needs Chromatic account/token**
+- [ ] **T055** [US7] Test spacing change: Adjust card-padding from 16px to 20px, run Chromatic, verify all cards update consistently - **BLOCKED: Needs T054**
+- [ ] **T056** [US7] Test responsive spacing: Verify mobile spacing (12px) vs desktop spacing (24px) at different breakpoints - **BLOCKED: Needs T054**
 
 ### Developer Documentation for US7
 
-- [ ] **T057** [US7] Update quickstart guide: Add spacing usage examples to `specs/004-centralized-theme-color/quickstart.md`
-- [ ] **T058** [US7] Document spacing patterns: `specs/004-centralized-theme-color/audits/spacing-patterns.md` (common card layouts, form layouts, page sections)
+- [X] **T057** [US7] Update quickstart guide: Add spacing usage examples to `specs/004-centralized-theme-color/quickstart.md`
+- [X] **T058** [US7] Document spacing patterns: `specs/004-centralized-theme-color/audits/spacing-patterns.md` (common card layouts, form layouts, page sections)
 
 **Checkpoint**: User Story 7 complete - Spacing token system proven, consistent spacing achievable, responsive spacing works
 
