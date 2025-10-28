@@ -20,9 +20,12 @@
  * ```
  */
 
-import { colorTokens, getColorByStatus, type SemanticColor } from './colors';
+import { useChartColors } from '@/hooks/useChartColors';
 
 export function useThemeColors() {
+  // Get chart colors from design tokens
+  const chartColors = useChartColors();
+
   /**
    * STATUS BADGE COLORS
    * Returns Tailwind classes for status badges
@@ -126,26 +129,9 @@ export function useThemeColors() {
   /**
    * CHART COLORS
    * For data visualization (Recharts, Chart.js, etc.)
+   * Now using design tokens from useChartColors hook
    */
-  const charts = {
-    savings: colorTokens.charts.savings,
-    cost: colorTokens.charts.cost,
-    roi: colorTokens.charts.roi,
-    loss: colorTokens.charts.loss,
-    projection: colorTokens.charts.projection,
-    
-    // Gradient definitions for area charts
-    gradients: {
-      savings: {
-        start: `${colorTokens.charts.savings}cc`, // 80% opacity
-        end: `${colorTokens.charts.savings}00`,   // 0% opacity
-      },
-      cost: {
-        start: `${colorTokens.charts.cost}cc`,
-        end: `${colorTokens.charts.cost}00`,
-      },
-    },
-  };
+  const charts = chartColors;
 
   /**
    * TEXT COLOR UTILITIES
@@ -198,16 +184,13 @@ export function useThemeColors() {
     alert,
     input,
     
-    // Chart utilities
+    // Chart utilities (from design tokens)
     charts,
     
     // Semantic utilities
     text,
     border,
     surface,
-    
-    // Raw tokens (for advanced usage)
-    tokens: colorTokens,
   };
 }
 
