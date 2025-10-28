@@ -21,4 +21,4 @@ Take a local backup of this current state of this site, make sure it restores to
 
 Page Background/ Primary #1b1c1d
 Cards/ Secondary #282a2c 
-Accent color : 
+Accent color : gradient #0d9488 (Teal)

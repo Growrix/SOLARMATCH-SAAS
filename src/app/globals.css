@@ -3,34 +3,57 @@
 @tailwind utilities;
 
 /* ============================================
-   THREE-THEME SYSTEM: Light, Dark, System
-   - Light: Clean white/cream background
-   - Dark: Black background with teal accents
-   - System: Dark green background (eco-friendly solar theme)
+   CENTRALIZED DESIGN TOKEN SYSTEM
+   - Uses semantic tokens from src/design-tokens/
+   - Supports Light, Dark, and System (Eco Green) themes
+   - Tokens: colors, typography, spacing, shadows, animations, borders
+   - Use Tailwind utility classes (bg-primary, text-heading-1, p-card-padding, etc.)
    ============================================ */
 
-/* --- BASE THEME VARIABLES --- */
+/* --- BASE THEME VARIABLES (Design Token Defaults) --- */
 :root {
-  --bg-primary: #F2F0EF;
+  /* Background colors from semantic colors.background */
+  --bg-primary: #ffffff;
   --bg-secondary: #ffffff;
-  --text-primary: #0F172A;
-  --text-secondary: #475569;
-  --border-color: #e5e7eb;
+  
+  /* Text colors from semantic colors.foreground/muted */
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  
+  /* Border colors from semantic colors.border */
+  --border-color: #e2e8f0;
+  
+  /* Accent colors from semantic colors.primary */
   --accent-color: #0d9488;
+  
+  /* Animation durations from semantic animations.duration */
+  --duration-instant: 0ms;
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 350ms;
+  --duration-slower: 500ms;
+  
+  /* Easing functions from semantic animations.easing */
+  --easing-linear: linear;
+  --easing-easeIn: cubic-bezier(0.4, 0, 1, 1);
+  --easing-easeOut: cubic-bezier(0, 0, 0.2, 1);
+  --easing-easeInOut: cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 /* --- LIGHT THEME (Default) --- */
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color var(--duration-normal) var(--easing-easeOut),
+              color var(--duration-normal) var(--easing-easeOut);
 }
 
-/* --- DARK THEME --- */
+/* --- DARK THEME (from semantic colors.dark) --- */
 .dark {
-  --bg-primary: #000000;
-  --bg-secondary: #0f172a;
-  --text-primary: #E2E8F0;
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --text-primary: #f1f5f9;
   --text-secondary: #94a3b8;
   --border-color: #334155;
   --accent-color: #14b8a6;
