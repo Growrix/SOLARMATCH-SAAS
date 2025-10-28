@@ -2,11 +2,737 @@
 
 **Feature Branch**: `004-centralized-theme-color`  
 **Created**: January 27, 2025  
-**Last Updated**: January 27, 2025 (EXPANDED SCOPE)  
-**Status**: Draft  
-**Input**: User description: "Centralized Design Token System - Implement industry-standard design token architecture for comprehensive theme management including colors, typography, spacing, shadows, animations, and all UI tokens"
+**Last Updated**: January 28, 2025 (FINALIZED - Version 2.1)  
+**Status**: Ready for Implementation  
+**Project Type**: 🔄 **REDESIGN/REFACTORING** (Existing Site - Not New Build)
 
-**Scope Expansion**: After initial color-focused specification, comprehensive typography/spacing/UI audit identified 150+ hardcoded font sizes, 100+ inconsistent spacing patterns, and scattered shadow/animation definitions. Specification now covers complete design system tokenization to achieve true industry-standard compliance.
+---
+
+## 🚨 CRITICAL: Project Context
+
+### This is a REDESIGN Project, NOT a New Site
+
+**What This Means**:
+- ✅ **Existing Application**: Full application already built and running (50+ pages, 100+ components)
+- ✅ **Existing Codebase**: 450+ hardcoded design values scattered across components
+- ✅ **Users in Production**: Real users actively using the application
+- ✅ **No Breaking Changes**: Must maintain functionality while improving design system
+- ❌ **NOT Starting Fresh**: Cannot rebuild from scratch or change fundamental architecture
+
+**What We're Doing**:
+- **Centralize Design Tokens**: Extract hardcoded values → Create centralized token files
+- **Page-by-Page Refactoring**: Systematically migrate each page to use new design system
+- **Component-by-Component**: Replace hardcoded classes with centralized token-based classes
+- **Validate Everything**: Audit before touching, test after changing, validate before committing
+- **Zero "Hope for the Best"**: Visual regression testing mandatory for every change
+
+**Why This Happened**:
+- Original development didn't follow design system principles
+- Hardcoded values proliferated across codebase (200 colors, 150 font sizes, 100 spacing values)
+- Now revalidating and standardizing everything to industry standards
+
+**Scope**: Colors, Typography, Spacing, Shadows, Animations, Border Radius - **Design System ONLY** (not functional changes)
+
+---
+
+## 🎯 Development Workflow Integration (UI-First, Spec-Driven)
+
+**This feature follows the mandatory three-phase workflow** (as defined in `.specify/memory/constitution.md`):
+
+### Phase 1: UI/UX First (MANDATORY)
+- **Goal**: Build centralized design token files and validate with sample pages
+- **Deliverables**:
+  - **Centralized Token Files**: `colors.ts`, `typography.ts`, `spacing.ts`, `shadows.ts`, `animations.ts`, `borders.ts`
+  - **Tailwind Config**: Complete Tailwind configuration with all tokens
+  - **Storybook Setup**: Visual testing environment for isolated component validation
+  - **Sample Page Refactoring**: Pick 2-3 representative pages, audit, refactor, validate
+  - **Documentation**: Token usage guide with before/after examples
+  - All 3 themes (Light/Dark/System) working in Storybook
+- **Approval Gate**: Stakeholder reviews token system + sample pages and approves approach
+- **Tools**: TypeScript, Tailwind CSS, Storybook, Chromatic/Percy for visual regression
+- **Duration**: Week 1 (40 hours)
+- **Output**: Centralized token system + proven refactoring methodology
+
+**🔍 Phase 1 Includes MANDATORY Pre-Migration Audit**:
+- Current state documentation (what exists, what's hardcoded)
+- Token mapping strategy (which hardcoded values map to which tokens)
+- Risk assessment (which pages are highest risk to refactor)
+- Test plan (how to validate each page after refactoring)
+
+### Phase 2: Spec Alignment (MANDATORY)
+- **Goal**: Update all SpecKit files before backend integration
+- **SpecKit Updates**:
+  - ✅ `spec.md` (this file) - COMPLETE
+  - ⏳ `tasks.md` - Update with real-time task progress (Tier 1: 30s updates)
+  - ⏳ `changelog.md` - Daily decision log (Tier 2: 2 min/day)
+  - ⏳ `execution-plan.md` - Weekly timeline updates (Tier 3: 30 min/week)
+- **Approval Gate**: All SpecKit files reflect current UI implementation state
+- **Tools**: Markdown editor, SpecKit three-tier update system
+- **Duration**: 1 hour before backend work begins
+- **Output**: Specs, tasks, changelog, execution plan all aligned with UI reality
+
+### Phase 3: Backend Implementation (AFTER UI Approved)
+- **Goal**: Systematically migrate existing pages/components to use centralized design tokens
+- **Approach**: **PAGE-BY-PAGE, MODAL-BY-MODAL** (not bulk refactoring)
+- **Deliverables**:
+  - **Week 2**: High-traffic pages (Dashboard, Homepage, Lead Forms) - 10-15 pages
+  - **Week 3**: Secondary pages (Settings, Profile, Reports) + Critical modals - 15-20 pages
+  - **Week 4**: Remaining pages + Edge cases + Final QA - 10-15 pages
+  - **Total**: 40-50 pages/modals migrated with zero functional changes
+- **Per-Page Workflow** (MANDATORY):
+  1. **Audit Page**: Document current hardcoded values (colors, fonts, spacing)
+  2. **Create Migration Plan**: Map hardcoded → token replacements
+  3. **Refactor Components**: Replace hardcoded classes with token-based classes
+  4. **Visual Testing**: Storybook stories + Chromatic visual regression
+  5. **Manual QA**: Test all themes, states, breakpoints (checklist)
+  6. **Production Validation**: Deploy to staging, smoke test, rollback plan ready
+  7. **Commit & Document**: Clear commit message + changelog entry
+- **Approval Gate**: Each page passes visual regression + manual QA before next page
+- **Tools**: TypeScript, Tailwind CSS, Storybook, Chromatic, Git
+- **Duration**: Weeks 2-4 (120 hours)
+- **Output**: Fully migrated application with <10 hardcoded design values remaining
+
+**🔍 Zero "Hope for the Best" Protocol**:
+- **NEVER** refactor multiple pages simultaneously
+- **ALWAYS** audit page before touching code
+- **ALWAYS** test in Storybook before testing in real app
+- **ALWAYS** complete QA checklist before commit
+- **ALWAYS** have rollback plan (git revert ready)
+
+**Workflow Rule**: UI → Spec Update → Backend → Never Backend First
+
+---
+
+## 📄 Page-by-Page Migration Strategy (CRITICAL)
+
+**This section defines the MANDATORY workflow for migrating existing pages/modals to the new design system.**
+
+### Why Page-by-Page (Not Bulk Refactoring)?
+
+**Problem with Bulk Approach**:
+- ❌ Refactor 20 pages at once → 200+ visual bugs to debug
+- ❌ Hard to isolate which change broke what
+- ❌ Rollback requires reverting weeks of work
+- ❌ QA overwhelmed with testing scope
+
+**Benefits of Page-by-Page**:
+- ✅ Refactor 1 page → 5-10 visual issues max (manageable)
+- ✅ Easy to isolate and fix issues immediately
+- ✅ Rollback affects only 1 page (low risk)
+- ✅ QA can thoroughly test each page
+- ✅ Continuous delivery (ship improvements incrementally)
+
+---
+
+### Per-Page Migration Workflow (7 Steps - MANDATORY)
+
+**Time per page**: 2-4 hours (depending on complexity)  
+**Pages per day**: 2-3 pages (sustainable pace)  
+**Total**: 40-50 pages in 3 weeks
+
+#### Step 1: Page Audit (30-45 minutes)
+
+**Goal**: Understand current state before touching any code.
+
+**Audit Checklist**:
+- [ ] Open page in all 3 themes (Light/Dark/System) - screenshot each
+- [ ] Document all interactive elements (buttons, forms, modals, tooltips, dropdowns)
+- [ ] Identify all hardcoded values:
+  - [ ] Colors: `bg-teal-600`, `text-gray-900`, hex codes `#0d9488`
+  - [ ] Typography: `text-sm`, `text-lg`, `font-medium`, `font-bold`
+  - [ ] Spacing: `p-4`, `m-6`, `gap-3`, `space-y-4`
+  - [ ] Shadows: `shadow-lg`, `shadow-md`, inline shadow styles
+  - [ ] Border Radius: `rounded-lg`, `rounded-xl`, `rounded-full`
+  - [ ] Animations: Custom animations, transition classes
+- [ ] Count total hardcoded instances (target reduction: 80-90%)
+- [ ] Note any custom/unique styling that might need special handling
+- [ ] Identify dependencies (shared components used on this page)
+
+**Output**: Audit document (e.g., `specs/004-centralized-theme-color/audits/dashboard-audit.md`)
+
+**Example Audit Template**:
+```markdown
+# Page Audit: Dashboard
+
+**Page Path**: `/dashboard`  
+**Complexity**: High (15 components, 3 modals, 5 charts)  
+**Audit Date**: 2025-01-28
+
+## Current State (Before Migration)
+
+### Hardcoded Colors (23 instances)
+- Primary actions: `bg-teal-600` (8 instances) → `bg-primary`
+- Status badges: `bg-green-500`, `bg-yellow-500`, `bg-red-500` (12 instances) → `bg-success`, `bg-warning`, `bg-error`
+- Text colors: `text-gray-900`, `text-gray-600` (3 instances) → `text-foreground`, `text-muted`
+
+### Hardcoded Typography (15 instances)
+- Headings: `text-2xl font-bold` (3 instances) → `text-heading-1`
+- Body text: `text-sm` (8 instances) → `text-body`
+- Captions: `text-xs text-gray-500` (4 instances) → `text-caption`
+
+### Hardcoded Spacing (18 instances)
+- Card padding: `p-6` (5 instances) → `p-card-padding`
+- Form gaps: `space-y-4` (6 instances) → `space-y-form-gap`
+- Section margins: `mt-8` (7 instances) → `mt-section-margin`
+
+### Custom Styling (Needs Special Handling)
+- Chart tooltips with inline styles (need Recharts token integration)
+- Modal backdrop blur (glassmorphism - needs theme-aware handling)
+
+## Migration Plan
+1. Replace colors (30 min)
+2. Replace typography (20 min)
+3. Replace spacing (20 min)
+4. Handle custom styling (30 min)
+5. Visual testing (30 min)
+6. Manual QA (30 min)
+
+**Estimated Time**: 3 hours  
+**Risk Level**: Medium (charts need special attention)
+```
+
+---
+
+#### Step 2: Create Token Mapping (15 minutes)
+
+**Goal**: Define exact replacements before writing code.
+
+**Mapping Template**:
+```typescript
+// Token Mapping for Dashboard Page
+
+// COLORS
+'bg-teal-600' → 'bg-primary'
+'bg-teal-700' → 'bg-primary-dark'
+'hover:bg-teal-700' → 'hover:bg-primary-hover'
+'bg-green-500' → 'bg-success'
+'text-gray-900' → 'text-foreground'
+'text-gray-600' → 'text-muted'
+
+// TYPOGRAPHY
+'text-2xl font-bold' → 'text-heading-1'
+'text-xl font-semibold' → 'text-heading-2'
+'text-sm' → 'text-body'
+'text-xs text-gray-500' → 'text-caption text-muted'
+
+// SPACING
+'p-6' → 'p-card-padding' or 'p-desktop-lg'
+'space-y-4' → 'space-y-form-gap'
+'mt-8' → 'mt-section-margin'
+'gap-3' → 'gap-mobile-md lg:gap-desktop-md'
+
+// SHADOWS
+'shadow-lg' → 'shadow-card'
+'shadow-xl' → 'shadow-modal'
+
+// BORDER RADIUS
+'rounded-lg' → 'rounded-card'
+'rounded-full' → 'rounded-full' (keep as-is)
+```
+
+**Output**: Token mapping document (reference during refactoring)
+
+---
+
+#### Step 3: Refactor Page Components (45-90 minutes)
+
+**Goal**: Replace hardcoded values with token-based classes.
+
+**Refactoring Rules**:
+- **ONE component at a time** (not entire page at once)
+- **Test immediately** after each component (don't batch)
+- **Use find-and-replace carefully** (review each replacement)
+- **Preserve functionality** (no logic changes, only styling)
+
+**Example Refactoring**:
+
+**Before** (Hardcoded):
+```tsx
+<div className="bg-teal-600 text-white p-6 rounded-lg shadow-lg">
+  <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
+  <p className="text-sm text-gray-100">Welcome back!</p>
+  <button className="bg-teal-700 hover:bg-teal-800 px-4 py-2 rounded-md">
+    View Details
+  </button>
+</div>
+```
+
+**After** (Token-Based):
+```tsx
+<div className="bg-primary text-white p-card-padding rounded-card shadow-card">
+  <h2 className="text-heading-1 mb-heading-margin">Dashboard</h2>
+  <p className="text-body text-white/90">Welcome back!</p>
+  <button className="bg-primary-dark hover:bg-primary-darker px-button-x py-button-y rounded-button">
+    View Details
+  </button>
+</div>
+```
+
+**Refactoring Checklist (Per Component)**:
+- [ ] Replace all color classes with semantic tokens
+- [ ] Replace all typography classes with semantic tokens
+- [ ] Replace all spacing classes with semantic/grid tokens
+- [ ] Replace all shadow classes with elevation tokens
+- [ ] Replace all border radius classes with radius tokens
+- [ ] Remove any inline styles (convert to token-based classes)
+- [ ] Save file and verify TypeScript compiles (no errors)
+
+---
+
+#### Step 4: Visual Testing in Storybook (20-30 minutes)
+
+**Goal**: Catch visual regressions before testing in real app.
+
+**Storybook Testing Workflow**:
+
+1. **Create/Update Story**:
+   ```tsx
+   // DashboardPage.stories.tsx
+   import type { Meta, StoryObj } from '@storybook/react';
+   import { DashboardPage } from './DashboardPage';
+
+   const meta: Meta<typeof DashboardPage> = {
+     title: 'Pages/Dashboard',
+     component: DashboardPage,
+     parameters: {
+       layout: 'fullscreen',
+     },
+   };
+
+   export default meta;
+   type Story = StoryObj<typeof DashboardPage>;
+
+   export const LightTheme: Story = {};
+
+   export const DarkTheme: Story = {
+     parameters: {
+       theme: 'dark',
+     },
+   };
+
+   export const MobileView: Story = {
+     parameters: {
+       viewport: { defaultViewport: 'mobile1' },
+     },
+   };
+   ```
+
+2. **Visual Inspection**:
+   - [ ] Open Storybook (`npm run storybook`)
+   - [ ] View page in all 3 themes (Light/Dark/System)
+   - [ ] View page at all breakpoints (320px, 375px, 768px, 1024px, 1440px)
+   - [ ] Test all interactive states (hover, focus, active, disabled)
+   - [ ] Compare with "Before" screenshots from audit
+
+3. **Run Visual Regression Tests**:
+   ```bash
+   npm run chromatic  # Or Percy/Loki
+   ```
+   - [ ] Review visual diffs
+   - [ ] Approve intentional changes
+   - [ ] Fix unintended regressions immediately
+
+**If ANY visual regression found**: STOP, fix immediately, re-test before proceeding.
+
+---
+
+#### Step 5: Manual QA Checklist (20-30 minutes)
+
+**Goal**: Verify page works correctly in real application context.
+
+**QA Checklist Template**:
+```markdown
+# QA Checklist: Dashboard Page
+
+**Page**: `/dashboard`  
+**Tester**: [Your Name]  
+**Date**: 2025-01-28
+
+## Theme Switching
+- [ ] Light theme: All elements display correctly
+- [ ] Dark theme: All elements display correctly
+- [ ] System theme: Respects OS preference
+- [ ] Theme switch is instant (no flicker)
+
+## Responsive Breakpoints
+- [ ] Mobile (320px): Layout works, no horizontal scroll
+- [ ] Mobile (375px): Text readable, touch targets 44px+
+- [ ] Tablet (768px): Layout adapts appropriately
+- [ ] Desktop (1024px): Full layout displays correctly
+- [ ] Large desktop (1440px+): No excessive white space
+
+## Interactive Elements
+- [ ] All buttons: Correct colors, hover states work
+- [ ] All forms: Inputs styled correctly, focus states visible
+- [ ] All modals: Open/close correctly, backdrop works
+- [ ] All dropdowns: Appear above content, styled correctly
+- [ ] All tooltips: Display on hover, readable in both themes
+
+## Typography
+- [ ] All headings: Correct hierarchy (h1 > h2 > h3)
+- [ ] All body text: Readable size (14px mobile, 16px desktop)
+- [ ] All captions: Smaller than body, sufficient contrast
+
+## Spacing
+- [ ] Card padding: Consistent with other cards
+- [ ] Form gaps: Comfortable spacing between fields
+- [ ] Section margins: Clear visual separation
+
+## Accessibility
+- [ ] Color contrast: All text meets WCAG AA (4.5:1)
+- [ ] Focus indicators: Visible in all themes
+- [ ] Touch targets: 44px+ on mobile
+
+## Functional Testing (No Regressions)
+- [ ] All buttons work (same functionality as before)
+- [ ] All forms submit correctly
+- [ ] All API calls succeed
+- [ ] All charts/visualizations render correctly
+- [ ] All modals function properly
+- [ ] No console errors or warnings
+
+## Cross-Browser Testing (Sample)
+- [ ] Chrome: Works correctly
+- [ ] Firefox: Works correctly
+- [ ] Safari: Works correctly (if available)
+- [ ] Mobile Safari: Works correctly (iOS)
+
+**Result**: ✅ PASS / ❌ FAIL  
+**Issues Found**: [List any issues]  
+**Screenshots**: [Attach if needed]  
+**Time Taken**: [X minutes]
+```
+
+---
+
+#### Step 6: Production Validation (15-20 minutes)
+
+**Goal**: Validate in staging environment before production deploy.
+
+**Staging Validation Workflow**:
+
+1. **Deploy to Staging**:
+   ```bash
+   git push origin 004-centralized-theme-color
+   # Wait for staging deployment
+   ```
+
+2. **Smoke Test in Staging**:
+   - [ ] Open staging URL
+   - [ ] Navigate to refactored page
+   - [ ] Quick visual check (1-2 minutes)
+   - [ ] Test 1-2 critical interactions (button click, form submit)
+   - [ ] Check browser console (no errors)
+
+3. **Prepare Rollback Plan**:
+   ```bash
+   # Note current commit hash for rollback
+   git log -1  # Copy commit hash
+   
+   # Rollback command (if needed):
+   # git revert <commit-hash>
+   # git push origin 004-centralized-theme-color
+   ```
+
+4. **Production Deploy** (if staging passes):
+   - Follow standard production deployment process
+   - Monitor error logs for 10-15 minutes after deploy
+   - Have rollback ready if issues detected
+
+---
+
+#### Step 7: Commit & Document (10 minutes)
+
+**Goal**: Clear documentation for future reference and team coordination.
+
+**Commit Message Template**:
+```bash
+git add .
+git commit -m "refactor(dashboard): migrate to design token system
+
+SCOPE: Dashboard page (/dashboard)
+
+CHANGES:
+- Replaced 23 hardcoded color classes with semantic tokens
+- Replaced 15 hardcoded font size classes with typography tokens
+- Replaced 18 hardcoded spacing classes with spacing/grid tokens
+- Updated 3 modals to use design tokens
+- Refactored chart components to use chart color tokens
+
+TESTING:
+- Visual regression tests passed (Chromatic)
+- Manual QA checklist completed (all themes, states, breakpoints)
+- Staging validation completed
+- No functional regressions detected
+
+TOKENS USED:
+- Colors: bg-primary, bg-success, bg-warning, bg-error, text-foreground, text-muted
+- Typography: text-heading-1, text-heading-2, text-body, text-caption
+- Spacing: p-card-padding, space-y-form-gap, mt-section-margin
+- Shadows: shadow-card, shadow-modal
+- Radius: rounded-card, rounded-button
+
+BEFORE/AFTER:
+- Hardcoded values: 56 instances → 2 instances (96% reduction)
+- Themes tested: Light ✅, Dark ✅, System ✅
+- Breakpoints tested: 320px ✅, 768px ✅, 1024px ✅
+
+Closes #XXX"
+```
+
+**Changelog Entry** (in `specs/004-centralized-theme-color/changelog.md`):
+```markdown
+### 2025-01-28 - Dashboard Page Migration
+
+**Page**: `/dashboard`  
+**Time Taken**: 3.5 hours  
+**Complexity**: High
+
+**Decisions**:
+- Used semantic tokens (`bg-primary`) instead of numeric (`bg-teal-600`) for easier rebranding
+- Chart tooltips required custom Recharts token integration (see `useChartColors` hook)
+- Modal backdrop blur handled with theme-aware glassmorphism utility
+
+**Challenges**:
+- Recharts library needed custom color prop mapping (not straightforward)
+- Mobile spacing required responsive tokens (`p-mobile-md lg:p-desktop-lg`)
+
+**Lessons Learned**:
+- Always audit charts/data viz libraries BEFORE refactoring (special handling needed)
+- Responsive spacing tokens work well but need consistent naming convention
+- Storybook caught 3 visual regressions that manual testing missed
+
+**Stats**:
+- Hardcoded values reduced: 56 → 2 (96%)
+- QA time: 30 minutes (thorough)
+- Zero production issues
+```
+
+---
+
+### Page Migration Priority Order
+
+**Week 2: High-Traffic Pages First** (10-15 pages)
+
+**Priority 1 - Critical User Flows**:
+1. Dashboard (`/dashboard`) - Main landing page
+2. Lead Forms (`/instant-quote`, `/guest-quote-request`) - Revenue critical
+3. Homepage (`/`) - First impression
+4. Auth Pages (`/login`, `/register`) - Entry points
+
+**Priority 2 - Core Functionality**:
+5. Homeowner Dashboard (`/homeowner/dashboard`)
+6. Installer Dashboard (`/installer/dashboard`)
+7. Lead Details Page (`/leads/[id]`)
+8. Settings Page (`/settings`)
+
+**Priority 3 - Secondary Pages**:
+9. Profile Page (`/profile`)
+10. Notifications Page (`/notifications`)
+11. Help/Support Page (`/help`)
+
+---
+
+**Week 3: Secondary Pages + Modals** (15-20 pages)
+
+**Priority 4 - Admin/Management**:
+12. Admin Dashboard (`/admin/dashboard`)
+13. Admin Users Page (`/admin/users`)
+14. Admin Settings (`/admin/settings`)
+15. Reports Page (`/reports`)
+
+**Priority 5 - Critical Modals**:
+16. Lead Assignment Modal (used in dashboard)
+17. Confirmation Modals (delete, archive, etc.)
+18. Filter/Search Modals
+19. Image Upload Modals
+
+**Priority 6 - Additional Pages**:
+20-30. Remaining secondary pages
+
+---
+
+**Week 4: Edge Cases + Polish** (10-15 pages)
+
+**Priority 7 - Edge Cases**:
+31. Error Pages (404, 500)
+32. Loading States/Skeleton Screens
+33. Empty States
+34. Onboarding Flows
+
+**Priority 8 - Marketing Pages** (if applicable):
+35. Landing pages
+36. Pricing page
+37. About page
+38. Blog pages (if any)
+
+**Priority 9 - Final QA**:
+39. Full application regression testing
+40. Cross-browser testing
+41. Performance testing
+42. Accessibility audit
+
+---
+
+### Migration Tracking
+
+**Progress Dashboard** (update daily):
+
+```markdown
+# Design Token Migration Progress
+
+**Start Date**: 2025-01-28  
+**Target Completion**: 2025-02-18 (3 weeks)  
+**Current Status**: Week 2, Day 3
+
+## Overall Progress
+- **Pages Migrated**: 12 / 45 (27%)
+- **Hardcoded Values**: 450 → 215 (52% reduction)
+- **Visual Regressions**: 18 found, 18 fixed (0 outstanding)
+- **Production Issues**: 0
+
+## Week 2 Progress (10-15 pages)
+- [x] Dashboard (/dashboard) - ✅ Done (3.5h)
+- [x] Lead Forms (/instant-quote) - ✅ Done (2.5h)
+- [x] Homepage (/) - ✅ Done (4h)
+- [x] Login (/login) - ✅ Done (1.5h)
+- [x] Register (/register) - ✅ Done (2h)
+- [x] Homeowner Dashboard (/homeowner/dashboard) - ✅ Done (4h)
+- [x] Installer Dashboard (/installer/dashboard) - ✅ Done (3.5h)
+- [x] Lead Details (/leads/[id]) - ✅ Done (3h)
+- [x] Settings (/settings) - ✅ Done (2.5h)
+- [x] Profile (/profile) - ✅ Done (2h)
+- [ ] Notifications (/notifications) - 🔄 In Progress
+- [ ] Help/Support (/help) - ⏳ Not Started
+
+## Week 3 Plan (15-20 pages)
+- [ ] Admin Dashboard
+- [ ] Admin Users
+- [ ] Admin Settings
+- [ ] Reports
+- [ ] Modals (5-8 critical modals)
+- [ ] Secondary pages (5-10)
+
+## Week 4 Plan (10-15 pages)
+- [ ] Edge cases
+- [ ] Error pages
+- [ ] Marketing pages
+- [ ] Final QA
+
+## Blockers / Issues
+- None currently
+
+## Velocity
+- **Pages per day**: 2.2 avg (target: 2-3)
+- **Hours per page**: 2.8 avg (target: 2-4)
+- **On track**: ✅ Yes
+```
+
+---
+
+## 📋 SpecKit Three-Tier Update System
+
+**This spec integrates with the Just-In-Time Spec Updates workflow** (as defined in `.specify/memory/WORKFLOW-MANAGEMENT.md`):
+
+### Tier 1: Real-Time (tasks.md - 30 seconds)
+- **When**: Discover new task, complete task, encounter blocker
+- **Action**: Update `tasks.md` immediately with status change
+- **Example**: "Discovered: Tailwind config needs custom spacing scale for 8-point grid" → Add to tasks.md instantly
+
+### Tier 2: Daily (changelog.md - 2 minutes)
+- **When**: End of day (5pm)
+- **Action**: Log decisions, fixes, lessons learned in `changelog.md`
+- **Example**: 
+  ```markdown
+  ### 2025-01-28
+  - **Decision**: Use semantic tokens (e.g., `bg-primary`) instead of numeric (e.g., `bg-blue-600`) for better rebranding flexibility
+  - **Discovery**: Inter font already loaded in layout.tsx, no additional font setup needed
+  - **Challenge**: Storybook HMR not detecting token changes, requires manual refresh
+  ```
+
+### Tier 3: Weekly (spec.md + execution-plan.md - 30 minutes)
+- **When**: Friday 4pm weekly sync
+- **Action**: Batch update spec with new FRs/SCs discovered during implementation
+- **Example**: Add newly discovered edge cases, update success criteria based on real testing results
+
+**Benefit**: Maintains spec alignment with only 45 min/week overhead (vs 2+ hours daily updates)
+
+---
+
+## 📱 Mobile-First Standards Compliance
+
+**This feature enforces mobile-first design principles** (as defined in `DOC/INDUSTRY-STANDARD-GUIDELINES.md` Section 1.6):
+
+### Critical Mobile-First Rules
+
+1. **Design for Mobile FIRST** (320px-640px):
+   - Base font size: **14px on mobile** (not 16px - avoids "fonts too large" issue)
+   - Spacing: **50-75% of desktop spacing** (e.g., 12px mobile vs 24px desktop padding)
+   - Touch targets: **Minimum 44px × 44px** (WCAG 2.5.5 compliance)
+   - Cards: **Full-width or 2-column grid** (avoid 3+ columns causing tiny cards)
+
+2. **Progressive Enhancement for Desktop**:
+   - Desktop base font size: **16px** (standard)
+   - Desktop spacing: **Standard 8-point grid** (16px, 24px, 32px, etc.)
+   - Desktop layouts: **Multi-column grids, sidebars** (not on mobile)
+
+3. **Testing Protocol**:
+   - **ALWAYS test mobile first**: 320px (iPhone SE), 375px (iPhone 12/13), 414px (iPhone 14 Pro Max)
+   - Desktop testing: 1024px, 1440px, 1920px
+   - **No component approved until mobile testing complete**
+
+### Mobile-First Design Token Requirements
+
+**Typography Tokens (Mobile-First)**:
+```typescript
+// Base font sizes - MOBILE FIRST
+'text-xs': '12px',      // Captions, small labels
+'text-sm': '14px',      // Mobile body text (BASE SIZE)
+'text-base': '16px',    // Desktop body text
+'text-lg': '18px',      // Mobile headings (h3-h4)
+'text-xl': '20px',      // Mobile headings (h2)
+'text-2xl': '24px',     // Mobile headings (h1)
+// Larger sizes for desktop only
+```
+
+**Spacing Tokens (Mobile-First)**:
+```typescript
+// Mobile spacing scale (50-75% of desktop)
+'space-mobile-xs': '4px',
+'space-mobile-sm': '8px',
+'space-mobile-md': '12px',  // Mobile card padding
+'space-mobile-lg': '16px',
+
+// Desktop spacing scale (standard 8-point grid)
+'space-desktop-sm': '12px',
+'space-desktop-md': '16px',
+'space-desktop-lg': '24px',  // Desktop card padding
+'space-desktop-xl': '32px',
+```
+
+**Component Sizing (Mobile-First)**:
+- Buttons: **Full-width on mobile** (< 640px), **auto-width on desktop**
+- Cards: **Full-width on mobile**, **grid layout on desktop**
+- Modals: **Full-screen on mobile**, **centered overlay on desktop**
+- Tables: **Card layout on mobile**, **table layout on desktop**
+
+### Red Flags (Violations to Avoid)
+
+❌ **DON'T**:
+- Base font size > 14px on mobile (causes "fonts too large" issue)
+- Card padding > 16px on mobile (causes "too much white space")
+- 3+ column grids on mobile (causes "cards too small")
+- Desktop-first responsive classes (`lg:text-sm` - wrong direction)
+- Touch targets < 44px on mobile (WCAG violation)
+
+✅ **DO**:
+- Start with mobile classes: `text-sm md:text-base` (correct direction)
+- Mobile-first spacing: `p-mobile-md lg:p-desktop-lg`
+- Mobile-first layouts: `flex-col lg:flex-row`
+- Test mobile breakpoints FIRST, desktop SECOND
+- Use responsive token variants (mobile/tablet/desktop)
+
+---
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -1174,3 +1900,135 @@ npm run chromatic
 6. Repeat for next component
 
 **Result**: Predictable progress, zero surprises, professional quality.
+
+---
+
+## 📚 Document Version History
+
+### Version 2.1 (January 28, 2025) - REDESIGN CLARIFICATION
+
+**Major Updates**:
+- ✅ **CRITICAL**: Clarified this is a **REDESIGN/REFACTORING** project (not new site build)
+- ✅ Added comprehensive **Page-by-Page Migration Strategy** section (7-step workflow)
+- ✅ Added **Per-Page Audit Template** with hardcoded value tracking
+- ✅ Added **Token Mapping Template** for systematic replacements
+- ✅ Added **Migration Priority Order** (40-50 pages over 3 weeks)
+- ✅ Added **Migration Progress Tracking** dashboard template
+- ✅ Emphasized **Zero "Hope for the Best"** protocol throughout
+- ✅ Updated Phase 1 to include pre-migration audit
+- ✅ Updated Phase 3 with page-by-page approach (not bulk refactoring)
+
+**Key Philosophy**:
+- "Audit before touching, test after changing, validate before committing"
+- "One page at a time, never batch refactoring"
+- "Visual regression testing mandatory for every page"
+- "No functional changes, only design system improvements"
+
+### Version 2.0 (January 28, 2025) - WORKFLOW INTEGRATION
+
+**Major Updates**:
+- ✅ Integrated UI-First Workflow (Phase 0 from constitution.md)
+- ✅ Added SpecKit Three-Tier Update System integration
+- ✅ Added Mobile-First Standards Compliance section
+- ✅ Clarified approval gates and workflow rules
+- ✅ Updated status from "Draft" to "Ready for Implementation"
+- ✅ Added version history tracking
+
+**Alignment Completed**:
+- Constitution Phase 0 workflow → This spec Phase 1-2-3 workflow
+- WORKFLOW-MANAGEMENT.md three-tier system → SpecKit Updates section
+- INDUSTRY-STANDARD-GUIDELINES.md Section 1.6 → Mobile-First Standards section
+- Visual testing workflow → Implementation Workflow & Testing Strategy section
+
+### Version 1.0 (January 27, 2025) - EXPANDED SCOPE
+
+**Initial Specification**:
+- Comprehensive design token system covering colors, typography, spacing, shadows, animations
+- 10 user stories with acceptance scenarios
+- 65 functional requirements (FR-001 to FR-065)
+- 64 success criteria (SC-001 to SC-064)
+- Implementation workflow with Storybook and visual regression testing
+- Expanded from color-only scope to complete design system
+
+---
+
+## ✅ Pre-Implementation Checklist
+
+**Before starting Phase 1 (Token Creation + Sample Pages), verify**:
+
+### Understanding & Context
+- [ ] **CRITICAL**: Understand this is a REDESIGN (not new build) - existing 50+ pages must remain functional
+- [ ] This spec reviewed and approved by stakeholders
+- [ ] All audit documents reviewed (color, typography, spacing, shadow/animation)
+- [ ] Current application state documented (what pages exist, what's hardcoded where)
+- [ ] Mobile-first standards understood (14px base mobile, 50-75% spacing)
+- [ ] UI-first workflow understood (no backend until UI approved)
+- [ ] SpecKit three-tier update system understood (tasks → changelog → spec)
+
+### Technical Setup
+- [ ] Storybook setup plan understood
+- [ ] Visual regression testing tool selected (Chromatic/Percy/Loki)
+- [ ] Page-by-page migration strategy understood (7-step workflow)
+- [ ] Per-page audit template ready (`audits/[page-name]-audit.md`)
+- [ ] Token mapping template ready
+- [ ] Manual QA checklist template ready
+- [ ] Migration progress tracking dashboard setup
+
+### Team Readiness
+- [ ] Team trained on new workflow (20-minute onboarding)
+- [ ] Team understands "audit before touching" protocol
+- [ ] Team understands "one page at a time" rule (no batch refactoring)
+- [ ] Team understands visual regression testing is MANDATORY
+- [ ] Rollback procedures documented and understood
+
+### Environment
+- [ ] Development environment ready (Node.js, npm, VS Code)
+- [ ] Feature branch `004-centralized-theme-color` checked out
+- [ ] Staging environment available for validation
+- [ ] Production rollback plan documented
+
+**Estimated Total Time**: 
+- **Phase 1 (Token Files + Sample Pages)**: 40 hours (Week 1)
+  - Token file creation: 16 hours
+  - Storybook setup: 8 hours
+  - Sample page refactoring (2-3 pages): 12 hours
+  - Documentation: 4 hours
+- **Phase 2 (Spec Alignment)**: 1 hour (Before Week 2)
+- **Phase 3 (Page-by-Page Migration)**: 120 hours (Weeks 2-4)
+  - Week 2: 10-15 high-traffic pages (40 hours)
+  - Week 3: 15-20 secondary pages + modals (40 hours)
+  - Week 4: 10-15 edge cases + final QA (40 hours)
+- **Total**: 161 hours (~4 weeks at 40 hours/week)
+
+**Expected ROI**:
+- **Time Savings**: 96% reduction in rebranding time (4-6 hours → 5 minutes)
+- **Hardcoded Values**: 450+ instances → <10 instances (98% reduction)
+- **Industry Compliance**: 60% → 95%+ (professional-grade design system)
+- **Developer Productivity**: 50% faster component creation
+- **Business Value**: White-label capability, faster iterations, professional consistency
+- **Risk Mitigation**: Zero production issues via systematic testing approach
+
+**Success Metrics** (Track Weekly):
+- Pages migrated: X / 45 (target: 15 per week)
+- Hardcoded values reduced: 450 → X (target: 80-90% reduction)
+- Visual regressions: X found, X fixed (target: 0 outstanding)
+- Production issues: X (target: 0)
+- QA time per page: X minutes (target: 20-30 minutes)
+
+---
+
+## 📞 Support & Questions
+
+**Workflow Questions**: Review `.specify/memory/WORKFLOW-MANAGEMENT.md`  
+**Mobile Standards**: Review `DOC/INDUSTRY-STANDARD-GUIDELINES.md` Section 1.6  
+**Constitution Principles**: Review `.specify/memory/constitution.md` Phase 0  
+**Quick Reference**: Review `.specify/memory/QUICK-REFERENCE.md`
+
+**Spec Owner**: Development Team  
+**Last Reviewed**: January 28, 2025  
+**Next Review**: Weekly (Friday 4pm) during implementation
+
+---
+
+**Document Status**: ✅ FINALIZED - Ready for Phase 1 Implementation
+
