@@ -17,6 +17,7 @@
    - 1.3 [Page & Routing Architecture Standards (Next.js)](#13-page--routing-architecture-standards-nextjs)
    - 1.4 [Component Architecture](#14-component-architecture)
    - 1.5 [Visual Testing Standards](#15-visual-testing-standards)
+   - 1.6 [UI-First Development Workflow (CRITICAL)](#16-ui-first-development-workflow-critical)
 2. [Frontend Architecture Standards](#2-frontend-architecture-standards)
 3. [Backend Architecture Standards](#3-backend-architecture-standards)
 4. [API Design Standards](#4-api-design-standards)
@@ -30,6 +31,7 @@
 12. [DevOps & Deployment Standards](#12-devops--deployment-standards)
 13. [Code Quality Standards](#13-code-quality-standards)
 14. [Project Management Standards](#14-project-management-standards)
+15. [SpecKit Workflow Standards](#15-speckit-workflow-standards)
 
 ---
 
@@ -521,6 +523,223 @@ For EVERY component:
 - [ ] Responsive at mobile (< 640px), tablet (640-1024px), desktop (> 1024px)
 - [ ] Accessibility: Color contrast, keyboard navigation, screen reader support
 - [ ] No console errors or warnings
+
+### 1.6 UI-First Development Workflow (CRITICAL)
+
+**Industry Standard**: Design → Build → Test → Deploy (Waterfall approach is outdated)
+
+**Modern Standard**: UI-First Iterative Development (inspired by Agile, Lean UX, Design Thinking)
+
+#### Why UI-First?
+
+**Industry Reality**:
+- **85% of project changes** happen during implementation (not planning)
+- **UI is the contract** between user and system (backend serves UI, not vice versa)
+- **Faster feedback loops** when UI is built first (see it, test it, iterate)
+- **Reduced rework** when backend is built to match approved UI
+
+**Problem with Backend-First**:
+```
+❌ Plan → Build Backend → Build UI → "UI doesn't work as planned" → Rebuild Backend
+Time wasted: 40-60% (backend built for wrong requirements)
+```
+
+**Solution with UI-First**:
+```
+✅ Plan → Build UI → Iterate UI → Approve UI → Build Backend to serve approved UI
+Time saved: 40-60% (backend built once, for correct requirements)
+```
+
+#### Three-Phase Workflow
+
+##### Phase 1: UI/UX First (Build & Iterate)
+
+**Goal**: Create pixel-perfect, approved UI mockup before touching backend
+
+**Process**:
+1. **Research** UI patterns (5-15% of phase time)
+   - Study similar features in competitor apps
+   - Review component libraries (shadcn/ui, Radix, Material-UI)
+   - Check design inspiration (Dribbble, Behance, Mobbin)
+
+2. **Design** UI mockup (20-30% of phase time)
+   - Build in isolation (Storybook, standalone page, or Figma)
+   - Use mock data (hardcoded JSON, faker.js)
+   - Include all states (loading, error, empty, success)
+   - Test all user interactions (click, hover, form submission)
+
+3. **Review** with stakeholder (5-10% of phase time)
+   - Demo UI with mock data
+   - Get feedback on: layout, colors, spacing, interactions
+   - Document requested changes
+
+4. **Iterate** based on feedback (30-50% of phase time)
+   - Make UI changes WITHOUT backend work
+   - Re-demo until approved
+   - Iterate as many times as needed
+
+**Tools**:
+- **Storybook**: Isolated component development
+- **Figma**: Design mockups (optional, can skip and go straight to code)
+- **Mock Data**: JSON files, faker.js, MSW (Mock Service Worker)
+
+**Output**:
+- ✅ Approved UI mockup with all interactions working (using mock data)
+- ✅ Clear API contract (what data the UI needs from backend)
+- ✅ Updated specs (based on UI approval)
+
+**APPROVAL GATE**: No backend work until UI is explicitly approved
+
+##### Phase 2: Spec Alignment (Document Changes)
+
+**Goal**: Update all SpecKit files to reflect approved UI before backend work
+
+**Process**:
+1. **Review UI Changes** (10 minutes)
+   - What changed from original plan?
+   - What new requirements emerged?
+   - What edge cases were discovered?
+
+2. **Update spec.md** (15 minutes)
+   - Add new functional requirements (FR-XXX)
+   - Add success criteria based on approved UI
+   - Document edge cases discovered during UI work
+
+3. **Update tasks.md** (5 minutes)
+   - Mark UI tasks complete
+   - Add backend tasks (based on API contract from UI)
+   - Estimate backend work
+
+4. **Update execution-plan.md** (10 minutes)
+   - Update phase timeline (if UI took longer/shorter)
+   - Add discovered tasks to scope
+   - Update next phase dependencies
+
+**Output**:
+- ✅ spec.md reflects approved UI requirements
+- ✅ tasks.md has all backend tasks listed
+- ✅ execution-plan.md updated with accurate timeline
+
+**APPROVAL GATE**: No backend work until specs are updated
+
+##### Phase 3: Backend Implementation (Build to Spec)
+
+**Goal**: Implement backend to serve the approved UI (backend is servant, UI is master)
+
+**Process**:
+1. **API Design** (10-15% of phase time)
+   - Design API endpoints based on UI data needs
+   - Define request/response schemas (TypeScript interfaces)
+   - Plan database schema changes (Prisma)
+
+2. **Backend Implementation** (60-70% of phase time)
+   - Implement API endpoints
+   - Add database models/migrations
+   - Add validation, error handling, security
+
+3. **Integration** (15-20% of phase time)
+   - Replace mock data with real API calls
+   - Test all UI interactions with real data
+   - Fix any integration issues
+
+4. **Testing** (10-15% of phase time)
+   - Test all user scenarios from spec
+   - Test edge cases
+   - Test error states
+
+**Output**:
+- ✅ Working feature (UI + backend integrated)
+- ✅ All success criteria met
+- ✅ Tests passing
+
+**Rule**: If backend changes require UI changes, **return to Phase 1** (don't hack the UI to fit backend)
+
+#### Workflow Red Flags 🚨
+
+**STOP immediately if you see**:
+
+1. **Backend-First**: Building API before UI is designed/approved
+2. **No UI Approval**: Starting backend without explicit UI approval
+3. **Stale Specs**: Building backend without updating spec.md first
+4. **UI Hack**: Modifying approved UI to fit backend constraints (should be reverse)
+5. **Skipping Iteration**: Building UI once, not iterating based on feedback
+6. **No Mock Data**: Building backend before UI can be tested with mocks
+7. **Combined Work**: Building UI + backend simultaneously (lose UI-first benefits)
+8. **No Approval Gate**: Moving to Phase 2 or 3 without stakeholder approval
+
+#### Benefits of UI-First Workflow
+
+**For Developer**:
+- Clear requirements (approved UI shows exactly what to build)
+- Less rework (backend built once, for correct requirements)
+- Faster feedback (see UI immediately, not after backend work)
+- Better planning (know exact API needs from UI)
+
+**For Stakeholder**:
+- See progress early (UI mockup shows feature visually)
+- Provide feedback when it's cheap (before backend built)
+- Less "that's not what I wanted" (approve UI before backend)
+- Faster iterations (UI changes are faster than backend changes)
+
+**For Project**:
+- 40-60% time savings (less backend rework)
+- Higher quality (UI iterated until perfect)
+- Better UX (UI designed with user in mind, not backend constraints)
+- Clear progress (UI completion is visible milestone)
+
+#### Example: Real-World UI-First Flow
+
+**Feature**: User Profile Enhancement
+
+**Phase 1: UI First (Week 1 - 16 hours)**
+- Research: 2h (study competitor profile pages)
+- Design: 6h (build profile UI in Storybook with mock data)
+- Review: 1h (demo to stakeholder)
+- Iterate: 5h (fix spacing, add profile header, improve mobile layout)
+- Re-review: 1h (get approval)
+- Update specs: 1h (add FR-067 to FR-070 based on UI)
+
+**Output**: Approved profile UI working with mock data ✅
+
+**Phase 2: Spec Alignment (30 minutes)**
+- Update spec.md: 15 min (add requirements from approved UI)
+- Update tasks.md: 10 min (list backend tasks)
+- Update execution-plan.md: 5 min (adjust timeline)
+
+**Output**: Specs aligned with approved UI ✅
+
+**Phase 3: Backend (Week 2 - 12 hours)**
+- API design: 2h (design GET/PATCH /api/profile endpoints)
+- Implementation: 6h (build API, database, validation)
+- Integration: 3h (connect UI to real API, replace mocks)
+- Testing: 1h (test all scenarios)
+
+**Output**: Working profile feature ✅
+
+**Total Time**: 28.5 hours (16h UI + 0.5h specs + 12h backend)
+
+**Compare to Backend-First**:
+- Backend first: 12h (built for wrong requirements)
+- UI built: 16h (doesn't match backend)
+- Backend rebuilt: 8h (fix to match UI)
+- **Total**: 36 hours (27% MORE time wasted)
+
+#### Integration with SpecKit Workflow
+
+**Real-Time Updates** (during UI/Backend work):
+- Update `tasks.md` as you complete/discover tasks
+- Document decisions in code comments
+
+**Daily Updates** (end of each work session):
+- Update `changelog.md` with what changed and why
+- Note any discovered requirements or edge cases
+
+**Weekly Sync** (end of week):
+- Batch update `spec.md` with new requirements
+- Update `execution-plan.md` with timeline adjustments
+- Commit all changes together
+
+**See**: `.specify/memory/WORKFLOW-MANAGEMENT.md` for detailed SpecKit workflow
 
 ---
 
@@ -2193,6 +2412,533 @@ These guidelines represent **professional industry standards** distilled from:
 
 ---
 
+## 15. SpecKit Workflow Standards
+
+**Industry Standard**: Spec-Driven Development (inspired by Test-Driven Development, Behavior-Driven Development)
+
+### 15.1 Why Spec-Driven Development?
+
+**Problem**: Traditional development approaches fail when requirements change
+
+**Traditional Waterfall** (Plan → Build → Test → Deploy):
+- ❌ Plans created upfront become outdated immediately
+- ❌ No mechanism to handle discovered requirements
+- ❌ Documentation written after implementation (if at all)
+- ❌ Specs don't reflect reality
+
+**Agile Without Specs** (Just build, iterate):
+- ❌ No clear definition of "done"
+- ❌ Scope creep impossible to track
+- ❌ Hard to resume after breaks
+- ❌ No history of why decisions were made
+
+**Spec-Driven Development** (Spec → Build → Update Spec → Iterate):
+- ✅ Specs define success criteria before building
+- ✅ Specs updated as requirements change
+- ✅ Clear history of decisions and changes
+- ✅ Easy to resume, review, and hand off
+
+### 15.2 The Three-Tier Update System
+
+**Reality**: Plans change constantly during development
+
+**Solution**: Three-tier update frequency (Real-time, Daily, Weekly)
+
+#### Tier 1: Real-Time Updates (30 seconds per event)
+
+**When**: Every task completion, discovery, or status change
+
+**Update**: `tasks.md` ONLY
+
+**Format**:
+```markdown
+## Phase X.X: Feature Name
+
+### In Progress
+- [ ] TX01: Task name (Status: In Progress)
+
+### Completed
+- [x] TX00: Previous task (2h) - Oct 28, 2025
+
+### Discovered Tasks (Added On-The-Go)
+- [ ] TX02: New task discovered during TX01 (Status: TODO) - Discovered Oct 28
+  - Context: Why this task was needed
+  - Impact: How it affects timeline
+```
+
+**Why This Works**:
+- You're already doing this ✅
+- Fast (30 seconds)
+- Single source of truth for current work
+
+#### Tier 2: Daily Updates (2 minutes at end of day)
+
+**When**: End of each work session
+
+**Update**: `changelog.md`
+
+**Format**:
+```markdown
+## [Date]
+
+### Added
+- [Task ID]: [Description] - [Why added]
+
+### Changed  
+- [Task ID]: [What changed] - [Why changed]
+
+### Fixed
+- [Task ID]: [Error description]
+  - Root cause: [Why it happened]
+  - Solution: [How you fixed it]
+  - Time: [Hours spent]
+
+### Lessons Learned
+- [What you learned that will improve future work]
+```
+
+**Why This Works**:
+- Captures "why" decisions were made
+- Documents discovered issues
+- Takes only 2 minutes
+- Provides context for future you
+
+#### Tier 3: Weekly Sync (30 minutes on Friday 4pm)
+
+**When**: End of week or before major milestone
+
+**Update**: `spec.md` + `execution-plan.md`
+
+**Process**:
+
+1. **Review Week** (5 min):
+   ```bash
+   grep "\[x\]" tasks.md | tail -20  # Completed tasks
+   grep "Discovered" tasks.md        # New tasks
+   cat changelog.md | head -100      # Context
+   ```
+
+2. **Update spec.md** (15 min):
+   - Add new functional requirements (FR-XXX) from discovered tasks
+   - Mark completed success criteria (SC-XXX ✅ Date)
+   - Add edge cases from errors fixed
+
+3. **Update execution-plan.md** (10 min):
+   - Update phase status (% complete)
+   - Adjust timeline if needed
+   - Document scope changes
+   - Note lessons learned
+
+**Why This Works**:
+- Batch updates save time (30 min once vs 5 min daily)
+- Specs stay aligned without daily overhead
+- Clear history of what changed and why
+
+### 15.3 SpecKit File Responsibilities
+
+#### tasks.md - Master Todo List
+**Update Frequency**: Real-time (every task change)  
+**Owner**: Developer  
+**Purpose**: Track current work, discovered tasks, blockers
+
+**What Goes Here**:
+```markdown
+## Phase X.X: Feature Name
+
+### Original Tasks
+- [x] TX01: Task 1 (2h estimated → 3h actual) - DONE
+- [ ] TX02: Task 2 (Status: IN PROGRESS)
+- [ ] TX03: Task 3 (Status: BLOCKED by TX02)
+
+### Discovered During Implementation
+- [x] TX04: Fix error X (1h) - DONE - Discovered Oct 28
+- [ ] TX05: Add validation Y - Discovered during code review
+
+### Blocked Tasks
+- [ ] TX06: Feature Z (Blocked: waiting for API key)
+```
+
+#### changelog.md - Decision Log
+**Update Frequency**: Daily (end of work session)  
+**Owner**: Developer  
+**Purpose**: Capture decisions, fixes, lessons learned
+
+**What Goes Here**:
+```markdown
+## October 28, 2025
+
+### Added
+- TX04: Profile image upload error fix
+  - Discovered during testing with large files
+  - Impact: Extends phase by 2 hours
+  
+### Changed
+- TX02: UI mockup approach
+  - Originally planned modal, switched to full-page
+  - Reason: Better mobile UX
+  - Approved by stakeholder Oct 28
+
+### Fixed
+- TX04: Image upload fails > 2MB
+  - Root cause: No compression before upload
+  - Solution: Added sharp.js compression
+  - Lesson: Always test with large files
+
+### Lessons Learned
+- Mobile-first design needs 25% time buffer
+- User feedback during UI review catches issues early
+```
+
+#### spec.md - Feature Contract
+**Update Frequency**: Weekly (batch sync)  
+**Owner**: Developer + Stakeholders  
+**Purpose**: Define what feature should do
+
+**What Goes Here**:
+```markdown
+### Functional Requirements
+
+- FR-001: System MUST do X (Original)
+- FR-002: System MUST validate Y (Added: TX05 - Oct 28)
+
+### Success Criteria
+
+- SC-001: Feature works correctly ✅ Oct 28 (TX01)
+- SC-002: Mobile responsive ✅ Oct 28 (TX02)
+- SC-003: Error handling (Added: TX04 - Oct 28)
+
+### Edge Cases (Updated Oct 28)
+
+- Upload fails > 2MB → Compress to 2MB (TX04)
+- No avatar → Show default avatar (TX06)
+```
+
+#### execution-plan.md - Project Timeline
+**Update Frequency**: Weekly (batch sync)  
+**Owner**: Developer  
+**Purpose**: Track phases, timelines, progress
+
+**What Goes Here**:
+```markdown
+## Phase 4.14: User Profile Enhancement
+
+**Status**: 85% Complete  
+**Timeline**: Oct 25-30 (originally Oct 25-29, extended 1 day)  
+**Tasks**: 12/14 complete (10 original + 4 discovered)
+
+**Scope Changes**:
+- Added TX04-TX07 (error fixes + enhancements)
+- Mobile UI took longer than estimated (+4h)
+
+**Blockers**: None (TX06 resolved Oct 28)
+
+**Lessons Learned**:
+- Mobile-first needs 25% buffer
+- Always test edge cases early
+
+**Next**: Phase 4.15 starts Oct 31
+```
+
+### 15.4 Integration with UI-First Workflow
+
+#### Phase 1: UI/UX First
+
+**Real-Time** (during UI work):
+```markdown
+# tasks.md
+### UI/UX Tasks (DO FIRST)
+- [x] TX01: Research UI patterns (2h) - DONE
+- [x] TX02: Build UI mockup (4h → 6h) - DONE (took longer)
+- [x] TX03: Review with stakeholder (1h) - APPROVED Oct 28
+- [ ] TX04: Iterate UI based on feedback (IN PROGRESS)
+
+### Discovered During UI Work
+- [ ] TX05: Add mobile profile header (2h) - User feedback
+```
+
+**Daily** (end of UI session):
+```markdown
+# changelog.md
+## October 28, 2025
+
+### Changed
+- TX02: UI mockup took longer (4h → 6h)
+  - Reason: Mobile-first responsive design complexity
+  - Added responsive header, bottom navigation
+  
+### Added
+- TX05: Mobile profile header
+  - Discovered during stakeholder review
+  - Needed for app-like mobile experience
+```
+
+**Weekly** (after UI approved):
+```markdown
+# spec.md
+### Success Criteria
+- SC-045: Profile UI mobile-responsive ✅ Oct 28 (TX02)
+- SC-046: Bottom navigation on mobile ✅ Oct 28 (TX05)
+
+# execution-plan.md
+## Phase 4.14: User Profile - UI Complete
+**UI Status**: 100% complete, approved Oct 28
+**Backend Status**: Not started (waiting for spec update)
+**Timeline**: UI took 1 day longer than planned
+```
+
+#### Phase 2: Spec Alignment
+
+**Before Backend** (30 min):
+```markdown
+# spec.md - Update based on approved UI
+### Functional Requirements (Added from UI)
+- FR-067: Mobile bottom navigation MUST be thumb-friendly
+- FR-068: Profile header MUST show avatar, name, edit button
+
+### Success Criteria (From UI approval)
+- SC-045: Profile UI mobile-responsive (320px, 375px, 414px) ✅
+- SC-046: Bottom nav visible on mobile, hidden on desktop ✅
+```
+
+#### Phase 3: Backend Implementation
+
+**Real-Time** (during backend work):
+```markdown
+# tasks.md
+### Backend Tasks
+- [x] TX06: Design API endpoints (2h) - DONE
+- [ ] TX07: Implement GET /api/profile (3h) - IN PROGRESS
+- [ ] TX08: Implement PATCH /api/profile (2h) - TODO
+
+### Discovered During Backend
+- [ ] TX09: Add image compression middleware (1h) - Discovered Oct 29
+```
+
+**Daily** (end of backend session):
+```markdown
+# changelog.md
+## October 29, 2025
+
+### Added
+- TX09: Image compression middleware
+  - Discovered: Large images caused slow uploads
+  - Solution: sharp.js compression before S3 upload
+  
+### Fixed
+- TX07: Profile update returned old data
+  - Root cause: Missing Prisma select statement
+  - Solution: Added explicit field selection
+```
+
+**Weekly** (after backend complete):
+```markdown
+# spec.md
+### Edge Cases (Updated Oct 29)
+- Image upload > 2MB → Compress to 2MB (TX09)
+
+# execution-plan.md
+## Phase 4.14: User Profile - Complete
+**Status**: 100% complete
+**Timeline**: Oct 25-30 (5 days, originally 4 days)
+**Actual Time**: 32h (estimated 28h, +14% variance)
+**Tasks**: 14/14 complete (10 original + 4 discovered)
+```
+
+### 15.5 Handling Common Scenarios
+
+#### Scenario 1: Discovered Task During Implementation
+
+**When Discovered**:
+```markdown
+# tasks.md (Real-time - 30 sec)
+### Discovered Tasks
+- [ ] TX10: Add email validation to profile form (Status: TODO) - Oct 29, 2pm
+  - Context: User testing revealed invalid emails accepted
+  - Impact: Blocks release (data quality issue)
+  - Priority: P0
+```
+
+**End of Day**:
+```markdown
+# changelog.md (Daily - 2 min)
+## October 29, 2025
+
+### Added
+- TX10: Email validation for profile form
+  - Discovered during user testing
+  - Impact: Extends timeline by 1 hour
+  - Decision: Add validation now vs later (data quality critical)
+```
+
+**End of Week**:
+```markdown
+# spec.md (Weekly - 5 min)
+### Functional Requirements
+- FR-069: System MUST validate email format before saving profile (Added: TX10 - Oct 29)
+
+### Success Criteria
+- SC-047: Invalid emails rejected with clear error message ✅ Oct 29 (TX10)
+
+# execution-plan.md (Weekly - 5 min)
+**Scope Changes**: Added TX10 (email validation, 1h)
+**Timeline**: Extended by 1h due to discovered requirement
+```
+
+#### Scenario 2: Error Fix Adds Unplanned Work
+
+**When Error Discovered**:
+```markdown
+# tasks.md (Real-time - 30 sec)
+### Discovered Tasks  
+- [ ] TX11: Fix profile crash when avatar is null (Status: BLOCKER) - Oct 29, 4pm
+  - Error: "Cannot read property 'url' of null"
+  - Impact: Blocks all users without avatars
+  - Priority: P0 (critical bug)
+```
+
+**End of Day**:
+```markdown
+# changelog.md (Daily - 2 min)
+## October 29, 2025
+
+### Fixed
+- TX11: Profile crash when avatar is null
+  - Root cause: Avatar component didn't handle null values
+  - Solution: Added null check + default avatar fallback
+  - Lesson: Always test edge cases (null, undefined, empty)
+  - Time: 1h (unplanned)
+```
+
+**End of Week**:
+```markdown
+# spec.md (Weekly - 5 min)
+### Edge Cases (Updated Oct 29)
+- User has no avatar → Display default avatar (TX11)
+- Avatar URL is invalid → Display default avatar + log error
+
+### Functional Requirements
+- FR-070: System MUST display default avatar when user avatar is null (Added: TX11 - Oct 29)
+
+# execution-plan.md (Weekly - 5 min)
+**Unplanned Work**: TX11 (profile crash fix, 1h)
+**Lessons Learned**: Always test null/undefined edge cases
+```
+
+#### Scenario 3: Adding New Phase Mid-Implementation
+
+**When Decision Made**:
+```markdown
+# tasks.md (Real-time - 1 min)
+## Discovered Future Work
+
+### Phase 4.14.5: Profile Notifications (NEW - Oct 29)
+Priority: P1 (required before launch)
+Context: User testing revealed need for update notifications
+
+- [ ] TX12: Design notification UI
+- [ ] TX13: Implement email notifications  
+- [ ] TX14: Add in-app notification bell
+Estimated: 8h
+Impact: Extends Phase 4.14 by 1 week
+```
+
+**End of Day**:
+```markdown
+# changelog.md (Daily - 2 min)
+## October 29, 2025
+
+### Added
+- Phase 4.14.5: Profile Notifications (NEW)
+  - Reason: User testing revealed need for notifications
+  - Impact: Extends timeline by 1 week
+  - Decision: Add now vs later (user feedback priority)
+  - Stakeholder: Approved by Product Manager Oct 29
+```
+
+**End of Week**:
+```markdown
+# execution-plan.md (Weekly - 10 min)
+## Execution Timeline (Updated Oct 29)
+
+- ✅ Phase 4.14: User Profile (Oct 25-30)
+- 🆕 Phase 4.14.5: Profile Notifications (Oct 31 - Nov 3) **NEW**
+  - Reason: User testing feedback
+  - Tasks: TX12-TX14 (8h)
+  - Priority: P1 (required for launch)
+- ⏸️ Phase 4.15: Settings Page (Nov 4-10) **DELAYED by 4 days**
+```
+
+### 15.6 Quick Reference: When to Update What
+
+| Trigger | Real-Time (30s) | Daily (2m) | Weekly (30m) |
+|---------|-----------------|------------|--------------|
+| Complete task | ✅ tasks.md | - | - |
+| Discover task | ✅ tasks.md | ✅ changelog.md | ✅ spec.md |
+| Fix error | ✅ tasks.md | ✅ changelog.md | ✅ spec.md |
+| Change UI | ✅ tasks.md | ✅ changelog.md | - |
+| Add phase | ✅ tasks.md | ✅ changelog.md | ✅ execution-plan.md |
+| Extend timeline | ✅ tasks.md | ✅ changelog.md | ✅ execution-plan.md |
+| Major scope change | ✅ tasks.md | ✅ changelog.md | ✅ spec.md + execution-plan.md |
+
+### 15.7 Weekly Sync Routine (Friday 4pm - 30 minutes)
+
+**Step 1: Review Week** (5 min)
+```bash
+# Check completed tasks
+grep "\[x\]" tasks.md | grep "Oct 2[1-8]"
+
+# Check discovered tasks  
+grep "Discovered" tasks.md
+
+# Read context
+cat changelog.md | head -100
+```
+
+**Step 2: Update spec.md** (15 min)
+- Add new FR from discovered tasks
+- Mark completed SC with ✅ and date
+- Add edge cases from error fixes
+
+**Step 3: Update execution-plan.md** (10 min)
+- Update phase status (% complete)
+- Document scope changes
+- Adjust timeline if needed
+- Note lessons learned
+
+**Step 4: Commit & Push**
+```bash
+git add tasks.md changelog.md spec.md execution-plan.md
+git commit -m "Weekly spec sync: Phase X.X progress + TX##-TX##"
+git push
+```
+
+### 15.8 Benefits of This System
+
+**Low Overhead**:
+- Real-time: 30 sec per task
+- Daily: 2 minutes
+- Weekly: 30 minutes
+- **Total weekly time**: ~45 min (vs 2+ hours for daily spec updates)
+
+**Captures Reality**:
+- Plans change → Specs updated to match
+- Errors happen → Documented and learned from
+- Scope creeps → Tracked and managed
+
+**Maintains Alignment**:
+- tasks.md = Current work
+- changelog.md = Why things changed
+- spec.md = What feature should do
+- execution-plan.md = Where you're going
+
+**Easy Resume After Breaks**:
+- Read tasks.md → Current status
+- Read changelog.md → Recent context
+- Read spec.md → Feature goals
+- Read execution-plan.md → Big picture
+
+---
+
 **Document Version**: 1.0  
-**Last Updated**: January 27, 2025  
+**Last Updated**: October 28, 2025  
 **Review Schedule**: Quarterly updates recommended

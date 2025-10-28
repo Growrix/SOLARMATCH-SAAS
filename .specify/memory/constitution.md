@@ -5,6 +5,32 @@
 
 ## Core Principles
 
+### 0. Development Workflow (UI-First, Spec-Driven)
+
+**Phase 1: UI/UX First - MANDATORY**
+- ALL features MUST start with UI/UX implementation
+- Build complete UI mockup in isolation (Storybook or page preview)
+- No backend work until UI is reviewed and approved
+- Iterate on UI based on feedback WITHOUT touching backend
+- **Approval Gate**: Developer confirms UI/UX meets requirements before proceeding
+
+**Phase 2: Spec Alignment - MANDATORY**
+- Update ALL SpecKit files BEFORE backend implementation:
+  - `spec.md`: Update functional requirements, success criteria
+  - `tasks.md`: Update task status, add new tasks as discovered
+  - `execution-plan.md`: Update phase status, timelines
+  - `changelog.md`: Document what changed and why
+- Every UI change triggers spec update (no exceptions)
+- Every error fix triggers spec update (document lesson learned)
+- Every new task discovered triggers spec update (add to tasks.md + spec.md)
+
+**Phase 3: Backend Implementation - After UI Approval**
+- Implement backend only after UI approved and specs updated
+- Use approved UI as contract for API requirements
+- Backend changes that affect UI require returning to Phase 1
+
+**Workflow Rule**: UI → Spec Update → Backend → Never Backend First
+
 ### I. Next.js App Router First
 **All features must use Next.js 14+ App Router architecture**
 - Server Components by default (use 'use client' only when necessary)
