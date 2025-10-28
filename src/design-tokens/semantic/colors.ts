@@ -68,50 +68,62 @@ export const colors = {
     DEFAULT: primitives.blue[600],
   } as ThemeColor,
   
-  // Background colors
+  // Background colors (CUSTOM USER THEME)
   background: {
-    light: primitives.white,
-    dark: primitives.gray[900],
-    DEFAULT: primitives.white,
+    light: primitives.custom.lightBg,        // #f9fafb
+    dark: primitives.custom.darkBg,          // #101010
+    DEFAULT: primitives.custom.lightBg,
   } as ThemeColor,
   'background-alt': {
-    light: primitives.gray[50],
-    dark: primitives.gray[800],
-    DEFAULT: primitives.gray[50],
+    light: primitives.custom.lightBgSecondary, // #ffffff
+    dark: primitives.custom.darkBgSecondary,   // #1A1A1A
+    DEFAULT: primitives.custom.lightBgSecondary,
   } as ThemeColor,
   surface: {
-    light: primitives.white,
-    dark: primitives.gray[800],
-    DEFAULT: primitives.white,
+    light: primitives.custom.lightBgSecondary, // #ffffff
+    dark: primitives.custom.darkBgSecondary,   // #1A1A1A
+    DEFAULT: primitives.custom.lightBgSecondary,
   } as ThemeColor,
   
-  // Text colors
+  // Text colors (CUSTOM USER THEME)
   foreground: {
-    light: primitives.gray[900],
-    dark: primitives.gray[50],
-    DEFAULT: primitives.gray[900],
+    light: primitives.custom.lightText,      // #111827
+    dark: primitives.custom.darkText,        // #F5F5F5
+    DEFAULT: primitives.custom.lightText,
   } as ThemeColor,
   muted: {
-    light: primitives.gray[600],
-    dark: primitives.gray[400],
-    DEFAULT: primitives.gray[600],
+    light: primitives.custom.lightText,      // #111827 (same as primary per user spec)
+    dark: primitives.custom.darkText,        // #F5F5F5 (same as primary per user spec)
+    DEFAULT: primitives.custom.lightText,
   } as ThemeColor,
   subtle: {
-    light: primitives.gray[500],
-    dark: primitives.gray[500],
-    DEFAULT: primitives.gray[500],
+    light: primitives.custom.lightTextSubtle, // #6b7280
+    dark: primitives.custom.darkTextSubtle,   // #A0A0A0
+    DEFAULT: primitives.custom.lightTextSubtle,
   } as ThemeColor,
   
-  // Border colors
+  // Border colors (CUSTOM USER THEME)
   border: {
-    light: primitives.gray[300],
-    dark: primitives.gray[700],
-    DEFAULT: primitives.gray[300],
+    light: primitives.custom.lightBorder,    // #e5e7eb
+    dark: primitives.custom.darkBorder,      // #2C2C2C
+    DEFAULT: primitives.custom.lightBorder,
   } as ThemeColor,
   'border-focus': {
     light: primitives.teal[500],
     dark: primitives.teal[400],
     DEFAULT: primitives.teal[500],
+  } as ThemeColor,
+  
+  // Accent colors (CUSTOM USER THEME) - Orange accent for CTAs and highlights
+  accent: {
+    light: primitives.custom.accent,         // #FF6B00 (vibrant orange)
+    dark: primitives.custom.accent,          // #FF6B00 (same in both themes)
+    DEFAULT: primitives.custom.accent,
+  } as ThemeColor,
+  'accent-hover': {
+    light: primitives.custom.accentHover,    // #FF8533 (lighter orange on hover)
+    dark: primitives.custom.accentHover,     // #FF8533 (same in both themes)
+    DEFAULT: primitives.custom.accentHover,
   } as ThemeColor,
   
   // Chart colors (for Recharts integration)

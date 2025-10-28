@@ -28,6 +28,27 @@ export const primitives = {
     950: '#030712',
   },
   
+  // Custom theme colors (user-specified)
+  custom: {
+    // Dark theme specific
+    darkBg: '#101010',          // Primary background (dark)
+    darkBgSecondary: '#1A1A1A', // Secondary background (dark)
+    darkBorder: '#2C2C2C',      // Border (dark)
+    darkText: '#F5F5F5',        // Primary/Secondary text (dark)
+    darkTextSubtle: '#A0A0A0',  // Subtle text (dark)
+    
+    // Light theme specific  
+    lightBg: '#f9fafb',         // Primary background (light)
+    lightBgSecondary: '#ffffff', // Secondary background (light)
+    lightBorder: '#e5e7eb',     // Border (light)
+    lightText: '#111827',       // Primary/Secondary text (light)
+    lightTextSubtle: '#6b7280', // Subtle text (light)
+    
+    // Accent colors (both themes)
+    accent: '#FF6B00',          // Accent color
+    accentHover: '#FF8533',     // Accent hover state
+  },
+  
   // Brand colors (Teal - primary)
   teal: {
     50: '#f0fdfa',
