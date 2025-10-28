@@ -15,6 +15,7 @@ import {
   AreaChart,
   Area
 } from 'recharts';
+import { useChartColors } from '@/hooks/useChartColors';
 
 // --- Icon Components ---
 const LineChartIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 mr-2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>;
@@ -51,6 +52,9 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 const SavingsChart: React.FC<SavingsChartProps> = ({ finalPrice, annualSavings, currentAnnualBill }) => {
   const [activeTab, setActiveTab] = useState<'roi' | 'annual'>('roi');
+  
+  // Get theme-aware chart colors from design tokens
+  const chartColors = useChartColors();
 
   const { roiData, annualData, breakEvenYear } = useMemo(() => {
     // Annual savings is now passed directly from the more detailed calculation
@@ -111,18 +115,18 @@ const SavingsChart: React.FC<SavingsChartProps> = ({ finalPrice, annualSavings, 
               <AreaChart data={roiData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
                 <defs>
                     <linearGradient id="colorSavings" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                        <stop offset="5%" stopColor={chartColors.success} stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor={chartColors.success} stopOpacity={0}/>
                     </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(100, 116, 139, 0.2)" />
-                <XAxis dataKey="year" tick={{ fill: 'currentColor', fontSize: 12 }} className="text-slate-600 dark:text-slate-400" />
-                <YAxis tickFormatter={formatCurrency} tick={{ fill: 'currentColor', fontSize: 12 }} className="text-slate-600 dark:text-slate-400" />
+                <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
+                <XAxis dataKey="year" tick={{ fill: chartColors.text }} style={{ fontSize: 12 }} />
+                <YAxis tickFormatter={formatCurrency} tick={{ fill: chartColors.text }} style={{ fontSize: 12 }} />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend wrapperStyle={{ fontSize: '14px' }}/>
-                <ReferenceLine y={0} stroke="#64748b" strokeDasharray="3 3" />
-                {breakEvenYear !== null && <ReferenceLine x={`Year ${breakEvenYear}`} stroke="#0D9488" label={{ value: 'Break-even Point', position: 'insideTopLeft', fill: '#0D9488' }} />}
-                <Area type="monotone" dataKey="Net Savings" stroke="#10b981" fillOpacity={1} fill="url(#colorSavings)" />
+                <ReferenceLine y={0} stroke={chartColors.axis} strokeDasharray="3 3" />
+                {breakEvenYear !== null && <ReferenceLine x={`Year ${breakEvenYear}`} stroke={chartColors.primary} label={{ value: 'Break-even Point', position: 'insideTopLeft', fill: chartColors.primary }} />}
+                <Area type="monotone" dataKey="Net Savings" stroke={chartColors.success} fillOpacity={1} fill="url(#colorSavings)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -138,11 +142,11 @@ const SavingsChart: React.FC<SavingsChartProps> = ({ finalPrice, annualSavings, 
           <div style={{ width: '100%', height: 300 }}>
             <ResponsiveContainer>
               <BarChart data={annualData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(100, 116, 139, 0.2)" />
-                <XAxis dataKey="name" tick={{ fill: 'currentColor', fontSize: 12 }} className="text-slate-600 dark:text-slate-400" />
-                <YAxis tickFormatter={formatCurrency} tick={{ fill: 'currentColor', fontSize: 12 }} className="text-slate-600 dark:text-slate-400" />
+                <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
+                <XAxis dataKey="name" tick={{ fill: chartColors.text }} style={{ fontSize: 12 }} />
+                <YAxis tickFormatter={formatCurrency} tick={{ fill: chartColors.text }} style={{ fontSize: 12 }} />
                 <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="Annual Cost" fill="#0D9488" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Annual Cost" fill={chartColors.primary} radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
