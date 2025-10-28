@@ -4,6 +4,19 @@ import { useTheme } from 'next-themes';
 import { colors } from '@/design-tokens';
 
 /**
+ * Convert hex color to rgba format
+ * @param hex Hex color string (#RRGGBB)
+ * @param alpha Opacity (0-1)
+ * @returns RGBA color string
+ */
+function hexToRgba(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+/**
  * useChartColors Hook
  * 
  * Provides theme-aware color palettes specifically designed for data visualization (Recharts integration).
@@ -42,9 +55,11 @@ export function useChartColors() {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
 
+  const primaryColor = isDark ? colors.chart.primary.dark : colors.chart.primary.light;
+
   return {
     // Data series colors (for multi-series charts)
-    primary: isDark ? colors.chart.primary.dark : colors.chart.primary.light,
+    primary: primaryColor,
     secondary: isDark ? colors.chart.secondary.dark : colors.chart.secondary.light,
     tertiary: isDark ? colors.chart.tertiary.dark : colors.chart.tertiary.light,
 
@@ -54,9 +69,10 @@ export function useChartColors() {
     error: isDark ? colors.chart.error.dark : colors.chart.error.light,
 
     // Gradient endpoints (for area charts, background fills)
+    // Now dynamically generated from design tokens - no hardcoded rgba!
     gradient: {
-      start: isDark ? colors.chart.primary.dark : colors.chart.primary.light,
-      end: isDark ? 'rgba(13, 148, 136, 0.1)' : 'rgba(13, 148, 136, 0.05)', // Faded primary
+      start: primaryColor,
+      end: isDark ? hexToRgba(primaryColor, 0.1) : hexToRgba(primaryColor, 0.05), // Faded primary
     },
 
     // Grid/axis colors (for chart infrastructure)
