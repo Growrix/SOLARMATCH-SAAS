@@ -757,8 +757,8 @@ grep "storybook" package.json
 
 ### Migration Tools for US5
 
-- [ ] **T096** [P] [US5] Create hardcoded value scanner script: `scripts/scan-hardcoded-values.ts` (finds all `bg-teal-600`, hex codes, hardcoded spacing in codebase)
-- [ ] **T097** [P] [US5] Create migration tracking dashboard: `specs/004-centralized-theme-color/audits/migration-progress.md` (track pages migrated, hardcoded values reduced)
+- [X] **T096** [P] [US5] Create hardcoded value scanner script: `scripts/scan-hardcoded-values.ts` (finds all `bg-teal-600`, hex codes, hardcoded spacing in codebase) — ✅ COMPLETE (2025-10-29): Scanner created, found 11,046 hardcoded values in 77 files (5,376 colors, 3,290 spacing, 1,332 typography, 819 radius, 119 shadows, 110 animations), report generated at `audits/hardcoded-values-scan.md`
+- [X] **T097** [P] [US5] Create migration tracking dashboard: `specs/004-centralized-theme-color/audits/migration-progress.md` (track pages migrated, hardcoded values reduced) — ✅ COMPLETE (2025-10-29): Dashboard created with 3-week schedule, 7-step workflow, top 20 priority files identified, progress tracking charts
 
 ### Per-Page Migration Workflow (Repeat for 40-50 pages)
 
