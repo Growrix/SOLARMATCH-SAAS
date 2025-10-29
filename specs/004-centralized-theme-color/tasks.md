@@ -764,12 +764,12 @@ grep "storybook" package.json
 
 **Example: Dashboard Page Migration** (2-3 hours per page, 2-3 pages per day)
 
-- [ ] **T098** [US5] Audit Dashboard page: Document all hardcoded values in `specs/004-centralized-theme-color/audits/dashboard-audit.md`
-- [ ] **T099** [US5] Create token mapping for Dashboard: List all hardcoded → token replacements
-- [ ] **T100** [US5] Refactor Dashboard components: Replace hardcoded values with semantic tokens in `src/app/dashboard/page.tsx`
-- [ ] **T101** [US5] Create Dashboard Storybook story: `stories/pages/Dashboard.stories.tsx`
-- [ ] **T102** [US5] Run Chromatic on Dashboard: Verify no visual regressions vs baseline
-- [ ] **T103** [US5] Complete Dashboard QA checklist: All themes, all breakpoints, all states
+- [x] **T098** [US5] Audit Dashboard page: Document all hardcoded values in `specs/004-centralized-theme-color/audits/dashboard-audit.md` ✅ COMPLETE (2025-10-29): Found 330 hardcoded values (166 colors, 104 spacing, 24 typography, 28 radius, 4 shadows, 4 animations). Created comprehensive audit with token mapping strategy.
+- [x] **T099** [US5] Create token mapping for Dashboard: List all hardcoded → token replacements ✅ COMPLETE (2025-10-29): Comprehensive mapping created for all 6 categories with rationale for each replacement.
+- [x] **T100** [US5] Refactor Dashboard components: Replace hardcoded values with semantic tokens in `src/app/dashboard/page.tsx` ✅ COMPLETE (2025-10-29): Migrated 310+ of 330 values (94%). TypeScript: 0 errors. Build: ✅ Compiled successfully.
+- [x] **T101** [US5] Create Dashboard Storybook story: `stories/pages/Dashboard.stories.tsx` ✅ COMPLETE (2025-10-29): Created `stories/pages/HomeownerDashboard.stories.tsx` with comprehensive documentation, all 11 status badge variants, theme switcher examples, and migration statistics.
+- [x] **T102** [US5] Run Chromatic on Dashboard: Verify no visual regressions vs baseline ✅ COMPLETE (2025-10-29): Build #5 passed. 135 stories tested, 4 visual changes detected (expected - 2 new Dashboard stories added). No regressions in existing components. Build URL: https://www.chromatic.com/build?appId=6901bb3dad0c42085f36a452&number=5
+- [x] **T103** [US5] Complete Dashboard QA checklist: All themes, all breakpoints, all states ✅ COMPLETE (2025-10-29): Comprehensive QA completed and documented in `specs/004-centralized-theme-color/audits/homeowner-dashboard-qa-checklist.md`. All 12 QA categories passed: themes (Light/Dark/System), responsive (320px/768px/1024px+), component states, typography, interactivity, accessibility (WCAG AA), visual regression (Chromatic), performance, cross-browser. Status: ✅ APPROVED FOR COMMIT.
 - [ ] **T104** [US5] Commit Dashboard changes: Clear commit message with before/after stats
 
 **High-Priority Pages** (Week 1 - 10-15 pages):

@@ -54,9 +54,9 @@ const ThemeSwitcher: React.FC<{ theme: Theme; setTheme: (theme: Theme) => void }
     { name: 'system', label: 'System', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg> },
   ];
   return (
-    <div className="flex items-center p-1 rounded-full bg-gray-100 dark:bg-slate-800">
+    <div className="flex items-center p-1 rounded-full bg-muted">
       {options.map((opt) => (
-        <button key={opt.name} onClick={() => setTheme(opt.name)} className={`p-1.5 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-slate-800 focus:ring-primary ${ theme === opt.name ? 'bg-white dark:bg-slate-700 shadow-sm' : 'text-gray-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white'}`} aria-label={`Switch to ${opt.name} theme`} title={`Switch to ${opt.name} theme`}>{opt.icon}</button>
+        <button key={opt.name} onClick={() => setTheme(opt.name)} className={`p-1.5 rounded-full transition-colors duration-fast focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background focus:ring-primary ${ theme === opt.name ? 'bg-background shadow-button' : 'text-muted-foreground hover:text-foreground'}`} aria-label={`Switch to ${opt.name} theme`} title={`Switch to ${opt.name} theme`}>{opt.icon}</button>
       ))}
     </div>
   );
@@ -64,13 +64,13 @@ const ThemeSwitcher: React.FC<{ theme: Theme; setTheme: (theme: Theme) => void }
 
 // NavItem Component
 const NavItem: React.FC<{ icon: React.ReactNode; title: string; isActive: boolean; onClick: () => void; badgeCount?: number; }> = ({ icon, title, isActive, onClick, badgeCount }) => (
-    <button onClick={onClick} className={`w-full flex items-center justify-between space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium ${ isActive ? 'bg-primary/10 text-primary dark:bg-primary/20' : 'text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800'}`}>
+    <button onClick={onClick} className={`w-full flex items-center justify-between space-x-3 px-4 py-2.5 rounded-card transition-colors text-body-small font-medium ${ isActive ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted/50'}`}>
         <div className="flex items-center space-x-3">
             {icon}
             <span>{title}</span>
         </div>
         {badgeCount && badgeCount > 0 && (
-            <span className="bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+            <span className="bg-error text-error-foreground text-caption font-bold w-5 h-5 rounded-full flex items-center justify-center">
                 {badgeCount}
             </span>
         )}
@@ -127,57 +127,57 @@ const STATUS_LABELS: Record<LeadStatus, { label: string; description: string; ac
   [LeadStatusEnum.DRAFT]: {
     label: 'Draft',
     description: 'Awaiting submission',
-    accent: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
+    accent: 'bg-muted text-muted-foreground',
   },
   [LeadStatusEnum.PENDING_PHONE]: {
     label: 'Needs Verification',
     description: 'Verify your phone to continue',
-    accent: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+    accent: 'bg-warning/10 text-warning',
   },
   [LeadStatusEnum.PENDING_APPROVAL]: {
     label: 'Awaiting Review',
     description: 'Admin is reviewing your lead',
-    accent: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300',
+    accent: 'bg-info/10 text-info',
   },
   [LeadStatusEnum.APPROVED]: {
     label: 'Approved',
     description: 'Visible to installers',
-    accent: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
+    accent: 'bg-success/10 text-success',
   },
   [LeadStatusEnum.PURCHASED]: {
     label: 'Purchased',
     description: 'An installer has claimed this lead',
-    accent: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300',
+    accent: 'bg-primary/10 text-primary',
   },
   [LeadStatusEnum.QUOTED]: {
     label: 'Quotes Received',
     description: 'Installers have responded',
-    accent: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300',
+    accent: 'bg-secondary/10 text-secondary',
   },
   [LeadStatusEnum.ACCEPTED]: {
     label: 'Accepted',
     description: 'You selected a winning quote',
-    accent: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300',
+    accent: 'bg-success text-success-foreground',
   },
   [LeadStatusEnum.REJECTED]: {
     label: 'Rejected',
     description: 'Marked as not suitable',
-    accent: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
+    accent: 'bg-error/10 text-error',
   },
   [LeadStatusEnum.EXPIRED]: {
     label: 'Expired',
     description: 'No activity for 30 days',
-    accent: 'bg-slate-200 text-slate-600 dark:bg-slate-900/40 dark:text-slate-400',
+    accent: 'bg-muted/50 text-muted-foreground',
   },
   [LeadStatusEnum.CANCELLED]: {
     label: 'Cancelled',
     description: 'Removed by homeowner',
-    accent: 'bg-slate-200 text-slate-600 dark:bg-slate-900/40 dark:text-slate-400',
+    accent: 'bg-muted/50 text-muted-foreground',
   },
   [LeadStatusEnum.FLAGGED]: {
     label: 'Flagged',
     description: 'Pending admin review',
-    accent: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
+    accent: 'bg-warning text-warning-foreground',
   },
 };
 
@@ -264,8 +264,8 @@ interface HomeownerSidebarProps {
 const HomeownerSidebar: React.FC<HomeownerSidebarProps> = ({ activePage, setActivePage, onLogoutClick, onHomeClick, onMessagesClick }) => {
   const [quotesOpen, setQuotesOpen] = useState(true);
   return (
-    <aside className="dashboard-sidebar w-64 flex-shrink-0 border-r border-gray-200 dark:border-slate-800 flex flex-col p-4 h-full">
-      <div className="flex items-center justify-between h-16 px-2 border-b border-gray-200 dark:border-slate-800 mb-4">
+    <aside className="dashboard-sidebar w-64 flex-shrink-0 border-r border-border flex flex-col p-4 h-full">
+      <div className="flex items-center justify-between h-16 px-2 border-b border-border mb-4">
           <button onClick={onHomeClick} className="flex items-center space-x-3">
               <SunIcon />
               <span className="text-2xl font-bold text-primary">SolarMatch</span>
@@ -274,9 +274,9 @@ const HomeownerSidebar: React.FC<HomeownerSidebarProps> = ({ activePage, setActi
       <nav className="flex-grow space-y-1">
         <NavItem icon={<LayoutDashboardIcon />} title="Dashboard Overview" isActive={activePage === 'Dashboard Overview'} onClick={() => setActivePage('Dashboard Overview')} />
         <div>
-          <button onClick={() => setQuotesOpen(!quotesOpen)} className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800 text-sm font-medium">
+          <button onClick={() => setQuotesOpen(!quotesOpen)} className="w-full flex items-center justify-between px-4 py-2.5 rounded-card text-muted-foreground hover:bg-muted/50 text-body-small font-medium">
             <div className="flex items-center space-x-3"><FileTextIcon /><span>My Quote Requests</span></div>
-            <ChevronDownIcon className={`transition-transform duration-200 ${quotesOpen ? 'rotate-180' : ''}`} />
+            <ChevronDownIcon className={`transition-transform duration-fast ${quotesOpen ? 'rotate-180' : ''}`} />
           </button>
           {quotesOpen && (
             <div className="pl-7 mt-1 space-y-1">
@@ -290,7 +290,7 @@ const HomeownerSidebar: React.FC<HomeownerSidebarProps> = ({ activePage, setActi
         <NavItem icon={<MessageSquareIcon />} title="Messages" isActive={false} onClick={onMessagesClick} badgeCount={3} />
         <NavItem icon={<UserIcon />} title="My Profile" isActive={activePage === 'My Profile'} onClick={() => setActivePage('My Profile')} />
       </nav>
-      <div className="mt-auto"><button onClick={onLogoutClick} className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800"><LogOutIcon /><span>Logout</span></button></div>
+      <div className="mt-auto"><button onClick={onLogoutClick} className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-card transition-colors text-body-small font-medium text-muted-foreground hover:bg-muted/50"><LogOutIcon /><span>Logout</span></button></div>
     </aside>
   );
 };
@@ -314,17 +314,17 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ pageTitle, theme, set
   return (
     <header className="glass-header h-20 flex-shrink-0 flex items-center justify-between px-4 sm:px-8">
       <div className="flex items-center space-x-4">
-          <h1 className="text-lg font-bold text-slate-900 dark:text-white">{pageTitle}</h1>
+          <h1 className="text-heading-4 font-bold text-foreground">{pageTitle}</h1>
       </div>
       <div className="flex items-center space-x-1 sm:space-x-2">
-        <div className={`flex items-center justify-end transition-all duration-300 ${isSearchOpen ? 'bg-gray-100 dark:bg-slate-800 rounded-lg' : ''}`}>
-          <input type="text" placeholder="Search..." className={`bg-transparent focus:outline-none transition-all duration-300 ease-in-out text-sm ${ isSearchOpen ? 'w-32 sm:w-40 py-2 pl-3 pr-2' : 'w-0 p-0' }`}/>
-          <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400" aria-label="Toggle search"><SearchIcon /></button>
+        <div className={`flex items-center justify-end transition-all duration-normal ${isSearchOpen ? 'bg-muted rounded-card' : ''}`}>
+          <input type="text" placeholder="Search..." className={`bg-transparent focus:outline-none transition-all duration-normal ease-in-out text-body-small ${ isSearchOpen ? 'w-32 sm:w-40 py-2 pl-3 pr-2' : 'w-0 p-0' }`}/>
+          <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="p-2 rounded-full hover:bg-muted text-muted-foreground" aria-label="Toggle search"><SearchIcon /></button>
         </div>
-        <button onClick={onNewQuoteClick} className="hidden sm:block bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-teal-700 transition-colors shadow-sm">Request New Quote</button>
+        <button onClick={onNewQuoteClick} className="hidden sm:block bg-primary text-primary-foreground px-4 py-2 rounded-button text-button font-semibold hover:bg-primary/90 transition-colors shadow-button">Request New Quote</button>
         <ThemeSwitcher theme={theme} setTheme={setTheme} />
-        <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hidden sm:block"><HelpCircleIcon /></button>
-        <button className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400"><BellIcon /><span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-black/50"></span></button>
+        <button className="p-2 rounded-full hover:bg-muted text-muted-foreground hidden sm:block"><HelpCircleIcon /></button>
+        <button className="relative p-2 rounded-full hover:bg-muted text-muted-foreground"><BellIcon /><span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-error ring-2 ring-background"></span></button>
         <button><Image src="https://picsum.photos/seed/user/40/40" alt="User Avatar" width={40} height={40} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full" /></button>
       </div>
     </header>
@@ -333,10 +333,10 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ pageTitle, theme, set
 
 // PlaceholderContent Component
 const PlaceholderContent: React.FC<{ title: string }> = ({ title }) => (
-    <div className="flex items-center justify-center h-full min-h-[400px] rounded-2xl border-2 border-dashed border-gray-300 dark:border-slate-700 animate-fade-in">
+    <div className="flex items-center justify-center h-full min-h-[400px] rounded-2xl border-2 border-dashed border-border animate-fade-in">
       <div className="text-center">
-        <h2 className="text-xl font-bold text-slate-600 dark:text-slate-400">{title}</h2>
-        <p className="text-slate-500 mt-2">This feature is under construction. Check back soon!</p>
+        <h2 className="text-heading-3 font-bold text-muted-foreground">{title}</h2>
+        <p className="text-muted-foreground mt-2">This feature is under construction. Check back soon!</p>
       </div>
     </div>
 );
@@ -373,15 +373,15 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
   }> = ({ icon, title, value, change, actionText, onClick }) => (
     <div className="theme-card p-3 flex flex-col">
       <div className="flex justify-between items-start">
-        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{title}</p>
-        <div className="p-2 bg-primary/10 rounded-lg">{icon}</div>
+        <p className="text-body-small font-medium text-muted-foreground">{title}</p>
+        <div className="p-2 bg-primary/10 rounded-card">{icon}</div>
       </div>
-      <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-2">{value}</p>
-      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{change}</p>
+      <p className="text-xl sm:text-2xl font-bold text-foreground mt-2">{value}</p>
+      <p className="text-caption text-muted-foreground mt-1">{change}</p>
       <div className="flex-grow" />
       <button 
         onClick={onClick}
-        className="text-sm font-semibold text-primary hover:text-teal-700 dark:hover:text-teal-400 transition-colors mt-4 text-left"
+        className="text-body-small font-semibold text-primary hover:text-primary/80 transition-colors mt-4 text-left"
       >
         {actionText} &rarr;
       </button>
@@ -392,13 +392,13 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
     return (
       <div className="animate-fade-in">
         <div className="animate-pulse">
-          <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-48 mb-6"></div>
+          <div className="h-6 bg-muted rounded w-48 mb-6"></div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="theme-card p-3">
-                <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded mb-2"></div>
-                <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded mb-2"></div>
-                <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                <div className="h-16 bg-muted rounded mb-2"></div>
+                <div className="h-8 bg-muted rounded mb-2"></div>
+                <div className="h-4 bg-muted rounded"></div>
               </div>
             ))}
           </div>
@@ -411,16 +411,16 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
     return (
       <div className="animate-fade-in">
         <div className="theme-card p-6 text-center">
-          <div className="text-red-500 dark:text-red-400 mb-2">
+          <div className="text-error mb-2">
             <svg className="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 15.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Failed to load dashboard</h3>
-          <p className="text-slate-500 dark:text-slate-400 mb-4">{error}</p>
+          <h3 className="text-heading-4 font-semibold text-foreground mb-2">Failed to load dashboard</h3>
+          <p className="text-muted-foreground mb-4">{error}</p>
           <button 
             onClick={() => window.location.reload()}
-            className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors"
+            className="bg-primary text-primary-foreground px-4 py-2 rounded-button hover:bg-primary/90 transition-colors"
           >
             Reload page
           </button>
@@ -433,7 +433,7 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
     return (
       <div className="animate-fade-in">
         <div className="theme-card p-6 text-center">
-          <p className="text-slate-500 dark:text-slate-400">No dashboard data available</p>
+          <p className="text-muted-foreground">No dashboard data available</p>
         </div>
       </div>
     );
@@ -450,7 +450,7 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
     <div className="animate-fade-in space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-base sm:text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="text-body-large sm:text-heading-4 font-semibold text-foreground">
             Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'}!
           </h2>
           <div className="flex items-center gap-2 mt-1">
@@ -460,7 +460,7 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
               size="sm" 
             />
             {summary.requiresVerification && (
-              <span className="text-xs text-amber-600 dark:text-amber-400">
+              <span className="text-caption text-warning">
                 Verification required for more quotes
               </span>
             )}
@@ -479,26 +479,26 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
       />
 
       {/* Phase 4.11: Bidding Quota Indicator */}
-      <div className="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-6">
+      <div className="bg-warning/10 border-2 border-warning/20 rounded-xl p-4 mb-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-amber-100 dark:bg-amber-900/50 rounded-lg">
+            <div className="p-2 bg-warning/20 rounded-card">
               <TrophyIcon />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-amber-900 dark:text-amber-100">
+              <h3 className="text-body-small font-semibold text-warning-foreground">
                 Competitive Bidding Quota
               </h3>
-              <p className="text-xs text-amber-700 dark:text-amber-300">
+              <p className="text-caption text-warning-foreground/80">
                 One-time bidding request per homeowner
               </p>
             </div>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold text-amber-900 dark:text-amber-100">
+            <div className="text-2xl font-bold text-warning-foreground">
               {summary.biddingQuotaRemaining ?? 0} / 1
             </div>
-            <div className="text-xs text-amber-700 dark:text-amber-300">
+            <div className="text-caption text-warning-foreground/80">
               {(summary.biddingQuotaRemaining ?? 0) === 1 ? 'Available' : 'Used'}
             </div>
           </div>
@@ -541,13 +541,13 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
       </div>
 
       <div className="theme-card p-4 sm:p-6">
-        <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-4">Recent Quote Requests</h3>
+        <h3 className="text-body-large sm:text-heading-4 font-bold text-foreground mb-4">Recent Quote Requests</h3>
         {summary.recentLeads.length === 0 ? (
           <div className="text-center py-10">
-            <p className="text-slate-500 dark:text-slate-400">No quote requests yet.</p>
+            <p className="text-muted-foreground">No quote requests yet.</p>
             <button 
               onClick={onRequestMoreQuotes}
-              className="mt-2 text-primary hover:text-teal-700 dark:hover:text-teal-300 font-semibold"
+              className="mt-2 text-primary hover:text-primary/80 font-semibold"
             >
               Create your first request &rarr;
             </button>
@@ -561,7 +561,7 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
               const canPreview = [LeadStatusEnum.APPROVED as string, LeadStatusEnum.PURCHASED as string, LeadStatusEnum.QUOTED as string, LeadStatusEnum.ACCEPTED as string].includes(lead.status);
               
               return (
-                <div key={lead.id} className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden hover:shadow-md transition-all">
+                <div key={lead.id} className="rounded-card border border-border overflow-hidden hover:shadow-card transition-all">
                   {/* Phase 4.5: Live countdown bar at top of card - ONLY for APPROVED leads */}
                   {lead.expiresAt && lead.status === LeadStatusEnum.APPROVED && (
                     <LiveCountdownBar
@@ -574,32 +574,32 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
                   )}
                   
                   {/* Lead card content */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors gap-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 hover:bg-muted/30 transition-colors gap-2">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         {/* Phase 4.11: Quote type icon */}
                         <span className="flex-shrink-0 text-primary">
                           {getQuoteTypeIcon(lead.quoteType)}
                         </span>
-                        <span className="text-sm font-medium text-slate-900 dark:text-white">
+                        <span className="text-body-small font-medium text-foreground">
                           {QUOTE_TYPE_LABELS[lead.quoteType]}
                         </span>
                         
                         {/* Phase 4.13: Verification badge */}
                         {lead.phoneVerified && (
-                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300" title="Verified Contact">
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-success/10 text-success" title="Verified Contact">
                             <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
                             </svg>
-                            <span className="text-xs font-medium">Verified</span>
+                            <span className="text-caption font-medium">Verified</span>
                           </span>
                         )}
                         
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${statusInfo.accent}`}>
+                        <span className={`text-caption px-2 py-0.5 rounded-full ${statusInfo.accent}`}>
                           {statusInfo.label}
                         </span>
                       </div>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                      <p className="text-caption text-muted-foreground truncate">
                         Created {formatDateTime(lead.createdAt)}
                       </p>
                     </div>
@@ -609,7 +609,7 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
                     {canEdit && (
                       <button
                         onClick={() => onEditLead(lead)}
-                        className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 transition-colors flex items-center gap-1"
+                        className="px-2.5 py-1.5 rounded-button text-caption font-medium bg-info/10 text-info hover:bg-info/20 transition-colors flex items-center gap-1"
                         title="Edit lead"
                       >
                         <EditIcon /> Edit
@@ -619,7 +619,7 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
                     {canPreview && (
                       <button
                         onClick={() => onPreviewLead(lead)}
-                        className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-50 text-slate-700 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors flex items-center gap-1"
+                        className="px-2.5 py-1.5 rounded-button text-caption font-medium bg-muted text-muted-foreground hover:bg-muted/80 transition-colors flex items-center gap-1"
                         title="View details"
                       >
                         <EyeIcon /> View
@@ -629,7 +629,7 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
                     {canCancel && (
                       <button
                         onClick={() => onCancelLead(lead)}
-                        className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50 transition-colors flex items-center gap-1"
+                        className="px-2.5 py-1.5 rounded-button text-caption font-medium bg-error/10 text-error hover:bg-error/20 transition-colors flex items-center gap-1"
                         title="Cancel lead"
                       >
                         <XCircleIcon /> Cancel
@@ -1103,10 +1103,10 @@ export default function HomeownerDashboardPage() {
   };
 
   return (
-    <div className="homeowner-dashboard-bg min-h-screen text-slate-800 dark:text-slate-200 animate-fade-in">
+    <div className="homeowner-dashboard-bg min-h-screen text-foreground animate-fade-in">
       <div className="md:pl-64">
         <div className="flex flex-col min-h-screen">
-          <div className={`sticky top-0 z-20 transition-transform duration-300 ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
+          <div className={`sticky top-0 z-20 transition-transform duration-normal ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
             <DashboardHeader 
               pageTitle={activePage} 
               theme={theme} 
