@@ -115,11 +115,11 @@ const InstallerSignInModal: React.FC<InstallerSignInProps> = ({ isOpen, onClose,
 
   if (!isOpen) return null;
 
-  const baseInputClasses = "w-full bg-white/5 dark:bg-black/20 border border-gray-300/30 dark:border-slate-700/50 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors";
+  const baseInputClasses = "w-full bg-surface/5 border border-border/50 rounded-xl px-4 py-3 text-foreground placeholder-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors";
 
   return (
     <div
-      className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center px-4 py-20 animate-fade-in"
+      className="fixed inset-0 bg-overlay backdrop-blur-sm z-50 flex items-center justify-center px-4 py-20 animate-fade-in"
       onClick={handleClose}
       role="dialog"
       aria-modal="true"
@@ -130,7 +130,7 @@ const InstallerSignInModal: React.FC<InstallerSignInProps> = ({ isOpen, onClose,
       >
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors"
+          className="absolute top-4 right-4 text-subtle hover:text-foreground transition-colors"
           aria-label="Close"
         >
           <XIcon />
@@ -140,10 +140,10 @@ const InstallerSignInModal: React.FC<InstallerSignInProps> = ({ isOpen, onClose,
           <div className="w-16 h-16 bg-primary rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg">
             <BuildingIcon />
           </div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+          <h2 className="text-2xl font-bold text-foreground mb-2">
             Installer Partner Sign In
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 text-sm">
+          <p className="text-subtle text-sm">
             Access your installer dashboard and manage leads
           </p>
         </div>
@@ -170,10 +170,10 @@ const InstallerSignInModal: React.FC<InstallerSignInProps> = ({ isOpen, onClose,
         <form onSubmit={handleSubmit} className="space-y-4">
             <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300 dark:border-slate-700"></div>
+                <div className="w-full border-t border-border"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                <span className="px-3 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400">Sign in with Email</span>
+                <span className="px-3 bg-background text-subtle">Sign in with Email</span>
                 </div>
             </div>
           
@@ -183,15 +183,15 @@ const InstallerSignInModal: React.FC<InstallerSignInProps> = ({ isOpen, onClose,
 
             <div className="relative">
                 <input type={showPassword ? "text" : "password"} name="password" value={formData.password} onChange={handleInputChange} placeholder="Password" className={`${baseInputClasses} pr-12`} required />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-700 dark:hover:text-white transition-colors">
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-subtle hover:text-foreground transition-colors">
                     {showPassword ? <EyeOffIcon /> : <EyeIcon />}
                 </button>
             </div>
             
             <div className="flex items-center justify-between">
                 <label className="flex items-center space-x-2 cursor-pointer">
-                    <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary dark:focus:ring-primary dark:ring-offset-black dark:bg-slate-700 dark:border-slate-600"/>
-                    <span className="text-sm text-slate-600 dark:text-slate-400">Remember me</span>
+                    <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="w-4 h-4 text-primary bg-surface border-border rounded focus:ring-primary"/>
+                    <span className="text-sm text-subtle">Remember me</span>
                 </label>
                 <button type="button" onClick={handleForgotPassword} className="text-sm text-primary hover:text-teal-700 dark:hover:text-teal-400 transition-colors">
                     Forgot password?
