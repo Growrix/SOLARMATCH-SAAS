@@ -131,15 +131,15 @@ const ThemeSwitcher: React.FC<{ theme: Theme; setTheme: (theme: Theme) => void }
   ];
 
   return (
-    <div className="flex items-center p-1 rounded-full bg-gray-100 dark:bg-slate-800">
+    <div className="flex items-center p-1 rounded-full bg-surface">
       {options.map((opt) => (
         <button
           key={opt.name}
           onClick={() => setTheme(opt.name)}
           className={`p-1.5 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-slate-800 focus:ring-primary ${
             theme === opt.name
-              ? 'bg-white dark:bg-slate-700 shadow-sm'
-              : 'text-gray-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white'
+              ? 'bg-card shadow-sm'
+              : 'text-subtle hover:text-foreground'
           }`}
           aria-label={`Switch to ${opt.name} theme`}
           title={`Switch to ${opt.name} theme`}
@@ -164,7 +164,7 @@ const NavItem: React.FC<{
     className={`w-full flex items-center justify-between space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium ${ 
       isActive 
         ? 'bg-primary/10 text-primary dark:bg-primary/20' 
-        : 'text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800'
+        : 'text-subtle hover:bg-surface-hover'
     }`}
   >
     <div className="flex items-center space-x-3">
@@ -187,8 +187,8 @@ const InstallerSidebar: React.FC<{
   onHomeClick: () => void;
 }> = ({ activePage, setActivePage, onLogoutClick, onHomeClick }) => {
   return (
-    <aside className="dashboard-sidebar w-64 flex-shrink-0 border-r border-gray-200 dark:border-slate-800 flex flex-col p-4 h-full">
-      <div className="flex items-center justify-between h-16 px-2 border-b border-gray-200 dark:border-slate-800 mb-4">
+    <aside className="dashboard-sidebar w-64 flex-shrink-0 border-r border-border flex flex-col p-4 h-full">
+      <div className="flex items-center justify-between h-16 px-2 border-b border-border mb-4">
         <button onClick={onHomeClick} className="flex items-center space-x-3">
           <SunIcon />
           <span className="text-2xl font-bold text-primary">SolarMatch</span>
@@ -244,7 +244,7 @@ const InstallerSidebar: React.FC<{
       <div className="mt-auto">
         <button 
           onClick={onLogoutClick} 
-          className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800"
+          className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium text-subtle hover:bg-surface-hover"
         >
           <LogOutIcon />
           <span>Logout</span>
@@ -265,10 +265,10 @@ const DashboardHeader: React.FC<{
   return (
     <header className="glass-header h-20 flex-shrink-0 flex items-center justify-between px-4 sm:px-8">
       <div className="flex items-center space-x-4">
-        <h1 className="text-lg font-bold text-slate-900 dark:text-white">{pageTitle}</h1>
+        <h1 className="text-lg font-bold text-foreground">{pageTitle}</h1>
       </div>
       <div className="flex items-center space-x-1 sm:space-x-2">
-        <div className={`flex items-center justify-end transition-all duration-300 ${isSearchOpen ? 'bg-gray-100 dark:bg-slate-800 rounded-lg' : ''}`}>
+        <div className={`flex items-center justify-end transition-all duration-300 ${isSearchOpen ? 'bg-surface rounded-lg' : ''}`}>
           <input 
             type="text" 
             placeholder="Search leads..." 
@@ -278,17 +278,17 @@ const DashboardHeader: React.FC<{
           />
           <button 
             onClick={() => setIsSearchOpen(!isSearchOpen)} 
-            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400" 
+            className="p-2 rounded-full hover:bg-surface-hover text-subtle" 
             aria-label="Toggle search"
           >
             <SearchIcon />
           </button>
         </div>
         <ThemeSwitcher theme={theme} setTheme={setTheme} />
-        <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hidden sm:block">
+        <button className="p-2 rounded-full hover:bg-surface-hover text-subtle hidden sm:block">
           <HelpCircleIcon />
         </button>
-        <button className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400">
+        <button className="relative p-2 rounded-full hover:bg-surface-hover text-subtle">
           <BellIcon />
           <span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-black/50"></span>
         </button>
@@ -307,10 +307,10 @@ const DashboardHeader: React.FC<{
 
 // Placeholder Content Component
 const PlaceholderContent: React.FC<{ title: string }> = ({ title }) => (
-  <div className="flex items-center justify-center h-full min-h-[60vh] bg-white dark:bg-black/50 rounded-2xl border-2 border-dashed border-gray-300 dark:border-slate-700 animate-fade-in">
+  <div className="flex items-center justify-center h-full min-h-[60vh] bg-white dark:bg-black/50 rounded-2xl border-2 border-dashed border-border animate-fade-in">
     <div className="text-center">
-      <h2 className="text-xl font-bold text-slate-600 dark:text-slate-400">{title}</h2>
-      <p className="text-slate-500 mt-2">This feature is under construction. Check back soon!</p>
+      <h2 className="text-xl font-bold text-subtle">{title}</h2>
+      <p className="text-subtle mt-2">This feature is under construction. Check back soon!</p>
     </div>
   </div>
 );
@@ -442,7 +442,7 @@ export default function InstallerDashboardPage() {
   };
 
   return (
-    <div className="homeowner-dashboard-bg min-h-screen text-slate-800 dark:text-slate-200 animate-fade-in">
+    <div className="homeowner-dashboard-bg min-h-screen text-foreground animate-fade-in">
       <div className="md:pl-64">
         <div className="flex flex-col min-h-screen">
           <div className={`sticky top-0 z-20 transition-transform duration-300 ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
@@ -502,3 +502,15 @@ export default function InstallerDashboardPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
