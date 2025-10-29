@@ -171,11 +171,11 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
     return null;
   }
 
-  const baseInputClasses = "w-full bg-white/5 dark:bg-black/20 border border-gray-300/30 dark:border-slate-700/50 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors";
+  const baseInputClasses = "w-full bg-surface/5 border border-border/50 rounded-xl px-4 py-3 text-foreground placeholder-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors";
 
   return (
     <div
-      className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center px-4 py-20 animate-fade-in"
+      className="fixed inset-0 bg-overlay backdrop-blur-sm z-50 flex items-center justify-center px-4 py-20 animate-fade-in"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -186,7 +186,7 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors"
+          className="absolute top-4 right-4 text-subtle hover:text-foreground transition-colors"
           aria-label="Close"
         >
           <XIcon />
@@ -197,10 +197,10 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
             <div className="w-20 h-20 bg-primary rounded-full mx-auto mb-6 flex items-center justify-center shadow-lg">
               <CheckCircleIcon />
             </div>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
+            <h2 className="text-2xl font-bold text-foreground mb-4">
               Account Creation Successful!
             </h2>
-            <p className="text-slate-600 dark:text-slate-400 mb-8">
+            <p className="text-subtle mb-8">
               {success}
             </p>
             <div className="space-y-3">
@@ -218,7 +218,7 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
                   onClose();
                   window.location.href = '/installer';
                 }}
-                className="w-full bg-slate-600 hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-semibold py-3 px-4 rounded-xl transition-all transform hover:scale-105 shadow-lg"
+                className="w-full bg-surface hover:bg-surface-hover text-foreground font-semibold py-3 px-4 rounded-xl transition-all transform hover:scale-105 shadow-lg"
               >
                 Visit Installer&apos;s Home
               </button>
@@ -230,10 +230,10 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
               <div className="w-16 h-16 bg-primary rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg">
                 <BuildingIcon />
               </div>
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+              <h2 className="text-2xl font-bold text-foreground mb-2">
                 Create Installer Account
               </h2>
-              <p className="text-slate-600 dark:text-slate-400 text-sm">
+              <p className="text-subtle text-sm">
                 Join our network of verified solar installers
               </p>
             </div>
@@ -278,7 +278,7 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
                   className={baseInputClasses} 
                   required 
                 />
-                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                <p className="mt-1 text-xs text-subtle">
                   Australian format: 04XX XXX XXX or +61 4XX XXX XXX
                 </p>
               </div>
@@ -306,7 +306,7 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
                   pattern="\d{4}"
                   title="Australian postcode must be 4 digits"
                 />
-                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                <p className="mt-1 text-xs text-subtle">
                   Australian postcode (e.g., 2000, 3000, 4000)
                 </p>
               </div>
@@ -335,7 +335,7 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
                 <button 
                   type="button" 
                   onClick={() => setShowPassword(!showPassword)} 
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-700 dark:hover:text-white transition-colors"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-subtle hover:text-foreground transition-colors"
                 >
                   {showPassword ? <EyeOffIcon /> : <EyeIcon />}
                 </button>
@@ -353,7 +353,7 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
                 />
               </div>
               <div>
-                <div className="flex items-center space-x-3 bg-gray-100/50 dark:bg-slate-800/50 p-3 rounded-xl border border-gray-200 dark:border-slate-700">
+                <div className="flex items-center space-x-3 bg-surface/50 p-3 rounded-xl border border-border">
                   <input 
                     type="checkbox"
                     id="installer-recaptcha"
@@ -364,9 +364,9 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
                         setError(null);
                       }
                     }}
-                    className="h-6 w-6 rounded border-gray-300 dark:border-slate-600 text-primary focus:ring-primary dark:bg-slate-900"
+                    className="h-6 w-6 rounded border-border text-primary focus:ring-primary bg-surface"
                   />
-                  <label htmlFor="installer-recaptcha" className="text-sm text-slate-700 dark:text-slate-300">
+                  <label htmlFor="installer-recaptcha" className="text-sm text-foreground">
                     I&apos;m not a robot
                   </label>
                   <div className="ml-auto text-center">
@@ -376,7 +376,7 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
                       alt="reCAPTCHA logo" 
                       className="w-8 h-8 mx-auto" 
                     />
-                    <p className="text-xs text-slate-500 -mt-1">reCAPTCHA</p>
+                    <p className="text-xs text-subtle -mt-1">reCAPTCHA</p>
                   </div>
                 </div>
               </div>
@@ -397,7 +397,7 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
             </form>
 
             <div className="mt-6 text-center">
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <p className="text-xs text-subtle">
                 By creating an account, you agree to our{' '}
                 <a href="#" className="text-primary hover:underline transition-colors">Installer Terms</a> and{' '}
                 <a href="#" className="text-primary hover:underline transition-colors">Privacy Policy</a>
@@ -405,7 +405,7 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
             </div>
             
             <div className="mt-8 text-center">
-              <p className="text-slate-600 dark:text-slate-400 text-sm">
+              <p className="text-subtle text-sm">
                 Already have an installer account?
                 <button 
                   onClick={onSwitchToSignIn} 
