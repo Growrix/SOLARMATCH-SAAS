@@ -1,20 +1,20 @@
 # Hardcoded Value Scan Report
 
-**Generated**: 2025-10-29T08:11:02.766Z
+**Generated**: 2025-10-29T09:06:34.066Z
 
 ## Summary
 
-- **Total Issues**: 11046
+- **Total Issues**: 10833
 - **Files with Issues**: 77
 
 ### Issues by Type
 
-- **color**: 5376
+- **color**: 5210
 - **spacing**: 3290
-- **typography**: 1332
-- **radius**: 819
-- **shadow**: 119
-- **animation**: 110
+- **typography**: 1305
+- **radius**: 807
+- **shadow**: 116
+- **animation**: 105
 
 ### Top 20 Files with Most Issues
 
@@ -24,7 +24,6 @@
 - D:/Desktop Mass/SOLAR LEAD GEN PROJECT MAIN FILE/solarmatch/src/app/admin/leads/[id]/page.tsx: **477** issues
 - D:/Desktop Mass/SOLAR LEAD GEN PROJECT MAIN FILE/solarmatch/src/components/AdminHomeownersList.tsx: **378** issues
 - D:/Desktop Mass/SOLAR LEAD GEN PROJECT MAIN FILE/solarmatch/src/app/installer/leads/[id]/page.tsx: **345** issues
-- D:/Desktop Mass/SOLAR LEAD GEN PROJECT MAIN FILE/solarmatch/src/app/homeowner/dashboard/page.tsx: **330** issues
 - D:/Desktop Mass/SOLAR LEAD GEN PROJECT MAIN FILE/solarmatch/src/components/InstallerLeadFeed.tsx: **323** issues
 - D:/Desktop Mass/SOLAR LEAD GEN PROJECT MAIN FILE/solarmatch/src/components/homeowner/LeadPreviewModal.tsx: **308** issues
 - D:/Desktop Mass/SOLAR LEAD GEN PROJECT MAIN FILE/solarmatch/src/components/admin/InstallersTable.tsx: **289** issues
@@ -38,6 +37,7 @@
 - D:/Desktop Mass/SOLAR LEAD GEN PROJECT MAIN FILE/solarmatch/src/app/installer/purchased-leads/page.tsx: **186** issues
 - D:/Desktop Mass/SOLAR LEAD GEN PROJECT MAIN FILE/solarmatch/src/components/homeowner/QuoteTypeDistributionModal.tsx: **183** issues
 - D:/Desktop Mass/SOLAR LEAD GEN PROJECT MAIN FILE/solarmatch/src/components/QuoteBuilderModal.tsx: **179** issues
+- D:/Desktop Mass/SOLAR LEAD GEN PROJECT MAIN FILE/solarmatch/src/components/installer/InstallerAssignedLeads.tsx: **168** issues
 
 ## Detailed Results
 
@@ -15919,1348 +15919,6 @@
 - Line 609: `shadow-sm`
   ```
   <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-  ```
-
-### D:/Desktop Mass/SOLAR LEAD GEN PROJECT MAIN FILE/solarmatch/src/app/homeowner/dashboard/page.tsx
-
-**Total Issues**: 330
-
-#### color (166)
-
-- Line 57: `bg-gray-100`
-  ```
-  <div className="flex items-center p-1 rounded-full bg-gray-100 dark:bg-slate-800">
-  ```
-- Line 57: `bg-slate-800`
-  ```
-  <div className="flex items-center p-1 rounded-full bg-gray-100 dark:bg-slate-800">
-  ```
-- Line 59: `bg-slate-700`
-  ```
-  <button key={opt.name} onClick={() => setTheme(opt.name)} className={`p-1.5 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-slate-800 focus:ring-primary ${ theme === opt.name ? 'bg-white dark:bg-slate-700 shadow-sm' : 'text-gray-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white'}`} aria-label={`Switch to ${opt.name} theme`} title={`Switch to ${opt.name} theme`}>{opt.icon}</button>
-  ```
-- Line 59: `text-gray-500`
-  ```
-  <button key={opt.name} onClick={() => setTheme(opt.name)} className={`p-1.5 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-slate-800 focus:ring-primary ${ theme === opt.name ? 'bg-white dark:bg-slate-700 shadow-sm' : 'text-gray-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white'}`} aria-label={`Switch to ${opt.name} theme`} title={`Switch to ${opt.name} theme`}>{opt.icon}</button>
-  ```
-- Line 59: `text-slate-900`
-  ```
-  <button key={opt.name} onClick={() => setTheme(opt.name)} className={`p-1.5 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-slate-800 focus:ring-primary ${ theme === opt.name ? 'bg-white dark:bg-slate-700 shadow-sm' : 'text-gray-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white'}`} aria-label={`Switch to ${opt.name} theme`} title={`Switch to ${opt.name} theme`}>{opt.icon}</button>
-  ```
-- Line 59: `text-gray-400`
-  ```
-  <button key={opt.name} onClick={() => setTheme(opt.name)} className={`p-1.5 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-slate-800 focus:ring-primary ${ theme === opt.name ? 'bg-white dark:bg-slate-700 shadow-sm' : 'text-gray-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white'}`} aria-label={`Switch to ${opt.name} theme`} title={`Switch to ${opt.name} theme`}>{opt.icon}</button>
-  ```
-- Line 67: `text-slate-500`
-  ```
-  <button onClick={onClick} className={`w-full flex items-center justify-between space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium ${ isActive ? 'bg-primary/10 text-primary dark:bg-primary/20' : 'text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800'}`}>
-  ```
-- Line 67: `text-slate-400`
-  ```
-  <button onClick={onClick} className={`w-full flex items-center justify-between space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium ${ isActive ? 'bg-primary/10 text-primary dark:bg-primary/20' : 'text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800'}`}>
-  ```
-- Line 67: `bg-gray-200`
-  ```
-  <button onClick={onClick} className={`w-full flex items-center justify-between space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium ${ isActive ? 'bg-primary/10 text-primary dark:bg-primary/20' : 'text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800'}`}>
-  ```
-- Line 67: `bg-slate-800`
-  ```
-  <button onClick={onClick} className={`w-full flex items-center justify-between space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium ${ isActive ? 'bg-primary/10 text-primary dark:bg-primary/20' : 'text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800'}`}>
-  ```
-- Line 73: `bg-red-500`
-  ```
-  <span className="bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
-  ```
-- Line 130: `bg-slate-100`
-  ```
-  accent: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
-  ```
-- Line 130: `text-slate-600`
-  ```
-  accent: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
-  ```
-- Line 130: `bg-slate-800`
-  ```
-  accent: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
-  ```
-- Line 130: `text-slate-300`
-  ```
-  accent: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
-  ```
-- Line 135: `bg-amber-100`
-  ```
-  accent: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
-  ```
-- Line 135: `text-amber-700`
-  ```
-  accent: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
-  ```
-- Line 135: `bg-amber-900`
-  ```
-  accent: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
-  ```
-- Line 135: `text-amber-300`
-  ```
-  accent: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
-  ```
-- Line 140: `bg-sky-100`
-  ```
-  accent: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300',
-  ```
-- Line 140: `text-sky-700`
-  ```
-  accent: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300',
-  ```
-- Line 140: `bg-sky-900`
-  ```
-  accent: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300',
-  ```
-- Line 140: `text-sky-300`
-  ```
-  accent: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300',
-  ```
-- Line 145: `bg-emerald-100`
-  ```
-  accent: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
-  ```
-- Line 145: `text-emerald-700`
-  ```
-  accent: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
-  ```
-- Line 145: `bg-emerald-900`
-  ```
-  accent: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
-  ```
-- Line 145: `text-emerald-300`
-  ```
-  accent: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
-  ```
-- Line 150: `bg-indigo-100`
-  ```
-  accent: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300',
-  ```
-- Line 150: `text-indigo-700`
-  ```
-  accent: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300',
-  ```
-- Line 150: `bg-indigo-900`
-  ```
-  accent: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300',
-  ```
-- Line 150: `text-indigo-300`
-  ```
-  accent: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300',
-  ```
-- Line 155: `bg-violet-100`
-  ```
-  accent: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300',
-  ```
-- Line 155: `text-violet-700`
-  ```
-  accent: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300',
-  ```
-- Line 155: `bg-violet-900`
-  ```
-  accent: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300',
-  ```
-- Line 155: `text-violet-300`
-  ```
-  accent: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300',
-  ```
-- Line 160: `bg-teal-100`
-  ```
-  accent: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300',
-  ```
-- Line 160: `text-teal-700`
-  ```
-  accent: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300',
-  ```
-- Line 160: `bg-teal-900`
-  ```
-  accent: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300',
-  ```
-- Line 160: `text-teal-300`
-  ```
-  accent: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300',
-  ```
-- Line 165: `bg-rose-100`
-  ```
-  accent: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
-  ```
-- Line 165: `text-rose-700`
-  ```
-  accent: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
-  ```
-- Line 165: `bg-rose-900`
-  ```
-  accent: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
-  ```
-- Line 165: `text-rose-300`
-  ```
-  accent: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
-  ```
-- Line 170: `bg-slate-200`
-  ```
-  accent: 'bg-slate-200 text-slate-600 dark:bg-slate-900/40 dark:text-slate-400',
-  ```
-- Line 170: `text-slate-600`
-  ```
-  accent: 'bg-slate-200 text-slate-600 dark:bg-slate-900/40 dark:text-slate-400',
-  ```
-- Line 170: `bg-slate-900`
-  ```
-  accent: 'bg-slate-200 text-slate-600 dark:bg-slate-900/40 dark:text-slate-400',
-  ```
-- Line 170: `text-slate-400`
-  ```
-  accent: 'bg-slate-200 text-slate-600 dark:bg-slate-900/40 dark:text-slate-400',
-  ```
-- Line 175: `bg-slate-200`
-  ```
-  accent: 'bg-slate-200 text-slate-600 dark:bg-slate-900/40 dark:text-slate-400',
-  ```
-- Line 175: `text-slate-600`
-  ```
-  accent: 'bg-slate-200 text-slate-600 dark:bg-slate-900/40 dark:text-slate-400',
-  ```
-- Line 175: `bg-slate-900`
-  ```
-  accent: 'bg-slate-200 text-slate-600 dark:bg-slate-900/40 dark:text-slate-400',
-  ```
-- Line 175: `text-slate-400`
-  ```
-  accent: 'bg-slate-200 text-slate-600 dark:bg-slate-900/40 dark:text-slate-400',
-  ```
-- Line 180: `bg-orange-100`
-  ```
-  accent: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
-  ```
-- Line 180: `text-orange-700`
-  ```
-  accent: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
-  ```
-- Line 180: `bg-orange-900`
-  ```
-  accent: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
-  ```
-- Line 180: `text-orange-300`
-  ```
-  accent: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
-  ```
-- Line 267: `border-gray-200`
-  ```
-  <aside className="dashboard-sidebar w-64 flex-shrink-0 border-r border-gray-200 dark:border-slate-800 flex flex-col p-4 h-full">
-  ```
-- Line 267: `border-slate-800`
-  ```
-  <aside className="dashboard-sidebar w-64 flex-shrink-0 border-r border-gray-200 dark:border-slate-800 flex flex-col p-4 h-full">
-  ```
-- Line 268: `border-gray-200`
-  ```
-  <div className="flex items-center justify-between h-16 px-2 border-b border-gray-200 dark:border-slate-800 mb-4">
-  ```
-- Line 268: `border-slate-800`
-  ```
-  <div className="flex items-center justify-between h-16 px-2 border-b border-gray-200 dark:border-slate-800 mb-4">
-  ```
-- Line 277: `text-slate-500`
-  ```
-  <button onClick={() => setQuotesOpen(!quotesOpen)} className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800 text-sm font-medium">
-  ```
-- Line 277: `text-slate-400`
-  ```
-  <button onClick={() => setQuotesOpen(!quotesOpen)} className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800 text-sm font-medium">
-  ```
-- Line 277: `bg-gray-200`
-  ```
-  <button onClick={() => setQuotesOpen(!quotesOpen)} className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800 text-sm font-medium">
-  ```
-- Line 277: `bg-slate-800`
-  ```
-  <button onClick={() => setQuotesOpen(!quotesOpen)} className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800 text-sm font-medium">
-  ```
-- Line 293: `text-slate-500`
-  ```
-  <div className="mt-auto"><button onClick={onLogoutClick} className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800"><LogOutIcon /><span>Logout</span></button></div>
-  ```
-- Line 293: `text-slate-400`
-  ```
-  <div className="mt-auto"><button onClick={onLogoutClick} className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800"><LogOutIcon /><span>Logout</span></button></div>
-  ```
-- Line 293: `bg-gray-200`
-  ```
-  <div className="mt-auto"><button onClick={onLogoutClick} className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800"><LogOutIcon /><span>Logout</span></button></div>
-  ```
-- Line 293: `bg-slate-800`
-  ```
-  <div className="mt-auto"><button onClick={onLogoutClick} className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800"><LogOutIcon /><span>Logout</span></button></div>
-  ```
-- Line 317: `text-slate-900`
-  ```
-  <h1 className="text-lg font-bold text-slate-900 dark:text-white">{pageTitle}</h1>
-  ```
-- Line 320: `bg-gray-100`
-  ```
-  <div className={`flex items-center justify-end transition-all duration-300 ${isSearchOpen ? 'bg-gray-100 dark:bg-slate-800 rounded-lg' : ''}`}>
-  ```
-- Line 320: `bg-slate-800`
-  ```
-  <div className={`flex items-center justify-end transition-all duration-300 ${isSearchOpen ? 'bg-gray-100 dark:bg-slate-800 rounded-lg' : ''}`}>
-  ```
-- Line 322: `bg-gray-100`
-  ```
-  <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400" aria-label="Toggle search"><SearchIcon /></button>
-  ```
-- Line 322: `bg-slate-800`
-  ```
-  <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400" aria-label="Toggle search"><SearchIcon /></button>
-  ```
-- Line 322: `text-slate-500`
-  ```
-  <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400" aria-label="Toggle search"><SearchIcon /></button>
-  ```
-- Line 322: `text-slate-400`
-  ```
-  <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400" aria-label="Toggle search"><SearchIcon /></button>
-  ```
-- Line 324: `bg-teal-700`
-  ```
-  <button onClick={onNewQuoteClick} className="hidden sm:block bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-teal-700 transition-colors shadow-sm">Request New Quote</button>
-  ```
-- Line 326: `bg-gray-100`
-  ```
-  <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hidden sm:block"><HelpCircleIcon /></button>
-  ```
-- Line 326: `bg-slate-800`
-  ```
-  <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hidden sm:block"><HelpCircleIcon /></button>
-  ```
-- Line 326: `text-slate-500`
-  ```
-  <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hidden sm:block"><HelpCircleIcon /></button>
-  ```
-- Line 326: `text-slate-400`
-  ```
-  <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hidden sm:block"><HelpCircleIcon /></button>
-  ```
-- Line 327: `bg-gray-100`
-  ```
-  <button className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400"><BellIcon /><span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-black/50"></span></button>
-  ```
-- Line 327: `bg-slate-800`
-  ```
-  <button className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400"><BellIcon /><span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-black/50"></span></button>
-  ```
-- Line 327: `text-slate-500`
-  ```
-  <button className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400"><BellIcon /><span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-black/50"></span></button>
-  ```
-- Line 327: `text-slate-400`
-  ```
-  <button className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400"><BellIcon /><span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-black/50"></span></button>
-  ```
-- Line 327: `bg-red-500`
-  ```
-  <button className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400"><BellIcon /><span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-black/50"></span></button>
-  ```
-- Line 336: `border-gray-300`
-  ```
-  <div className="flex items-center justify-center h-full min-h-[400px] rounded-2xl border-2 border-dashed border-gray-300 dark:border-slate-700 animate-fade-in">
-  ```
-- Line 336: `border-slate-700`
-  ```
-  <div className="flex items-center justify-center h-full min-h-[400px] rounded-2xl border-2 border-dashed border-gray-300 dark:border-slate-700 animate-fade-in">
-  ```
-- Line 338: `text-slate-600`
-  ```
-  <h2 className="text-xl font-bold text-slate-600 dark:text-slate-400">{title}</h2>
-  ```
-- Line 338: `text-slate-400`
-  ```
-  <h2 className="text-xl font-bold text-slate-600 dark:text-slate-400">{title}</h2>
-  ```
-- Line 339: `text-slate-500`
-  ```
-  <p className="text-slate-500 mt-2">This feature is under construction. Check back soon!</p>
-  ```
-- Line 376: `text-slate-500`
-  ```
-  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{title}</p>
-  ```
-- Line 376: `text-slate-400`
-  ```
-  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{title}</p>
-  ```
-- Line 379: `text-slate-900`
-  ```
-  <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-2">{value}</p>
-  ```
-- Line 380: `text-slate-500`
-  ```
-  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{change}</p>
-  ```
-- Line 380: `text-slate-400`
-  ```
-  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{change}</p>
-  ```
-- Line 384: `text-teal-700`
-  ```
-  className="text-sm font-semibold text-primary hover:text-teal-700 dark:hover:text-teal-400 transition-colors mt-4 text-left"
-  ```
-- Line 384: `text-teal-400`
-  ```
-  className="text-sm font-semibold text-primary hover:text-teal-700 dark:hover:text-teal-400 transition-colors mt-4 text-left"
-  ```
-- Line 395: `bg-slate-200`
-  ```
-  <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-48 mb-6"></div>
-  ```
-- Line 395: `bg-slate-700`
-  ```
-  <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-48 mb-6"></div>
-  ```
-- Line 399: `bg-slate-200`
-  ```
-  <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded mb-2"></div>
-  ```
-- Line 399: `bg-slate-700`
-  ```
-  <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded mb-2"></div>
-  ```
-- Line 400: `bg-slate-200`
-  ```
-  <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded mb-2"></div>
-  ```
-- Line 400: `bg-slate-700`
-  ```
-  <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded mb-2"></div>
-  ```
-- Line 401: `bg-slate-200`
-  ```
-  <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded"></div>
-  ```
-- Line 401: `bg-slate-700`
-  ```
-  <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded"></div>
-  ```
-- Line 414: `text-red-500`
-  ```
-  <div className="text-red-500 dark:text-red-400 mb-2">
-  ```
-- Line 414: `text-red-400`
-  ```
-  <div className="text-red-500 dark:text-red-400 mb-2">
-  ```
-- Line 419: `text-slate-900`
-  ```
-  <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Failed to load dashboard</h3>
-  ```
-- Line 420: `text-slate-500`
-  ```
-  <p className="text-slate-500 dark:text-slate-400 mb-4">{error}</p>
-  ```
-- Line 420: `text-slate-400`
-  ```
-  <p className="text-slate-500 dark:text-slate-400 mb-4">{error}</p>
-  ```
-- Line 423: `bg-teal-700`
-  ```
-  className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors"
-  ```
-- Line 436: `text-slate-500`
-  ```
-  <p className="text-slate-500 dark:text-slate-400">No dashboard data available</p>
-  ```
-- Line 436: `text-slate-400`
-  ```
-  <p className="text-slate-500 dark:text-slate-400">No dashboard data available</p>
-  ```
-- Line 453: `text-slate-800`
-  ```
-  <h2 className="text-base sm:text-lg font-semibold text-slate-800 dark:text-slate-200">
-  ```
-- Line 453: `text-slate-200`
-  ```
-  <h2 className="text-base sm:text-lg font-semibold text-slate-800 dark:text-slate-200">
-  ```
-- Line 463: `text-amber-600`
-  ```
-  <span className="text-xs text-amber-600 dark:text-amber-400">
-  ```
-- Line 463: `text-amber-400`
-  ```
-  <span className="text-xs text-amber-600 dark:text-amber-400">
-  ```
-- Line 482: `bg-amber-50`
-  ```
-  <div className="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-6">
-  ```
-- Line 482: `bg-amber-900`
-  ```
-  <div className="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-6">
-  ```
-- Line 482: `border-amber-200`
-  ```
-  <div className="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-6">
-  ```
-- Line 482: `border-amber-800`
-  ```
-  <div className="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-6">
-  ```
-- Line 485: `bg-amber-100`
-  ```
-  <div className="p-2 bg-amber-100 dark:bg-amber-900/50 rounded-lg">
-  ```
-- Line 485: `bg-amber-900`
-  ```
-  <div className="p-2 bg-amber-100 dark:bg-amber-900/50 rounded-lg">
-  ```
-- Line 489: `text-amber-900`
-  ```
-  <h3 className="text-sm font-semibold text-amber-900 dark:text-amber-100">
-  ```
-- Line 489: `text-amber-100`
-  ```
-  <h3 className="text-sm font-semibold text-amber-900 dark:text-amber-100">
-  ```
-- Line 492: `text-amber-700`
-  ```
-  <p className="text-xs text-amber-700 dark:text-amber-300">
-  ```
-- Line 492: `text-amber-300`
-  ```
-  <p className="text-xs text-amber-700 dark:text-amber-300">
-  ```
-- Line 498: `text-amber-900`
-  ```
-  <div className="text-2xl font-bold text-amber-900 dark:text-amber-100">
-  ```
-- Line 498: `text-amber-100`
-  ```
-  <div className="text-2xl font-bold text-amber-900 dark:text-amber-100">
-  ```
-- Line 501: `text-amber-700`
-  ```
-  <div className="text-xs text-amber-700 dark:text-amber-300">
-  ```
-- Line 501: `text-amber-300`
-  ```
-  <div className="text-xs text-amber-700 dark:text-amber-300">
-  ```
-- Line 544: `text-slate-900`
-  ```
-  <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-4">Recent Quote Requests</h3>
-  ```
-- Line 547: `text-slate-500`
-  ```
-  <p className="text-slate-500 dark:text-slate-400">No quote requests yet.</p>
-  ```
-- Line 547: `text-slate-400`
-  ```
-  <p className="text-slate-500 dark:text-slate-400">No quote requests yet.</p>
-  ```
-- Line 550: `text-teal-700`
-  ```
-  className="mt-2 text-primary hover:text-teal-700 dark:hover:text-teal-300 font-semibold"
-  ```
-- Line 550: `text-teal-300`
-  ```
-  className="mt-2 text-primary hover:text-teal-700 dark:hover:text-teal-300 font-semibold"
-  ```
-- Line 564: `border-slate-200`
-  ```
-  <div key={lead.id} className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden hover:shadow-md transition-all">
-  ```
-- Line 564: `border-slate-700`
-  ```
-  <div key={lead.id} className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden hover:shadow-md transition-all">
-  ```
-- Line 577: `bg-slate-50`
-  ```
-  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors gap-2">
-  ```
-- Line 577: `bg-slate-800`
-  ```
-  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors gap-2">
-  ```
-- Line 584: `text-slate-900`
-  ```
-  <span className="text-sm font-medium text-slate-900 dark:text-white">
-  ```
-- Line 590: `bg-green-100`
-  ```
-  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300" title="Verified Contact">
-  ```
-- Line 590: `text-green-700`
-  ```
-  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300" title="Verified Contact">
-  ```
-- Line 590: `bg-green-500`
-  ```
-  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300" title="Verified Contact">
-  ```
-- Line 590: `text-green-300`
-  ```
-  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300" title="Verified Contact">
-  ```
-- Line 602: `text-slate-500`
-  ```
-  <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-  ```
-- Line 602: `text-slate-400`
-  ```
-  <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-  ```
-- Line 612: `bg-blue-50`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 transition-colors flex items-center gap-1"
-  ```
-- Line 612: `text-blue-700`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 transition-colors flex items-center gap-1"
-  ```
-- Line 612: `bg-blue-100`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 transition-colors flex items-center gap-1"
-  ```
-- Line 612: `bg-blue-900`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 transition-colors flex items-center gap-1"
-  ```
-- Line 612: `text-blue-300`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 transition-colors flex items-center gap-1"
-  ```
-- Line 612: `bg-blue-900`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 transition-colors flex items-center gap-1"
-  ```
-- Line 622: `bg-slate-50`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-50 text-slate-700 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors flex items-center gap-1"
-  ```
-- Line 622: `text-slate-700`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-50 text-slate-700 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors flex items-center gap-1"
-  ```
-- Line 622: `bg-slate-100`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-50 text-slate-700 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors flex items-center gap-1"
-  ```
-- Line 622: `bg-slate-800`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-50 text-slate-700 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors flex items-center gap-1"
-  ```
-- Line 622: `text-slate-300`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-50 text-slate-700 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors flex items-center gap-1"
-  ```
-- Line 622: `bg-slate-700`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-50 text-slate-700 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors flex items-center gap-1"
-  ```
-- Line 632: `bg-red-50`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50 transition-colors flex items-center gap-1"
-  ```
-- Line 632: `text-red-700`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50 transition-colors flex items-center gap-1"
-  ```
-- Line 632: `bg-red-100`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50 transition-colors flex items-center gap-1"
-  ```
-- Line 632: `bg-red-900`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50 transition-colors flex items-center gap-1"
-  ```
-- Line 632: `text-red-300`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50 transition-colors flex items-center gap-1"
-  ```
-- Line 632: `bg-red-900`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50 transition-colors flex items-center gap-1"
-  ```
-- Line 1106: `text-slate-800`
-  ```
-  <div className="homeowner-dashboard-bg min-h-screen text-slate-800 dark:text-slate-200 animate-fade-in">
-  ```
-- Line 1106: `text-slate-200`
-  ```
-  <div className="homeowner-dashboard-bg min-h-screen text-slate-800 dark:text-slate-200 animate-fade-in">
-  ```
-
-#### spacing (99)
-
-- Line 57: `p-1`
-  ```
-  <div className="flex items-center p-1 rounded-full bg-gray-100 dark:bg-slate-800">
-  ```
-- Line 59: `p-1`
-  ```
-  <button key={opt.name} onClick={() => setTheme(opt.name)} className={`p-1.5 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-slate-800 focus:ring-primary ${ theme === opt.name ? 'bg-white dark:bg-slate-700 shadow-sm' : 'text-gray-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white'}`} aria-label={`Switch to ${opt.name} theme`} title={`Switch to ${opt.name} theme`}>{opt.icon}</button>
-  ```
-- Line 67: `space-x-3`
-  ```
-  <button onClick={onClick} className={`w-full flex items-center justify-between space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium ${ isActive ? 'bg-primary/10 text-primary dark:bg-primary/20' : 'text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800'}`}>
-  ```
-- Line 67: `px-4`
-  ```
-  <button onClick={onClick} className={`w-full flex items-center justify-between space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium ${ isActive ? 'bg-primary/10 text-primary dark:bg-primary/20' : 'text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800'}`}>
-  ```
-- Line 67: `py-2`
-  ```
-  <button onClick={onClick} className={`w-full flex items-center justify-between space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium ${ isActive ? 'bg-primary/10 text-primary dark:bg-primary/20' : 'text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800'}`}>
-  ```
-- Line 68: `space-x-3`
-  ```
-  <div className="flex items-center space-x-3">
-  ```
-- Line 267: `p-4`
-  ```
-  <aside className="dashboard-sidebar w-64 flex-shrink-0 border-r border-gray-200 dark:border-slate-800 flex flex-col p-4 h-full">
-  ```
-- Line 268: `px-2`
-  ```
-  <div className="flex items-center justify-between h-16 px-2 border-b border-gray-200 dark:border-slate-800 mb-4">
-  ```
-- Line 268: `mb-4`
-  ```
-  <div className="flex items-center justify-between h-16 px-2 border-b border-gray-200 dark:border-slate-800 mb-4">
-  ```
-- Line 269: `space-x-3`
-  ```
-  <button onClick={onHomeClick} className="flex items-center space-x-3">
-  ```
-- Line 274: `space-y-1`
-  ```
-  <nav className="flex-grow space-y-1">
-  ```
-- Line 277: `px-4`
-  ```
-  <button onClick={() => setQuotesOpen(!quotesOpen)} className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800 text-sm font-medium">
-  ```
-- Line 277: `py-2`
-  ```
-  <button onClick={() => setQuotesOpen(!quotesOpen)} className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800 text-sm font-medium">
-  ```
-- Line 278: `space-x-3`
-  ```
-  <div className="flex items-center space-x-3"><FileTextIcon /><span>My Quote Requests</span></div>
-  ```
-- Line 282: `pl-7`
-  ```
-  <div className="pl-7 mt-1 space-y-1">
-  ```
-- Line 282: `mt-1`
-  ```
-  <div className="pl-7 mt-1 space-y-1">
-  ```
-- Line 282: `space-y-1`
-  ```
-  <div className="pl-7 mt-1 space-y-1">
-  ```
-- Line 293: `space-x-3`
-  ```
-  <div className="mt-auto"><button onClick={onLogoutClick} className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800"><LogOutIcon /><span>Logout</span></button></div>
-  ```
-- Line 293: `px-4`
-  ```
-  <div className="mt-auto"><button onClick={onLogoutClick} className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800"><LogOutIcon /><span>Logout</span></button></div>
-  ```
-- Line 293: `py-2`
-  ```
-  <div className="mt-auto"><button onClick={onLogoutClick} className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800"><LogOutIcon /><span>Logout</span></button></div>
-  ```
-- Line 315: `px-4`
-  ```
-  <header className="glass-header h-20 flex-shrink-0 flex items-center justify-between px-4 sm:px-8">
-  ```
-- Line 315: `px-8`
-  ```
-  <header className="glass-header h-20 flex-shrink-0 flex items-center justify-between px-4 sm:px-8">
-  ```
-- Line 316: `space-x-4`
-  ```
-  <div className="flex items-center space-x-4">
-  ```
-- Line 319: `space-x-1`
-  ```
-  <div className="flex items-center space-x-1 sm:space-x-2">
-  ```
-- Line 319: `space-x-2`
-  ```
-  <div className="flex items-center space-x-1 sm:space-x-2">
-  ```
-- Line 321: `py-2`
-  ```
-  <input type="text" placeholder="Search..." className={`bg-transparent focus:outline-none transition-all duration-300 ease-in-out text-sm ${ isSearchOpen ? 'w-32 sm:w-40 py-2 pl-3 pr-2' : 'w-0 p-0' }`}/>
-  ```
-- Line 321: `pl-3`
-  ```
-  <input type="text" placeholder="Search..." className={`bg-transparent focus:outline-none transition-all duration-300 ease-in-out text-sm ${ isSearchOpen ? 'w-32 sm:w-40 py-2 pl-3 pr-2' : 'w-0 p-0' }`}/>
-  ```
-- Line 321: `pr-2`
-  ```
-  <input type="text" placeholder="Search..." className={`bg-transparent focus:outline-none transition-all duration-300 ease-in-out text-sm ${ isSearchOpen ? 'w-32 sm:w-40 py-2 pl-3 pr-2' : 'w-0 p-0' }`}/>
-  ```
-- Line 321: `p-0`
-  ```
-  <input type="text" placeholder="Search..." className={`bg-transparent focus:outline-none transition-all duration-300 ease-in-out text-sm ${ isSearchOpen ? 'w-32 sm:w-40 py-2 pl-3 pr-2' : 'w-0 p-0' }`}/>
-  ```
-- Line 322: `p-2`
-  ```
-  <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400" aria-label="Toggle search"><SearchIcon /></button>
-  ```
-- Line 324: `px-4`
-  ```
-  <button onClick={onNewQuoteClick} className="hidden sm:block bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-teal-700 transition-colors shadow-sm">Request New Quote</button>
-  ```
-- Line 324: `py-2`
-  ```
-  <button onClick={onNewQuoteClick} className="hidden sm:block bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-teal-700 transition-colors shadow-sm">Request New Quote</button>
-  ```
-- Line 326: `p-2`
-  ```
-  <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hidden sm:block"><HelpCircleIcon /></button>
-  ```
-- Line 327: `p-2`
-  ```
-  <button className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400"><BellIcon /><span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-black/50"></span></button>
-  ```
-- Line 327: `top-1`
-  ```
-  <button className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400"><BellIcon /><span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-black/50"></span></button>
-  ```
-- Line 327: `right-1`
-  ```
-  <button className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400"><BellIcon /><span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-black/50"></span></button>
-  ```
-- Line 339: `mt-2`
-  ```
-  <p className="text-slate-500 mt-2">This feature is under construction. Check back soon!</p>
-  ```
-- Line 374: `p-3`
-  ```
-  <div className="theme-card p-3 flex flex-col">
-  ```
-- Line 377: `p-2`
-  ```
-  <div className="p-2 bg-primary/10 rounded-lg">{icon}</div>
-  ```
-- Line 379: `mt-2`
-  ```
-  <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-2">{value}</p>
-  ```
-- Line 380: `mt-1`
-  ```
-  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{change}</p>
-  ```
-- Line 384: `mt-4`
-  ```
-  className="text-sm font-semibold text-primary hover:text-teal-700 dark:hover:text-teal-400 transition-colors mt-4 text-left"
-  ```
-- Line 395: `mb-6`
-  ```
-  <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-48 mb-6"></div>
-  ```
-- Line 396: `gap-3`
-  ```
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-  ```
-- Line 396: `gap-4`
-  ```
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-  ```
-- Line 398: `p-3`
-  ```
-  <div key={i} className="theme-card p-3">
-  ```
-- Line 399: `mb-2`
-  ```
-  <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded mb-2"></div>
-  ```
-- Line 400: `mb-2`
-  ```
-  <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded mb-2"></div>
-  ```
-- Line 413: `p-6`
-  ```
-  <div className="theme-card p-6 text-center">
-  ```
-- Line 414: `mb-2`
-  ```
-  <div className="text-red-500 dark:text-red-400 mb-2">
-  ```
-- Line 419: `mb-2`
-  ```
-  <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Failed to load dashboard</h3>
-  ```
-- Line 420: `mb-4`
-  ```
-  <p className="text-slate-500 dark:text-slate-400 mb-4">{error}</p>
-  ```
-- Line 423: `px-4`
-  ```
-  className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors"
-  ```
-- Line 423: `py-2`
-  ```
-  className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors"
-  ```
-- Line 435: `p-6`
-  ```
-  <div className="theme-card p-6 text-center">
-  ```
-- Line 450: `space-y-6`
-  ```
-  <div className="animate-fade-in space-y-6">
-  ```
-- Line 451: `gap-4`
-  ```
-  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-  ```
-- Line 456: `gap-2`
-  ```
-  <div className="flex items-center gap-2 mt-1">
-  ```
-- Line 456: `mt-1`
-  ```
-  <div className="flex items-center gap-2 mt-1">
-  ```
-- Line 478: `mb-6`
-  ```
-  className="mb-6"
-  ```
-- Line 482: `p-4`
-  ```
-  <div className="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-6">
-  ```
-- Line 482: `mb-6`
-  ```
-  <div className="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-6">
-  ```
-- Line 484: `gap-3`
-  ```
-  <div className="flex items-center gap-3">
-  ```
-- Line 485: `p-2`
-  ```
-  <div className="p-2 bg-amber-100 dark:bg-amber-900/50 rounded-lg">
-  ```
-- Line 508: `gap-3`
-  ```
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-  ```
-- Line 508: `gap-4`
-  ```
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-  ```
-- Line 543: `p-4`
-  ```
-  <div className="theme-card p-4 sm:p-6">
-  ```
-- Line 543: `p-6`
-  ```
-  <div className="theme-card p-4 sm:p-6">
-  ```
-- Line 544: `mb-4`
-  ```
-  <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-4">Recent Quote Requests</h3>
-  ```
-- Line 546: `py-10`
-  ```
-  <div className="text-center py-10">
-  ```
-- Line 550: `mt-2`
-  ```
-  className="mt-2 text-primary hover:text-teal-700 dark:hover:text-teal-300 font-semibold"
-  ```
-- Line 556: `space-y-3`
-  ```
-  <div className="space-y-3">
-  ```
-- Line 577: `p-3`
-  ```
-  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors gap-2">
-  ```
-- Line 577: `gap-2`
-  ```
-  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors gap-2">
-  ```
-- Line 579: `gap-2`
-  ```
-  <div className="flex items-center gap-2 mb-1">
-  ```
-- Line 579: `mb-1`
-  ```
-  <div className="flex items-center gap-2 mb-1">
-  ```
-- Line 590: `gap-1`
-  ```
-  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300" title="Verified Contact">
-  ```
-- Line 590: `px-1`
-  ```
-  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300" title="Verified Contact">
-  ```
-- Line 590: `py-0`
-  ```
-  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300" title="Verified Contact">
-  ```
-- Line 598: `px-2`
-  ```
-  <span className={`text-xs px-2 py-0.5 rounded-full ${statusInfo.accent}`}>
-  ```
-- Line 598: `py-0`
-  ```
-  <span className={`text-xs px-2 py-0.5 rounded-full ${statusInfo.accent}`}>
-  ```
-- Line 608: `gap-1`
-  ```
-  <div className="flex items-center gap-1.5">
-  ```
-- Line 612: `px-2`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 transition-colors flex items-center gap-1"
-  ```
-- Line 612: `py-1`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 transition-colors flex items-center gap-1"
-  ```
-- Line 612: `gap-1`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 transition-colors flex items-center gap-1"
-  ```
-- Line 622: `px-2`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-50 text-slate-700 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors flex items-center gap-1"
-  ```
-- Line 622: `py-1`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-50 text-slate-700 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors flex items-center gap-1"
-  ```
-- Line 622: `gap-1`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-50 text-slate-700 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors flex items-center gap-1"
-  ```
-- Line 632: `px-2`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50 transition-colors flex items-center gap-1"
-  ```
-- Line 632: `py-1`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50 transition-colors flex items-center gap-1"
-  ```
-- Line 632: `gap-1`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50 transition-colors flex items-center gap-1"
-  ```
-- Line 1107: `pl-64`
-  ```
-  <div className="md:pl-64">
-  ```
-- Line 1109: `top-0`
-  ```
-  <div className={`sticky top-0 z-20 transition-transform duration-300 ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
-  ```
-- Line 1117: `p-3`
-  ```
-  <main className="flex-1 p-3 sm:p-4 md:p-6 pb-24 sm:pb-8">
-  ```
-- Line 1117: `p-4`
-  ```
-  <main className="flex-1 p-3 sm:p-4 md:p-6 pb-24 sm:pb-8">
-  ```
-- Line 1117: `p-6`
-  ```
-  <main className="flex-1 p-3 sm:p-4 md:p-6 pb-24 sm:pb-8">
-  ```
-- Line 1117: `pb-24`
-  ```
-  <main className="flex-1 p-3 sm:p-4 md:p-6 pb-24 sm:pb-8">
-  ```
-- Line 1117: `pb-8`
-  ```
-  <main className="flex-1 p-3 sm:p-4 md:p-6 pb-24 sm:pb-8">
-  ```
-- Line 1124: `left-0`
-  ```
-  <div className="hidden md:fixed md:inset-y-0 md:left-0 md:z-40 md:flex">
-  ```
-
-#### radius (24)
-
-- Line 57: `rounded-full`
-  ```
-  <div className="flex items-center p-1 rounded-full bg-gray-100 dark:bg-slate-800">
-  ```
-- Line 59: `rounded-full`
-  ```
-  <button key={opt.name} onClick={() => setTheme(opt.name)} className={`p-1.5 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-slate-800 focus:ring-primary ${ theme === opt.name ? 'bg-white dark:bg-slate-700 shadow-sm' : 'text-gray-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white'}`} aria-label={`Switch to ${opt.name} theme`} title={`Switch to ${opt.name} theme`}>{opt.icon}</button>
-  ```
-- Line 67: `rounded-lg`
-  ```
-  <button onClick={onClick} className={`w-full flex items-center justify-between space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium ${ isActive ? 'bg-primary/10 text-primary dark:bg-primary/20' : 'text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800'}`}>
-  ```
-- Line 73: `rounded-full`
-  ```
-  <span className="bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
-  ```
-- Line 277: `rounded-lg`
-  ```
-  <button onClick={() => setQuotesOpen(!quotesOpen)} className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800 text-sm font-medium">
-  ```
-- Line 293: `rounded-lg`
-  ```
-  <div className="mt-auto"><button onClick={onLogoutClick} className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800"><LogOutIcon /><span>Logout</span></button></div>
-  ```
-- Line 320: `rounded-lg`
-  ```
-  <div className={`flex items-center justify-end transition-all duration-300 ${isSearchOpen ? 'bg-gray-100 dark:bg-slate-800 rounded-lg' : ''}`}>
-  ```
-- Line 322: `rounded-full`
-  ```
-  <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400" aria-label="Toggle search"><SearchIcon /></button>
-  ```
-- Line 324: `rounded-lg`
-  ```
-  <button onClick={onNewQuoteClick} className="hidden sm:block bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-teal-700 transition-colors shadow-sm">Request New Quote</button>
-  ```
-- Line 326: `rounded-full`
-  ```
-  <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hidden sm:block"><HelpCircleIcon /></button>
-  ```
-- Line 327: `rounded-full`
-  ```
-  <button className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400"><BellIcon /><span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-black/50"></span></button>
-  ```
-- Line 327: `rounded-full`
-  ```
-  <button className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400"><BellIcon /><span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-black/50"></span></button>
-  ```
-- Line 328: `rounded-full`
-  ```
-  <button><Image src="https://picsum.photos/seed/user/40/40" alt="User Avatar" width={40} height={40} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full" /></button>
-  ```
-- Line 336: `rounded-2xl`
-  ```
-  <div className="flex items-center justify-center h-full min-h-[400px] rounded-2xl border-2 border-dashed border-gray-300 dark:border-slate-700 animate-fade-in">
-  ```
-- Line 377: `rounded-lg`
-  ```
-  <div className="p-2 bg-primary/10 rounded-lg">{icon}</div>
-  ```
-- Line 423: `rounded-lg`
-  ```
-  className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors"
-  ```
-- Line 482: `rounded-xl`
-  ```
-  <div className="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-6">
-  ```
-- Line 485: `rounded-lg`
-  ```
-  <div className="p-2 bg-amber-100 dark:bg-amber-900/50 rounded-lg">
-  ```
-- Line 564: `rounded-lg`
-  ```
-  <div key={lead.id} className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden hover:shadow-md transition-all">
-  ```
-- Line 590: `rounded-full`
-  ```
-  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300" title="Verified Contact">
-  ```
-- Line 598: `rounded-full`
-  ```
-  <span className={`text-xs px-2 py-0.5 rounded-full ${statusInfo.accent}`}>
-  ```
-- Line 612: `rounded-lg`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 transition-colors flex items-center gap-1"
-  ```
-- Line 622: `rounded-lg`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-50 text-slate-700 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors flex items-center gap-1"
-  ```
-- Line 632: `rounded-lg`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50 transition-colors flex items-center gap-1"
-  ```
-
-#### shadow (3)
-
-- Line 59: `shadow-sm`
-  ```
-  <button key={opt.name} onClick={() => setTheme(opt.name)} className={`p-1.5 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-slate-800 focus:ring-primary ${ theme === opt.name ? 'bg-white dark:bg-slate-700 shadow-sm' : 'text-gray-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white'}`} aria-label={`Switch to ${opt.name} theme`} title={`Switch to ${opt.name} theme`}>{opt.icon}</button>
-  ```
-- Line 324: `shadow-sm`
-  ```
-  <button onClick={onNewQuoteClick} className="hidden sm:block bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-teal-700 transition-colors shadow-sm">Request New Quote</button>
-  ```
-- Line 564: `shadow-md`
-  ```
-  <div key={lead.id} className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden hover:shadow-md transition-all">
-  ```
-
-#### animation (7)
-
-- Line 59: `duration-200`
-  ```
-  <button key={opt.name} onClick={() => setTheme(opt.name)} className={`p-1.5 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-slate-800 focus:ring-primary ${ theme === opt.name ? 'bg-white dark:bg-slate-700 shadow-sm' : 'text-gray-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white'}`} aria-label={`Switch to ${opt.name} theme`} title={`Switch to ${opt.name} theme`}>{opt.icon}</button>
-  ```
-- Line 279: `duration-200`
-  ```
-  <ChevronDownIcon className={`transition-transform duration-200 ${quotesOpen ? 'rotate-180' : ''}`} />
-  ```
-- Line 320: `duration-300`
-  ```
-  <div className={`flex items-center justify-end transition-all duration-300 ${isSearchOpen ? 'bg-gray-100 dark:bg-slate-800 rounded-lg' : ''}`}>
-  ```
-- Line 321: `duration-300`
-  ```
-  <input type="text" placeholder="Search..." className={`bg-transparent focus:outline-none transition-all duration-300 ease-in-out text-sm ${ isSearchOpen ? 'w-32 sm:w-40 py-2 pl-3 pr-2' : 'w-0 p-0' }`}/>
-  ```
-- Line 321: `ease-in`
-  ```
-  <input type="text" placeholder="Search..." className={`bg-transparent focus:outline-none transition-all duration-300 ease-in-out text-sm ${ isSearchOpen ? 'w-32 sm:w-40 py-2 pl-3 pr-2' : 'w-0 p-0' }`}/>
-  ```
-- Line 394: `animate-pulse`
-  ```
-  <div className="animate-pulse">
-  ```
-- Line 1109: `duration-300`
-  ```
-  <div className={`sticky top-0 z-20 transition-transform duration-300 ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
-  ```
-
-#### typography (31)
-
-- Line 67: `text-sm`
-  ```
-  <button onClick={onClick} className={`w-full flex items-center justify-between space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium ${ isActive ? 'bg-primary/10 text-primary dark:bg-primary/20' : 'text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800'}`}>
-  ```
-- Line 73: `text-xs`
-  ```
-  <span className="bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
-  ```
-- Line 271: `text-2xl`
-  ```
-  <span className="text-2xl font-bold text-primary">SolarMatch</span>
-  ```
-- Line 277: `text-sm`
-  ```
-  <button onClick={() => setQuotesOpen(!quotesOpen)} className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800 text-sm font-medium">
-  ```
-- Line 293: `text-sm`
-  ```
-  <div className="mt-auto"><button onClick={onLogoutClick} className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800"><LogOutIcon /><span>Logout</span></button></div>
-  ```
-- Line 317: `text-lg`
-  ```
-  <h1 className="text-lg font-bold text-slate-900 dark:text-white">{pageTitle}</h1>
-  ```
-- Line 321: `text-sm`
-  ```
-  <input type="text" placeholder="Search..." className={`bg-transparent focus:outline-none transition-all duration-300 ease-in-out text-sm ${ isSearchOpen ? 'w-32 sm:w-40 py-2 pl-3 pr-2' : 'w-0 p-0' }`}/>
-  ```
-- Line 324: `text-sm`
-  ```
-  <button onClick={onNewQuoteClick} className="hidden sm:block bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-teal-700 transition-colors shadow-sm">Request New Quote</button>
-  ```
-- Line 338: `text-xl`
-  ```
-  <h2 className="text-xl font-bold text-slate-600 dark:text-slate-400">{title}</h2>
-  ```
-- Line 376: `text-sm`
-  ```
-  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{title}</p>
-  ```
-- Line 379: `text-xl`
-  ```
-  <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-2">{value}</p>
-  ```
-- Line 379: `text-2xl`
-  ```
-  <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-2">{value}</p>
-  ```
-- Line 380: `text-xs`
-  ```
-  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{change}</p>
-  ```
-- Line 384: `text-sm`
-  ```
-  className="text-sm font-semibold text-primary hover:text-teal-700 dark:hover:text-teal-400 transition-colors mt-4 text-left"
-  ```
-- Line 419: `text-lg`
-  ```
-  <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Failed to load dashboard</h3>
-  ```
-- Line 453: `text-base`
-  ```
-  <h2 className="text-base sm:text-lg font-semibold text-slate-800 dark:text-slate-200">
-  ```
-- Line 453: `text-lg`
-  ```
-  <h2 className="text-base sm:text-lg font-semibold text-slate-800 dark:text-slate-200">
-  ```
-- Line 463: `text-xs`
-  ```
-  <span className="text-xs text-amber-600 dark:text-amber-400">
-  ```
-- Line 489: `text-sm`
-  ```
-  <h3 className="text-sm font-semibold text-amber-900 dark:text-amber-100">
-  ```
-- Line 492: `text-xs`
-  ```
-  <p className="text-xs text-amber-700 dark:text-amber-300">
-  ```
-- Line 498: `text-2xl`
-  ```
-  <div className="text-2xl font-bold text-amber-900 dark:text-amber-100">
-  ```
-- Line 501: `text-xs`
-  ```
-  <div className="text-xs text-amber-700 dark:text-amber-300">
-  ```
-- Line 544: `text-base`
-  ```
-  <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-4">Recent Quote Requests</h3>
-  ```
-- Line 544: `text-lg`
-  ```
-  <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-4">Recent Quote Requests</h3>
-  ```
-- Line 584: `text-sm`
-  ```
-  <span className="text-sm font-medium text-slate-900 dark:text-white">
-  ```
-- Line 594: `text-xs`
-  ```
-  <span className="text-xs font-medium">Verified</span>
-  ```
-- Line 598: `text-xs`
-  ```
-  <span className={`text-xs px-2 py-0.5 rounded-full ${statusInfo.accent}`}>
-  ```
-- Line 602: `text-xs`
-  ```
-  <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-  ```
-- Line 612: `text-xs`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 transition-colors flex items-center gap-1"
-  ```
-- Line 622: `text-xs`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-50 text-slate-700 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors flex items-center gap-1"
-  ```
-- Line 632: `text-xs`
-  ```
-  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50 transition-colors flex items-center gap-1"
   ```
 
 ### D:/Desktop Mass/SOLAR LEAD GEN PROJECT MAIN FILE/solarmatch/src/components/InstallerLeadFeed.tsx
@@ -34667,6 +33325,490 @@
 - Line 88: `shadow-lg`
   ```
   className="bg-primary/10 border-2 border-primary/20 text-primary hover:bg-primary/20 w-full px-4 py-3 rounded-xl text-sm font-semibold transition-all transform active:scale-95 flex items-center justify-center space-x-2 shadow-lg"
+  ```
+
+### D:/Desktop Mass/SOLAR LEAD GEN PROJECT MAIN FILE/solarmatch/src/app/homeowner/dashboard/page.tsx
+
+**Total Issues**: 117
+
+#### spacing (99)
+
+- Line 57: `p-1`
+  ```
+  <div className="flex items-center p-1 rounded-full bg-muted">
+  ```
+- Line 59: `p-1`
+  ```
+  <button key={opt.name} onClick={() => setTheme(opt.name)} className={`p-1.5 rounded-full transition-colors duration-fast focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background focus:ring-primary ${ theme === opt.name ? 'bg-background shadow-button' : 'text-muted-foreground hover:text-foreground'}`} aria-label={`Switch to ${opt.name} theme`} title={`Switch to ${opt.name} theme`}>{opt.icon}</button>
+  ```
+- Line 67: `space-x-3`
+  ```
+  <button onClick={onClick} className={`w-full flex items-center justify-between space-x-3 px-4 py-2.5 rounded-card transition-colors text-body-small font-medium ${ isActive ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted/50'}`}>
+  ```
+- Line 67: `px-4`
+  ```
+  <button onClick={onClick} className={`w-full flex items-center justify-between space-x-3 px-4 py-2.5 rounded-card transition-colors text-body-small font-medium ${ isActive ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted/50'}`}>
+  ```
+- Line 67: `py-2`
+  ```
+  <button onClick={onClick} className={`w-full flex items-center justify-between space-x-3 px-4 py-2.5 rounded-card transition-colors text-body-small font-medium ${ isActive ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted/50'}`}>
+  ```
+- Line 68: `space-x-3`
+  ```
+  <div className="flex items-center space-x-3">
+  ```
+- Line 267: `p-4`
+  ```
+  <aside className="dashboard-sidebar w-64 flex-shrink-0 border-r border-border flex flex-col p-4 h-full">
+  ```
+- Line 268: `px-2`
+  ```
+  <div className="flex items-center justify-between h-16 px-2 border-b border-border mb-4">
+  ```
+- Line 268: `mb-4`
+  ```
+  <div className="flex items-center justify-between h-16 px-2 border-b border-border mb-4">
+  ```
+- Line 269: `space-x-3`
+  ```
+  <button onClick={onHomeClick} className="flex items-center space-x-3">
+  ```
+- Line 274: `space-y-1`
+  ```
+  <nav className="flex-grow space-y-1">
+  ```
+- Line 277: `px-4`
+  ```
+  <button onClick={() => setQuotesOpen(!quotesOpen)} className="w-full flex items-center justify-between px-4 py-2.5 rounded-card text-muted-foreground hover:bg-muted/50 text-body-small font-medium">
+  ```
+- Line 277: `py-2`
+  ```
+  <button onClick={() => setQuotesOpen(!quotesOpen)} className="w-full flex items-center justify-between px-4 py-2.5 rounded-card text-muted-foreground hover:bg-muted/50 text-body-small font-medium">
+  ```
+- Line 278: `space-x-3`
+  ```
+  <div className="flex items-center space-x-3"><FileTextIcon /><span>My Quote Requests</span></div>
+  ```
+- Line 282: `pl-7`
+  ```
+  <div className="pl-7 mt-1 space-y-1">
+  ```
+- Line 282: `mt-1`
+  ```
+  <div className="pl-7 mt-1 space-y-1">
+  ```
+- Line 282: `space-y-1`
+  ```
+  <div className="pl-7 mt-1 space-y-1">
+  ```
+- Line 293: `space-x-3`
+  ```
+  <div className="mt-auto"><button onClick={onLogoutClick} className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-card transition-colors text-body-small font-medium text-muted-foreground hover:bg-muted/50"><LogOutIcon /><span>Logout</span></button></div>
+  ```
+- Line 293: `px-4`
+  ```
+  <div className="mt-auto"><button onClick={onLogoutClick} className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-card transition-colors text-body-small font-medium text-muted-foreground hover:bg-muted/50"><LogOutIcon /><span>Logout</span></button></div>
+  ```
+- Line 293: `py-2`
+  ```
+  <div className="mt-auto"><button onClick={onLogoutClick} className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-card transition-colors text-body-small font-medium text-muted-foreground hover:bg-muted/50"><LogOutIcon /><span>Logout</span></button></div>
+  ```
+- Line 315: `px-4`
+  ```
+  <header className="glass-header h-20 flex-shrink-0 flex items-center justify-between px-4 sm:px-8">
+  ```
+- Line 315: `px-8`
+  ```
+  <header className="glass-header h-20 flex-shrink-0 flex items-center justify-between px-4 sm:px-8">
+  ```
+- Line 316: `space-x-4`
+  ```
+  <div className="flex items-center space-x-4">
+  ```
+- Line 319: `space-x-1`
+  ```
+  <div className="flex items-center space-x-1 sm:space-x-2">
+  ```
+- Line 319: `space-x-2`
+  ```
+  <div className="flex items-center space-x-1 sm:space-x-2">
+  ```
+- Line 321: `py-2`
+  ```
+  <input type="text" placeholder="Search..." className={`bg-transparent focus:outline-none transition-all duration-normal ease-in-out text-body-small ${ isSearchOpen ? 'w-32 sm:w-40 py-2 pl-3 pr-2' : 'w-0 p-0' }`}/>
+  ```
+- Line 321: `pl-3`
+  ```
+  <input type="text" placeholder="Search..." className={`bg-transparent focus:outline-none transition-all duration-normal ease-in-out text-body-small ${ isSearchOpen ? 'w-32 sm:w-40 py-2 pl-3 pr-2' : 'w-0 p-0' }`}/>
+  ```
+- Line 321: `pr-2`
+  ```
+  <input type="text" placeholder="Search..." className={`bg-transparent focus:outline-none transition-all duration-normal ease-in-out text-body-small ${ isSearchOpen ? 'w-32 sm:w-40 py-2 pl-3 pr-2' : 'w-0 p-0' }`}/>
+  ```
+- Line 321: `p-0`
+  ```
+  <input type="text" placeholder="Search..." className={`bg-transparent focus:outline-none transition-all duration-normal ease-in-out text-body-small ${ isSearchOpen ? 'w-32 sm:w-40 py-2 pl-3 pr-2' : 'w-0 p-0' }`}/>
+  ```
+- Line 322: `p-2`
+  ```
+  <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="p-2 rounded-full hover:bg-muted text-muted-foreground" aria-label="Toggle search"><SearchIcon /></button>
+  ```
+- Line 324: `px-4`
+  ```
+  <button onClick={onNewQuoteClick} className="hidden sm:block bg-primary text-primary-foreground px-4 py-2 rounded-button text-button font-semibold hover:bg-primary/90 transition-colors shadow-button">Request New Quote</button>
+  ```
+- Line 324: `py-2`
+  ```
+  <button onClick={onNewQuoteClick} className="hidden sm:block bg-primary text-primary-foreground px-4 py-2 rounded-button text-button font-semibold hover:bg-primary/90 transition-colors shadow-button">Request New Quote</button>
+  ```
+- Line 326: `p-2`
+  ```
+  <button className="p-2 rounded-full hover:bg-muted text-muted-foreground hidden sm:block"><HelpCircleIcon /></button>
+  ```
+- Line 327: `p-2`
+  ```
+  <button className="relative p-2 rounded-full hover:bg-muted text-muted-foreground"><BellIcon /><span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-error ring-2 ring-background"></span></button>
+  ```
+- Line 327: `top-1`
+  ```
+  <button className="relative p-2 rounded-full hover:bg-muted text-muted-foreground"><BellIcon /><span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-error ring-2 ring-background"></span></button>
+  ```
+- Line 327: `right-1`
+  ```
+  <button className="relative p-2 rounded-full hover:bg-muted text-muted-foreground"><BellIcon /><span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-error ring-2 ring-background"></span></button>
+  ```
+- Line 339: `mt-2`
+  ```
+  <p className="text-muted-foreground mt-2">This feature is under construction. Check back soon!</p>
+  ```
+- Line 374: `p-3`
+  ```
+  <div className="theme-card p-3 flex flex-col">
+  ```
+- Line 377: `p-2`
+  ```
+  <div className="p-2 bg-primary/10 rounded-card">{icon}</div>
+  ```
+- Line 379: `mt-2`
+  ```
+  <p className="text-xl sm:text-2xl font-bold text-foreground mt-2">{value}</p>
+  ```
+- Line 380: `mt-1`
+  ```
+  <p className="text-caption text-muted-foreground mt-1">{change}</p>
+  ```
+- Line 384: `mt-4`
+  ```
+  className="text-body-small font-semibold text-primary hover:text-primary/80 transition-colors mt-4 text-left"
+  ```
+- Line 395: `mb-6`
+  ```
+  <div className="h-6 bg-muted rounded w-48 mb-6"></div>
+  ```
+- Line 396: `gap-3`
+  ```
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+  ```
+- Line 396: `gap-4`
+  ```
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+  ```
+- Line 398: `p-3`
+  ```
+  <div key={i} className="theme-card p-3">
+  ```
+- Line 399: `mb-2`
+  ```
+  <div className="h-16 bg-muted rounded mb-2"></div>
+  ```
+- Line 400: `mb-2`
+  ```
+  <div className="h-8 bg-muted rounded mb-2"></div>
+  ```
+- Line 413: `p-6`
+  ```
+  <div className="theme-card p-6 text-center">
+  ```
+- Line 414: `mb-2`
+  ```
+  <div className="text-error mb-2">
+  ```
+- Line 419: `mb-2`
+  ```
+  <h3 className="text-heading-4 font-semibold text-foreground mb-2">Failed to load dashboard</h3>
+  ```
+- Line 420: `mb-4`
+  ```
+  <p className="text-muted-foreground mb-4">{error}</p>
+  ```
+- Line 423: `px-4`
+  ```
+  className="bg-primary text-primary-foreground px-4 py-2 rounded-button hover:bg-primary/90 transition-colors"
+  ```
+- Line 423: `py-2`
+  ```
+  className="bg-primary text-primary-foreground px-4 py-2 rounded-button hover:bg-primary/90 transition-colors"
+  ```
+- Line 435: `p-6`
+  ```
+  <div className="theme-card p-6 text-center">
+  ```
+- Line 450: `space-y-6`
+  ```
+  <div className="animate-fade-in space-y-6">
+  ```
+- Line 451: `gap-4`
+  ```
+  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+  ```
+- Line 456: `gap-2`
+  ```
+  <div className="flex items-center gap-2 mt-1">
+  ```
+- Line 456: `mt-1`
+  ```
+  <div className="flex items-center gap-2 mt-1">
+  ```
+- Line 478: `mb-6`
+  ```
+  className="mb-6"
+  ```
+- Line 482: `p-4`
+  ```
+  <div className="bg-warning/10 border-2 border-warning/20 rounded-xl p-4 mb-6">
+  ```
+- Line 482: `mb-6`
+  ```
+  <div className="bg-warning/10 border-2 border-warning/20 rounded-xl p-4 mb-6">
+  ```
+- Line 484: `gap-3`
+  ```
+  <div className="flex items-center gap-3">
+  ```
+- Line 485: `p-2`
+  ```
+  <div className="p-2 bg-warning/20 rounded-card">
+  ```
+- Line 508: `gap-3`
+  ```
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+  ```
+- Line 508: `gap-4`
+  ```
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+  ```
+- Line 543: `p-4`
+  ```
+  <div className="theme-card p-4 sm:p-6">
+  ```
+- Line 543: `p-6`
+  ```
+  <div className="theme-card p-4 sm:p-6">
+  ```
+- Line 544: `mb-4`
+  ```
+  <h3 className="text-body-large sm:text-heading-4 font-bold text-foreground mb-4">Recent Quote Requests</h3>
+  ```
+- Line 546: `py-10`
+  ```
+  <div className="text-center py-10">
+  ```
+- Line 550: `mt-2`
+  ```
+  className="mt-2 text-primary hover:text-primary/80 font-semibold"
+  ```
+- Line 556: `space-y-3`
+  ```
+  <div className="space-y-3">
+  ```
+- Line 577: `p-3`
+  ```
+  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 hover:bg-muted/30 transition-colors gap-2">
+  ```
+- Line 577: `gap-2`
+  ```
+  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 hover:bg-muted/30 transition-colors gap-2">
+  ```
+- Line 579: `gap-2`
+  ```
+  <div className="flex items-center gap-2 mb-1">
+  ```
+- Line 579: `mb-1`
+  ```
+  <div className="flex items-center gap-2 mb-1">
+  ```
+- Line 590: `gap-1`
+  ```
+  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-success/10 text-success" title="Verified Contact">
+  ```
+- Line 590: `px-1`
+  ```
+  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-success/10 text-success" title="Verified Contact">
+  ```
+- Line 590: `py-0`
+  ```
+  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-success/10 text-success" title="Verified Contact">
+  ```
+- Line 598: `px-2`
+  ```
+  <span className={`text-caption px-2 py-0.5 rounded-full ${statusInfo.accent}`}>
+  ```
+- Line 598: `py-0`
+  ```
+  <span className={`text-caption px-2 py-0.5 rounded-full ${statusInfo.accent}`}>
+  ```
+- Line 608: `gap-1`
+  ```
+  <div className="flex items-center gap-1.5">
+  ```
+- Line 612: `px-2`
+  ```
+  className="px-2.5 py-1.5 rounded-button text-caption font-medium bg-info/10 text-info hover:bg-info/20 transition-colors flex items-center gap-1"
+  ```
+- Line 612: `py-1`
+  ```
+  className="px-2.5 py-1.5 rounded-button text-caption font-medium bg-info/10 text-info hover:bg-info/20 transition-colors flex items-center gap-1"
+  ```
+- Line 612: `gap-1`
+  ```
+  className="px-2.5 py-1.5 rounded-button text-caption font-medium bg-info/10 text-info hover:bg-info/20 transition-colors flex items-center gap-1"
+  ```
+- Line 622: `px-2`
+  ```
+  className="px-2.5 py-1.5 rounded-button text-caption font-medium bg-muted text-muted-foreground hover:bg-muted/80 transition-colors flex items-center gap-1"
+  ```
+- Line 622: `py-1`
+  ```
+  className="px-2.5 py-1.5 rounded-button text-caption font-medium bg-muted text-muted-foreground hover:bg-muted/80 transition-colors flex items-center gap-1"
+  ```
+- Line 622: `gap-1`
+  ```
+  className="px-2.5 py-1.5 rounded-button text-caption font-medium bg-muted text-muted-foreground hover:bg-muted/80 transition-colors flex items-center gap-1"
+  ```
+- Line 632: `px-2`
+  ```
+  className="px-2.5 py-1.5 rounded-button text-caption font-medium bg-error/10 text-error hover:bg-error/20 transition-colors flex items-center gap-1"
+  ```
+- Line 632: `py-1`
+  ```
+  className="px-2.5 py-1.5 rounded-button text-caption font-medium bg-error/10 text-error hover:bg-error/20 transition-colors flex items-center gap-1"
+  ```
+- Line 632: `gap-1`
+  ```
+  className="px-2.5 py-1.5 rounded-button text-caption font-medium bg-error/10 text-error hover:bg-error/20 transition-colors flex items-center gap-1"
+  ```
+- Line 1107: `pl-64`
+  ```
+  <div className="md:pl-64">
+  ```
+- Line 1109: `top-0`
+  ```
+  <div className={`sticky top-0 z-20 transition-transform duration-normal ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
+  ```
+- Line 1117: `p-3`
+  ```
+  <main className="flex-1 p-3 sm:p-4 md:p-6 pb-24 sm:pb-8">
+  ```
+- Line 1117: `p-4`
+  ```
+  <main className="flex-1 p-3 sm:p-4 md:p-6 pb-24 sm:pb-8">
+  ```
+- Line 1117: `p-6`
+  ```
+  <main className="flex-1 p-3 sm:p-4 md:p-6 pb-24 sm:pb-8">
+  ```
+- Line 1117: `pb-24`
+  ```
+  <main className="flex-1 p-3 sm:p-4 md:p-6 pb-24 sm:pb-8">
+  ```
+- Line 1117: `pb-8`
+  ```
+  <main className="flex-1 p-3 sm:p-4 md:p-6 pb-24 sm:pb-8">
+  ```
+- Line 1124: `left-0`
+  ```
+  <div className="hidden md:fixed md:inset-y-0 md:left-0 md:z-40 md:flex">
+  ```
+
+#### radius (12)
+
+- Line 57: `rounded-full`
+  ```
+  <div className="flex items-center p-1 rounded-full bg-muted">
+  ```
+- Line 59: `rounded-full`
+  ```
+  <button key={opt.name} onClick={() => setTheme(opt.name)} className={`p-1.5 rounded-full transition-colors duration-fast focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background focus:ring-primary ${ theme === opt.name ? 'bg-background shadow-button' : 'text-muted-foreground hover:text-foreground'}`} aria-label={`Switch to ${opt.name} theme`} title={`Switch to ${opt.name} theme`}>{opt.icon}</button>
+  ```
+- Line 73: `rounded-full`
+  ```
+  <span className="bg-error text-error-foreground text-caption font-bold w-5 h-5 rounded-full flex items-center justify-center">
+  ```
+- Line 322: `rounded-full`
+  ```
+  <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="p-2 rounded-full hover:bg-muted text-muted-foreground" aria-label="Toggle search"><SearchIcon /></button>
+  ```
+- Line 326: `rounded-full`
+  ```
+  <button className="p-2 rounded-full hover:bg-muted text-muted-foreground hidden sm:block"><HelpCircleIcon /></button>
+  ```
+- Line 327: `rounded-full`
+  ```
+  <button className="relative p-2 rounded-full hover:bg-muted text-muted-foreground"><BellIcon /><span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-error ring-2 ring-background"></span></button>
+  ```
+- Line 327: `rounded-full`
+  ```
+  <button className="relative p-2 rounded-full hover:bg-muted text-muted-foreground"><BellIcon /><span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-error ring-2 ring-background"></span></button>
+  ```
+- Line 328: `rounded-full`
+  ```
+  <button><Image src="https://picsum.photos/seed/user/40/40" alt="User Avatar" width={40} height={40} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full" /></button>
+  ```
+- Line 336: `rounded-2xl`
+  ```
+  <div className="flex items-center justify-center h-full min-h-[400px] rounded-2xl border-2 border-dashed border-border animate-fade-in">
+  ```
+- Line 482: `rounded-xl`
+  ```
+  <div className="bg-warning/10 border-2 border-warning/20 rounded-xl p-4 mb-6">
+  ```
+- Line 590: `rounded-full`
+  ```
+  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-success/10 text-success" title="Verified Contact">
+  ```
+- Line 598: `rounded-full`
+  ```
+  <span className={`text-caption px-2 py-0.5 rounded-full ${statusInfo.accent}`}>
+  ```
+
+#### typography (4)
+
+- Line 271: `text-2xl`
+  ```
+  <span className="text-2xl font-bold text-primary">SolarMatch</span>
+  ```
+- Line 379: `text-xl`
+  ```
+  <p className="text-xl sm:text-2xl font-bold text-foreground mt-2">{value}</p>
+  ```
+- Line 379: `text-2xl`
+  ```
+  <p className="text-xl sm:text-2xl font-bold text-foreground mt-2">{value}</p>
+  ```
+- Line 498: `text-2xl`
+  ```
+  <div className="text-2xl font-bold text-warning-foreground">
+  ```
+
+#### animation (2)
+
+- Line 321: `ease-in`
+  ```
+  <input type="text" placeholder="Search..." className={`bg-transparent focus:outline-none transition-all duration-normal ease-in-out text-body-small ${ isSearchOpen ? 'w-32 sm:w-40 py-2 pl-3 pr-2' : 'w-0 p-0' }`}/>
+  ```
+- Line 394: `animate-pulse`
+  ```
+  <div className="animate-pulse">
   ```
 
 ### D:/Desktop Mass/SOLAR LEAD GEN PROJECT MAIN FILE/solarmatch/src/components/InstallerMarketplace.tsx

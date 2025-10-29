@@ -111,27 +111,27 @@ export function LiveCountdownBar({
     return null;
   }
 
-  // Color classes for Tailwind
+  // Color classes for Tailwind - Using centralized theme system
   const colorClasses = {
     green: {
-      bg: 'bg-green-500 dark:bg-green-600',
-      text: 'text-white',
-      trackBg: 'bg-green-100 dark:bg-green-900/30',
+      bg: 'bg-success',
+      text: 'text-success-foreground',
+      trackBg: 'bg-success/10',
     },
     yellow: {
-      bg: 'bg-yellow-500 dark:bg-yellow-600',
-      text: 'text-white',
-      trackBg: 'bg-yellow-100 dark:bg-yellow-900/30',
+      bg: 'bg-warning',
+      text: 'text-warning-foreground',
+      trackBg: 'bg-warning/10',
     },
     red: {
-      bg: 'bg-red-500 dark:bg-red-600',
-      text: 'text-white',
-      trackBg: 'bg-red-100 dark:bg-red-900/30',
+      bg: 'bg-error',
+      text: 'text-error-foreground',
+      trackBg: 'bg-error/10',
     },
     expired: {
-      bg: 'bg-gray-700 dark:bg-gray-800',
-      text: 'text-white',
-      trackBg: 'bg-gray-200 dark:bg-gray-700',
+      bg: 'bg-muted',
+      text: 'text-muted-foreground',
+      trackBg: 'bg-muted/50',
     },
   };
 

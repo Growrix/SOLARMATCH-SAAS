@@ -11,32 +11,45 @@ module.exports = {
   darkMode: 'class', // Enable class-based dark mode
   theme: {
     extend: {
-      // Semantic color tokens
+      // Semantic color tokens with theme-aware variants (CSS VARIABLES)
       colors: {
-        primary: colors.primary.DEFAULT,
-        'primary-hover': colors['primary-hover'].DEFAULT,
-        'primary-dark': colors['primary-dark'].DEFAULT,
-        secondary: colors.secondary.DEFAULT,
-        'secondary-hover': colors['secondary-hover'].DEFAULT,
-        success: colors.success.DEFAULT,
-        warning: colors.warning.DEFAULT,
-        error: colors.error.DEFAULT,
-        info: colors.info.DEFAULT,
-        background: colors.background.DEFAULT,
-        'background-alt': colors['background-alt'].DEFAULT,
-        surface: colors.surface.DEFAULT,
-        'surface-hover': colors['surface-hover'].DEFAULT,
-        overlay: colors.overlay.DEFAULT,
-        foreground: colors.foreground.DEFAULT,
-        label: colors.label.DEFAULT,
-        muted: colors.muted.DEFAULT,
-        subtle: colors.subtle.DEFAULT,
-        border: colors.border.DEFAULT,
-        'border-focus': colors['border-focus'].DEFAULT,
+        // Brand colors - Use CSS variables for automatic dark mode
+        primary: 'rgb(var(--color-primary) / <alpha-value>)',
+        'primary-hover': 'rgb(var(--color-primary-hover) / <alpha-value>)',
+        secondary: 'rgb(var(--color-secondary) / <alpha-value>)',
         
-        // Keep existing colors for backward compatibility
-        'bg-primary': 'var(--bg-primary)', // Theme-aware background
-        'bg-secondary': 'var(--bg-secondary)', // Theme-aware secondary background
+        // Background colors
+        background: 'rgb(var(--color-background) / <alpha-value>)',
+        'background-dark': 'rgb(var(--color-background) / <alpha-value>)',
+        'background-alt': 'rgb(var(--color-background-alt) / <alpha-value>)',
+        surface: 'rgb(var(--color-surface) / <alpha-value>)',
+        'surface-dark': 'rgb(var(--color-surface) / <alpha-value>)',
+        'surface-hover': 'rgb(var(--color-surface-hover) / <alpha-value>)',
+        
+        // Text colors
+        foreground: 'rgb(var(--color-foreground) / <alpha-value>)',
+        'foreground-dark': 'rgb(var(--color-foreground) / <alpha-value>)',
+        muted: 'rgb(var(--color-muted) / <alpha-value>)',
+        'muted-foreground': 'rgb(var(--color-subtle) / <alpha-value>)',
+        subtle: 'rgb(var(--color-subtle) / <alpha-value>)',
+        
+        // Border colors
+        border: 'rgb(var(--color-border) / <alpha-value>)',
+        'border-dark': 'rgb(var(--color-border) / <alpha-value>)',
+        
+        // Accent colors (Orange)
+        accent: 'rgb(var(--color-accent) / <alpha-value>)',
+        'accent-hover': 'rgb(var(--color-accent-hover) / <alpha-value>)',
+        
+        // Status colors
+        success: 'rgb(var(--color-success) / <alpha-value>)',
+        'success-foreground': 'rgb(255 255 255 / <alpha-value>)',
+        warning: 'rgb(var(--color-warning) / <alpha-value>)',
+        'warning-foreground': 'rgb(255 255 255 / <alpha-value>)',
+        error: 'rgb(var(--color-error) / <alpha-value>)',
+        'error-foreground': 'rgb(255 255 255 / <alpha-value>)',
+        info: 'rgb(var(--color-info) / <alpha-value>)',
+        'info-foreground': 'rgb(255 255 255 / <alpha-value>)',
       },
       
       // Typography tokens

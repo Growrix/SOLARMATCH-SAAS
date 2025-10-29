@@ -36,6 +36,8 @@ export const primitives = {
     darkBorder: '#2C2C2C',      // Border (dark)
     darkText: '#F5F5F5',        // Primary/Secondary text (dark)
     darkTextSubtle: '#A0A0A0',  // Subtle text (dark)
+    darkAccent: '#A0A0A0',      // Muted gray accent for dark theme (NO ORANGE)
+    darkAccentHover: '#B0B0B0', // Muted gray hover for dark theme
     
     // Light theme specific  
     lightBg: '#f9fafb',         // Primary background (light)
@@ -44,9 +46,9 @@ export const primitives = {
     lightText: '#111827',       // Primary/Secondary text (light)
     lightTextSubtle: '#6b7280', // Subtle text (light)
     
-    // Accent colors (both themes)
-    accent: '#FF6B00',          // Accent color
-    accentHover: '#FF8533',     // Accent hover state
+    // Accent colors (light theme only - orange)
+    accent: '#FF6B00',          // Accent color (light theme)
+    accentHover: '#FF8533',     // Accent hover state (light theme)
   },
   
   // Brand colors (Teal - primary)

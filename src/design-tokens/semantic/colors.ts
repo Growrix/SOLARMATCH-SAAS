@@ -18,32 +18,33 @@ import { primitives } from '../primitives/colors';
 import type { ThemeColor, ChartColor } from '../types';
 
 export const colors = {
-  // Brand colors
+  // Brand colors (UPDATED: Orange for LIGHT theme, Muted Gray for DARK theme)
   primary: {
-    light: primitives.teal[600],
-    dark: primitives.teal[400],
-    DEFAULT: primitives.teal[600], // Tailwind default (light)
+    light: primitives.custom.accent,         // #FF6B00 (ORANGE - main CTA color in light theme)
+    dark: primitives.custom.darkAccent,      // #A0A0A0 (MUTED GRAY - no orange in dark theme)
+    DEFAULT: primitives.custom.accent,
   } as ThemeColor,
   'primary-hover': {
+    light: primitives.custom.accentHover,    // #FF8533 (ORANGE hover in light theme)
+    dark: primitives.custom.darkAccentHover, // #B0B0B0 (GRAY hover in dark theme)
+    DEFAULT: primitives.custom.accentHover,
+  } as ThemeColor,
+  'primary-dark': {
+    light: '#E55F00',                        // Darker orange (light theme)
+    dark: '#888888',                         // Medium gray (dark theme)
+    DEFAULT: '#E55F00',
+  } as ThemeColor,
+  
+  // Secondary colors (Teal - for branding/logos only)
+  secondary: {
+    light: primitives.teal[600],             // #0d9488 (Keep teal for brand identity)
+    dark: primitives.teal[400],              // #2dd4bf
+    DEFAULT: primitives.teal[600],
+  } as ThemeColor,
+  'secondary-hover': {
     light: primitives.teal[700],
     dark: primitives.teal[500],
     DEFAULT: primitives.teal[700],
-  } as ThemeColor,
-  'primary-dark': {
-    light: primitives.teal[700],
-    dark: primitives.teal[300],
-    DEFAULT: primitives.teal[700],
-  } as ThemeColor,
-  
-  secondary: {
-    light: primitives.amber[400],
-    dark: primitives.amber[300],
-    DEFAULT: primitives.amber[400],
-  } as ThemeColor,
-  'secondary-hover': {
-    light: primitives.amber[500],
-    dark: primitives.amber[400],
-    DEFAULT: primitives.amber[500],
   } as ThemeColor,
   
   // Status colors
@@ -86,7 +87,7 @@ export const colors = {
   } as ThemeColor,
   'surface-hover': {
     light: primitives.gray[50],                // #f9fafb (subtle hover)
-    dark: primitives.gray[800],                // #1f2937 (lighter than surface)
+    dark: '#252525',                           // Slightly lighter than #1A1A1A for hover
     DEFAULT: primitives.gray[50],
   } as ThemeColor,
   overlay: {
@@ -129,27 +130,27 @@ export const colors = {
     DEFAULT: primitives.teal[500],
   } as ThemeColor,
   
-  // Accent colors (CUSTOM USER THEME) - Orange accent for CTAs and highlights
+  // Accent colors (CUSTOM USER THEME) - Orange for LIGHT, Gray for DARK
   accent: {
-    light: primitives.custom.accent,         // #FF6B00 (vibrant orange)
-    dark: primitives.custom.accent,          // #FF6B00 (same in both themes)
+    light: primitives.custom.accent,         // #FF6B00 (vibrant orange in light theme)
+    dark: primitives.custom.darkAccent,      // #A0A0A0 (muted gray in dark theme)
     DEFAULT: primitives.custom.accent,
   } as ThemeColor,
   'accent-hover': {
-    light: primitives.custom.accentHover,    // #FF8533 (lighter orange on hover)
-    dark: primitives.custom.accentHover,     // #FF8533 (same in both themes)
+    light: primitives.custom.accentHover,    // #FF8533 (lighter orange on hover in light theme)
+    dark: primitives.custom.darkAccentHover, // #B0B0B0 (lighter gray on hover in dark theme)
     DEFAULT: primitives.custom.accentHover,
   } as ThemeColor,
   
-  // Chart colors (for Recharts integration)
+  // Chart colors (for Recharts integration) - Orange for LIGHT, Gray for DARK
   chart: {
     primary: {
-      light: primitives.teal[600],
-      dark: primitives.teal[400],
+      light: primitives.custom.accent,       // #FF6B00 (Orange - main chart color in light theme)
+      dark: primitives.custom.darkAccent,    // #A0A0A0 (Gray - main chart color in dark theme)
     } as ChartColor,
     secondary: {
-      light: primitives.amber[400],
-      dark: primitives.amber[300],
+      light: primitives.teal[600],           // #0d9488 (Teal as secondary)
+      dark: primitives.teal[400],
     } as ChartColor,
     tertiary: {
       light: primitives.blue[600],

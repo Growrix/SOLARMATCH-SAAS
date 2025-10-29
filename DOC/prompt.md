@@ -1218,7 +1218,7 @@ All documentation, CI/CD, and deployment tasks NOT STARTED
 
 
 
-***Backend blueprint***
+***Backend and the DevOps,CI/CD blueprint***
 
  I have got a blueprint from the chatGPT and I am sharing with you. The goal is to update the constitution.md file without losing any important information and make it more concise and clear. not to replace the existing constitution.md file completely but you should merge the important points from the blueprint into the existing constitution.md file. Make sure to keep all the important information from the existing constitution.md file while integrating the new blueprint details. The final constitution.md file should be well-structured, easy to understand, and reflect the centralized. Update all the selected files accordingly to reflect the new constitution.md file. or you decide which relevant files need to be updated to reflect the new constitution.md file and update it accordingly. Ensure that the tasks.md file is aligned with the new constitution.md file. Here is the blueprint :
 
@@ -1583,3 +1583,192 @@ Add to `package.json`:
 
 
 
+🧰 DevOps, CI/CD, & Engineering Governance Blueprint
+
+This section ensures that every part of the development lifecycle — from testing and building to deploying and monitoring — follows consistent, automated, and auditable workflows.
+
+⚙️ CI/CD Principles & Workflow Standards
+1️⃣ Core CI/CD Stages
+Stage	Purpose	Required Checks
+Test	Run all automated tests and lint checks	ESLint, Prettier, Jest, Prisma validate
+Build	Compile Next.js / backend services	npm run build must succeed without warnings
+Migrate	Run DB schema migrations	prisma migrate deploy (never migrate dev)
+Deploy	Deploy to staging → production	Zero-downtime deploy via container or cloud
+Verify	Post-deploy checks (ping endpoints, DB, Storybook visual tests)	Health check + Storybook snapshot review
+
+✅ Golden Rule: The pipeline should block merges if any stage fails.
+CI/CD must enforce both lint and migration checks before deployment.
+
+2️⃣ Recommended GitHub Actions / CI Setup
+# .github/workflows/ci.yml
+name: CI Pipeline
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npx prisma generate
+      - run: npm run lint
+      - run: npm run test
+
+  migrate-deploy:
+    needs: build-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npx prisma migrate deploy
+
+
+🧩 Optional: Add deploy.yml for staging/production using your host’s CLI (Vercel, Fly.io, Render, etc.).
+
+3️⃣ Environment Strategy
+Environment	Purpose	Database	Rules
+Local	Developer sandbox	Docker Postgres	Can reset, seed, migrate dev
+Staging	Pre-production testing	Supabase or Managed Postgres	Auto-deploy via CI on merge to develop
+Production	Live system	Managed Postgres	Migrate only via CI/CD using migrate deploy
+4️⃣ Backup, Logs & Monitoring
+
+Database Backups:
+
+Nightly full dumps + 7-day retention (Supabase provides PITR).
+
+App Logs:
+
+Centralized logging via services like Datadog, Logtail, or Sentry.
+
+Metrics:
+
+Track request latency, DB query performance, error rates.
+
+Alerts:
+
+Automated alerts for failed deploys, downtime, or high error rate.
+
+🧩 Code Review & PR Governance Blueprint
+1️⃣ Pull Request Standards
+
+Every PR must include:
+
+Requirement	Description
+Title	Short and descriptive (feat: add billing dashboard)
+Linked Issue	Reference issue number (e.g., Fixes #23)
+Description	Purpose, summary of changes, and screenshots if UI-related
+Checklist	Confirm tests passed, code formatted, no console logs
+Storybook Proof	For UI changes, attach Storybook preview link/screenshots
+Migration Proof	For DB changes, confirm prisma migrate deploy runs successfully
+2️⃣ Review Process
+
+Minimum 2 approvals before merging to main (for production apps)
+
+Reviewer responsibilities:
+
+Check architecture consistency (folder, naming, layout)
+
+Ensure no hardcoded styles (must use tokens)
+
+Validate API contract adherence (no breaking schema changes)
+
+Confirm lint/test pass
+
+Merges must be squash merges to keep commit history clean.
+
+3️⃣ Branching Model (Recommended)
+main          → Production (protected)
+develop       → Staging (auto-deploy)
+feature/*     → Feature branches
+hotfix/*      → Urgent production fixes
+
+
+✅ Only develop merges into main via approved PRs after staging validation.
+
+🧾 Documentation, Versioning & Change Control Blueprint
+1️⃣ Docs Directory
+
+All project documentation should live inside /docs:
+
+/docs
+ ├─ constitution.md
+ ├─ backend_blueprint.md
+ ├─ ui_ux_blueprint.md
+ ├─ api_reference.md
+ ├─ changelog.md
+ └─ onboarding.md
+
+
+Each new feature or module must include a short markdown file under /docs.
+
+Storybook serves as the visual source of truth for UI components.
+
+2️⃣ Versioning & Release Tags
+
+Use semantic versioning:
+
+v1.0.0  → Initial stable release
+v1.1.0  → Minor features added
+v1.1.1  → Bug fixes / patches
+
+
+Add release notes in CHANGELOG.md:
+
+## [1.1.0] - 2025-10-29
+### Added
+- New billing dashboard UI
+- Prisma zero-downtime migration system
+
+3️⃣ Developer Onboarding
+
+Each new developer must:
+
+Read /docs/constitution.md and follow system philosophy.
+
+Clone project, run docker compose up -d, then npm run dev.
+
+Generate Prisma client & run seed:
+
+npx prisma generate && npm run prisma:seed
+
+
+Access Storybook and run npm run storybook for component overview.
+
+4️⃣ Continuous Documentation Health
+
+Any new feature = new doc or section in /docs.
+
+Docs reviewed in PRs (like code).
+
+Weekly or sprint-end “doc sync” to align Constitution with new features.
+
+5️⃣ Quality Gates Summary
+Gate	Check	Enforced By
+Code Quality	ESLint, Prettier, TypeScript	CI
+Design Consistency	Storybook, Token usage	PR Review
+Data Consistency	Prisma schema validation	CI
+Test Coverage	Jest / Playwright	CI
+Security	Secrets scan + RLS check	CI + manual audit
+✅ Final Outcome
+
+When you merge these Minor Blueprints with your UI/UX and Backend Blueprints, your constitution.md will represent a complete engineering constitution — a self-governing, production-ready system covering:
+
+🎨 UI/UX Design System
+
+🧭 Layout & Routing Standards
+
+🧱 Backend Architecture
+
+⚙️ CI/CD & DevOps Governance
+
+🧩 Code Review, Documentation & Version Control
