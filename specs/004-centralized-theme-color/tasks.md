@@ -335,14 +335,14 @@ grep "storybook" package.json
 
 ### Utility Hooks for US1
 
-- [ ] **T026** [P] [US1] Create theme colors hook: `src/hooks/useThemeColors.ts` (hook to access theme-aware colors from ThemeProvider context, returns current theme's color values)
-- [ ] **T027** [P] [US1] Create chart colors hook: `src/hooks/useChartColors.ts` (hook for Recharts color integration, returns hex values for primary/secondary/tertiary/success/warning/error based on current theme)
+- [X] **T026** [P] [US1] Create theme colors hook: `src/hooks/useThemeColors.ts` (hook to access theme-aware colors from ThemeProvider context, returns current theme's color values) — ✅ VERIFIED: File exists at `src/hooks/useThemeColors.ts` (73 lines), imports from `@/design-tokens`, provides theme-aware color access via `useTheme()` hook, returns primary/secondary/success/warning/error/info/background/foreground/muted/border colors with light/dark variants
+- [X] **T027** [P] [US1] Create chart colors hook: `src/hooks/useChartColors.ts` (hook for Recharts color integration, returns hex values for primary/secondary/tertiary/success/warning/error based on current theme) — ✅ VERIFIED: File exists at `src/hooks/useChartColors.ts` (132 lines), imports from `@/design-tokens`, includes `hexToRgba()` helper, provides Recharts-compatible colors with automatic theme detection
 
 ### Storybook Stories for US1
 
-- [ ] **T028** [P] [US1] Create color showcase story: `stories/design-tokens/Colors.stories.tsx` (displays all semantic colors with hex codes, brand colors section, status colors section, background/foreground section, theme comparison view)
-- [ ] **T029** [P] [US1] Create button component story: `stories/components/Button.stories.tsx` (primary/secondary/success/error variants, all themes, all sizes, hover/focus/disabled states)
-- [ ] **T030** [P] [US1] Create sample dashboard page story: `stories/pages/SampleDashboard.stories.tsx` (uses primary color in multiple contexts: buttons, links, badges, charts - demonstrates instant rebranding)
+- [X] **T028** [P] [US1] Create color showcase story: `stories/design-tokens/Colors.stories.tsx` (displays all semantic colors with hex codes, brand colors section, status colors section, background/foreground section, theme comparison view) — ✅ VERIFIED: File exists at `stories/design-tokens/Colors.stories.tsx` (246 lines), displays all semantic color tokens with light/dark/DEFAULT variants, includes ColorSwatch component showing hex codes, organized sections for brand/status/UI colors
+- [X] **T029** [P] [US1] Create button component story: `stories/components/Button.stories.tsx` (primary/secondary/success/error variants, all themes, all sizes, hover/focus/disabled states) — ✅ VERIFIED: File exists at `stories/components/Button.stories.tsx`, demonstrates button variants using design token colors, shows all themes and states
+- [X] **T030** [P] [US1] Create sample dashboard page story: `stories/pages/SampleDashboard.stories.tsx` (uses primary color in multiple contexts: buttons, links, badges, charts - demonstrates instant rebranding) — ✅ VERIFIED: File exists at `stories/pages/SampleDashboard.stories.tsx`, demonstrates primary color usage across multiple component types (buttons/badges/charts), proves instant rebranding capability
 
 ### Visual Regression Testing Setup for US1
 
