@@ -804,3 +804,168 @@ grep "export.*CreateNotificationInput" src/types/notification.ts -A 10
 
 
 I want you to do a deep audit the understand the current state clearly and validate the implimentation plan , if the plan is needed to update/modify according to the audit findings then do it accordingly. make sure the sites current state and the new implimentation plans are aligned . The plans is to work on ## Phase 5: User Story 3 - Installer Discovers and Purchases Lead (Priority: P1) 🎯 MVP (Persona: Installer) . follow all the implimentation mandatory rules. 
+
+
+
+
+
+
+We have updateed the constitution.md and all the speckit files to reflect the new design token system for centralized theme colors. I have got a blueprint from the chatGPT and I am sharing with you. The goal is to update the constitution.md file without losing any important information and make it more concise and clear. not to replace the existing constitution.md file completely but you should merge the important points from the blueprint into the existing constitution.md file. Make sure to keep all the important information from the existing constitution.md file while integrating the new blueprint details. The final constitution.md file should be well-structured, easy to understand, and reflect the centralized theme system using CSS variables as per the blueprint. As we will be useing shadcn/ui components, make sure the constitution.md file aligns with shadcn/ui theming practices. And also check the tasks.md file were we have already implimented until T1040 according to the old constitution.md file. Make sure the new constitution.md file is aligned with the already implimented tasks in the tasks.md file. And also make sure the new constitution.md file is aligned with the current tailwind.config.js file and globals.css file. Also update the speck.md, plan.md. research.md files accordingly to reflect the new constitution.md file. or you decide which relevant files need to be updated to reflect the new constitution.md file and update it accordingly. 
+
+
+ Here is the blueprint : 
+
+GitHub Spec: Centralized Theme System Blueprint
+
+Stack: Shadcn/UI · Tailwind CSS · Storybook
+
+Title: Specification for Centralized Design Token & Theming Implementation
+Goal:
+Establish a single, scalable source of truth for all visual styles using CSS Variables (Design Tokens).
+Enable easy, site-wide theme switching (Light / Dark / Brand) across all shadcn/ui components, with complete documentation and visual verification in Storybook.
+
+I. 🎨 Design Token Naming Convention
+
+All themeable properties — such as colors, radius, and shadows — must be defined via CSS Variables.
+
+Category	CSS Variable Format (in globals.css)	Tailwind Class Usage
+Colors	--<category>-<role>-<variant>	bg-<role>, text-<role>, border-<role>
+Example	--primary, --background, --foreground, --card-border	bg-primary, text-foreground, border-card-border
+Radius	--radius	rounded-[var(--radius)] or rounded-<size>
+🎯 Required Core Color Tokens (Shadcn-Compatible Baseline)
+Token	Role	Purpose
+--background	Main Canvas	Page background.
+--foreground	Main Text	Text color on --background.
+--card, --card-foreground	Surface Container	Background/Text for cards, modals, etc.
+--primary, --primary-foreground	Accent / Action	Primary interactive color.
+--secondary, --secondary-foreground	Secondary Accent	Secondary button or less-dominant accent.
+--destructive, --destructive-foreground	Negative Action	Error, danger, or destructive actions.
+--muted, --muted-foreground	Subtle Surfaces	Muted background or secondary text.
+--border, --input	Boundaries	Color for borders, dividers, and input outlines.
+--ring	Focus Indicator	Outline color for accessibility focus states.
+
+💡 Note: Use HSL color format (h s% l%) for easy programmatic manipulation and theme generation.
+
+II. 🛠️ Implementation Workflow Blueprint
+
+A predictable and repeatable process for introducing new themes or components.
+
+A. Base Theme Setup (Phase 1)
+
+Define Tokens in :root:
+All tokens from Section I must exist in :root (inside app/globals.css).
+These values represent the Default (Light) Theme.
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --radius: 0.5rem;
+}
+
+
+Tailwind Configuration Mapping:
+In tailwind.config.js, map each CSS variable to its Tailwind utility class.
+
+theme: {
+  extend: {
+    colors: {
+      background: 'hsl(var(--background))',
+      foreground: 'hsl(var(--foreground))',
+      primary: 'hsl(var(--primary))',
+    },
+    borderRadius: {
+      DEFAULT: 'var(--radius)',
+    },
+  },
+}
+
+
+Component Styling Rule (Critical):
+✅ Use tokenized Tailwind classes (bg-primary, text-foreground) only.
+❌ Never use hardcoded values (#fff, bg-blue-500, etc.).
+
+B. Multi-Theme Setup (Phase 2)
+
+Theme Switch Mechanism:
+Use a global attribute on <html> to control theme selection.
+
+<html data-theme="dark">
+
+
+Theme Overrides in CSS:
+Define overrides per theme directly in globals.css.
+
+html[data-theme="dark"] {
+  --background: 222.2 47.4% 11.2%;
+  --foreground: 0 0% 100%;
+  /* Override only the changed tokens */
+}
+
+
+Theme Provider Logic:
+Implement a central ThemeProvider (e.g., via next-themes or Context API) that:
+
+Toggles the data-theme attribute
+
+Persists preference in localStorage
+
+Reactively updates the UI
+
+III. 📖 Storybook Integration & Verification
+
+Load Global Styles:
+In preview.js, import the global CSS.
+
+import '../app/globals.css';
+
+
+Enable Theme Switching in Storybook:
+Use @storybook/addon-themes or a custom Decorator to sync with the app’s ThemeProvider.
+Provide toolbar options for light, dark, and brand themes.
+
+Verification Process:
+Before merging any theme-related PR:
+
+Visually confirm components render correctly in all themes.
+
+Cross-check token mappings.
+
+IV. 🤖 GitHub PR & Review Guardrails
+Check Type	Enforcement
+Style Check	PRs must not include hardcoded colors or spacing.
+Token Check	New or modified tokens must include all-theme updates in globals.css.
+Storybook Proof	Each PR must link a Storybook preview or screenshot of the affected components under all themes.
+Lint/Test Hook	Add CI automation to flag hardcoded CSS colors or unregistered tokens.
+V. 🔒 Extension & Maintenance Guidelines
+
+New Token Addition:
+
+Must include a semantic name (e.g., --success-bg, not --green)
+
+Must be reflected across all themes before merge
+
+Must include Storybook visual coverage
+
+Deprecation Policy:
+
+Tokens removed must include a migration note in /docs/CHANGELOG.md
+
+Automation Hooks (Optional):
+
+Add GitHub Action to auto-verify Storybook builds for visual consistency
+
+Add lint rule (no-hardcoded-styles) using Stylelint or ESLint plugin
+
+VI. ✅ Outcome
+
+This Spec ensures:
+
+Predictable visual consistency
+
+Faster theme creation
+
+Zero duplication across shadcn/ui, Tailwind, and Storybook
+
+Visual testing at every PR
+
+A single token change updates hundreds of components instantly — making the system scalable, accessible, and future-proof.

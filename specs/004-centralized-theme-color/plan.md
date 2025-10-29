@@ -10,7 +10,7 @@
 **Primary Requirement**: Centralize 450+ hardcoded design values (colors, typography, spacing, shadows, animations, border radius) scattered across 50+ pages into a single-source-of-truth design token system to enable instant rebranding, consistent theming (Light/Dark/System), and eliminate 4-6 hour manual color changes.
 
 **Technical Approach**: 
-1. **Phase 1 (UI-First)**: Create centralized TypeScript token files (`colors.ts`, `typography.ts`, `spacing.ts`, etc.) with semantic naming, build sample pages to validate tokens, implement Storybook for visual regression testing
+1. **Phase 1 (UI-First)**: Create centralized TypeScript token files (`colors.ts`, `typography.ts`, `spacing.ts`, etc.) with semantic naming, add a shadcn-compatible CSS Variables layer in `src/app/globals.css` (`--background`, `--foreground`, `--primary`, etc.), map variables in `tailwind.config.js`, build sample pages to validate tokens, and implement Storybook for visual verification
 2. **Phase 2 (Spec Alignment)**: Update all SpecKit files (spec.md, tasks.md, changelog.md, execution-plan.md) before backend work
 3. **Phase 3 (Backend/Migration)**: Page-by-page refactoring (40-50 pages over 3 weeks) using 7-step workflow: Audit → Token Mapping → Refactor → Storybook Test → Manual QA → Staging Validation → Commit/Document
 
@@ -24,7 +24,7 @@
 **Language/Version**: TypeScript ~5.3.3 (strict mode), React 18.2.0, Next.js 14.2.33 (App Router)  
 **Primary Dependencies**: 
 - Tailwind CSS 3.4.18 (utility-first CSS framework)
-- Storybook 7+ (UI component explorer for isolated testing)
+- Storybook 9+ (UI component explorer for isolated testing)
 - Chromatic/Percy/Loki (visual regression testing - one required)
 - recharts 3.2.1 (data visualization - needs color token integration)
 
@@ -48,7 +48,7 @@
 **Constraints**: 
 - **Zero breaking changes**: Must maintain all existing functionality
 - **Production stability**: Refactor one page at a time (no batch changes)
-- **Theme support**: All 3 themes (Light/Dark/System) must work correctly
+- **Theme scope (current)**: One-theme-first. Maintain the Light theme now; prepare Dark/Brand via `[data-theme]` overrides but do not ship until approved
 - **Mobile-first**: Design for 320px first, scale up to desktop
 - **Accessibility**: WCAG AA contrast (4.5:1), touch targets 44px+ on mobile
 - **Visual regression**: Mandatory testing before commit (no "hope for the best")
@@ -219,6 +219,7 @@ This is a **web application (Next.js App Router)** with a design system layer ad
 3. **`.storybook/` + `stories/`**: NEW directories for visual testing infrastructure
 4. **No backend changes**: API routes (`src/app/api/`) untouched (design tokens are frontend-only)
 5. **Existing structure preserved**: All `src/app/` and `src/components/` files remain in place (refactored in-place, not moved)
+ 6. **Shadcn alignment**: CSS variables in `globals.css` mirror shadcn defaults (`--background`, `--foreground`, `--primary`, etc.) and are mapped in Tailwind; components consume utilities like `bg-primary`, `text-foreground`, `ring-ring`.
 
 **Migration Strategy**:
 - Token files created first (Phase 1)

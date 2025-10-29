@@ -82,23 +82,39 @@
 - Admin operations require ADMIN role verification
 
 ### VI. Styling & Theming
-**Tailwind CSS with dark mode support and centralized design tokens**
+Centralized tokens with Tailwind CSS, shadcn/ui compatibility, and dark mode support
+
 - Utility-first CSS approach (no custom CSS unless justified)
-- Dark mode: Class-based (`darkMode: 'class'` in `tailwind.config.js`)
-- ThemeProvider Context API for global theme state
-- **Design Token System**: All visual properties (colors, typography, spacing, shadows, animations) centralized in token files
-- **Storybook Required**: All UI component migrations MUST include Storybook stories for isolated visual testing
-- **Visual Regression Testing**: Chromatic, Percy, or Loki REQUIRED for all design token and UI changes
-- **Atomic Migration**: Only ONE component or token group per commit (no batch refactoring)
-- **Manual QA Checklist**: MANDATORY for each component migration (themes, states, responsive breakpoints)
-- Custom color palette: Primary (teal-600), Secondary (amber-400) - defined in design tokens
-- **Mobile-First Responsive Design**: MANDATORY - design for mobile (320px-640px) FIRST, then scale up to tablet/desktop
-- **App-Like Mobile Experience**: Mobile UI must feel like native app (larger touch targets, bottom navigation, simplified layouts)
-- **Responsive Typography**: Font sizes MUST scale down on mobile (base 14px mobile, 16px desktop)
-- **Responsive Spacing**: Tighter spacing on mobile (50-75% of desktop spacing)
-- **Responsive Components**: Cards, modals, forms MUST have mobile-specific layouts (full-width on mobile, constrained on desktop)
-- **Touch-Friendly**: All interactive elements minimum 44px × 44px on mobile (WCAG 2.5.5)
-- Consistent spacing, typography, and component styling via design tokens
+- Dark mode: Class-based (`darkMode: 'class'` in `tailwind.config.js`); optional HTML attribute `data-theme` allowed for future theme switching
+- ThemeProvider Context API (or `next-themes`) manages theme and sets `.dark` class and/or `data-theme` on `<html>`
+- Two-tier token system remains: primitives → semantic. Implementation uses TypeScript token files today and maps to Tailwind via `theme.extend`; CSS Variables layer is introduced for shadcn/ui alignment
+
+Shadcn-compatible CSS variable tokens (authoritative names)
+
+- Define tokens in `:root` of `src/app/globals.css` using HSL triplets: `--background`, `--foreground`, `--card`, `--card-foreground`, `--primary`, `--primary-foreground`, `--secondary`, `--secondary-foreground`, `--destructive`, `--destructive-foreground`, `--muted`, `--muted-foreground`, `--border`, `--input`, `--ring`, and `--radius`.
+- Tailwind maps these variables to utilities in `tailwind.config.js` when present (example mapping: `colors.background: 'hsl(var(--background))'`). Our current config also exposes semantic colors from TypeScript tokens; both paths may coexist during migration.
+- Component rule: Use tokenized utilities only (e.g., `bg-primary`, `text-foreground`, `border-input`). Never hardcode hex values or Tailwind raw palette colors in components.
+
+Multi-theme model
+
+- Light theme is the current default and the only maintained theme until UI is signed off (one-theme-first). Additional themes (e.g., Dark, Brand) are added by overriding CSS variables under `[data-theme="dark"]` blocks in `globals.css` without changing component code.
+- The ThemeProvider toggles `.dark` and/or `data-theme` and persists preference to `localStorage`.
+
+Validation and quality gates
+
+- Storybook is REQUIRED for all token and UI changes; import `../src/app/globals.css` in `.storybook/preview.ts` and provide a theme toolbar (decorator or addon).
+- Visual regression testing is REQUIRED (Chromatic preferred). Each UI/token change must include Storybook proof across active themes and breakpoints.
+- Atomic migration: Only ONE component or token group per commit.
+- Manual QA checklist is MANDATORY for each migration (themes, states, responsive breakpoints, accessibility focus ring visibility).
+
+Mobile-first rules (unchanged and enforced)
+
+- Mobile-first design 320–640px; typography base 14px mobile / 16px desktop; spacing tighter on mobile (50–75% of desktop); touch targets ≥ 44×44px.
+
+Notes on current state and alignment
+
+- Today, semantic colors, typography, spacing, shadows, and animations are sourced from `src/design-tokens/` and wired into Tailwind via `theme.extend` (backward compatible). `globals.css` already defines base variables used by layout styles (e.g., `--bg-primary`, `--text-primary`).
+- As we adopt shadcn/ui, we will prioritize the CSS variable names listed above; a thin compatibility layer can map our semantic tokens to these variables to avoid churn.
 
 ### VII. Code Documentation
 **Teaching-first documentation philosophy**

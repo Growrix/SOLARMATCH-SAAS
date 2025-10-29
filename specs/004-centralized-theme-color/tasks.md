@@ -40,6 +40,7 @@
    - Map out EXACT data structures from data-model.md (TypeScript interfaces for all token types)
    - Identify existing code patterns to follow (Tailwind config, component structure, hooks)
    - Verify design token structure matches spec BEFORE writing any code
+   - Verify CSS Variable layer in `src/app/globals.css` contains shadcn-compatible tokens (`--background`, `--foreground`, `--primary`, etc.) and Tailwind mapping exists
    - List all files to create/modify with their exact purposes
    - Verify external dependencies are installed (Storybook, Chromatic addons)
    - Document any spec ambiguities - ASK USER before assuming
@@ -60,9 +61,9 @@
      - Wrong type? Check data-model.md - is interface correct (ResponsiveFontSize, ThemeColor)?
    - **No Spec Drift**: If you modify token files, structure should match data-model.md exactly
    - **Chromatic Verification**: For any UI-related task, capture Chromatic snapshot after implementation
-   - **Manual QA Checklist Required**: For any task that includes BOTH token creation and Storybook story, add a short "Manual QA Checklist" directly under that task with steps to validate:
+    - **Manual QA Checklist Required**: For any task that includes BOTH token creation and Storybook story, add a short "Manual QA Checklist" directly under that task with steps to validate:
      - Token values rendered correctly in Storybook
-     - Theme switching works (Light/Dark/System)
+       - Theme works for the current scope (Light). Dark/Brand configs staged but not required until Theme Switching phase
      - Responsive behavior at 320px/768px/1024px breakpoints
      - Visual regression baseline captured in Chromatic
 
@@ -82,7 +83,7 @@
    - ✅ **Manual Spot Check**: Open 2-3 key files, verify they match spec intent
    - ✅ **Task Checklist**: Every task T### must be checked off with proof
    - ✅ **Regression Check**: Run dev server (`npm run dev`), verify existing pages still render
-   - ✅ **Theme Toggle Test**: Verify Light/Dark/System theme switching works in browser
+   - ✅ **Theme Test (current scope)**: Verify the Light theme renders correctly in browser and Storybook; Dark/Brand overrides can be toggled locally but are not required to pass until enabled by plan
 
 4. **Commit Approval** (MANDATORY):
    - ❌ **NEVER commit without explicit user approval**
@@ -105,7 +106,7 @@
 - ✅ Chromatic snapshots captured (if applicable)
 - ✅ No critical lint errors
 - ✅ No spec drift or architectural changes mid-phase
-- ✅ Theme switching verified in browser (Light/Dark/System)
+- ✅ Theme verified in browser (Light). Dark/Brand prepared via CSS variable overrides
 - ✅ Responsive breakpoints tested (320px, 768px, 1024px)
 - ✅ User approval received
 - ✅ Git commit created with detailed message

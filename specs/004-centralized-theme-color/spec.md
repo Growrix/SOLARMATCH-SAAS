@@ -40,14 +40,15 @@
 **This feature follows the mandatory three-phase workflow** (as defined in `.specify/memory/constitution.md`):
 
 ### Phase 1: UI/UX First (MANDATORY)
-- **Goal**: Build centralized design token files and validate with sample pages
+- **Goal**: Build centralized design token files and a shadcn-compatible CSS variable layer; validate in isolation with Storybook
 - **Deliverables**:
-  - **Centralized Token Files**: `colors.ts`, `typography.ts`, `spacing.ts`, `shadows.ts`, `animations.ts`, `borders.ts`
-  - **Tailwind Config**: Complete Tailwind configuration with all tokens
-  - **Storybook Setup**: Visual testing environment for isolated component validation
-  - **Sample Page Refactoring**: Pick 2-3 representative pages, audit, refactor, validate
-  - **Documentation**: Token usage guide with before/after examples
-  - All 3 themes (Light/Dark/System) working in Storybook
+  - **Centralized Token Files**: `colors.ts`, `typography.ts`, `spacing.ts`, `shadows.ts`, `animations.ts`, `borders.ts` (TypeScript semantic tokens)
+  - **CSS Variable Layer**: Define shadcn-compatible variables in `src/app/globals.css` `:root` (`--background`, `--foreground`, `--card`, `--card-foreground`, `--primary`, `--primary-foreground`, `--secondary`, `--secondary-foreground`, `--destructive`, `--destructive-foreground`, `--muted`, `--muted-foreground`, `--border`, `--input`, `--ring`, and `--radius`).
+  - **Tailwind Mapping**: Map variables to utilities in `tailwind.config.js` using `hsl(var(--token))` where available; keep existing `theme.extend` mapping from TypeScript tokens for backward compatibility.
+  - **Storybook Setup**: Import global CSS in `.storybook/preview.ts` and provide a theme toolbar/decorator.
+  - **Sample Page Refactoring**: Pick 2–3 representative pages, audit, refactor, validate.
+  - **Documentation**: Token usage guide with before/after examples.
+  - **Theme Scope (One-Theme-First)**: Maintain the Light theme only for now; prepare but do not ship Dark/Brand overrides (they will be CSS variable overrides under `[data-theme]`).
 - **Approval Gate**: Stakeholder reviews token system + sample pages and approves approach
 - **Tools**: TypeScript, Tailwind CSS, Storybook, Chromatic/Percy for visual regression
 - **Duration**: Week 1 (40 hours)
@@ -100,6 +101,15 @@
 - **ALWAYS** have rollback plan (git revert ready)
 
 **Workflow Rule**: UI → Spec Update → Backend → Never Backend First
+
+---
+
+## Shadcn/UI Alignment
+
+- Components must use Tailwind utilities that resolve to CSS variables, e.g., `bg-primary`, `text-foreground`, `border-input`, and `ring-2 ring-ring` for focus states.
+- No hardcoded palette classes (e.g., `bg-blue-500`) or hex values in component code.
+- Focus states must use the `--ring` variable via Tailwind ring utilities.
+- The theming layer uses CSS variables for shadcn compatibility and coexists with our TypeScript semantic tokens during migration.
 
 ---
 

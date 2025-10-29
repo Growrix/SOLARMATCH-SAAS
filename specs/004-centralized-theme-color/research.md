@@ -8,11 +8,17 @@
 
 ## Overview
 
-This document resolves all "NEEDS CLARIFICATION" items from the Technical Context and provides best practices research for implementing a centralized design token system in a Next.js + Tailwind CSS + TypeScript application.
+This document resolves all "NEEDS CLARIFICATION" items from the Technical Context and provides best practices for a centralized design token system using CSS Variables (shadcn-compatible) with Tailwind CSS and TypeScript in a Next.js application.
 
 ---
 
 ## Research Tasks
+
+0. CSS Variable Token Strategy (Shadcn-Compatible)
+
+Decision: Maintain our TypeScript semantic tokens as the source of truth while exposing a shadcn-compatible CSS variable layer in `src/app/globals.css`. Variables use HSL triplets and names: `--background`, `--foreground`, `--card`, `--card-foreground`, `--primary`, `--primary-foreground`, `--secondary`, `--secondary-foreground`, `--destructive`, `--destructive-foreground`, `--muted`, `--muted-foreground`, `--border`, `--input`, `--ring`, `--radius`.
+
+Tailwind maps variables via `theme.extend.colors` to utilities like `bg-primary`, `text-foreground`, and `ring-ring`. This allows shadcn/ui components to theme correctly while our existing token files remain intact.
 
 ### 1. Visual Regression Testing Tool Selection
 
@@ -81,7 +87,7 @@ export default {
    - Explicit breakpoint suffixes (`mobile`, `tablet`, `desktop`)
    - **Why**: Clear intent, no magic numbers
 
-**Decision**: **Two-Tier Token System (Primitive + Semantic)**
+**Decision**: **Two-Tier Token System (Primitive + Semantic) + CSS Variables Surface**
 
 **File Structure**:
 ```
@@ -125,7 +131,19 @@ export const colors = {
 export type ColorTokens = typeof colors;
 ```
 
----
+Add a CSS Variable bridge in `globals.css`:
+
+```css
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  /* ...other tokens... */
+}
+html[data-theme="dark"] {
+  --background: 222.2 47.4% 11.2%;
+  --foreground: 0 0% 100%;
+}
+```
 
 ### 3. Tailwind CSS Integration Strategy
 
@@ -145,7 +163,7 @@ export type ColorTokens = typeof colors;
    - **Example**: `theme.colors = { primary: '#0d9488' }`
    - **Result**: ONLY `bg-primary` works, `bg-teal-600` breaks
 
-**Decision**: **Use `theme.extend` for ALL tokens**
+**Decision**: **Use `theme.extend` for ALL tokens**, mapping CSS variables where available: `background: 'hsl(var(--background))'` etc. Keep semantic tokens from TS for backward compatibility during migration.
 
 **Rationale**:
 1. **Gradual migration**: Existing `bg-teal-600` classes keep working during refactoring
@@ -350,6 +368,12 @@ module.exports = {
 ```
 
 ---
+
+### 6. Storybook Theme Switching
+
+- Import global CSS in `.storybook/preview.ts`.
+- Provide a theme toolbar using a decorator (or `@storybook/addon-themes`).
+- Verify Light (current) and keep Dark/Brand configs staged but not enabled by default (one-theme-first).
 
 ## Best Practices Summary
 
