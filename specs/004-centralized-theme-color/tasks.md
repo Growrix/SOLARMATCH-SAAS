@@ -521,8 +521,8 @@ grep "storybook" package.json
 - [X] Build passes: `npm run build` (0 errors) — ✅ PASSED: Verified in Phase 3 validation (build successful)
 - [ ] Chromatic visual regression passed (all themes) — ⏸️ BLOCKED: Requires CHROMATIC_PROJECT_TOKEN
 - [X] User approval received for commit — ✅ COMPLETE: User requested "Complete Phase 6 (US2)"
-- [ ] Git commit created: `git add . && git commit -m "Phase 6 (US2): Theme-aware component pattern - automatic Light/Dark/System support"` — ⏳ PENDING: Will create after checklist update
-- [ ] Update `DOC/gitstatus.md` with commit ID, timestamp, description — ⏳ PENDING: Will update after commit
+- [X] Git commit created: `git add . && git commit -m "Phase 6 (US2): Theme-aware component pattern - automatic Light/Dark/System support"` — ✅ COMPLETE: Commit 426a79e (2025-10-29 12:08:06)
+- [X] Update `DOC/gitstatus.md` with commit ID, timestamp, description — ✅ COMPLETE: Updated in commit 9eb92a3
 
 ---
 
