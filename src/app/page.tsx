@@ -266,21 +266,21 @@ export default function Home() {
   };
 
   return (
-  <main className="bg-bg-primary dark:bg-black">
+  <main className="bg-background">
       <Hero 
         onInstantQuoteClick={handleScrollToQuote}
         onRebateCalculatorClick={handleScrollToRebate}
       />
       
       {/* Calculator Section */}
-  <section id="calculator-section" className="py-16 lg:py-24 bg-bg-primary">
+  <section id="calculator-section" className="py-16 lg:py-24 bg-background">
         {/* Removed all gradient overlays for a flat cream look in light mode */}
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-4">
+            <h2 className="text-heading-2 lg:text-heading-1 font-bold text-foreground mb-4">
               How Much Could You Save?
             </h2>
-            <p className="text-lg text-slate-600 dark:text-slate-400 max-w-3xl mx-auto">
+            <p className="text-body-large text-muted-foreground max-w-3xl mx-auto">
               Find out now. Our calculators provide a transparent, no-jargon estimate of your solar savings and government incentives.
             </p>
           </div>
@@ -288,14 +288,14 @@ export default function Home() {
           {/* Calculator Switcher */}
           <div className="flex justify-center mb-8">
             <div className="relative w-full max-w-md theme-switcher-bg p-1 rounded-full flex border theme-switcher-border">
-              <div className={`absolute top-1 bottom-1 left-1 w-1/2 rounded-full theme-switcher-active shadow-lg transition-transform duration-300 ease-in-out transform ${
+              <div className={`absolute top-1 bottom-1 left-1 w-1/2 rounded-full theme-switcher-active shadow-button transition-transform duration-normal ease-in-out transform ${
                 activeCalculator === 'quote' ? 'translate-x-0' : 'translate-x-full'
               }`}></div>
 
               <button
                 onClick={() => setActiveCalculator('quote')}
-                className={`relative z-10 w-1/2 py-3 text-sm font-semibold flex items-center justify-center gap-2 transition-colors duration-300 rounded-full ${
-                  activeCalculator === 'quote' ? 'text-primary' : 'text-slate-600 dark:text-slate-300'
+                className={`relative z-10 w-1/2 py-3 text-button font-semibold flex items-center justify-center gap-2 transition-colors duration-normal rounded-button ${
+                  activeCalculator === 'quote' ? 'text-primary' : 'text-muted-foreground'
                 }`}
                 aria-pressed={activeCalculator === 'quote'}
               >
@@ -304,8 +304,8 @@ export default function Home() {
               </button>
               <button
                 onClick={() => setActiveCalculator('rebate')}
-                className={`relative z-10 w-1/2 py-3 text-sm font-semibold flex items-center justify-center gap-2 transition-colors duration-300 rounded-full ${
-                  activeCalculator === 'rebate' ? 'text-primary' : 'text-slate-600 dark:text-slate-300'
+                className={`relative z-10 w-1/2 py-3 text-button font-semibold flex items-center justify-center gap-2 transition-colors duration-normal rounded-button ${
+                  activeCalculator === 'rebate' ? 'text-primary' : 'text-muted-foreground'
                 }`}
                 aria-pressed={activeCalculator === 'rebate'}
               >
@@ -359,7 +359,7 @@ export default function Home() {
       )}
 
       {/* Blog Section */}
-  <section className="w-full py-16 lg:py-24 bg-bg-primary">
+  <section className="w-full py-16 lg:py-24 bg-background">
     <BlogSection
       onSeeAllPostsClick={handleSeeAllBlogPosts}
       onNavigateToPost={handleNavigateToPost}
