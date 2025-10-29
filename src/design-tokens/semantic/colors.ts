@@ -84,6 +84,16 @@ export const colors = {
     dark: primitives.custom.darkBgSecondary,   // #1A1A1A
     DEFAULT: primitives.custom.lightBgSecondary,
   } as ThemeColor,
+  'surface-hover': {
+    light: primitives.gray[50],                // #f9fafb (subtle hover)
+    dark: primitives.gray[800],                // #1f2937 (lighter than surface)
+    DEFAULT: primitives.gray[50],
+  } as ThemeColor,
+  overlay: {
+    light: 'rgba(0, 0, 0, 0.8)',              // black/80 (modal backdrop)
+    dark: 'rgba(0, 0, 0, 0.8)',               // Same for dark mode
+    DEFAULT: 'rgba(0, 0, 0, 0.8)',
+  } as ThemeColor,
   
   // Text colors (CUSTOM USER THEME)
   foreground: {

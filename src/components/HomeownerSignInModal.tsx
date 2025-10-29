@@ -77,25 +77,25 @@ const HomeownerSignInModal: React.FC<HomeownerSignInModalProps> = ({ isOpen, onC
 
   if (!isOpen) return null;
   
-  const baseInputClasses = "w-full bg-white/5 dark:bg-black/20 border border-gray-300/30 dark:border-slate-700/50 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors";
+  const baseInputClasses = "w-full bg-surface/5 border border-border/50 rounded-xl px-4 py-3 text-foreground placeholder-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors";
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center px-4 py-20 animate-fade-in" onClick={onClose}>
+    <div className="fixed inset-0 bg-overlay backdrop-blur-sm z-50 flex items-center justify-center px-4 py-20 animate-fade-in" onClick={onClose}>
       <div className="theme-card relative w-full max-w-md p-8 max-h-[90vh] overflow-y-auto animate-slide-in-up" onClick={(e) => e.stopPropagation()}>
-        <button onClick={onClose} className="absolute top-4 right-4 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors" aria-label="Close"><XIcon /></button>
+        <button onClick={onClose} className="absolute top-4 right-4 text-subtle hover:text-foreground transition-colors" aria-label="Close"><XIcon /></button>
         
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-primary rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg"><UserIcon /></div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Welcome Back</h2>
-          <p className="text-slate-600 dark:text-slate-400 text-sm">Sign in to access your dashboard.</p>
+          <h2 className="text-2xl font-bold text-foreground mb-2">Welcome Back</h2>
+          <p className="text-subtle text-sm">Sign in to access your dashboard.</p>
         </div>
         
         <div className="space-y-4">
-          <button className="w-full flex items-center justify-center space-x-3 py-3 px-4 rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors text-slate-700 dark:text-slate-200 font-medium">
+          <button className="w-full flex items-center justify-center space-x-3 py-3 px-4 rounded-xl border border-border bg-surface hover:bg-surface-hover transition-colors text-foreground font-medium">
             <GoogleIcon />
             <span>Continue with Google</span>
           </button>
-          <button className="w-full flex items-center justify-center space-x-3 py-3 px-4 rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors text-slate-700 dark:text-slate-200 font-medium">
+          <button className="w-full flex items-center justify-center space-x-3 py-3 px-4 rounded-xl border border-border bg-surface hover:bg-surface-hover transition-colors text-foreground font-medium">
             <AppleIcon />
             <span>Continue with Apple</span>
           </button>
@@ -103,10 +103,10 @@ const HomeownerSignInModal: React.FC<HomeownerSignInModalProps> = ({ isOpen, onC
 
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300 dark:border-slate-700"></div>
+            <div className="w-full border-t border-border"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-3 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400">or</span>
+            <span className="px-3 bg-background text-subtle">or</span>
           </div>
         </div>
         
@@ -138,7 +138,7 @@ const HomeownerSignInModal: React.FC<HomeownerSignInModalProps> = ({ isOpen, onC
             <button 
               type="button" 
               onClick={() => setShowPassword(!showPassword)} 
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-700 dark:hover:text-white transition-colors"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-subtle hover:text-foreground transition-colors"
             >
               {showPassword ? <EyeOffIcon /> : <EyeIcon />}
             </button>
@@ -165,7 +165,7 @@ const HomeownerSignInModal: React.FC<HomeownerSignInModalProps> = ({ isOpen, onC
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-slate-600 dark:text-slate-400 text-sm">
+          <p className="text-subtle text-sm">
             Don&apos;t have an account?{' '}
             <button 
               onClick={onSwitchToSignUp} 

@@ -25,6 +25,8 @@ module.exports = {
         background: colors.background.DEFAULT,
         'background-alt': colors['background-alt'].DEFAULT,
         surface: colors.surface.DEFAULT,
+        'surface-hover': colors['surface-hover'].DEFAULT,
+        overlay: colors.overlay.DEFAULT,
         foreground: colors.foreground.DEFAULT,
         label: colors.label.DEFAULT,
         muted: colors.muted.DEFAULT,
