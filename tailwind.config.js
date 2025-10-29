@@ -26,6 +26,7 @@ module.exports = {
         'background-alt': colors['background-alt'].DEFAULT,
         surface: colors.surface.DEFAULT,
         foreground: colors.foreground.DEFAULT,
+        label: colors.label.DEFAULT,
         muted: colors.muted.DEFAULT,
         subtle: colors.subtle.DEFAULT,
         border: colors.border.DEFAULT,

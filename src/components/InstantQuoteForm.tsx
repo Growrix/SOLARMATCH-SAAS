@@ -714,7 +714,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
   };
 
   const formatCurrency = (amount: number) => new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
-  const baseInputClasses = "w-full bg-gray-100 dark:bg-slate-900 backdrop-blur-sm border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors";
+  const baseInputClasses = "w-full bg-surface backdrop-blur-sm border border-border rounded-xl px-4 py-3 text-foreground placeholder-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors";
   
   const budgetOptions = {
     residential: [
@@ -740,16 +740,16 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
               className={`flex items-center space-x-3 p-3 rounded-xl border-2 transition-all duration-200 ${
                   quoteType === 'residential'
                   ? 'border-primary bg-primary/10 shadow-md'
-                  : 'border-gray-300 dark:border-slate-700 bg-gray-100/20 dark:bg-slate-800/20 hover:border-slate-400 dark:hover:border-slate-600'
+                  : 'border-border bg-surface/20 hover:border-muted'
               }`}
               aria-pressed={quoteType === 'residential'}
           >
-              <div className={`p-2 rounded-lg transition-colors ${quoteType === 'residential' ? 'bg-primary/20 text-primary' : 'bg-gray-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}`}>
+              <div className={`p-2 rounded-lg transition-colors ${quoteType === 'residential' ? 'bg-primary/20 text-primary' : 'bg-muted text-subtle'}`}>
                   <Home />
               </div>
               <div className="text-left">
-                  <span className="font-semibold text-sm text-slate-900 dark:text-white">Residential</span>
-                  <span className="block text-xs text-slate-500 dark:text-slate-400">For your home</span>
+                  <span className="font-semibold text-sm text-foreground">Residential</span>
+                  <span className="block text-xs text-subtle">For your home</span>
               </div>
           </button>
           <button
@@ -758,16 +758,16 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
               className={`flex items-center space-x-3 p-3 rounded-xl border-2 transition-all duration-200 ${
                   quoteType === 'commercial'
                   ? 'border-primary bg-primary/10 shadow-md'
-                  : 'border-gray-300 dark:border-slate-700 bg-gray-100/20 dark:bg-slate-800/20 hover:border-slate-400 dark:hover:border-slate-600'
+                  : 'border-border bg-surface/20 hover:border-muted'
               }`}
               aria-pressed={quoteType === 'commercial'}
           >
-              <div className={`p-2 rounded-lg transition-colors ${quoteType === 'commercial' ? 'bg-primary/20 text-primary' : 'bg-gray-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}`}>
+              <div className={`p-2 rounded-lg transition-colors ${quoteType === 'commercial' ? 'bg-primary/20 text-primary' : 'bg-muted text-subtle'}`}>
                   <Building />
               </div>
               <div className="text-left">
-                  <span className="font-semibold text-sm text-slate-900 dark:text-white">Commercial</span>
-                  <span className="block text-xs text-slate-500 dark:text-slate-400">For business</span>
+                  <span className="font-semibold text-sm text-foreground">Commercial</span>
+                  <span className="block text-xs text-subtle">For business</span>
               </div>
           </button>
       </div>
@@ -775,10 +775,10 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
         <div className="flex items-center space-x-4">
           {[1, 2, 3].map((step) => (
             <React.Fragment key={step}>
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${currentStep >= step ? 'bg-primary text-white' : 'bg-gray-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400'}`}>
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${currentStep >= step ? 'bg-primary text-white' : 'bg-muted text-subtle'}`}>
                 {step === 3 && quoteResult ? <CheckCircle /> : step}
               </div>
-              {step < 3 && <div className={`w-12 h-1 transition-colors ${currentStep > step ? 'bg-primary' : 'bg-gray-200 dark:bg-slate-800'}`}></div>}
+              {step < 3 && <div className={`w-12 h-1 transition-colors ${currentStep > step ? 'bg-primary' : 'bg-muted'}`}></div>}
             </React.Fragment>
           ))}
         </div>
@@ -787,11 +787,11 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
       <div className="theme-card p-4 sm:p-8 lg:p-12">
         {currentStep === 1 && (
           <div className="animate-fade-in" role="tabpanel" aria-labelledby="step-1" id="step-1-content">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Step 1: Your Property Details</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-6">Step 1: Your Property Details</h2>
             <form noValidate>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="postcode" className="block text-slate-600 dark:text-slate-300 text-sm font-semibold mb-2">
+                  <label htmlFor="postcode" className="block text-label text-sm font-semibold mb-2">
                     <MapPin />Postcode *
                     <InfoTooltip text="Your postcode determines solar rebate zones and local weather data for accurate estimates." />
                   </label>

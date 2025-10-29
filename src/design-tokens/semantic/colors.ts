@@ -91,6 +91,11 @@ export const colors = {
     dark: primitives.custom.darkText,        // #F5F5F5
     DEFAULT: primitives.custom.lightText,
   } as ThemeColor,
+  label: {
+    light: primitives.custom.lightTextSubtle, // #6b7280 (for form labels)
+    dark: primitives.custom.darkTextSubtle,   // #A0A0A0
+    DEFAULT: primitives.custom.lightTextSubtle,
+  } as ThemeColor,
   muted: {
     light: primitives.custom.lightText,      // #111827 (same as primary per user spec)
     dark: primitives.custom.darkText,        // #F5F5F5 (same as primary per user spec)
