@@ -39,9 +39,84 @@
 - Parallel routes and layouts for role-based dashboards
 - Middleware for authentication and route protection
 - **Layout Consistency MANDATORY**: NEVER create standalone pages with separate sidebars/navigation
-- **Layout Inheritance**: All dashboard pages MUST use existing layout structure (src/app/[role]/layout.tsx)
+- **Layout Inheritance**: All dashboard pages MUST use a shared layout (see Route Group Model below)
 - **Route Planning**: BEFORE creating new page, verify existing layout and navigation structure
-- **No Duplicate UI Elements**: Never recreate sidebars, headers, navigation - always extend existing layouts
+- **No Duplicate UI Elements**: Never recreate sidebars, headers, navigation — always extend existing layouts
+
+#### Route Group Model & Folder Structure Blueprint (Standard)
+
+To eliminate layout duplication and routing drift, all authenticated app pages should live under a single dashboard route group, with public and auth flows separated. New work MUST follow this pattern; legacy role folders remain supported and can be migrated incrementally.
+
+```
+app/
+ ├─ (marketing)/               # Public site pages
+ │   ├─ layout.tsx             # Public layout
+ │   ├─ page.tsx               # Home page
+ │   └─ about/page.tsx
+ │
+ ├─ (dashboard)/               # Authenticated app (shared shell)
+ │   ├─ layout.tsx             # Sidebar + Topbar wrapper
+ │   ├─ page.tsx               # Dashboard overview
+ │   ├─ settings/
+ │   │   ├─ page.tsx
+ │   │   ├─ profile/page.tsx
+ │   │   ├─ billing/page.tsx
+ │   │   └─ layout.tsx         # Optional local tabs for section
+ │   ├─ members/
+ │   │   ├─ page.tsx
+ │   │   └─ [id]/page.tsx
+ │   └─ analytics/
+ │       ├─ layout.tsx         # Optional section-level layout
+ │       ├─ page.tsx
+ │       └─ trends/page.tsx
+ │
+ ├─ (auth)/                    # Login, Register, Forgot Password
+ │   ├─ layout.tsx
+ │   └─ login/page.tsx
+ │
+ └─ api/                       # API routes
+     ├─ users/route.ts
+     └─ reports/route.ts
+```
+
+Rules:
+- Global layouts: `/app/layout.tsx` (root), `/app/(marketing)/layout.tsx`, `/app/(dashboard)/layout.tsx`, `/app/(auth)/layout.tsx`.
+- Local (section) layouts are optional and scoped: never include Sidebar/Topbar there (inherit from `(dashboard)` layout).
+- Subpages must be nested under their parent folder (hierarchical routing only).
+- Folder names: lowercase, kebab-case; avoid plural/singular mix unless intentional.
+
+Dashboard layout contract example:
+
+```tsx
+// /app/(dashboard)/layout.tsx
+import { Sidebar } from "@/components/layout/sidebar";
+import { Topbar } from "@/components/layout/topbar";
+
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex h-screen">
+      <Sidebar />
+      <div className="flex flex-col flex-1">
+        <Topbar />
+        <main className="p-6 overflow-y-auto">{children}</main>
+      </div>
+    </div>
+  );
+}
+```
+
+> No page inside `(dashboard)` may import or redefine Sidebar/Topbar.
+
+Navigation & routing standards:
+- Centralize sidebar items in a single config (e.g., `src/config/navigation.ts`). Each entry defines `label`, `href`, `icon`, and optional `subRoutes`.
+- Active state derives from the current pathname (via `next/navigation`). Subpages inherit their parent highlight.
+- Any new dashboard page MUST be integrated into the sidebar config; standalone dashboard pages are prohibited.
+
+PR guardrails (enforced during review/CI where possible):
+- Layout consistency: all dashboard pages render within `/app/(dashboard)/layout.tsx`.
+- Navigation check: every new dashboard route has a matching sidebar entry.
+- No layout duplication: reject imports of `Sidebar`/`Topbar` from page files.
+- Storybook layout demo: sections include a “Layout Demo” story to visually validate structure.
 
 ### II. TypeScript Strict Mode
 **Type safety is non-negotiable**
@@ -1552,7 +1627,7 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"
 
 ---
 
-**Version**: 1.0.0  
+**Version**: 1.0.1  
 **Ratified**: October 13, 2025  
-**Last Amended**: October 13, 2025  
+**Last Amended**: October 29, 2025  
 **Project**: SolarMatch - Solar Lead Generation Platform

@@ -16,8 +16,8 @@
  */
 
 import { primitives } from '../primitives/colors'
-import type { Theme } from './index'
-import { defaultTheme, mergeThemeColors } from './index'
+import type { Theme } from './types'
+import { defaultTheme, mergeThemeColors } from './default-theme'
 
 /**
  * TechCorp Blue Theme

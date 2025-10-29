@@ -808,7 +808,7 @@ I want you to do a deep audit the understand the current state clearly and valid
 
 
 
-
+***UI BLUEPRINT INTEGRATION AND UPDATION OF RELEVANT FILES***
 
 We have updateed the constitution.md and all the speckit files to reflect the new design token system for centralized theme colors. I have got a blueprint from the chatGPT and I am sharing with you. The goal is to update the constitution.md file without losing any important information and make it more concise and clear. not to replace the existing constitution.md file completely but you should merge the important points from the blueprint into the existing constitution.md file. Make sure to keep all the important information from the existing constitution.md file while integrating the new blueprint details. The final constitution.md file should be well-structured, easy to understand, and reflect the centralized theme system using CSS variables as per the blueprint. As we will be useing shadcn/ui components, make sure the constitution.md file aligns with shadcn/ui theming practices. And also check the tasks.md file were we have already implimented until T1040 according to the old constitution.md file. Make sure the new constitution.md file is aligned with the already implimented tasks in the tasks.md file. And also make sure the new constitution.md file is aligned with the current tailwind.config.js file and globals.css file. Also update the speck.md, plan.md. research.md files accordingly to reflect the new constitution.md file. or you decide which relevant files need to be updated to reflect the new constitution.md file and update it accordingly. 
 
@@ -969,3 +969,617 @@ Zero duplication across shadcn/ui, Tailwind, and Storybook
 Visual testing at every PR
 
 A single token change updates hundreds of components instantly — making the system scalable, accessible, and future-proof.
+
+
+
+
+
+***UI LAYOUT BLUEPRINT INTEGRATION AND UPDATION OF RELEVANT FILES***
+
+We have updateed the constitution.md and all the speckit files to reflect the new UI layout structure system. I have got a blueprint from the chatGPT and I am sharing with you. The goal is to update the constitution.md file without losing any important information and make it more concise and clear. not to replace the existing constitution.md file completely but you should merge the important points from the blueprint into the existing constitution.md file. Make sure to keep all the important information from the existing constitution.md file while integrating the new blueprint details. The final constitution.md file should be well-structured, easy to understand, and reflect the centralized. Update all the selected files accordingly to reflect the new constitution.md file. or you decide which relevant files need to be updated to reflect the new constitution.md file and update it accordingly. Ensure that the tasks.md file is aligned with the new constitution.md file. Here is the blueprint :
+---
+
+# 🧭 GitHub Spec: Page, Dashboard & Layout Architecture Blueprint
+
+**Stack:** Next.js (App Router) · Shadcn/UI · TypeScript
+**Goal:**
+Ensure all pages, dashboard subpages, layouts, and routes follow a **single, predictable structure** that promotes scalability, consistent design, and clean navigation — eliminating layout duplication, routing chaos, and standalone page issues.
+
+---
+
+## I. 🎯 Core Principles
+
+1. **Single Source of Truth for Layouts**
+   All dashboard pages **must** inherit from a shared layout under `app/(dashboard)/layout.tsx`.
+   No component or page should redefine sidebars, navbars, or containers independently.
+
+2. **Hierarchical Routing Only**
+   Subpages must live inside their **parent route folder** (never as siblings of `/dashboard`).
+
+3. **Reusable UI Regions**
+
+   * **Sidebar**, **Navbar**, and **Content area** are controlled centrally.
+   * **Local page sections** may add secondary tabs or filters but cannot alter or duplicate the global layout.
+
+4. **Consistent Folder Naming Convention**
+
+   * Lowercase, kebab-case folders
+   * Group related features together (`/dashboard/members`, `/dashboard/members/[id]`)
+   * No plural/singular mix inconsistencies (`/members`, not `/member` unless explicitly single-resource view)
+
+---
+
+## II. 📁 Folder & File Structure Blueprint
+
+```
+app/
+ ├─ (marketing)/               # Public site pages
+ │   ├─ layout.tsx             # Public layout
+ │   ├─ page.tsx               # Home page
+ │   └─ about/page.tsx
+ │
+ ├─ (dashboard)/               # Authenticated app
+ │   ├─ layout.tsx             # Main dashboard layout (shared UI)
+ │   ├─ page.tsx               # Default dashboard overview
+ │   │
+ │   ├─ settings/              # Dashboard section (Parent Page)
+ │   │   ├─ page.tsx           # Main settings page
+ │   │   ├─ profile/page.tsx   # Subpage (nested under Settings)
+ │   │   ├─ billing/page.tsx   # Subpage
+ │   │   ├─ layout.tsx (optional) # Local layout if section-specific
+ │   │
+ │   ├─ members/
+ │   │   ├─ page.tsx
+ │   │   ├─ [id]/page.tsx
+ │   │
+ │   ├─ reports/
+ │   │   ├─ page.tsx
+ │   │   ├─ monthly/page.tsx
+ │   │   ├─ yearly/page.tsx
+ │   │
+ │   └─ analytics/
+ │       ├─ page.tsx
+ │       ├─ layout.tsx         # If analytics section needs custom tabs
+ │       └─ trends/page.tsx
+ │
+ ├─ (auth)/                    # Login, Register, Forgot Password
+ │   ├─ layout.tsx
+ │   └─ login/page.tsx
+ │
+ ├─ api/                       # API routes
+ │   ├─ users/route.ts
+ │   └─ reports/route.ts
+ │
+ └─ globals.css
+```
+
+---
+
+## III. 🧩 Layout Architecture Rules
+
+### A. Global Layouts
+
+| Layout File                   | Purpose                                             | Scope                 |
+| ----------------------------- | --------------------------------------------------- | --------------------- |
+| `/app/layout.tsx`             | Root HTML shell (metadata, fonts, global providers) | Entire site           |
+| `/app/(marketing)/layout.tsx` | Marketing/public-facing layout                      | Marketing site        |
+| `/app/(dashboard)/layout.tsx` | Sidebar + Top Nav + Dashboard shell                 | All dashboard routes  |
+| `/app/(auth)/layout.tsx`      | Authentication layout (no sidebar/nav)              | Login/Register routes |
+
+**Example: `/app/(dashboard)/layout.tsx`**
+
+```tsx
+import { Sidebar } from "@/components/layout/sidebar";
+import { Topbar } from "@/components/layout/topbar";
+
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex h-screen">
+      <Sidebar />
+      <div className="flex flex-col flex-1">
+        <Topbar />
+        <main className="p-6 overflow-y-auto">{children}</main>
+      </div>
+    </div>
+  );
+}
+```
+
+> 💡 **Rule:** No page within `(dashboard)` should re-import or redefine `<Sidebar>` or `<Topbar>`.
+> These are provided automatically by `layout.tsx`.
+
+---
+
+### B. Local Layouts (Optional, Scoped)
+
+If a dashboard section needs its own tabs or sub-navigation (e.g., `/settings` or `/analytics`),
+create a **local layout file** inside that folder.
+
+**Example:** `/dashboard/settings/layout.tsx`
+
+```tsx
+export default function SettingsLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <section>
+      <h1 className="text-xl font-semibold mb-4">Settings</h1>
+      <div className="flex gap-4 border-b mb-6">
+        {/* Local tabs */}
+      </div>
+      {children}
+    </section>
+  );
+}
+```
+
+> ⚠️ **Do not** include sidebar or topbar here — they come from the parent `(dashboard)` layout.
+
+---
+
+## IV. 🧭 Routing & Navigation Standards
+
+1. **Centralized Navigation Definition**
+
+   * The sidebar menu is defined in `/config/navigation.ts` or `/lib/navigation.ts`.
+   * Each route entry includes:
+
+     ```ts
+     {
+       label: "Settings",
+       href: "/dashboard/settings",
+       icon: SettingsIcon,
+       subRoutes: [
+         { label: "Profile", href: "/dashboard/settings/profile" },
+         { label: "Billing", href: "/dashboard/settings/billing" },
+       ],
+     }
+     ```
+
+2. **Dynamic Active State**
+
+   * Sidebar should automatically highlight active links using the current route from `next/navigation`.
+   * Subpages inherit their parent’s highlight (e.g., `/dashboard/settings/profile` → highlights “Settings”).
+
+3. **No Standalone Pages Inside Dashboard**
+
+   * Any new dashboard page **must** be nested under `(dashboard)/` and integrated into the sidebar via config.
+   * Standalone pages (not under `(dashboard)`) must use `(marketing)` or `(auth)` scope.
+
+4. **Breadcrumbs (Optional Enhancement)**
+
+   * Derived automatically from the route path.
+   * `/dashboard/members/123` → Dashboard › Members › Details
+
+---
+
+## V. 🧩 Component Responsibility Rules
+
+| Component                 | Responsibility                         | Reuse Scope                       |
+| ------------------------- | -------------------------------------- | --------------------------------- |
+| `Sidebar`                 | Handles navigation links, active state | Shared across all dashboard pages |
+| `Topbar`                  | Search, profile menu, notifications    | Shared                            |
+| `PageHeader`              | Optional per-section title/header      | Local (inside pages)              |
+| `Card`, `Table`, `Button` | Pure UI components (tokenized)         | Global                            |
+| `Layout` files            | Handle only structure, not logic       | Scoped (global or local)          |
+
+---
+
+## VI. ⚙️ PR Guardrails & Spec Checks
+
+| Guard                             | Description                                                                              |
+| --------------------------------- | ---------------------------------------------------------------------------------------- |
+| **Layout Consistency Check**      | All new pages must be nested under `(dashboard)` and rendered inside the main layout.    |
+| **Navigation Check**              | Every new dashboard route must have a matching sidebar entry in `navigation.ts`.         |
+| **No Layout Duplication**         | CI should scan for multiple imports of `Sidebar`/`Topbar` outside `layout.tsx`.          |
+| **Storybook Visual Layout Check** | Each section should have a Storybook “Layout Demo” story verifying consistent structure. |
+
+---
+
+## VII. ✅ Outcome
+
+This structure guarantees:
+
+* 🧱 **Predictable, modular routing**
+* 🎨 **Consistent visual and layout experience**
+* ⚙️ **Easy onboarding and maintenance**
+* 🧩 **Seamless AI/spec-based generation alignment** (no rogue folders or duplicated layouts)
+
+
+
+***Tasks.md Audit Report***
+Here is the current audit report of the tasks.md file related to the on going tasks that we are implimenting. As we are updating our specs on the go, so it is crucial to keep the tasks.md file aligned with the current specs and the site current state. So I have audited the tasks.md file and created this report for you to understand the current situation clearly. Please read it carefully before start implimenting any further tasks.
+
+PHASE AUDIT SUMMARY
+✅ Phases COMPLETE (Can mark all tasks done now):
+Phase 4 (T038-T048): Typography System - 100% Complete
+Phase 5 (T049-T058): Spacing System - 100% Complete
+Phase 8 (T075-T079): Border Radius - 100% Complete (minus Chromatic T077)
+Phase 9 (T080-T084): Animations - 100% Complete (minus Chromatic T082)
+Phase 10 (T085-T088): QA Tools - 100% Complete (minus Chromatic T089-T090)
+Phase 11 (T091-T095): White-Label - 100% Complete (minus Chromatic, WCAG T094)
+
+⚠️ Phases INCOMPLETE (Missing files):
+Phase 7 (T066-T074): Shadow/Elevation - 67% Complete (6/9 tasks)
+
+✅ T066: Shadows.stories.tsx exists
+✅ T067: ElevationHierarchy.stories.tsx exists
+✅ T068: ElevatedButton.stories.tsx exists
+❌ T069: Dropdown.stories.tsx MISSING
+❌ T070: Modal.stories.tsx MISSING
+⏸️ T071-T073: Chromatic testing (blocked)
+✅ T074: elevation-system-guide.md exists
+Phase 12 (T096-T318): Legacy Migration - <5% Complete (223 tasks)
+
+❌ T096: scan-hardcoded-values.ts script MISSING
+✅ T097: migration docs exist (hardcoded-color-scan.md, migration-dashboard.md)
+❌ T098-T318: 221 page migration tasks NOT STARTED
+Phase 13 (T319-T329): Polish - 0% Complete (11 tasks)
+
+All documentation, CI/CD, and deployment tasks NOT STARTED
+
+
+
+***Backend blueprint***
+
+ I have got a blueprint from the chatGPT and I am sharing with you. The goal is to update the constitution.md file without losing any important information and make it more concise and clear. not to replace the existing constitution.md file completely but you should merge the important points from the blueprint into the existing constitution.md file. Make sure to keep all the important information from the existing constitution.md file while integrating the new blueprint details. The final constitution.md file should be well-structured, easy to understand, and reflect the centralized. Update all the selected files accordingly to reflect the new constitution.md file. or you decide which relevant files need to be updated to reflect the new constitution.md file and update it accordingly. Ensure that the tasks.md file is aligned with the new constitution.md file. Here is the blueprint :
+
+
+
+
+Perfect — I’ll give you a complete, industry-standard **Backend Blueprint** tailored to your stack: **Docker (local DB) + Prisma (ORM)** with smooth portability to **Supabase (managed Postgres)** or any other Postgres DB provider. This will cover dev & prod practices, migration strategy, CI/CD, security, monitoring, and the exact pitfalls to avoid when switching between local Docker DB and a managed Postgres service.
+
+I’ll structure it as: summary → concrete configs & examples → workflows and guardrails → production considerations → final checklist.
+
+# Summary (what you’ll get)
+
+* Local dev with Docker Compose + Postgres for parity with production.
+* Prisma as single ORM layer; same Prisma schema works for local Postgres, Supabase Postgres, and others.
+* Safe migration approach (dev vs prod): `prisma migrate dev` locally, `prisma migrate deploy` in CI/CD.
+* Zero-downtime migration guidelines and data-migration/backfill patterns.
+* Connection pooling and production DB tuning (PgBouncer, SSL).
+* Integration options with Supabase Auth / RLS and trade-offs.
+* CI/CD pipeline with migration job, client generation, and safe deploy.
+* Backups, monitoring, observability, secrets, and security best practices.
+
+---
+
+# 1) Project layout & config (recommended)
+
+```
+/project
+ ├─ prisma/
+ │   ├─ schema.prisma
+ │   ├─ seed.ts
+ ├─ src/
+ │   ├─ lib/
+ │   │   ├─ db.ts            # Prisma client instance
+ │   ├─ api/
+ │   ├─ services/
+ │   ├─ controllers/
+ ├─ docker-compose.yml
+ ├─ Dockerfile
+ ├─ .env.example
+ ├─ package.json
+ └─ ci/
+     ├─ deploy.yml
+```
+
+`src/lib/db.ts` (singleton Prisma client):
+
+```ts
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient({
+  // log: ['query', 'info', 'warn']
+});
+
+export default prisma;
+```
+
+`.env.example`
+
+```
+# Local Docker
+DATABASE_URL=postgresql://postgres:password@localhost:5432/mydb?schema=public
+
+# For production (Supabase or other)
+# DATABASE_URL=postgresql://user:password@dbhost:5432/dbname?sslmode=require
+```
+
+---
+
+# 2) Docker Compose for local development
+
+Use Docker for reproducible local dev. This mirrors production Postgres features more reliably than sqlite.
+
+`docker-compose.yml`
+
+```yaml
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydb
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+volumes:
+  db_data:
+```
+
+Dev workflow:
+
+* `docker compose up -d`
+* `npx prisma migrate dev` (creates migration + updates local DB)
+* `npm run dev`
+
+---
+
+# 3) Prisma best practices & schema tips
+
+* Use a single Prisma schema for all environments. Keep `schema.prisma` clean and semantic.
+* Use `schema.prisma` `@@map` and `@map` for column/table names if you need to match legacy DB.
+* Keep relations explicit and add unique constraints where necessary.
+* Add explicit `createdAt` / `updatedAt` timestamps and use `@updatedAt` for automation.
+
+Example snippet:
+
+```prisma
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+```
+
+**Important:** Avoid using Prisma migrations to perform long-running, blocking operations (e.g., migrating huge text fields) without staged approach (see zero-downtime migrations).
+
+---
+
+# 4) Migrations: dev vs production flow
+
+**Local dev**
+
+* `npx prisma migrate dev --name add-some-field` — creates migration + updates local DB; use during feature work.
+
+**CI / Production**
+
+* Build step should run `npx prisma migrate deploy` to apply already-committed SQL migrations.
+* NEVER run `prisma migrate dev` in production.
+
+**CI tips**
+
+* Use a shadow DB for generating migrations in CI if needed.
+* In CI, run `npx prisma migrate deploy` before deploying your app container.
+* For zero-downtime: run migrations as a separate step before rolling traffic to new code.
+
+---
+
+# 5) Zero-downtime & safe migration patterns
+
+When changing schema in production:
+
+1. **Additive changes only (safe):** Add nullable columns, new tables, indexes.
+2. **Backfill:** Run background job to backfill data to new columns.
+3. **Switch reads/writes:** Update application to start writing to new column while still reading old one if needed.
+4. **Make column NOT NULL:** After backfill and sufficient verification, alter to NOT NULL in a separate migration.
+5. **Remove legacy column:** Once safe, deploy migration to drop old column.
+
+For large tables:
+
+* Create indexes concurrently (Postgres `CREATE INDEX CONCURRENTLY`).
+* Avoid `ALTER TABLE` on big tables that rewrites whole table in single migration.
+
+---
+
+# 6) Connection management & production tuning
+
+* **Connection pooling:** Use PgBouncer in transaction pooling mode for production or use cloud provider’s pooling. Prisma opens many connections; without pooling you’ll exhaust DB connections in serverless environments.
+* **Prisma Data Proxy:** Consider Prisma Data Proxy if deploying to serverless platforms to avoid too many DB connections.
+* **SSL:** Force `?sslmode=require` and verify certs in production provider.
+* **Max connections:** Tune `max_connections` on DB provider and `pool_size`/`connection_limit` on pooling layer.
+
+Example DATABASE_URL with params:
+
+```
+postgresql://user:pass@host:5432/dbname?schema=public&sslmode=require
+```
+
+---
+
+# 7) Supabase integration specifics (important)
+
+Supabase uses PostgreSQL — Prisma works with Supabase out of the box. But be careful about:
+
+**A. Row Level Security (RLS) and Auth**
+
+* Supabase encourages RLS with policies based on JWT claims.
+* If you use Prisma with a server-side DB user (service role), you bypass RLS — responsibility shifts to your backend for access control.
+* Options:
+
+  1. **Backend-only Prisma (recommended for full control)**
+
+     * Use Prisma with a dedicated DB user (service-role-like) and implement all access control in your server/service layer.
+  2. **Use Supabase APIs directly for client-side use + Prisma for server tasks**
+
+     * For operations needing RLS/audited queries, use Supabase JS/PostgREST with logged-in user's JWT.
+  3. **Hybrid:** Keep RLS for certain tables and use a service role via Prisma for internal work; be explicit and auditable.
+
+**B. Extensions & Schema**
+
+* Supabase may include extensions (pgcrypto, postgis). If your Prisma schema relies on extensions, ensure the target DB supports them.
+* Supabase projects have `public` schema by default; confirm schema names match Prisma `schema` param.
+
+**C. Service Role Key**
+
+* Supabase exposes a `service_role` key which has elevated privileges; do **not** ship this to clients. Use it server-side only (and store in secure secret manager).
+
+---
+
+# 8) Security & secrets management
+
+* **Never commit `.env`**. Keep `.env.example`.
+* Use cloud provider secrets manager (Vercel, Netlify, AWS Secrets Manager, Google Secret Manager) for production envs.
+* Use principle of least privilege for DB users.
+* Secure DB access: require SSL, restrict IPs where possible.
+* Sanitize and validate all input using `zod` (server-side) before it reaches Prisma.
+* Encrypt sensitive fields at application layer if necessary (never store raw PII unless required).
+
+---
+
+# 9) API design & consistency
+
+* Use **Controller → Service → Repository** separation:
+
+  * **Controller**: HTTP layer, request parsing, response formatting.
+  * **Service**: business logic, transactions.
+  * **Repository (or Prisma client)**: raw DB access.
+* Use consistent API response envelope:
+
+```json
+{ "status": "success" | "error", "data": {...}, "error": { code, message } }
+```
+
+* Use `Zod` to validate request bodies and transform into typed DTOs for Prisma.
+
+---
+
+# 10) Testing & CI
+
+* **Unit tests** for services and utilities.
+* **Integration tests** using:
+
+  * **Testcontainers** (spins up ephemeral Postgres in CI) OR
+  * Docker Compose with a test Postgres instance + `prisma migrate deploy` + seeding
+* **E2E tests** against staging environment.
+* CI pipeline steps (example order):
+
+  1. Install deps
+  2. `npx prisma generate`
+  3. Run lint, unit tests
+  4. Start test DB (docker compose or testcontainers)
+  5. `npx prisma migrate deploy` (to test DB)
+  6. Run integration tests
+  7. Build + prisma client generation
+  8. Deploy / Run migration job on production (see deploy strategy)
+
+---
+
+# 11) Backups, observability & incident handling
+
+* **Backups**
+
+  * Managed DBs: enable daily backups + PITR (point-in-time recovery) if available.
+  * Self-hosted: schedule `pg_dump` (and WAL archiving) to remote storage.
+* **Monitoring**
+
+  * Monitor DB metrics: connection count, query time, slow queries, replication lag.
+  * Tools: PgHero, pg_stat_statements, Datadog, Prometheus + Grafana.
+* **Logging & Error Tracking**
+
+  * Use centralized logging (e.g., LogDNA, Papertrail) and error tracking (Sentry) for backend services.
+* **Alerting**
+
+  * Set alerts for high error rates, high CPU, connection exhaustion, long-running queries.
+
+---
+
+# 12) Deployment & migration run strategy (recommended)
+
+* **Pre-deploy job** (CI) — `prisma migrate deploy` to production DB. Fail the pipeline if migration fails.
+* **Canary / phased rollout** — deploy service to staging first, smoke-test.
+* **Blue/Green or rolling** deploys so old and new code can coexist during migration window when needed.
+* **Run backfill jobs** after migration if needed; these should be idempotent.
+
+---
+
+# 13) Practical commands & snippets
+
+Generate client whenever schema changes:
+
+```bash
+npx prisma generate
+```
+
+Apply migrations in prod:
+
+```bash
+npx prisma migrate deploy
+```
+
+Reset local dev DB:
+
+```bash
+npx prisma migrate reset
+# WARNING: drops all data. Use only in dev.
+```
+
+Seeding example (`prisma/seed.ts`):
+
+```ts
+import prisma from "../src/lib/db";
+
+async function main() {
+  await prisma.user.create({ data: { email: "admin@example.com", name: "Admin" } });
+}
+
+main()
+  .catch(e => { console.error(e); process.exit(1); })
+  .finally(async () => { await prisma.$disconnect(); });
+```
+
+Add to `package.json`:
+
+```json
+"prisma:seed": "ts-node prisma/seed.ts"
+```
+
+---
+
+# 14) Common pitfalls & how to avoid them
+
+* **Pitfall:** Too many DB connections in serverless — fix with PgBouncer or Prisma Data Proxy.
+* **Pitfall:** Relying on `prisma migrate dev` in production — always use `prisma migrate deploy`.
+* **Pitfall:** Directly dropping or altering big tables in one migration — follow zero-downtime pattern.
+* **Pitfall:** Using Supabase service key in frontend — store server-side only.
+* **Pitfall:** RLS mismatch — if you switch between Supabase Auth + RLS and Prisma server-side, pick one model and document access control clearly.
+
+---
+
+# 15) Checklist — ready-to-go (copy into your repo as `BACKEND_GUIDELINES.md`)
+
+* [ ] `docker-compose.yml` for local Postgres and healthcheck present.
+* [ ] `prisma/schema.prisma` stored and canonical for all envs.
+* [ ] `.env.example` with `DATABASE_URL`.
+* [ ] `src/lib/db.ts` as single Prisma client instance.
+* [ ] CI step: `prisma generate` + `prisma migrate deploy` before deployment.
+* [ ] Connection pooling strategy selected (PgBouncer or Prisma Data Proxy).
+* [ ] Backups configured in prod (daily + PITR if available).
+* [ ] Logging + Sentry configured and tested.
+* [ ] Test DB flow for CI (testcontainers or compose).
+* [ ] Migrations follow zero-downtime strategy for critical tables.
+* [ ] Secrets stored in secret manager (no commits).
+* [ ] Security review for Supabase RLS / service-role usage documented.
+
+
+
