@@ -1772,3 +1772,18 @@ When you merge these Minor Blueprints with your UI/UX and Backend Blueprints, yo
 ⚙️ CI/CD & DevOps Governance
 
 🧩 Code Review, Documentation & Version Control
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+I have fount that the buttons has inconcistent classes. Audit on all the buttons used in the site. and make a list of classes used for buttons. Icons using same class that used for other components. its a messy and inconcistent use of classes in this site. Now I want to re-classify the messy classes and make it concistent and control everything centrally. As I am working on the design system and theming system so its very important to have a concistent class naming convention. So please audit all the button classes and make a list of all the classes used for buttons in the site. After that create a new class naming convention for buttons that is concistent and easy to understand. Finally update all the button classes in the site to reflect the new class naming convention. As we are worining on an existing site so we will only work on the messy parts and keep the existing concistent parts as it is. we will now go component by component and update all the classes accordingly. It is not only just about button or icon classes, its about all the classes used in the site. So please audit all the classes used in the site and make a list of all the classes used in the site. After that create a new class naming convention that is concistent and easy to understand. Finally update all the classes in the site to reflect the new class naming convention. As we are worining on an existing site so we will only work on the messy parts and keep the existing concistent parts as it is. we will now go component by component and update all the classes accordingly. 

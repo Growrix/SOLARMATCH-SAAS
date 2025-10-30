@@ -12,6 +12,16 @@
 
 ---
 
+## Constitution Alignment Update (DevOps/CI-CD)
+
+This feature is primarily UI/theming. Nonetheless, all PRs for this branch must comply with the updated Constitution’s CI/CD governance:
+- Ensure CI passes: lint, typecheck, build. No tests required unless added.
+- If any migrations are introduced (not expected here), they must be created locally with `prisma migrate dev` and deployed via CI with `prisma migrate deploy`.
+- Include Storybook proof (screens/screenshots) for any token-driven UI change.
+- Keep zero hardcoded styles; use tokenized utilities only.
+
+---
+
 ## 🎯 Phase 0 Workflow Reminder (from Constitution)
 
 **YOU ARE HERE** → Phase 0 Complete ✅ (SpecKit planning done)
