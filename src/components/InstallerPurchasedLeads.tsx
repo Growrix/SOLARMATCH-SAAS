@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Installer Purchased Leads Component
  * 
  * T061: Display leads purchased by the installer
@@ -136,7 +136,7 @@ export default function InstallerPurchasedLeads() {
               <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Total Purchased</p>
               <p className="text-3xl font-bold text-slate-900 dark:text-white mt-2">{totalPurchased}</p>
             </div>
-            <CheckCircleIcon className="h-12 w-12 text-green-600 dark:text-green-400" />
+            <CheckCircleIcon className="h-12 w-12 text-success dark:text-green-400" />
           </div>
         </div>
 
@@ -146,7 +146,7 @@ export default function InstallerPurchasedLeads() {
               <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Total Spent</p>
               <p className="text-3xl font-bold text-slate-900 dark:text-white mt-2">£{totalSpent}</p>
             </div>
-            <CurrencyPoundIcon className="h-12 w-12 text-blue-600 dark:text-blue-400" />
+            <CurrencyPoundIcon className="h-12 w-12 text-info dark:text-blue-400" />
           </div>
         </div>
 
@@ -199,11 +199,11 @@ export default function InstallerPurchasedLeads() {
                       {lead.homeowner.name}
                     </h3>
                     <div className="flex flex-wrap gap-4 text-sm text-slate-600 dark:text-slate-400">
-                      <a href={`tel:${lead.homeowner.phone}`} className="flex items-center space-x-2 hover:text-blue-600 dark:hover:text-blue-400">
+                      <a href={`tel:${lead.homeowner.phone}`} className="flex items-center space-x-2 hover:text-info dark:hover:text-blue-400">
                         <PhoneIcon className="h-4 w-4" />
                         <span>{lead.homeowner.phone}</span>
                       </a>
-                      <a href={`mailto:${lead.homeowner.email}`} className="flex items-center space-x-2 hover:text-blue-600 dark:hover:text-blue-400">
+                      <a href={`mailto:${lead.homeowner.email}`} className="flex items-center space-x-2 hover:text-info dark:hover:text-blue-400">
                         <EnvelopeIcon className="h-4 w-4" />
                         <span>{lead.homeowner.email}</span>
                       </a>
@@ -249,7 +249,7 @@ export default function InstallerPurchasedLeads() {
                 <div className="flex flex-row lg:flex-col gap-2 lg:min-w-[160px]">
                   <button
                     onClick={() => handleCall(lead.homeowner.phone)}
-                    className="flex-1 lg:flex-none flex items-center justify-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+                    className="flex-1 lg:flex-none flex items-center justify-center space-x-2 px-4 py-2 bg-success hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
                   >
                     <PhoneIcon className="h-5 w-5" />
                     <span>Call Now</span>

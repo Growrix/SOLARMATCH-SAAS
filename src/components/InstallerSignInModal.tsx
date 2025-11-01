@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
@@ -149,11 +149,11 @@ const InstallerSignInModal: React.FC<InstallerSignInProps> = ({ isOpen, onClose,
         </div>
         
         {error && (
-            <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6">
+            <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-4 mb-6">
                 <div className="flex items-start space-x-3">
                     <AlertTriangleIcon />
                     <div>
-                        <p className="text-red-500 dark:text-red-400 text-sm font-medium mb-1">Sign In Error</p>
+                        <p className="text-destructive dark:text-red-400 text-sm font-medium mb-1">Sign In Error</p>
                         <p className="text-red-600 dark:text-red-300 text-sm">{error}</p>
                     </div>
                 </div>
@@ -198,7 +198,7 @@ const InstallerSignInModal: React.FC<InstallerSignInProps> = ({ isOpen, onClose,
                 </button>
             </div>
 
-            <button type="submit" disabled={loading || !!success} className="w-full bg-primary hover:bg-teal-700 text-white font-semibold py-3 px-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 shadow-lg">
+            <button type="submit" disabled={loading || !!success} className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 shadow-lg">
                 {loading ? (
                 <div className="flex items-center justify-center space-x-2">
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -213,7 +213,7 @@ const InstallerSignInModal: React.FC<InstallerSignInProps> = ({ isOpen, onClose,
                 <ShieldIcon />
                 <span className="text-blue-500 dark:text-blue-400 font-semibold text-sm">Enhanced Security</span>
             </div>
-            <p className="text-blue-600 dark:text-blue-300 text-xs">
+            <p className="text-info dark:text-blue-300 text-xs">
                 Two-factor authentication (2FA) is available in your dashboard settings for additional account security.
             </p>
         </div>

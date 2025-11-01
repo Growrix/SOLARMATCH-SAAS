@@ -1,4 +1,4 @@
-/**
+﻿/**
  * LeadPreviewModal Component
  * 
  * Purpose: Read-only modal for viewing approved/purchased leads
@@ -58,7 +58,7 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
   // Helper to format boolean values
   const formatBoolean = (value: boolean) => {
     return value ? (
-      <span className="inline-flex items-center gap-1 text-green-600 dark:text-green-400">
+      <span className="inline-flex items-center gap-1 text-success dark:text-green-400">
         <CheckIcon /> Yes
       </span>
     ) : (
@@ -280,31 +280,31 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {data.includeEVCharging && (
                   <div className="flex items-center gap-2">
-                    <div className="text-green-600 dark:text-green-400"><CheckIcon /></div>
+                    <div className="text-success dark:text-green-400"><CheckIcon /></div>
                     <span className="text-slate-700 dark:text-slate-300">EV Charging</span>
                   </div>
                 )}
                 {data.includeSmartHome && (
                   <div className="flex items-center gap-2">
-                    <div className="text-green-600 dark:text-green-400"><CheckIcon /></div>
+                    <div className="text-success dark:text-green-400"><CheckIcon /></div>
                     <span className="text-slate-700 dark:text-slate-300">Smart Home Integration</span>
                   </div>
                 )}
                 {data.includeGridServices && (
                   <div className="flex items-center gap-2">
-                    <div className="text-green-600 dark:text-green-400"><CheckIcon /></div>
+                    <div className="text-success dark:text-green-400"><CheckIcon /></div>
                     <span className="text-slate-700 dark:text-slate-300">Grid Services</span>
                   </div>
                 )}
                 {data.includeOptimizers && (
                   <div className="flex items-center gap-2">
-                    <div className="text-green-600 dark:text-green-400"><CheckIcon /></div>
+                    <div className="text-success dark:text-green-400"><CheckIcon /></div>
                     <span className="text-slate-700 dark:text-slate-300">Panel Optimizers</span>
                   </div>
                 )}
                 {data.includeMicroinverters && (
                   <div className="flex items-center gap-2">
-                    <div className="text-green-600 dark:text-green-400"><CheckIcon /></div>
+                    <div className="text-success dark:text-green-400"><CheckIcon /></div>
                     <span className="text-slate-700 dark:text-slate-300">Microinverters</span>
                   </div>
                 )}
@@ -402,7 +402,7 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
         <div className="mt-6 flex justify-end">
           <button
             onClick={onClose}
-            className="px-6 py-2.5 rounded-xl font-semibold text-white bg-primary hover:bg-teal-700 transition-colors"
+            className="px-6 py-2.5 rounded-xl font-semibold text-white bg-primary hover:bg-primary/90 transition-colors"
           >
             Close
           </button>

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import React, { useState, useEffect } from 'react';
 
@@ -89,7 +89,7 @@ const DetailedQuoteAuthModal: React.FC<DetailedQuoteAuthModalProps> = ({ isOpen,
 
   if (!isOpen) return null;
 
-  const baseInputClasses = "w-full bg-white/5 dark:bg-black/20 border border-gray-300/30 dark:border-slate-700/50 rounded-xl px-4 py-3 pl-12 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors";
+  const baseInputClasses = "w-full bg-white/5 dark:bg-black/20 border border-border/30 dark:border-slate-700/50 rounded-xl px-4 py-3 pl-12 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors";
 
   return (
     <div
@@ -122,35 +122,35 @@ const DetailedQuoteAuthModal: React.FC<DetailedQuoteAuthModalProps> = ({ isOpen,
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="relative flex items-center">
               <div className="absolute left-4"><UserIcon /></div>
-              <input type="text" name="fullName" placeholder="Full Name" className={`${baseInputClasses} ${errors.fullName ? 'border-red-500' : ''}`} required onChange={handleInputChange} />
-              {errors.fullName && <p className="text-red-500 text-xs absolute -bottom-4 left-1">{errors.fullName}</p>}
+              <input type="text" name="fullName" placeholder="Full Name" className={`${baseInputClasses} ${errors.fullName ? 'border-destructive' : ''}`} required onChange={handleInputChange} />
+              {errors.fullName && <p className="text-destructive text-xs absolute -bottom-4 left-1">{errors.fullName}</p>}
             </div>
             <div className="relative flex items-center">
               <div className="absolute left-4"><PhoneIcon /></div>
-              <input type="tel" name="phone" placeholder="Phone Number" className={`${baseInputClasses} ${errors.phone ? 'border-red-500' : ''}`} required onChange={handleInputChange} />
-              {errors.phone && <p className="text-red-500 text-xs absolute -bottom-4 left-1">{errors.phone}</p>}
+              <input type="tel" name="phone" placeholder="Phone Number" className={`${baseInputClasses} ${errors.phone ? 'border-destructive' : ''}`} required onChange={handleInputChange} />
+              {errors.phone && <p className="text-destructive text-xs absolute -bottom-4 left-1">{errors.phone}</p>}
             </div>
           </div>
           <div className="relative flex items-center">
             <div className="absolute left-4"><MailIcon /></div>
-            <input type="email" name="email" placeholder="Email Address" className={`${baseInputClasses} ${errors.email ? 'border-red-500' : ''}`} required onChange={handleInputChange} />
-             {errors.email && <p className="text-red-500 text-xs absolute -bottom-4 left-1">{errors.email}</p>}
+            <input type="email" name="email" placeholder="Email Address" className={`${baseInputClasses} ${errors.email ? 'border-destructive' : ''}`} required onChange={handleInputChange} />
+             {errors.email && <p className="text-destructive text-xs absolute -bottom-4 left-1">{errors.email}</p>}
           </div>
           <div className="relative flex items-center">
             <div className="absolute left-4"><MapPinIcon /></div>
-            <input type="text" name="address" placeholder="Property Address" className={`${baseInputClasses} ${errors.address ? 'border-red-500' : ''}`} required onChange={handleInputChange} />
-             {errors.address && <p className="text-red-500 text-xs absolute -bottom-4 left-1">{errors.address}</p>}
+            <input type="text" name="address" placeholder="Property Address" className={`${baseInputClasses} ${errors.address ? 'border-destructive' : ''}`} required onChange={handleInputChange} />
+             {errors.address && <p className="text-destructive text-xs absolute -bottom-4 left-1">{errors.address}</p>}
           </div>
           <div className="relative flex items-center">
             <div className="absolute left-4"><LockIcon /></div>
-            <input type={showPassword ? "text" : "password"} name="password" placeholder="Password (min. 8 characters)" className={`${baseInputClasses} pr-12 ${errors.password ? 'border-red-500' : ''}`} required onChange={handleInputChange} />
+            <input type={showPassword ? "text" : "password"} name="password" placeholder="Password (min. 8 characters)" className={`${baseInputClasses} pr-12 ${errors.password ? 'border-destructive' : ''}`} required onChange={handleInputChange} />
             <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-700 dark:hover:text-white"><EyeIcon /></button>
-            {errors.password && <p className="text-red-500 text-xs absolute -bottom-4 left-1">{errors.password}</p>}
+            {errors.password && <p className="text-destructive text-xs absolute -bottom-4 left-1">{errors.password}</p>}
           </div>
           <div className="relative flex items-center">
             <div className="absolute left-4"><LockIcon /></div>
-            <input type={showPassword ? "text" : "password"} name="confirmPassword" placeholder="Confirm Password" className={`${baseInputClasses} pr-12 ${errors.confirmPassword ? 'border-red-500' : ''}`} required onChange={handleInputChange} />
-             {errors.confirmPassword && <p className="text-red-500 text-xs absolute -bottom-4 left-1">{errors.confirmPassword}</p>}
+            <input type={showPassword ? "text" : "password"} name="confirmPassword" placeholder="Confirm Password" className={`${baseInputClasses} pr-12 ${errors.confirmPassword ? 'border-destructive' : ''}`} required onChange={handleInputChange} />
+             {errors.confirmPassword && <p className="text-destructive text-xs absolute -bottom-4 left-1">{errors.confirmPassword}</p>}
           </div>
 
           <div className="pt-4">
@@ -165,20 +165,20 @@ const DetailedQuoteAuthModal: React.FC<DetailedQuoteAuthModalProps> = ({ isOpen,
                            setErrors(prev => ({ ...prev, recaptcha: '' }));
                         }
                     }}
-                    className="h-6 w-6 rounded border-gray-300 dark:border-slate-600 text-primary focus:ring-primary dark:bg-slate-900"
+                    className="h-6 w-6 rounded border-border dark:border-slate-600 text-primary focus:ring-primary dark:bg-slate-900"
                 />
                 <label htmlFor="recaptcha" className="text-sm text-slate-700 dark:text-slate-300">I&apos;m not a robot</label>
                 <div className="ml-auto text-center text-slate-500 text-xs">
                     reCAPTCHA
                 </div>
             </div>
-            {errors.recaptcha && <p className="text-red-500 text-xs mt-1">{errors.recaptcha}</p>}
+            {errors.recaptcha && <p className="text-destructive text-xs mt-1">{errors.recaptcha}</p>}
           </div>
           
           <div className="pt-2">
             <button
               type="submit"
-              className="w-full flex items-center justify-center bg-primary hover:bg-teal-700 text-white font-semibold py-3 px-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 shadow-lg"
+              className="w-full flex items-center justify-center bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 shadow-lg"
             >
               Create Account & Submit Request
               <ArrowRightIcon />

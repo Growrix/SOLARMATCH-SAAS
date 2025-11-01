@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { signIn } from 'next-auth/react';
@@ -89,7 +89,7 @@ const AdminSignInModal: React.FC<AdminSignInModalProps> = ({ isOpen, onClose, on
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {error && (
-            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-sm">
+            <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-red-600 dark:text-red-400 text-sm">
               {error}
             </div>
           )}
@@ -103,7 +103,7 @@ const AdminSignInModal: React.FC<AdminSignInModalProps> = ({ isOpen, onClose, on
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full px-4 py-3 rounded-lg border border-border dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary"
               placeholder="admin@solarmatch.com"
               required
             />
@@ -118,7 +118,7 @@ const AdminSignInModal: React.FC<AdminSignInModalProps> = ({ isOpen, onClose, on
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full px-4 py-3 rounded-lg border border-border dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary"
               placeholder=""
               required
             />
@@ -127,7 +127,7 @@ const AdminSignInModal: React.FC<AdminSignInModalProps> = ({ isOpen, onClose, on
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? 'Signing in...' : 'Sign In to Admin Panel'}
           </button>

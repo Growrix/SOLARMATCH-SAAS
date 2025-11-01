@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useEffect } from 'react';
 
@@ -89,7 +89,7 @@ const NavItem: React.FC<{
       <span>{title}</span>
     </div>
     {badgeCount && badgeCount > 0 && (
-      <span className="bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+      <span className="bg-destructive text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
         {badgeCount}
       </span>
     )}
@@ -186,7 +186,7 @@ const InstallerMobileSidebarMenu: React.FC<InstallerMobileSidebarMenuProps> = ({
         <div className="mt-6 pt-6 border-t border-gray-200 dark:border-slate-800">
           <button 
             onClick={handleLogoutClick} 
-            className="w-full flex items-center justify-center space-x-3 px-4 py-3 rounded-xl transition-colors text-base font-semibold bg-red-500/10 text-red-500 hover:bg-red-500/20"
+            className="w-full flex items-center justify-center space-x-3 px-4 py-3 rounded-xl transition-colors text-base font-semibold bg-destructive/10 text-destructive hover:bg-destructive/20"
           >
             <LogOutIcon />
             <span>Logout</span>

@@ -69,7 +69,7 @@ const QuoteSuccessModal: React.FC<QuoteSuccessModalProps> = ({ isOpen, onClose, 
 
         <button
           onClick={onDashboardClick}
-          className="w-full bg-primary hover:bg-teal-700 text-white font-semibold py-3 px-4 rounded-xl transition-all transform hover:scale-105 shadow-lg"
+          className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-4 rounded-xl transition-all transform hover:scale-105 shadow-lg"
         >
           Go to Dashboard
         </button>

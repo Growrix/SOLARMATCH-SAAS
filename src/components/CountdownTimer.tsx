@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * CountdownTimer Component
@@ -82,7 +82,7 @@ export function CountdownTimer({
   // Color mapping for Tailwind classes
   const colorClasses = {
     green: {
-      bg: 'bg-green-500 dark:bg-green-600',
+      bg: 'bg-green-500 dark:bg-success',
       text: 'text-green-700 dark:text-green-300',
       border: 'border-green-200 dark:border-green-800',
     },
@@ -92,7 +92,7 @@ export function CountdownTimer({
       border: 'border-yellow-200 dark:border-yellow-800',
     },
     red: {
-      bg: 'bg-red-500 dark:bg-red-600',
+      bg: 'bg-destructive dark:bg-red-600',
       text: 'text-red-700 dark:text-red-300',
       border: 'border-red-200 dark:border-red-800',
     },
@@ -128,7 +128,7 @@ export function CountdownTimer({
           {countdown.displayText}
         </span>
         {countdown.isExpired && (
-          <span className="text-xs text-gray-500 dark:text-gray-400">
+          <span className="text-xs text-muted-foreground dark:text-gray-400">
             Lead expired
           </span>
         )}
@@ -137,7 +137,7 @@ export function CountdownTimer({
       {/* Progress bar */}
       <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
         <div
-          className={`h-full ${colors.bg} transition-all duration-300 ease-in-out`}
+          className={`h-full ${colors.bg} transition-colors duration-300 ease-in-out`}
           style={{ width: `${countdown.progressPercent}%` }}
           aria-hidden="true"
         />
@@ -145,7 +145,7 @@ export function CountdownTimer({
 
       {/* Additional info for non-expired countdowns */}
       {!countdown.isExpired && countdown.daysRemaining <= 2 && (
-        <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+        <p className="text-xs text-muted-foreground dark:text-gray-400 mt-2">
           {countdown.hoursRemaining > 0 && (
             <>Approximately {countdown.hoursRemaining} hours remaining</>
           )}

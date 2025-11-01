@@ -1,4 +1,6 @@
+﻿
 'use client';
+import Button from '@/components/ui/button';
 
 import { useTheme, type Theme } from './ThemeProvider';
 import Link from 'next/link';
@@ -20,7 +22,7 @@ export const ThemeSwitcher = ({ theme, setTheme }: ThemeSwitcherProps) => {
       name: 'light',
       label: 'Light',
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
         </svg>
       )
@@ -29,7 +31,7 @@ export const ThemeSwitcher = ({ theme, setTheme }: ThemeSwitcherProps) => {
       name: 'dark',
       label: 'Dark',
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
         </svg>
       )
@@ -38,7 +40,7 @@ export const ThemeSwitcher = ({ theme, setTheme }: ThemeSwitcherProps) => {
       name: 'system',
       label: 'System',
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
         </svg>
       )
@@ -46,15 +48,15 @@ export const ThemeSwitcher = ({ theme, setTheme }: ThemeSwitcherProps) => {
   ];
 
   return (
-    <div className="flex items-center p-1 rounded-full bg-gray-100 dark:bg-slate-800">
+    <div className="flex items-center gap-1">
       {options.map((opt) => (
         <button
           key={opt.name}
           onClick={() => setTheme(opt.name)}
-          className={`p-1.5 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-slate-800 focus:ring-primary ${
+          className={`p-2 rounded-full transition-all duration-200 focus:outline-none ${
             theme === opt.name
-              ? 'bg-white dark:bg-slate-700 shadow-sm'
-              : 'text-gray-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white'
+              ? 'bg-background shadow-neu-inset text-primary'
+              : 'text-muted-foreground hover:text-foreground hover:bg-background hover:shadow-neu-outset-sm active:shadow-neu-inset-sm'
           }`}
           aria-label={`Switch to ${opt.name} theme`}
           title={`Switch to ${opt.name} theme`}
@@ -92,48 +94,56 @@ const HeaderMenu = ({
   const { theme, setTheme } = useTheme();
 
   return (
-    <header className="glass-header">
+    <header className="py-3 sm:py-4">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          <Link href="/" className="flex items-center space-x-3 cursor-pointer hover:opacity-90 transition-opacity">
-            <SunIcon />
-            <span className="text-2xl font-bold text-primary">SolarMatch</span>
-          </Link>
-          <div className="flex items-center space-x-2">
-            <ThemeSwitcher theme={theme} setTheme={setTheme} />
-            {/* Desktop Menu */}
-            <div className="hidden sm:flex items-center space-x-2">
-              {isLoggedIn ? (
-                <>
-                  <button 
-                    onClick={onDashboardClick}
-                    className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-white transition-colors"
-                  >
-                    Dashboard
-                  </button>
-                  <button 
-                    onClick={onLogoutClick}
-                    className="px-4 py-2 text-sm font-semibold rounded-lg bg-primary text-white hover:bg-teal-700 transition-colors shadow-sm transform active:scale-95"
-                  >
-                    Logout
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button 
-                    onClick={onLoginClick}
-                    className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-white transition-colors"
-                  >
-                    Login
-                  </button>
-                  <button 
-                    onClick={onSignupClick}
-                    className="px-4 py-2 text-sm font-semibold rounded-lg bg-primary text-white hover:bg-teal-700 transition-colors shadow-sm transform active:scale-95"
-                  >
-                    Sign Up
-                  </button>
-                </>
-              )}
+        {/* Neumorphic Rounded Bar */}
+        <div className="bg-background rounded-full shadow-neu-outset px-4 sm:px-6 py-2.5 sm:py-3 transition-all duration-300 hover:shadow-neu-outset-lg">
+          <div className="flex items-center justify-between">
+            {/* Logo + Dev Link */}
+            <div className="flex items-center gap-4">
+              <Link href="/" className="flex items-center space-x-3 cursor-pointer hover:opacity-90 transition-opacity">
+                <SunIcon />
+                <span className="text-xl sm:text-2xl font-bold text-primary">SolarMatch</span>
+              </Link>
+              {/* Development Link - Component Library */}
+              <Link 
+                href="/component-library" 
+                className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-background shadow-neu-inset text-primary hover:shadow-neu-inset-sm transition-all text-xs font-semibold"
+              >
+                <span>Component Library</span>
+                <span className="px-1.5 py-0.5 rounded-full bg-primary text-background text-[10px]">DEV</span>
+              </Link>
+            </div>
+            
+            {/* Right Side: Theme Switcher + Navigation */}
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              {/* Theme Switcher */}
+              <div className="bg-background rounded-full shadow-neu-inset p-1">
+                <ThemeSwitcher theme={theme} setTheme={setTheme} />
+              </div>
+              
+              {/* Desktop Navigation */}
+              <div className="hidden sm:flex items-center space-x-2">
+                {isLoggedIn ? (
+                  <>
+                    <Button onClick={onDashboardClick} variant="ghost" className="px-5 py-2">
+                      Dashboard
+                    </Button>
+                    <Button onClick={onLogoutClick} variant="secondary" className="px-5 py-2">
+                      Logout
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button onClick={onLoginClick} variant="ghost" className="px-5 py-2">
+                      Login
+                    </Button>
+                    <Button onClick={onSignupClick} variant="primary" className="px-5 py-2">
+                      Sign Up
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>

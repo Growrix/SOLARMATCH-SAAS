@@ -3,25 +3,26 @@
 
 import React, { useEffect, useState, useMemo } from 'react'
 import SavingsChart from './SavingsChart';
-
-// --- Icon Components ---
-const MapPin = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline h-4 w-4 mr-1"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
-// FIX: Corrected the malformed `viewBox` attribute from `0 0 24" 24"` to `0 0 24 24`.
-const DollarSign = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline h-4 w-4 mr-1"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>;
-const ArrowRight = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><line x1="5" x2="19" y1="12" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>;
-const Home = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
-const Zap = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline h-4 w-4 mr-1"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2z"/></svg>;
-const Calculator = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>;
-const CheckCircle = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>;
-const AlertCircle = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-red-400 flex-shrink-0"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>;
-const Battery = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-primary"><rect width="16" height="10" x="4" y="7" rx="2" ry="2"/><line x1="22" x2="22" y1="11" y2="13"/></svg>;
-const ArrowLeft = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><line x1="19" x2="5" y1="12" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>;
-const Building = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>;
-
+import Button from '@/components/ui/button';
+import { 
+  Loader2, 
+  MapPin, 
+  DollarSign, 
+  ArrowRight, 
+  Home, 
+  Zap, 
+  Calculator, 
+  CheckCircle2, 
+  AlertCircle, 
+  Battery, 
+  ArrowLeft, 
+  Building,
+  Info
+} from 'lucide-react';
 
 const InfoTooltip = ({ text }: { text: string }) => (
     <span className="ml-1 inline-flex items-center" title={text}>
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400 dark:text-slate-500 cursor-help"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/></svg>
+      <Info className="h-4 w-4 text-muted-foreground cursor-help" />
     </span>
 );
 
@@ -714,7 +715,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
   };
 
   const formatCurrency = (amount: number) => new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
-  const baseInputClasses = "w-full bg-surface backdrop-blur-sm border border-border rounded-xl px-4 py-3 text-foreground placeholder-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors";
+  const baseInputClasses = "w-full dark:neu-input bg-surface border-none rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground dark:shadow-[inset_4px_4px_8px_var(--neu-shadow-inset-dark),inset_-4px_-4px_8px_var(--neu-shadow-inset-light)] focus:dark:shadow-[inset_6px_6px_12px_var(--neu-shadow-inset-dark),inset_-6px_-6px_12px_var(--neu-shadow-inset-light),0_0_0_2px_rgba(107,114,128,0.3)] focus:outline-none transition-all duration-300";
   
   const budgetOptions = {
     residential: [
@@ -737,7 +738,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
           <button
               type="button"
               onClick={() => setQuoteType('residential')}
-              className={`flex items-center space-x-3 p-3 rounded-xl border-2 transition-all duration-200 ${
+              className={`flex items-center space-x-3 p-3 rounded-xl border-2 transition-colors duration-200 ${
                   quoteType === 'residential'
                   ? 'border-primary bg-primary/10 shadow-md'
                   : 'border-border bg-surface/20 hover:border-muted'
@@ -745,7 +746,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
               aria-pressed={quoteType === 'residential'}
           >
               <div className={`p-2 rounded-lg transition-colors ${quoteType === 'residential' ? 'bg-primary/20 text-primary' : 'bg-muted text-subtle'}`}>
-                  <Home />
+                  <Home className="h-5 w-5" />
               </div>
               <div className="text-left">
                   <span className="font-semibold text-sm text-foreground">Residential</span>
@@ -755,7 +756,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
           <button
               type="button"
               onClick={() => setQuoteType('commercial')}
-              className={`flex items-center space-x-3 p-3 rounded-xl border-2 transition-all duration-200 ${
+              className={`flex items-center space-x-3 p-3 rounded-xl border-2 transition-colors duration-200 ${
                   quoteType === 'commercial'
                   ? 'border-primary bg-primary/10 shadow-md'
                   : 'border-border bg-surface/20 hover:border-muted'
@@ -763,7 +764,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
               aria-pressed={quoteType === 'commercial'}
           >
               <div className={`p-2 rounded-lg transition-colors ${quoteType === 'commercial' ? 'bg-primary/20 text-primary' : 'bg-muted text-subtle'}`}>
-                  <Building />
+                  <Building className="h-5 w-5" />
               </div>
               <div className="text-left">
                   <span className="font-semibold text-sm text-foreground">Commercial</span>
@@ -776,7 +777,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
           {[1, 2, 3].map((step) => (
             <React.Fragment key={step}>
               <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${currentStep >= step ? 'bg-primary text-white' : 'bg-muted text-subtle'}`}>
-                {step === 3 && quoteResult ? <CheckCircle /> : step}
+                {step === 3 && quoteResult ? <CheckCircle2 className="h-5 w-5" /> : step}
               </div>
               {step < 3 && <div className={`w-12 h-1 transition-colors ${currentStep > step ? 'bg-primary' : 'bg-muted'}`}></div>}
             </React.Fragment>
@@ -791,8 +792,8 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
             <form noValidate>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="postcode" className="block text-label text-sm font-semibold mb-2">
-                    <MapPin />Postcode *
+                  <label htmlFor="postcode" className="block text-subtle text-sm font-semibold mb-2">
+                    <MapPin className="inline h-4 w-4 mr-1" />Postcode *
                     <InfoTooltip text="Your postcode determines solar rebate zones and local weather data for accurate estimates." />
                   </label>
                   <input 
@@ -803,17 +804,18 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                     onChange={(e) => handleInputChange('postcode', e.target.value)} 
                     onBlur={handleBlur} 
                     placeholder="e.g., 2000" 
-                    className={`${baseInputClasses} ${errors.postcode ? 'border-red-500 aria-invalid' : ''}`} 
+                    className={`${baseInputClasses} ${errors.postcode ? 'border-destructive' : ''}`}
+                    aria-invalid={errors.postcode ? 'true' : 'false'}
                     maxLength={4}
                     aria-required="true"
                     aria-describedby={errors.postcode ? 'postcode-error' : undefined}
                   />
-                  {errors.postcode && <p id="postcode-error" className="text-red-500 text-xs mt-1" role="alert">{errors.postcode}</p>}
+                  {errors.postcode && <p id="postcode-error" className="text-destructive text-xs mt-1" role="alert">{errors.postcode}</p>}
                 </div>
                 
                 <div>
                   <label htmlFor="location" className="block text-subtle text-sm font-semibold mb-2">
-                    <MapPin />Location (Suburb) *
+                    <MapPin className="inline h-4 w-4 mr-1" />Location (Suburb) *
                   </label>
                   <input 
                     id="location"
@@ -823,11 +825,11 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                     onChange={(e) => handleInputChange('location', e.target.value)} 
                     onBlur={handleBlur} 
                     placeholder="e.g., Sydney" 
-                    className={`${baseInputClasses} ${errors.location ? 'border-red-500' : ''}`}
+                    className={`${baseInputClasses} ${errors.location ? 'border-destructive' : ''}`}
                     aria-required="true"
                     aria-describedby={errors.location ? 'location-error' : undefined}
                   />
-                  {errors.location && <p id="location-error" className="text-red-500 text-xs mt-1" role="alert">{errors.location}</p>}
+                  {errors.location && <p id="location-error" className="text-destructive text-xs mt-1" role="alert">{errors.location}</p>}
                 </div>
                 
                 <div>
@@ -841,7 +843,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                     value={formData.state} 
                     onChange={(e) => handleInputChange('state', e.target.value)} 
                     onBlur={handleBlur} 
-                    className={`${baseInputClasses} ${errors.state ? 'border-red-500' : ''}`}
+                    className={`${baseInputClasses} ${errors.state ? 'border-destructive' : ''}`}
                     aria-required="true"
                     aria-describedby={errors.state ? 'state-error' : undefined}
                   >
@@ -855,7 +857,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                     <option value="ACT">Australian Capital Territory</option>
                     <option value="NT">Northern Territory</option>
                   </select>
-                  {errors.state && <p id="state-error" className="text-red-500 text-xs mt-1" role="alert">{errors.state}</p>}
+                  {errors.state && <p id="state-error" className="text-destructive text-xs mt-1" role="alert">{errors.state}</p>}
                 </div>
                 
                 <div>
@@ -918,11 +920,11 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                         step="0.5"
                         min="0.5"
                         max="100"
-                        className={`${baseInputClasses} ${errors.existingSystemSize ? 'border-red-500' : ''}`}
+                        className={`${baseInputClasses} ${errors.existingSystemSize ? 'border-destructive' : ''}`}
                         aria-required={formData.hasExistingSystem}
                         aria-describedby={errors.existingSystemSize ? 'existing-size-error' : undefined}
                       />
-                      {errors.existingSystemSize && <p id="existing-size-error" className="text-red-500 text-xs mt-1" role="alert">{errors.existingSystemSize}</p>}
+                      {errors.existingSystemSize && <p id="existing-size-error" className="text-destructive text-xs mt-1" role="alert">{errors.existingSystemSize}</p>}
                     </div>
                   )}
                 </div>
@@ -930,12 +932,12 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
             </form>
             
             <div className="flex justify-end mt-8">
-              <button 
-                onClick={handleNextStep} 
-                className="bg-primary text-white px-8 py-3 rounded-xl font-semibold hover:bg-teal-700 transition-all transform hover:scale-105 flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+              <Button
+                variant="secondary"
+                onClick={handleNextStep}
               >
-                <span>Next Step</span><ArrowRight />
-              </button>
+                <span>Next Step</span><ArrowRight className="h-5 w-5" />
+              </Button>
             </div>
           </div>
         )}
@@ -979,7 +981,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                           placeholder="e.g., 800" 
                           min="50"
                           max="5000"
-                          className={`${baseInputClasses} mt-3 ${errors.electricityValue ? 'border-red-500' : ''}`}
+                          className={`${baseInputClasses} mt-3 ${errors.electricityValue ? 'border-destructive' : ''}`}
                           aria-describedby="monthly-kwh-help"
                         />
                       )}
@@ -1014,7 +1016,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                           placeholder="e.g., 600" 
                           min="150"
                           max="6000"
-                          className={`${baseInputClasses} mt-3 ${errors.electricityValue ? 'border-red-500' : ''}`}
+                          className={`${baseInputClasses} mt-3 ${errors.electricityValue ? 'border-destructive' : ''}`}
                           aria-describedby="quarterly-bill-help"
                         />
                       )}
@@ -1025,16 +1027,16 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                   <div className="p-4 rounded-xl border-2 border-dashed border-border bg-surface/50">
                     <div className="text-center">
                       <p className="text-subtle text-sm font-medium">Don&apos;t have your bill?</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">We&apos;ll use average household usage for your area</p>
+                      <p className="text-xs text-muted-foreground mt-1">We&apos;ll use average household usage for your area</p>
                     </div>
                   </div>
                 </div>
                 
-                {errors.electricityValue && <p className="text-red-500 text-xs mt-2" role="alert">{errors.electricityValue}</p>}
+                {errors.electricityValue && <p className="text-destructive text-xs mt-2" role="alert">{errors.electricityValue}</p>}
                 
                 {recommendedSize && (
                   <div className="mt-4 p-3 bg-primary/10 border border-primary/30 rounded-lg">
-                    <p className="text-sm text-primary dark:text-teal-400 text-center">
+                    <p className="text-sm text-primary text-center">
                       <strong>📊 Recommended System Size: {recommendedSize} kW</strong>
                       <br />
                       <span className="text-xs">Based on your usage and {formData.desiredOffset}% offset target</span>
@@ -1059,10 +1061,10 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                     step="0.1"
                     min="1"
                     max={quoteType === 'residential' ? '30' : '100'}
-                    className={`${baseInputClasses} ${errors.systemSizeOverride ? 'border-red-500' : ''}`}
+                    className={`${baseInputClasses} ${errors.systemSizeOverride ? 'border-destructive' : ''}`}
                     aria-describedby={errors.systemSizeOverride ? 'system-override-error' : 'system-override-help'}
                   />
-                  {errors.systemSizeOverride && <p id="system-override-error" className="text-red-500 text-xs mt-1" role="alert">{errors.systemSizeOverride}</p>}
+                  {errors.systemSizeOverride && <p id="system-override-error" className="text-destructive text-xs mt-1" role="alert">{errors.systemSizeOverride}</p>}
                   <p id="system-override-help" className="text-xs text-subtle mt-1">Leave blank to use our recommendation</p>
                 </div>
                 
@@ -1094,15 +1096,15 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
 
               {/* Commercial Specific Inputs */}
               {quoteType === 'commercial' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-gray-200 dark:border-slate-800">
-                    <div><label className="block text-subtle text-sm font-semibold mb-2">Peak Demand (kW)</label><input type="number" name="peakDemand" value={formData.peakDemand} onChange={(e) => handleInputChange('peakDemand', e.target.value)} onBlur={handleBlur} placeholder="e.g. 50" className={`${baseInputClasses} ${errors.peakDemand ? 'border-red-500' : ''}`}/>{errors.peakDemand && <p className="text-red-500 text-xs mt-1">{errors.peakDemand}</p>}</div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-border">
+                    <div><label className="block text-subtle text-sm font-semibold mb-2">Peak Demand (kW)</label><input type="number" name="peakDemand" value={formData.peakDemand} onChange={(e) => handleInputChange('peakDemand', e.target.value)} onBlur={handleBlur} placeholder="e.g. 50" className={`${baseInputClasses} ${errors.peakDemand ? 'border-destructive' : ''}`}/>{errors.peakDemand && <p className="text-destructive text-xs mt-1">{errors.peakDemand}</p>}</div>
                     <div><label className="block text-subtle text-sm font-semibold mb-2">Project Priority</label><select name="projectPriority" value={formData.projectPriority} onChange={(e) => handleInputChange('projectPriority', e.target.value)} className={baseInputClasses}><option value="reduce_bills">Reduce Energy Bills</option><option value="reduce_demand">Reduce Demand Charges</option><option value="max_roi">Maximize ROI</option></select></div>
                     <div className="md:col-span-2 flex items-center justify-between p-4 bg-surface/30 rounded-xl"><p className="text-foreground font-semibold">Is it a three-phase power supply?</p><button onClick={() => handleInputChange('isThreePhase', !formData.isThreePhase)} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formData.isThreePhase ? 'bg-primary' : 'bg-muted'}`}><span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${formData.isThreePhase ? 'translate-x-6' : 'translate-x-1'}`}/></button></div>
                 </div>
               )}
 
               {/* Enhanced Roof Configuration */}
-              <fieldset className="pt-6 border-t border-gray-200 dark:border-slate-800">
+              <fieldset className="pt-6 border-t border-border">
                 <legend className="text-lg font-semibold text-foreground mb-4">
                   🏠 Roof & System Configuration
                 </legend>
@@ -1183,7 +1185,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                       value={formData.roofType} 
                       onChange={(e) => handleInputChange('roofType', e.target.value)} 
                       onBlur={handleBlur} 
-                      className={`${baseInputClasses} ${errors.roofType ? 'border-red-500' : ''}`}
+                      className={`${baseInputClasses} ${errors.roofType ? 'border-destructive' : ''}`}
                       aria-required="true"
                       aria-describedby={errors.roofType ? 'roof-type-error' : undefined}
                     >
@@ -1194,7 +1196,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                       <option value="slate">🏛️ Slate</option>
                       <option value="other">❓ Other</option>
                     </select>
-                    {errors.roofType && <p id="roof-type-error" className="text-red-500 text-xs mt-1" role="alert">{errors.roofType}</p>}
+                    {errors.roofType && <p id="roof-type-error" className="text-destructive text-xs mt-1" role="alert">{errors.roofType}</p>}
                   </div>
                   
                   {/* Panel Brand Preference */}
@@ -1244,7 +1246,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                 </div>
                 
                 {/* Advanced Options */}
-                <div className="mt-6 p-4 bg-slate-50/50 dark:bg-slate-800/30 rounded-xl border border-slate-200 dark:border-slate-700">
+                <div className="mt-6 p-4 bg-muted/50 rounded-xl border border-border">
                   <h4 className="text-sm font-semibold text-foreground mb-3">
                     🔧 Advanced System Options
                   </h4>
@@ -1252,7 +1254,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <label className="text-slate-700 dark:text-slate-300 font-medium">Power Optimizers</label>
+                        <label className="text-foreground font-medium">Power Optimizers</label>
                         <p className="text-xs text-subtle">Maximize output in shading</p>
                       </div>
                       <button 
@@ -1267,7 +1269,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                     
                     <div className="flex items-center justify-between">
                       <div>
-                        <label className="text-slate-700 dark:text-slate-300 font-medium">Microinverters</label>
+                        <label className="text-foreground font-medium">Microinverters</label>
                         <p className="text-xs text-subtle">Panel-level monitoring</p>
                       </div>
                       <button 
@@ -1284,7 +1286,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
               </fieldset>
               
               {/* Enhanced Budget & Tariff Section */}
-              <fieldset className="pt-6 border-t border-gray-200 dark:border-slate-800">
+              <fieldset className="pt-6 border-t border-border">
                 <legend className="text-lg font-semibold text-foreground mb-4">
                   💰 Budget & Electricity Tariff
                 </legend>
@@ -1301,7 +1303,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                       value={formData.budgetRange} 
                       onChange={(e) => handleInputChange('budgetRange', e.target.value)} 
                       onBlur={handleBlur} 
-                      className={`${baseInputClasses} ${errors.budgetRange ? 'border-red-500' : ''}`}
+                      className={`${baseInputClasses} ${errors.budgetRange ? 'border-destructive' : ''}`}
                       aria-required="true"
                       aria-describedby={errors.budgetRange ? 'budget-error' : undefined}
                     >
@@ -1311,7 +1313,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                       ))}
                       <option value="no-limit">💎 Budget not a concern</option>
                     </select>
-                    {errors.budgetRange && <p id="budget-error" className="text-red-500 text-xs mt-1" role="alert">{errors.budgetRange}</p>}
+                    {errors.budgetRange && <p id="budget-error" className="text-destructive text-xs mt-1" role="alert">{errors.budgetRange}</p>}
                   </div>
                   
                   <div>
@@ -1379,14 +1381,14 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
               </fieldset>
 
               {/* Enhanced Battery Configuration */}
-              <fieldset className="pt-6 border-t border-gray-200 dark:border-slate-800">
+              <fieldset className="pt-6 border-t border-border">
                 <legend className="text-lg font-semibold text-foreground mb-4">
                   🔋 Battery Storage Options
                 </legend>
                 
-                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50/50 to-green-50/50 dark:from-blue-900/20 dark:to-green-900/20 rounded-xl border border-blue-200 dark:border-blue-800 mb-6">
+                <div className="flex items-center justify-between p-4 bg-muted/50 rounded-xl border border-border mb-6">
                   <div className="flex items-center space-x-3">
-                    <Battery />
+                    <Battery className="h-5 w-5 text-primary" />
                     <div>
                       <p className="text-foreground font-semibold">Include Battery Storage</p>
                       <p className="text-subtle text-sm">Up to $3,000 rebate available • Reduce bills by 70-90%</p>
@@ -1405,12 +1407,12 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                 
                 {formData.batteryIncluded && (
                   <div className="space-y-6 animate-fade-in">
-                    <div className="mb-6 p-4 bg-blue-50/50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+                    <div className="mb-6 p-4 bg-muted/50 rounded-xl border border-border">
                       <div className="flex items-start gap-3">
-                        <div className="text-blue-600 dark:text-blue-400 text-xl">💡</div>
+                        <div className="text-info text-xl">💡</div>
                         <div>
-                          <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">Battery Sizing Guide</h4>
-                          <p className="text-sm text-blue-800 dark:text-blue-200">
+                          <h4 className="font-semibold text-foreground mb-1">Battery Sizing Guide</h4>
+                          <p className="text-sm text-subtle">
                             A good rule of thumb: battery capacity (kWh) should be 50-80% of your daily usage. 
                             Most Australian homes use 15-25 kWh per day.
                           </p>
@@ -1589,20 +1591,38 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                 )}
               </fieldset>
             </div>
-            {errors.general && (<div className="mt-6 bg-red-500/20 border border-red-500/30 rounded-xl p-4 flex items-center space-x-3"><AlertCircle /><p className="text-red-400 text-sm">{errors.general}</p></div>)}
-            <div className="flex justify-between mt-8"><button onClick={handlePrevStep} className="bg-gray-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-6 py-3 rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-slate-600 transition-all flex items-center space-x-2"><ArrowLeft /><span>Back</span></button><button onClick={handleCalculateQuote} disabled={loading} className="bg-primary text-white px-8 py-3 rounded-xl font-semibold hover:bg-teal-700 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2">{loading ? (<><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div><span>Calculating...</span></>) : (<><Calculator /><span>Get My Quote</span></>)}</button></div>
+            {errors.general && (<div className="mt-6 bg-destructive/20 border border-destructive/30 rounded-xl p-4 flex items-center space-x-3"><AlertCircle /><p className="text-red-400 text-sm">{errors.general}</p></div>)}
+            {/* Migrated: buttons → shadcn Button - only default and secondary variants */}
+            <div className="flex justify-between mt-8">
+              <Button onClick={handlePrevStep} variant="secondary">
+                <ArrowLeft /><span>Back</span>
+              </Button>
+              <Button onClick={handleCalculateQuote} disabled={loading} variant="primary">
+                {loading ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <span>Calculating...</span>
+                  </>
+                ) : (
+                  <>
+                    <Calculator />
+                    <span>Get My Quote</span>
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         )}
 
         {currentStep === 3 && quoteResult && (
           <div className="animate-slide-in-top">
-            <div className="text-center mb-8"><div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10"><CheckCircle /></div><h2 className="text-2xl font-bold text-foreground mt-4 mb-2">Your Instant {quoteType === 'commercial' ? 'Commercial' : 'Residential'} Solar Quote</h2><p className="text-subtle">An estimate based on your provided details</p></div>
+            <div className="text-center mb-8"><div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10"><CheckCircle2 className="h-5 w-5" /></div><h2 className="text-2xl font-bold text-foreground mt-4 mb-2">Your Instant {quoteType === 'commercial' ? 'Commercial' : 'Residential'} Solar Quote</h2><p className="text-subtle">An estimate based on your provided details</p></div>
             
             {/* Informational banner for homeowners with existing quotes */}
             {hideSubmitButton && (
-              <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
+              <div className="mb-6 p-4 bg-muted/50 border border-border rounded-xl">
                 <div className="flex items-start space-x-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-info mt-0.5 flex-shrink-0">
                     <circle cx="12" cy="12" r="10" />
                     <path d="M12 16v-4" />
                     <path d="M12 8h.01" />
@@ -1620,49 +1640,49 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
               <div className="space-y-8">
                 {/* Key Metrics Overview */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-6 border border-primary/20">
+                  <div className="bg-muted/50 rounded-2xl p-6 border border-border">
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 bg-primary/10 rounded-lg">
-                        <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="p-2 bg-muted rounded-lg">
+                        <svg className="w-6 h-6 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                         </svg>
                       </div>
                       <div>
                         <h3 className="text-sm font-medium text-subtle">Out-of-Pocket Cost</h3>
-                        <p className="text-2xl font-bold text-primary">{formatCurrency(quoteResult.finalPrice)}</p>
+                        <p className="text-2xl font-bold text-foreground">{formatCurrency(quoteResult.finalPrice)}</p>
                       </div>
                     </div>
-                    <p className="text-xs text-subtle">After all rebates and incentives</p>
+                    <p className="text-xs text-muted-foreground">After all rebates and incentives</p>
                   </div>
                   
-                  <div className="bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 rounded-2xl p-6 border border-emerald-500/20">
+                  <div className="bg-muted/50 rounded-2xl p-6 border border-border">
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 bg-emerald-500/10 rounded-lg">
-                        <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="p-2 bg-muted rounded-lg">
+                        <svg className="w-6 h-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                         </svg>
                       </div>
                       <div>
                         <h3 className="text-sm font-medium text-subtle">Payback Period</h3>
-                        <p className="text-2xl font-bold text-emerald-600">{quoteResult.simplePaybackYears ?? 'N/A'} Years</p>
+                        <p className="text-2xl font-bold text-success">{quoteResult.simplePaybackYears ?? 'N/A'} Years</p>
                       </div>
                     </div>
-                    <p className="text-xs text-subtle">Time to break even on investment</p>
+                    <p className="text-xs text-muted-foreground">Time to break even on investment</p>
                   </div>
                   
-                  <div className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 rounded-2xl p-6 border border-blue-500/20">
+                  <div className="bg-muted/50 rounded-2xl p-6 border border-border">
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 bg-blue-500/10 rounded-lg">
-                        <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="p-2 bg-muted rounded-lg">
+                        <svg className="w-6 h-6 text-info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
                       </div>
                       <div>
                         <h3 className="text-sm font-medium text-subtle">Annual Savings</h3>
-                        <p className="text-2xl font-bold text-blue-600">{formatCurrency(quoteResult.annualSavings)}</p>
+                        <p className="text-2xl font-bold text-info">{formatCurrency(quoteResult.annualSavings)}</p>
                       </div>
                     </div>
-                    <p className="text-xs text-subtle">Estimated electricity bill reduction</p>
+                    <p className="text-xs text-muted-foreground">Estimated electricity bill reduction</p>
                   </div>
                 </div>
                 
@@ -1698,7 +1718,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                       </div>
                       
                       <div className="space-y-2 pt-2">
-                        <div className="flex justify-between items-center text-emerald-600 dark:text-emerald-400">
+                        <div className="flex justify-between items-center text-success">
                           <span className="flex items-center gap-2">
                             <span>Federal Rebate (STCs)</span>
                             <InfoTooltip text="Small-scale Technology Certificates - Federal government incentive based on system size and location" />
@@ -1707,7 +1727,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                         </div>
                         
                         {quoteResult.batteryRebate > 0 && (
-                          <div className="flex justify-between items-center text-emerald-600 dark:text-emerald-400">
+                          <div className="flex justify-between items-center text-success">
                             <span className="flex items-center gap-2">
                               <span>Battery Rebate</span>
                               <InfoTooltip text="Federal or state incentive for battery storage systems" />
@@ -1717,7 +1737,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                         )}
                         
                         {quoteResult.stateRebate > 0 && (
-                          <div className="flex justify-between items-center text-emerald-600 dark:text-emerald-400">
+                          <div className="flex justify-between items-center text-success">
                             <span className="flex items-center gap-2">
                               <span>State Rebate</span>
                               <InfoTooltip text="State-specific rebates like Victoria's Solar Homes Program" />
@@ -1794,19 +1814,19 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                           <span className="text-foreground font-semibold">{quoteResult.annualProduction?.toLocaleString()} kWh</span>
                         </div>
                         
-                        <div className="flex justify-between items-center p-3 bg-white/50 dark:bg-slate-700/30 rounded-lg">
-                          <span className="text-slate-700 dark:text-slate-300">Daily Average</span>
+                        <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
+                          <span className="text-subtle">Daily Average</span>
                           <span className="text-foreground font-semibold">{Math.round((quoteResult.annualProduction || 0) / 365)} kWh</span>
                         </div>
                         
-                        <div className="flex justify-between items-center p-3 bg-green-50/50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                          <span className="text-slate-700 dark:text-slate-300">CO₂ Reduction</span>
-                          <span className="text-green-600 dark:text-green-400 font-semibold">{Math.round((quoteResult.annualProduction || 0) * 0.82)} kg/year</span>
+                        <div className="flex justify-between items-center p-3 bg-muted/50 rounded-lg border border-border">
+                          <span className="text-subtle">CO₂ Reduction</span>
+                          <span className="text-success font-semibold">{Math.round((quoteResult.annualProduction || 0) * 0.82)} kg/year</span>
                         </div>
                         
-                        <div className="flex justify-between items-center p-3 bg-blue-50/50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                          <span className="text-slate-700 dark:text-slate-300">25-Year Savings</span>
-                          <span className="text-blue-600 dark:text-blue-400 font-semibold">{formatCurrency((quoteResult.annualSavings || 0) * 25)}</span>
+                        <div className="flex justify-between items-center p-3 bg-muted/50 rounded-lg border border-border">
+                          <span className="text-subtle">25-Year Savings</span>
+                          <span className="text-info font-semibold">{formatCurrency((quoteResult.annualSavings || 0) * 25)}</span>
                         </div>
                       </div>
                     </div>
@@ -1832,13 +1852,23 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
             <div className="my-8"><SavingsChart finalPrice={quoteResult.finalPrice} annualSavings={quoteResult.annualSavings} currentAnnualBill={quoteResult.currentAnnualBill} /></div>
             <div className="mt-8 bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4"><h4 className="text-yellow-600 dark:text-yellow-400 font-semibold mb-2">Important Information</h4><ul className="text-yellow-700 dark:text-yellow-200 text-sm space-y-1">{quoteResult.disclaimers.map((d: string, i: number) => (<li key={i} className="flex items-start space-x-2"><span className="text-yellow-500 dark:text-yellow-400 mt-1">•</span><span>{d}</span></li>))}</ul></div>
             
-            {/* Action Buttons - Hide submit button if hideSubmitButton is true */}
+            {/* Action Buttons - only default and secondary variants */}
             {hideSubmitButton ? (
               <div className="flex justify-center mt-8">
-                <button onClick={handleStartOver} className="bg-gray-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-6 py-3 rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-slate-600 transition-all">Get Another Quote</button>
+                <Button onClick={handleStartOver} variant="secondary">
+                  Get Another Quote
+                </Button>
               </div>
             ) : (
-              <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8"><button onClick={onProceedToDetailedQuote} className="bg-primary text-white px-8 py-3 rounded-xl font-semibold hover:bg-teal-700 transition-all transform hover:scale-105 flex items-center justify-center space-x-2"><span>Get Detailed Quotes from Installers</span><ArrowRight /></button><button onClick={handleStartOver} className="bg-gray-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-6 py-3 rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-slate-600 transition-all">Get Another Quote</button></div>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+                <Button onClick={onProceedToDetailedQuote} variant="primary">
+                  <span>Get Detailed Quotes from Installers</span>
+                  <ArrowRight />
+                </Button>
+                <Button onClick={handleStartOver} variant="secondary">
+                  Get Another Quote
+                </Button>
+              </div>
             )}
           </div>
         )}
@@ -1882,12 +1912,6 @@ async function fetchStateRebates(state: string): Promise<any> {
   const exampleRules: Record<string, any> = { VIC: { enabled: true, type: 'flat', amount: 1400 }, NSW: { enabled: false } };
   return exampleRules[state] ?? { enabled: false };
 }
-
-
-
-
-
-
 
 
 

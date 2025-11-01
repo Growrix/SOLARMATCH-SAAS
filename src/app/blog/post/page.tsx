@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -273,14 +273,14 @@ export default function BlogPostPage() {
                   onChange={(e) => setNewComment(e.target.value)}
                   placeholder="Write your comment..."
                   rows={4}
-                  className="w-full bg-white dark:bg-slate-800 p-3 rounded-lg border border-gray-300 dark:border-slate-700 focus:ring-primary focus:border-primary transition"
+                  className="w-full bg-white dark:bg-slate-800 p-3 rounded-lg border border-border dark:border-slate-700 focus:ring-primary focus:border-primary transition"
                   aria-label="Write a comment"
                 ></textarea>
                 <div className="flex justify-end mt-3">
                   <button 
                     onClick={handlePostComment}
                     type="button"
-                    className="bg-primary text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-teal-700 transition-all text-sm shadow-md hover:shadow-lg"
+                    className="bg-primary text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-primary/90 transition-all text-sm shadow-md hover:shadow-lg"
                   >
                     Post Comment
                   </button>

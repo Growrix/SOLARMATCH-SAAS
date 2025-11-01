@@ -13,19 +13,23 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('light');
-  const [effectiveTheme, setEffectiveTheme] = useState<'light' | 'dark'>('light');
+  // T007: Lock to dark theme during CSS class migration (Constitution VI: dark-first)
+  // TODO: Re-enable theme toggle after migration complete
+  const [theme, setTheme] = useState<Theme>('dark');
+  const [effectiveTheme, setEffectiveTheme] = useState<'light' | 'dark'>('dark');
 
   useEffect(() => {
+    // MIGRATION MODE: Force dark theme, ignore localStorage
     // Load theme from localStorage on mount
-    const savedTheme = localStorage.getItem('theme') as Theme;
-    if (savedTheme) {
-      setTheme(savedTheme);
-    } else {
-      // Default to system preference
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setTheme(prefersDark ? 'dark' : 'light');
-    }
+    // const savedTheme = localStorage.getItem('theme') as Theme;
+    // if (savedTheme) {
+    //   setTheme(savedTheme);
+    // } else {
+    //   // Default to system preference
+    //   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    //   setTheme(prefersDark ? 'dark' : 'light');
+    // }
+    setTheme('dark'); // MIGRATION: Locked to dark
   }, []);
 
   useEffect(() => {

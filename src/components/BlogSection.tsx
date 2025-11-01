@@ -108,7 +108,7 @@ const BlogSection: React.FC<BlogSectionProps> = ({ onSeeAllPostsClick, onNavigat
         <div className="text-center">
           <button
             onClick={onSeeAllPostsClick}
-            className="bg-primary text-white px-8 py-3 rounded-xl text-lg font-semibold hover:bg-teal-700 transition-all transform hover:scale-105 inline-flex items-center space-x-2 shadow-lg"
+            className="bg-primary text-white px-8 py-3 rounded-xl text-lg font-semibold hover:bg-primary/90 transition-all transform hover:scale-105 inline-flex items-center space-x-2 shadow-lg"
           >
             <span>See All Posts</span>
             <ArrowRightLargeIcon />

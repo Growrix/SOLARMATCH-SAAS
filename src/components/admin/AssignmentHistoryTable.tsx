@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * AssignmentHistoryTable Component
@@ -58,7 +58,7 @@ export default function AssignmentHistoryTable({
     return (
       <div className="text-center py-8 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
         <svg
-          className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600"
+          className="mx-auto h-12 w-12 text-gray-400 dark:text-muted-foreground"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -70,10 +70,10 @@ export default function AssignmentHistoryTable({
             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
           />
         </svg>
-        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+        <p className="mt-2 text-sm text-muted-foreground dark:text-gray-400">
           No assignments yet
         </p>
-        <p className="text-xs text-gray-500 dark:text-gray-500">
+        <p className="text-xs text-muted-foreground dark:text-muted-foreground">
           Click &ldquo;Assign to Installer&rdquo; to assign this lead
         </p>
       </div>
@@ -94,22 +94,22 @@ export default function AssignmentHistoryTable({
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-gray-400 uppercase tracking-wider">
                 Installer
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-gray-400 uppercase tracking-wider">
                 Assigned Date
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-gray-400 uppercase tracking-wider">
                 Assigned By
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-gray-400 uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-gray-400 uppercase tracking-wider">
                 Notes
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground dark:text-gray-400 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -122,14 +122,14 @@ export default function AssignmentHistoryTable({
                     <div className="text-sm font-medium text-gray-900 dark:text-white">
                       {assignment.installerName}
                     </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                    <div className="text-sm text-muted-foreground dark:text-gray-400">
                       {assignment.installerEmail}
                     </div>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
                   {format(new Date(assignment.assignedAt), 'MMM d, yyyy')}
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                  <div className="text-xs text-muted-foreground dark:text-gray-400">
                     {format(new Date(assignment.assignedAt), 'h:mm a')}
                   </div>
                 </td>
@@ -159,7 +159,7 @@ export default function AssignmentHistoryTable({
                       {assignment.notes}
                     </div>
                   ) : (
-                    <span className="text-gray-400 dark:text-gray-600">—</span>
+                    <span className="text-gray-400 dark:text-muted-foreground">—</span>
                   )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
@@ -173,7 +173,7 @@ export default function AssignmentHistoryTable({
                     </button>
                   )}
                   {assignment.status !== 'pending' && (
-                    <span className="text-gray-400 dark:text-gray-600">—</span>
+                    <span className="text-gray-400 dark:text-muted-foreground">—</span>
                   )}
                 </td>
               </tr>
@@ -183,7 +183,7 @@ export default function AssignmentHistoryTable({
       </div>
 
       {/* Summary */}
-      <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+      <div className="flex items-center justify-between text-sm text-muted-foreground dark:text-gray-400">
         <span>
           Total Assignments: {assignments.length}
         </span>

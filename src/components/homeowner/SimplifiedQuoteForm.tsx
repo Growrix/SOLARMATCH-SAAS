@@ -1,4 +1,4 @@
-
+﻿
 'use client'
 
 import React, { useEffect, useState, useMemo } from 'react'
@@ -711,7 +711,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
   };
 
   const formatCurrency = (amount: number) => new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
-  const baseInputClasses = "w-full bg-gray-100 dark:bg-slate-900 backdrop-blur-sm border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors";
+  const baseInputClasses = "w-full bg-gray-100 dark:bg-slate-900 backdrop-blur-sm border border-border dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors";
   
   const budgetOptions = {
     residential: [
@@ -734,10 +734,10 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
           <button
               type="button"
               onClick={() => setQuoteType('residential')}
-              className={`flex items-center space-x-3 p-3 rounded-xl border-2 transition-all duration-200 ${
+              className={`flex items-center space-x-3 p-3 rounded-xl border-2 transition-colors duration-200 ${
                   quoteType === 'residential'
                   ? 'border-primary bg-primary/10 shadow-md'
-                  : 'border-gray-300 dark:border-slate-700 bg-gray-100/20 dark:bg-slate-800/20 hover:border-slate-400 dark:hover:border-slate-600'
+                  : 'border-border dark:border-slate-700 bg-gray-100/20 dark:bg-slate-800/20 hover:border-slate-400 dark:hover:border-slate-600'
               }`}
               aria-pressed={quoteType === 'residential'}
           >
@@ -752,10 +752,10 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
           <button
               type="button"
               onClick={() => setQuoteType('commercial')}
-              className={`flex items-center space-x-3 p-3 rounded-xl border-2 transition-all duration-200 ${
+              className={`flex items-center space-x-3 p-3 rounded-xl border-2 transition-colors duration-200 ${
                   quoteType === 'commercial'
                   ? 'border-primary bg-primary/10 shadow-md'
-                  : 'border-gray-300 dark:border-slate-700 bg-gray-100/20 dark:bg-slate-800/20 hover:border-slate-400 dark:hover:border-slate-600'
+                  : 'border-border dark:border-slate-700 bg-gray-100/20 dark:bg-slate-800/20 hover:border-slate-400 dark:hover:border-slate-600'
               }`}
               aria-pressed={quoteType === 'commercial'}
           >
@@ -794,12 +794,12 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                     onChange={(e) => handleInputChange('postcode', e.target.value)} 
                     onBlur={handleBlur} 
                     placeholder="e.g., 2000" 
-                    className={`${baseInputClasses} ${errors.postcode ? 'border-red-500 aria-invalid' : ''}`} 
+                    className={`${baseInputClasses} ${errors.postcode ? 'border-destructive aria-invalid' : ''}`} 
                     maxLength={4}
                     aria-required="true"
                     aria-describedby={errors.postcode ? 'postcode-error' : undefined}
                   />
-                  {errors.postcode && <p id="postcode-error" className="text-red-500 text-xs mt-1" role="alert">{errors.postcode}</p>}
+                  {errors.postcode && <p id="postcode-error" className="text-destructive text-xs mt-1" role="alert">{errors.postcode}</p>}
                 </div>
                 
                 <div>
@@ -814,11 +814,11 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                     onChange={(e) => handleInputChange('location', e.target.value)} 
                     onBlur={handleBlur} 
                     placeholder="e.g., Sydney" 
-                    className={`${baseInputClasses} ${errors.location ? 'border-red-500' : ''}`}
+                    className={`${baseInputClasses} ${errors.location ? 'border-destructive' : ''}`}
                     aria-required="true"
                     aria-describedby={errors.location ? 'location-error' : undefined}
                   />
-                  {errors.location && <p id="location-error" className="text-red-500 text-xs mt-1" role="alert">{errors.location}</p>}
+                  {errors.location && <p id="location-error" className="text-destructive text-xs mt-1" role="alert">{errors.location}</p>}
                 </div>
                 
                 <div>
@@ -832,7 +832,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                     value={formData.state} 
                     onChange={(e) => handleInputChange('state', e.target.value)} 
                     onBlur={handleBlur} 
-                    className={`${baseInputClasses} ${errors.state ? 'border-red-500' : ''}`}
+                    className={`${baseInputClasses} ${errors.state ? 'border-destructive' : ''}`}
                     aria-required="true"
                     aria-describedby={errors.state ? 'state-error' : undefined}
                   >
@@ -846,7 +846,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                     <option value="ACT">Australian Capital Territory</option>
                     <option value="NT">Northern Territory</option>
                   </select>
-                  {errors.state && <p id="state-error" className="text-red-500 text-xs mt-1" role="alert">{errors.state}</p>}
+                  {errors.state && <p id="state-error" className="text-destructive text-xs mt-1" role="alert">{errors.state}</p>}
                 </div>
                 
                 <div>
@@ -909,11 +909,11 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                         step="0.5"
                         min="0.5"
                         max="100"
-                        className={`${baseInputClasses} ${errors.existingSystemSize ? 'border-red-500' : ''}`}
+                        className={`${baseInputClasses} ${errors.existingSystemSize ? 'border-destructive' : ''}`}
                         aria-required={formData.hasExistingSystem}
                         aria-describedby={errors.existingSystemSize ? 'existing-size-error' : undefined}
                       />
-                      {errors.existingSystemSize && <p id="existing-size-error" className="text-red-500 text-xs mt-1" role="alert">{errors.existingSystemSize}</p>}
+                      {errors.existingSystemSize && <p id="existing-size-error" className="text-destructive text-xs mt-1" role="alert">{errors.existingSystemSize}</p>}
                     </div>
                   )}
                 </div>
@@ -926,7 +926,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                 ⚡ Energy Usage & System Details
               </legend>
               <div className="space-y-6">
-                  <div className={`step-2-option p-4 rounded-xl border-2 cursor-pointer transition-all focus-within:ring-2 focus-within:ring-primary ${electricityUsageType === 'monthly' ? 'selected border-primary bg-primary/10' : 'border-gray-300 dark:border-slate-700 bg-gray-100/20 dark:bg-slate-800/20 hover:border-slate-400'}`}>
+                  <div className={`step-2-option p-4 rounded-xl border-2 cursor-pointer transition-all focus-within:ring-2 focus-within:ring-primary ${electricityUsageType === 'monthly' ? 'selected border-primary bg-primary/10' : 'border-border dark:border-slate-700 bg-gray-100/20 dark:bg-slate-800/20 hover:border-slate-400'}`}>
                     <label className="cursor-pointer">
                       <div className="flex items-center space-x-3">
                         <input 
@@ -953,7 +953,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                           placeholder="e.g., 800" 
                           min="200"
                           max="5000"
-                          className={`${baseInputClasses} mt-3 ${errors.electricityValue ? 'border-red-500' : ''}`}
+                          className={`${baseInputClasses} mt-3 ${errors.electricityValue ? 'border-destructive' : ''}`}
                           aria-describedby="monthly-kwh-help"
                         />
                       )}
@@ -961,7 +961,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                     <p id="monthly-kwh-help" className="text-xs text-slate-500 dark:text-slate-400 mt-1">Typical range: 200-2000 kWh</p>
                   </div>
                   
-                  <div className={`step-2-option p-4 rounded-xl border-2 cursor-pointer transition-all focus-within:ring-2 focus-within:ring-primary ${electricityUsageType === 'quarterly' ? 'selected border-primary bg-primary/10' : 'border-gray-300 dark:border-slate-700 bg-gray-100/20 dark:bg-slate-800/20 hover:border-slate-400'}`}>
+                  <div className={`step-2-option p-4 rounded-xl border-2 cursor-pointer transition-all focus-within:ring-2 focus-within:ring-primary ${electricityUsageType === 'quarterly' ? 'selected border-primary bg-primary/10' : 'border-border dark:border-slate-700 bg-gray-100/20 dark:bg-slate-800/20 hover:border-slate-400'}`}>
                     <label className="cursor-pointer">
                       <div className="flex items-center space-x-3">
                         <input 
@@ -988,7 +988,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                           placeholder="e.g., 600" 
                           min="150"
                           max="6000"
-                          className={`${baseInputClasses} mt-3 ${errors.electricityValue ? 'border-red-500' : ''}`}
+                          className={`${baseInputClasses} mt-3 ${errors.electricityValue ? 'border-destructive' : ''}`}
                           aria-describedby="quarterly-bill-help"
                         />
                       )}
@@ -996,7 +996,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                     <p id="quarterly-bill-help" className="text-xs text-slate-500 dark:text-slate-400 mt-1">Typical range: $300-$2000</p>
                   </div>
                   
-                  <div className="p-4 rounded-xl border-2 border-dashed border-gray-300 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-800/50">
+                  <div className="p-4 rounded-xl border-2 border-dashed border-border dark:border-slate-700 bg-gray-50/50 dark:bg-slate-800/50">
                     <div className="text-center">
                       <p className="text-slate-600 dark:text-slate-400 text-sm font-medium">Don&apos;t have your bill?</p>
                       <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">We&apos;ll use average household usage for your area</p>
@@ -1004,7 +1004,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                   </div>
                 </div>
                 
-                {errors.electricityValue && <p className="text-red-500 text-xs mt-2" role="alert">{errors.electricityValue}</p>}
+                {errors.electricityValue && <p className="text-destructive text-xs mt-2" role="alert">{errors.electricityValue}</p>}
                 
                 {recommendedSize && (
                   <div className="mt-4 p-3 bg-primary/10 border border-primary/30 rounded-lg">
@@ -1033,10 +1033,10 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                     step="0.1"
                     min="1"
                     max={quoteType === 'residential' ? '30' : '100'}
-                    className={`${baseInputClasses} ${errors.systemSizeOverride ? 'border-red-500' : ''}`}
+                    className={`${baseInputClasses} ${errors.systemSizeOverride ? 'border-destructive' : ''}`}
                     aria-describedby={errors.systemSizeOverride ? 'system-override-error' : 'system-override-help'}
                   />
-                  {errors.systemSizeOverride && <p id="system-override-error" className="text-red-500 text-xs mt-1" role="alert">{errors.systemSizeOverride}</p>}
+                  {errors.systemSizeOverride && <p id="system-override-error" className="text-destructive text-xs mt-1" role="alert">{errors.systemSizeOverride}</p>}
                   <p id="system-override-help" className="text-xs text-slate-500 dark:text-slate-400 mt-1">Leave blank to use our recommendation</p>
                 </div>
                 
@@ -1069,7 +1069,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
               {/* Commercial Specific Inputs */}
               {quoteType === 'commercial' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-gray-200 dark:border-slate-800">
-                    <div><label className="block text-slate-600 dark:text-slate-300 text-sm font-semibold mb-2">Peak Demand (kW)</label><input type="number" name="peakDemand" value={formData.peakDemand} onChange={(e) => handleInputChange('peakDemand', e.target.value)} onBlur={handleBlur} placeholder="e.g. 50" className={`${baseInputClasses} ${errors.peakDemand ? 'border-red-500' : ''}`}/>{errors.peakDemand && <p className="text-red-500 text-xs mt-1">{errors.peakDemand}</p>}</div>
+                    <div><label className="block text-slate-600 dark:text-slate-300 text-sm font-semibold mb-2">Peak Demand (kW)</label><input type="number" name="peakDemand" value={formData.peakDemand} onChange={(e) => handleInputChange('peakDemand', e.target.value)} onBlur={handleBlur} placeholder="e.g. 50" className={`${baseInputClasses} ${errors.peakDemand ? 'border-destructive' : ''}`}/>{errors.peakDemand && <p className="text-destructive text-xs mt-1">{errors.peakDemand}</p>}</div>
                     <div><label className="block text-slate-600 dark:text-slate-300 text-sm font-semibold mb-2">Project Priority</label><select name="projectPriority" value={formData.projectPriority} onChange={(e) => handleInputChange('projectPriority', e.target.value)} className={baseInputClasses}><option value="reduce_bills">Reduce Energy Bills</option><option value="reduce_demand">Reduce Demand Charges</option><option value="max_roi">Maximize ROI</option></select></div>
                     <div className="md:col-span-2 flex items-center justify-between p-4 bg-gray-100/30 dark:bg-slate-800/30 rounded-xl"><p className="text-slate-900 dark:text-white font-semibold">Is it a three-phase power supply?</p><button onClick={() => handleInputChange('isThreePhase', !formData.isThreePhase)} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formData.isThreePhase ? 'bg-primary' : 'bg-slate-300 dark:bg-slate-600'}`}><span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${formData.isThreePhase ? 'translate-x-6' : 'translate-x-1'}`}/></button></div>
                 </div>
@@ -1157,7 +1157,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                       value={formData.roofType} 
                       onChange={(e) => handleInputChange('roofType', e.target.value)} 
                       onBlur={handleBlur} 
-                      className={`${baseInputClasses} ${errors.roofType ? 'border-red-500' : ''}`}
+                      className={`${baseInputClasses} ${errors.roofType ? 'border-destructive' : ''}`}
                       aria-required="true"
                       aria-describedby={errors.roofType ? 'roof-type-error' : undefined}
                     >
@@ -1168,7 +1168,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                       <option value="slate">🏛️ Slate</option>
                       <option value="other">❓ Other</option>
                     </select>
-                    {errors.roofType && <p id="roof-type-error" className="text-red-500 text-xs mt-1" role="alert">{errors.roofType}</p>}
+                    {errors.roofType && <p id="roof-type-error" className="text-destructive text-xs mt-1" role="alert">{errors.roofType}</p>}
                   </div>
                   
                   {/* Panel Brand Preference */}
@@ -1275,7 +1275,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                       value={formData.budgetRange} 
                       onChange={(e) => handleInputChange('budgetRange', e.target.value)} 
                       onBlur={handleBlur} 
-                      className={`${baseInputClasses} ${errors.budgetRange ? 'border-red-500' : ''}`}
+                      className={`${baseInputClasses} ${errors.budgetRange ? 'border-destructive' : ''}`}
                       aria-required="true"
                       aria-describedby={errors.budgetRange ? 'budget-error' : undefined}
                     >
@@ -1285,7 +1285,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                       ))}
                       <option value="no-limit">💎 Budget not a concern</option>
                     </select>
-                    {errors.budgetRange && <p id="budget-error" className="text-red-500 text-xs mt-1" role="alert">{errors.budgetRange}</p>}
+                    {errors.budgetRange && <p id="budget-error" className="text-destructive text-xs mt-1" role="alert">{errors.budgetRange}</p>}
                   </div>
                   
                   <div>
@@ -1381,7 +1381,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                   <div className="space-y-6 animate-fade-in">
                     <div className="mb-6 p-4 bg-blue-50/50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
                       <div className="flex items-start gap-3">
-                        <div className="text-blue-600 dark:text-blue-400 text-xl">💡</div>
+                        <div className="text-info dark:text-blue-400 text-xl">💡</div>
                         <div>
                           <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">Battery Sizing Guide</h4>
                           <p className="text-sm text-blue-800 dark:text-blue-200">
@@ -1564,14 +1564,14 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
               </fieldset>
             
             {/* Error Message */}
-            {errors.general && (<div className="mt-6 bg-red-500/20 border border-red-500/30 rounded-xl p-4 flex items-center space-x-3"><AlertCircle /><p className="text-red-400 text-sm">{errors.general}</p></div>)}
+            {errors.general && (<div className="mt-6 bg-destructive/20 border border-destructive/30 rounded-xl p-4 flex items-center space-x-3"><AlertCircle /><p className="text-red-400 text-sm">{errors.general}</p></div>)}
             
             {/* Submit Button */}
             <div className="flex justify-end mt-8">
               <button 
                 onClick={handleCalculateQuote} 
                 disabled={loading} 
-                className="bg-primary text-white px-8 py-3 rounded-xl font-semibold hover:bg-teal-700 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                className="bg-primary text-white px-8 py-3 rounded-xl font-semibold hover:bg-primary/90 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
               >
                 {loading ? (
                   <>
@@ -1634,13 +1634,13 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                   <div className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 rounded-2xl p-6 border border-blue-500/20">
                     <div className="flex items-center gap-3 mb-3">
                       <div className="p-2 bg-blue-500/10 rounded-lg">
-                        <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-6 h-6 text-info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
                       </div>
                       <div>
                         <h3 className="text-sm font-medium text-slate-600 dark:text-slate-400">Annual Savings</h3>
-                        <p className="text-2xl font-bold text-blue-600">{formatCurrency(quoteResult.annualSavings)}</p>
+                        <p className="text-2xl font-bold text-info">{formatCurrency(quoteResult.annualSavings)}</p>
                       </div>
                     </div>
                     <p className="text-xs text-slate-500 dark:text-slate-400">Estimated electricity bill reduction</p>
@@ -1782,12 +1782,12 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                         
                         <div className="flex justify-between items-center p-3 bg-green-50/50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
                           <span className="text-slate-700 dark:text-slate-300">CO₂ Reduction</span>
-                          <span className="text-green-600 dark:text-green-400 font-semibold">{Math.round((quoteResult.annualProduction || 0) * 0.82)} kg/year</span>
+                          <span className="text-success dark:text-green-400 font-semibold">{Math.round((quoteResult.annualProduction || 0) * 0.82)} kg/year</span>
                         </div>
                         
                         <div className="flex justify-between items-center p-3 bg-blue-50/50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                           <span className="text-slate-700 dark:text-slate-300">25-Year Savings</span>
-                          <span className="text-blue-600 dark:text-blue-400 font-semibold">{formatCurrency((quoteResult.annualSavings || 0) * 25)}</span>
+                          <span className="text-info dark:text-blue-400 font-semibold">{formatCurrency((quoteResult.annualSavings || 0) * 25)}</span>
                         </div>
                       </div>
                     </div>
@@ -1825,7 +1825,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                   quoteType
                 })} 
                 disabled={isLoading}
-                className="bg-primary text-white px-8 py-3 rounded-xl font-semibold hover:bg-teal-700 transition-all transform hover:scale-105 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-primary text-white px-8 py-3 rounded-xl font-semibold hover:bg-primary/90 transition-all transform hover:scale-105 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span>{isLoading ? 'Submitting...' : submitButtonText}</span>
                 <ArrowRight />

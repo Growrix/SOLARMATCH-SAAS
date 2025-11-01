@@ -1,4 +1,4 @@
-/**
+﻿/**
  * T037: OTP Verification Modal Component
  * 
  * Modal for entering and verifying 6-digit OTP code
@@ -318,8 +318,8 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
               disabled={isVerifying || isExpired}
               className={`w-12 h-14 text-center text-2xl font-bold border-2 rounded-lg 
                 ${error 
-                  ? 'border-red-500 dark:border-red-400' 
-                  : 'border-gray-300 dark:border-slate-600 focus:border-primary dark:focus:border-primary'
+                  ? 'border-destructive dark:border-red-400' 
+                  : 'border-border dark:border-slate-600 focus:border-primary dark:focus:border-primary'
                 }
                 bg-white dark:bg-slate-800 text-slate-900 dark:text-white
                 focus:outline-none focus:ring-2 focus:ring-primary/20
@@ -334,14 +334,14 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
           <div className="text-center mb-4">
             <p className="text-sm text-slate-600 dark:text-slate-400">
               Code expires in{' '}
-              <span className={`font-semibold ${timeRemaining < 60 ? 'text-red-500' : 'text-primary'}`}>
+              <span className={`font-semibold ${timeRemaining < 60 ? 'text-destructive' : 'text-primary'}`}>
                 {formatTime(timeRemaining)}
               </span>
             </p>
           </div>
         ) : (
           <div className="text-center mb-4">
-            <p className="text-sm text-red-500 dark:text-red-400 font-semibold">
+            <p className="text-sm text-destructive dark:text-red-400 font-semibold">
               Code has expired
             </p>
           </div>
@@ -359,7 +359,7 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
         {/* Error Message */}
         {error && (
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 mb-4 flex items-start gap-2">
-            <div className="text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5">
+            <div className="text-destructive dark:text-red-400 flex-shrink-0 mt-0.5">
               <AlertCircleIcon />
             </div>
             <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
@@ -396,7 +396,7 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
           onClick={() => handleVerify()}
           disabled={isVerifying || code.some(d => !d) || isExpired}
           className="w-full bg-primary text-white py-3 px-4 rounded-xl font-semibold 
-            hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed 
+            hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed 
             transition-all"
         >
           {isVerifying ? 'Verifying...' : 'Verify Code'}

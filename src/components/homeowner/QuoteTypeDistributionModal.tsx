@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 
@@ -281,7 +281,7 @@ export default function QuoteTypeDistributionModal({
                   ? 'text-red-600 dark:text-red-400'
                   : totalSelected === 0
                   ? 'text-slate-500 dark:text-slate-400'
-                  : 'text-blue-600 dark:text-blue-400'
+                  : 'text-info dark:text-blue-400'
               }`}>
                 {totalSelected} of {remainingQuota}
               </span>
@@ -299,7 +299,7 @@ export default function QuoteTypeDistributionModal({
               </p>
             )}
             {isValid && (
-              <p className="text-sm text-blue-600 dark:text-blue-400 mt-2">
+              <p className="text-sm text-info dark:text-blue-400 mt-2">
                 ✓ Valid selection! Click confirm to proceed.
               </p>
             )}

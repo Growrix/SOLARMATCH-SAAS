@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 
@@ -106,10 +106,10 @@ const InstallerEligibilityModal: React.FC<EligibilityFormProps> = ({ isOpen, onC
                   <div key={q.id}>
                     <label className="block text-slate-600 dark:text-slate-300 text-sm font-semibold mb-3">{q.icon}{q.label}</label>
                     <div className="grid grid-cols-2 gap-3">
-                      <button onClick={() => handleInputChange(q.id as keyof FormData, 'yes')} className={`eligibility-button p-3 rounded-xl border-2 transition-all flex items-center justify-center space-x-2 ${formData[q.id as keyof FormData] === 'yes' ? 'selected-yes border-emerald-500 bg-emerald-500/10 text-emerald-500' : 'border-gray-300 dark:border-slate-700 bg-gray-100/50 dark:bg-slate-800/20 text-slate-600 dark:text-slate-300 hover:border-slate-400 dark:hover:border-slate-500'}`}>
+                      <button onClick={() => handleInputChange(q.id as keyof FormData, 'yes')} className={`eligibility-button p-3 rounded-xl border-2 transition-all flex items-center justify-center space-x-2 ${formData[q.id as keyof FormData] === 'yes' ? 'selected-yes border-emerald-500 bg-emerald-500/10 text-emerald-500' : 'border-border dark:border-slate-700 bg-gray-100/50 dark:bg-slate-800/20 text-slate-600 dark:text-slate-300 hover:border-slate-400 dark:hover:border-slate-500'}`}>
                         <CheckCircle /> <span className="text-sm font-semibold">Yes</span>
                       </button>
-                      <button onClick={() => handleInputChange(q.id as keyof FormData, 'no')} className={`eligibility-button p-3 rounded-xl border-2 transition-all flex items-center justify-center space-x-2 ${formData[q.id as keyof FormData] === 'no' ? 'selected-no border-red-500 bg-red-500/10 text-red-500' : 'border-gray-300 dark:border-slate-700 bg-gray-100/50 dark:bg-slate-800/20 text-slate-600 dark:text-slate-300 hover:border-slate-400 dark:hover:border-slate-500'}`}>
+                      <button onClick={() => handleInputChange(q.id as keyof FormData, 'no')} className={`eligibility-button p-3 rounded-xl border-2 transition-all flex items-center justify-center space-x-2 ${formData[q.id as keyof FormData] === 'no' ? 'selected-no border-destructive bg-red-500/10 text-destructive' : 'border-border dark:border-slate-700 bg-gray-100/50 dark:bg-slate-800/20 text-slate-600 dark:text-slate-300 hover:border-slate-400 dark:hover:border-slate-500'}`}>
                         <XCircle /> <span className="text-sm font-semibold">No</span>
                       </button>
                     </div>
@@ -117,7 +117,7 @@ const InstallerEligibilityModal: React.FC<EligibilityFormProps> = ({ isOpen, onC
                 ))}
               </div>
               <div className="flex justify-end mt-8">
-                <button onClick={handleCheckEligibility} disabled={!formData.cecAccredited || !formData.hasABN || !formData.providesInstallation} className="bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-teal-700 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center space-x-2">
+                <button onClick={handleCheckEligibility} disabled={!formData.cecAccredited || !formData.hasABN || !formData.providesInstallation} className="bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center space-x-2">
                   <span>Check Eligibility</span><ArrowRight />
                 </button>
               </div>
@@ -129,8 +129,8 @@ const InstallerEligibilityModal: React.FC<EligibilityFormProps> = ({ isOpen, onC
               <div className="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6"><XCircle /></div>
               <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Not Eligible</h3>
               <p className="text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">Unfortunately, your company doesn&apos;t meet our current eligibility requirements. To join our partner network, you must be a CEC-accredited installer with an ABN providing services in Australia.</p>
-              <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-6 mb-8">
-                <h4 className="text-red-500 dark:text-red-400 font-semibold mb-3 flex items-center justify-center space-x-2"><AlertCircle /><span>Requirements Not Met</span></h4>
+              <div className="bg-red-500/10 border border-destructive/30 rounded-xl p-6 mb-8">
+                <h4 className="text-destructive dark:text-red-400 font-semibold mb-3 flex items-center justify-center space-x-2"><AlertCircle /><span>Requirements Not Met</span></h4>
                 <ul className="text-red-600 dark:text-red-300 text-sm space-y-2 text-left">
                   {formData.cecAccredited !== 'yes' && <li>• CEC accreditation required</li>}
                   {formData.hasABN !== 'yes' && <li>• Valid ABN required</li>}

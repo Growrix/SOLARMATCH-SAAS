@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -358,7 +358,7 @@ export default function Home() {
         />
       )}
 
-      {/* Blog Section */}
+  {/* Blog Section */}
   <section className="w-full py-16 lg:py-24 bg-background">
     <BlogSection
       onSeeAllPostsClick={handleSeeAllBlogPosts}

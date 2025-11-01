@@ -13,31 +13,31 @@ interface TopBarProps {
 const TopBar: React.FC<TopBarProps> = ({ onBecomePartnerClick, onPartnerSignInClick }) => {
 
   return (
-    <div id="top-bar" className="glass-top-bar text-sm py-2 transition-colors duration-300">
+    <div id="top-bar" className="py-2 transition-colors duration-300">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-1 text-xs text-slate-600 dark:text-slate-400">
+        <div className="flex items-center justify-between text-xs">
+          {/* Left Side - Neumorphic Label Badge */}
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background shadow-neu-inset text-muted-foreground">
             <BuildingIcon />
-            <span>For Solar Installers:</span>
+            <span className="hidden sm:inline font-medium">For Solar Installers:</span>
           </div>
           
-          <div className="flex items-center space-x-4">
+          {/* Right Side - Neumorphic Action Buttons */}
+          <div className="flex items-center gap-2">
             <button
               onClick={onBecomePartnerClick}
-              className="text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-white transition-colors flex items-center space-x-1"
+              className="px-3 py-1.5 rounded-full bg-background shadow-neu-outset hover:shadow-neu-outset-lg active:shadow-neu-inset transition-all duration-200 flex items-center gap-1.5 font-medium text-muted-foreground hover:text-foreground"
             >
               <BuildingIcon />
-              <span>Become a Partner</span>
+              <span className="hidden md:inline">Become a Partner</span>
             </button>
-            
-            <div className="w-px h-4 bg-gray-300 dark:bg-slate-700"></div>
             
             <button
               onClick={onPartnerSignInClick}
-              className="text-xs font-medium text-primary hover:text-teal-700 dark:hover:text-teal-400 transition-colors flex items-center space-x-1"
+              className="px-3 py-1.5 rounded-full bg-background shadow-neu-outset hover:shadow-neu-outset-lg active:shadow-neu-inset transition-all duration-200 flex items-center gap-1.5 font-medium text-primary hover:text-primary/90"
             >
               <LogInIcon />
-              <span>Partner Sign In</span>
+              <span className="hidden md:inline">Partner Sign In</span>
             </button>
           </div>
         </div>

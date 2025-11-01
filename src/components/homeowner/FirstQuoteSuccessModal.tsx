@@ -157,7 +157,7 @@ const FirstQuoteSuccessModal: React.FC<FirstQuoteSuccessModalProps> = ({
         <div className="flex items-center justify-end space-x-3 px-6 pb-6">
           <button
             onClick={onClose}
-            className="px-6 py-3 bg-primary hover:bg-teal-700 text-white font-semibold rounded-xl transition-all"
+            className="px-6 py-3 bg-primary hover:bg-primary/90 text-white font-semibold rounded-xl transition-all"
           >
             Go to Dashboard
           </button>

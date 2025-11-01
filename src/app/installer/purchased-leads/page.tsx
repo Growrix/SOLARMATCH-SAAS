@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Purchased Leads Page
  * 
  * T061: Display leads purchased by the installer
@@ -300,7 +300,7 @@ export default function PurchasedLeadsPage() {
                     <div className="space-y-2">
                       <button
                         onClick={() => handleCall(lead.homeowner.phone)}
-                        className="w-full flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                        className="w-full flex items-center justify-center px-4 py-3 bg-success text-white rounded-lg hover:bg-green-700 transition-colors"
                       >
                         <PhoneIcon className="h-5 w-5 mr-2" />
                         Call Now

@@ -653,7 +653,7 @@ const InstantMessagingModal: React.FC<InstantMessagingModalProps> = ({ isOpen, o
                     disabled={!newMessage.trim()}
                     className={`p-3 rounded-xl transition-colors ${
                       newMessage.trim()
-                        ? 'bg-primary text-white hover:bg-teal-700 shadow-sm'
+                        ? 'bg-primary text-white hover:bg-primary/90 shadow-sm'
                         : 'bg-gray-200 dark:bg-slate-700 text-slate-400 cursor-not-allowed'
                     }`}
                   >

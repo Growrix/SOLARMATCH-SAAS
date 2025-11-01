@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * InstallerAssignedLeads Component
@@ -103,7 +103,7 @@ export default function InstallerAssignedLeads() {
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
-        <span className="ml-3 text-gray-600 dark:text-gray-400">Loading assigned leads...</span>
+        <span className="ml-3 text-muted-foreground dark:text-gray-400">Loading assigned leads...</span>
       </div>
     );
   }
@@ -127,7 +127,7 @@ export default function InstallerAssignedLeads() {
     return (
       <div className="text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
         <svg
-          className="mx-auto h-16 w-16 text-gray-400 dark:text-gray-600"
+          className="mx-auto h-16 w-16 text-gray-400 dark:text-muted-foreground"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -140,7 +140,7 @@ export default function InstallerAssignedLeads() {
           />
         </svg>
         <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">No Assigned Leads</h3>
-        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+        <p className="mt-2 text-sm text-muted-foreground dark:text-gray-400">
           You don&apos;t have any leads assigned by admin at the moment.
         </p>
       </div>
@@ -155,7 +155,7 @@ export default function InstallerAssignedLeads() {
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
             Assigned Leads
           </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-sm text-muted-foreground dark:text-gray-400 mt-1">
             Leads assigned to you by the admin team
           </p>
         </div>
@@ -200,7 +200,7 @@ export default function InstallerAssignedLeads() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
                 <div className="flex-1">
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Location</p>
+                  <p className="text-sm text-muted-foreground dark:text-gray-400">Location</p>
                   <p className="text-sm font-medium text-gray-900 dark:text-white">
                     {lead.location}, {lead.state} - {lead.postcode}
                   </p>
@@ -212,7 +212,7 @@ export default function InstallerAssignedLeads() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <div className="flex-1">
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Budget</p>
+                  <p className="text-sm text-muted-foreground dark:text-gray-400">Budget</p>
                   <p className="text-sm font-medium text-gray-900 dark:text-white">
                     {lead.budgetRange}
                   </p>
@@ -224,7 +224,7 @@ export default function InstallerAssignedLeads() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
                 <div className="flex-1">
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Energy Bill</p>
+                  <p className="text-sm text-muted-foreground dark:text-gray-400">Energy Bill</p>
                   <p className="text-sm font-medium text-gray-900 dark:text-white">
                     £{lead.energyBill.toFixed(2)}
                   </p>
@@ -239,10 +239,10 @@ export default function InstallerAssignedLeads() {
 
               {/* Assignment Info */}
               <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
-                <p className="text-xs text-gray-600 dark:text-gray-400">
+                <p className="text-xs text-muted-foreground dark:text-gray-400">
                   Assigned by <span className="font-medium">{lead.assignedByName}</span>
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-500">
+                <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                   {format(new Date(lead.assignedAt), 'MMM d, yyyy h:mm a')}
                 </p>
                 {lead.assignmentNotes && (

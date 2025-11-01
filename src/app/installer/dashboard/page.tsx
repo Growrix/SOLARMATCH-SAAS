@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -172,7 +172,7 @@ const NavItem: React.FC<{
       <span>{title}</span>
     </div>
     {badgeCount && badgeCount > 0 && (
-      <span className="bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+      <span className="bg-destructive text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
         {badgeCount}
       </span>
     )}
@@ -268,11 +268,11 @@ const DashboardHeader: React.FC<{
         <h1 className="text-lg font-bold text-foreground">{pageTitle}</h1>
       </div>
       <div className="flex items-center space-x-1 sm:space-x-2">
-        <div className={`flex items-center justify-end transition-all duration-300 ${isSearchOpen ? 'bg-surface rounded-lg' : ''}`}>
+        <div className={`flex items-center justify-end transition-colors duration-300 ${isSearchOpen ? 'bg-surface rounded-lg' : ''}`}>
           <input 
             type="text" 
             placeholder="Search leads..." 
-            className={`bg-transparent focus:outline-none transition-all duration-300 ease-in-out text-sm ${ 
+            className={`bg-transparent focus:outline-none transition-colors duration-300 ease-in-out text-sm ${ 
               isSearchOpen ? 'w-32 sm:w-40 py-2 pl-3 pr-2' : 'w-0 p-0' 
             }`}
           />
@@ -290,7 +290,7 @@ const DashboardHeader: React.FC<{
         </button>
         <button className="relative p-2 rounded-full hover:bg-surface-hover text-subtle">
           <BellIcon />
-          <span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-black/50"></span>
+          <span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-destructive ring-2 ring-white dark:ring-black/50"></span>
         </button>
         <button>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -502,8 +502,6 @@ export default function InstallerDashboardPage() {
     </div>
   );
 }
-
-
 
 
 

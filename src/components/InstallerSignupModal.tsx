@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
@@ -209,7 +209,7 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
                   onClose();
                   window.location.href = '/installer/dashboard';
                 }}
-                className="w-full bg-primary hover:bg-teal-700 text-white font-semibold py-3 px-4 rounded-xl transition-all transform hover:scale-105 shadow-lg"
+                className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-4 rounded-xl transition-all transform hover:scale-105 shadow-lg"
               >
                 Visit Dashboard
               </button>
@@ -239,7 +239,7 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
             </div>
 
             {error && (
-              <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6 flex items-center space-x-3">
+              <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-4 mb-6 flex items-center space-x-3">
                 <AlertCircleIcon />
                 <p className="text-red-400 text-sm">{error}</p>
               </div>
@@ -383,7 +383,7 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
               <button 
                 type="submit" 
                 disabled={loading} 
-                className="w-full bg-primary hover:bg-teal-700 text-white font-semibold py-3 px-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 shadow-lg"
+                className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 shadow-lg"
               >
                 {loading ? (
                   <div className="flex items-center justify-center space-x-2">

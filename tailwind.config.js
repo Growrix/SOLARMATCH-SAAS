@@ -50,6 +50,18 @@ module.exports = {
         'error-foreground': 'rgb(255 255 255 / <alpha-value>)',
         info: 'rgb(var(--color-info) / <alpha-value>)',
         'info-foreground': 'rgb(255 255 255 / <alpha-value>)',
+        
+        // shadcn/ui HSL-based colors (from globals.css)
+        destructive: 'hsl(var(--destructive) / <alpha-value>)',
+        'destructive-foreground': 'hsl(var(--destructive-foreground) / <alpha-value>)',
+        
+        // Custom status colors (HSL format)
+        'success-hsl': 'hsl(var(--success) / <alpha-value>)',
+        'success-foreground-hsl': 'hsl(var(--success-foreground) / <alpha-value>)',
+        'info-hsl': 'hsl(var(--info) / <alpha-value>)',
+        'info-foreground-hsl': 'hsl(var(--info-foreground) / <alpha-value>)',
+        'warning-hsl': 'hsl(var(--warning) / <alpha-value>)',
+        'warning-foreground-hsl': 'hsl(var(--warning-foreground) / <alpha-value>)',
       },
       
       // Typography tokens
@@ -82,6 +94,12 @@ module.exports = {
         dropdown: shadows.dropdown.DEFAULT,
         button: shadows.button.DEFAULT,
         focus: shadows.focus.DEFAULT,
+        // Neumorphism shadows for dark theme
+        'neu-outset': 'var(--shadow-neu-outset)',
+        'neu-inset': 'var(--shadow-neu-inset)',
+        'neu-outset-sm': 'var(--shadow-neu-outset-sm)',
+        'neu-inset-sm': 'var(--shadow-neu-inset-sm)',
+        'neu-outset-lg': 'var(--shadow-neu-outset-lg)',
       },
       
       // Border radius tokens
@@ -142,6 +160,17 @@ module.exports = {
       });
 
       addUtilities(newUtilities, ['responsive']);
+    }),
+    // Icon size utilities (T005)
+    require('tailwindcss/plugin')(function({ addUtilities }) {
+      const iconUtilities = {
+        '.icon-xs': { width: '12px', height: '12px' },
+        '.icon-sm': { width: '16px', height: '16px' },
+        '.icon-md': { width: '20px', height: '20px' },
+        '.icon-lg': { width: '24px', height: '24px' },
+        '.icon-xl': { width: '32px', height: '32px' },
+      };
+      addUtilities(iconUtilities);
     }),
   ],
 }

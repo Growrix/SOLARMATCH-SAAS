@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
+import Button from '@/components/ui/button';
 
 // --- Icon Components with Semantic Colors ---
 const UserIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
@@ -180,7 +181,10 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
           <h3 className="text-error font-semibold">Error Loading Profile</h3>
         </div>
         <p className="text-error/80 mt-2">{error}</p>
-        <button onClick={() => window.location.reload()} className="mt-4 px-4 py-2 bg-error hover:bg-error/90 text-white rounded-lg transition-colors">Retry</button>
+        {/* Migrated: button → shadcn Button - preserved onClick, error handling */}
+  <Button onClick={() => window.location.reload()} variant="minimal" className="mt-4">
+          Retry
+        </Button>
       </div>
     );
   }
@@ -239,21 +243,24 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
                   accept="image/jpeg,image/png,image/gif,image/webp" 
                   className="hidden" 
                 />
-                <button 
+                {/* Migrated: buttons → shadcn Button - preserved onClick, disabled, upload/remove logic */}
+                <Button variant="minimal"
                   onClick={() => fileInputRef.current?.click()} 
                   disabled={isSaving} 
-                  className="px-4 py-2 bg-primary hover:bg-primary/90 disabled:bg-primary/50 text-white rounded-lg transition-colors text-sm"
+                  variant="default"
+                  size="sm"
                 >
                   Upload New
-                </button>
+                </Button>
                 {formData.image && (
-                  <button 
+                  <Button variant="minimal"
                     onClick={handleRemoveImage} 
                     disabled={isSaving} 
-                    className="px-4 py-2 bg-error hover:bg-error/90 disabled:bg-error/50 text-white rounded-lg transition-colors text-sm"
+                    variant="destructive"
+                    size="sm"
                   >
                     Remove
-                  </button>
+                  </Button>
                 )}
               </div>
             )}
@@ -268,13 +275,14 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
       <div className="theme-card p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold text-foreground">Personal Information</h2>
+          {/* Migrated: button → shadcn Button - preserved onClick, edit mode toggle */}
           {!isEditing && (
-            <button 
+            <Button variant="minimal"
               onClick={() => setIsEditing(true)} 
-              className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors"
+              variant="default"
             >
               Edit Profile
-            </button>
+            </Button>
           )}
         </div>
         <div className="space-y-4">
@@ -380,13 +388,13 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
             )}
           </div>
 
-          {/* Action Buttons */}
+          {/* Action Buttons - Migrated: buttons → shadcn Button - preserved onClick, saving state, disabled logic */}
           {isEditing && (
             <div className="flex space-x-3 pt-4">
-              <button 
+              <Button variant="minimal"
                 onClick={handleSave} 
                 disabled={isSaving} 
-                className="flex items-center justify-center px-6 py-2 bg-success hover:bg-success/90 disabled:bg-success/50 text-white rounded-lg transition-colors font-medium"
+                className="bg-success hover:bg-success/90"
               >
                 {isSaving ? (
                   <>
@@ -396,14 +404,14 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
                 ) : (
                   'Save Changes'
                 )}
-              </button>
-              <button 
+              </Button>
+              <Button variant="minimal"
                 onClick={handleCancel} 
                 disabled={isSaving} 
-                className="px-6 py-2 bg-surface border border-border hover:bg-muted disabled:bg-muted/50 text-foreground rounded-lg transition-colors font-medium"
+                variant="outline"
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           )}
         </div>
@@ -449,12 +457,14 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
               />
             </div>
           </div>
-          <button 
+          {/* Migrated: button → shadcn Button - preserved disabled state */}
+          <Button variant="minimal"
             disabled 
-            className="w-full px-4 py-2 bg-muted text-muted-foreground rounded-lg cursor-not-allowed font-medium"
+            variant="secondary"
+            className="w-full"
           >
             Change Password (Coming Soon)
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -465,13 +475,14 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
           <p className="text-sm text-error/80 mb-4">
             Once you delete your account, there is no going back. Please be certain.
           </p>
-          <button 
+          {/* Migrated: button → shadcn Button - preserved onClick, delete action */}
+          <Button variant="minimal"
             onClick={onDeleteClick} 
-            className="flex items-center px-4 py-2 bg-error hover:bg-error/90 text-white rounded-lg transition-colors font-medium"
+            variant="destructive"
           >
             <AlertTriangleIcon />
             Delete Account
-          </button>
+          </Button>
         </div>
       )}
     </div>

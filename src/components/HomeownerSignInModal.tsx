@@ -151,7 +151,7 @@ const HomeownerSignInModal: React.FC<HomeownerSignInModalProps> = ({ isOpen, onC
           <button 
             type="submit" 
             disabled={loading} 
-            className="w-full bg-primary hover:bg-teal-700 text-white font-semibold py-3 px-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 shadow-lg"
+            className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 shadow-lg"
           >
             {loading ? (
               <div className="flex items-center justify-center">

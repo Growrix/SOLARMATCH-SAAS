@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 
@@ -125,7 +125,7 @@ const RebateCalculatorForm: React.FC<Props> = ({ onGetQuotesClick }) => {
     };
   }, [showModal]);
 
-  const baseInputClasses = "w-full bg-gray-100 dark:bg-slate-900 backdrop-blur-sm border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors";
+  const baseInputClasses = "w-full bg-gray-100 dark:bg-slate-900 backdrop-blur-sm border border-border dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors";
 
   const validatePostcode = (pc: string) => {
     if (!pc) return 'Postcode is required.';
@@ -264,7 +264,7 @@ const RebateCalculatorForm: React.FC<Props> = ({ onGetQuotesClick }) => {
                 <input 
                     id="postcode"
                     type="text"
-                    className={`${baseInputClasses} ${errors.postcode ? 'border-red-500 ring-red-500' : 'focus:border-primary focus:ring-primary'}`}
+                    className={`${baseInputClasses} ${errors.postcode ? 'border-destructive ring-red-500' : 'focus:border-primary focus:ring-primary'}`}
                     value={inputs.postcode} 
                     onChange={(e) => handleInput('postcode', e.target.value)} 
                     onBlur={(e) => setErrors({ ...errors, postcode: validatePostcode(e.target.value) })} 
@@ -278,14 +278,14 @@ const RebateCalculatorForm: React.FC<Props> = ({ onGetQuotesClick }) => {
                     {inputs.postcode && inputs.postcode.length === 4 ? `📍 ${postcodeToState(inputs.postcode)} - STC Zone ${getZoneByPostcode(inputs.postcode)}` : 'Determines STC zone and state rebates'}
                     </p>
                 )}
-                {errors.postcode && <p id="postcode-error" className="text-red-500 text-xs mt-1.5" role="alert">{errors.postcode}</p>}
+                {errors.postcode && <p id="postcode-error" className="text-destructive text-xs mt-1.5" role="alert">{errors.postcode}</p>}
                 </div>
 
                 <div className="flex flex-col justify-end">
                     <label className="flex items-center text-slate-600 dark:text-slate-300 text-sm font-semibold mb-2">
                         <span>Include Battery Storage</span>
                     </label>
-                    <div className={`flex items-center justify-between rounded-xl p-3 transition-all duration-300 bg-gray-100 dark:bg-slate-900 border ${inputs.includeBattery ? 'border-primary/50' : 'border-gray-300 dark:border-slate-700'}`}>
+                    <div className={`flex items-center justify-between rounded-xl p-3 transition-colors duration-300 bg-gray-100 dark:bg-slate-900 border ${inputs.includeBattery ? 'border-primary/50' : 'border-border dark:border-slate-700'}`}>
                         <p className="text-slate-800 dark:text-slate-200 font-medium text-sm">
                         {inputs.includeBattery ? 'Battery Included' : 'Solar Only'}
                         </p>
@@ -425,7 +425,7 @@ const RebateCalculatorForm: React.FC<Props> = ({ onGetQuotesClick }) => {
           <button 
             disabled={isCalculating || !inputs.postcode} 
             onClick={handleCalculate} 
-            className="w-full bg-primary hover:bg-teal-700 text-white px-8 py-4 rounded-xl text-lg font-semibold transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+            className="w-full bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-xl text-lg font-semibold transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
           >
             {isCalculating ? (
               <><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div><span>Calculating...</span></>
@@ -446,7 +446,7 @@ const RebateCalculatorForm: React.FC<Props> = ({ onGetQuotesClick }) => {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-6 border border-primary/20 text-center"><h3 className="text-sm font-medium text-slate-600 dark:text-slate-400">Total Rebate</h3><p className="text-3xl font-bold text-primary mt-1">{formatCurrency(result.totalRebate)}</p></div>
                             <div className="bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 rounded-2xl p-6 border border-emerald-500/20 text-center"><h3 className="text-sm font-medium text-slate-600 dark:text-slate-400">Federal Rebate (STC)</h3><p className="text-3xl font-bold text-emerald-600 mt-1">{formatCurrency(result.federalSTCValue)}</p></div>
-                            <div className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 rounded-2xl p-6 border border-blue-500/20 text-center"><h3 className="text-sm font-medium text-slate-600 dark:text-slate-400">State & Battery</h3><p className="text-3xl font-bold text-blue-600 mt-1">{formatCurrency(result.stateSolar + result.batteryTotal)}</p></div>
+                            <div className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 rounded-2xl p-6 border border-blue-500/20 text-center"><h3 className="text-sm font-medium text-slate-600 dark:text-slate-400">State & Battery</h3><p className="text-3xl font-bold text-info mt-1">{formatCurrency(result.stateSolar + result.batteryTotal)}</p></div>
                         </div>
 
                         {/* Eligibility Notes */}

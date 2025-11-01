@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Theme Switcher Component
  * Allows users to switch between light, dark, and system themes
  */
@@ -52,7 +52,7 @@ export default function InstallerThemeSwitcher({ theme, setTheme }: ThemeSwitche
           className={`p-1.5 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-slate-800 focus:ring-primary ${
             theme === opt.name
               ? 'bg-white dark:bg-slate-700 shadow-sm'
-              : 'text-gray-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white'
+              : 'text-muted-foreground hover:text-slate-900 dark:text-gray-400 dark:hover:text-white'
           }`}
           aria-label={`Switch to ${opt.name} theme`}
           title={`Switch to ${opt.name} theme`}

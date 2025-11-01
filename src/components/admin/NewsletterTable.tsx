@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 
@@ -87,7 +87,7 @@ export default function NewsletterTable() {
           </div>
           <div className="theme-card p-4">
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">Active</p>
-            <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+            <p className="text-2xl font-bold text-success dark:text-green-400">
               {subscribers.filter(s => s.isActive).length}
             </p>
           </div>
@@ -101,7 +101,7 @@ export default function NewsletterTable() {
         <button
           onClick={fetchSubscribers}
           disabled={loading}
-          className="px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-teal-700 transition-colors disabled:opacity-50 flex items-center gap-2 whitespace-nowrap"
+          className="px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center gap-2 whitespace-nowrap"
         >
           <RefreshIcon />
           <span>{loading ? 'Loading...' : 'Refresh'}</span>
@@ -134,7 +134,7 @@ export default function NewsletterTable() {
             <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
             <button
               onClick={fetchSubscribers}
-              className="px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-teal-700 transition-colors"
+              className="px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors"
             >
               Try Again
             </button>

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * InstallerSelectorModal Component
@@ -159,7 +159,7 @@ export default function InstallerSelectorModal({
             </h2>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              className="text-gray-400 hover:text-muted-foreground dark:hover:text-gray-300"
             >
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -183,7 +183,7 @@ export default function InstallerSelectorModal({
                 placeholder="Search by name, email, company, or postcode..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-md border border-gray-300 dark:border-gray-600 px-4 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500"
+                className="w-full rounded-md border border-border dark:border-gray-600 px-4 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500"
               />
 
               <div className="flex items-center justify-between">
@@ -192,7 +192,7 @@ export default function InstallerSelectorModal({
                     type="checkbox"
                     checked={includeUnverified}
                     onChange={(e) => setIncludeUnverified(e.target.checked)}
-                    className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                    className="rounded border-border text-emerald-600 focus:ring-emerald-500"
                   />
                   <span className="text-sm text-gray-700 dark:text-gray-300">
                     Include Unverified Installers
@@ -219,7 +219,7 @@ export default function InstallerSelectorModal({
                   className={`px-4 py-3 rounded-md border-2 text-sm font-medium transition-colors ${
                     mode === 'exclusive'
                       ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300'
-                      : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-400'
+                      : 'border-border dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-400'
                   }`}
                 >
                   <div className="font-semibold">Exclusive</div>
@@ -230,7 +230,7 @@ export default function InstallerSelectorModal({
                   className={`px-4 py-3 rounded-md border-2 text-sm font-medium transition-colors ${
                     mode === 'competitive'
                       ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300'
-                      : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-400'
+                      : 'border-border dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-400'
                   }`}
                 >
                   <div className="font-semibold">Competitive</div>
@@ -246,11 +246,11 @@ export default function InstallerSelectorModal({
               </label>
 
               {loading ? (
-                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                <div className="text-center py-8 text-muted-foreground dark:text-gray-400">
                   Loading installers...
                 </div>
               ) : filteredInstallers.length === 0 ? (
-                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                <div className="text-center py-8 text-muted-foreground dark:text-gray-400">
                   No installers found
                 </div>
               ) : (
@@ -268,7 +268,7 @@ export default function InstallerSelectorModal({
                         type="checkbox"
                         checked={selectedIds.includes(installer.id)}
                         onChange={() => toggleInstaller(installer.id)}
-                        className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                        className="rounded border-border text-emerald-600 focus:ring-emerald-500"
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
@@ -281,7 +281,7 @@ export default function InstallerSelectorModal({
                             </span>
                           )}
                         </div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                        <div className="text-sm text-muted-foreground dark:text-gray-400">
                           {installer.companyName && <span>{installer.companyName} • </span>}
                           <span>{installer.email}</span>
                           {installer.postcode && <span> • {installer.postcode}</span>}
@@ -303,7 +303,7 @@ export default function InstallerSelectorModal({
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Add any notes or context for the installer(s)..."
                 rows={3}
-                className="w-full rounded-md border border-gray-300 dark:border-gray-600 px-4 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500"
+                className="w-full rounded-md border border-border dark:border-gray-600 px-4 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500"
               />
             </div>
 
@@ -313,7 +313,7 @@ export default function InstallerSelectorModal({
                 type="checkbox"
                 checked={notifyInstallers}
                 onChange={(e) => setNotifyInstallers(e.target.checked)}
-                className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                className="rounded border-border text-emerald-600 focus:ring-emerald-500"
               />
               <span className="text-sm text-gray-700 dark:text-gray-300">
                 Send notifications to assigned installers

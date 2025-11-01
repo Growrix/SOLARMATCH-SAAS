@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 
@@ -153,7 +153,7 @@ export default function AdminHomeownersAnalytics() {
                       </div>
                       <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
                         <div
-                          className="bg-blue-600 dark:bg-blue-500 h-full rounded-full transition-all duration-500"
+                          className="bg-blue-600 dark:bg-blue-500 h-full rounded-full transition-colors duration-500"
                           style={{ width: `${item.percentage || 0}%` }}
                         />
                       </div>
@@ -189,7 +189,7 @@ export default function AdminHomeownersAnalytics() {
                       </div>
                       <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
                         <div
-                          className="bg-green-600 dark:bg-green-500 h-full rounded-full transition-all duration-500"
+                          className="bg-success dark:bg-green-500 h-full rounded-full transition-colors duration-500"
                           style={{ width: `${item.percentage || 0}%` }}
                         />
                       </div>

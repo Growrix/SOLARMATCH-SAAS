@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
@@ -428,7 +428,7 @@ export default function AdminHomeownersList() {
                         {homeowner.phone && (
                           <span className={`mt-1 inline-flex items-center gap-1 text-xs font-medium ${
                             homeowner.phoneVerified
-                              ? 'text-green-600 dark:text-green-300'
+                              ? 'text-success dark:text-green-300'
                               : 'text-slate-500 dark:text-slate-400'
                           }`}>
                             <span className={`inline-block h-2 w-2 rounded-full ${
@@ -475,7 +475,7 @@ export default function AdminHomeownersList() {
                             <button
                               onClick={() => handleSaveEdit(homeowner.id)}
                               disabled={updating}
-                              className="px-2 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+                              className="px-2 py-1 text-xs bg-success text-white rounded hover:bg-green-700 disabled:opacity-50"
                             >
                               {updating ? '...' : '✓'}
                             </button>
@@ -550,7 +550,7 @@ export default function AdminHomeownersList() {
                     {homeowner.phone && (
                       <div className={`text-xs font-medium ${
                         homeowner.phoneVerified
-                          ? 'text-green-600 dark:text-green-300'
+                          ? 'text-success dark:text-green-300'
                           : 'text-slate-500 dark:text-slate-400'
                       }`}>
                         {homeowner.phoneVerified ? 'Verified' : 'Unverified'}

@@ -258,7 +258,7 @@ const ContactVerificationModal: React.FC<ContactVerificationModalProps> = ({
           <button
             type="submit"
             disabled={isSubmitting || retrySeconds > 0}
-            className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSubmitting ? 'Sending code…' : 'Send verification code'}
           </button>

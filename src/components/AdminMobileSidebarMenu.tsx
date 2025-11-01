@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useEffect } from 'react';
 
@@ -236,7 +236,7 @@ const AdminMobileSidebarMenu: React.FC<AdminMobileSidebarMenuProps> = ({
                 <div className="mt-6 pt-6 border-t border-gray-200 dark:border-slate-800">
                     <button 
                         onClick={handleLogoutClick} 
-                        className="w-full flex items-center justify-center space-x-3 px-4 py-3 rounded-xl transition-colors text-base font-semibold bg-red-500/10 text-red-500 hover:bg-red-500/20"
+                        className="w-full flex items-center justify-center space-x-3 px-4 py-3 rounded-xl transition-colors text-base font-semibold bg-destructive/10 text-destructive hover:bg-destructive/20"
                     >
                         <LogOutIcon />
                         <span>Logout</span>

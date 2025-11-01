@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
@@ -317,8 +317,8 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ pageTitle, theme, set
           <h1 className="text-heading-4 font-bold text-foreground">{pageTitle}</h1>
       </div>
       <div className="flex items-center space-x-1 sm:space-x-2">
-        <div className={`flex items-center justify-end transition-all duration-normal ${isSearchOpen ? 'bg-muted rounded-card' : ''}`}>
-          <input type="text" placeholder="Search..." className={`bg-transparent focus:outline-none transition-all duration-normal ease-in-out text-body-small ${ isSearchOpen ? 'w-32 sm:w-40 py-2 pl-3 pr-2' : 'w-0 p-0' }`}/>
+        <div className={`flex items-center justify-end transition-colors duration-normal ${isSearchOpen ? 'bg-muted rounded-card' : ''}`}>
+          <input type="text" placeholder="Search..." className={`bg-transparent focus:outline-none transition-colors duration-normal ease-in-out text-body-small ${ isSearchOpen ? 'w-32 sm:w-40 py-2 pl-3 pr-2' : 'w-0 p-0' }`}/>
           <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="p-2 rounded-full hover:bg-muted text-muted-foreground" aria-label="Toggle search"><SearchIcon /></button>
         </div>
         <button onClick={onNewQuoteClick} className="hidden sm:block bg-accent dark:bg-accent text-white px-4 py-2 rounded-button text-button font-semibold hover:bg-accent-hover dark:hover:bg-accent-hover transition-colors shadow-button">Request New Quote</button>

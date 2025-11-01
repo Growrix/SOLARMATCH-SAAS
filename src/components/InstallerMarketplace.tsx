@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Installer Marketplace Component
  * 
  * T060: Display available leads for purchase
@@ -265,7 +265,7 @@ export default function InstallerMarketplace() {
                 {/* Price */}
                 <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700">
                   <div className="flex items-center space-x-2">
-                    <CurrencyPoundIcon className="h-6 w-6 text-green-600 dark:text-green-400" />
+                    <CurrencyPoundIcon className="h-6 w-6 text-success dark:text-green-400" />
                     <span className="text-2xl font-bold text-slate-900 dark:text-white">
                       {lead.leadPrice || 25}
                     </span>

@@ -28,6 +28,37 @@
 
 ---
 
+## 🚫 CRITICAL MIGRATION PRINCIPLE: 100% Clean Replacement
+
+**INDUSTRY STANDARD REQUIREMENT**: NO hybrid old+new class patterns allowed. Each component migration MUST be complete replacement.
+
+**Rationale**:
+- ✅ **Maintainability**: Mixing `bg-teal-600` and `bg-primary` creates confusion about which to use
+- ✅ **Consistency**: Partial migrations lead to inconsistent UX (some buttons themed, others not)
+- ✅ **Technical Debt**: Hybrid patterns accumulate, making future refactors harder
+- ✅ **Industry Standard**: All major design systems (Material UI, Chakra, Ant Design) require complete component replacement
+
+**Migration Rules**:
+1. ❌ **FORBIDDEN**: `<Button className="bg-teal-600 hover:bg-primary">` (mixing old+new)
+2. ❌ **FORBIDDEN**: Some buttons use `bg-red-500`, others use `bg-destructive` (inconsistent)
+3. ❌ **FORBIDDEN**: Leaving ANY hardcoded classes in migrated components
+4. ✅ **REQUIRED**: 100% replacement: `bg-teal-600` → `bg-primary` (ALL instances)
+5. ✅ **REQUIRED**: Verification task after each phase confirms ZERO old classes remain
+6. ✅ **REQUIRED**: Pre-commit hooks BLOCK commits with forbidden classes
+
+**What "Preserve" Means**:
+- ✅ **Preserve Logic**: `onClick={handleSubmit}`, `disabled={isLoading}` ← Keep these
+- ✅ **Preserve Behavior**: Form validation, loading states, navigation ← Keep these
+- ❌ **Don't Preserve Classes**: `className="bg-teal-600"` ← Replace completely
+
+**Enforcement**:
+- Each phase has CRITICAL VERIFICATION task (T064a, T075a, T089a, T100a, T112a, T129a)
+- Validation script flags ANY remaining hardcoded classes
+- Migration considered INCOMPLETE until verification passes
+- Pre-commit hooks prevent new violations from being added
+
+---
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 0 - Setup shadcn/ui & Component Logic Audit (Priority: P0) 🎯 FOUNDATION

@@ -1,17 +1,10 @@
-'use client'
+﻿'use client'
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import Button from '@/components/ui/button';
+import { X, Save, Send, Eye, Zap, DollarSign, Plus, Trash2, FileText } from 'lucide-react';
 
-// --- Icon Components ---
-const XIcon = ({ className = "h-5 w-5" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>;
-const FileTextIcon = ({ className = "h-5 w-5" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>;
-const SaveIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>;
-const SendIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>;
-const EyeIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>;
-const ZapIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2z"/></svg>;
-const DollarSignIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>;
-const PlusIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/></svg>;
-const TrashIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>;
+// --- Icon Components (Migrated: X, FileText, Save, Send, Eye, Zap, DollarSign, Plus, Trash → lucide-react) ---
 
 // --- Mock Data ---
 const MOCK_PANEL_MODELS = [
@@ -106,7 +99,7 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({ isOpen, onClose, 
         {/* Header */}
         <header className="flex-shrink-0 p-4 border-b border-gray-200 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-primary/10"><FileTextIcon className="text-primary" /></div>
+            <div className="p-3 rounded-lg bg-primary/10"><FileText className="text-primary h-5 w-5" /></div>
             <div>
               <h2 className="text-lg font-bold text-slate-900 dark:text-white">Quote Builder: {lead.name}</h2>
               <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
@@ -118,32 +111,53 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({ isOpen, onClose, 
               </div>
             </div>
           </div>
+          {/* Migrated: buttons → shadcn Button - preserved onClick, alert functionality */}
           <div className="flex items-center gap-2 w-full md:w-auto">
-            <button onClick={() => alert("Save Draft clicked")} className="px-3 py-2 text-sm font-semibold text-primary bg-primary/10 rounded-md hover:bg-primary/20 flex items-center gap-2 w-full justify-center md:w-auto"><SaveIcon /> Save Draft</button>
-            <button className="px-3 py-2 text-sm font-semibold text-primary bg-primary/10 rounded-md hover:bg-primary/20 flex items-center gap-2 w-full justify-center md:w-auto"><EyeIcon /> Preview PDF</button>
-            <button className="px-4 py-2 text-sm font-semibold bg-primary text-white rounded-md hover:bg-teal-700 flex items-center gap-2 w-full justify-center md:w-auto"><SendIcon /> Send Quote</button>
-            <button onClick={onClose} className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-slate-800 absolute top-4 right-4 md:static"><XIcon /></button>
+            <Button onClick={() => alert("Save Draft clicked")} variant="minimal" size="sm" className="w-full md:w-auto">
+              <Save className="h-4 w-4" /> Save Draft
+            </Button>
+            <Button variant="minimal" size="sm" className="w-full md:w-auto">
+              <Eye className="h-4 w-4" /> Preview PDF
+            </Button>
+            <Button variant="minimal" size="sm" className="w-full md:w-auto">
+              <Send className="h-4 w-4" /> Send Quote
+            </Button>
+            <Button onClick={onClose} variant="minimal" size="icon" className="absolute top-4 right-4 md:static">
+              <X className="h-4 w-4" />
+            </Button>
           </div>
         </header>
 
-        {/* Mobile Tabs */}
+        {/* Mobile Tabs - Migrated: buttons → shadcn Button - preserved onClick, active state */}
         <div className="md:hidden p-2 border-b border-gray-200 dark:border-slate-800 flex gap-2">
-            <button onClick={() => setMobileTab('editor')} className={`flex-1 py-2 text-sm font-semibold rounded-md ${mobileTab === 'editor' ? 'bg-primary/10 text-primary' : 'text-slate-500'}`}>Editor</button>
-            <button onClick={() => setMobileTab('preview')} className={`flex-1 py-2 text-sm font-semibold rounded-md ${mobileTab === 'preview' ? 'bg-primary/10 text-primary' : 'text-slate-500'}`}>Preview</button>
+            <Button 
+              onClick={() => setMobileTab('editor')} 
+              variant={mobileTab === 'editor' ? 'secondary' : 'ghost'}
+              className="flex-1"
+            >
+              Editor
+            </Button>
+            <Button 
+              onClick={() => setMobileTab('preview')} 
+              variant={mobileTab === 'preview' ? 'secondary' : 'ghost'}
+              className="flex-1"
+            >
+              Preview
+            </Button>
         </div>
 
         {/* Main Content */}
         <div className="flex-grow flex flex-col md:flex-row overflow-hidden">
           {/* Left: Editor Panel */}
           <div className={`flex-grow p-4 overflow-y-auto space-y-6 ${mobileTab === 'preview' ? 'hidden md:block' : ''} md:w-2/3`}>
-            {/* Presets */}
+            {/* Presets - Migrated: buttons → shadcn Button - preserved onClick, preset logic */}
             <div className="bg-gray-50 dark:bg-slate-800 rounded-lg p-4">
                 <h3 className="text-sm font-semibold mb-2 text-slate-900 dark:text-white">Quick Presets</h3>
-                <div className="flex gap-2">{MOCK_PRESETS.map(p => <button key={p.name} onClick={() => applyPreset(p.name)} className="flex-1 px-3 py-1.5 text-xs font-semibold bg-primary/10 text-primary rounded-md hover:bg-primary/20">{p.name}</button>)}</div>
+                <div className="flex gap-2">{MOCK_PRESETS.map(p => <Button key={p.name} onClick={() => applyPreset(p.name)} variant="minimal" size="sm" className="flex-1">{p.name}</Button>)}</div>
             </div>
             {/* System Design */}
             <div className="bg-gray-50 dark:bg-slate-800 rounded-lg p-4">
-              <h3 className="text-sm font-semibold mb-2 flex items-center gap-2 text-slate-900 dark:text-white"><ZapIcon /> System Design</h3>
+              <h3 className="text-sm font-semibold mb-2 flex items-center gap-2 text-slate-900 dark:text-white"><Zap className="h-4 w-4" /> System Design</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div><label className="text-xs text-slate-500 dark:text-slate-400 block mb-1">System Size (kW)</label><input type="number" value={quoteData.systemSize} onChange={e => setQuoteData(p => ({...p, systemSize: parseFloat(e.target.value)}))} className={inputClasses} /></div>
                 <div><label className="text-xs text-slate-500 dark:text-slate-400 block mb-1">Panel Model</label><select value={quoteData.panelId} onChange={e => setQuoteData(p => ({...p, panelId: e.target.value}))} className={selectClasses}>{MOCK_PANEL_MODELS.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}</select></div>
@@ -153,7 +167,7 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({ isOpen, onClose, 
             </div>
             {/* Itemized Pricing */}
             <div className="bg-gray-50 dark:bg-slate-800 rounded-lg p-4">
-                <h3 className="text-sm font-semibold mb-2 flex items-center gap-2 text-slate-900 dark:text-white"><DollarSignIcon /> Itemized Pricing</h3>
+                <h3 className="text-sm font-semibold mb-2 flex items-center gap-2 text-slate-900 dark:text-white"><DollarSign className="h-4 w-4" /> Itemized Pricing</h3>
                 <div className="space-y-2">
                     {quoteData.lineItems.map(item => (
                         <div key={item.id} className="grid grid-cols-12 gap-2 items-center">
@@ -161,11 +175,17 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({ isOpen, onClose, 
                             <input type="number" placeholder="Qty" value={item.qty} onChange={e => handleLineItemChange(item.id, 'qty', parseFloat(e.target.value))} className={`${inputClasses} col-span-2 text-center`} />
                             <input type="number" placeholder="Unit Price" value={item.unitPrice} onChange={e => handleLineItemChange(item.id, 'unitPrice', parseFloat(e.target.value))} className={`${inputClasses} col-span-2 text-right`} />
                             <div className="col-span-2 text-right text-sm font-semibold text-slate-700 dark:text-slate-300">{`$${(item.qty * item.unitPrice).toLocaleString()}`}</div>
-                            <button onClick={() => removeLineItem(item.id)} className="p-1 text-slate-400 hover:text-red-500"><TrashIcon /></button>
+                            {/* Migrated: button → shadcn Button - preserved onClick, delete logic */}
+                            <Button onClick={() => removeLineItem(item.id)} variant="minimal" size="icon" className="h-8 w-8">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
                         </div>
                     ))}
                 </div>
-                <button onClick={addLineItem} className="mt-2 text-xs font-semibold text-primary flex items-center gap-1"><PlusIcon /> Add Line Item</button>
+                {/* Migrated: button → shadcn Button - preserved onClick, add item logic */}
+                <Button onClick={addLineItem} variant="minimal" size="sm" className="mt-2">
+                  <Plus className="h-4 w-4" /> Add Line Item
+                </Button>
             </div>
           </div>
           {/* Right: Preview Panel */}
@@ -174,6 +194,7 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({ isOpen, onClose, 
               <h3 className="font-bold text-slate-900 dark:text-white">Live Preview</h3>
               <div className="flex items-center gap-2">
                 <label className="text-xs text-slate-500">Customer View</label>
+                {/* Toggle preserved as-is - custom toggle pattern, not using Button component */}
                 <button onClick={() => setViewMode(v => v === 'installer' ? 'customer' : 'installer')} className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${viewMode === 'customer' ? 'bg-primary' : 'bg-slate-400'}`}><span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${viewMode === 'customer' ? 'translate-x-5' : 'translate-x-1'}`}/></button>
               </div>
             </div>
@@ -182,7 +203,7 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({ isOpen, onClose, 
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between text-slate-700 dark:text-slate-300"><span>Subtotal</span><span>{`$${calculations.subtotal.toLocaleString()}`}</span></div>
                 <div className="flex justify-between text-slate-700 dark:text-slate-300"><span>GST (10%)</span><span>{`$${calculations.tax.toLocaleString()}`}</span></div>
-                <div className="flex justify-between font-bold text-base border-t border-gray-300 dark:border-slate-700 pt-2 mt-2 text-slate-900 dark:text-white"><span>Total Price</span><span>{`$${calculations.total.toLocaleString()}`}</span></div>
+                <div className="flex justify-between font-bold text-base border-t border-border dark:border-slate-700 pt-2 mt-2 text-slate-900 dark:text-white"><span>Total Price</span><span>{`$${calculations.total.toLocaleString()}`}</span></div>
               </div>
             </div>
             {/* Financial Summary */}

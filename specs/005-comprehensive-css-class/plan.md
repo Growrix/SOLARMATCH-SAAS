@@ -9,6 +9,8 @@
 
 Systematic migration of all CSS classes across the SolarMatch codebase to use shadcn/ui components with design token-based utility classes. This feature will install shadcn/ui, audit existing component logic to preserve functionality, migrate components from custom implementations to shadcn/ui equivalents (Button, Input, Card, Dialog, etc.), standardize typography to use semantic tokens from feature 004, and establish enterprise-grade testing/documentation practices. **Dark theme only** during migration - light/brand themes added after dark theme is 100% perfect. The migration follows a 6-phase rollout plan with risk mitigation at every step, ensuring zero functional regression while improving consistency, accessibility (WCAG 2.1 AA), and maintainability.
 
+**CRITICAL POLICY**: 100% Clean Replacement - NO hybrid old+new class patterns allowed. Each component migration MUST completely replace old classes with shadcn/ui components or semantic tokens. This is industry standard practice (Material UI, Chakra UI, Ant Design all require complete replacement). Enforced via verification tasks (T064a, T075a, T089a, T100a, T112a, T129a) and pre-commit hooks. See [100-percent-replacement-policy.md](./100-percent-replacement-policy.md) for details.
+
 ## Technical Context
 
 **Language/Version**: TypeScript 5.3.3, React 18.2.0, Next.js 14.2.33 (App Router)  

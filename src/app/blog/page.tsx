@@ -112,7 +112,7 @@ export default function BlogPage() {
               <div className="text-center mt-16">
                 <button 
                   onClick={() => setVisibleCount(c => c + ARTICLES_PER_PAGE)} 
-                  className="bg-primary text-white px-8 py-3 rounded-xl text-lg font-semibold hover:bg-teal-700 transition-all transform hover:scale-105 shadow-lg"
+                  className="bg-primary text-white px-8 py-3 rounded-xl text-lg font-semibold hover:bg-primary/90 transition-all transform hover:scale-105 shadow-lg"
                 >
                   Load More Articles
                 </button>

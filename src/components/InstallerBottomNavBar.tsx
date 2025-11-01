@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 
@@ -73,7 +73,7 @@ const NavItem: React.FC<{
     {icon}
     <span className="text-xs font-medium">{label}</span>
     {badgeCount && badgeCount > 0 && (
-      <span className="absolute top-1 right-[calc(50%-22px)] bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center ring-2 ring-white dark:ring-black">
+      <span className="absolute top-1 right-[calc(50%-22px)] bg-destructive text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center ring-2 ring-white dark:ring-black">
         {badgeCount}
       </span>
     )}
@@ -117,7 +117,7 @@ const InstallerBottomNavBar: React.FC<InstallerBottomNavBarProps> = ({
         <div className="w-16 h-16 flex items-center justify-center">
           <button 
             onClick={onNewBidClick} 
-            className="w-14 h-14 bg-primary rounded-full flex items-center justify-center text-white shadow-lg transform -translate-y-4 hover:bg-teal-700 active:scale-95 transition-all" 
+            className="w-14 h-14 bg-primary rounded-full flex items-center justify-center text-white shadow-lg transform -translate-y-4 hover:bg-primary/90 active:scale-95 transition-all" 
             aria-label="Create New Bid"
           >
             <PlusIcon />

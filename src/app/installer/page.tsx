@@ -173,7 +173,7 @@ export default function InstallerHomePage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button 
                   onClick={handleDashboardClick}
-                  className="bg-primary text-white px-8 py-3 rounded-xl text-lg font-semibold hover:bg-teal-700 transition-all transform hover:scale-105 shadow-lg"
+                  className="bg-primary text-white px-8 py-3 rounded-xl text-lg font-semibold hover:bg-primary/90 transition-all transform hover:scale-105 shadow-lg"
                 >
                   Try It Free
                 </button>

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import React, { useState, useEffect, useCallback } from 'react';
 import QuoteBuilderModal from './QuoteBuilderModal';
@@ -176,7 +176,7 @@ const StripeUnlockModal: React.FC<{
                 <button
                   onClick={handlePayment}
                   disabled={isProcessing}
-                  className="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-teal-700 transition-colors disabled:opacity-50"
+                  className="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
                 >
                   {isProcessing ? 'Processing...' : `Pay $${lead.unlockPrice} to Unlock`}
                 </button>
@@ -203,7 +203,7 @@ const StripeUnlockModal: React.FC<{
           {paymentStatus === 'success' && (
             <div className="text-center">
               <CheckCircleIcon className="h-12 w-12 text-green-500 mx-auto mb-4" />
-              <p className="text-green-600 dark:text-green-400 font-semibold">Payment successful!</p>
+              <p className="text-success dark:text-green-400 font-semibold">Payment successful!</p>
               <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
                 Contact details are now unlocked
               </p>
@@ -212,7 +212,7 @@ const StripeUnlockModal: React.FC<{
 
           {paymentStatus === 'error' && (
             <div className="text-center">
-              <AlertCircleIcon className="h-12 w-12 text-red-500 mx-auto mb-4" />
+              <AlertCircleIcon className="h-12 w-12 text-destructive mx-auto mb-4" />
               <p className="text-red-600 dark:text-red-400 font-semibold">Payment failed</p>
               <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
                 Please try again or contact support
@@ -279,7 +279,7 @@ const LeadCard: React.FC<{
 
   return (
     <>
-      <div className={`theme-card border-l-4 ${getPriorityColor()} p-6 transition-all duration-200 animate-fade-in`}>
+      <div className={`theme-card border-l-4 ${getPriorityColor()} p-6 transition-colors duration-200 animate-fade-in`}>
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center space-x-3">
@@ -374,7 +374,7 @@ const LeadCard: React.FC<{
       {isUnlockedByInstaller && (
         <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-4">
           <div className="flex items-center space-x-2 mb-2">
-            <UnlockIcon className="h-4 w-4 text-green-600 dark:text-green-400" />
+            <UnlockIcon className="h-4 w-4 text-success dark:text-green-400" />
             <span className="text-sm font-semibold text-green-700 dark:text-green-400">
               Contact Details Unlocked
             </span>
@@ -401,7 +401,7 @@ const LeadCard: React.FC<{
         {canUnlock && (
           <button
             onClick={() => onUnlock(lead.id)}
-            className="flex items-center space-x-2 bg-primary text-white px-4 py-2 rounded-lg font-semibold hover:bg-teal-700 transition-colors"
+            className="flex items-center space-x-2 bg-primary text-white px-4 py-2 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
           >
             <LockIcon className="h-4 w-4" />
             <span>Unlock Lead (${lead.unlockPrice})</span>
@@ -668,7 +668,7 @@ const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({
               <p className="text-2xl font-bold text-slate-900 dark:text-white">{filteredLeads.length}</p>
             </div>
             <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-              <FileTextIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <FileTextIcon className="h-5 w-5 text-info dark:text-blue-400" />
             </div>
           </div>
         </div>
@@ -680,7 +680,7 @@ const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({
               <p className="text-2xl font-bold text-slate-900 dark:text-white">3</p>
             </div>
             <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
-              <UnlockIcon className="h-5 w-5 text-green-600 dark:text-green-400" />
+              <UnlockIcon className="h-5 w-5 text-success dark:text-green-400" />
             </div>
           </div>
         </div>

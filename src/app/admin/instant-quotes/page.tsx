@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // GUEST INSTANT QUOTES ADMIN PAGE
 // ============================================================================
 // This page displays all guest instant quote submissions with real-time metrics,
@@ -768,7 +768,7 @@ function QuoteDetailsModal({ quote, onClose }: QuoteDetailsModalProps) {
                 <div className="p-4 rounded-xl border-2 border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20">
                   <div className="text-center">
                     <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">Offset Target</div>
-                    <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                    <div className="text-2xl font-bold text-success dark:text-green-400">
                       {quote.desiredOffset}%
                     </div>
                   </div>
@@ -809,7 +809,7 @@ function QuoteDetailsModal({ quote, onClose }: QuoteDetailsModalProps) {
                     <label className="block text-slate-600 dark:text-slate-300 text-sm font-semibold mb-2">
                       Three Phase Supply
                     </label>
-                    <div className={`border-2 rounded-xl px-4 py-3 font-medium text-center ${quote.isThreePhase ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700 text-green-600 dark:text-green-400' : 'bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white'}`}>
+                    <div className={`border-2 rounded-xl px-4 py-3 font-medium text-center ${quote.isThreePhase ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700 text-success dark:text-green-400' : 'bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white'}`}>
                       {quote.isThreePhase ? '✅ Yes' : '❌ No'}
                     </div>
                   </div>
@@ -916,12 +916,12 @@ function QuoteDetailsModal({ quote, onClose }: QuoteDetailsModalProps) {
                     )}
                     {quote.includeOptimizers && (
                       <div className="flex items-center p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                        <span className="text-green-600 dark:text-green-400 font-medium">✅ Panel Optimizers Included</span>
+                        <span className="text-success dark:text-green-400 font-medium">✅ Panel Optimizers Included</span>
                       </div>
                     )}
                     {quote.includeMicroinverters && (
                       <div className="flex items-center p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                        <span className="text-green-600 dark:text-green-400 font-medium">✅ Microinverters Included</span>
+                        <span className="text-success dark:text-green-400 font-medium">✅ Microinverters Included</span>
                       </div>
                     )}
                   </div>
@@ -1030,7 +1030,7 @@ function QuoteDetailsModal({ quote, onClose }: QuoteDetailsModalProps) {
                       <label className="block text-slate-600 dark:text-slate-300 text-sm font-semibold mb-2">
                         VPP Participation
                       </label>
-                      <div className={`border-2 rounded-xl px-4 py-3 font-bold text-center ${quote.includeVPP ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700 text-green-600 dark:text-green-400' : 'bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white'}`}>
+                      <div className={`border-2 rounded-xl px-4 py-3 font-bold text-center ${quote.includeVPP ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700 text-success dark:text-green-400' : 'bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white'}`}>
                         {quote.includeVPP ? '✅ Yes' : '❌ No'}
                       </div>
                     </div>
@@ -1153,7 +1153,7 @@ function QuoteDetailsModal({ quote, onClose }: QuoteDetailsModalProps) {
                   <div className="text-sm text-slate-600 dark:text-slate-400">System Size</div>
                 </div>
                 <div className="text-center p-4 bg-white/50 dark:bg-slate-800/50 rounded-xl">
-                  <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">
+                  <div className="text-2xl font-bold text-success dark:text-green-400 mb-1">
                     {formatCurrency(quote.results.annualSavings)}
                   </div>
                   <div className="text-sm text-slate-600 dark:text-slate-400">Annual Savings</div>
@@ -1243,13 +1243,13 @@ function QuoteDetailsModal({ quote, onClose }: QuoteDetailsModalProps) {
                   </div>
                   <div>
                     <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">CO₂ Reduction</div>
-                    <div className="text-lg font-semibold text-green-600 dark:text-green-400">
+                    <div className="text-lg font-semibold text-success dark:text-green-400">
                       {((quote.results.annualProduction * 0.82) / 1000).toFixed(1)} tonnes/year
                     </div>
                   </div>
                   <div>
                     <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">25-Year Savings</div>
-                    <div className="text-lg font-semibold text-green-600 dark:text-green-400">
+                    <div className="text-lg font-semibold text-success dark:text-green-400">
                       {formatCurrency(quote.results.annualSavings * 25)}
                     </div>
                   </div>
@@ -1288,14 +1288,14 @@ function QuoteDetailsModal({ quote, onClose }: QuoteDetailsModalProps) {
                   </div>
                   <div className="flex justify-between items-center pb-3 border-b border-slate-200 dark:border-slate-700">
                     <span className="text-slate-700 dark:text-slate-300">Federal Rebate (STC)</span>
-                    <span className="font-semibold text-green-600 dark:text-green-400">
+                    <span className="font-semibold text-success dark:text-green-400">
                       -{formatCurrency(quote.results.federalRebate)}
                     </span>
                   </div>
                   {quote.results.stateRebate > 0 && (
                     <div className="flex justify-between items-center pb-3 border-b border-slate-200 dark:border-slate-700">
                       <span className="text-slate-700 dark:text-slate-300">State Rebate</span>
-                      <span className="font-semibold text-green-600 dark:text-green-400">
+                      <span className="font-semibold text-success dark:text-green-400">
                         -{formatCurrency(quote.results.stateRebate)}
                       </span>
                     </div>
@@ -1303,7 +1303,7 @@ function QuoteDetailsModal({ quote, onClose }: QuoteDetailsModalProps) {
                   {quote.results.batteryRebate > 0 && (
                     <div className="flex justify-between items-center pb-3 border-b border-slate-200 dark:border-slate-700">
                       <span className="text-slate-700 dark:text-slate-300">Battery Rebate</span>
-                      <span className="font-semibold text-green-600 dark:text-green-400">
+                      <span className="font-semibold text-success dark:text-green-400">
                         -{formatCurrency(quote.results.batteryRebate)}
                       </span>
                     </div>

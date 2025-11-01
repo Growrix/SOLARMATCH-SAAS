@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * LiveCountdownBar Component - Phase 4.5
@@ -152,7 +152,7 @@ export function LiveCountdownBar({
         <div className={`relative h-10 ${colors.trackBg}`}>
           {/* Progress bar foreground */}
           <div
-            className={`absolute inset-0 ${colors.bg} transition-all duration-1000 ease-linear`}
+            className={`absolute inset-0 ${colors.bg} transition-colors duration-1000 ease-linear`}
             style={{ width: `${countdown.progressPercent}%` }}
             aria-hidden="true"
           />
@@ -191,7 +191,7 @@ export function LiveCountdownBar({
       {/* Mini progress bar */}
       <div className={`w-16 h-1.5 rounded-full overflow-hidden ${colors.trackBg}`}>
         <div
-          className={`h-full ${colors.bg} transition-all duration-1000 ease-linear`}
+          className={`h-full ${colors.bg} transition-colors duration-1000 ease-linear`}
           style={{ width: `${countdown.progressPercent}%` }}
           aria-hidden="true"
         />

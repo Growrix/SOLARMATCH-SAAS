@@ -13,7 +13,8 @@ import type { StoryFn } from '@storybook/react';
 export type Theme = 'light' | 'dark' | 'system';
 
 export const ThemeDecorator = (Story: StoryFn) => {
-  const [theme, setTheme] = useState<Theme>('light');
+  // T009: Default to dark theme during migration (Constitution VI: dark-first)
+  const [theme, setTheme] = useState<Theme>('dark');
   const [systemPrefersDark, setSystemPrefersDark] = useState(false);
 
   // Detect system color scheme preference

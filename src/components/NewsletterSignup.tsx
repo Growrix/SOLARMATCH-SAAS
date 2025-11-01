@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 
 // --- Icon Components ---
 const MailIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-slate-400"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>;
 const ArrowRightIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>;
 const CheckCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 text-emerald-500"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>;
-const AlertCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-red-500"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg>;
+const AlertCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-destructive"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg>;
 const PaperPlaneIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 text-white"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4 20-7z"/></svg>;
 
 
@@ -113,7 +113,7 @@ const NewsletterSignup = () => {
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="theme-card p-8 sm:p-12 lg:p-16 text-center relative overflow-hidden">
                     {/* Decorative elements */}
-                    <div className="absolute -top-16 -right-16 w-40 h-40 bg-primary/5 dark:bg-primary/20 rounded-full blur-3xl animate-fade-in transition-all duration-500"></div>
+                    <div className="absolute -top-16 -right-16 w-40 h-40 bg-primary/5 dark:bg-primary/20 rounded-full blur-3xl animate-fade-in transition-colors duration-500"></div>
                     <div className="absolute -bottom-20 -left-20 w-56 h-56 bg-secondary/5 dark:bg-secondary/10 rounded-full blur-3xl animate-fade-in" style={{ animationDelay: '300ms' }}></div>
 
                     <div className="relative z-10">
@@ -144,14 +144,14 @@ const NewsletterSignup = () => {
                                                     onChange={handleEmailChange}
                                                     placeholder="Enter your email address"
                                                     aria-label="Email address for newsletter"
-                                                    className={`w-full pl-12 pr-4 py-3 bg-gray-100/80 dark:bg-slate-800/50 border ${inputError ? 'border-red-500' : 'border-gray-200 dark:border-slate-700/80'} rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 shadow-sm`}
+                                                    className={`w-full pl-12 pr-4 py-3 bg-gray-100/80 dark:bg-slate-800/50 border ${inputError ? 'border-destructive' : 'border-gray-200 dark:border-slate-700/80'} rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-300 shadow-sm`}
                                                     disabled={status === 'loading'}
                                                     autoComplete="email"
                                                 />
                                             </div>
                                             <button
                                                 type="submit"
-                                                className="w-full sm:w-auto bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-teal-700 transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center space-x-2 shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
+                                                className="w-full sm:w-auto bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center space-x-2 shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
                                                 disabled={status === 'loading'}
                                             >
                                                 {status === 'loading' ? (

@@ -4,7 +4,7 @@ commit all the changes to your local repository:
     git add .
     git commit -m "Your commit message"
 Push the changes to the remote repository:
-    git push origin your-branch-name: "On-going-State"
+    git push origin your-branch-name: nuemorship
 
     ***instruction***
     each time you make commits, you must update the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\gitstatus.md file with the latest commit information to keep track of changes effectively. with the commit id ,timestamp, and a brief description of the changes made in that commit.make sure the push has the excatly current versions, so that it can be restored if needed. 
@@ -19,6 +19,5 @@ Take a local backup of this current state of this site, make sure it restores to
 
 
 
-Page Background/ Primary #1b1c1d
-Cards/ Secondary #282a2c 
-Accent color : gradient #0d9488 (Teal)
+***chat/task continuation prompt***
+This chat becomes very slow after many messages. To start a new chat and keep continuity, please crafft a prompt with the tasks are done are what to do next. so that we dont lose context. 

@@ -40,3 +40,6 @@ storybook-static
 # Storybook and Chromatic
 .chromatic/
 chromatic-build/
+
+# Component migration backups
+backup/
