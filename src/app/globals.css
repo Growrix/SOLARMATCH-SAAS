@@ -5,26 +5,26 @@
 /* ============================================
    CENTRALIZED DESIGN TOKEN SYSTEM
    - Uses semantic tokens from src/design-tokens/
-   - Supports Light, Dark, and System (Eco Green) themes
+   - Dark theme only (neumorphic design system)
    - Tokens: colors, typography, spacing, shadows, animations, borders
    - Use Tailwind utility classes (bg-primary, text-heading-1, p-card-padding, etc.)
    ============================================ */
 
-/* --- BASE THEME VARIABLES (Design Token Defaults) --- */
+/* --- DARK THEME VARIABLES (Default) --- */
 :root {
-  /* Background colors from semantic colors.background */
-  --bg-primary: #ffffff;
-  --bg-secondary: #ffffff;
+  /* Base background - Main surface color for neumorphism */
+  --bg-primary: #101010;        /* Primary Background */
+  --bg-secondary: #1A1A1A;      /* Secondary Background */
   
-  /* Text colors from semantic colors.foreground/muted */
-  --text-primary: #1A1A1A;
-  --text-secondary: #64748b;
+  /* Text colors */
+  --text-primary: #F5F5F5;      /* Primary Text */
+  --text-secondary: #FFFFFF;    /* White Text */
   
-  /* Border colors from semantic colors.border */
-  --border-color: #e2e8f0;
+  /* Border colors - Subtle for neumorphism */
+  --border-color: #2C2C2C;      /* Border */
   
-  /* Accent colors from semantic colors.primary */
-  --accent-color: #0d9488;
+  /* Accent colors */
+  --accent-color: #FFFFFF;      /* White Accent Color */
   
   /* Animation durations from semantic animations.duration */
   --duration-instant: 0ms;
@@ -40,50 +40,6 @@
   --easing-easeInOut: cubic-bezier(0.4, 0, 0.2, 1);
   --easing-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
   
-  /* NEW: RGB CSS Variables for Tailwind (Light Theme) */
-  --color-primary: 255 107 0; /* #FF6B00 Orange */
-  --color-primary-hover: 255 133 51; /* #FF8533 */
-  --color-secondary: 13 148 136; /* #0d9488 Teal */
-  --color-background: 249 250 251; /* #f9fafb */
-  --color-background-alt: 255 255 255; /* #ffffff */
-  --color-surface: 255 255 255; /* #ffffff */
-  --color-surface-hover: 249 250 251; /* #f9fafb */
-  --color-foreground: 17 24 39; /* #111827 */
-  --color-muted: 17 24 39; /* #111827 */
-  --color-subtle: 107 114 128; /* #6b7280 */
-  --color-border: 229 231 235; /* #e5e7eb */
-  --color-accent: 255 107 0; /* #FF6B00 */
-  --color-accent-hover: 255 133 51; /* #FF8533 */
-  --color-success: 22 163 74;
-  --color-warning: 234 179 8;
-  --color-error: 220 38 38;
-  --color-info: 37 99 235;
-}
-
-/* --- LIGHT THEME (Default) --- */
-body {
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  transition: background-color var(--duration-normal) var(--easing-easeOut),
-              color var(--duration-normal) var(--easing-easeOut);
-}
-
-/* --- DARK THEME (NEUMORPHISM DESIGN SYSTEM) --- */
-.dark {
-  /* Base background - Main surface color for neumorphism - RESTORED ORIGINAL DARK */
-  --bg-primary: #101010;        /* Primary Background (ORIGINAL) */
-  --bg-secondary: #1A1A1A;      /* Secondary Background (ORIGINAL) */
-  
-  /* Text colors */
-  --text-primary: #F5F5F5;      /* Primary Text (ORIGINAL) */
-    --text-secondary: #FFFFFF;    /* White Text */
-  
-  /* Border colors - Subtle for neumorphism */
-  --border-color: #2C2C2C;      /* Border (ORIGINAL) */
-  
-  /* Accent colors - Muted for dark theme */
-    --accent-color: #FFFFFF;      /* White Accent Color */
-  
   /* Neumorphism shadows - Adjusted for darker background (#101010) */
   --neu-shadow-light: rgba(40, 40, 40, 0.5);
   --neu-shadow-dark: rgba(0, 0, 0, 0.9);
@@ -97,32 +53,37 @@ body {
   --shadow-neu-inset-sm: inset 4px 4px 8px var(--neu-shadow-dark), inset -4px -4px 8px var(--neu-shadow-light);
   --shadow-neu-outset-lg: 8px 8px 16px var(--neu-shadow-dark), -8px -8px 16px var(--neu-shadow-light);
   
-  /* RGB CSS Variables for Tailwind (Dark Theme - ORIGINAL COLORS) */
-    --color-primary: 255 255 255; /* #FFFFFF White */
-    --color-primary-hover: 255 255 255; /* #FFFFFF White */
+  /* RGB CSS Variables for Tailwind */
+  --color-primary: 255 255 255; /* #FFFFFF White */
+  --color-primary-hover: 255 255 255; /* #FFFFFF White */
   --color-primary-foreground: 245 245 245; /* #F5F5F5 Light text */
   --color-secondary: 26 26 26; /* #1A1A1A Dark Grey for secondary */
   --color-secondary-foreground: 245 245 245; /* #F5F5F5 Light text on gray */
-  --color-background: 16 16 16; /* #101010 (ORIGINAL) */
+  --color-background: 16 16 16; /* #101010 */
   --color-background-alt: 26 26 26; /* #1A1A1A */
   --color-surface: 26 26 26; /* #1A1A1A */
   --color-surface-hover: 37 37 37; /* #252525 */
   --color-foreground: 245 245 245; /* #F5F5F5 */
   --color-muted: 64 64 64; /* #404040 */
-    --color-subtle: 255 255 255; /* #FFFFFF White */
+  --color-subtle: 255 255 255; /* #FFFFFF White */
   --color-border: 44 44 44; /* #2C2C2C */
-    --color-accent: 255 255 255; /* #FFFFFF White */
-    --color-accent-hover: 255 255 255; /* #FFFFFF White */
+  --color-accent: 255 255 255; /* #FFFFFF White */
+  --color-accent-hover: 255 255 255; /* #FFFFFF White */
   --color-success: 22 163 74;
   --color-warning: 234 179 8;
   --color-error: 220 38 38;
   --color-info: 37 99 235;
 }
 
-.dark body {
+body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
+  transition: background-color var(--duration-normal) var(--easing-easeOut),
+              color var(--duration-normal) var(--easing-easeOut);
 }
+
+/* .dark class removed - all dark theme variables now in :root */
+/* Future themes can be added by creating new CSS variable overrides */
 
 /* ============================================
    NEUMORPHISM COMPONENT SYSTEM (Dark Theme Only)
@@ -410,30 +371,6 @@ body {
   margin: 1.5rem 0;
 }
 
-/* --- SYSTEM THEME (Eco-friendly Solar Green) --- */
-.dark.theme-system {
-  --bg-primary: #001405;
-  --bg-secondary: #0a2f1a;
-  --text-primary: #FFFFFF;
-  --text-secondary: #86efac;
-  --border-color: #0d9488;
-  --accent-color: #0d9488;
-}
-
-.dark.theme-system body {
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-}
-
-.dark.theme-system footer,
-.dark.theme-system .hero-section {
-  background-color: var(--bg-primary);
-}
-
-.dark.theme-system .hero-section .gradient-overlay {
-  background: linear-gradient(to bottom, rgba(0, 20, 5, 0.9), rgba(0, 20, 5, 0.7));
-}
-
 /* --- GLASSMORPHISM HEADER & TOP BAR STYLES --- */
 .glass-header, .glass-top-bar {
   -webkit-backdrop-filter: blur(12px);
@@ -442,63 +379,19 @@ body {
   transition: all 0.3s ease;
 }
 
-/* LIGHT THEME - Glass Header */
 .glass-header {
-  background: linear-gradient(to bottom, rgba(242, 240, 239, 0.8), rgba(242, 240, 239, 0.5));
-  border-bottom-color: rgba(229, 231, 235, 0.7);
-}
-
-.glass-top-bar {
-  background: linear-gradient(to bottom, rgba(242, 240, 239, 0.95), rgba(242, 240, 239, 0.7));
-  border-bottom-color: rgba(209, 213, 219, 0.8);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7), 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-/* DARK THEME - Glass Header (YOUR NEW PALETTE) */
-.dark .glass-header {
   background: linear-gradient(to bottom, rgba(16, 16, 16, 0.9), rgba(26, 26, 26, 0.8));
   border-bottom-color: rgba(44, 44, 44, 0.6);
 }
 
-.dark .glass-top-bar {
+.glass-top-bar {
   background: linear-gradient(to bottom, rgba(26, 26, 26, 0.95), rgba(26, 26, 26, 0.8));
   border-bottom-color: rgba(44, 44, 44, 0.7);
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05), 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
-/* SYSTEM THEME - Glass Header (Eco Green) */
-.dark.theme-system .glass-header {
-  background: linear-gradient(to bottom, rgba(0, 20, 5, 0.9), rgba(10, 47, 26, 0.5));
-  border-bottom-color: rgba(13, 148, 136, 0.4);
-}
-
-.dark.theme-system .glass-top-bar {
-  background: linear-gradient(to bottom, rgba(0, 20, 5, 0.95), rgba(10, 47, 26, 0.7));
-  border-bottom-color: rgba(13, 148, 136, 0.6);
-  box-shadow: inset 0 1px 1px rgba(13, 148, 136, 0.2), 0 2px 8px rgba(13, 148, 136, 0.15);
-}
-
-/* --- UNIFIED CARD STYLES (Theme-aware) --- */
+/* --- UNIFIED CARD STYLES --- */
 .theme-card {
-  transition: all 0.3s ease;
-  border-radius: 1rem;
-}
-
-/* LIGHT THEME - Solid Cards */
-.theme-card {
-  background-color: #ffffff;
-  border: 1px solid var(--border-color);
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-}
-
-.theme-card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(200, 200, 200, 0.5); /* Light gray border on hover */
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(200, 200, 200, 0.2); /* Neutral shadow */
-}
-
-/* DARK THEME - Neumorphism Cards */
-.dark .theme-card {
   background: var(--bg-primary);
   border: none;
   border-radius: 20px;
@@ -508,53 +401,18 @@ body {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.dark .theme-card:hover {
+.theme-card:hover {
   transform: translateY(-4px);
   box-shadow: 
     12px 12px 24px var(--neu-shadow-dark),
     -12px -12px 24px var(--neu-shadow-light);
 }
 
-/* SYSTEM THEME - Eco Green Glassmorphism Cards */
-.dark.theme-system .theme-card {
-  background-color: rgba(10, 47, 26, 0.5);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(13, 148, 136, 0.4);
-  box-shadow: 
-    0 0 0 1px rgba(13, 148, 136, 0.3),
-    0 8px 32px 0 rgba(13, 148, 136, 0.15);
-}
-
-.dark.theme-system .theme-card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(13, 148, 136, 0.6);
-  box-shadow: 
-    0 0 0 1px rgba(13, 148, 136, 0.5),
-    0 8px 40px 0 rgba(13, 148, 136, 0.3);
-}
-
-/* --- ANIMATED BACKGROUNDS (Theme-aware) --- */
-
-/* LIGHT THEME - Soft gradient animation */
+/* --- ANIMATED BACKGROUNDS --- */
 .animated-section-background {
-  background: linear-gradient(-45deg, #F2F0EF, #ffffff, #f8fafc, #F2F0EF);
-  background-size: 400% 400%;
-  animation: gradient-shift 15s ease infinite;
-}
-
-/* DARK THEME - Dark gradient animation (YOUR NEW PALETTE) */
-.dark .animated-section-background {
   background: linear-gradient(-45deg, #000000, #101010, #1A1A1A, #000000);
   background-size: 400% 400%;
   animation: gradient-shift 15s ease infinite;
-}
-
-/* SYSTEM THEME - Eco green gradient animation */
-.dark.theme-system .animated-section-background {
-  background: linear-gradient(-45deg, #001405, #0a2f1a, #0d4d15, #166534, #001405);
-  background-size: 400% 400%;
-  animation: gradient-shift 20s ease infinite;
 }
 
 @keyframes gradient-shift {
@@ -626,76 +484,26 @@ body {
   }
 }
 
-/* --- DASHBOARD SPECIFIC STYLES (Theme-aware) --- */
-
-/* LIGHT THEME - Dashboard sidebar */
+/* --- DASHBOARD SPECIFIC STYLES --- */
 .dashboard-sidebar {
   min-height: 100vh;
-  background-color: rgba(248, 250, 252, 0.9);
+  background-color: rgba(26, 26, 26, 0.98);
   backdrop-filter: blur(12px);
-  border-right: 1px solid var(--border-color);
+  border-right: 1px solid rgba(44, 44, 44, 0.8);
   transition: background-color 0.3s ease;
 }
 
-/* DARK THEME - Dashboard sidebar (YOUR NEW PALETTE) */
-.dark .dashboard-sidebar {
-  background-color: rgba(26, 26, 26, 0.98);
-  border-right: 1px solid rgba(44, 44, 44, 0.8);
-}
-
-/* SYSTEM THEME - Dashboard sidebar */
-.dark.theme-system .dashboard-sidebar {
-  background-color: rgba(0, 20, 5, 0.9);
-  border-right: 1px solid rgba(13, 148, 136, 0.3);
-}
-
-/* --- COMPONENT-SPECIFIC STYLES --- */
-.dark.theme-system .blog-section,
-.dark.theme-system .government-news-section,
-.dark.theme-system .newsletter-section {
-  background-color: transparent;
-}
-
-/* --- CALCULATOR SWITCHER STYLES (Theme-aware) --- */
-
-/* LIGHT THEME - Switcher background */
+/* --- CALCULATOR SWITCHER STYLES --- */
 .theme-switcher-bg {
-  background-color: #f3f4f6;
-}
-
-.theme-switcher-border {
-  border-color: #e5e7eb;
-}
-
-.theme-switcher-active {
-  background-color: #ffffff;
-}
-
-/* DARK THEME - Switcher background (YOUR NEW PALETTE) */
-.dark .theme-switcher-bg {
   background-color: #1A1A1A;
 }
 
-.dark .theme-switcher-border {
+.theme-switcher-border {
   border-color: #2C2C2C;
 }
 
-.dark .theme-switcher-active {
+.theme-switcher-active {
   background-color: #252525;
-}
-
-/* SYSTEM THEME - Switcher background (Eco Green) */
-.dark.theme-system .theme-switcher-bg {
-  background-color: rgba(10, 47, 26, 0.6);
-}
-
-.dark.theme-system .theme-switcher-border {
-  border-color: rgba(13, 148, 136, 0.4);
-}
-
-.dark.theme-system .theme-switcher-active {
-  background-color: rgba(10, 47, 26, 0.9);
-  border: 1px solid rgba(13, 148, 136, 0.5);
 }
 
 /* --- HERO SECTION ANIMATIONS --- */
@@ -897,46 +705,6 @@ body {
   }
 }
 
-/* --- GLASSMORPHISM HEADER STYLES --- */
-.glass-header, .glass-top-bar {
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-  border-bottom-width: 1px;
-}
-
-/* Light Mode */
-.glass-header {
-  background: linear-gradient(to bottom, rgba(242, 240, 239, 0.7), rgba(242, 240, 239, 0.4));
-  border-bottom-color: rgba(229, 231, 235, 0.7); /* gray-200/70 */
-}
-.glass-top-bar {
-  background: linear-gradient(to bottom, rgba(242, 240, 239, 0.9), rgba(242, 240, 239, 0.6));
-  border-bottom-color: rgba(209, 213, 219, 0.8); /* gray-300/80 for a subtle shadow */
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7); /* Inner top highlight for 3D effect */
-}
-
-/* Dark Mode (YOUR NEW PALETTE) */
-.dark .glass-header {
-  background: linear-gradient(to bottom, rgba(26, 26, 26, 0.9), rgba(16, 16, 16, 0.7));
-  border-bottom-color: rgba(44, 44, 44, 0.6);
-}
-.dark .glass-top-bar {
-  background: linear-gradient(to bottom, rgba(26, 26, 26, 0.95), rgba(26, 26, 26, 0.8));
-  border-bottom-color: rgba(44, 44, 44, 0.7);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
-}
-
-/* System Theme Dark Mode */
-.dark.theme-system .glass-header {
-  background: linear-gradient(to bottom, rgba(0, 20, 5, 0.7), rgba(0, 20, 5, 0.3));
-  border-bottom-color: rgba(13, 148, 136, 0.3);
-}
-.dark.theme-system .glass-top-bar {
-  background: linear-gradient(to bottom, rgba(13, 148, 136, 0.25), rgba(0, 20, 5, 0.6));
-  border-bottom-color: rgba(13, 148, 136, 0.5); /* A bit stronger */
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15); /* Slightly more prominent highlight */
-}
-
 /* --- UTILITY CLASSES --- */
 @layer utilities {
   .text-balance {
@@ -1044,29 +812,15 @@ body {
 /* ============================================
    SELECT DROPDOWN CUSTOM STYLES
    - Removes blue hover from option elements
-   - Applies theme-aware colors
    ============================================ */
 @layer base {
-  /* Light theme select options */
   select option {
-    background-color: white;
-    color: #111827;
-  }
-  
-  select option:hover,
-  select option:checked {
-    background-color: #f3f4f6 !important;
-    color: #111827 !important;
-  }
-  
-  /* Dark theme select options */
-  .dark select option {
     background-color: #1A1A1A;
     color: #F5F5F5;
   }
   
-  .dark select option:hover,
-  .dark select option:checked {
+  select option:hover,
+  select option:checked {
     background-color: #252525 !important;
     color: #F5F5F5 !important;
   }

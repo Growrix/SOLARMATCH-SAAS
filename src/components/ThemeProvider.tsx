@@ -2,77 +2,40 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 
-export type Theme = 'light' | 'dark' | 'system';
+// Theme type: Only 'dark' for now, but structure preserved for future theme expansion
+export type Theme = 'dark';
 
 interface ThemeContextType {
   theme: Theme;
   setTheme: (theme: Theme) => void;
-  effectiveTheme: 'light' | 'dark'; // The actual theme being applied
+  effectiveTheme: 'dark'; // Always dark now, but kept for future multi-theme support
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  // T007: Lock to dark theme during CSS class migration (Constitution VI: dark-first)
-  // TODO: Re-enable theme toggle after migration complete
+  // Single theme mode: Always dark
   const [theme, setTheme] = useState<Theme>('dark');
-  const [effectiveTheme, setEffectiveTheme] = useState<'light' | 'dark'>('dark');
+  const [effectiveTheme, setEffectiveTheme] = useState<'dark'>('dark');
 
   useEffect(() => {
-    // MIGRATION MODE: Force dark theme, ignore localStorage
-    // Load theme from localStorage on mount
-    // const savedTheme = localStorage.getItem('theme') as Theme;
-    // if (savedTheme) {
-    //   setTheme(savedTheme);
-    // } else {
-    //   // Default to system preference
-    //   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    //   setTheme(prefersDark ? 'dark' : 'light');
-    // }
-    setTheme('dark'); // MIGRATION: Locked to dark
+    // Load theme from localStorage (for future theme expansion)
+    const savedTheme = localStorage.getItem('theme') as Theme;
+    if (savedTheme === 'dark') {
+      setTheme(savedTheme);
+    } else {
+      setTheme('dark'); // Default to dark
+    }
   }, []);
 
   useEffect(() => {
     // Save theme to localStorage
     localStorage.setItem('theme', theme);
 
-    // Remove all theme classes first
-    document.documentElement.classList.remove('dark', 'theme-system');
-
-    // Determine effective theme
-    let effective: 'light' | 'dark' = 'light';
-
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-      effective = 'dark';
-    } else if (theme === 'system') {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (prefersDark) {
-        document.documentElement.classList.add('dark', 'theme-system');
-        effective = 'dark';
-      }
-    }
-
-    setEffectiveTheme(effective);
-  }, [theme]);
-
-  // Listen for system theme changes when in system mode
-  useEffect(() => {
-    if (theme !== 'system') return;
-
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e: MediaQueryListEvent) => {
-      document.documentElement.classList.remove('dark', 'theme-system');
-      if (e.matches) {
-        document.documentElement.classList.add('dark', 'theme-system');
-        setEffectiveTheme('dark');
-      } else {
-        setEffectiveTheme('light');
-      }
-    };
-
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
+    // Always apply dark class
+    document.documentElement.classList.add('dark');
+    
+    setEffectiveTheme('dark');
   }, [theme]);
 
   return (
