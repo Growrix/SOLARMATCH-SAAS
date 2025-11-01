@@ -754,6 +754,98 @@ body {
 }
 
 /* ============================================
+   AUTHENTICATION COMPONENT STYLES
+   - Neumorphic design system for auth forms
+   - No hardcoded colors or typography
+   - Uses design tokens exclusively
+   ============================================ */
+
+/* ============================================
+   FORM DESIGN STANDARD - SOURCE OF TRUTH (SOT)
+   - Reusable for all form components
+   - Neumorphic design system
+   ============================================ */
+
+/* Form Input Fields */
+.neu-input {
+  @apply w-full bg-surface border border-border rounded-xl py-3 px-4;
+  @apply text-foreground placeholder:text-muted-foreground;
+  @apply transition-all duration-200;
+  @apply focus:border-primary focus:shadow-neu-inset focus:outline-none;
+  @apply shadow-neu-inset;
+}
+
+.neu-input::placeholder {
+  @apply text-muted-foreground opacity-60;
+  @apply transition-opacity duration-200;
+}
+
+.neu-input:focus::placeholder {
+  @apply opacity-40;
+}
+
+.neu-input-error {
+  @apply neu-input border-destructive;
+}
+
+/* Form Input Icon Positioning (Left side) */
+.auth-input-icon {
+  @apply absolute left-4 top-1/2 -translate-y-1/2;
+  @apply text-muted-foreground pointer-events-none;
+  @apply transition-colors duration-200;
+}
+
+/* When input is focused, slightly highlight the icon */
+.neu-input:focus ~ .auth-input-icon,
+.neu-input:focus + .auth-input-icon {
+  @apply text-subtle;
+}
+
+/* Form Header Icon Container - NEUMORPHIC */
+.auth-icon-container {
+  @apply w-20 h-20 bg-surface rounded-[1.25rem];
+  @apply flex items-center justify-center;
+  @apply shadow-neu-outset;
+  @apply transition-all duration-300;
+}
+
+.auth-icon-container:hover {
+  @apply shadow-neu-outset-lg;
+}
+
+/* Alternative: Pressed/Active state icon container */
+.auth-icon-container-pressed {
+  @apply w-20 h-20 bg-surface rounded-[1.25rem];
+  @apply flex items-center justify-center;
+  @apply shadow-neu-inset;
+}
+
+/* Auth Alerts (Error, Success, Warning, Info) */
+.neu-alert-error {
+  @apply bg-destructive/10 text-destructive;
+  @apply border border-destructive/30 rounded-xl p-4;
+  @apply shadow-neu-inset;
+}
+
+.neu-alert-success {
+  @apply bg-success/10 text-success;
+  @apply border border-success/30 rounded-xl p-4;
+  @apply shadow-neu-inset;
+}
+
+.neu-alert-warning {
+  @apply bg-warning/10 text-warning;
+  @apply border border-warning/30 rounded-xl p-4;
+  @apply shadow-neu-inset;
+}
+
+.neu-alert-info {
+  @apply bg-info/10 text-info;
+  @apply border border-info/30 rounded-xl p-4;
+  @apply shadow-neu-inset;
+}
+
+/* ============================================
    SHADCN/UI COMPATIBLE CSS VARIABLES
    - HSL format for shadcn components
    - Dark theme by default (Constitution VI compliant)

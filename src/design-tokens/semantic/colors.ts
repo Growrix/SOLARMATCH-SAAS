@@ -18,21 +18,29 @@ import { primitives } from '../primitives/colors';
 import type { ThemeColor, ChartColor } from '../types';
 
 export const colors = {
-  // Brand colors (UPDATED: Orange for LIGHT theme, Muted Gray for DARK theme)
+  // Brand colors (SCALABLE APPROACH)
+  // CURRENT: Orange accent for dark-only theme
+  // FUTURE: When system theme enabled, switch to white accent
+  // STRATEGY: Keep orange in 'primary' token, easy to swap later
   primary: {
-    light: primitives.custom.accent,         // #FF6B00 (ORANGE - main CTA color in light theme)
-    dark: primitives.custom.darkAccent,      // #A0A0A0 (MUTED GRAY - no orange in dark theme)
-    DEFAULT: primitives.custom.accent,
+    light: primitives.custom.accent,         // #FF6B00 (ORANGE - for future light theme)
+    dark: primitives.custom.accent,          // #FF6B00 (ORANGE - current dark theme accent)
+    DEFAULT: primitives.custom.accent,       // #FF6B00 (fallback)
   } as ThemeColor,
   'primary-hover': {
-    light: primitives.custom.accentHover,    // #FF8533 (ORANGE hover in light theme)
-    dark: primitives.custom.darkAccentHover, // #B0B0B0 (GRAY hover in dark theme)
+    light: primitives.custom.accentHover,    // #FF8533 (ORANGE hover - for future light theme)
+    dark: primitives.custom.accentHover,     // #FF8533 (ORANGE hover - current dark theme)
     DEFAULT: primitives.custom.accentHover,
   } as ThemeColor,
   'primary-dark': {
-    light: '#E55F00',                        // Darker orange (light theme)
-    dark: '#888888',                         // Medium gray (dark theme)
+    light: '#E55F00',                        // Darker orange (for future light theme)
+    dark: '#E55F00',                         // Darker orange (current dark theme)
     DEFAULT: '#E55F00',
+  } as ThemeColor,
+  'primary-foreground': {
+    light: '#FFFFFF',                        // White text on orange (for future light theme)
+    dark: '#FFFFFF',                         // White text on orange (current dark theme)
+    DEFAULT: '#FFFFFF',
   } as ThemeColor,
   
   // Secondary colors (Teal - for branding/logos only)
@@ -130,23 +138,25 @@ export const colors = {
     DEFAULT: primitives.teal[500],
   } as ThemeColor,
   
-  // Accent colors (CUSTOM USER THEME) - Orange for LIGHT, Gray for DARK
+  // Accent colors (CUSTOM USER THEME) - SCALABLE STRATEGY
+  // CURRENT: Orange for dark-only theme (10% of UI - CTAs, active states, links)
+  // FUTURE PLAN: Switch to white accent when system theme enabled
   accent: {
-    light: primitives.custom.accent,         // #FF6B00 (vibrant orange in light theme)
-    dark: primitives.custom.darkAccent,      // #A0A0A0 (muted gray in dark theme)
+    light: primitives.custom.accent,         // #FF6B00 (vibrant orange - for future light theme)
+    dark: primitives.custom.accent,          // #FF6B00 (vibrant orange - current dark theme)
     DEFAULT: primitives.custom.accent,
   } as ThemeColor,
   'accent-hover': {
-    light: primitives.custom.accentHover,    // #FF8533 (lighter orange on hover in light theme)
-    dark: primitives.custom.darkAccentHover, // #B0B0B0 (lighter gray on hover in dark theme)
+    light: primitives.custom.accentHover,    // #FF8533 (lighter orange on hover - for future light theme)
+    dark: primitives.custom.accentHover,     // #FF8533 (lighter orange on hover - current dark theme)
     DEFAULT: primitives.custom.accentHover,
   } as ThemeColor,
   
-  // Chart colors (for Recharts integration) - Orange for LIGHT, Gray for DARK
+  // Chart colors (for Recharts integration) - SCALABLE STRATEGY
   chart: {
     primary: {
-      light: primitives.custom.accent,       // #FF6B00 (Orange - main chart color in light theme)
-      dark: primitives.custom.darkAccent,    // #A0A0A0 (Gray - main chart color in dark theme)
+      light: primitives.custom.accent,       // #FF6B00 (Orange - for future light theme charts)
+      dark: primitives.custom.accent,        // #FF6B00 (Orange - current dark theme charts)
     } as ChartColor,
     secondary: {
       light: primitives.teal[600],           // #0d9488 (Teal as secondary)

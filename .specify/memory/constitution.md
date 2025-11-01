@@ -9,7 +9,7 @@
 
 **Phase 1: UI/UX First - MANDATORY**
 - ALL features MUST start with UI/UX implementation
-- Build complete UI mockup in isolation (Storybook or page preview)
+- Build complete UI mockup in isolation (page preview with mock data)
 - No backend work until UI is reviewed and approved
 - Iterate on UI based on feedback WITHOUT touching backend
 - **Approval Gate**: Developer confirms UI/UX meets requirements before proceeding
@@ -116,7 +116,7 @@ PR guardrails (enforced during review/CI where possible):
 - Layout consistency: all dashboard pages render within `/app/(dashboard)/layout.tsx`.
 - Navigation check: every new dashboard route has a matching sidebar entry.
 - No layout duplication: reject imports of `Sidebar`/`Topbar` from page files.
-- Storybook layout demo: sections include a “Layout Demo” story to visually validate structure.
+- Manual layout validation: test page in dev server across all breakpoints (mobile, tablet, desktop).
 
 ### II. TypeScript Strict Mode
 **Type safety is non-negotiable**
@@ -157,39 +157,109 @@ PR guardrails (enforced during review/CI where possible):
 - Admin operations require ADMIN role verification
 
 ### VI. Styling & Theming
-Centralized tokens with Tailwind CSS, shadcn/ui compatibility, and dark mode support
+**Neumorphic Dark-First Design System**
 
-- Utility-first CSS approach (no custom CSS unless justified)
-- Dark mode: Class-based (`darkMode: 'class'` in `tailwind.config.js`); optional HTML attribute `data-theme` allowed for future theme switching
-- ThemeProvider Context API (or `next-themes`) manages theme and sets `.dark` class and/or `data-theme` on `<html>`
-- Two-tier token system remains: primitives → semantic. Implementation uses TypeScript token files today and maps to Tailwind via `theme.extend`; CSS Variables layer is introduced for shadcn/ui alignment
+#### Design Philosophy
+- **Neumorphic Design**: Soft shadows create depth perception on dark backgrounds
+- **Dark-First**: Built for dark theme (#101010 background), light theme future
+- **Custom Components**: No third-party UI libraries (shadcn/ui, Material-UI, etc.)
+- **Design Tokens**: Semantic variables for all design decisions
+- **Utility-First CSS**: Tailwind CSS with custom design token extensions
 
-Shadcn-compatible CSS variable tokens (authoritative names)
+#### Theme System
+- **Dark Mode**: Class-based (`darkMode: 'class'` in `tailwind.config.js`)
+- **ThemeProvider**: Context API manages theme state and persists to `localStorage`
+- **CSS Variables**: Defined in `:root` of `src/app/globals.css` for dynamic theming
+- **Future Multi-Theme**: Additional themes added by overriding CSS variables under `[data-theme="theme-name"]`
 
-- Define tokens in `:root` of `src/app/globals.css` using HSL triplets: `--background`, `--foreground`, `--card`, `--card-foreground`, `--primary`, `--primary-foreground`, `--secondary`, `--secondary-foreground`, `--destructive`, `--destructive-foreground`, `--muted`, `--muted-foreground`, `--border`, `--input`, `--ring`, and `--radius`.
-- Tailwind maps these variables to utilities in `tailwind.config.js` when present (example mapping: `colors.background: 'hsl(var(--background))'`). Our current config also exposes semantic colors from TypeScript tokens; both paths may coexist during migration.
-- Component rule: Use tokenized utilities only (e.g., `bg-primary`, `text-foreground`, `border-input`). Never hardcode hex values or Tailwind raw palette colors in components.
+#### Design Token Architecture
 
-Multi-theme model
+**Two-Tier System**: Primitives → Semantic Tokens
 
-- Light theme is the current default and the only maintained theme until UI is signed off (one-theme-first). Additional themes (e.g., Dark, Brand) are added by overriding CSS variables under `[data-theme="dark"]` blocks in `globals.css` without changing component code.
-- The ThemeProvider toggles `.dark` and/or `data-theme` and persists preference to `localStorage`.
+```
+Primitives (Raw Values)          Semantic Tokens (Meaningful Names)
+├── #101010, #1A1A1A            → bg-primary, bg-secondary
+├── #00DFA9, #00B88A            → bg-accent, text-accent
+├── 12px, 14px, 16px            → text-body, text-heading-1
+└── 4px, 8px, 12px, 16px        → space-xs, space-sm, space-md
+```
 
-Validation and quality gates
+**Token Sources**:
+- **TypeScript Files**: `src/design-tokens/` (colors.ts, typography.ts, spacing.ts, shadows.ts, animations.ts)
+- **CSS Variables**: `src/app/globals.css` (mapped from TypeScript tokens)
+- **Tailwind Config**: `tailwind.config.js` extends theme with semantic tokens
 
-- Storybook is REQUIRED for all token and UI changes; import `../src/app/globals.css` in `.storybook/preview.ts` and provide a theme toolbar (decorator or addon).
-- Visual regression testing is REQUIRED (Chromatic preferred). Each UI/token change must include Storybook proof across active themes and breakpoints.
-- Atomic migration: Only ONE component or token group per commit.
-- Manual QA checklist is MANDATORY for each migration (themes, states, responsive breakpoints, accessibility focus ring visibility).
+#### Component Standards
 
-Mobile-first rules (unchanged and enforced)
+**Never Use Hardcoded Values**:
+- ❌ `bg-slate-700`, `text-teal-500`, `border-gray-300`
+- ❌ `text-2xl`, `font-bold`, `px-6`
+- ❌ `dark:text-white`, `dark:bg-slate-800`
 
-- Mobile-first design 320–640px; typography base 14px mobile / 16px desktop; spacing tighter on mobile (50–75% of desktop); touch targets ≥ 44×44px.
+**Always Use Design Tokens**:
+- ✅ `bg-primary`, `bg-surface`, `text-foreground`
+- ✅ `text-heading-2`, `text-body`, `font-heading`
+- ✅ `px-card-padding`, `py-section-gap`
+- ✅ CSS variables handle theming automatically (no manual dark: classes)
 
-Notes on current state and alignment
+**Neumorphic Component Classes**:
+- **Buttons**: `.neu-btn-primary`, `.neu-btn-secondary`, `.neu-btn-link`, `.neu-btn-icon`
+- **Cards**: `.neu-card`, `.theme-card`, `.neu-card-hover`
+- **Inputs**: `.neu-input`, `.auth-input-icon`, `.neu-input-error`
+- **Shadows**: `.shadow-neu-outset`, `.shadow-neu-inset`, `.shadow-neu-card`
 
-- Today, semantic colors, typography, spacing, shadows, and animations are sourced from `src/design-tokens/` and wired into Tailwind via `theme.extend` (backward compatible). `globals.css` already defines base variables used by layout styles (e.g., `--bg-primary`, `--text-primary`).
-- As we adopt shadcn/ui, we will prioritize the CSS variable names listed above; a thin compatibility layer can map our semantic tokens to these variables to avoid churn.
+**Centralized Components** (src/components/auth/):
+- AuthInput, AuthButton, AuthModal, AuthAlert, AuthDivider, SocialAuthButtons
+- Icon library: `src/components/icons/auth/`
+- All auth components use consistent neumorphic styling
+
+#### Quality Validation
+
+**Manual QA Checklist** (Required for all UI changes):
+- [ ] Theme switching works (Dark/Light/System when available)
+- [ ] All interactive states work (hover, focus, active, disabled)
+- [ ] Responsive design tested (mobile 320px, tablet 768px, desktop 1024px+)
+- [ ] Accessibility validated (WCAG 2.1 AA, keyboard navigation, ARIA labels)
+- [ ] Zero hardcoded values (all use design tokens)
+- [ ] No console errors or warnings
+- [ ] Component logic preserved (if migrating from old patterns)
+
+**Atomic Migration Rule**:
+- Only ONE component or feature per commit
+- No batch refactoring (too risky, hard to review)
+- Each migration includes before/after validation
+
+**Browser Testing**:
+- Chrome DevTools for responsive testing
+- Manual testing on real devices when possible
+- Focus ring visibility check for accessibility
+
+#### Mobile-First Rules (Unchanged and Enforced)
+
+- Mobile-first design 320–640px
+- Typography base 14px mobile / 16px desktop
+- Spacing tighter on mobile (50–75% of desktop)
+- Touch targets ≥ 44×44px (WCAG 2.5.5)
+- Progressive enhancement (mobile → tablet → desktop)
+
+#### Current State
+
+**Completed**:
+- Design token system (`src/design-tokens/`)
+- Neumorphic CSS classes (`src/app/globals.css`)
+- Centralized auth components (`src/components/auth/`)
+- Tailwind config with semantic tokens
+- Icon library for auth flows
+
+**In Progress**:
+- Component-by-component migration (spec 007)
+- 40% → 95% design system compliance
+- Eliminating 285 hardcoded class violations
+
+**Reference Documents**:
+- `DOC/DESIGN-SYSTEM-SOT.md`: Complete token reference
+- `DOC/DESIGN-SYSTEM-AUDIT-REPORT.md`: Compliance status and action plan
+- `specs/007-component-by-component/spec.md`: Migration specification
 
 ### VII. Code Documentation
 **Teaching-first documentation philosophy**
@@ -223,12 +293,12 @@ Notes on current state and alignment
 - **@types/bcryptjs**: 2.4.6 (TypeScript types)
 
 ### Styling & UI
-- **Tailwind CSS**: 3.4.18 (Utility-first CSS)
+- **Tailwind CSS**: 3.4.18 (Utility-first CSS with custom design tokens)
 - **PostCSS**: 8.5.6 (CSS processing)
 - **Autoprefixer**: 10.4.21 (Browser compatibility)
+- **Design Tokens**: Custom system in `src/design-tokens/` (TypeScript interfaces)
+- **Neumorphic Components**: Custom-built in `src/components/` (no third-party UI library)
 - **recharts**: 3.2.1 (Data visualization for dashboards)
-- **Storybook**: 7+ (UI component explorer for isolated visual testing)
-- **Chromatic/Percy/Loki**: Visual regression testing (one required for design system changes)
 
 ### Development Tools
 - **ESLint**: 8.53.0 (Code linting)
@@ -1155,114 +1225,173 @@ Create checklist directly under task with:
 
 ---
 
-### Visual Testing Workflow (UI Components Only)
-**MANDATORY for all UI component refactoring or design token changes**
+### Component Migration Workflow (UI Components)
+**MANDATORY for all UI component refactoring or design token migration**
 
-#### Storybook Story Creation (BEFORE refactoring)
-1. **Create story FIRST** to establish visual baseline:
-   ```tsx
-   // Component.stories.tsx
-   import type { Meta, StoryObj } from '@storybook/react';
-   import { Component } from './Component';
-   
-   const meta: Meta<typeof Component> = {
-     title: 'Components/Component',
-     component: Component,
-     parameters: { layout: 'centered' },
-     tags: ['autodocs'],
-   };
-   
-   export default meta;
-   type Story = StoryObj<typeof Component>;
-   
-   // All variants
-   export const Primary: Story = { args: { variant: 'primary' } };
-   export const Secondary: Story = { args: { variant: 'secondary' } };
-   export const AllStates: Story = {
-     render: () => (
-       <div className="space-y-4">
-         <Component>Default</Component>
-         <Component disabled>Disabled</Component>
-       </div>
-     ),
-   };
-   ```
+#### 1. Pre-Migration Audit (10 minutes)
+**Goal**: Document current component state BEFORE touching code
 
-2. **Capture Baseline**:
-   ```bash
-   npm run storybook
-   npm run chromatic  # Or Percy/Loki
-   ```
+```bash
+# Read the component file
+cat src/components/YourComponent.tsx
 
-#### Component Refactoring
-3. **Refactor to use design tokens**:
-   - Replace hardcoded colors → semantic tokens (`bg-primary`)
-   - Replace hardcoded fonts → typography tokens (`text-body`)
-   - Replace hardcoded spacing → spacing tokens (`px-card-padding`)
-   - Replace hardcoded shadows → elevation tokens (`shadow-card`)
-   - Replace hardcoded radius → radius tokens (`rounded-button`)
+# Identify violations
+grep -E "(bg-slate-|text-slate-|dark:|text-[0-9]xl|font-bold)" src/components/YourComponent.tsx
 
-#### Immediate Visual Testing (Within 5 minutes)
-4. **Test in Storybook**:
-   - [ ] Component renders correctly
-   - [ ] Switch Light/Dark/System themes
-   - [ ] Test hover/focus/active/disabled states
-   - [ ] Test mobile/tablet/desktop breakpoints
-   - [ ] Check accessibility (color contrast, ARIA)
+# Document component logic
+# - State variables (useState, useEffect)
+# - Event handlers (onClick, onChange)
+# - Props and their purposes
+# - Conditional rendering logic
+```
 
-5. **Run Visual Regression**:
-   ```bash
-   npm run chromatic  # Or equivalent
-   ```
-   - [ ] Review visual diff
-   - [ ] Approve intentional changes
-   - [ ] Reject unexpected changes (fix immediately)
+**Create Logic Preservation Checklist**:
+- [ ] List all state variables and their purposes
+- [ ] List all event handlers and what they do
+- [ ] Document form validation logic (if applicable)
+- [ ] Document API calls or data fetching (if applicable)
+- [ ] Identify high-risk areas (complex logic, nested conditionals)
 
-#### Manual QA Checklist for UI Components
-6. **Complete Component QA**:
-   - [ ] Light theme: All variants correct
-   - [ ] Dark theme: All variants correct
-   - [ ] System theme: Respects OS preference
-   - [ ] No color flicker when switching themes
-   - [ ] Hover state: Visual feedback clear
-   - [ ] Focus state: Focus ring visible (WCAG)
-   - [ ] Active state: Visual feedback
-   - [ ] Disabled state: Clearly disabled
-   - [ ] Mobile (< 640px): Layout appropriate
-   - [ ] Tablet (640-1024px): Layout appropriate
-   - [ ] Desktop (> 1024px): Layout appropriate
-   - [ ] Color contrast: WCAG AA (4.5:1 text)
-   - [ ] Zero hardcoded values (all use tokens)
+#### 2. Migration Planning (5 minutes)
+**Map Old → New Patterns**:
 
-#### Integration Testing
-7. **Test in Real Application**:
-   ```bash
-   npm run dev
-   ```
-   - [ ] Navigate to pages using component
-   - [ ] Verify works with real data/layouts
-   - [ ] Check browser console (no errors)
+| Old Pattern | New Pattern | Example |
+|------------|-------------|---------|
+| `bg-slate-700` | `bg-surface` | Card backgrounds |
+| `text-slate-400` | `text-muted` | Secondary text |
+| `dark:text-white` | `text-foreground` | CSS variables handle theme |
+| `text-2xl font-bold` | `text-heading-2` | Typography tokens |
+| `px-6 py-4` | `px-card-padding py-card-padding` | Spacing tokens |
+| Inline SVG icons | Icon library | `<MailIcon className="w-5 h-5" />` |
 
-#### Build Validation
-8. **Final Checks**:
-   ```bash
-   npx tsc --noEmit  # Must pass
-   npm run build     # Must pass
-   ```
+#### 3. Execute Migration (20-40 minutes)
+**100% Clean Replacement Rule**: NO hybrid patterns allowed
 
-#### Commit Only When 100% Validated
-9. **Commit Message**:
-   ```bash
-   git commit -m "refactor(Component): migrate to design token system
-   
-   - Replaced hardcoded colors with semantic tokens
-   - Replaced hardcoded spacing with spacing tokens
-   - Added Storybook stories for all variants
-   - Visual regression tests passed
-   - Manual QA checklist completed
-   
-   Closes #XXX"
-   ```
+```tsx
+// ❌ WRONG: Mixing old and new
+<div className="bg-slate-700 text-foreground">  // Don't do this
+
+// ✅ CORRECT: All tokens
+<div className="bg-surface text-foreground">    // Do this
+```
+
+**Migration Steps**:
+1. Replace background colors (`bg-*`)
+2. Replace text colors (`text-*`)
+3. Replace typography (`text-2xl` → `text-heading-2`)
+4. Replace spacing (`px-6` → `px-card-padding`)
+5. Replace borders (`border-gray-300` → `border-border`)
+6. Replace shadows (use neumorphic classes: `.shadow-neu-outset`)
+7. Remove ALL `dark:` manual classes (CSS variables handle theme)
+8. Replace inline SVG with icon library components
+
+#### 4. Immediate Testing (10 minutes)
+**Test in Development Server**:
+
+```bash
+npm run dev
+```
+
+**Manual QA Checklist**:
+- [ ] Component renders without errors
+- [ ] All interactive states work (hover, focus, active, disabled)
+- [ ] Theme switching works (Dark theme functional, light theme future)
+- [ ] Responsive design works (mobile 320px, tablet 768px, desktop 1024px+)
+- [ ] All functionality preserved (buttons click, forms submit, modals open)
+- [ ] No console errors or warnings
+- [ ] Browser DevTools shows no CSS conflicts
+
+**Logic Preservation Verification**:
+- [ ] All state variables still work correctly
+- [ ] All event handlers fire correctly
+- [ ] Form validation still works (if applicable)
+- [ ] API calls still work (if applicable)
+- [ ] Conditional rendering still works correctly
+
+#### 5. Accessibility Check (5 minutes)
+**WCAG 2.1 AA Compliance**:
+
+- [ ] Color contrast ≥ 4.5:1 (text vs background)
+- [ ] Focus ring visible on all interactive elements
+- [ ] Keyboard navigation works (Tab, Enter, Escape)
+- [ ] ARIA labels present where needed
+- [ ] Touch targets ≥ 44×44px on mobile
+
+**Tools**:
+- Chrome DevTools Lighthouse (Accessibility score)
+- Manual keyboard navigation test
+- Color contrast checker (built into DevTools)
+
+#### 6. Build Validation (5 minutes)
+**Pre-Commit Checks**:
+
+```bash
+# TypeScript validation
+npx tsc --noEmit  # Must pass with 0 errors
+
+# Production build test
+npm run build     # Must pass (warnings acceptable if documented)
+
+# Prisma validation (if schema changes)
+npx prisma validate
+```
+
+#### 7. Commit When 100% Validated
+**Atomic Commit Rule**: ONE component per commit
+
+```bash
+git add src/components/YourComponent.tsx
+git commit -m "refactor(YourComponent): migrate to design token system
+
+- Replaced 15 hardcoded bg-slate-* with bg-surface/bg-primary
+- Replaced 8 text-slate-* with text-foreground/text-muted
+- Replaced text-2xl font-bold with text-heading-2
+- Replaced px-6 py-4 with px-card-padding py-card-padding
+- Removed all dark: manual classes (CSS variables now handle theme)
+- Migrated to AuthInput component for form fields
+
+Logic preserved:
+- All state management unchanged
+- All event handlers unchanged
+- Form validation unchanged
+- API calls unchanged
+
+Validation:
+- Manual QA checklist passed
+- TypeScript validation passed
+- Build passed
+- Accessibility check passed
+- Zero console errors
+
+Closes #007 (Component-by-Component Migration - YourComponent)"
+```
+
+#### 8. Documentation Update
+**Update Migration Tracker**:
+
+```markdown
+| Component | Status | Violations Before | Violations After | Date |
+|-----------|--------|-------------------|------------------|------|
+| YourComponent | ✅ Complete | 25 | 0 | 2025-11-01 |
+```
+
+**Update Spec Progress** (if applicable):
+- Mark user story complete in `specs/007-component-by-component/spec.md`
+- Update compliance metric (40% → 47% → ...)
+
+#### Red Flags 🚨
+**STOP immediately if you see**:
+
+1. **Functionality Broken**: Component doesn't work after migration
+2. **TypeScript Errors**: Type errors introduced
+3. **Build Fails**: Production build broken
+4. **Hybrid Patterns**: Mixed old + new class names
+5. **Logic Changed**: Behavior different from original
+6. **Console Errors**: New warnings or errors
+7. **Accessibility Regression**: Keyboard nav broken, contrast too low
+8. **Theme Switching Broken**: Component doesn't adapt to theme changes
+
+**If any red flag appears**: Revert changes, fix issue, re-test before committing.
 
 ---
 
@@ -1305,38 +1434,70 @@ Create checklist directly under task with:
 
 ## Testing Standards
 
-### Visual Testing Requirements (UI Components)
+### Component Testing Requirements (UI Components)
 **MANDATORY for all UI component work**
 
-#### Tools Required
-- **Storybook**: 7+ (UI component explorer)
-- **Visual Regression**: ONE of Chromatic, Percy, or Loki
-- **Manual QA**: Component-specific checklists
+#### Testing Philosophy
+- **Manual Testing**: Primary validation method (no automated visual regression)
+- **Browser DevTools**: Chrome DevTools for responsive/accessibility testing
+- **Real Device Testing**: Test on actual mobile devices when possible
+- **Incremental Validation**: Test after EACH change, not at the end
 
 #### Testing Workflow
-1. **Create Storybook story BEFORE refactoring** (establish baseline)
-2. **Refactor component** to use design tokens
-3. **Test immediately in Storybook** (< 5 minutes feedback)
-4. **Run visual regression tests** (catch unintended changes)
-5. **Complete manual QA checklist** (themes, states, responsive)
-6. **Test in real application** (integration test)
-7. **Commit only when 100% validated**
+1. **Pre-Migration Audit** (document current state)
+2. **Execute Migration** (one component at a time)
+3. **Test in Development Server** (npm run dev)
+4. **Complete Manual QA Checklist** (all states, themes, responsive)
+5. **Validate Build** (TypeScript + production build)
+6. **Commit when 100% validated** (atomic commits)
 
 #### Manual QA Checklist Template
 Every UI component MUST verify:
-- [ ] Light theme: Renders correctly
-- [ ] Dark theme: Renders correctly
-- [ ] System theme: Respects OS preference
+
+**Functionality**:
+- [ ] Component renders without errors
+- [ ] All interactive elements work (buttons, links, forms)
+- [ ] All functionality preserved from original (no regressions)
+- [ ] State management works correctly
+- [ ] Event handlers fire correctly
+- [ ] Form validation works (if applicable)
+- [ ] API calls work (if applicable)
+
+**Visual & Theme**:
+- [ ] Dark theme: Renders correctly (primary theme)
+- [ ] Light theme: Not yet implemented (future)
+- [ ] System theme: Will respect OS preference (future)
+- [ ] No color flicker or layout shift
+- [ ] Neumorphic shadows render correctly
+
+**Interactive States**:
 - [ ] Hover state: Visual feedback clear
-- [ ] Focus state: Keyboard accessible (WCAG)
-- [ ] Active state: Visual feedback
-- [ ] Disabled state: Clearly disabled
-- [ ] Mobile (< 640px): Responsive layout
-- [ ] Tablet (640-1024px): Responsive layout
-- [ ] Desktop (> 1024px): Responsive layout
-- [ ] Color contrast: WCAG AA (4.5:1)
-- [ ] Zero hardcoded values (all tokens)
+- [ ] Focus state: Focus ring visible (WCAG 2.1 AA)
+- [ ] Active state: Visual feedback (pressed state)
+- [ ] Disabled state: Clearly disabled (visual + cursor)
+- [ ] Loading state: Spinner/skeleton visible (if applicable)
+- [ ] Error state: Error message displayed (if applicable)
+
+**Responsive Design**:
+- [ ] Mobile (320px-640px): Layout appropriate, touch targets ≥ 44px
+- [ ] Tablet (640px-1024px): Layout appropriate
+- [ ] Desktop (1024px+): Layout appropriate
+- [ ] No horizontal scroll on any breakpoint
+- [ ] Text remains readable at all sizes
+
+**Accessibility (WCAG 2.1 AA)**:
+- [ ] Color contrast ≥ 4.5:1 (text vs background)
+- [ ] Keyboard navigation works (Tab, Enter, Escape)
+- [ ] Focus ring visible on all interactive elements
+- [ ] ARIA labels present where needed
+- [ ] Screen reader compatible (alt text, labels)
+
+**Code Quality**:
+- [ ] Zero hardcoded values (all use design tokens)
 - [ ] No console errors or warnings
+- [ ] TypeScript validation passes (`npx tsc --noEmit`)
+- [ ] Production build passes (`npm run build`)
+- [ ] No `dark:` manual classes (CSS variables handle theme)
 
 ### API Testing Requirements
 **MANDATORY for all API routes**
@@ -1543,8 +1704,18 @@ Every UI component MUST verify:
 - Email validation with typo detection
 - Scroll-responsive header (show on scroll up, hide on scroll down)
 - Development quick access menu (admin dashboard only, dev mode)
+- **Neumorphic Design System** (custom, no third-party UI libraries)
+- **Design Token System** (`src/design-tokens/` - colors, typography, spacing, shadows, animations)
+- **Centralized Auth Components** (`src/components/auth/` - AuthInput, AuthButton, AuthModal, etc.)
+- **Icon Library** (`src/components/icons/auth/` - 16+ icons for auth flows)
+- **Neumorphic CSS Classes** (`src/app/globals.css` - buttons, cards, inputs, shadows)
 
 ### 🚧 In Progress / Future Features
+- **Component-by-Component Migration** (Spec 007 - active)
+  - Goal: 40% → 95% design system compliance
+  - Eliminate 285 hardcoded class violations
+  - Migrate 15 components to design token system
+  - Priority: InstantQuoteForm → Hero → QuoteOptions → SimplifiedQuoteForm → MobileSidebar → Auth components
 - Lead management system (installer purchases)
 - Messaging system (homeowner ↔ installer communication)
 - Payment integration (Stripe for lead purchases)
@@ -1555,6 +1726,7 @@ Every UI component MUST verify:
 - Quote builder with pricing calculator
 - Rebate/incentive calculator
 - Blog CMS integration
+- Light theme (after dark theme 100% complete)
 
 ---
 
@@ -1602,11 +1774,12 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"
 - Database changes require migrations
 - No direct SQL without Prisma review
 - Security vulnerabilities = immediate fix priority
-- **UI component changes require Storybook stories** (no exceptions)
-- **Visual regression tests must pass** before merge (Chromatic/Percy/Loki)
 - **Manual QA checklists must be completed** for all tasks with frontend + backend changes
+- **Component testing mandatory**: Test in dev server + browser DevTools before commit
 - **No batch refactoring**: Only one component or feature per commit
 - **Spec compliance mandatory**: Implementation must match specification exactly
+- **Design token compliance**: Zero hardcoded values in components (bg-slate-*, text-2xl, etc.)
+- **Atomic migrations**: One component per commit with validation evidence
 
 ### Breaking Changes
 - Database schema changes: Create migration, test locally, document
@@ -1621,13 +1794,16 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"
 - **Teaching mindset**: Write code that future developers can understand
 - **YAGNI**: Build what's needed now, not what might be needed later
 - **Zero "Hoping for the Best"**: Follow pre-phase audit, during-phase testing, post-phase validation (see Development Workflow Standards)
-- **Visual Validation First**: For UI changes, create Storybook stories BEFORE refactoring
+- **Design Token First**: For UI changes, use design tokens (no hardcoded values)
+- **Component-by-Component**: Migrate one component at a time with full validation
 - **Atomic Commits**: One component or feature per commit (no batch refactoring)
 - **Spec Compliance**: Implementation must match spec exactly (no improvisation)
+- **Neumorphic Standards**: All components follow neumorphic design patterns
 
 ---
 
-**Version**: 1.0.1  
+**Version**: 1.0.2  
 **Ratified**: October 13, 2025  
-**Last Amended**: October 29, 2025  
+**Last Amended**: November 1, 2025  
+**Amendment**: Aligned with neumorphic design system (removed shadcn/ui, Storybook, Chromatic)  
 **Project**: SolarMatch - Solar Lead Generation Platform
