@@ -1,26 +1,40 @@
 import * as React from "react";
-import { cn } from "@/lib/utils";
 
-export interface NeumorphicInputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
+export interface NeumorphicInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  label?: string;
+  error?: string;
+}
 
 const NeumorphicInput = React.forwardRef<HTMLInputElement, NeumorphicInputProps>(
-  ({ className, type, ...props }, ref) => {
+  ({ className, type, label, error, ...props }, ref) => {
     return (
-      <input
-        type={type}
-        className={cn(
-          "flex w-full rounded-xl px-4 py-3 text-sm transition-all duration-300",
-          "dark:bg-background dark:text-white",
-          "dark:shadow-neu-inset-sm",
-          "placeholder:text-white/60",
-          "focus-visible:outline-none",
-          "focus-visible:dark:shadow-[inset_6px_6px_12px_var(--neu-shadow-dark),inset_-6px_-6px_12px_var(--neu-shadow-light),0_0_0_2px_rgba(255,255,255,0.3)]",
-          "disabled:cursor-not-allowed disabled:opacity-50",
-          className
+      <div className="space-y-2">
+        {label && (
+          <label className="block text-sm font-medium text-foreground">
+            {label}
+          </label>
         )}
-        ref={ref}
-        {...props}
-      />
+        <input
+          type={type}
+          ref={ref}
+          className={`
+            w-full px-4 py-3 
+            bg-background rounded-xl 
+            shadow-neu-inset
+            border border-border/50
+            text-foreground placeholder:text-muted-foreground
+            focus:outline-none focus:shadow-neu-inset-sm focus:border-primary/50
+            transition-all duration-200
+            disabled:cursor-not-allowed disabled:opacity-50
+            ${error ? 'border-destructive/50' : ''}
+            ${className || ''}
+          `}
+          {...props}
+        />
+        {error && (
+          <p className="text-sm text-destructive">{error}</p>
+        )}
+      </div>
     );
   }
 );

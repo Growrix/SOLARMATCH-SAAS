@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Post } from '../types/blog';
+import Button from '@/components/ui/button';
 
 // --- Icon Components ---
 const CalendarIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>;
@@ -47,10 +48,10 @@ const BlogSection: React.FC<BlogSectionProps> = ({ onSeeAllPostsClick, onNavigat
     <section className="blog-section">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12 sm:mb-16">
-          <h2 className="text-3xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-4">
+          <h2 className="text-heading-2 lg:text-heading-1 font-bold text-foreground mb-4">
             Latest Solar News & Insights
           </h2>
-          <p className="text-lg text-slate-600 dark:text-slate-400 max-w-3xl mx-auto">
+          <p className="text-body-large text-muted-foreground max-w-3xl mx-auto">
             Stay informed with expert insights, industry updates, and practical tips from our solar specialists.
           </p>
         </div>
@@ -60,59 +61,63 @@ const BlogSection: React.FC<BlogSectionProps> = ({ onSeeAllPostsClick, onNavigat
             <article 
               key={index} 
               onClick={() => onNavigateToPost(article)}
-              className="theme-card overflow-hidden group cursor-pointer"
+              className="bg-background rounded-2xl shadow-neu-outset hover:shadow-neu-outset-lg overflow-hidden group cursor-pointer transition-all duration-300"
               role="button"
               tabIndex={0}
               aria-label={`Read article: ${article.title}`}
               onKeyPress={(e) => e.key === 'Enter' && onNavigateToPost(article)}
             >
-              <div className="p-8">
+              <div className="p-6 lg:p-8">
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-xs font-semibold text-primary bg-primary/10 px-3 py-1 rounded-full">
-                    {article.category}
-                  </span>
-                  <span className="text-xs text-slate-500 dark:text-slate-500">
+                  <div className="inline-flex items-center gap-2 bg-background shadow-neu-inset px-3 py-1.5 rounded-xl">
+                    <div className="w-2 h-2 rounded-full bg-primary shadow-neu-inset-sm"></div>
+                    <span className="text-xs font-semibold text-foreground">
+                      {article.category}
+                    </span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
                     {article.readTime}
                   </span>
                 </div>
                 
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4 leading-snug group-hover:text-primary transition-colors">
+                <h3 className="text-heading-4 font-bold text-foreground mb-4 leading-snug group-hover:text-primary transition-colors">
                   {article.title}
                 </h3>
-                <p className="text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
+                <p className="text-body text-muted-foreground mb-6 leading-relaxed">
                   {article.excerpt}
                 </p>
                 
-                <div className="flex items-center justify-between text-sm text-slate-500 dark:text-slate-500 mb-6 border-t border-gray-200 dark:border-slate-800 pt-4">
+                <div className="flex items-center justify-between text-sm text-muted-foreground mb-6 border-t border-border pt-4">
                   <div className="flex items-center space-x-4">
                     <div className="flex items-center space-x-2">
                       <UserIcon />
-                      <span>{article.author}</span>
+                      <span className="text-muted-foreground">{article.author}</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <CalendarIcon />
-                      <span>{article.date}</span>
+                      <span className="text-muted-foreground">{article.date}</span>
                     </div>
                   </div>
                 </div>
                 
-                <div className="text-primary group-hover:text-teal-700 dark:group-hover:text-teal-400 transition-colors inline-flex items-center space-x-2 font-semibold">
+                <Button variant="secondary" className="inline-flex items-center space-x-2">
                   <span>Read Article</span>
                   <ArrowRightIcon />
-                </div>
+                </Button>
               </div>
             </article>
           ))}
         </div>
 
         <div className="text-center">
-          <button
+          <Button
             onClick={onSeeAllPostsClick}
-            className="bg-primary text-white px-8 py-3 rounded-xl text-lg font-semibold hover:bg-primary/90 transition-all transform hover:scale-105 inline-flex items-center space-x-2 shadow-lg"
+            variant="secondary"
+            className="inline-flex items-center space-x-2 px-8 py-4"
           >
             <span>See All Posts</span>
             <ArrowRightLargeIcon />
-          </button>
+          </Button>
         </div>
       </div>
     </section>

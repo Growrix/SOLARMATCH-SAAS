@@ -112,7 +112,7 @@ const HomeownerSignInModal: React.FC<HomeownerSignInModalProps> = ({ isOpen, onC
         
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 px-4 py-3 rounded-xl text-sm">
+            <div className="bg-destructive/10 shadow-neu-inset border border-destructive/30 px-4 py-3 rounded-2xl text-sm text-destructive">
               {error}
             </div>
           )}

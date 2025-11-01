@@ -287,14 +287,14 @@ export default function Home() {
           
           {/* Calculator Switcher */}
           <div className="flex justify-center mb-8">
-            <div className="relative w-full max-w-md theme-switcher-bg p-1 rounded-full flex border theme-switcher-border">
-              <div className={`absolute top-1 bottom-1 left-1 w-1/2 rounded-full theme-switcher-active shadow-button transition-transform duration-normal ease-in-out transform ${
+            <div className="relative w-full max-w-md bg-background shadow-neu-inset p-2 rounded-full flex border border-border">
+              <div className={`absolute top-2 bottom-2 left-2 w-[calc(50%-0.25rem)] rounded-full bg-background shadow-neu-outset transition-transform duration-300 ease-in-out transform ${
                 activeCalculator === 'quote' ? 'translate-x-0' : 'translate-x-full'
               }`}></div>
 
               <button
                 onClick={() => setActiveCalculator('quote')}
-                className={`relative z-10 w-1/2 py-3 text-button font-semibold flex items-center justify-center gap-2 transition-colors duration-normal rounded-button ${
+                className={`relative z-10 w-1/2 py-3 text-sm font-semibold flex items-center justify-center gap-2 transition-colors duration-300 rounded-full ${
                   activeCalculator === 'quote' ? 'text-primary' : 'text-muted-foreground'
                 }`}
                 aria-pressed={activeCalculator === 'quote'}
@@ -304,7 +304,7 @@ export default function Home() {
               </button>
               <button
                 onClick={() => setActiveCalculator('rebate')}
-                className={`relative z-10 w-1/2 py-3 text-button font-semibold flex items-center justify-center gap-2 transition-colors duration-normal rounded-button ${
+                className={`relative z-10 w-1/2 py-3 text-sm font-semibold flex items-center justify-center gap-2 transition-colors duration-300 rounded-full ${
                   activeCalculator === 'rebate' ? 'text-primary' : 'text-muted-foreground'
                 }`}
                 aria-pressed={activeCalculator === 'rebate'}

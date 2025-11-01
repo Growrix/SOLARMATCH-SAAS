@@ -193,12 +193,12 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 px-4 py-3 rounded-xl text-sm">
+            <div className="bg-destructive/10 shadow-neu-inset border border-destructive/30 px-4 py-3 rounded-2xl text-sm text-destructive">
               {error}
             </div>
           )}
           {success && (
-            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-200 px-4 py-3 rounded-xl text-sm">
+            <div className="bg-success/10 shadow-neu-inset border border-success/30 px-4 py-3 rounded-2xl text-sm text-success">
               {success}
             </div>
           )}

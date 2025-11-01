@@ -22,7 +22,7 @@ const CheckCircleIcon = () => (
 );
 
 const AlertCircleIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-red-400 flex-shrink-0">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-destructive flex-shrink-0">
     <circle cx="12" cy="12" r="10"/>
     <line x1="12" x2="12" y1="8" y2="12"/>
     <line x1="12" x2="12.01" y1="16" y2="16"/>
@@ -239,9 +239,9 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
             </div>
 
             {error && (
-              <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-4 mb-6 flex items-center space-x-3">
+              <div className="bg-destructive/10 shadow-neu-inset border border-destructive/30 rounded-2xl p-4 mb-6 flex items-center space-x-3">
                 <AlertCircleIcon />
-                <p className="text-red-400 text-sm">{error}</p>
+                <p className="text-destructive text-sm">{error}</p>
               </div>
             )}
             

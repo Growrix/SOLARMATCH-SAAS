@@ -476,56 +476,247 @@ function IconsTab() {
 // FORMS TAB
 // ========================================
 function FormsTab() {
+  const [inputValue, setInputValue] = useState('');
+  const [selectValue, setSelectValue] = useState('');
+  const [checkboxChecked, setCheckboxChecked] = useState(false);
+
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-xl font-bold mb-2">Form Components</h2>
-        <p className="text-sm text-muted-foreground">All forms use shadcn/ui form components</p>
+        <h2 className="text-xl font-bold mb-2">Neumorphic Form Components</h2>
+        <p className="text-sm text-muted-foreground">Centralized form components with inset shadows and consistent styling</p>
       </div>
 
+      {/* Neumorphic Input */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Input Fields</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg">Neumorphic Input</CardTitle>
+            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">shadow-neu-inset</Badge>
+          </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Normal Input */}
-          <div className="space-y-2">
-            <Label htmlFor="normal">Normal Input</Label>
-            <Input id="normal" type="text" placeholder="Enter text..." />
-            <div className="text-xs text-muted-foreground font-mono">
-              &lt;Input type=&quot;text&quot; placeholder=&quot;...&quot; /&gt;
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Normal State */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-foreground">Normal Input</Label>
+              <Input 
+                type="text" 
+                placeholder="Enter your email..." 
+                className="bg-background shadow-neu-inset border border-border/50 focus:shadow-neu-inset-sm"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+              />
+            </div>
+
+            {/* With Label & Value */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-foreground">Filled Input</Label>
+              <Input 
+                type="text" 
+                placeholder="Enter your name..." 
+                className="bg-background shadow-neu-inset border border-border/50 focus:shadow-neu-inset-sm"
+                value="John Doe"
+                readOnly
+              />
+            </div>
+
+            {/* Error State */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-foreground">Error State</Label>
+              <Input 
+                type="email" 
+                placeholder="email@example.com" 
+                className="bg-background shadow-neu-inset border border-destructive/50 focus:shadow-neu-inset-sm"
+              />
+              <p className="text-sm text-destructive">Please enter a valid email</p>
+            </div>
+
+            {/* Disabled State */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-muted-foreground">Disabled Input</Label>
+              <Input 
+                type="text" 
+                placeholder="Disabled..." 
+                className="bg-background shadow-neu-inset border border-border/50 opacity-50"
+                disabled
+              />
             </div>
           </div>
 
-          {/* Disabled Input */}
-          <div className="space-y-2">
-            <Label htmlFor="disabled">Disabled Input</Label>
-            <Input id="disabled" type="text" placeholder="Disabled..." disabled />
-            <div className="text-xs text-muted-foreground font-mono">
-              &lt;Input disabled /&gt;
-            </div>
-          </div>
-
-          {/* Error State */}
-          <div className="space-y-2">
-            <Label htmlFor="error">Error State</Label>
-            <Input id="error" type="text" placeholder="Error..." className="border-destructive" />
-            <div className="text-xs text-destructive">This field is required</div>
-            <div className="text-xs text-muted-foreground font-mono">
-              &lt;Input className=&quot;border-destructive&quot; /&gt;
-            </div>
+          {/* Code Example */}
+          <div className="bg-background/50 p-4 rounded-xl border border-border/30">
+            <p className="text-xs text-muted-foreground font-mono mb-2">Usage:</p>
+            <pre className="text-xs text-foreground font-mono overflow-x-auto">
+{`<Input 
+  type="text" 
+  placeholder="Enter text..." 
+  className="bg-background shadow-neu-inset border border-border/50 focus:shadow-neu-inset-sm"
+/>`}
+            </pre>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="border-yellow-500/20 bg-yellow-500/5">
+      {/* Neumorphic Select */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg">Neumorphic Select</CardTitle>
+            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">shadow-neu-inset</Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Normal Select */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-foreground">Select Option</Label>
+              <div className="relative">
+                <select 
+                  className="w-full px-4 py-3 bg-background rounded-xl shadow-neu-inset border border-border/50 text-foreground focus:outline-none focus:shadow-neu-inset-sm appearance-none"
+                  value={selectValue}
+                  onChange={(e) => setSelectValue(e.target.value)}
+                >
+                  <option value="">Choose an option</option>
+                  <option value="residential">Residential</option>
+                  <option value="commercial">Commercial</option>
+                  <option value="industrial">Industrial</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-muted-foreground">
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* With Selection */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-foreground">Selected State</Label>
+              <div className="relative">
+                <select 
+                  className="w-full px-4 py-3 bg-background rounded-xl shadow-neu-inset border border-border/50 text-foreground focus:outline-none focus:shadow-neu-inset-sm appearance-none"
+                  value="residential"
+                  readOnly
+                >
+                  <option value="residential">Residential</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-muted-foreground">
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Code Example */}
+          <div className="bg-background/50 p-4 rounded-xl border border-border/30">
+            <p className="text-xs text-muted-foreground font-mono mb-2">Usage:</p>
+            <pre className="text-xs text-foreground font-mono overflow-x-auto">
+{`<select className="w-full px-4 py-3 bg-background rounded-xl shadow-neu-inset border border-border/50 text-foreground focus:outline-none focus:shadow-neu-inset-sm appearance-none">
+  <option>Choose option</option>
+</select>`}
+            </pre>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Neumorphic Checkbox */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg">Neumorphic Checkbox</CardTitle>
+            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">Interactive</Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Unchecked */}
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <input type="checkbox" className="peer sr-only" id="check1" />
+                <div className="w-5 h-5 bg-background rounded-md shadow-neu-inset border border-border/50 peer-checked:shadow-neu-outset peer-checked:border-primary/50 transition-all cursor-pointer flex items-center justify-center">
+                  <svg className="w-3 h-3 text-primary opacity-0 peer-checked:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+              </div>
+              <label htmlFor="check1" className="text-sm font-medium text-foreground cursor-pointer">Unchecked State</label>
+            </div>
+
+            {/* Checked */}
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <input type="checkbox" className="peer sr-only" id="check2" checked readOnly />
+                <div className="w-5 h-5 bg-background rounded-md shadow-neu-outset border border-primary/50 transition-all cursor-pointer flex items-center justify-center">
+                  <svg className="w-3 h-3 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+              </div>
+              <label htmlFor="check2" className="text-sm font-medium text-foreground cursor-pointer">Checked State</label>
+            </div>
+          </div>
+
+          {/* Interactive Demo */}
+          <div className="p-6 bg-background rounded-xl shadow-neu-inset border border-border/30">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <input 
+                  type="checkbox" 
+                  className="peer sr-only" 
+                  id="checkDemo" 
+                  checked={checkboxChecked}
+                  onChange={(e) => setCheckboxChecked(e.target.checked)}
+                />
+                <label htmlFor="checkDemo" className={`
+                  w-5 h-5 bg-background rounded-md border transition-all cursor-pointer flex items-center justify-center
+                  ${checkboxChecked ? 'shadow-neu-outset border-primary/50' : 'shadow-neu-inset border-border/50'}
+                `}>
+                  <svg className={`w-3 h-3 text-primary transition-opacity ${checkboxChecked ? 'opacity-100' : 'opacity-0'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                </label>
+              </div>
+              <label htmlFor="checkDemo" className="text-sm font-medium text-foreground cursor-pointer">
+                Click to toggle (Interactive Demo)
+              </label>
+            </div>
+          </div>
+
+          {/* Code Example */}
+          <div className="bg-background/50 p-4 rounded-xl border border-border/30">
+            <p className="text-xs text-muted-foreground font-mono mb-2">Usage:</p>
+            <pre className="text-xs text-foreground font-mono overflow-x-auto">
+{`<div className="flex items-center gap-3">
+  <input type="checkbox" className="peer sr-only" id="check" />
+  <div className="w-5 h-5 bg-background rounded-md shadow-neu-inset border border-border/50 peer-checked:shadow-neu-outset peer-checked:border-primary/50">
+    <svg className="w-3 h-3 text-primary opacity-0 peer-checked:opacity-100">
+      <path d="M5 13l4 4L19 7" />
+    </svg>
+  </div>
+  <label htmlFor="check">Label text</label>
+</div>`}
+            </pre>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Best Practices */}
+      <Card className="border-primary/20 bg-primary/5">
         <CardContent className="p-4">
           <div className="flex items-start gap-2">
-            <AlertCircle className="h-5 w-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+            <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
             <div className="text-sm">
-              <strong>✅ ALWAYS use:</strong> shadcn Input, Label, Textarea, Select components
-              <br />
-              <strong>Form validation:</strong> Use border-destructive for error states
+              <strong className="text-primary">Neumorphic Form Best Practices:</strong>
+              <ul className="mt-2 space-y-1 text-muted-foreground">
+                <li>• Always use <code className="text-xs px-1 py-0.5 bg-background rounded">shadow-neu-inset</code> for input fields</li>
+                <li>• Use <code className="text-xs px-1 py-0.5 bg-background rounded">focus:shadow-neu-inset-sm</code> for focus states</li>
+                <li>• Checkbox: unchecked = inset, checked = outset</li>
+                <li>• Use centralized colors: <code className="text-xs px-1 py-0.5 bg-background rounded">bg-background</code>, <code className="text-xs px-1 py-0.5 bg-background rounded">border-border</code>, <code className="text-xs px-1 py-0.5 bg-background rounded">text-foreground</code></li>
+                <li>• Error states: <code className="text-xs px-1 py-0.5 bg-background rounded">border-destructive/50</code> + error message with <code className="text-xs px-1 py-0.5 bg-background rounded">text-destructive</code></li>
+              </ul>
             </div>
           </div>
         </CardContent>
@@ -688,6 +879,84 @@ function CardsTab() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Neumorphic Alerts */}
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-lg font-bold">Neumorphic Alerts</h3>
+          <p className="text-sm text-muted-foreground">Status messages with neumorphic inset style</p>
+        </div>
+
+        <div className="space-y-4">
+          {/* Error Alert */}
+          <div className="rounded-xl p-4 border bg-background shadow-neu-inset bg-destructive/10 border-destructive/30">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5 text-destructive" />
+              <div className="flex-1">
+                <h4 className="font-semibold mb-1 text-destructive">Error</h4>
+                <div className="text-sm text-destructive/90">
+                  Something went wrong. Please try again later.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Success Alert */}
+          <div className="rounded-xl p-4 border bg-background shadow-neu-inset bg-success/10 border-success/30">
+            <div className="flex items-start gap-3">
+              <CheckCircle2 className="h-5 w-5 flex-shrink-0 mt-0.5 text-success" />
+              <div className="flex-1">
+                <h4 className="font-semibold mb-1 text-success">Success</h4>
+                <div className="text-sm text-success/90">
+                  Your changes have been saved successfully.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Warning Alert */}
+          <div className="rounded-xl p-4 border bg-background shadow-neu-inset bg-warning/10 border-warning/30">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5 text-warning" />
+              <div className="flex-1">
+                <h4 className="font-semibold mb-1 text-warning">Warning</h4>
+                <div className="text-sm text-warning/90">
+                  This action cannot be undone. Please proceed with caution.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Info Alert */}
+          <div className="rounded-xl p-4 border bg-background shadow-neu-inset bg-info/10 border-info/30">
+            <div className="flex items-start gap-3">
+              <Circle className="h-5 w-5 flex-shrink-0 mt-0.5 text-info" />
+              <div className="flex-1">
+                <h4 className="font-semibold mb-1 text-info">Information</h4>
+                <div className="text-sm text-info/90">
+                  New features are now available. Check out the latest updates.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Alert Code Example */}
+        <div className="bg-background/50 p-4 rounded-xl border border-border/30">
+          <p className="text-xs text-muted-foreground font-mono mb-2">Usage:</p>
+          <pre className="text-xs text-foreground font-mono overflow-x-auto">
+{`<div className="rounded-xl p-4 border bg-background shadow-neu-inset bg-destructive/10 border-destructive/30">
+  <div className="flex items-start gap-3">
+    <AlertCircle className="h-5 w-5 text-destructive" />
+    <div>
+      <h4 className="font-semibold text-destructive">Error</h4>
+      <p className="text-sm text-destructive/90">Error message</p>
+    </div>
+  </div>
+</div>`}
+          </pre>
+        </div>
+      </div>
 
       {/* Reserved Space */}
       <Card className="border-dashed">

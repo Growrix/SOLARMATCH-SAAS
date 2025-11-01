@@ -738,37 +738,37 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
           <button
               type="button"
               onClick={() => setQuoteType('residential')}
-              className={`flex items-center space-x-3 p-3 rounded-xl border-2 transition-colors duration-200 ${
+              className={`flex items-center space-x-3 p-4 rounded-2xl border transition-all duration-200 ${
                   quoteType === 'residential'
-                  ? 'border-primary bg-primary/10 shadow-md'
-                  : 'border-border bg-surface/20 hover:border-muted'
+                  ? 'border-primary/50 bg-background shadow-neu-outset'
+                  : 'border-border bg-background shadow-neu-inset hover:shadow-neu-inset-sm'
               }`}
               aria-pressed={quoteType === 'residential'}
           >
-              <div className={`p-2 rounded-lg transition-colors ${quoteType === 'residential' ? 'bg-primary/20 text-primary' : 'bg-muted text-subtle'}`}>
+              <div className={`p-2 rounded-xl transition-all ${quoteType === 'residential' ? 'bg-background shadow-neu-inset text-primary' : 'bg-background shadow-neu-inset text-muted-foreground'}`}>
                   <Home className="h-5 w-5" />
               </div>
               <div className="text-left">
                   <span className="font-semibold text-sm text-foreground">Residential</span>
-                  <span className="block text-xs text-subtle">For your home</span>
+                  <span className="block text-xs text-muted-foreground">For your home</span>
               </div>
           </button>
           <button
               type="button"
               onClick={() => setQuoteType('commercial')}
-              className={`flex items-center space-x-3 p-3 rounded-xl border-2 transition-colors duration-200 ${
+              className={`flex items-center space-x-3 p-4 rounded-2xl border transition-all duration-200 ${
                   quoteType === 'commercial'
-                  ? 'border-primary bg-primary/10 shadow-md'
-                  : 'border-border bg-surface/20 hover:border-muted'
+                  ? 'border-primary/50 bg-background shadow-neu-outset'
+                  : 'border-border bg-background shadow-neu-inset hover:shadow-neu-inset-sm'
               }`}
               aria-pressed={quoteType === 'commercial'}
           >
-              <div className={`p-2 rounded-lg transition-colors ${quoteType === 'commercial' ? 'bg-primary/20 text-primary' : 'bg-muted text-subtle'}`}>
+              <div className={`p-2 rounded-xl transition-all ${quoteType === 'commercial' ? 'bg-background shadow-neu-inset text-primary' : 'bg-background shadow-neu-inset text-muted-foreground'}`}>
                   <Building className="h-5 w-5" />
               </div>
               <div className="text-left">
                   <span className="font-semibold text-sm text-foreground">Commercial</span>
-                  <span className="block text-xs text-subtle">For business</span>
+                  <span className="block text-xs text-muted-foreground">For business</span>
               </div>
           </button>
       </div>
@@ -776,10 +776,10 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
         <div className="flex items-center space-x-4">
           {[1, 2, 3].map((step) => (
             <React.Fragment key={step}>
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${currentStep >= step ? 'bg-primary text-white' : 'bg-muted text-subtle'}`}>
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${currentStep >= step ? 'bg-primary text-white shadow-neu-outset' : 'bg-background text-muted-foreground shadow-neu-inset'}`}>
                 {step === 3 && quoteResult ? <CheckCircle2 className="h-5 w-5" /> : step}
               </div>
-              {step < 3 && <div className={`w-12 h-1 transition-colors ${currentStep > step ? 'bg-primary' : 'bg-muted'}`}></div>}
+              {step < 3 && <div className={`w-12 h-1 rounded-full transition-all ${currentStep > step ? 'bg-primary shadow-neu-inset-sm' : 'bg-background shadow-neu-inset'}`}></div>}
             </React.Fragment>
           ))}
         </div>
@@ -1520,7 +1520,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                     </div>
                     
                     {/* Battery Features */}
-                    <div className="p-4 bg-slate-50/50 dark:bg-slate-800/30 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <div className="p-4 bg-background shadow-neu-inset rounded-2xl border border-border">
                       <h4 className="text-sm font-semibold text-foreground mb-3">
                         🔧 Advanced Battery Features
                       </h4>
@@ -1528,7 +1528,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="flex items-center justify-between">
                           <div>
-                            <label className="text-slate-700 dark:text-slate-300 font-medium">Virtual Power Plant (VPP)</label>
+                            <label className="text-foreground font-medium">Virtual Power Plant (VPP)</label>
                             <p className="text-xs text-subtle">Earn money by sharing battery capacity</p>
                           </div>
                           <button 
@@ -1543,8 +1543,8 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                         
                         <div className="flex items-center justify-between">
                           <div>
-                            <label className="text-slate-700 dark:text-slate-300 font-medium">EV Charging Integration</label>
-                            <p className="text-xs text-subtle">Optimize for electric vehicle charging</p>
+                            <label className="text-foreground font-medium">EV Charging Integration</label>
+                            <p className="text-xs text-muted-foreground">Optimize for electric vehicle charging</p>
                           </div>
                           <button 
                             type="button"
@@ -1558,8 +1558,8 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                         
                         <div className="flex items-center justify-between">
                           <div>
-                            <label className="text-slate-700 dark:text-slate-300 font-medium">Smart Home Integration</label>
-                            <p className="text-xs text-subtle">Connect with smart home systems</p>
+                            <label className="text-foreground font-medium">Smart Home Integration</label>
+                            <p className="text-xs text-muted-foreground">Connect with smart home systems</p>
                           </div>
                           <button 
                             type="button"
@@ -1573,8 +1573,8 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                         
                         <div className="flex items-center justify-between">
                           <div>
-                            <label className="text-slate-700 dark:text-slate-300 font-medium">Grid Services Revenue</label>
-                            <p className="text-xs text-subtle">FCAS and grid stabilization earnings</p>
+                            <label className="text-foreground font-medium">Grid Services Revenue</label>
+                            <p className="text-xs text-muted-foreground">FCAS and grid stabilization earnings</p>
                           </div>
                           <button 
                             type="button"
@@ -1591,7 +1591,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                 )}
               </fieldset>
             </div>
-            {errors.general && (<div className="mt-6 bg-destructive/20 border border-destructive/30 rounded-xl p-4 flex items-center space-x-3"><AlertCircle /><p className="text-red-400 text-sm">{errors.general}</p></div>)}
+            {errors.general && (<div className="mt-6 bg-destructive/10 shadow-neu-inset border border-destructive/30 rounded-2xl p-4 flex items-center space-x-3"><AlertCircle /><p className="text-destructive text-sm">{errors.general}</p></div>)}
             {/* Migrated: buttons → shadcn Button - only default and secondary variants */}
             <div className="flex justify-between mt-8">
               <Button onClick={handlePrevStep} variant="secondary">
@@ -1688,25 +1688,25 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {/* Cost Breakdown */}
-                  <div className="bg-slate-50/50 dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700">
+                  <div className="bg-background shadow-neu-inset rounded-2xl p-6 border border-border">
                     <h3 className="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
                       <span className="text-2xl">💰</span>
                       Detailed Cost Breakdown
                     </h3>
                     
                     <div className="space-y-4">
-                      <div className="flex justify-between items-center p-3 bg-white/50 dark:bg-slate-700/30 rounded-lg">
-                        <span className="text-slate-700 dark:text-slate-300 font-medium">System Hardware</span>
+                      <div className="flex justify-between items-center p-3 bg-background-alt rounded-xl shadow-neu-inset-sm">
+                        <span className="text-foreground font-medium">System Hardware</span>
                         <span className="text-foreground font-semibold">{formatCurrency(quoteResult.totalCost * 0.6)}</span>
                       </div>
                       
-                      <div className="flex justify-between items-center p-3 bg-white/50 dark:bg-slate-700/30 rounded-lg">
-                        <span className="text-slate-700 dark:text-slate-300 font-medium">Installation & Labor</span>
+                      <div className="flex justify-between items-center p-3 bg-background-alt rounded-xl shadow-neu-inset-sm">
+                        <span className="text-foreground font-medium">Installation & Labor</span>
                         <span className="text-foreground font-semibold">{formatCurrency(quoteResult.totalCost * 0.3)}</span>
                       </div>
                       
-                      <div className="flex justify-between items-center p-3 bg-white/50 dark:bg-slate-700/30 rounded-lg">
-                        <span className="text-slate-700 dark:text-slate-300 font-medium">Design & Permits</span>
+                      <div className="flex justify-between items-center p-3 bg-background-alt rounded-xl shadow-neu-inset-sm">
+                        <span className="text-foreground font-medium">Design & Permits</span>
                         <span className="text-foreground font-semibold">{formatCurrency(quoteResult.totalCost * 0.1)}</span>
                       </div>
                       
