@@ -413,6 +413,10 @@ export default function LayoutContent({ children }: LayoutContentProps) {
         isOpen={isInstallerSignInModalOpen}
         onClose={() => setIsInstallerSignInModalOpen(false)}
         onSuccess={handleInstallerSignInSuccess}
+        onOpenSignup={() => {
+          setIsInstallerSignInModalOpen(false);
+          setIsInstallerSignupModalOpen(true);
+        }}
       />
 
       {/* Homeowner Modals */}
