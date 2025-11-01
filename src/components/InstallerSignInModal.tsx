@@ -163,7 +163,7 @@ const InstallerSignInModal: React.FC<InstallerSignInProps> = ({ isOpen, onClose,
         {success && (
           <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 mb-6 flex items-center space-x-3">
             <CheckCircleIcon />
-            <p className="text-emerald-600 dark:text-emerald-400 text-sm">{success}</p>
+            <p className="text-emerald-500 text-sm">{success}</p>
           </div>
         )}
 
@@ -193,7 +193,7 @@ const InstallerSignInModal: React.FC<InstallerSignInProps> = ({ isOpen, onClose,
                     <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="w-4 h-4 text-primary bg-surface border-border rounded focus:ring-primary"/>
                     <span className="text-sm text-subtle">Remember me</span>
                 </label>
-                <button type="button" onClick={handleForgotPassword} className="text-sm text-primary hover:text-teal-700 dark:hover:text-teal-400 transition-colors">
+                <button type="button" onClick={handleForgotPassword} className="text-sm text-primary hover:text-primary/90 transition-colors">
                     Forgot password?
                 </button>
             </div>

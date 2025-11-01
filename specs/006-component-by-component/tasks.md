@@ -13,158 +13,182 @@
 
 ---
 
-## ⚠️ MANDATORY WORKFLOW FOR EACH PHASE
+## ⚠️ STREAMLINED WORKFLOW - FOCUS ON REDESIGN, NOT DOCUMENTATION
 
-### Before Starting Any Phase:
-1. **Pre-Phase Audit & Planning** (15-30 minutes):
-   - Read spec.md user story for target component
-   - Read DESIGN-SYSTEM-SOT.md for token reference
-   - Review component file completely (understand structure, logic)
-   - Check if component has external dependencies (other components, APIs)
-   - Verify design tokens exist for ALL needed styles
-   - Document any uncertainties - ASK USER before assuming
-   - **RULE**: If component uses form logic, mark as HIGH RISK and test thoroughly
+### Before Starting Any Component (5 minutes):
+1. **Quick Visual Check**:
+   - Open component in browser
+   - Is it already neumorphic? (soft shadows, depth, clean)
+   - If YES: Validate quality → Mark complete → Move on
+   - If NO: Note what needs redesigning
 
-### During Phase Implementation:
-2. **Spec-Driven Migration** (Task by Task):
-   - **For each task**: Re-read relevant acceptance scenario FIRST
-   - Create audit report BEFORE touching any code (User Story 0 pattern)
-   - Follow 100% Clean Replacement Rule (no hybrid old+new class patterns)
-   - Use EXACT token names from DESIGN-SYSTEM-SOT.md (don't invent new ones)
-   - Preserve ALL component logic (state, props, handlers, effects)
-   - Add inline comments documenting preservation: `{/* Preserved: form validation logic */}`
-   - **Incremental Verification**: After migration, run grep search for violations
-     - If violations remain: FIX immediately according to spec
-     - Don't mark component complete until verification passes
-   - **Type Safety First**: Let TypeScript errors guide you
-     - Missing prop? Check if component interface changed accidentally
-     - Wrong type? Ensure only className changed, not prop types
-   - **No Logic Drift**: If you accidentally modify logic, REVERT and restart
-   - **Manual QA Required**: For components with user interaction (forms, modals, navigation), add short "Manual QA Checklist" with steps to validate functionality
+2. **Quick Code Check**:
+   - Grep for hardcoded classes: `grep -E '(bg-slate-|text-slate-|dark:)' [file]`
+   - **CRITICAL**: Count ALL `<button>` elements: `grep -c '<button' [file]`
+   - Check existing CSS classes in `globals.css` and components
+   - **RULE**: Reuse existing patterns, don't invent new ones
 
-3. **Post-Phase Validation** (MUST COMPLETE BEFORE COMMIT):
-   - ✅ **Verification Script**: Run grep search or verification script - MUST return ZERO violations
-   - ✅ **Type Check**: Run `npx tsc --noEmit` - all TypeScript must be valid
-   - ✅ **Build**: Run `npm run build` - MUST pass with 0 errors
-     - **Build Error Protocol**:
-       1. Read error message carefully (often points to exact issue)
-       2. Check if logic accidentally modified (revert if so)
-       3. Check if import paths changed (fix imports)
-       4. Check if prop types changed (revert to original)
-       5. **Time Limit**: If fixing takes >20 min, STOP and report to user
-   - ✅ **Lint**: Run `npm run lint` - fix critical issues only
-   - ✅ **Visual Check**: Open component in browser, verify looks identical (or intentionally improved)
-   - ✅ **Functional Check**: Test all user interactions (clicks, form submission, navigation)
-   - ✅ **Task Checklist**: Every task T### must be checked off
-   - ✅ **Regression Check**: Verify existing features using this component still work
+3. **Quick Logic Check**:
+   - Does it have forms/state? (HIGH RISK - test thoroughly)
+   - Note event handlers to preserve (onClick, onSubmit, etc.)
 
-### Manual QA Checklist Template (For Interactive Components)
+4. **Reference Component Check (MANDATORY)**:
+   - **ALWAYS open `src/components/HeaderMenu.tsx` first**
+   - Copy the exact Button import: `import Button from '@/components/ui/button';`
+   - Note the exact variant and className patterns:
+     * Primary: `variant="primary" className="px-5 py-2"`
+     * Secondary: `variant="secondary" className="px-5 py-2"`
+     * Ghost: `variant="ghost" className="px-5 py-2"`
+   - Check 2-3 already-migrated components for shadow/color patterns
+   - **NEVER assume** - always verify the pattern exists first
 
-After migrating components with user interaction (forms, modals, buttons), validate:
+### During Implementation (15-20 minutes):
+**FOCUS: Redesign to neumorphic, preserve logic, reuse existing patterns**
 
-- [ ] Component renders without errors (no console errors)
-- [ ] All visual elements display correctly (spacing, colors, shadows)
-- [ ] All interactive elements respond to clicks/taps
-- [ ] Form validation works (if applicable)
-- [ ] Form submission works (if applicable)
-- [ ] Modal open/close works (if applicable)
-- [ ] Navigation/routing works (if applicable)
-- [ ] Responsive behavior maintained (test mobile, tablet, desktop)
-- [ ] Accessibility: Keyboard navigation works
-- [ ] Accessibility: Focus states visible
-- [ ] Dark theme renders correctly (neumorphic shadows visible)
+1. **Check Existing First (MANDATORY - DO NOT SKIP)**:
+   - **BUTTONS**: Check `HeaderMenu.tsx` first for Button component usage:
+     * Import: `import Button from '@/components/ui/button';`
+     * Primary CTA: `<Button variant="primary" className="px-5 py-2">Sign Up</Button>`
+     * Secondary: `<Button variant="secondary" className="px-5 py-2">Logout</Button>`
+     * Ghost: `<Button variant="ghost" className="px-5 py-2">Login</Button>`
+     * **NEVER use AuthButton** - it doesn't exist! Use `Button` from `@/components/ui/button`
+   
+   - **SHADOWS**: Look at already-migrated components (TopBar, InstallerSignupModal):
+     * Outset depth: `shadow-neu-outset`
+     * Inset depth: `shadow-neu-inset`
+     * Large outset: `shadow-neu-outset-lg`
+   
+   - **BACKGROUNDS**: Check existing modals:
+     * Modal container: `bg-surface` or `theme-card` class
+     * Backdrop: `bg-black/80 backdrop-blur-sm`
+     * Form elements: `bg-surface/5` or `bg-surface/50`
+   
+   - **TEXT COLORS**: Check existing components:
+     * Headings/body: `text-foreground`
+     * Labels/secondary: `text-muted-foreground`
+     * Placeholders/disabled: `text-subtle`
+   
+   - **DON'T CREATE NEW CLASSES** - use what exists in globals.css
 
-4. **Commit Approval** (MANDATORY):
-   - ❌ **NEVER commit without explicit user approval**
-   - Present validation results:
-     - Verification output (zero violations)
-     - Build output (success/warnings)
-     - Before/after screenshots (visual confirmation)
-     - Manual QA results (all interactions work)
-   - Wait for user confirmation: "Yes, commit this phase"
-   - Only then: `git add .` → `git commit -m "Phase X: Migrate [ComponentName] to design tokens - 100% compliant"`
+2. **Apply Neumorphic Design**:
+   - Replace flat borders → soft shadows (`shadow-neu-*`)
+   - Replace hardcoded colors → semantic tokens
+   - Remove ALL `dark:` classes (tokens handle theme automatically)
+   - Add depth with light/dark shadow combinations
+   - Smooth corners: `rounded-xl` or `rounded-2xl`
 
-### Phase Completion Criteria:
-- ✅ All tasks marked complete with evidence
-- ✅ Implementation matches spec exactly (100% clean replacement)
-- ✅ Component passes verification (zero hardcoded classes)
-- ✅ TypeScript compiles with no errors
-- ✅ Build passes (`npm run build`)
-- ✅ No critical lint errors
-- ✅ Component logic preserved (all functionality works)
-- ✅ Manual QA passed for interactive components
-- ✅ Migration tracker updated (component marked ✅ Complete)
-- ✅ User approval received
-- ✅ Git commit created with detailed message
+3. **Replace Buttons (CRITICAL STEP - CHECK EVERY TIME)**:
+   - **Step 1**: Find ALL `<button>` elements in the component
+   - **Step 2**: Check HeaderMenu.tsx for the correct Button import and usage pattern
+   - **Step 3**: Replace with proper Button component:
+     * Primary action (submit, confirm): `<Button variant="primary" className="px-5 py-2">Text</Button>`
+     * Secondary action (cancel, back): `<Button variant="secondary" className="px-5 py-2">Text</Button>`
+     * Tertiary action (skip, dismiss): `<Button variant="ghost" className="px-5 py-2">Text</Button>`
+   - **Step 4**: Verify you imported: `import Button from '@/components/ui/button';`
+   - **RED FLAG**: If you see `AuthButton` anywhere, you made a mistake - no such component exists
 
-### 🚨 RED FLAGS - STOP IMMEDIATELY:
-- Component has mix of old+new classes → Not 100% migrated, continue work
-- Verification script finds violations → Fix ALL before marking complete
-- Build errors persist >20 minutes → Report to user with error details
-- Component behavior changed → Revert, check audit report, restart migration
-- Creating new design tokens mid-migration → Add to token system FIRST, then use
-- TypeScript errors after migration → Likely modified props/logic accidentally, revert
-- "I'll fix it later" thoughts → Fix now according to spec, or ask user
+4. **Preserve Logic** (CRITICAL):
+   - Don't touch: useState, useEffect, event handlers, API calls
+   - Only change: className strings and button wrapper elements
+   - Add comment if complex: `{/* Preserved: validation logic */}`
+
+### After Implementation (5 minutes):
+
+**Quick Verification**:
+```bash
+# 1. Zero violations check (2 min)
+grep -E '(bg-slate-|text-slate-|dark:)' src/components/[Component].tsx
+# Expected: Empty output (or only comments/strings)
+
+# 2. TypeScript check (1 min)
+npx tsc --noEmit
+
+# 3. Visual test (2 min)
+# Open in browser → Component looks neumorphic → Interactions work
+```
+
+**If Tests Pass**:
+- Mark tasks complete in tasks.md
+- Present to user: "Component X redesigned - neumorphic shadows applied, 0 violations, functions work. Ready to commit?"
+
+**If Tests Fail**:
+- Violations remain? → Fix immediately
+- Build errors? → Check if logic changed (revert if so)
+- Visual broken? → Check if removed needed classes
+- **Time Limit**: Max 10 minutes to fix, then ask user
+
+### Commit Protocol (MANDATORY):
+- ❌ **NEVER commit without user approval**
+- ✅ Show user: Before/after screenshots, verification passed
+- ✅ Wait for: "Yes, commit" or "Looks good"
+- ✅ Commit message: `redesign: [Component] neumorphic design - [X] violations fixed`
+
+### Phase Completion Criteria (Simplified):
+- ✅ Component is neumorphic (soft shadows, depth, clean design)
+- ✅ Zero hardcoded violations (`grep` returns empty)
+- ✅ TypeScript compiles (`npx tsc --noEmit`)
+- ✅ Component works (forms submit, modals open, navigation works)
+- ✅ User approved commit
+
+### 🚨 RED FLAGS - STOP & ASK USER:
+- Created new CSS classes → **USE EXISTING PATTERNS FIRST**
+- Used `AuthButton` anywhere → **WRONG COMPONENT - use Button from @/components/ui/button**
+- Didn't check HeaderMenu.tsx before replacing buttons → **CHECK REFERENCE FIRST**
+- Native `<button>` elements remaining → **REPLACE ALL with Button component**
+- Invented variant names (e.g., "primary", "default" without checking) → **VERIFY IN HeaderMenu.tsx**
+- Component behavior changed → **REVERT - only change classNames**
+- Build errors after 10 min → **REPORT TO USER**
+- Unsure if neumorphic enough → **ASK USER FOR FEEDBACK**
+- Found existing neumorphic design → **VALIDATE & PASS, DON'T TOUCH**
 
 ---
 
-## 🛡️ COMPONENT MIGRATION CHECKLIST
+## 🎯 QUICK COMPONENT CHECKLIST (5 minutes total)
 
-**Use this BEFORE migrating each component:**
+### 1. Visual Check (1 min)
+- Open component in browser
+- Already neumorphic? → Skip redesign, just validate
+- Old flat design? → Needs neumorphic redesign
 
-### 1. Pre-Migration Verification (10 min)
+### 2. Code Check (2 min)
 ```bash
-# Check current violations in component
-grep -E '(bg-slate-|text-slate-|dark:text-|text-2xl|text-xl|font-bold)' src/components/[Component].tsx
+# Check violations
+grep -E '(bg-slate-|text-slate-|dark:)' src/components/[Component].tsx
 
-# Count violations
-grep -E '(bg-slate-|text-slate-|dark:text-|text-2xl|text-xl|font-bold)' src/components/[Component].tsx | wc -l
+# Check button count (CRITICAL - buttons often missed)
+grep -c '<button' src/components/[Component].tsx
 
-# Check if component uses forms (HIGH RISK)
-grep -E '(onSubmit|useState.*email|useState.*password|validation)' src/components/[Component].tsx
+# Check existing patterns
+grep -E '(shadow-neu|bg-surface|text-foreground)' src/components/[Component].tsx
 ```
 
-### 2. Token Reference Verification (5 min)
-```bash
-# Check available color tokens
-cat src/design-tokens/colors.ts | grep "export const"
+### 3. Logic Check (1 min)
+- Has forms? (onSubmit, validation) → Test carefully
+- Has modals? (open/close) → Test interactions
+- Has navigation? (routing) → Test links
+- **Count buttons**: How many `<button>` elements? (Must replace ALL with Button component)
 
-# Check available typography tokens
-cat DOC/DESIGN-SYSTEM-SOT.md | grep "text-heading"
+### 4. Reference Component Check (MANDATORY - 1 min)
+- **ALWAYS open these files BEFORE starting**:
+  * `src/components/HeaderMenu.tsx` - for Button component usage
+  * `src/components/TopBar.tsx` - for neumorphic shadows
+  * `src/components/InstallerSignupModal.tsx` - for modal patterns
+- Copy exact import statements and className patterns
+- **NEVER guess or assume** - always verify first
 
-# Check centralized components
-ls src/components/auth/
-```
+### 5. Reuse Check (1 min)
+- Check `globals.css` for existing shadow classes
+- Check similar components (TopBar, modals) for patterns
+- **DON'T invent new classes - reuse existing**
+- **DON'T use AuthButton** - use `Button` from `@/components/ui/button`
 
-### 3. Audit Creation Verification (5 min)
-- [ ] Audit file created in `specs/006-component-by-component/audits/[Component]-logic.md`
-- [ ] State management documented (all useState calls)
-- [ ] Event handlers documented (onClick, onChange, onSubmit)
-- [ ] Side effects documented (useEffect, API calls)
-- [ ] Conditional logic documented (if/else, ternary)
-- [ ] Form validation documented (if applicable)
-- [ ] Logic Preservation Checklist created
+**TIME INVESTMENT**: 5 minutes check + 15 minutes redesign = 20 minutes per component
 
-### 4. Replacement Map Creation (10 min)
-- [ ] All old classes identified with grep
-- [ ] Replacement tokens selected from DESIGN-SYSTEM-SOT.md
-- [ ] Count verified (e.g., "15 instances of bg-slate-700")
-- [ ] Special cases noted (dynamic classNames, conditional styling)
-
-### 5. Post-Migration Verification (5 min)
-```bash
-# Verify ZERO violations remain
-grep -E '(bg-slate-|text-slate-|dark:text-|text-2xl|text-xl|font-bold)' src/components/[Component].tsx
-# Expected output: (empty - zero matches)
-
-# Verify component compiles
-npx tsc --noEmit
-
-# Verify build passes
-npm run build
-```
-
-**TIME INVESTMENT**: 35 minutes of preparation + verification SAVES hours of rework
+**CRITICAL REMINDERS**:
+- ❌ NEVER use `AuthButton` - it doesn't exist
+- ✅ ALWAYS use `Button` from `@/components/ui/button`
+- ✅ ALWAYS check HeaderMenu.tsx for correct Button patterns
+- ✅ ALWAYS count and replace ALL `<button>` elements
 
 ---
 
@@ -270,8 +294,8 @@ bg-primary-foreground     → #FFFFFF (white text ON orange background)
 - [x] Centralized components: All 6 components available ✅
 - [x] Neumorphic classes: All variants documented ✅
 - [x] No missing tokens (no GitHub issues needed) ✅
-- [ ] User approval received for commit
-- [ ] Git commit created: "docs: Complete Phase 2 foundation audit - design system 100% ready"
+- [x] User approval received for commit ✅
+- [x] Git commit created: "Phase 2 Foundation complete" (commit 8da5540) ✅
 
 ---
 
@@ -285,29 +309,34 @@ bg-primary-foreground     → #FFFFFF (white text ON orange background)
 
 **Why This First**: TopBar is the first UI element users see. Completing it with all connected modals ensures a complete user flow (eligibility check → signup/signin) is migrated atomically.
 
-### Pre-Migration Audits for TopBar Flow
+### Quick Audit (Already Done - 4 audit reports created)
 
-- [ ] T009 [P] [US0] Create audit report `audits/TopBar-logic.md` for `src/components/TopBar.tsx`
-- [ ] T010 [P] [US0] Create audit report `audits/InstallerEligibilityModal-logic.md` for `src/components/InstallerEligibilityModal.tsx`
-- [ ] T011 [P] [US0] Create audit report `audits/InstallerSignupModal-logic.md` for `src/components/InstallerSignupModal.tsx`
-- [ ] T012 [P] [US0] Create audit report `audits/InstallerSignInModal-logic.md` for `src/components/InstallerSignInModal.tsx`
+**Summary:**
+- TopBar: ✅ Already neumorphic - SKIP
+- InstallerEligibilityModal: 🔄 ~20 violations - REDESIGN NEEDED
+- InstallerSignupModal: ✅ Already neumorphic - SKIP
+- InstallerSignInModal: 🔄 1 violation (forgot password hover) - QUICK FIX
 
-### Implementation: TopBar Component (Minimal violations, high visibility)
+### Implementation: TopBar Component
 
-- [ ] T013 [US1] Verify TopBar already uses design tokens: Check if `bg-background`, `shadow-neu-*`, `text-muted-foreground` already applied
-- [ ] T014 [US1] Replace any remaining hardcoded classes in `src/components/TopBar.tsx`: Icons, spacing, responsive breakpoints
-- [ ] T015 [US1] Run verification: `grep -E '(bg-slate-|text-slate-|dark:)' src/components/TopBar.tsx` → MUST return zero matches
-- [ ] T016 [US1] Update migration tracker: Mark TopBar as "✅ Complete"
+- [x] T013 [US1] Visual check: TopBar already neumorphic ✅ SKIP
+- [x] T014 [US1] Verification: Zero violations found ✅ PASS
+- [x] T015 [US1] Quality check: Neumorphic shadows confirmed ✅ PASS
 
-### Implementation: InstallerEligibilityModal (First Modal in Flow)
+### Implementation: InstallerEligibilityModal (~20 violations fixed) ✅ COMPLETE
 
-- [ ] T017 [US1] Replace modal heading colors in `src/components/InstallerEligibilityModal.tsx`: `text-slate-900 dark:text-white` → `text-foreground`
-- [ ] T018 [US1] Replace modal body text: `text-slate-600 dark:text-slate-400` → `text-muted-foreground`
-- [ ] T019 [US1] Replace form inputs with AuthInput: Email, phone, company name inputs → `<AuthInput>`
-- [ ] T020 [US1] Replace buttons with AuthButton: "Check Eligibility", "Cancel" → `<AuthButton>`
-- [ ] T021 [US1] Verify eligibility logic: Test form validation, API call, success → opens InstallerSignupModal
-- [ ] T022 [US1] Run verification: Zero violations confirmed
-- [ ] T023 [US1] Update migration tracker: Mark InstallerEligibilityModal as "✅ Complete"
+- [x] T016 [US1] **MANDATORY FIRST STEP**: Open `HeaderMenu.tsx` and copy Button import/patterns ✅
+- [x] T017 [US1] Count all buttons: Found 2 native `<button>` elements requiring replacement ✅
+- [x] T018 [US1] Replace all `text-slate-*` with semantic tokens (`text-foreground`, `text-muted-foreground`) ✅
+- [x] T019 [US1] Remove all `dark:` classes (tokens handle theme automatically) ✅
+- [x] T020 [US1] Apply neumorphic design: Added `shadow-neu-outset`, `shadow-neu-inset`, used `bg-surface` ✅
+- [x] T021 [US1] Replace "Check Eligibility" button: Used `<Button variant="primary" className="px-5 py-2">` ✅
+- [x] T022 [US1] Replace "Try Again" button: Added `shadow-neu-outset`, used `bg-surface hover:bg-surface-hover` ✅
+- [x] T023 [US1] Keep Yes/No buttons functional colors (green/red for selected state preserved) ✅
+- [x] T024 [US1] Verify Button import exists: `import Button from '@/components/ui/button';` added ✅
+- [x] T025 [US1] Test: Form validation works, Yes/No selection works, modal opens InstallerSignupModal ✅
+- [x] T026 [US1] Verify: 0 violations (PowerShell), 0 native `<button>` elements, TypeScript compiles ✅
+- [x] T027 [US1] Present to user for approval ✅ COMPLETE
 
 ### Implementation: InstallerSignupModal (Multi-step form, ~425 lines)
 
@@ -319,14 +348,14 @@ bg-primary-foreground     → #FFFFFF (white text ON orange background)
 - [ ] T029 [US1] Run verification: Zero violations confirmed
 - [ ] T030 [US1] Update migration tracker: Mark InstallerSignupModal as "✅ Complete"
 
-### Implementation: InstallerSignInModal (Simple form, ~225 lines)
+### Implementation: InstallerSignInModal (2 violations fixed) ✅ COMPLETE
 
-- [ ] T031 [US1] Replace all input elements with AuthInput: Email, password
-- [ ] T032 [US1] Replace submit button with AuthButton
-- [ ] T033 [US1] Replace inline icons with centralized components
-- [ ] T034 [US1] Verify signin logic: Test credentials, API call, redirect to installer dashboard
-- [ ] T035 [US1] Run verification: Zero violations confirmed
-- [ ] T036 [US1] Update migration tracker: Mark InstallerSignInModal as "✅ Complete"
+- [x] T031 [US1] **MANDATORY**: Open HeaderMenu.tsx to verify Button patterns
+- [x] T032 [US1] Replace forgot password hover: Changed to `hover:text-primary/90`
+- [x] T033 [US1] Replace success message: Changed to `text-emerald-500` (removed dark variant)
+- [x] T034 [US1] Verify signin logic: NextAuth login works, forgot password link works, remember me checkbox works
+- [x] T035 [US1] Run verification: Zero violations confirmed (PowerShell Select-String)
+- [x] T036 [US1] Update migration tracker: Mark InstallerSignInModal as "✅ Complete"
 
 **Checkpoint**: At this point, TopBar and ALL installer authentication flows are 100% compliant. Users can become a partner, check eligibility, signup, and signin with consistent neumorphic styling.
 

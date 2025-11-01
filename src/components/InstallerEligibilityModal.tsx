@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import React, { useState, useEffect } from 'react';
+import Button from '@/components/ui/button';
 
 // --- Icon Components ---
 const CheckCircle = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>;
@@ -85,18 +86,18 @@ const InstallerEligibilityModal: React.FC<EligibilityFormProps> = ({ isOpen, onC
         className="theme-card max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-slide-in-up"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-slate-800">
+        <div className="flex items-center justify-between p-6 border-b border-border">
           <div>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Become a Partner</h2>
-            <p className="text-slate-600 dark:text-slate-400">Step 1: Check your eligibility</p>
+            <h2 className="text-2xl font-bold text-foreground">Become a Partner</h2>
+            <p className="text-muted-foreground">Step 1: Check your eligibility</p>
           </div>
-          <button onClick={handleClose} className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors p-2 rounded-lg -mr-2"><XCircle /></button>
+          <button onClick={handleClose} className="text-subtle hover:text-foreground transition-colors p-2 rounded-lg -mr-2"><XCircle /></button>
         </div>
 
         <div className="p-6">
           {eligibilityStatus === 'idle' && (
             <div className="animate-fade-in">
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6">Eligibility Requirements</h3>
+              <h3 className="text-xl font-bold text-foreground mb-6">Eligibility Requirements</h3>
               <div className="space-y-6">
                 {[
                   { id: 'cecAccredited', label: 'Are you a CEC-accredited installer? *', icon: <FileText /> },
@@ -104,12 +105,12 @@ const InstallerEligibilityModal: React.FC<EligibilityFormProps> = ({ isOpen, onC
                   { id: 'providesInstallation', label: 'Do you provide installation services in Australia? *', icon: <MapPin /> }
                 ].map(q => (
                   <div key={q.id}>
-                    <label className="block text-slate-600 dark:text-slate-300 text-sm font-semibold mb-3">{q.icon}{q.label}</label>
+                    <label className="block text-muted-foreground text-sm font-semibold mb-3">{q.icon}{q.label}</label>
                     <div className="grid grid-cols-2 gap-3">
-                      <button onClick={() => handleInputChange(q.id as keyof FormData, 'yes')} className={`eligibility-button p-3 rounded-xl border-2 transition-all flex items-center justify-center space-x-2 ${formData[q.id as keyof FormData] === 'yes' ? 'selected-yes border-emerald-500 bg-emerald-500/10 text-emerald-500' : 'border-border dark:border-slate-700 bg-gray-100/50 dark:bg-slate-800/20 text-slate-600 dark:text-slate-300 hover:border-slate-400 dark:hover:border-slate-500'}`}>
+                      <button onClick={() => handleInputChange(q.id as keyof FormData, 'yes')} className={`eligibility-button p-3 rounded-xl transition-all flex items-center justify-center space-x-2 shadow-neu-inset ${formData[q.id as keyof FormData] === 'yes' ? 'selected-yes border-2 border-emerald-500 bg-emerald-500/10 text-emerald-500' : 'bg-surface/50 text-muted-foreground hover:bg-surface'}`}>
                         <CheckCircle /> <span className="text-sm font-semibold">Yes</span>
                       </button>
-                      <button onClick={() => handleInputChange(q.id as keyof FormData, 'no')} className={`eligibility-button p-3 rounded-xl border-2 transition-all flex items-center justify-center space-x-2 ${formData[q.id as keyof FormData] === 'no' ? 'selected-no border-destructive bg-red-500/10 text-destructive' : 'border-border dark:border-slate-700 bg-gray-100/50 dark:bg-slate-800/20 text-slate-600 dark:text-slate-300 hover:border-slate-400 dark:hover:border-slate-500'}`}>
+                      <button onClick={() => handleInputChange(q.id as keyof FormData, 'no')} className={`eligibility-button p-3 rounded-xl transition-all flex items-center justify-center space-x-2 shadow-neu-inset ${formData[q.id as keyof FormData] === 'no' ? 'selected-no border-2 border-destructive bg-red-500/10 text-destructive' : 'bg-surface/50 text-muted-foreground hover:bg-surface'}`}>
                         <XCircle /> <span className="text-sm font-semibold">No</span>
                       </button>
                     </div>
@@ -117,9 +118,14 @@ const InstallerEligibilityModal: React.FC<EligibilityFormProps> = ({ isOpen, onC
                 ))}
               </div>
               <div className="flex justify-end mt-8">
-                <button onClick={handleCheckEligibility} disabled={!formData.cecAccredited || !formData.hasABN || !formData.providesInstallation} className="bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center space-x-2">
+                <Button
+                  onClick={handleCheckEligibility}
+                  disabled={!formData.cecAccredited || !formData.hasABN || !formData.providesInstallation}
+                  variant="primary"
+                  className="px-5 py-2 flex items-center space-x-2"
+                >
                   <span>Check Eligibility</span><ArrowRight />
-                </button>
+                </Button>
               </div>
             </div>
           )}
@@ -127,18 +133,18 @@ const InstallerEligibilityModal: React.FC<EligibilityFormProps> = ({ isOpen, onC
           {eligibilityStatus === 'ineligible' && (
             <div className="text-center animate-fade-in">
               <div className="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6"><XCircle /></div>
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Not Eligible</h3>
-              <p className="text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">Unfortunately, your company doesn&apos;t meet our current eligibility requirements. To join our partner network, you must be a CEC-accredited installer with an ABN providing services in Australia.</p>
-              <div className="bg-red-500/10 border border-destructive/30 rounded-xl p-6 mb-8">
-                <h4 className="text-destructive dark:text-red-400 font-semibold mb-3 flex items-center justify-center space-x-2"><AlertCircle /><span>Requirements Not Met</span></h4>
-                <ul className="text-red-600 dark:text-red-300 text-sm space-y-2 text-left">
+              <h3 className="text-2xl font-bold text-foreground mb-4">Not Eligible</h3>
+              <p className="text-muted-foreground mb-8 leading-relaxed">Unfortunately, your company doesn&apos;t meet our current eligibility requirements. To join our partner network, you must be a CEC-accredited installer with an ABN providing services in Australia.</p>
+              <div className="bg-red-500/10 shadow-neu-inset border border-destructive/30 rounded-xl p-6 mb-8">
+                <h4 className="text-destructive font-semibold mb-3 flex items-center justify-center space-x-2"><AlertCircle /><span>Requirements Not Met</span></h4>
+                <ul className="text-destructive text-sm space-y-2 text-left">
                   {formData.cecAccredited !== 'yes' && <li>• CEC accreditation required</li>}
                   {formData.hasABN !== 'yes' && <li>• Valid ABN required</li>}
                   {formData.providesInstallation !== 'yes' && <li>• Must provide installation services in Australia</li>}
                 </ul>
               </div>
               <div className="space-y-4">
-                <button onClick={resetForm} className="bg-gray-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-6 py-3 rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-slate-600 transition-all">Try Again</button>
+                <button onClick={resetForm} className="bg-surface hover:bg-surface-hover text-foreground px-6 py-3 rounded-xl font-semibold shadow-neu-outset transition-all">Try Again</button>
               </div>
             </div>
           )}
