@@ -6,7 +6,7 @@ import Button from '@/components/ui/button';
 
 // --- Icon Components ---
 const UserIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 text-white">
+  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 text-primary">
     <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
     <circle cx="12" cy="7" r="4"/>
   </svg>
@@ -222,7 +222,7 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
   
   if (!isOpen) return null;
 
-  const baseInputClasses = "w-full bg-surface/5 border border-border/50 rounded-xl px-4 py-3 text-foreground placeholder-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors";
+  const baseInputClasses = "w-full bg-surface/5 border border-border/50 rounded-xl px-4 py-3 text-foreground placeholder-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-neu-inset transition-colors";
 
   return (
     <div
@@ -268,9 +268,9 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
         )}
 
         {success && (
-          <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 mb-6 flex items-center space-x-3">
+          <div className="bg-success/10 shadow-neu-inset border border-success/30 rounded-2xl p-4 mb-6 flex items-center space-x-3">
             <CheckCircleIcon />
-            <p className="text-emerald-500 text-sm">{success}</p>
+            <p className="text-success text-sm">{success}</p>
           </div>
         )}
 

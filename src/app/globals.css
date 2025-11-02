@@ -147,34 +147,34 @@
   --color-background-elevated: 232 237 244; /* Slightly lighter for elevated surfaces */
   --color-background-hover: 216 221 228;  /* Slightly darker for hover */
   
-  /* Foreground/Text Colors - 3-level hierarchy */
-  --color-foreground: 18 18 18;           /* #121212 - Primary text (dark) */
-  --color-foreground-secondary: 0 0 0;    /* #000000 - High emphasis text */
-  --color-foreground-muted: 107 114 128;  /* #6B7280 - Secondary text (gray-400) */
-  --color-foreground-tertiary: 156 163 175; /* #9CA3AF - Tertiary text, placeholders */
+  /* Foreground/Text Colors - 3-level hierarchy (HIGH CONTRAST) */
+  --color-foreground: 0 0 0;              /* #000000 - Pure black primary text */
+  --color-foreground-secondary: 17 24 39; /* #111827 - High emphasis text (gray-900) */
+  --color-foreground-muted: 55 65 81;     /* #374151 - Secondary text (gray-700) */
+  --color-foreground-tertiary: 107 114 128; /* #6B7280 - Tertiary text, placeholders (gray-500) */
   
   /* Icon Colors */
-  --color-icon: 55 65 81;                 /* #374151 - Darker icons for light bg */
+  --color-icon: 17 24 39;                 /* #111827 - Very dark icons for maximum contrast */
   
   /* Accent Color - Pure Black (same as dark theme background) */
-  --color-accent: 18 18 18;               /* #121212 - Pure black accent */
+  --color-accent: 0 0 0;                  /* #000000 - Pure black accent for maximum contrast */
   --color-accent-hover: 37 37 37;         /* #252525 - Hover state */
   
   /* Border Colors */
-  --color-border: 209 213 219;            /* #D1D5DB - Subtle borders */
-  --color-border-strong: 156 163 175;     /* #9CA3AF - Emphasized borders */
+  --color-border: 156 163 175;            /* #9CA3AF - Stronger borders for visibility */
+  --color-border-strong: 107 114 128;     /* #6B7280 - Even more emphasized borders */
   
   /* Legacy aliases for backward compatibility */
-  --color-primary: 18 18 18;
+  --color-primary: 0 0 0;
   --color-primary-hover: 37 37 37;
   --color-primary-foreground: 255 255 255;
   --color-secondary: 232 237 244;
-  --color-secondary-foreground: 18 18 18;
+  --color-secondary-foreground: 0 0 0;
   --color-background-alt: 232 237 244;
   --color-surface: 232 237 244;
   --color-surface-hover: 216 221 228;
-  --color-muted: 107 114 128;
-  --color-subtle: 17 24 39;
+  --color-muted: 55 65 81;
+  --color-subtle: 0 0 0;
   
   /* Spacing (inherited from dark theme) */
   --spacing-xs: 0.25rem;
@@ -547,7 +547,7 @@ body {
 
 /* Unified theme card (legacy support) */
 .theme-card {
-  background: rgb(var(--color-background));
+  background: rgb(var(--color-background-elevated));
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-outset-xl);
   transition: all var(--duration-normal) var(--ease-in-out);
@@ -788,6 +788,17 @@ body {
 
 .animate-slide-in-top {
   animation: slide-in-from-top 0.5s ease-out forwards;
+}
+
+/* --- THEME-SPECIFIC MODAL OVERRIDES --- */
+/* Light theme: Pure white modals for clean, professional look */
+:root.theme-light .theme-card {
+  background: rgb(255, 255, 255); /* Pure white for modals in light theme */
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+:root.theme-light .theme-card:hover {
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 /* --- ACCESSIBILITY IMPROVEMENTS --- */

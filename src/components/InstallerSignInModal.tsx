@@ -242,7 +242,7 @@ const InstallerSignInModal: React.FC<InstallerSignInProps> = ({ isOpen, onClose,
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder="Email address"
-                className="w-full bg-surface/5 border border-border/50 rounded-xl pl-11 pr-4 py-3 text-foreground placeholder-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
+                className="w-full bg-surface/5 border border-border/50 rounded-xl pl-11 pr-4 py-3 text-foreground placeholder-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-neu-inset transition-colors"
                 required
               />
             </div>
@@ -262,7 +262,7 @@ const InstallerSignInModal: React.FC<InstallerSignInProps> = ({ isOpen, onClose,
                 value={formData.password}
                 onChange={handleInputChange}
                 placeholder="Password"
-                className="w-full bg-surface/5 border border-border/50 rounded-xl pl-11 pr-12 py-3 text-foreground placeholder-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
+                className="w-full bg-surface/5 border border-border/50 rounded-xl pl-11 pr-12 py-3 text-foreground placeholder-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-neu-inset transition-colors"
                 required
               />
               <button

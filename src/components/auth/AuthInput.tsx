@@ -44,7 +44,7 @@ export const AuthInput: React.FC<AuthInputProps> = ({
   const baseClasses = [
     'neu-input',
     'w-full',
-    icon ? 'pl-12' : 'pl-4',
+    icon ? 'neu-input-with-icon' : 'pl-4',
     showPasswordToggle ? 'pr-12' : 'pr-4',
     error ? 'border-destructive' : '',
     disabled ? 'opacity-50 cursor-not-allowed' : '',
@@ -53,13 +53,6 @@ export const AuthInput: React.FC<AuthInputProps> = ({
 
   return (
     <div className="relative w-full">
-      {/* Icon on the left */}
-      {icon && (
-        <div className="auth-input-icon">
-          {icon}
-        </div>
-      )}
-
       {/* Input field */}
       <input
         type={actualType}
@@ -74,6 +67,13 @@ export const AuthInput: React.FC<AuthInputProps> = ({
         aria-invalid={error ? 'true' : 'false'}
         aria-describedby={error ? `${name}-error` : undefined}
       />
+
+      {/* Icon inside input, left-aligned */}
+      {icon && (
+        <div className="neu-input-icon">
+          {icon}
+        </div>
+      )}
 
       {/* Password toggle button */}
       {showPasswordToggle && (

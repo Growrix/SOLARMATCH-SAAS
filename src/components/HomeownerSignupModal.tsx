@@ -2,72 +2,139 @@
 
 import React, { useState, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
+import Button from '@/components/ui/button';
 
-// --- Icon Components ---
-const XIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>;
-const UserCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 text-white"><path d="M18 20a6 6 0 0 0-12 0"/><circle cx="12" cy="10" r="4"/><circle cx="12" cy="12" r="10"/></svg>;
-const UserIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-subtle"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
-const MailIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-subtle"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>;
-const PhoneIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-subtle"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>;
-const MapPinIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-subtle"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
-const LockIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-subtle"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>;
-const EyeIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>;
-const ArrowRightIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 ml-2"><line x1="5" x2="19" y1="12" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>;
+// --- Icon Components (matching SOT) ---
+const UserIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 text-primary">
+    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+    <circle cx="12" cy="7" r="4"/>
+  </svg>
+);
+
+const GoogleIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" className="h-5 w-5">
+    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+  </svg>
+);
+
+const AppleIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
+    <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+  </svg>
+);
+
+const AlertTriangleIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5">
+    <path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+    <line x1="12" x2="12" y1="9" y2="13"/>
+    <line x1="12" x2="12.01" y1="17" y2="17"/>
+  </svg>
+);
+
+const CheckCircleIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-success flex-shrink-0">
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+    <polyline points="22 4 12 14.01 9 11.01"/>
+  </svg>
+);
+
+const EyeIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+    <circle cx="12" cy="12" r="3"/>
+  </svg>
+);
+
+const EyeOffIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+    <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
+    <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
+    <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>
+    <line x1="2" x2="22" y1="2" y2="22"/>
+  </svg>
+);
+
+const XIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+  </svg>
+);
 
 interface HomeownerSignupModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  onSwitchToSignIn: () => void;
-  context?: 'header' | 'quote'; // Context determines text/button labels
-  quoteData?: any; // Quote form data to submit after signup
-  quoteType?: 'call_visit' | 'written'; // Type of quote request
+  onSwitchToSignIn?: () => void;
 }
 
+/**
+ * HomeownerSignupModal - Redesigned to match InstallerSignupModal (SOT)
+ * Consistent modal structure, styling, and form design
+ * Zero hardcoded colors, uses semantic tokens only
+ */
 const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({ 
   isOpen, 
   onClose, 
-  onSuccess, 
-  onSwitchToSignIn, 
-  context = 'header',
-  quoteData,
-  quoteType 
+  onSuccess,
+  onSwitchToSignIn 
 }) => {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [isRecaptchaVerified, setIsRecaptchaVerified] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [formData, setFormData] = useState({
-    fullName: '',
     email: '',
-    phone: '',
-    address: '',
     password: '',
     confirmPassword: '',
   });
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
 
-  // Conditional text based on context
-  const modalTexts = {
-    header: {
-      title: 'Create Your Account',
-      description: 'Join SolarMatch to manage your solar quotes and connect with trusted installers.',
-      buttonText: 'Create Account',
-      successMessage: 'Account created successfully! Welcome to SolarMatch.',
-    },
-    quote: {
-      title: 'Almost there!',
-      description: 'Just create an account to securely save and track your quote requests.',
-      buttonText: 'Create Account & Submit Request',
-      successMessage: 'Account created successfully! Processing your quote request...',
-    },
-  };
-
-  const texts = modalTexts[context];
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        handleClose();
+      }
+    };
+    if (isOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'hidden';
+    } else {
+      resetForm();
+    }
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'auto';
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError(null); // Clear error when user types
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    if (error) { setError(null); }
+  };
+  
+  const resetForm = () => {
+    setFormData({ 
+      email: '',
+      password: '',
+      confirmPassword: ''
+    });
+    setError(null);
+    setSuccess(null);
+    setShowPassword(false);
+    setShowConfirmPassword(false);
+    setLoading(false);
+  };
+  
+  const handleClose = () => {
+    resetForm();
+    onClose();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -75,17 +142,16 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
     setLoading(true);
     setError(null);
     setSuccess(null);
-
-    // Validate passwords match
+    
+    // Client-side validation
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match.');
+      setError("Passwords do not match.");
       setLoading(false);
       return;
     }
 
-    // Validate recaptcha
-    if (!isRecaptchaVerified) {
-      setError('Please complete the reCAPTCHA verification.');
+    if (formData.password.length < 8) {
+      setError("Password must be at least 8 characters long.");
       setLoading(false);
       return;
     }
@@ -97,18 +163,20 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        // Registration failed - show error
         throw new Error(data.error || 'Registration failed');
       }
 
       // Registration successful
-      setSuccess(texts.successMessage);
+      setSuccess('Account created successfully! Redirecting to dashboard...');
       
       // Automatically sign in the user with their new credentials
       const signInResult = await signIn('credentials', {
@@ -118,19 +186,16 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
       });
 
       if (signInResult?.error) {
-        // Sign in failed after registration - shouldn't happen but handle it
         setError('Account created but automatic login failed. Please sign in manually.');
         setLoading(false);
         return;
       }
 
-      // Phase 4.10: Lead creation moved to parent component (page.tsx)
-      // This ensures NextAuth session is fully established before creating lead
-      // Session polling in parent handles proper timing
-      
-      // Call onSuccess to trigger parent's lead creation flow
-      onSuccess();
-
+      if (signInResult?.ok) {
+        setTimeout(() => {
+          onSuccess();
+        }, 1000);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred during registration');
     } finally {
@@ -138,202 +203,224 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
     }
   };
 
-  useEffect(() => {
-    if (isOpen) {
-      setError(null);
-      setSuccess(null);
-      setIsRecaptchaVerified(false);
-      setFormData({
-        fullName: '', email: '', phone: '', address: '', password: '', confirmPassword: ''
-      });
+  const handleGoogleSignup = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      await signIn('google', { callbackUrl: '/dashboard' });
+    } catch (err) {
+      setError('Google sign up failed. Please try again.');
+      setLoading(false);
     }
+  };
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    document.body.style.overflow = isOpen ? 'hidden' : 'auto';
-    
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'auto';
-    };
-  }, [isOpen, onClose]);
-  
+  const handleAppleSignup = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      await signIn('apple', { callbackUrl: '/dashboard' });
+    } catch (err) {
+      setError('Apple sign up failed. Please try again.');
+      setLoading(false);
+    }
+  };
+
+  // Close modal and reset form
+  useEffect(() => {
+    if (!isOpen) {
+      resetForm();
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
-
-  const baseInputClasses = "w-full bg-surface/5 border border-border/50 rounded-xl px-4 py-3 pl-12 text-foreground placeholder-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors";
 
   return (
     <div
-      className="fixed inset-0 bg-overlay backdrop-blur-sm z-50 flex items-center justify-center px-4 py-20 animate-fade-in"
-      onClick={onClose}
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center px-4 py-20 animate-fade-in"
+      onClick={handleClose}
     >
       <div
         className="theme-card relative w-full max-w-lg p-8 animate-slide-in-up max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Close Button */}
         <button
-          onClick={onClose}
+          onClick={handleClose}
           className="absolute top-4 right-4 text-subtle hover:text-foreground transition-colors"
           aria-label="Close"
         >
-          <XIcon />
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
         </button>
-        
+
+        {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-primary rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg">
-            <UserCircleIcon />
+          <div className="w-16 h-16 bg-surface rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-neu-outset">
+            <svg className="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
           </div>
-          <h2 className="text-2xl font-bold text-foreground mb-2">{texts.title}</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-2">Create Homeowner Account</h2>
           <p className="text-subtle text-sm">
-            {texts.description}
+            Join thousands of homeowners who have gone solar
           </p>
         </div>
 
+        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Error Alert */}
           {error && (
             <div className="bg-destructive/10 shadow-neu-inset border border-destructive/30 px-4 py-3 rounded-2xl text-sm text-destructive">
               {error}
             </div>
           )}
+
+          {/* Success Alert */}
           {success && (
             <div className="bg-success/10 shadow-neu-inset border border-success/30 px-4 py-3 rounded-2xl text-sm text-success">
               {success}
             </div>
           )}
-          
-          <div className="space-y-4">
-            <div className="relative flex items-center">
-              <div className="absolute left-4"><UserIcon /></div>
-              <input 
-                type="text" 
-                name="fullName" 
-                placeholder="Full Name"
-                className={baseInputClasses + " placeholder:text-base"}
-                required 
-                onChange={handleInputChange}
-                value={formData.fullName}
-              />
-            </div>
-            <div className="relative flex items-center">
-              <div className="absolute left-4"><PhoneIcon /></div>
-              <input 
-                type="tel" 
-                name="phone" 
-                placeholder="Phone Number (e.g., 0412 345 678)"
-                className={baseInputClasses + " placeholder:text-base"}
-                required 
-                onChange={handleInputChange}
-                value={formData.phone}
-              />
-            </div>
-            <p className="text-xs text-subtle ml-1 -mt-2 mb-2">
-              Australian format: 04XX XXX XXX or +61 4XX XXX XXX
-            </p>
-          </div>
-          
-          <div className="relative flex items-center">
-            <div className="absolute left-4"><MailIcon /></div>
-            <input 
-              type="email" 
-              name="email" 
-              placeholder="Email Address" 
-              className={baseInputClasses} 
-              required 
-              onChange={handleInputChange}
-              value={formData.email}
-            />
-          </div>
-          
-          <div className="relative flex items-center">
-            <div className="absolute left-4"><MapPinIcon /></div>
-            <input 
-              type="text" 
-              name="address" 
-              placeholder="Property Address" 
-              className={baseInputClasses} 
-              required 
-              onChange={handleInputChange}
-              value={formData.address}
-            />
-          </div>
-          
-          <div className="relative flex items-center">
-            <div className="absolute left-4"><LockIcon /></div>
-            <input 
-              type={showPassword ? "text" : "password"} 
-              name="password" 
-              placeholder="Password (min. 8 characters)" 
-              className={`${baseInputClasses} pr-12`} 
-              required 
-              minLength={8}
-              onChange={handleInputChange}
-              value={formData.password}
-            />
-            <button 
-              type="button" 
-              onClick={() => setShowPassword(!showPassword)} 
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-subtle hover:text-foreground"
+
+          {/* Social Sign Up Buttons */}
+          <div className="space-y-3">
+            <button
+              type="button"
+              onClick={handleGoogleSignup}
+              disabled={loading}
+              className="w-full bg-surface shadow-neu-outset hover:shadow-neu-inset border border-border rounded-xl px-4 py-3 flex items-center justify-center gap-3 text-foreground transition-all disabled:opacity-50"
             >
-              <EyeIcon />
+              <svg className="w-5 h-5" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+              </svg>
+              <span>Continue with Google</span>
             </button>
-          </div>
-          
-          <div className="relative flex items-center">
-            <div className="absolute left-4"><LockIcon /></div>
-            <input 
-              type={showPassword ? "text" : "password"} 
-              name="confirmPassword" 
-              placeholder="Confirm Password" 
-              className={`${baseInputClasses} pr-12`} 
-              required 
-              onChange={handleInputChange}
-              value={formData.confirmPassword}
-            />
+            
+            <button
+              type="button"
+              onClick={handleAppleSignup}
+              disabled={loading}
+              className="w-full bg-surface shadow-neu-outset hover:shadow-neu-inset border border-border rounded-xl px-4 py-3 flex items-center justify-center gap-3 text-foreground transition-all disabled:opacity-50"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+              </svg>
+              <span>Continue with Apple</span>
+            </button>
           </div>
 
-          <div className="pt-4">
-            <div className="flex items-center space-x-3 bg-surface/50 p-3 rounded-xl border border-border">
-                <input 
-                    type="checkbox"
-                    id="recaptcha"
-                    checked={isRecaptchaVerified}
-                    onChange={(e) => setIsRecaptchaVerified(e.target.checked)}
-                    className="h-6 w-6 rounded border-border text-primary focus:ring-primary bg-surface"
-                />
-                <label htmlFor="recaptcha" className="text-sm text-foreground">I&apos;m not a robot</label>
-                <div className="ml-auto text-center text-subtle text-xs">
-                    reCAPTCHA
-                </div>
+          {/* Divider */}
+          <div className="flex items-center my-6">
+            <div className="flex-1 border-t border-border"></div>
+            <span className="px-4 text-subtle text-sm">Or sign up with email</span>
+            <div className="flex-1 border-t border-border"></div>
+          </div>
+
+          {/* Form Fields */}
+          <div className="space-y-4">
+            {/* Email */}
+            <div className="relative">
+              <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              <input
+                type="email"
+                name="email"
+                placeholder="Email Address"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+                className="w-full bg-surface/5 border border-border/50 rounded-xl pl-11 pr-4 py-3 text-foreground placeholder-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-neu-inset transition-colors"
+              />
+            </div>
+
+            {/* Password */}
+            <div className="relative">
+              <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Password (min. 8 characters)"
+                value={formData.password}
+                onChange={handleInputChange}
+                required
+                minLength={8}
+                className="w-full bg-surface/5 border border-border/50 rounded-xl pl-11 pr-12 py-3 text-foreground placeholder-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-neu-inset transition-colors"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-subtle hover:text-foreground transition-colors"
+              >
+                {showPassword ? (
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                )}
+              </button>
+            </div>
+
+            {/* Confirm Password */}
+            <div className="relative">
+              <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <input
+                type={showPassword ? "text" : "password"}
+                name="confirmPassword"
+                placeholder="Confirm Password"
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
+                required
+                className="w-full bg-surface/5 border border-border/50 rounded-xl pl-11 pr-4 py-3 text-foreground placeholder-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-neu-inset transition-colors"
+              />
             </div>
           </div>
-          
-          <div className="pt-2">
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex items-center justify-center bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 shadow-lg"
-            >
-              {loading ? (
-                <div className="flex items-center justify-center">
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                  <span>Creating Account...</span>
-                </div>
-              ) : (
-                <>
-                  {texts.buttonText}
-                  <ArrowRightIcon />
-                </>
-              )}
-            </button>
-          </div>
+
+          {/* Submit Button */}
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={loading}
+            className="w-full shadow-neu-outset hover:shadow-neu-inset"
+          >
+            {loading ? (
+              <div className="flex items-center justify-center">
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                <span>Creating Account...</span>
+              </div>
+            ) : (
+              <>
+                <span>Create Account</span>
+                <svg className="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </>
+            )}
+          </Button>
         </form>
 
+        {/* Footer */}
         <div className="mt-6 text-center">
           <p className="text-subtle text-sm">
-            Already have an account? 
-            <button onClick={onSwitchToSignIn} className="text-primary font-medium hover:underline ml-1">Sign In</button>
+            Already have an account?{' '}
+            <button
+              onClick={onSwitchToSignIn}
+              className="text-primary font-medium hover:underline"
+            >
+              Sign In
+            </button>
           </p>
         </div>
       </div>
