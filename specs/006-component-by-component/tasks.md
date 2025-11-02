@@ -256,6 +256,159 @@ grep -E '(shadow-neu|bg-surface|text-foreground)' src/components/[Component].tsx
 
 ---
 
+## Phase 0.2: Multi-Theme System Implementation (Priority: P0) 🎯 CRITICAL FOUNDATION
+
+**Goal**: Implement 3-theme system (Dark, Light, Purple Dark) with dynamic theme switching BEFORE component migration
+
+**Strategy**: Build complete theme infrastructure NOW so that ALL component migrations (Phase 3+) can test against all 3 themes simultaneously. This prevents having to revisit components later.
+
+**Why This Phase Is Critical**:
+- **Risk Mitigation**: Implementing themes during component migration ensures all components work with all themes from day 1
+- **Efficiency**: Costs ~2 hours now vs. 20+ hours if we migrate components twice (once for dark, again for light/purple)
+- **Quality Assurance**: Every component tested with 3 themes = zero theme-switching bugs later
+
+**Theme Specifications**:
+
+### Dark Theme (Current - Google AI Studio Aligned)
+- Background: `#121212` ✅ Already implemented
+- Primary Text: `#F3F4F6` ✅ Already implemented
+- Secondary Text: `#D1D5DB` ✅ Already implemented
+- Tertiary Text: `#6B7280` ✅ Already implemented
+- Icon Color: `#E5E7EB` ✅ Already implemented
+- Accent: `#FFFFFF` (white)
+- Shadow Dark: `#000000` ✅ Already implemented
+- Shadow Light: `#242424` ✅ Already implemented
+- Button Text: `#FFFFFF`
+
+### Light Theme (Neumorphic Style - NEW)
+- Background: `#E0E5EC` (neumorphic-background)
+- Primary Text: `#121212` (brand-dark)
+- Secondary Text: `#6B7280` (brand-gray-400)
+- Tertiary Text: `#9CA3AF` (lighter placeholder)
+- Icon Color: `#374151` (darker icons for light bg)
+- Accent: `#111827` (brand-accent - near black)
+- Shadow Dark: `#A3B1C6` (neumorphic-shadow-dark)
+- Shadow Light: `#FFFFFF` (neumorphic-shadow-light)
+- Button Text: `#FFFFFF` (white on dark buttons)
+
+### Purple Dark Theme (Premium Brand - NEW)
+- Background: `#2C1D4D` (deep purple)
+- Primary Text: `#E9E3FF` (light lavender)
+- Secondary Text: `#CABEFF` (medium lavender)
+- Tertiary Text: `#A094C2` (placeholder lavender)
+- Icon Color: `#D5C9FF` (bright lavender)
+- Accent: `#A78BFA` (vibrant purple - focus rings)
+- Shadow Dark: `#1A112E` (very dark purple)
+- Shadow Light: `#3E296C` (lighter purple)
+- Button Text: `#1A112E` (dark purple on light buttons)
+
+**Architecture**: CSS variables per theme + React Context + localStorage persistence
+
+### Phase 0.2 Tasks
+
+**Theme Infrastructure (T020-T029)**
+- [ ] T020 [P0.2] Read constitution.md: Document current theme philosophy
+- [ ] T021 [P0.2] Update constitution.md: Add multi-theme strategy (Section: Theme System)
+- [ ] T022 [P0.2] Create `src/contexts/ThemeContext.tsx`: React Context for theme state (dark/light/purple)
+- [ ] T023 [P0.2] Create `src/hooks/useTheme.ts`: Custom hook for theme switching + localStorage persistence
+- [ ] T024 [P0.2] Update `src/app/layout.tsx`: Wrap app with ThemeProvider, apply theme class to `<html>`
+- [ ] T025 [P0.2] Create `src/components/ThemeSwitcher.tsx`: Dropdown/toggle component (3 options: Dark, Light, Purple)
+
+**CSS Variables Setup (T030-T034)**
+- [ ] T030 [P0.2] Update `globals.css`: Add `.theme-light` class with 15+ light theme variables
+- [ ] T031 [P0.2] Update `globals.css`: Add `.theme-purple` class with 15+ purple theme variables
+- [ ] T032 [P0.2] Update `globals.css`: Rename current `:root` to `.theme-dark` (preserve existing dark theme)
+- [ ] T033 [P0.2] Update `globals.css`: Add theme transition animations (smooth color fade: 200ms)
+- [ ] T034 [P0.2] Verify CSS variables: All 3 themes have identical variable names (only values differ)
+
+**Tailwind Configuration (T035-T037)**
+- [ ] T035 [P0.2] Update `tailwind.config.js`: Verify all color utilities map to CSS variables (no hardcoded changes needed)
+- [ ] T036 [P0.2] Test Tailwind: Verify `bg-background`, `text-foreground`, etc. work in all 3 themes
+- [ ] T037 [P0.2] Document theme-aware utilities: List classes that auto-adapt vs. need theme-specific overrides
+
+**Component Updates (T038-T042)**
+- [ ] T038 [P0.2] Add ThemeSwitcher to `HeaderMenu.tsx`: Top-right corner, icon-based dropdown
+- [ ] T039 [P0.2] Add ThemeSwitcher to `TopBar.tsx`: Mobile-friendly placement
+- [ ] T040 [P0.2] Test Hero section: Verify all 3 themes render correctly (text readable, shadows visible)
+- [ ] T041 [P0.2] Test TopBar: Verify neumorphic shadows work in all 3 themes
+- [ ] T042 [P0.2] Test InstallerEligibilityModal: Verify modal backdrop/content in all 3 themes
+
+**Testing & Validation (T043-T048)**
+- [ ] T043 [P0.2] Manual theme switching: Click ThemeSwitcher → Verify instant color change (all visible UI)
+- [ ] T044 [P0.2] localStorage persistence: Switch theme → Refresh page → Verify theme persists
+- [ ] T045 [P0.2] Contrast validation: Run WCAG 2.1 AA check on all 3 themes (text on background)
+- [ ] T046 [P0.2] Visual regression: Take screenshots of Hero/TopBar/Modal in all 3 themes
+- [ ] T047 [P0.2] Cross-browser test: Chrome, Firefox, Safari (if available) - theme switching works
+- [ ] T048 [P0.2] Mobile test: Theme switcher accessible on mobile, themes render correctly
+
+**Documentation (T049-T052)**
+- [ ] T049 [P0.2] Create `DOC/MULTI-THEME-SYSTEM.md`: Complete theme system documentation
+- [ ] T050 [P0.2] Update `DOC/DESIGN-SYSTEM-SOT.md`: Add theme switching section, color token mappings per theme
+- [ ] T051 [P0.2] Update `specs/006-component-by-component/spec.md`: Add theme testing requirement to component migration workflow
+- [ ] T052 [P0.2] Create theme testing checklist: Template for testing each component in all 3 themes
+
+**Constitution Updates (T053-T055)**
+- [ ] T053 [P0.2] Update constitution.md Section VI (Theme System): Replace "dark-only" with "multi-theme (dark/light/purple)"
+- [ ] T054 [P0.2] Update constitution.md Section VIII (Component Standards): Add "must support all 3 themes" requirement
+- [ ] T055 [P0.2] Update constitution.md Section IX (Testing Standards): Add "theme switching test" to QA checklist
+
+**Build & Final Validation (T056-T058)**
+- [ ] T056 [P0.2] Run `npm run build`: Ensure no errors with theme system
+- [ ] T057 [P0.2] Bundle size check: Verify theme CSS doesn't bloat bundle (should be ~5KB increase)
+- [ ] T058 [P0.2] Performance test: Theme switching < 100ms, no visible flash/flicker
+
+**Checkpoint**: ✅ All 3 themes implemented and tested - Component migration can now proceed with multi-theme validation
+
+### Phase 0.2 Validation Checklist:
+- [ ] Pre-Phase Audit: Current theme system documented (dark-only)
+- [ ] All T020-T058 tasks completed (39 tasks)
+- [ ] ThemeContext + useTheme hook working
+- [ ] ThemeSwitcher component added to HeaderMenu + TopBar
+- [ ] All 3 theme CSS variable sets defined in globals.css
+- [ ] Hero, TopBar, Modals tested in all 3 themes
+- [ ] WCAG 2.1 AA contrast ratios pass for all 3 themes
+- [ ] localStorage persistence working (theme survives page refresh)
+- [ ] Build: `npm run build` passed
+- [ ] Documentation: MULTI-THEME-SYSTEM.md created
+- [ ] Constitution.md updated: Multi-theme requirements added
+- [ ] User approval received for commit
+- [ ] Git commit created: "Phase 0.2: Multi-theme system (Dark, Light, Purple) - Complete infrastructure"
+
+### Updated Component Migration Workflow (Phase 3+):
+
+**NEW REQUIREMENT**: Every component migration MUST now include:
+
+```markdown
+### Theme Testing (MANDATORY for every component)
+
+After component redesign, test in ALL 3 themes:
+
+1. **Dark Theme Test**:
+   - [ ] Switch to Dark theme
+   - [ ] Component renders correctly
+   - [ ] Text readable (#F3F4F6 on #121212)
+   - [ ] Shadows visible (solid black/gray)
+   - [ ] Buttons contrast properly
+
+2. **Light Theme Test**:
+   - [ ] Switch to Light theme
+   - [ ] Component renders correctly
+   - [ ] Text readable (#121212 on #E0E5EC)
+   - [ ] Neumorphic shadows visible (#A3B1C6/#FFFFFF)
+   - [ ] Buttons contrast properly
+
+3. **Purple Theme Test**:
+   - [ ] Switch to Purple theme
+   - [ ] Component renders correctly
+   - [ ] Text readable (#E9E3FF on #2C1D4D)
+   - [ ] Purple shadows visible (#1A112E/#3E296C)
+   - [ ] Accent color (#A78BFA) pops correctly
+
+**IF ANY THEME FAILS**: Fix before marking component complete.
+```
+
+---
+
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Create tracking and tooling infrastructure for all migrations

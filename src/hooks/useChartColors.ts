@@ -1,6 +1,6 @@
 'use client';
 
-import { useTheme } from 'next-themes';
+import { useTheme } from '@/components/ThemeProvider';
 import { colors } from '@/design-tokens';
 
 /**
@@ -20,7 +20,7 @@ function hexToRgba(hex: string, alpha: number): string {
  * useChartColors Hook
  * 
  * Provides theme-aware color palettes specifically designed for data visualization (Recharts integration).
- * Returns hex color values that automatically adapt based on the current theme (light/dark/system).
+ * Returns hex color values that automatically adapt based on the current theme (dark/light/purple).
  * 
  * @returns {Object} Current theme's chart color palette with primary/secondary/tertiary/status colors
  * 
@@ -44,16 +44,16 @@ function hexToRgba(hex: string, alpha: number): string {
  * ```
  * 
  * @remarks
- * - Uses `next-themes` for theme detection (light/dark/system)
- * - Returns light/dark variant automatically based on current theme
+ * - Uses multi-theme system (dark/light/purple) for theme detection
+ * - Returns appropriate variant automatically based on current theme
  * - All colors are hex strings (#RRGGBB format) compatible with Recharts
  * - Color palette designed for high contrast and accessibility
  * - Primary/Secondary/Tertiary for data series differentiation
  * - Success/Warning/Error for status visualization
  */
 export function useChartColors() {
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === 'dark';
+  const { theme } = useTheme();
+  const isDark = theme === 'dark' || theme === 'purple';
 
   const primaryColor = isDark ? colors.chart.primary.dark : colors.chart.primary.light;
 

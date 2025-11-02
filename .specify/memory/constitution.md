@@ -160,17 +160,53 @@ PR guardrails (enforced during review/CI where possible):
 **Neumorphic Dark-First Design System**
 
 #### Design Philosophy
-- **Neumorphic Design**: Soft shadows create depth perception on dark backgrounds
-- **Dark-First**: Built for dark theme (#101010 background), light theme future
+- **Neumorphic Design**: Soft shadows create depth perception (works on dark AND light backgrounds)
+- **Multi-Theme First**: Built with 3 themes from the start (Dark #121212, Light #E0E5EC, Purple #2C1D4D)
+- **Theme-Agnostic Components**: All components work in all themes via CSS variables (no theme-specific code)
 - **Custom Components**: No third-party UI libraries (shadcn/ui, Material-UI, etc.)
-- **Design Tokens**: Semantic variables for all design decisions
+- **Design Tokens**: Semantic variables for all design decisions (identical names across themes)
 - **Utility-First CSS**: Tailwind CSS with custom design token extensions
 
-#### Theme System
-- **Dark Mode**: Class-based (`darkMode: 'class'` in `tailwind.config.js`)
-- **ThemeProvider**: Context API manages theme state and persists to `localStorage`
-- **CSS Variables**: Defined in `:root` of `src/app/globals.css` for dynamic theming
-- **Future Multi-Theme**: Additional themes added by overriding CSS variables under `[data-theme="theme-name"]`
+#### Theme System (Updated: Phase 0.2 - Multi-Theme Implementation)
+- **Multi-Theme Architecture**: 3 themes supported (Dark, Light, Purple Dark)
+- **Theme Switching**: Class-based system (`.theme-dark`, `.theme-light`, `.theme-purple` on `<html>`)
+- **ThemeProvider**: React Context manages theme state and persists to `localStorage`
+- **CSS Variables**: All themes use identical variable names, only values differ
+- **Dynamic Switching**: Theme changes apply instantly via CSS variable updates (200ms transition)
+- **Default Theme**: Dark (#121212 background) - Google AI Studio aligned
+- **Light Theme**: Neumorphic light (#E0E5EC background) with dark text
+- **Purple Theme**: Premium dark purple (#2C1D4D background) with lavender accents
+
+**Theme Architecture**:
+```css
+/* All themes share same variable names */
+:root.theme-dark {
+  --color-background: 18 18 18;        /* #121212 */
+  --color-foreground: 243 244 246;     /* #F3F4F6 */
+  --shadow-dark: #000000;
+  /* ... 15+ variables */
+}
+
+:root.theme-light {
+  --color-background: 224 229 236;     /* #E0E5EC */
+  --color-foreground: 18 18 18;        /* #121212 */
+  --shadow-dark: #A3B1C6;
+  /* ... same variable names, different values */
+}
+
+:root.theme-purple {
+  --color-background: 44 29 77;        /* #2C1D4D */
+  --color-foreground: 233 227 255;     /* #E9E3FF */
+  --shadow-dark: #1A112E;
+  /* ... same variable names, different values */
+}
+```
+
+**Component Requirements**:
+- ALL components MUST be tested in all 3 themes before completion
+- Use design token utilities only: `bg-background`, `text-foreground`, `shadow-neu-outset`
+- NEVER use hardcoded colors: `bg-slate-700`, `dark:bg-gray-800` are prohibited
+- ThemeSwitcher component available in HeaderMenu and TopBar for user preference
 
 #### Design Token Architecture
 
@@ -189,20 +225,26 @@ Primitives (Raw Values)          Semantic Tokens (Meaningful Names)
 - **CSS Variables**: `src/app/globals.css` (mapped from TypeScript tokens)
 - **Tailwind Config**: `tailwind.config.js` extends theme with semantic tokens
 
-#### Component Standards
+#### Component Standards (Updated: Phase 0.2 - Multi-Theme Requirements)
+
+**MANDATORY: All Components Must Support All 3 Themes**
+- Every component MUST be tested in Dark, Light, AND Purple themes before completion
+- Use ThemeSwitcher during development to verify visual correctness in all themes
+- Components failing in any theme MUST be fixed before marking complete
 
 **Never Use Hardcoded Values**:
 - ❌ `bg-slate-700`, `text-teal-500`, `border-gray-300`
 - ❌ `text-2xl`, `font-bold`, `px-6`
 - ❌ `dark:text-white`, `dark:bg-slate-800`
+- ❌ ANY theme-specific classes or conditionals
 
 **Always Use Design Tokens**:
-- ✅ `bg-primary`, `bg-surface`, `text-foreground`
-- ✅ `text-heading-2`, `text-body`, `font-heading`
-- ✅ `px-card-padding`, `py-section-gap`
-- ✅ CSS variables handle theming automatically (no manual dark: classes)
+- ✅ `bg-background`, `bg-surface`, `text-foreground`
+- ✅ `text-heading-2`, `text-body`, `text-muted-foreground`
+- ✅ `shadow-neu-outset`, `shadow-neu-inset`
+- ✅ CSS variables handle ALL theming automatically (zero theme-specific code)
 
-**Neumorphic Component Classes**:
+**Neumorphic Component Classes** (Theme-Agnostic):
 - **Buttons**: `.neu-btn-primary`, `.neu-btn-secondary`, `.neu-btn-link`, `.neu-btn-icon`
 - **Cards**: `.neu-card`, `.theme-card`, `.neu-card-hover`
 - **Inputs**: `.neu-input`, `.auth-input-icon`, `.neu-input-error`
@@ -210,18 +252,27 @@ Primitives (Raw Values)          Semantic Tokens (Meaningful Names)
 
 **Centralized Components** (src/components/auth/):
 - AuthInput, AuthButton, AuthModal, AuthAlert, AuthDivider, SocialAuthButtons
+- ThemeSwitcher component for user theme selection
 - Icon library: `src/components/icons/auth/`
-- All auth components use consistent neumorphic styling
+- All auth components use consistent neumorphic styling across all themes
 
-#### Quality Validation
+#### Quality Validation (Updated: Phase 0.2 - Multi-Theme Testing)
 
 **Manual QA Checklist** (Required for all UI changes):
-- [ ] Theme switching works (Dark/Light/System when available)
-- [ ] All interactive states work (hover, focus, active, disabled)
-- [ ] Responsive design tested (mobile 320px, tablet 768px, desktop 1024px+)
-- [ ] Accessibility validated (WCAG 2.1 AA, keyboard navigation, ARIA labels)
+- [ ] **DARK THEME TEST**: Switch to Dark theme → Component renders correctly, text readable, shadows visible
+- [ ] **LIGHT THEME TEST**: Switch to Light theme → Component renders correctly, text readable, neumorphic shadows visible
+- [ ] **PURPLE THEME TEST**: Switch to Purple theme → Component renders correctly, text readable, purple shadows visible
+- [ ] **Theme Switching**: All 3 themes switch instantly (no flash, no lag, colors update correctly)
+- [ ] All interactive states work (hover, focus, active, disabled) in ALL 3 themes
+- [ ] Responsive design tested (mobile 320px, tablet 768px, desktop 1024px+) in ALL 3 themes
+- [ ] Accessibility validated (WCAG 2.1 AA, keyboard navigation, ARIA labels) in ALL 3 themes
 - [ ] Zero hardcoded values (all use design tokens)
 - [ ] No console errors or warnings
+
+**Component Completion Criteria**:
+- Component CANNOT be marked complete unless it passes QA in ALL 3 themes
+- IF any theme fails, component must be fixed before moving forward
+- Theme testing is NOT optional - it is MANDATORY for every component
 - [ ] Component logic preserved (if migrating from old patterns)
 
 **Atomic Migration Rule**:
@@ -1463,10 +1514,13 @@ Every UI component MUST verify:
 - [ ] Form validation works (if applicable)
 - [ ] API calls work (if applicable)
 
-**Visual & Theme**:
-- [ ] Dark theme: Renders correctly (primary theme)
-- [ ] Light theme: Not yet implemented (future)
-- [ ] System theme: Will respect OS preference (future)
+**Visual & Theme** (UPDATED: Phase 0.2 - Multi-Theme Testing MANDATORY):
+- [ ] **Dark theme**: Component renders correctly, text readable (#F3F4F6 on #121212), shadows visible
+- [ ] **Light theme**: Component renders correctly, text readable (#121212 on #E0E5EC), neumorphic shadows visible
+- [ ] **Purple theme**: Component renders correctly, text readable (#E9E3FF on #2C1D4D), purple shadows visible
+- [ ] **Theme switching**: Instant transition between all 3 themes (no flash, colors update correctly)
+- [ ] **Contrast ratios**: WCAG 2.1 AA compliance in ALL 3 themes (4.5:1 for text, 3:1 for large text)
+- [ ] **System theme preference**: Will auto-detect OS preference and map to closest theme (future enhancement)
 - [ ] No color flicker or layout shift
 - [ ] Neumorphic shadows render correctly
 

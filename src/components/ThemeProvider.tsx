@@ -1,45 +1,43 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react';
 
-// Theme type: Only 'dark' for now, but structure preserved for future theme expansion
-export type Theme = 'dark';
+export type Theme = 'dark' | 'light' | 'purple';
 
-interface ThemeContextType {
+export interface ThemeContextType {
   theme: Theme;
   setTheme: (theme: Theme) => void;
-  effectiveTheme: 'dark'; // Always dark now, but kept for future multi-theme support
 }
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  // Single theme mode: Always dark
+interface ThemeProviderProps {
+  children: ReactNode;
+}
+
+export function ThemeProvider({ children }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>('dark');
-  const [effectiveTheme, setEffectiveTheme] = useState<'dark'>('dark');
 
+  // Load theme from localStorage on mount
   useEffect(() => {
-    // Load theme from localStorage (for future theme expansion)
-    const savedTheme = localStorage.getItem('theme') as Theme;
-    if (savedTheme === 'dark') {
+    const savedTheme = localStorage.getItem('solarmatch-theme') as Theme;
+    if (savedTheme && ['dark', 'light', 'purple'].includes(savedTheme)) {
       setTheme(savedTheme);
+      document.documentElement.className = `theme-${savedTheme}`;
     } else {
-      setTheme('dark'); // Default to dark
+      // Default to dark theme
+      document.documentElement.className = 'theme-dark';
     }
   }, []);
 
-  useEffect(() => {
-    // Save theme to localStorage
-    localStorage.setItem('theme', theme);
-
-    // Always apply dark class
-    document.documentElement.classList.add('dark');
-    
-    setEffectiveTheme('dark');
-  }, [theme]);
+  const handleSetTheme = (newTheme: Theme) => {
+    setTheme(newTheme);
+    localStorage.setItem('solarmatch-theme', newTheme);
+    document.documentElement.className = `theme-${newTheme}`;
+  };
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, effectiveTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme: handleSetTheme }}>
       {children}
     </ThemeContext.Provider>
   );

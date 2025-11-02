@@ -12,9 +12,13 @@
 
 /* ============================================
    DESIGN TOKENS - SINGLE SOURCE OF TRUTH
+   Multi-Theme System: Dark, Light, Purple
    ============================================ */
 
-:root {
+/* --------------------------------------------------
+   THEME 1: DARK (Default - Google AI Studio Aligned)
+   -------------------------------------------------- */
+:root.theme-dark, :root {
   /* --------------------------------------------------
      COLOR SYSTEM - Dark Theme (Google AI Studio Prototype Aligned)
      White accent only, grayscale base, Material Design standards
@@ -124,6 +128,210 @@
   /* --------------------------------------------------
      Z-INDEX SCALE - Predictable layering
      -------------------------------------------------- */
+  --z-base: 0;
+  --z-dropdown: 1000;
+  --z-sticky: 1100;
+  --z-fixed: 1200;
+  --z-modal-backdrop: 1300;
+  --z-modal: 1400;
+  --z-popover: 1500;
+  --z-tooltip: 1600;
+}
+
+/* --------------------------------------------------
+   THEME 2: LIGHT (Neumorphic Style)
+   -------------------------------------------------- */
+:root.theme-light {
+  /* Background Colors */
+  --color-background: 224 229 236;        /* #E0E5EC - Neumorphic light background */
+  --color-background-elevated: 232 237 244; /* Slightly lighter for elevated surfaces */
+  --color-background-hover: 216 221 228;  /* Slightly darker for hover */
+  
+  /* Foreground/Text Colors - 3-level hierarchy */
+  --color-foreground: 18 18 18;           /* #121212 - Primary text (dark) */
+  --color-foreground-secondary: 0 0 0;    /* #000000 - High emphasis text */
+  --color-foreground-muted: 107 114 128;  /* #6B7280 - Secondary text (gray-400) */
+  --color-foreground-tertiary: 156 163 175; /* #9CA3AF - Tertiary text, placeholders */
+  
+  /* Icon Colors */
+  --color-icon: 55 65 81;                 /* #374151 - Darker icons for light bg */
+  
+  /* Accent Color */
+  --color-accent: 17 24 39;               /* #111827 - Near black accent */
+  --color-accent-hover: 55 65 81;         /* #374151 - Hover state */
+  
+  /* Border Colors */
+  --color-border: 209 213 219;            /* #D1D5DB - Subtle borders */
+  --color-border-strong: 156 163 175;     /* #9CA3AF - Emphasized borders */
+  
+  /* Legacy aliases for backward compatibility */
+  --color-primary: 17 24 39;
+  --color-primary-hover: 55 65 81;
+  --color-primary-foreground: 255 255 255;
+  --color-secondary: 232 237 244;
+  --color-secondary-foreground: 18 18 18;
+  --color-background-alt: 232 237 244;
+  --color-surface: 232 237 244;
+  --color-surface-hover: 216 221 228;
+  --color-muted: 107 114 128;
+  --color-subtle: 17 24 39;
+  
+  /* Spacing (inherited from dark theme) */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
+  
+  /* Border Radius (inherited) */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-full: 9999px;
+  
+  /* Shadows - Neumorphic Light Style */
+  --shadow-light: #FFFFFF;                    /* White highlight */
+  --shadow-dark: #A3B1C6;                     /* Neumorphic shadow */
+  --shadow-inset-light: #FFFFFF;              /* Inset highlight */
+  --shadow-inset-dark: #A3B1C6;               /* Inset shadow */
+  
+  /* Outset Shadows */
+  --shadow-outset-sm: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+  --shadow-outset-md: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+  --shadow-outset-lg: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+  --shadow-outset-xl: 12px 12px 24px var(--shadow-dark), -12px -12px 24px var(--shadow-light);
+  
+  /* Inset Shadows */
+  --shadow-inset-sm: inset 3px 3px 6px var(--shadow-inset-dark), inset -3px -3px 6px var(--shadow-inset-light);
+  --shadow-inset-md: inset 4px 4px 8px var(--shadow-inset-dark), inset -4px -4px 8px var(--shadow-inset-light);
+  --shadow-inset-lg: inset 6px 6px 12px var(--shadow-inset-dark), inset -6px -6px 12px var(--shadow-inset-light);
+  
+  /* Legacy shadow aliases */
+  --shadow-neu-outset: var(--shadow-outset-md);
+  --shadow-neu-inset: var(--shadow-inset-md);
+  --shadow-neu-outset-sm: var(--shadow-outset-sm);
+  --shadow-neu-inset-sm: var(--shadow-inset-sm);
+  --shadow-neu-outset-lg: var(--shadow-outset-lg);
+  
+  /* Animation (inherited) */
+  --duration-instant: 0ms;
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 350ms;
+  --duration-slower: 500ms;
+  
+  --ease-linear: linear;
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  
+  /* Z-Index (inherited) */
+  --z-base: 0;
+  --z-dropdown: 1000;
+  --z-sticky: 1100;
+  --z-fixed: 1200;
+  --z-modal-backdrop: 1300;
+  --z-modal: 1400;
+  --z-popover: 1500;
+  --z-tooltip: 1600;
+}
+
+/* --------------------------------------------------
+   THEME 3: PURPLE DARK (Premium Brand)
+   -------------------------------------------------- */
+:root.theme-purple {
+  /* Background Colors */
+  --color-background: 44 29 77;           /* #2C1D4D - Deep purple */
+  --color-background-elevated: 62 41 108; /* #3E296C - Lighter purple for elevation */
+  --color-background-hover: 76 51 131;    /* #4C3383 - Hover state */
+  
+  /* Foreground/Text Colors - 3-level hierarchy */
+  --color-foreground: 233 227 255;        /* #E9E3FF - Light lavender primary */
+  --color-foreground-secondary: 255 255 255; /* #FFFFFF - High emphasis */
+  --color-foreground-muted: 202 190 255;  /* #CABEFF - Medium lavender secondary */
+  --color-foreground-tertiary: 160 148 194; /* #A094C2 - Placeholder lavender */
+  
+  /* Icon Colors */
+  --color-icon: 213 201 255;              /* #D5C9FF - Bright lavender icons */
+  
+  /* Accent Color */
+  --color-accent: 167 139 250;            /* #A78BFA - Vibrant purple accent */
+  --color-accent-hover: 196 181 253;      /* #C4B5FD - Lighter purple hover */
+  
+  /* Border Colors */
+  --color-border: 76 51 131;              /* #4C3383 - Purple borders */
+  --color-border-strong: 109 73 184;      /* #6D49B8 - Emphasized purple borders */
+  
+  /* Legacy aliases for backward compatibility */
+  --color-primary: 167 139 250;
+  --color-primary-hover: 196 181 253;
+  --color-primary-foreground: 26 17 46;   /* Dark purple text on light buttons */
+  --color-secondary: 62 41 108;
+  --color-secondary-foreground: 233 227 255;
+  --color-background-alt: 62 41 108;
+  --color-surface: 62 41 108;
+  --color-surface-hover: 76 51 131;
+  --color-muted: 202 190 255;
+  --color-subtle: 167 139 250;
+  
+  /* Spacing (inherited) */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
+  
+  /* Border Radius (inherited) */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-full: 9999px;
+  
+  /* Shadows - Purple-tinted Neumorphism */
+  --shadow-light: #3E296C;                    /* Lighter purple highlight */
+  --shadow-dark: #1A112E;                     /* Very dark purple shadow */
+  --shadow-inset-light: #3E296C;              /* Inset highlight */
+  --shadow-inset-dark: #1A112E;               /* Inset shadow */
+  
+  /* Outset Shadows */
+  --shadow-outset-sm: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+  --shadow-outset-md: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+  --shadow-outset-lg: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+  --shadow-outset-xl: 12px 12px 24px var(--shadow-dark), -12px -12px 24px var(--shadow-light);
+  
+  /* Inset Shadows */
+  --shadow-inset-sm: inset 3px 3px 6px var(--shadow-inset-dark), inset -3px -3px 6px var(--shadow-inset-light);
+  --shadow-inset-md: inset 4px 4px 8px var(--shadow-inset-dark), inset -4px -4px 8px var(--shadow-inset-light);
+  --shadow-inset-lg: inset 6px 6px 12px var(--shadow-inset-dark), inset -6px -6px 12px var(--shadow-inset-light);
+  
+  /* Legacy shadow aliases */
+  --shadow-neu-outset: var(--shadow-outset-md);
+  --shadow-neu-inset: var(--shadow-inset-md);
+  --shadow-neu-outset-sm: var(--shadow-outset-sm);
+  --shadow-neu-inset-sm: var(--shadow-inset-sm);
+  --shadow-neu-outset-lg: var(--shadow-outset-lg);
+  
+  /* Animation (inherited) */
+  --duration-instant: 0ms;
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 350ms;
+  --duration-slower: 500ms;
+  
+  --ease-linear: linear;
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  
+  /* Z-Index (inherited) */
   --z-base: 0;
   --z-dropdown: 1000;
   --z-sticky: 1100;
