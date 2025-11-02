@@ -10,16 +10,17 @@
 
 1. [Overview](#overview)
 2. [Design Principles](#design-principles)
-3. [Color System](#color-system)
-4. [Typography System](#typography-system)
-5. [Spacing System](#spacing-system)
-6. [Shadow System (Neumorphic)](#shadow-system-neumorphic)
-7. [Component Classes](#component-classes)
-8. [Form Components](#form-components)
-9. [Animation System](#animation-system)
-10. [Border & Radius](#border--radius)
-11. [Industry Standard Violations](#industry-standard-violations)
-12. [Migration Guidelines](#migration-guidelines)
+3. [Migration Principles](#migration-principles) ⚠️ **READ THIS FIRST**
+4. [Color System](#color-system)
+5. [Typography System](#typography-system)
+6. [Spacing System](#spacing-system)
+7. [Shadow System (Neumorphic)](#shadow-system-neumorphic)
+8. [Component Classes](#component-classes)
+9. [Form Components](#form-components)
+10. [Animation System](#animation-system)
+11. [Border & Radius](#border--radius)
+12. [Complete Migration Checklist](#complete-migration-checklist)
+13. [Code Cleanup Standards](#code-cleanup-standards)
 
 ---
 
@@ -57,17 +58,19 @@ Design System
 
 ### 1. **Neumorphism**
 - All interactive elements use soft shadows (raised/inset)
-- Background color (#101010) is the canvas
+- Multi-theme support: Dark (default), Light, Purple
 - Shadows create depth perception
 
 ### 2. **Design Tokens Only**
-- ❌ Never use: `bg-teal-600`, `text-slate-400`, `border-gray-300`
+- ❌ Never use: `bg-teal-600`, `text-slate-400`, `border-gray-300`, `dark:bg-slate-800`
 - ✅ Always use: `bg-primary`, `text-foreground`, `border-border`
+- ❌ Never use `dark:` prefixes - tokens handle themes automatically
 
-### 3. **Dark-First**
-- System built for dark theme (#101010 background)
-- Light theme will be added later (copy-paste with color swaps)
-- No light mode classes in current components
+### 3. **Multi-Theme System**
+- 3 themes: Dark (Google AI Studio aligned), Light (neumorphic), Purple (premium)
+- All themes use identical CSS variable names
+- No theme-specific classes in components
+- Theme switching via ThemeProvider context
 
 ### 4. **Accessibility**
 - WCAG 2.1 AA compliant
@@ -77,6 +80,281 @@ Design System
 ### 5. **Type Safety**
 - Full TypeScript interfaces for all tokens
 - Compile-time validation of token usage
+
+### 6. **Zero Legacy Code After Migration**
+- ⚠️ **CRITICAL**: Remove ALL unused CSS after migration
+- Delete deprecated classes, commented code, unused imports
+- No Storybook/Chromatic code (we don't use them)
+- Clean, production-ready code only
+
+---
+
+## 🚨 MIGRATION PRINCIPLES (READ FIRST)
+
+### ⚠️ THE PROBLEM: Partial Migrations Create Double Work
+
+**Your Pain Points:**
+1. ✅ Form migrated → ❌ Buttons still hardcoded
+2. ✅ Modal container updated → ❌ Modal header still has `dark:` classes
+3. ✅ Component 80% done → ❌ 20% missed = entire QA cycle wasted
+4. ✅ Semantic tokens used → ❌ Legacy CSS classes still in file
+
+**Result:** Inconsistency, rework, frustration, wasted time.
+
+---
+
+### ✅ THE SOLUTION: 100% Complete Migration Rules
+
+#### RULE #1: MIGRATE ENTIRE COMPONENT OR NOTHING
+- ❌ **NEVER** migrate "just the form" or "just the header"
+- ✅ **ALWAYS** migrate the ENTIRE component file in one go
+- ✅ Include ALL buttons, inputs, text, borders, backgrounds, shadows
+
+**Example - Button Migration:**
+```bash
+# WRONG ❌ - Partial migration
+grep -c '<button' Component.tsx    # Output: 5 buttons found
+# Migrate only 3 buttons, leave 2 for "later"
+# RESULT: Inconsistent UI, rework needed
+
+# RIGHT ✅ - Complete migration
+grep -c '<button' Component.tsx    # Output: 5 buttons found
+# Migrate ALL 5 buttons before marking task complete
+# RESULT: Consistent UI, no rework
+```
+
+#### RULE #2: NO HARDCODED VALUES AFTER MIGRATION
+**Search for these patterns AFTER migration:**
+```bash
+# All of these should return ZERO results
+grep -E 'bg-(slate|gray|zinc|neutral|stone)-[0-9]' src/components/YourComponent.tsx
+grep -E 'text-(slate|gray|zinc)-[0-9]' src/components/YourComponent.tsx
+grep -E 'border-(slate|gray)-[0-9]' src/components/YourComponent.tsx
+grep -E 'dark:' src/components/YourComponent.tsx
+grep -E 'bg-teal-[0-9]|bg-blue-[0-9]|bg-red-[0-9]' src/components/YourComponent.tsx
+```
+
+**If ANY pattern returns results = MIGRATION NOT COMPLETE**
+
+#### RULE #3: NO DARK: PREFIXES EVER
+- ❌ `dark:bg-slate-800`
+- ❌ `dark:text-white`
+- ❌ `dark:border-gray-700`
+- ✅ Use semantic tokens - they handle themes automatically
+
+**Why:** Multi-theme system uses CSS variables, not class switching.
+
+#### RULE #4: CLEAN CODE - ZERO LEGACY
+After migration, component should have:
+- ✅ No commented-out CSS
+- ✅ No unused imports (check with TypeScript)
+- ✅ No Storybook/Chromatic references
+- ✅ No deprecated classes
+- ✅ No "TODO: migrate later" comments
+
+**Before Committing:**
+```bash
+# Check for legacy code
+grep -E '(TODO|FIXME|HACK|XXX)' src/components/YourComponent.tsx
+grep -E 'import.*@storybook' src/components/YourComponent.tsx
+grep -E 'chromatic' src/components/YourComponent.tsx
+```
+
+#### RULE #5: UI CHANGES ONLY - PRESERVE ALL LOGIC
+**What You CAN Change:**
+- ✅ `className` strings
+- ✅ Button wrapper elements (`<button>` → `<Button>`)
+- ✅ CSS class names
+- ✅ Shadow/color/spacing values
+
+**What You CANNOT Change:**
+- ❌ `useState`, `useEffect`, `useMemo` hooks
+- ❌ Event handlers (`onClick`, `onSubmit`, `onChange`)
+- ❌ API calls, data fetching
+- ❌ Form validation logic
+- ❌ Conditional rendering logic (`if`, `&&`, `?:`)
+- ❌ Props interface/types
+- ❌ Component structure/JSX hierarchy
+
+**Example - CORRECT Migration:**
+```tsx
+// BEFORE (hardcoded)
+<button 
+  onClick={handleSubmit}              // ← DON'T TOUCH
+  disabled={isLoading}                // ← DON'T TOUCH
+  className="bg-teal-600 hover:bg-teal-700 px-4 py-2"  // ← CHANGE THIS ONLY
+>
+  {isLoading ? 'Submitting...' : 'Submit'}  // ← DON'T TOUCH
+</button>
+
+// AFTER (semantic tokens)
+<Button 
+  onClick={handleSubmit}              // ← PRESERVED
+  disabled={isLoading}                // ← PRESERVED
+  variant="primary"                   // ← CHANGED
+  className="px-5 py-2"               // ← CHANGED
+>
+  {isLoading ? 'Submitting...' : 'Submit'}  // ← PRESERVED
+</Button>
+```
+
+#### RULE #6: REFERENCE COMPONENTS BEFORE STARTING
+**MANDATORY - Open these files FIRST:**
+1. `src/components/HeaderMenu.tsx` - Button component usage
+2. `src/components/InstallerSignupModal.tsx` - Modal patterns
+3. `src/components/HomeownerSignInModal.tsx` - Form patterns
+4. `src/app/globals.css` - All available tokens
+
+**Copy exact imports and patterns - DON'T INVENT NEW ONES**
+
+---
+
+### 📋 COMPLETE MIGRATION CHECKLIST
+
+Before marking ANY task complete:
+
+```bash
+# 1. Count all interactive elements
+grep -c '<button' src/components/Component.tsx
+grep -c '<input' src/components/Component.tsx
+grep -c '<select' src/components/Component.tsx
+grep -c '<textarea' src/components/Component.tsx
+
+# 2. Verify ZERO hardcoded colors
+grep -E 'bg-(slate|gray|zinc|neutral|stone|teal|blue|red|green|yellow)-[0-9]' src/components/Component.tsx
+# Expected: NO OUTPUT
+
+# 3. Verify ZERO dark: prefixes
+grep 'dark:' src/components/Component.tsx
+# Expected: NO OUTPUT (or only in comments)
+
+# 4. Verify ZERO legacy code
+grep -E '(TODO|FIXME|commented.*code|storybook|chromatic)' src/components/YourComponent.tsx
+# Expected: NO OUTPUT
+
+# 5. Verify TypeScript compiles
+npx tsc --noEmit --project .
+# Expected: 0 errors
+
+# 6. Visual test in ALL 3 themes
+# Open component in browser
+# Switch theme: Dark → Light → Purple
+# Verify: All elements visible, consistent, interactive
+
+# 7. Functional test
+# Test ALL buttons, forms, modals, interactions
+# Verify: Everything works exactly as before
+```
+
+**If ANY check fails = MIGRATION NOT COMPLETE**
+
+---
+
+### 🚫 COMMON MISTAKES TO AVOID
+
+#### Mistake #1: "I'll migrate the buttons later"
+```tsx
+// ❌ WRONG - Partial migration
+<form className="bg-surface shadow-neu-outset rounded-xl p-6">  // ✅ Migrated
+  <input className="bg-surface/5 border-border" />               // ✅ Migrated
+  <button className="bg-teal-600 hover:bg-teal-700">Submit</button>  // ❌ NOT MIGRATED
+</form>
+// RESULT: Inconsistent, needs rework
+```
+
+```tsx
+// ✅ CORRECT - Complete migration
+<form className="bg-surface shadow-neu-outset rounded-xl p-6">  // ✅ Migrated
+  <input className="bg-surface/5 border-border" />               // ✅ Migrated
+  <Button variant="primary" className="px-5 py-2">Submit</Button> // ✅ Migrated
+</form>
+// RESULT: Consistent, production-ready
+```
+
+#### Mistake #2: "I'll remove this legacy code later"
+```tsx
+// ❌ WRONG - Leaving legacy code
+// import { useTheme } from 'next-themes';  // TODO: Remove this
+import Button from '@/components/ui/button';
+
+export default function Component() {
+  // const { theme } = useTheme();  // Old code - remove later
+  return (
+    <Button variant="primary">Click</Button>
+    {/* <button className="bg-teal-600">Old button</button> */}
+  );
+}
+// RESULT: Messy, confusing, unprofessional
+```
+
+```tsx
+// ✅ CORRECT - Clean code
+import Button from '@/components/ui/button';
+
+export default function Component() {
+  return (
+    <Button variant="primary">Click</Button>
+  );
+}
+// RESULT: Clean, professional, maintainable
+```
+
+#### Mistake #3: "Just using dark: is easier"
+```tsx
+// ❌ WRONG - Using dark: prefixes
+<div className="bg-white dark:bg-slate-900 text-black dark:text-white">
+  Content
+</div>
+// PROBLEM: Doesn't work with multi-theme system (Light/Purple themes broken)
+```
+
+```tsx
+// ✅ CORRECT - Using semantic tokens
+<div className="bg-surface text-foreground">
+  Content
+</div>
+// RESULT: Works with ALL themes automatically
+```
+
+#### Mistake #4: "I changed the form logic accidentally"
+```tsx
+// ❌ WRONG - Changed validation logic
+<input
+  value={email}
+  onChange={(e) => {
+    setEmail(e.target.value);
+    // Added this line during migration - WRONG!
+    if (e.target.value.includes('@')) setIsValid(true);
+  }}
+  className="bg-surface/5 border-border"  // Only this should change
+/>
+```
+
+```tsx
+// ✅ CORRECT - Only changed className
+<input
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}  // PRESERVED EXACTLY
+  className="bg-surface/5 border-border"      // ONLY THIS CHANGED
+/>
+```
+
+---
+
+### ⚡ QUICK REFERENCE: MUST-DO vs NEVER-DO
+
+| MUST DO ✅ | NEVER DO ❌ |
+|-----------|------------|
+| Migrate entire component | Partial migrations |
+| Replace ALL buttons | Leave some buttons for "later" |
+| Remove ALL `dark:` classes | Keep `dark:` classes |
+| Use semantic tokens | Use hardcoded colors |
+| Preserve ALL logic | Change event handlers |
+| Clean up legacy code | Leave commented code |
+| Test in ALL 3 themes | Test in one theme only |
+| Verify with grep commands | Trust visual check only |
+| Check reference components first | Invent new patterns |
+| Count elements before/after | Assume all elements migrated |
 
 ---
 
@@ -967,66 +1245,510 @@ className="bg-surface"
 
 ---
 
-## 🔄 Migration Guidelines
+## 🔄 MIGRATION PRINCIPLES - COMPLETE SYSTEM
 
-### Step-by-Step Migration Process
+### 🎯 Core Migration Philosophy
 
-#### Phase 1: Replace Hardcoded Colors (P0)
+**GOLDEN RULE**: NO HARDCODING, ONLY SEMANTIC & GLOBAL IMPLEMENTATIONS
+
+Based on extensive migration experience and pain points, these principles ensure:
+- ✅ **100% completion** - No partial migrations (e.g., migrating forms but not buttons)
+- ✅ **Zero inconsistency** - All components follow identical patterns
+- ✅ **No double work** - Do it once, do it right
+- ✅ **Theme-agnostic** - Works across Dark, Light, and Purple themes automatically
+
+---
+
+### 🚨 CRITICAL MIGRATION RULES
+
+#### Rule #1: COMPLETE COMPONENT MIGRATION (100% Rule)
+
+**❌ WRONG - Partial Migration:**
+```tsx
+// Migrated form fields but left buttons hardcoded
+<form className="space-y-4">
+  <input className="neu-input" />  {/* ✅ Migrated */}
+  <button className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-3"> {/* ❌ Not migrated */}
+    Submit
+  </button>
+</form>
+```
+
+**✅ CORRECT - Complete Migration:**
+```tsx
+<form className="space-y-4">
+  <input className="neu-input" />
+  <Button variant="primary">Submit</Button>  {/* ✅ Both migrated */}
+</form>
+```
+
+**CHECKLIST before marking component "complete":**
+- [ ] All colors use semantic tokens (bg-surface, text-foreground)
+- [ ] All buttons use Button component from `@/components/ui/button`
+- [ ] All typography uses semantic tokens (text-heading-1, text-body)
+- [ ] All spacing uses semantic tokens (p-card-padding, gap-element-gap)
+- [ ] All shadows use neumorphic tokens (shadow-neu-outset, shadow-neu-inset)
+- [ ] All borders use semantic tokens (border-border, rounded-button)
+- [ ] All form inputs use centralized components (neu-input class or AuthInput)
+- [ ] All icons use centralized components (not inline SVGs)
+- [ ] Zero `dark:` classes (themes handled by CSS variables)
+- [ ] Zero hardcoded Tailwind colors (bg-slate-*, text-gray-*, etc.)
+
+---
+
+#### Rule #2: NO DARK MODE CLASSES (Theme-Agnostic Rule)
+
+**❌ WRONG - Manual Dark Mode:**
+```tsx
+// Creates double work and breaks when adding new themes
+className="bg-white dark:bg-black text-slate-900 dark:text-white"
+className="border-gray-200 dark:border-slate-700"
+className="bg-gray-100 dark:bg-slate-800"
+```
+
+**✅ CORRECT - Theme-Agnostic:**
+```tsx
+// Works automatically across Dark, Light, Purple themes
+className="bg-surface text-foreground"
+className="border-border"
+className="bg-surface"
+```
+
+**WHY THIS MATTERS:**
+- Current system has 3 themes (Dark, Light, Purple)
+- Each theme defines its own CSS variable values
+- Using semantic tokens means: change theme → component updates automatically
+- Using `dark:` classes means: must manually handle each theme variation
+
+**MIGRATION PATTERN:**
+```tsx
+// Find all instances of:
+dark:bg-*
+dark:text-*
+dark:border-*
+dark:hover:*
+
+// Replace with semantic tokens (remove dark: prefix)
+bg-surface
+text-foreground
+border-border
+hover:bg-surface-hover
+```
+
+---
+
+#### Rule #3: ATOMIC COMPONENT CONSISTENCY (No Reinventing)
+
+**❌ WRONG - Creating New Patterns:**
+```tsx
+// Component A - Custom button
+<button className="bg-primary hover:bg-primary-hover px-4 py-2 rounded-lg">
+  Click Me
+</button>
+
+// Component B - Another custom button (inconsistent)
+<button className="bg-accent hover:bg-accent-hover px-6 py-3 rounded-xl shadow-neu-outset">
+  Submit
+</button>
+
+// Component C - Yet another pattern
+<button className="neu-btn-primary">
+  Save
+</button>
+```
+
+**✅ CORRECT - Use Centralized Button:**
+```tsx
+import Button from '@/components/ui/button';
+
+// Component A, B, C - All consistent
+<Button variant="primary">Click Me</Button>
+<Button variant="primary">Submit</Button>
+<Button variant="primary">Save</Button>
+```
+
+**CENTRALIZED COMPONENTS REGISTRY:**
+
+| Element | Component/Class | Import Path | Documentation |
+|---------|----------------|-------------|---------------|
+| Buttons | `<Button variant="primary\|secondary\|ghost">` | `@/components/ui/button` | See HeaderMenu.tsx |
+| Form Inputs | `.neu-input` class | globals.css | See FORM-DESIGN-STANDARD-SOT.md |
+| Auth Inputs | `<AuthInput />` | `@/components/auth` | Auth-specific inputs with icons |
+| Cards | `.neu-card` or `.theme-card` | globals.css | Standard card pattern |
+| Icon Container | `.auth-icon-container` | globals.css | Neumorphic icon wrapper |
+| Alerts | `.neu-alert-error\|success\|warning\|info` | globals.css | Status alerts |
+| Modal | `.theme-card` + backdrop | globals.css | Modal container |
+
+**BEFORE CODING:**
+1. Open `HeaderMenu.tsx` - Check Button usage
+2. Open `InstallerSignupModal.tsx` - Check form patterns
+3. Open `TopBar.tsx` - Check neumorphic shadows
+4. Search codebase: `grep -r "neu-btn-primary" src/` - Find existing patterns
+
+---
+
+#### Rule #4: GREP BEFORE & AFTER (Violation Check)
+
+**MANDATORY VERIFICATION:**
 
 ```bash
-# Search for violations
-grep -r "bg-slate-" src/components/
-grep -r "text-slate-" src/components/
-grep -r "dark:bg-black" src/components/
-grep -r "dark:text-white" src/components/
+# BEFORE STARTING MIGRATION - Document current state
+grep -r "bg-slate-" src/components/YourComponent.tsx > violations-before.txt
+grep -r "text-slate-" src/components/YourComponent.tsx >> violations-before.txt
+grep -r "dark:" src/components/YourComponent.tsx >> violations-before.txt
+grep -c "<button" src/components/YourComponent.tsx >> violations-before.txt
+
+# AFTER MIGRATION - Must be ZERO
+grep -r "bg-slate-" src/components/YourComponent.tsx  # Expected: EMPTY
+grep -r "text-slate-" src/components/YourComponent.tsx  # Expected: EMPTY
+grep -r "dark:" src/components/YourComponent.tsx  # Expected: EMPTY (except comments)
+grep -c "<button" src/components/YourComponent.tsx  # Expected: 0 (all replaced with Button)
 ```
 
-**Replacement Map:**
+**RED FLAGS (Must fix before commit):**
+- Any `bg-slate-*`, `text-slate-*`, `border-gray-*` found
+- Any `dark:` classes found (except in globals.css)
+- Any native `<button>` elements (should use Button component)
+- Any `text-2xl font-bold` (should use `text-heading-2`)
+- Any inline SVG icons (should use centralized icon components)
+
+---
+
+#### Rule #5: REFERENCE COMPONENT MANDATE (Never Assume)
+
+**BEFORE TOUCHING ANY COMPONENT:**
+
+**Step 1: Identify Reference Components**
 ```tsx
-// Background Colors
-bg-white/5 dark:bg-black/20        → bg-surface/5
-bg-slate-700 dark:bg-slate-900     → bg-surface
-bg-gray-100 dark:bg-slate-800      → bg-surface
+// For Buttons → HeaderMenu.tsx
+import Button from '@/components/ui/button';
 
-// Text Colors
-text-slate-900 dark:text-white     → text-foreground
-text-slate-600 dark:text-slate-400 → text-muted-foreground
-text-slate-500 dark:text-slate-300 → text-subtle
-
-// Border Colors
-border-gray-200 dark:border-slate-700 → border-border
-border-slate-700/50                   → border-border/50
+<Button variant="primary" className="px-5 py-2">Sign Up</Button>
+<Button variant="secondary" className="px-5 py-2">Logout</Button>
+<Button variant="ghost" className="px-5 py-2">Login</Button>
 ```
 
-#### Phase 2: Migrate Typography (P1)
-
+**Step 2: For Forms → InstallerSignupModal.tsx**
 ```tsx
-// Heading Migrations
-text-4xl font-bold                 → text-heading-1
-text-3xl font-bold                 → text-heading-2
-text-2xl font-bold                 → text-heading-2
-text-xl font-semibold              → text-heading-3
-text-lg font-semibold              → text-heading-4
+// Input pattern
+<input 
+  className="neu-input pl-12"
+  placeholder="Email"
+/>
 
-// Body Text Migrations
-text-base                          → text-body
-text-sm                            → text-body-small
-text-xs                            → text-caption
+// Icon container
+<div className="auth-icon-container">
+  <MailIcon className="h-10 w-10 text-primary" />
+</div>
 
-// Remove These (included in typography classes)
-font-bold                          → (remove, included in heading classes)
-font-semibold                      → (remove, included in heading classes)
-leading-tight                      → (remove, included in heading classes)
-leading-relaxed                    → (remove, included in body classes)
+// Icon inside input
+<div className="relative">
+  <input className="neu-input pl-12" />
+  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">
+    <MailIcon className="h-5 w-5" />
+  </div>
+</div>
 ```
 
-#### Phase 3: Use Centralized Components (P1)
+**Step 3: For Neumorphic Shadows → TopBar.tsx**
+```tsx
+// Raised elements
+shadow-neu-outset       // Buttons, cards
+shadow-neu-outset-lg    // Hover states
+
+// Pressed elements
+shadow-neu-inset        // Inputs, active buttons
+```
+
+**❌ NEVER DO THIS:**
+```tsx
+// Creating new patterns without checking references
+<button className="bg-primary hover:bg-accent px-4 py-3 rounded-md shadow-lg">
+  // ❌ Wrong: padding, radius, shadow don't match SOT
+</button>
+```
+
+---
+
+### 📋 STEP-BY-STEP MIGRATION PROCESS
+
+#### Phase 1: Pre-Migration Audit (5 minutes)
+
+```bash
+# 1. Document current violations
+cd "d:\\Desktop Mass\\SOLAR LEAD GEN PROJECT MAIN FILE\\solarmatch"
+
+# Count violations
+grep -rn "bg-slate-\|text-slate-\|border-gray-" src/components/[Component].tsx | wc -l
+grep -rn "dark:" src/components/[Component].tsx | wc -l
+grep -c "<button" src/components/[Component].tsx
+
+# 2. Identify all element types
+grep -n "className=" src/components/[Component].tsx | head -20
+
+# 3. Check for forms/buttons/modals
+grep -n "onSubmit\|onClick\|type=\"submit\"" src/components/[Component].tsx
+```
+
+**Document findings:**
+- Total violations: ___ 
+- Button count: ___
+- Has forms: Yes/No
+- Has modals: Yes/No
+- Reference components needed: ___ (list)
+
+---
+
+#### Phase 2: Open Reference Components (2 minutes)
+
+**MANDATORY - Open these files side-by-side:**
+
+1. `src/components/HeaderMenu.tsx` - Button patterns
+2. `src/components/InstallerSignupModal.tsx` - Form patterns
+3. `src/components/TopBar.tsx` - Neumorphic shadows
+4. `src/app/globals.css` (lines 300-600) - All CSS classes
+
+**Copy exact import statements:**
+```tsx
+import Button from '@/components/ui/button';  // ✅ Exact import
+```
+
+---
+
+#### Phase 3: Replace Hardcoded Colors (P0)
+
+**COMPREHENSIVE REPLACEMENT MAP (Copy-Paste Ready):**
 
 ```tsx
-// ❌ OLD - Custom input with hardcoded classes
-<input className="w-full bg-gray-100 dark:bg-slate-900 border..." />
+/* ============================================
+   COLOR REPLACEMENTS - Theme-Agnostic
+   ============================================ */
 
-// ✅ NEW - Centralized AuthInput component
+// BACKGROUNDS
+bg-white dark:bg-black                  → bg-background
+bg-white/5 dark:bg-black/20             → bg-surface/5
+bg-gray-50 dark:bg-slate-900            → bg-surface
+bg-gray-100 dark:bg-slate-800           → bg-surface
+bg-slate-50/50 dark:bg-slate-800/50     → bg-surface/50
+bg-slate-700 dark:bg-slate-900          → bg-surface
+bg-white/50 dark:bg-slate-700/30        → bg-surface/50
+
+// TEXT COLORS
+text-slate-900 dark:text-white          → text-foreground
+text-black dark:text-white              → text-foreground
+text-slate-600 dark:text-slate-400      → text-muted-foreground
+text-slate-500 dark:text-slate-300      → text-muted-foreground
+text-gray-600 dark:text-gray-400        → text-muted-foreground
+text-slate-400                          → text-muted-foreground (icons, placeholders)
+
+// BORDERS
+border-gray-200 dark:border-slate-700   → border-border
+border-slate-200 dark:border-slate-800  → border-border
+border-border/30 dark:border-slate-700/50 → border-border/30 (remove dark:)
+border-slate-700/50                     → border-border/50
+
+// HOVER STATES (remove dark: variations)
+hover:bg-gray-100 dark:hover:bg-slate-800 → hover:bg-surface-hover
+hover:text-slate-800 dark:hover:text-white → hover:text-foreground
+
+// PLACEHOLDERS
+placeholder-slate-500 dark:placeholder-slate-400 → placeholder-muted-foreground
+
+// COMMON ICONS
+text-slate-400                          → text-muted-foreground (for icons)
+text-slate-500 dark:text-slate-400      → text-muted-foreground
+```
+
+**STATUS COLORS (Keep semantic meaning):**
+```tsx
+// Error states (keep Tailwind semantic)
+bg-red-50 dark:bg-red-900/20            → bg-destructive/10
+text-red-500 dark:text-red-400          → text-destructive
+border-red-200 dark:border-red-800      → border-destructive/30
+
+// Success states
+bg-green-50 dark:bg-green-900/20        → bg-success/10
+text-green-500 dark:text-green-400      → text-success
+border-green-200 dark:border-green-800  → border-success/30
+
+// Warning states
+bg-yellow-50 dark:bg-yellow-900/20      → bg-warning/10
+text-yellow-500 dark:text-yellow-400    → text-warning
+border-yellow-200 dark:border-yellow-800 → border-warning/30
+
+// Info states
+bg-blue-50 dark:bg-blue-900/20          → bg-info/10
+text-blue-500 dark:text-blue-400        → text-info
+border-blue-200 dark:border-blue-800    → border-info/30
+```
+
+**MIGRATION SCRIPT (VS Code Find & Replace with Regex):**
+
+```bash
+# Enable Regex in VS Code (Alt+R)
+# Replace in current file or entire src/components/ folder
+
+# Pattern 1: Background with dark mode
+Find:    bg-white/5 dark:bg-black/20
+Replace: bg-surface/5
+
+# Pattern 2: Text with dark mode
+Find:    text-slate-900 dark:text-white
+Replace: text-foreground
+
+# Pattern 3: Border with dark mode
+Find:    border-gray-200 dark:border-slate-700
+Replace: border-border
+
+# Pattern 4: Remove dark: prefix globally (careful!)
+Find:    dark:(bg|text|border|hover:)-([\w-/]+)
+Replace: $1-$2
+```
+
+---
+
+#### Phase 4: Replace ALL Buttons (P0 - CRITICAL)
+
+**❌ COMMON MISTAKE - Forgetting Buttons:**
+```tsx
+// Migrated form but forgot buttons!
+<form className="space-y-4">
+  <input className="neu-input" />  {/* ✅ Migrated */}
+  <button className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-xl">
+    {/* ❌ Still hardcoded! */}
+    Submit
+  </button>
+</form>
+```
+
+**✅ COMPLETE MIGRATION:**
+
+**Step 1: Count ALL buttons**
+```bash
+grep -n "<button" src/components/YourComponent.tsx
+# Note line numbers and types (submit, reset, click, etc.)
+```
+
+**Step 2: Add Button import**
+```tsx
+import Button from '@/components/ui/button';
+```
+
+**Step 3: Replace each button**
+```tsx
+// OLD
+<button 
+  type="submit"
+  className="w-full bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-xl font-semibold transition-colors"
+  onClick={handleSubmit}
+>
+  Submit Form
+</button>
+
+// NEW
+<Button 
+  type="submit"
+  variant="primary"
+  onClick={handleSubmit}
+  className="w-full"
+>
+  Submit Form
+</Button>
+
+// Button Variant Map:
+// Primary CTA (submit, confirm, save) → variant="primary"
+// Secondary action (cancel, back)     → variant="secondary"
+// Tertiary/ghost (skip, dismiss)     → variant="ghost"
+```
+
+**Step 4: Verify zero native buttons**
+```bash
+grep -c "<button" src/components/YourComponent.tsx
+# Expected: 0
+```
+
+---
+
+#### Phase 5: Migrate Typography (P1)
+
+**COMPLETE REPLACEMENT MAP:**
+
+```tsx
+/* ============================================
+   TYPOGRAPHY REPLACEMENTS
+   ============================================ */
+
+// HEADINGS (remove font-weight, it's included)
+text-4xl font-bold leading-tight         → text-heading-1
+text-3xl font-bold                       → text-heading-2
+text-2xl font-bold                       → text-heading-2
+text-xl font-semibold                    → text-heading-3
+text-lg font-semibold                    → text-heading-4
+
+// BODY TEXT
+text-base leading-relaxed                → text-body
+text-base                                → text-body
+text-sm                                  → text-body-small
+text-xs                                  → text-caption
+
+// LABELS (form labels, nav items)
+text-sm font-medium                      → text-label
+
+// BUTTONS
+text-sm font-semibold                    → text-button
+
+// REMOVE THESE (redundant with semantic classes)
+font-bold                                → (remove, already in text-heading-*)
+font-semibold                            → (remove, already in text-heading-*)
+font-medium                              → (remove, already in text-label)
+leading-tight                            → (remove, already in text-heading-*)
+leading-relaxed                          → (remove, already in text-body)
+leading-normal                           → (remove, default)
+```
+
+**SEMANTIC HTML REQUIREMENT:**
+```tsx
+// ✅ CORRECT - Visual matches semantic
+<h1 className="text-heading-1">Main Title</h1>
+<h2 className="text-heading-2">Section Title</h2>
+<p className="text-body">Body paragraph</p>
+
+// ❌ WRONG - Visual doesn't match semantic
+<div className="text-heading-1">Not semantic</div>  {/* Should be h1 */}
+<h1 className="text-caption">Tiny heading</h1>     {/* Confusing hierarchy */}
+```
+
+---
+
+#### Phase 6: Use Centralized Form Components (P1)
+
+**FORM INPUT STANDARDIZATION:**
+
+**Option A: Use CSS Class (Recommended for simple forms)**
+```tsx
+// ✅ Simple, consistent
+<input 
+  type="email"
+  className="neu-input"
+  placeholder="Enter email"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+/>
+
+// With icon (left-side)
+<div className="relative">
+  <input 
+    className="neu-input pl-12"
+    placeholder="Enter email"
+  />
+  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">
+    <MailIcon className="h-5 w-5" />
+  </div>
+</div>
+```
+
+**Option B: Use AuthInput Component (For auth forms)**
+```tsx
 import { AuthInput } from '@/components/auth';
 
 <AuthInput
@@ -1036,18 +1758,280 @@ import { AuthInput } from '@/components/auth';
   value={email}
   onChange={(e) => setEmail(e.target.value)}
   icon={<MailIcon className="h-5 w-5" />}
+  showPasswordToggle={type === 'password'}
 />
 ```
 
-#### Phase 4: Verify No Violations
+**❌ NEVER CREATE CUSTOM INPUT CLASSES:**
+```tsx
+// ❌ WRONG - Reinventing the wheel
+const baseInputClasses = "w-full bg-gray-100 dark:bg-slate-900 border border-border dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors";
+
+// ✅ CORRECT - Use existing class
+<input className="neu-input" />
+```
+
+**ICON PATTERNS:**
+
+```tsx
+// Form Header Icon (80x80px container, 40x40px icon)
+<div className="auth-icon-container mb-6">
+  <LockIcon className="h-10 w-10 text-primary" />
+</div>
+
+// Input Icon (20x20px, left-aligned)
+<div className="relative">
+  <input className="neu-input pl-12" />
+  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">
+    <MailIcon className="h-5 w-5" />
+  </div>
+</div>
+```
+
+---
+
+#### Phase 7: Final Verification (MANDATORY - 5 minutes)
+
+**ZERO-VIOLATION CHECK:**
 
 ```bash
-# After migration, these should return ZERO results:
-grep -r "bg-slate-" src/components/
-grep -r "text-slate-" src/components/
-grep -r "dark:text-white" src/components/
-grep -r "text-2xl font-" src/components/
+cd "d:\\Desktop Mass\\SOLAR LEAD GEN PROJECT MAIN FILE\\solarmatch"
+
+# 1. COLOR VIOLATIONS (Must be ZERO)
+grep -rn "bg-slate-" src/components/YourComponent.tsx
+grep -rn "text-slate-" src/components/YourComponent.tsx
+grep -rn "border-gray-" src/components/YourComponent.tsx
+grep -rn "dark:bg-" src/components/YourComponent.tsx
+grep -rn "dark:text-" src/components/YourComponent.tsx
+grep -rn "dark:border-" src/components/YourComponent.tsx
+
+# Expected: EMPTY (or only in comments)
+
+# 2. BUTTON VIOLATIONS (Must be ZERO)
+grep -c "<button" src/components/YourComponent.tsx
+
+# Expected: 0
+
+# 3. TYPOGRAPHY VIOLATIONS (Must be ZERO)
+grep -rn "text-2xl font-" src/components/YourComponent.tsx
+grep -rn "text-xl font-" src/components/YourComponent.tsx
+grep -rn "text-sm font-medium" src/components/YourComponent.tsx
+
+# Expected: EMPTY (replaced with semantic tokens)
+
+# 4. INLINE SVG VIOLATIONS (Should be minimal)
+grep -c "<svg" src/components/YourComponent.tsx
+
+# Expected: 0 (use centralized icon components)
 ```
+
+**CHECKLIST (All must be ✅):**
+
+- [ ] Zero hardcoded colors (`bg-slate-*`, `text-gray-*`, `border-*`)
+- [ ] Zero `dark:` classes (except in globals.css)
+- [ ] Zero native `<button>` elements (all use Button component)
+- [ ] Zero raw typography (`text-2xl font-bold` → `text-heading-2`)
+- [ ] Zero custom input classes (use `neu-input` or `AuthInput`)
+- [ ] Zero inline SVGs (use centralized icons)
+- [ ] All semantic HTML matches visual hierarchy (h1 uses text-heading-1)
+- [ ] TypeScript compiles: `npx tsc --noEmit`
+- [ ] Component still functions (test all interactions)
+
+**IF ANY CHECK FAILS:**
+1. Fix immediately (should take <5 minutes)
+2. Re-run verification
+3. Repeat until all checks pass
+
+**ONLY THEN:**
+- Mark task complete in tasks.md
+- Request user approval for commit
+
+---
+
+### 🔥 COMMON PAIN POINTS & SOLUTIONS
+
+#### Pain Point #1: Partial Migrations (Forms but not Buttons)
+
+**SYMPTOM:**
+- Form fields look neumorphic and themed
+- Buttons still have hardcoded teal/slate colors
+- Creates visual inconsistency
+
+**ROOT CAUSE:**
+- Developer focused only on `<input>` elements
+- Forgot to check for `<button>` elements
+- No systematic verification
+
+**SOLUTION:**
+```bash
+# ALWAYS count buttons BEFORE starting
+grep -c "<button" src/components/YourComponent.tsx
+
+# Create checklist:
+# - [ ] Input 1 (line X)
+# - [ ] Input 2 (line Y)
+# - [ ] Button 1 (line Z) ← DON'T FORGET
+# - [ ] Button 2 (line A) ← DON'T FORGET
+```
+
+**PREVENTION:**
+- Use "100% Rule" - migrate EVERYTHING in the component
+- Verify button count before AND after: must go from N → 0
+
+---
+
+#### Pain Point #2: Inconsistency Across Components
+
+**SYMPTOM:**
+- Component A uses `bg-primary` for buttons
+- Component B uses `bg-accent` for buttons
+- Component C uses `bg-surface` for buttons
+- Same visual intent, different implementations
+
+**ROOT CAUSE:**
+- Not checking reference components first
+- Assuming/guessing instead of copying patterns
+- Creating new patterns instead of reusing
+
+**SOLUTION:**
+```tsx
+// BEFORE coding, open these files:
+// 1. HeaderMenu.tsx - for Button usage
+// 2. InstallerSignupModal.tsx - for form patterns
+// 3. TopBar.tsx - for shadows
+
+// COPY exact import:
+import Button from '@/components/ui/button';
+
+// COPY exact usage:
+<Button variant="primary">Submit</Button>  // ✅ Consistent across all components
+```
+
+**PREVENTION:**
+- "Reference Component Mandate" (Rule #5)
+- Never assume - always verify
+- Copy-paste patterns, don't reinvent
+
+---
+
+#### Pain Point #3: Dark Mode Classes Still Present
+
+**SYMPTOM:**
+```tsx
+className="bg-white dark:bg-black text-slate-900 dark:text-white"
+```
+- Component "works" but violates theme-agnostic principle
+- Breaks when purple theme is selected
+- Creates double work
+
+**ROOT CAUSE:**
+- Habit from old codebase
+- Not understanding CSS variable system
+- Copying old patterns
+
+**SOLUTION:**
+```tsx
+// REMOVE all dark: prefixes
+className="bg-surface text-foreground"  // ✅ Works for Dark, Light, Purple
+```
+
+**PREVENTION:**
+- Grep check after migration: `grep -r "dark:" YourComponent.tsx`
+- Must return ZERO (except in globals.css)
+
+---
+
+#### Pain Point #4: Creating New CSS Classes
+
+**SYMPTOM:**
+```tsx
+const customInputClass = "w-full bg-gray-100 dark:bg-slate-900 border...";
+```
+- Reinventing existing `.neu-input` class
+- Creates maintenance burden
+
+**ROOT CAUSE:**
+- Not checking globals.css first
+- Not aware of existing classes
+- Trying to "improve" on existing patterns
+
+**SOLUTION:**
+```tsx
+// DON'T create new classes
+// USE existing classes from globals.css
+
+<input className="neu-input" />  // ✅ Already exists, already perfect
+```
+
+**PREVENTION:**
+- Search globals.css before creating: `grep "neu-input" src/app/globals.css`
+- Check similar components for patterns
+- "Atomic Component Consistency" (Rule #3)
+
+---
+
+#### Pain Point #5: Icon Inconsistency
+
+**SYMPTOM:**
+- Some components use inline SVGs
+- Some use `h-5 w-5` icons
+- Some use `h-10 w-10` icons
+- No clear pattern
+
+**ROOT CAUSE:**
+- Not documenting icon sizing standards
+- Copying from different sources
+
+**SOLUTION:**
+```tsx
+// ICON SIZING STANDARDS:
+
+// Header icons (form title) - 80x80px container, 40x40px icon
+<div className="auth-icon-container">
+  <LockIcon className="h-10 w-10 text-primary" />
+</div>
+
+// Input icons (inline) - 20x20px
+<MailIcon className="h-5 w-5 text-muted-foreground" />
+
+// Nav icons - 24x24px
+<HomeIcon className="h-6 w-6" />
+
+// Button icons - 16x16px
+<PlusIcon className="h-4 w-4" />
+```
+
+**PREVENTION:**
+- Always check reference components for icon sizing
+- Use centralized icon components (not inline SVGs)
+
+---
+
+#### Pain Point #6: Grep Violations After "Complete" Migration
+
+**SYMPTOM:**
+- Developer marks task complete
+- User runs grep check: finds 20+ violations
+- Must redo entire component
+
+**ROOT CAUSE:**
+- Skipping verification step
+- Trusting visual check only
+- Not using grep before commit
+
+**SOLUTION:**
+```bash
+# MANDATORY before marking complete:
+grep -r "bg-slate-\|text-slate-\|dark:" src/components/YourComponent.tsx
+
+# Must return EMPTY
+# If violations found → fix them → re-check
+```
+
+**PREVENTION:**
+- "Grep Before & After" (Rule #4)
+- Never skip verification
+- Automate with pre-commit hook (future)
 
 ---
 
@@ -1130,6 +2114,147 @@ export function LoginForm() {
   );
 }
 ```
+
+---
+
+---
+
+## 📊 CURRENT SYSTEM STATUS (Audit: November 2, 2025)
+
+### ✅ What's Working (Keep & Reuse)
+
+**Multi-Theme System (3 Themes)**
+- ✅ Dark Theme (Default) - Google AI Studio aligned
+- ✅ Light Theme - Neumorphic style
+- ✅ Purple Theme - Premium brand variant
+- ✅ ThemeProvider with React Context + localStorage persistence
+- ✅ 200ms smooth transitions between themes
+- ✅ All themes use identical variable names (only values differ)
+
+**CSS Variables (globals.css)**
+- ✅ Complete color system: `--color-background`, `--color-foreground`, etc.
+- ✅ Neumorphic shadows: `--shadow-outset-*`, `--shadow-inset-*`
+- ✅ Spacing system: `--spacing-*` (xs, sm, md, lg, xl, 2xl, 3xl)
+- ✅ Animation system: `--duration-*`, `--ease-*`
+- ✅ Z-index scale: `--z-base`, `--z-modal`, `--z-tooltip`
+
+**Tailwind Integration**
+- ✅ All CSS variables mapped to Tailwind utilities
+- ✅ Support for opacity variants: `bg-surface/50`, `text-foreground/80`
+- ✅ Responsive spacing utilities
+- ✅ Status colors: `bg-success`, `bg-error`, `bg-warning`, `bg-info`
+
+**Component Classes (globals.css)**
+- ✅ `.neu-input` - Neumorphic input fields
+- ✅ `.neu-card` / `.theme-card` - Card containers
+- ✅ `.auth-icon-container` - Icon wrappers (80x80px)
+- ✅ `.neu-alert-error/success/warning/info` - Status alerts
+- ✅ `.neu-btn-primary/secondary/link` - Button styles (legacy, prefer Button component)
+
+**Centralized Components**
+- ✅ `Button` component (`@/components/ui/button`) - Primary, Secondary, Ghost variants
+- ✅ `AuthInput` component (`@/components/auth`) - Auth-specific inputs with icons
+- ✅ `ThemeSwitcher` component - Icon-only theme toggle (Dark/Light/Purple)
+
+---
+
+### ❌ Current Violations (Must Fix)
+
+**Critical Issues (P0) - Block all new work:**
+
+1. **Hardcoded Colors (100+ instances)**
+   ```tsx
+   // Found in: 10+ components
+   bg-slate-50/50 dark:bg-slate-800/50
+   text-slate-900 dark:text-white
+   border-gray-200 dark:border-slate-700
+   ```
+   **Files:** `DetailedQuoteAuthModal.tsx`, `GuestBottomNavBar.tsx`, `CountdownTimer.tsx`, `Hero.tsx`, etc.
+
+2. **Dark Mode Classes (80+ instances)**
+   ```tsx
+   // Breaks theme-agnostic principle
+   dark:bg-black
+   dark:text-white
+   dark:border-slate-700
+   ```
+   **Impact:** Purple theme doesn't work correctly
+
+3. **Native Buttons (50+ instances)**
+   ```tsx
+   // Not using centralized Button component
+   <button className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-3">
+   ```
+   **Impact:** Inconsistent button styling across components
+
+**High Priority Issues (P1):**
+
+4. **Raw Tailwind Typography (50+ instances)**
+   ```tsx
+   text-2xl font-bold
+   text-sm font-medium
+   text-xs
+   ```
+   **Impact:** No responsive scaling, inconsistent hierarchy
+
+5. **Inline SVG Icons (20+ instances)**
+   ```tsx
+   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-slate-400">...</svg>
+   ```
+   **Impact:** Code duplication, inconsistent sizing
+
+6. **Custom Input Classes (5+ instances)**
+   ```tsx
+   const baseInputClasses = "w-full bg-gray-100 dark:bg-slate-900 border...";
+   ```
+   **Impact:** Duplicate code, not using centralized `.neu-input`
+
+---
+
+### 📈 Migration Progress
+
+**Completed Components (100% Compliant):**
+- ✅ `InstallerSignInModal.tsx` - SOT reference for modals
+- ✅ `HomeownerSignInModal.tsx` - All semantic tokens, embossed inputs
+- ✅ `InstallerSignupModal.tsx` - Complete neumorphic design
+- ✅ `HomeownerSignupModal.tsx` - Reduced fields, semantic tokens
+- ✅ `TopBar.tsx` - Neumorphic shadows reference
+- ✅ `HeaderMenu.tsx` - Button component reference
+
+**Pending Components (Need Migration):**
+- ⏳ `DetailedQuoteAuthModal.tsx` (92 violations)
+- ⏳ `GuestBottomNavBar.tsx` (8 violations)
+- ⏳ `CountdownTimer.tsx` (12 violations)
+- ⏳ `Hero.tsx` (4 violations)
+- ⏳ `InstantQuoteForm.tsx` (40+ violations)
+- ⏳ All dashboard pages (15+ violations each)
+
+**Total Technical Debt:**
+- ~285 violations across codebase
+- Estimated 15-20 hours to fix all
+- Priority: P0 violations first (colors + dark mode)
+
+---
+
+### 🎯 Next Steps
+
+**Immediate Actions (This Week):**
+1. Fix P0 violations in top 5 components
+2. Update all buttons to use Button component
+3. Remove all `dark:` classes (except globals.css)
+4. Verify zero violations in completed components
+
+**Short-term (Next 2 Weeks):**
+1. Migrate all auth components (100% semantic)
+2. Migrate all form components (use `.neu-input`)
+3. Replace all inline SVGs with centralized icons
+4. Update typography to semantic tokens
+
+**Long-term (Next Month):**
+1. Create Storybook documentation
+2. Add component visual regression tests
+3. Create migration automation scripts
+4. Establish pre-commit hooks for violation prevention
 
 ---
 

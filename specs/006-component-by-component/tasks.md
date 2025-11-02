@@ -4,7 +4,34 @@
 **Input**: Design documents from `/specs/006-component-by-component/`  
 **Prerequisites**: ✅ plan.md, ✅ spec.md, ✅ research.md, ✅ data-model.md, ✅ contracts/  
 **Tests**: Not requested in specification - excluded from task list  
-**Organization**: Tasks are grouped by user story to enable independent component migration and testing
+**Organization**: Tasks are grouped by user story to enable independent component migration and testing  
+**Migration Standard**: **100% completion required - No partial migrations, no legacy code, no storybook**
+
+---
+
+## ⚡ QUICK START (First Time? Read This)
+
+### 1. Read the SOT (5 minutes)
+👉 [`DOC/DESIGN-SYSTEM-SOT.md`](../../DOC/DESIGN-SYSTEM-SOT.md) - Section: "Migration Principles"
+
+### 2. The Problem We're Solving
+- ❌ OLD WAY: Migrate form → leave buttons → inconsistent → rework needed
+- ✅ NEW WAY: Migrate 100% of component → clean code → done once, done right
+
+### 3. The 100% Completion Rule
+**BEFORE migration:** Component has 5 buttons, 3 inputs, hardcoded colors  
+**AFTER migration:** 0 buttons (all Button component), 0 hardcoded colors, 0 legacy code  
+**Verification:** Run grep commands → ALL return EMPTY
+
+### 4. What You CAN and CANNOT Change
+- ✅ **CAN**: `className` strings, button wrappers (`<button>` → `<Button>`)
+- ❌ **CANNOT**: hooks, handlers, API calls, validation, props, logic
+
+### 5. No Legacy Code After Migration
+- ✅ Delete: commented code, TODOs, unused imports, storybook refs
+- ✅ Result: Clean, production-ready component
+
+---
 
 ## Format: `[ID] [P?] [Story] Description`
 - **[P]**: Can run in parallel (different files, no dependencies)
@@ -13,7 +40,97 @@
 
 ---
 
-## ⚠️ STREAMLINED WORKFLOW - FOCUS ON REDESIGN, NOT DOCUMENTATION
+## 🚨 CRITICAL MIGRATION PRINCIPLES (READ FIRST)
+
+**MANDATORY READING:** [`DOC/DESIGN-SYSTEM-SOT.md`](../../DOC/DESIGN-SYSTEM-SOT.md) - Migration Principles section
+
+### ⚠️ THE PROBLEM WE'RE SOLVING
+
+**Your Pain Points (from conversations):**
+1. ✅ Form migrated → ❌ Buttons still hardcoded = REWORK NEEDED
+2. ✅ Modal container updated → ❌ Header still has `dark:` classes = REWORK NEEDED
+3. ✅ Component 80% done → ❌ 20% missed = ENTIRE QA CYCLE WASTED
+4. ✅ Semantic tokens used → ❌ Legacy CSS still in file = MESSY CODEBASE
+
+**Result:** Inconsistency, double work, frustration, wasted time.
+
+---
+
+## ✅ THE SOLUTION: 100% COMPLETE MIGRATION RULES
+
+### 🎯 6 GOLDEN RULES (Zero Tolerance)
+
+#### RULE #1: MIGRATE ENTIRE COMPONENT OR NOTHING
+- ❌ **NEVER** migrate "just the form" or "just the buttons"
+- ✅ **ALWAYS** migrate 100% of component in one go
+- ✅ ALL buttons + inputs + text + borders + backgrounds + shadows
+
+#### RULE #2: NO HARDCODED VALUES AFTER MIGRATION
+```bash
+# These searches MUST return ZERO results after migration
+grep -E 'bg-(slate|gray|zinc)-[0-9]' Component.tsx
+grep -E 'text-(slate|gray)-[0-9]' Component.tsx
+grep -E 'border-(slate|gray)-[0-9]' Component.tsx
+grep -E 'dark:' Component.tsx
+```
+
+#### RULE #3: NO DARK: PREFIXES EVER
+- ❌ `dark:bg-slate-800`, `dark:text-white`, `dark:border-gray-700`
+- ✅ Use semantic tokens - they handle ALL 3 themes automatically
+
+#### RULE #4: ZERO LEGACY CODE AFTER MIGRATION
+- ✅ No commented-out CSS
+- ✅ No unused imports
+- ✅ No Storybook/Chromatic references (we don't use them)
+- ✅ No deprecated classes
+- ✅ No "TODO: migrate later" comments
+
+#### RULE #5: UI CHANGES ONLY - PRESERVE ALL LOGIC
+**CAN Change:** `className` strings, Button wrapper (`<button>` → `<Button>`)  
+**CANNOT Change:** hooks, event handlers, API calls, validation, props, JSX structure
+
+#### RULE #6: REFERENCE COMPONENTS BEFORE STARTING
+**MANDATORY - Open FIRST:**
+1. `src/components/HeaderMenu.tsx` - Button patterns
+2. `src/components/InstallerSignupModal.tsx` - Form patterns
+3. `src/app/globals.css` - All available tokens
+
+---
+
+### 📋 COMPLETE MIGRATION CHECKLIST (Run BEFORE marking task complete)
+
+```bash
+# 1. Count ALL interactive elements (must migrate ALL)
+grep -c '<button' src/components/Component.tsx
+grep -c '<input' src/components/Component.tsx
+grep -c '<select' src/components/Component.tsx
+
+# 2. Verify ZERO hardcoded colors (MUST be empty)
+grep -E 'bg-(slate|gray|zinc|teal|blue|red)-[0-9]' src/components/Component.tsx
+
+# 3. Verify ZERO dark: prefixes (MUST be empty)
+grep 'dark:' src/components/Component.tsx
+
+# 4. Verify ZERO legacy code (MUST be empty)
+grep -E '(TODO|FIXME|storybook|chromatic)' src/components/Component.tsx
+
+# 5. Verify TypeScript compiles
+npx tsc --noEmit --project .
+
+# 6. Visual test in ALL 3 themes
+# Open component → Switch Dark → Light → Purple
+# Verify: All visible, consistent, interactive
+
+# 7. Functional test
+# Test ALL buttons, forms, modals
+# Verify: Everything works exactly as before
+```
+
+**If ANY check fails = MIGRATION NOT COMPLETE**
+
+---
+
+## ⚠️ STREAMLINED WORKFLOW - 100% COMPLETION ONLY
 
 ### Before Starting Any Component (5 minutes):
 1. **Quick Visual Check**:
@@ -123,23 +240,29 @@ npx tsc --noEmit
 - ✅ Wait for: "Yes, commit" or "Looks good"
 - ✅ Commit message: `redesign: [Component] neumorphic design - [X] violations fixed`
 
-### Phase Completion Criteria (Simplified):
-- ✅ Component is neumorphic (soft shadows, depth, clean design)
-- ✅ Zero hardcoded violations (`grep` returns empty)
-- ✅ TypeScript compiles (`npx tsc --noEmit`)
-- ✅ Component works (forms submit, modals open, navigation works)
-- ✅ User approved commit
+### ✅ Task Completion Criteria (ALL required):
+- ✅ **ZERO hardcoded colors** (grep returns empty)
+- ✅ **ZERO dark: prefixes** (grep returns empty)
+- ✅ **ZERO legacy code** (no TODOs, commented code, storybook refs)
+- ✅ **ALL buttons migrated** (Button component, no `<button>` elements)
+- ✅ **ALL logic preserved** (hooks, handlers, validation untouched)
+- ✅ **TypeScript compiles** (npx tsc --noEmit → 0 errors)
+- ✅ **Visual test passed** (ALL 3 themes: Dark, Light, Purple)
+- ✅ **Functional test passed** (All interactions work)
+- ✅ **User approved commit**
 
-### 🚨 RED FLAGS - STOP & ASK USER:
-- Created new CSS classes → **USE EXISTING PATTERNS FIRST**
-- Used `AuthButton` anywhere → **WRONG COMPONENT - use Button from @/components/ui/button**
-- Didn't check HeaderMenu.tsx before replacing buttons → **CHECK REFERENCE FIRST**
-- Native `<button>` elements remaining → **REPLACE ALL with Button component**
-- Invented variant names (e.g., "primary", "default" without checking) → **VERIFY IN HeaderMenu.tsx**
-- Component behavior changed → **REVERT - only change classNames**
-- Build errors after 10 min → **REPORT TO USER**
-- Unsure if neumorphic enough → **ASK USER FOR FEEDBACK**
-- Found existing neumorphic design → **VALIDATE & PASS, DON'T TOUCH**
+**If ANY fails = INCOMPLETE MIGRATION. Fix and re-verify.**
+
+### 🚨 RED FLAGS - STOP IMMEDIATELY:
+- **PARTIAL MIGRATION** → Forms done but buttons not, or 80% done
+- **DARK: CLASSES FOUND** → Any `dark:` in component code
+- **HARDCODED COLORS** → `bg-slate-*`, `text-gray-*`, `border-gray-*` found
+- **NATIVE BUTTONS** → `<button>` elements still exist
+- **LEGACY CODE** → TODOs, commented CSS, storybook imports
+- **LOGIC CHANGED** → Modified hooks, handlers, validation
+- **INVENTED PATTERNS** → New classes instead of reusing existing
+- **NO REFERENCE CHECK** → Didn't open HeaderMenu.tsx first
+- **GREP VIOLATIONS** → Any grep check returned results
 
 ---
 
@@ -189,6 +312,82 @@ grep -E '(shadow-neu|bg-surface|text-foreground)' src/components/[Component].tsx
 - ✅ ALWAYS use `Button` from `@/components/ui/button`
 - ✅ ALWAYS check HeaderMenu.tsx for correct Button patterns
 - ✅ ALWAYS count and replace ALL `<button>` elements
+- ✅ ALWAYS remove ALL legacy code before committing
+
+---
+
+## 🧹 CODE CLEANUP STANDARDS (After Migration)
+
+### What to DELETE (Zero Tolerance):
+
+#### 1. Commented-Out Code
+```tsx
+// ❌ DELETE THIS
+// const [oldState, setOldState] = useState(false);
+// {/* <button className="bg-teal-600">Old Button</button> */}
+```
+
+#### 2. Unused Imports
+```tsx
+// ❌ DELETE THIS
+import { useTheme } from 'next-themes';  // Not using this
+import { OldComponent } from './old';    // Removed this
+```
+
+#### 3. Storybook/Chromatic References
+```tsx
+// ❌ DELETE THIS
+import type { Meta, StoryObj } from '@storybook/react';
+export default { component: MyComponent } satisfies Meta<typeof MyComponent>;
+```
+
+#### 4. TODO/FIXME Comments
+```tsx
+// ❌ DELETE THIS
+// TODO: Migrate this to new design system
+// FIXME: Update colors later
+// HACK: Temporary solution
+```
+
+#### 5. Deprecated Classes
+```tsx
+// ❌ DELETE THIS
+<div className="old-card-style legacy-button theme-old">
+```
+
+### What CLEAN CODE Looks Like:
+
+```tsx
+// ✅ CORRECT - Production-ready
+'use client';
+
+import { useState } from 'react';
+import Button from '@/components/ui/button';
+
+export default function Component() {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  return (
+    <div className="bg-surface shadow-neu-outset rounded-xl p-6">
+      <h2 className="text-foreground mb-4">Title</h2>
+      <Button 
+        variant="primary" 
+        onClick={() => setIsOpen(!isOpen)}
+        className="px-5 py-2"
+      >
+        Toggle
+      </Button>
+    </div>
+  );
+}
+```
+
+**Characteristics:**
+- ✅ Only imports actually used
+- ✅ No commented code
+- ✅ No TODOs or FIXMEs
+- ✅ Semantic tokens only
+- ✅ Clean, readable, professional
 
 ---
 
