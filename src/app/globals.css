@@ -156,17 +156,17 @@
   /* Icon Colors */
   --color-icon: 55 65 81;                 /* #374151 - Darker icons for light bg */
   
-  /* Accent Color */
-  --color-accent: 17 24 39;               /* #111827 - Near black accent */
-  --color-accent-hover: 55 65 81;         /* #374151 - Hover state */
+  /* Accent Color - Pure Black (same as dark theme background) */
+  --color-accent: 18 18 18;               /* #121212 - Pure black accent */
+  --color-accent-hover: 37 37 37;         /* #252525 - Hover state */
   
   /* Border Colors */
   --color-border: 209 213 219;            /* #D1D5DB - Subtle borders */
   --color-border-strong: 156 163 175;     /* #9CA3AF - Emphasized borders */
   
   /* Legacy aliases for backward compatibility */
-  --color-primary: 17 24 39;
-  --color-primary-hover: 55 65 81;
+  --color-primary: 18 18 18;
+  --color-primary-hover: 37 37 37;
   --color-primary-foreground: 255 255 255;
   --color-secondary: 232 237 244;
   --color-secondary-foreground: 18 18 18;
