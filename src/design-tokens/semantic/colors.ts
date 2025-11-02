@@ -71,11 +71,7 @@ export const colors = {
     dark: primitives.red[400],
     DEFAULT: primitives.red[600],
   } as ThemeColor,
-  info: {
-    light: primitives.blue[600],
-    dark: primitives.blue[400],
-    DEFAULT: primitives.blue[600],
-  } as ThemeColor,
+  // INFO COLOR REMOVED - White accent only theme, no status info color needed
   
   // Background colors (CUSTOM USER THEME)
   background: {
@@ -163,8 +159,8 @@ export const colors = {
       dark: primitives.teal[400],
     } as ChartColor,
     tertiary: {
-      light: primitives.blue[600],
-      dark: primitives.blue[400],
+      light: primitives.gray[500],           // Neutral gray instead of blue
+      dark: primitives.gray[400],
     } as ChartColor,
     success: {
       light: primitives.green[600],

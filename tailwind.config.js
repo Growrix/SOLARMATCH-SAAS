@@ -26,12 +26,17 @@ module.exports = {
         'surface-dark': 'rgb(var(--color-surface) / <alpha-value>)',
         'surface-hover': 'rgb(var(--color-surface-hover) / <alpha-value>)',
         
-        // Text colors
+        // Text colors - 3-level hierarchy (Google AI Studio aligned)
         foreground: 'rgb(var(--color-foreground) / <alpha-value>)',
         'foreground-dark': 'rgb(var(--color-foreground) / <alpha-value>)',
+        'foreground-secondary': 'rgb(var(--color-foreground-secondary) / <alpha-value>)',
+        'foreground-tertiary': 'rgb(var(--color-foreground-tertiary) / <alpha-value>)',
         muted: 'rgb(var(--color-muted) / <alpha-value>)',
-        'muted-foreground': 'rgb(var(--color-subtle) / <alpha-value>)',
+        'muted-foreground': 'rgb(var(--color-foreground-muted) / <alpha-value>)',
         subtle: 'rgb(var(--color-subtle) / <alpha-value>)',
+        
+        // Icon color
+        icon: 'rgb(var(--color-icon) / <alpha-value>)',
         
         // Border colors
         border: 'rgb(var(--color-border) / <alpha-value>)',
@@ -48,8 +53,7 @@ module.exports = {
         'warning-foreground': 'rgb(255 255 255 / <alpha-value>)',
         error: 'rgb(var(--color-error) / <alpha-value>)',
         'error-foreground': 'rgb(255 255 255 / <alpha-value>)',
-        info: 'rgb(var(--color-info) / <alpha-value>)',
-        'info-foreground': 'rgb(255 255 255 / <alpha-value>)',
+        // INFO COLOR REMOVED - White accent only theme, no info status color needed
         
         // shadcn/ui HSL-based colors (from globals.css)
         destructive: 'hsl(var(--destructive) / <alpha-value>)',
@@ -58,8 +62,7 @@ module.exports = {
         // Custom status colors (HSL format)
         'success-hsl': 'hsl(var(--success) / <alpha-value>)',
         'success-foreground-hsl': 'hsl(var(--success-foreground) / <alpha-value>)',
-        'info-hsl': 'hsl(var(--info) / <alpha-value>)',
-        'info-foreground-hsl': 'hsl(var(--info-foreground) / <alpha-value>)',
+        // INFO COLOR REMOVED - White accent only theme
         'warning-hsl': 'hsl(var(--warning) / <alpha-value>)',
         'warning-foreground-hsl': 'hsl(var(--warning-foreground) / <alpha-value>)',
       },

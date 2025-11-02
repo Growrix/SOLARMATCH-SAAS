@@ -47,11 +47,7 @@ export const defaultTheme: Theme = {
       dark: primitives.red[400],        // #f87171
       DEFAULT: primitives.red[600],     // #dc2626
     },
-    info: {
-      light: primitives.blue[600],      // #2563eb
-      dark: primitives.blue[400],       // #60a5fa
-      DEFAULT: primitives.blue[600],    // #2563eb
-    },
+    // INFO COLOR REMOVED - White accent only theme, no info status color needed
     
     // Background Colors (theme-aware)
     background: {

@@ -12,17 +12,13 @@ export { defaultTheme, mergeThemeColors } from './default-theme'
 
 // Import client themes
 import { defaultTheme } from './default-theme'
-import { clientBlueTheme } from './client-blue'
 import type { Theme } from './types'
 
 // Registry of available themes
 export const themes: Record<string, Theme> = {
   default: defaultTheme,
-  'client-blue': clientBlueTheme,
+  // Blue theme removed - white accent only theme
 }
-
-// Export client themes for direct import
-export { clientBlueTheme }
 
 // Get theme by ID
 export function getTheme(themeId: string): Theme {

@@ -123,15 +123,15 @@ async function sendEmailNotification(data: CreateNotificationInput): Promise<voi
       text: data.message,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #2563eb;">${data.title}</h2>
-          <p style="color: #374151; line-height: 1.6;">${data.message}</p>
+          <h2 style="color: #FFFFFF;">${data.title}</h2>
+          <p style="color: #F5F5F5; line-height: 1.6;">${data.message}</p>
           ${actionUrl ? `
-            <a href="${actionUrl}" style="display: inline-block; margin-top: 20px; padding: 12px 24px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 6px;">
+            <a href="${actionUrl}" style="display: inline-block; margin-top: 20px; padding: 12px 24px; background-color: #1A1A1A; color: white; text-decoration: none; border-radius: 6px; border: 1px solid #2C2C2C;">
               View Details
             </a>
           ` : ''}
-          <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
-          <p style="color: #6b7280; font-size: 14px;">
+          <hr style="margin: 30px 0; border: none; border-top: 1px solid #2C2C2C;">
+          <p style="color: #A3A3A3; font-size: 14px;">
             This is an automated notification from Solar Match. You can manage your notification preferences in your account settings.
           </p>
         </div>

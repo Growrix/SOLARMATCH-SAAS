@@ -3,512 +3,358 @@
 @tailwind utilities;
 
 /* ============================================
-   CENTRALIZED DESIGN TOKEN SYSTEM
-   - Uses semantic tokens from src/design-tokens/
-   - Dark theme only (neumorphic design system)
-   - Tokens: colors, typography, spacing, shadows, animations, borders
-   - Use Tailwind utility classes (bg-primary, text-heading-1, p-card-padding, etc.)
+   SOLARMATCH DESIGN SYSTEM v2.0
+   - Industry-standard CSS variables
+   - Dark theme only (Constitution VI compliant)
+   - Scalable, maintainable, centralized
+   - White accent color system
    ============================================ */
 
-/* --- DARK THEME VARIABLES (Default) --- */
+/* ============================================
+   DESIGN TOKENS - SINGLE SOURCE OF TRUTH
+   ============================================ */
+
 :root {
-  /* Base background - Main surface color for neumorphism */
-  --bg-primary: #101010;        /* Primary Background */
-  --bg-secondary: #1A1A1A;      /* Secondary Background */
+  /* --------------------------------------------------
+     COLOR SYSTEM - Dark Theme (Google AI Studio Prototype Aligned)
+     White accent only, grayscale base, Material Design standards
+     -------------------------------------------------- */
   
-  /* Text colors */
-  --text-primary: #F5F5F5;      /* Primary Text */
-  --text-secondary: #FFFFFF;    /* White Text */
+  /* Background Colors */
+  --color-background: 18 18 18;           /* #121212 - Main background (Material Design standard) */
+  --color-background-elevated: 26 26 26;  /* #1A1A1A - Cards, modals, elevated surfaces */
+  --color-background-hover: 37 37 37;     /* #252525 - Hover states */
   
-  /* Border colors - Subtle for neumorphism */
-  --border-color: #2C2C2C;      /* Border */
+  /* Foreground/Text Colors - 3-level hierarchy */
+  --color-foreground: 243 244 246;        /* #F3F4F6 - Primary text (gray-100) */
+  --color-foreground-secondary: 255 255 255; /* #FFFFFF - High emphasis text */
+  --color-foreground-muted: 209 213 219;  /* #D1D5DB - Secondary text, labels (gray-300) */
+  --color-foreground-tertiary: 107 114 128; /* #6B7280 - Tertiary text, placeholders (gray-400) */
   
-  /* Accent colors */
-  --accent-color: #FFFFFF;      /* White Accent Color */
+  /* Icon Colors */
+  --color-icon: 229 231 235;              /* #E5E7EB - Icon color (gray-200) */
   
-  /* Animation durations from semantic animations.duration */
+  /* Accent Color - White Only */
+  --color-accent: 255 255 255;            /* #FFFFFF - CTAs, links, focus states */
+  --color-accent-hover: 230 230 230;      /* #E6E6E6 - Hover on white accent */
+  
+  /* Border Colors */
+  --color-border: 44 44 44;               /* #2C2C2C - Subtle borders */
+  --color-border-strong: 64 64 64;        /* #404040 - Emphasized borders */
+  
+  /* Legacy aliases for backward compatibility - TO BE DEPRECATED */
+  --color-primary: 255 255 255;
+  --color-primary-hover: 230 230 230;
+  --color-primary-foreground: 243 244 246;
+  --color-secondary: 26 26 26;
+  --color-secondary-foreground: 243 244 246;
+  --color-background-alt: 26 26 26;
+  --color-surface: 26 26 26;
+  --color-surface-hover: 37 37 37;
+  --color-muted: 209 213 219;              /* Updated to match gray-300 */
+  --color-subtle: 255 255 255;
+  
+  /* --------------------------------------------------
+     SPACING SYSTEM - 8px base scale
+     -------------------------------------------------- */
+  --spacing-xs: 0.25rem;    /* 4px */
+  --spacing-sm: 0.5rem;     /* 8px */
+  --spacing-md: 1rem;       /* 16px */
+  --spacing-lg: 1.5rem;     /* 24px */
+  --spacing-xl: 2rem;       /* 32px */
+  --spacing-2xl: 3rem;      /* 48px */
+  --spacing-3xl: 4rem;      /* 64px */
+  
+  /* --------------------------------------------------
+     BORDER RADIUS - Consistent rounding
+     -------------------------------------------------- */
+  --radius-sm: 0.5rem;      /* 8px */
+  --radius-md: 0.75rem;     /* 12px */
+  --radius-lg: 1rem;        /* 16px */
+  --radius-xl: 1.25rem;     /* 20px */
+  --radius-full: 9999px;    /* Fully rounded */
+  
+  /* --------------------------------------------------
+     SHADOWS - Neumorphic Design System
+     Optimized for #121212 background (Google AI Studio Prototype Aligned)
+     -------------------------------------------------- */
+  
+  /* Shadow Colors - Solid colors per prototype */
+  --shadow-light: #242424;                    /* Light highlight (solid) */
+  --shadow-dark: #000000;                     /* Dark shadow (solid) */
+  --shadow-inset-light: #1a1a1a;              /* Inset highlight (solid) */
+  --shadow-inset-dark: #000000;               /* Inset shadow (solid) */
+  
+  /* Outset Shadows (Raised Elements) */
+  --shadow-outset-sm: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+  --shadow-outset-md: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+  --shadow-outset-lg: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+  --shadow-outset-xl: 12px 12px 24px var(--shadow-dark), -12px -12px 24px var(--shadow-light);
+  
+  /* Inset Shadows (Pressed Elements) */
+  --shadow-inset-sm: inset 3px 3px 6px var(--shadow-inset-dark), inset -3px -3px 6px var(--shadow-inset-light);
+  --shadow-inset-md: inset 4px 4px 8px var(--shadow-inset-dark), inset -4px -4px 8px var(--shadow-inset-light);
+  --shadow-inset-lg: inset 6px 6px 12px var(--shadow-inset-dark), inset -6px -6px 12px var(--shadow-inset-light);
+  
+  /* Legacy shadow aliases - TO BE DEPRECATED */
+  --shadow-neu-outset: var(--shadow-outset-md);
+  --shadow-neu-inset: var(--shadow-inset-md);
+  --shadow-neu-outset-sm: var(--shadow-outset-sm);
+  --shadow-neu-inset-sm: var(--shadow-inset-sm);
+  --shadow-neu-outset-lg: var(--shadow-outset-lg);
+  
+  /* --------------------------------------------------
+     ANIMATION SYSTEM
+     -------------------------------------------------- */
+  
+  /* Durations */
   --duration-instant: 0ms;
   --duration-fast: 150ms;
   --duration-normal: 250ms;
   --duration-slow: 350ms;
   --duration-slower: 500ms;
   
-  /* Easing functions from semantic animations.easing */
-  --easing-linear: linear;
-  --easing-easeIn: cubic-bezier(0.4, 0, 1, 1);
-  --easing-easeOut: cubic-bezier(0, 0, 0.2, 1);
-  --easing-easeInOut: cubic-bezier(0.4, 0, 0.2, 1);
-  --easing-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  /* Easing Functions */
+  --ease-linear: linear;
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
   
-  /* Neumorphism shadows - Adjusted for darker background (#101010) */
-  --neu-shadow-light: rgba(40, 40, 40, 0.5);
-  --neu-shadow-dark: rgba(0, 0, 0, 0.9);
-  --neu-shadow-inset-light: rgba(40, 40, 40, 0.3);
-  --neu-shadow-inset-dark: rgba(0, 0, 0, 0.7);
-  
-  /* Neumorphism shadow presets for easy use */
-  --shadow-neu-outset: 6px 6px 12px var(--neu-shadow-dark), -6px -6px 12px var(--neu-shadow-light);
-  --shadow-neu-inset: inset 6px 6px 12px var(--neu-shadow-dark), inset -6px -6px 12px var(--neu-shadow-light);
-  --shadow-neu-outset-sm: 4px 4px 8px var(--neu-shadow-dark), -4px -4px 8px var(--neu-shadow-light);
-  --shadow-neu-inset-sm: inset 4px 4px 8px var(--neu-shadow-dark), inset -4px -4px 8px var(--neu-shadow-light);
-  --shadow-neu-outset-lg: 8px 8px 16px var(--neu-shadow-dark), -8px -8px 16px var(--neu-shadow-light);
-  
-  /* RGB CSS Variables for Tailwind */
-  --color-primary: 255 255 255; /* #FFFFFF White */
-  --color-primary-hover: 255 255 255; /* #FFFFFF White */
-  --color-primary-foreground: 245 245 245; /* #F5F5F5 Light text */
-  --color-secondary: 26 26 26; /* #1A1A1A Dark Grey for secondary */
-  --color-secondary-foreground: 245 245 245; /* #F5F5F5 Light text on gray */
-  --color-background: 16 16 16; /* #101010 */
-  --color-background-alt: 26 26 26; /* #1A1A1A */
-  --color-surface: 26 26 26; /* #1A1A1A */
-  --color-surface-hover: 37 37 37; /* #252525 */
-  --color-foreground: 245 245 245; /* #F5F5F5 */
-  --color-muted: 64 64 64; /* #404040 */
-  --color-subtle: 255 255 255; /* #FFFFFF White */
-  --color-border: 44 44 44; /* #2C2C2C */
-  --color-accent: 255 255 255; /* #FFFFFF White */
-  --color-accent-hover: 255 255 255; /* #FFFFFF White */
-  --color-success: 22 163 74;
-  --color-warning: 234 179 8;
-  --color-error: 220 38 38;
-  --color-info: 37 99 235;
+  /* --------------------------------------------------
+     Z-INDEX SCALE - Predictable layering
+     -------------------------------------------------- */
+  --z-base: 0;
+  --z-dropdown: 1000;
+  --z-sticky: 1100;
+  --z-fixed: 1200;
+  --z-modal-backdrop: 1300;
+  --z-modal: 1400;
+  --z-popover: 1500;
+  --z-tooltip: 1600;
 }
-
-body {
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  transition: background-color var(--duration-normal) var(--easing-easeOut),
-              color var(--duration-normal) var(--easing-easeOut);
-}
-
-/* .dark class removed - all dark theme variables now in :root */
-/* Future themes can be added by creating new CSS variable overrides */
 
 /* ============================================
-   NEUMORPHISM COMPONENT SYSTEM (Dark Theme Only)
-   - Buttons: Primary, Secondary, Link
-   - Cards: Flat, Pressed, Raised
-   - Inputs & Interactive elements
+   BASE STYLES
    ============================================ */
 
-/* --- NEUMORPHISM BUTTONS --- */
+body {
+  background-color: rgb(var(--color-background));
+  color: rgb(var(--color-foreground));
+  transition: background-color var(--duration-normal) var(--ease-out),
+              color var(--duration-normal) var(--ease-out);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
-/* Primary Button - Raised effect */
-.dark .neu-btn-primary {
-  background: var(--bg-primary);
-  color: var(--text-primary);
+/* ============================================
+   NEUMORPHIC COMPONENTS - REUSABLE CLASSES
+   ============================================ */
+
+/* --- BUTTONS --- */
+
+.neu-btn {
+  background: rgb(var(--color-background));
+  color: rgb(var(--color-foreground));
   border: none;
   padding: 0.75rem 1.5rem;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   font-weight: 500;
-  box-shadow: 
-    8px 8px 16px var(--neu-shadow-dark),
-    -8px -8px 16px var(--neu-shadow-light);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-outset-lg);
+  transition: all var(--duration-normal) var(--ease-in-out);
   cursor: pointer;
   position: relative;
   overflow: hidden;
 }
 
-.dark .neu-btn-primary:hover {
-  box-shadow: 
-    6px 6px 12px var(--neu-shadow-dark),
-    -6px -6px 12px var(--neu-shadow-light);
+.neu-btn:hover {
+  box-shadow: var(--shadow-outset-md);
   transform: translateY(-2px);
 }
 
-.dark .neu-btn-primary:active {
-  box-shadow: 
-    inset 4px 4px 8px var(--neu-shadow-inset-dark),
-    inset -4px -4px 8px var(--neu-shadow-inset-light);
+.neu-btn:active {
+  box-shadow: var(--shadow-inset-md);
   transform: translateY(0);
 }
 
-.dark .neu-btn-primary:disabled {
+.neu-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  box-shadow: 
-    4px 4px 8px var(--neu-shadow-dark),
-    -4px -4px 8px var(--neu-shadow-light);
+  box-shadow: var(--shadow-outset-sm);
 }
 
-/* Secondary Button - Flat/Subtle */
-.dark .neu-btn-secondary {
-  background: var(--bg-primary);
-  color: var(--text-secondary);
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 12px;
-  font-weight: 500;
-  box-shadow: 
-    4px 4px 8px var(--neu-shadow-dark),
-    -4px -4px 8px var(--neu-shadow-light);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
+/* Button Variants */
+.neu-btn-secondary {
+  box-shadow: var(--shadow-outset-sm);
 }
 
-.dark .neu-btn-secondary:hover {
-  color: var(--text-primary);
-  box-shadow: 
-    6px 6px 12px var(--neu-shadow-dark),
-    -6px -6px 12px var(--neu-shadow-light);
+.neu-btn-secondary:hover {
+  box-shadow: var(--shadow-outset-md);
 }
 
-.dark .neu-btn-secondary:active {
-  box-shadow: 
-    inset 3px 3px 6px var(--neu-shadow-inset-dark),
-    inset -3px -3px 6px var(--neu-shadow-inset-light);
-}
-
-/* Link Button - Minimal with subtle press effect */
-.dark .neu-btn-link {
+.neu-btn-link {
   background: transparent;
-  color: var(--text-secondary);
-  border: none;
+  color: rgb(var(--color-foreground-secondary));
+  box-shadow: none;
   padding: 0.5rem 1rem;
-  border-radius: 8px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  cursor: pointer;
 }
 
-.dark .neu-btn-link:hover {
-  color: var(--text-primary);
+.neu-btn-link:hover {
   background: rgba(255, 255, 255, 0.05);
+  transform: none;
 }
 
-.dark .neu-btn-link:active {
+.neu-btn-link:active {
   background: rgba(0, 0, 0, 0.1);
-  box-shadow: 
-    inset 2px 2px 4px var(--neu-shadow-inset-dark),
-    inset -2px -2px 4px var(--neu-shadow-inset-light);
+  box-shadow: var(--shadow-inset-sm);
 }
 
-/* Icon Button - Circular neumorphism */
-.dark .neu-btn-icon {
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  border: none;
+.neu-btn-icon {
   width: 48px;
   height: 48px;
-  border-radius: 50%;
+  padding: 0;
+  border-radius: var(--radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 
-    6px 6px 12px var(--neu-shadow-dark),
-    -6px -6px 12px var(--neu-shadow-light);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
 }
 
-.dark .neu-btn-icon:hover {
-  box-shadow: 
-    8px 8px 16px var(--neu-shadow-dark),
-    -8px -8px 16px var(--neu-shadow-light);
+/* --- CARDS --- */
+
+.neu-card {
+  background: rgb(var(--color-background));
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-outset-xl);
+  transition: all var(--duration-normal) var(--ease-in-out);
 }
 
-.dark .neu-btn-icon:active {
-  box-shadow: 
-    inset 4px 4px 8px var(--neu-shadow-inset-dark),
-    inset -4px -4px 8px var(--neu-shadow-inset-light);
-}
-
-/* --- NEUMORPHISM CARDS --- */
-
-/* Flat Card - Subtle raised effect */
-.dark .neu-card {
-  background: var(--bg-primary);
-  border-radius: 20px;
-  padding: 1.5rem;
-  box-shadow: 
-    10px 10px 20px var(--neu-shadow-dark),
-    -10px -10px 20px var(--neu-shadow-light);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.dark .neu-card:hover {
-  box-shadow: 
-    12px 12px 24px var(--neu-shadow-dark),
-    -12px -12px 24px var(--neu-shadow-light);
+.neu-card:hover {
+  box-shadow: var(--shadow-outset-xl), 0 4px 8px rgba(0, 0, 0, 0.2);
   transform: translateY(-4px);
 }
 
-/* Pressed/Inset Card - Concave effect */
-.dark .neu-card-pressed {
-  background: var(--bg-primary);
-  border-radius: 20px;
-  padding: 1.5rem;
-  box-shadow: 
-    inset 6px 6px 12px var(--neu-shadow-inset-dark),
-    inset -6px -6px 12px var(--neu-shadow-inset-light);
-  transition: all 0.3s ease;
+.neu-card-pressed {
+  background: rgb(var(--color-background));
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-inset-md);
 }
 
-/* Floating Card - Strong elevation */
-.dark .neu-card-floating {
-  background: var(--bg-primary);
-  border-radius: 20px;
-  padding: 1.5rem;
-  box-shadow: 
-    15px 15px 30px var(--neu-shadow-dark),
-    -15px -15px 30px var(--neu-shadow-light);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.neu-card-elevated {
+  background: rgb(var(--color-background-elevated));
 }
 
-.dark .neu-card-floating:hover {
-  box-shadow: 
-    20px 20px 40px var(--neu-shadow-dark),
-    -20px -20px 40px var(--neu-shadow-light);
-  transform: translateY(-8px);
+.neu-card-compact {
+  padding: var(--spacing-md);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-outset-md);
 }
 
-/* Compact Card - Smaller padding and shadows */
-.dark .neu-card-compact {
-  background: var(--bg-primary);
-  border-radius: 16px;
-  padding: 1rem;
-  box-shadow: 
-    6px 6px 12px var(--neu-shadow-dark),
-    -6px -6px 12px var(--neu-shadow-light);
-  transition: all 0.3s ease;
-}
+/* --- INPUTS --- */
 
-/* --- NEUMORPHISM INPUTS --- */
-
-.dark .neu-input {
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  border: none;
+.neu-input {
+  background: rgb(var(--color-background));
+  color: rgb(var(--color-foreground));
+  border: 1px solid rgb(var(--color-border));
   padding: 0.875rem 1rem;
-  border-radius: 12px;
-  box-shadow: 
-    inset 4px 4px 8px var(--neu-shadow-inset-dark),
-    inset -4px -4px 8px var(--neu-shadow-inset-light);
-  transition: all 0.3s ease;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-inset-sm);
+  transition: all var(--duration-normal) var(--ease-out);
   outline: none;
+  width: 100%;
 }
 
-.dark .neu-input:focus {
-  box-shadow: 
-    inset 6px 6px 12px var(--neu-shadow-inset-dark),
-    inset -6px -6px 12px var(--neu-shadow-inset-light),
-    0 0 0 2px rgba(107, 114, 128, 0.3);
+.neu-input:focus {
+  border-color: rgb(var(--color-accent));
+  box-shadow: var(--shadow-inset-md), 0 0 0 3px rgba(var(--color-accent), 0.1);
 }
 
-.dark .neu-input::placeholder {
-  color: var(--text-secondary);
+.neu-input::placeholder {
+  color: rgb(var(--color-foreground-muted));
   opacity: 0.6;
 }
 
-/* --- NEUMORPHISM TOGGLES & SWITCHES --- */
-
-.dark .neu-switch {
-  background: var(--bg-primary);
-  width: 56px;
-  height: 28px;
-  border-radius: 14px;
-  position: relative;
-  cursor: pointer;
-  box-shadow: 
-    inset 4px 4px 8px var(--neu-shadow-inset-dark),
-    inset -4px -4px 8px var(--neu-shadow-inset-light);
-  transition: all 0.3s ease;
+.neu-input:focus::placeholder {
+  opacity: 0.4;
 }
 
-.dark .neu-switch-thumb {
-  background: var(--bg-primary);
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
+/* Input with icon */
+.neu-input-with-icon {
+  padding-left: 3rem;
+}
+
+.neu-input-icon {
   position: absolute;
-  top: 2px;
-  left: 2px;
-  box-shadow: 
-    3px 3px 6px var(--neu-shadow-dark),
-    -3px -3px 6px var(--neu-shadow-light);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgb(var(--color-foreground-muted));
+  pointer-events: none;
+  transition: color var(--duration-fast) var(--ease-out);
 }
 
-.dark .neu-switch.active .neu-switch-thumb {
-  left: 30px;
+.neu-input:focus ~ .neu-input-icon {
+  color: rgb(var(--color-accent));
 }
 
-/* --- NEUMORPHISM PROGRESS & SLIDERS --- */
+/* --- DIVIDERS --- */
 
-.dark .neu-progress {
-  background: var(--bg-primary);
-  height: 12px;
-  border-radius: 6px;
-  box-shadow: 
-    inset 3px 3px 6px var(--neu-shadow-inset-dark),
-    inset -3px -3px 6px var(--neu-shadow-inset-light);
-  overflow: hidden;
-  position: relative;
-}
-
-.dark .neu-progress-bar {
-  background: linear-gradient(90deg, rgba(107, 114, 128, 0.8), rgba(156, 163, 175, 0.8));
-  height: 100%;
-  border-radius: 6px;
-  box-shadow: 
-    2px 2px 4px var(--neu-shadow-dark);
-  transition: width 0.3s ease;
-}
-
-/* --- NEUMORPHISM DIVIDERS --- */
-
-.dark .neu-divider {
+.neu-divider {
   height: 1px;
   background: linear-gradient(90deg, 
     transparent,
-    var(--neu-shadow-dark) 20%,
-    var(--neu-shadow-light) 50%,
-    var(--neu-shadow-dark) 80%,
+    rgb(var(--color-border)) 20%,
+    rgb(var(--color-border-strong)) 50%,
+    rgb(var(--color-border)) 80%,
     transparent
   );
-  margin: 1.5rem 0;
+  margin: var(--spacing-lg) 0;
 }
 
-/* --- GLASSMORPHISM HEADER & TOP BAR STYLES --- */
-.glass-header, .glass-top-bar {
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-  border-bottom-width: 1px;
-  transition: all 0.3s ease;
-}
+/* ============================================
+   LAYOUT COMPONENTS
+   ============================================ */
 
+/* Glassmorphism Headers */
 .glass-header {
-  background: linear-gradient(to bottom, rgba(16, 16, 16, 0.9), rgba(26, 26, 26, 0.8));
-  border-bottom-color: rgba(44, 44, 44, 0.6);
+  background: linear-gradient(to bottom, 
+    rgba(16, 16, 16, 0.9), 
+    rgba(26, 26, 26, 0.8)
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(44, 44, 44, 0.6);
+  transition: all var(--duration-normal) var(--ease-out);
 }
 
-.glass-top-bar {
-  background: linear-gradient(to bottom, rgba(26, 26, 26, 0.95), rgba(26, 26, 26, 0.8));
-  border-bottom-color: rgba(44, 44, 44, 0.7);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05), 0 2px 8px rgba(0, 0, 0, 0.4);
+.glass-sidebar {
+  background-color: rgba(26, 26, 26, 0.98);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-right: 1px solid rgba(44, 44, 44, 0.8);
+  min-height: 100vh;
 }
 
-/* --- UNIFIED CARD STYLES --- */
+/* Unified theme card (legacy support) */
 .theme-card {
-  background: var(--bg-primary);
-  border: none;
-  border-radius: 20px;
-  box-shadow: 
-    10px 10px 20px var(--neu-shadow-dark),
-    -10px -10px 20px var(--neu-shadow-light);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgb(var(--color-background));
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-outset-xl);
+  transition: all var(--duration-normal) var(--ease-in-out);
 }
 
 .theme-card:hover {
   transform: translateY(-4px);
-  box-shadow: 
-    12px 12px 24px var(--neu-shadow-dark),
-    -12px -12px 24px var(--neu-shadow-light);
+  box-shadow: var(--shadow-outset-xl), 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* --- ANIMATED BACKGROUNDS --- */
-.animated-section-background {
-  background: linear-gradient(-45deg, #000000, #101010, #1A1A1A, #000000);
-  background-size: 400% 400%;
-  animation: gradient-shift 15s ease infinite;
-}
+/* ============================================
+   ANIMATIONS
+   ============================================ */
 
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* Floating dollars animation */
-.floating-dollars-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.floating-dollars-container span {
-  position: absolute;
-  font-size: 2rem;
-  color: rgba(13, 148, 136, 0.1);
-  animation: float-up 8s linear infinite;
-}
-
-.floating-dollars-container span:nth-child(1) {
-  left: 10%;
-  animation-delay: 0s;
-}
-
-.floating-dollars-container span:nth-child(2) {
-  left: 30%;
-  animation-delay: 2s;
-  font-size: 1.5rem;
-}
-
-.floating-dollars-container span:nth-child(3) {
-  left: 50%;
-  animation-delay: 4s;
-  font-size: 2.5rem;
-}
-
-.floating-dollars-container span:nth-child(4) {
-  left: 70%;
-  animation-delay: 6s;
-}
-
-.floating-dollars-container span:nth-child(5) {
-  left: 90%;
-  animation-delay: 1s;
-  font-size: 1.8rem;
-}
-
-@keyframes float-up {
-  0% {
-    transform: translateY(100vh) rotate(0deg);
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  90% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(-100px) rotate(360deg);
-    opacity: 0;
-  }
-}
-
-/* --- DASHBOARD SPECIFIC STYLES --- */
-.dashboard-sidebar {
-  min-height: 100vh;
-  background-color: rgba(26, 26, 26, 0.98);
-  backdrop-filter: blur(12px);
-  border-right: 1px solid rgba(44, 44, 44, 0.8);
-  transition: background-color 0.3s ease;
-}
-
-/* --- CALCULATOR SWITCHER STYLES --- */
-.theme-switcher-bg {
-  background-color: #1A1A1A;
-}
-
-.theme-switcher-border {
-  border-color: #2C2C2C;
-}
-
-.theme-switcher-active {
-  background-color: #252525;
-}
-
-/* --- HERO SECTION ANIMATIONS --- */
-
-/* Fade in up animation */
+/* Fade in up */
 @keyframes fade-in-up {
   from {
     opacity: 0;
@@ -520,8 +366,8 @@ body {
   }
 }
 
-/* Floating animations for geometric shapes */
-@keyframes float-slow {
+/* Floating animation */
+@keyframes float {
   0%, 100% {
     transform: translateY(0px);
   }
@@ -530,34 +376,35 @@ body {
   }
 }
 
-@keyframes float-medium {
-  0%, 100% {
-    transform: translateY(0px) translateX(0px);
-  }
-  50% {
-    transform: translateY(-15px) translateX(10px);
-  }
-}
-
-@keyframes float-fast {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-25px) rotate(180deg);
-  }
-}
-
-/* Pulsating sun animation */
-@keyframes pulse-sun {
+/* Pulse animation */
+@keyframes pulse {
   0%, 100% {
     transform: scale(1);
     opacity: 1;
   }
   50% {
-    transform: scale(1.1);
+    transform: scale(1.05);
     opacity: 0.8;
   }
+}
+
+/* Slide in from top */
+@keyframes slide-in-top {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Gradient shift for animated backgrounds */
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 /* Sun ray animations */
@@ -754,167 +601,96 @@ body {
 }
 
 /* ============================================
-   AUTHENTICATION COMPONENT STYLES
-   - Neumorphic design system for auth forms
-   - No hardcoded colors or typography
-   - Uses design tokens exclusively
+   UTILITY CLASSES
    ============================================ */
 
-/* ============================================
-   FORM DESIGN STANDARD - SOURCE OF TRUTH (SOT)
-   - Reusable for all form components
-   - Neumorphic design system
-   ============================================ */
-
-/* Form Input Fields */
-.neu-input {
-  @apply w-full bg-surface border border-border rounded-xl py-3 px-4;
-  @apply text-foreground placeholder:text-muted-foreground;
-  @apply transition-all duration-200;
-  @apply focus:border-primary focus:shadow-neu-inset focus:outline-none;
-  @apply shadow-neu-inset;
-}
-
-.neu-input::placeholder {
-  @apply text-muted-foreground opacity-60;
-  @apply transition-opacity duration-200;
-}
-
-.neu-input:focus::placeholder {
-  @apply opacity-40;
-}
-
-.neu-input-error {
-  @apply neu-input border-destructive;
-}
-
-/* Form Input Icon Positioning (Left side) */
-.auth-input-icon {
-  @apply absolute left-4 top-1/2 -translate-y-1/2;
-  @apply text-muted-foreground pointer-events-none;
-  @apply transition-colors duration-200;
-}
-
-/* When input is focused, slightly highlight the icon */
-.neu-input:focus ~ .auth-input-icon,
-.neu-input:focus + .auth-input-icon {
-  @apply text-subtle;
-}
-
-/* Form Header Icon Container - NEUMORPHIC */
-.auth-icon-container {
-  @apply w-20 h-20 bg-surface rounded-[1.25rem];
-  @apply flex items-center justify-center;
-  @apply shadow-neu-outset;
-  @apply transition-all duration-300;
-}
-
-.auth-icon-container:hover {
-  @apply shadow-neu-outset-lg;
-}
-
-/* Alternative: Pressed/Active state icon container */
-.auth-icon-container-pressed {
-  @apply w-20 h-20 bg-surface rounded-[1.25rem];
-  @apply flex items-center justify-center;
-  @apply shadow-neu-inset;
-}
-
-/* Auth Alerts (Error, Success, Warning, Info) */
-.neu-alert-error {
-  @apply bg-destructive/10 text-destructive;
-  @apply border border-destructive/30 rounded-xl p-4;
-  @apply shadow-neu-inset;
-}
-
-.neu-alert-success {
-  @apply bg-success/10 text-success;
-  @apply border border-success/30 rounded-xl p-4;
-  @apply shadow-neu-inset;
-}
-
-.neu-alert-warning {
-  @apply bg-warning/10 text-warning;
-  @apply border border-warning/30 rounded-xl p-4;
-  @apply shadow-neu-inset;
-}
-
-.neu-alert-info {
-  @apply bg-info/10 text-info;
-  @apply border border-info/30 rounded-xl p-4;
-  @apply shadow-neu-inset;
-}
-
-/* ============================================
-   SHADCN/UI COMPATIBLE CSS VARIABLES
-   - HSL format for shadcn components
-   - Dark theme by default (Constitution VI compliant)
-   ============================================ */
-@layer base {
-  :root {
-    /* shadcn/ui CSS variables for dark theme (Constitution VI: dark-first) */
-    --background: 0 0% 6%;  /* #101010 */
-    --foreground: 0 0% 96%; /* #F5F5F5 */
-    
-    --card: 0 0% 10%;  /* #1A1A1A */
-    --card-foreground: 0 0% 96%;
-    
-    --popover: 0 0% 10%;
-    --popover-foreground: 0 0% 96%;
-    
-    --primary: 0 0% 63%; /* #A0A0A0 Muted Gray */
-    --primary-foreground: 0 0% 0%;
-    
-    --secondary: 0 0% 14%; /* #252525 */
-    --secondary-foreground: 0 0% 96%;
-    
-    --muted: 0 0% 25%; /* #404040 */
-    --muted-foreground: 0 0% 63%;
-    
-    --accent: 0 0% 25%;
-    --accent-foreground: 0 0% 96%;
-    
-    --destructive: 0 63% 50%;
-    --destructive-foreground: 0 0% 96%;
-    
-    /* Custom status colors */
-    --success: 142 71% 45%; /* Green for success states */
-    --success-foreground: 0 0% 6%;
-    
-    --info: 217 91% 60%; /* Blue for info states */
-    --info-foreground: 0 0% 6%;
-    
-    --warning: 38 92% 50%; /* Orange for warning states */
-    --warning-foreground: 0 0% 6%;
-    
-    --border: 0 0% 17%; /* #2C2C2C */
-    --input: 0 0% 17%;
-    --ring: 0 0% 63%;
-    
-    --radius: 1rem;
-    
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+@layer utilities {
+  /* Text utilities */
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  /* Animation utilities */
+  .animate-fade-in-up {
+    animation: fade-in-up 0.6s var(--ease-out) forwards;
+  }
+  
+  .animate-float {
+    animation: float 3s var(--ease-in-out) infinite;
+  }
+  
+  .animate-pulse {
+    animation: pulse 2s var(--ease-in-out) infinite;
+  }
+  
+  .animate-slide-in-top {
+    animation: slide-in-top 0.5s var(--ease-out) forwards;
+  }
+  
+  /* Background utilities */
+  .bg-animated-gradient {
+    background: linear-gradient(-45deg, #000000, #101010, #1A1A1A, #000000);
+    background-size: 400% 400%;
+    animation: gradient-shift 15s ease infinite;
   }
 }
 
 /* ============================================
-   SELECT DROPDOWN CUSTOM STYLES
-   - Removes blue hover from option elements
+   ACCESSIBILITY
    ============================================ */
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .neu-card:hover,
+  .neu-btn:hover {
+    transform: none;
+  }
+}
+
+/* Focus visible styles for keyboard navigation */
+:focus-visible {
+  outline: 2px solid rgb(var(--color-accent));
+  outline-offset: 2px;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+  :root {
+    /* Reduce shadow intensity on mobile */
+    --shadow-outset-md: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+    --shadow-outset-lg: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+  }
+  
+  .neu-card:hover {
+    transform: none;
+  }
+}
+
+/* ============================================
+   FORM ELEMENTS - DROPDOWN CUSTOMIZATION
+   ============================================ */
+
 @layer base {
   select option {
-    background-color: #1A1A1A;
-    color: #F5F5F5;
+    background-color: rgb(var(--color-background-elevated));
+    color: rgb(var(--color-foreground));
   }
   
   select option:hover,
   select option:checked {
-    background-color: #252525 !important;
-    color: #F5F5F5 !important;
+    background-color: rgb(var(--color-background-hover)) !important;
+    color: rgb(var(--color-foreground-secondary)) !important;
   }
 }
 
