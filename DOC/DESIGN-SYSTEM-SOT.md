@@ -1,12 +1,485 @@
 # Design System - Source of Truth (SOT)
 **Purpose**: Complete reference for the neumorphic design system  
-**Date**: November 1, 2025  
+**Date**: November 3, 2025 (Updated)  
 **Status**: Active Standard  
-**Theme**: Dark-Only (Constitution VI Compliant)
+**Theme**: Multi-Theme System (Dark, Light, Purple)
 
 ---
 
-## 📋 Table of Contents
+## 🎯 MIGRATION STATUS (Updated: November 3, 2025)
+
+### ✅ Completed Components (8 total)
+These components are FULLY MIGRATED and serve as **reference examples** for future migrations:
+
+**Navigation Layer:**
+- ✅ `TopBar.tsx` - Neumorphic top navigation bar
+- ✅ `HeaderMenu.tsx` - Main header with ThemeSwitcher, rounded neumorphic bar
+
+**Installer Authentication Flow:**
+- ✅ `InstallerEligibilityModal.tsx` - Modal with Button component
+- ✅ `InstallerSignupModal.tsx` - Multi-step form with .form-input class
+- ✅ `InstallerSignInModal.tsx` - Auth modal with social login
+
+**Homeowner Authentication Flow:**
+- ✅ `HomeownerSignupModal.tsx` - Multi-field signup form with .form-input
+- ✅ `HomeownerSignInModal.tsx` - Auth modal with password toggle
+
+**Hero Section:**
+- ✅ `Hero.tsx` - Hero section with responsive typography, animations
+
+### 🔄 In Progress (2 components - Phase 4)
+- 🔄 `NewQuoteRequestModal.tsx` - Dashboard quote request modal
+- 🔄 `MessagingModal.tsx` - Dashboard messaging feature
+
+### 📚 Use These as Reference for Next Migrations
+When migrating new components, **ALWAYS** open and study these examples:
+1. **HeaderMenu.tsx** - Button component usage, ThemeSwitcher integration
+2. **InstallerSignupModal.tsx** - .form-input class usage, multi-step forms
+3. **HomeownerSignInModal.tsx** - Complete auth modal pattern with social login
+4. **Hero.tsx** - Responsive typography, animation preservation
+
+---
+
+## �️ MIGRATION DECISION FLOWCHART (Added Nov 3, 2025)
+
+**Use this to determine how to migrate YOUR component**
+
+### START: I need to migrate a component
+
+#### STEP 1: Run Gate 0 Health Check
+**MANDATORY:** Run all health checks in `tasks.md` GATE 0 section
+- [ ] CSS Variables Foundation (12 matches expected)
+- [ ] Semantic Classes Catalog (file created)
+- [ ] Reference Components Available (all True)
+- [ ] Chart Hook Uses CSS Variables (if has charts)
+- [ ] Input Classes Properly Separated (no arrow on text inputs)
+- [ ] Theme-Card Uses Variables (not hardcoded white)
+
+**❌ IF ANY FAILS:** STOP migration, fix system issue, re-run checks
+
+**✅ ALL PASS:** Continue to Step 2
+
+---
+
+#### STEP 2: What type of component is this?
+
+##### Option A: Form Component (inputs, buttons, labels)
+**Characteristics:** Sign up/sign in forms, contact forms, settings forms  
+**Use Pattern:** Form Migration Pattern  
+**Reference:** `InstallerSignupModal.tsx`, `HomeownerSignInModal.tsx`  
+**Classes:** `.form-input`, `.form-select`, `<Button>` component  
+**[Jump to Form Migration Guide](#type-1-form-components)**
+
+---
+
+##### Option B: Chart/Graph Component (data visualization)
+**Characteristics:** Uses Recharts, shows graphs, dynamic data colors  
+**Use Pattern:** Chart Migration Pattern  
+**Reference:** `SavingsChart.tsx`  
+**Hook:** `useChartColors()` - MUST read CSS variables  
+**[Jump to Chart Migration Guide](#type-2-data-visualization-components-charts)**
+
+---
+
+##### Option C: Result/Data Card (metrics, summaries)
+**Characteristics:** Display calculated results, system specs, cost breakdowns  
+**Use Pattern:** Card Migration Pattern  
+**Classes:** `.detail-card`, `.cost-item`, `.performance-item`, `.metric-card`  
+**[Jump to Card Migration Guide](#type-3-resultdata-display-cards)**
+
+---
+
+##### Option D: Modal/Dialog (overlays)
+**Characteristics:** Pop-up windows, confirmation dialogs, auth modals  
+**Use Pattern:** Modal Migration Pattern  
+**Reference:** `HomeownerSignInModal.tsx`, `InstallerEligibilityModal.tsx`  
+**Container:** `.theme-card` (for modal content)  
+**[Jump to Modal Migration Guide](#migration-principles)**
+
+---
+
+##### Option E: Navigation/Header (topbar, sidebar, menu)
+**Characteristics:** Navigation bars, sidebars, menu components  
+**Use Pattern:** Nav Migration Pattern  
+**Reference:** `TopBar.tsx`, `HeaderMenu.tsx`  
+**Classes:** Custom nav classes, `<Button>` for nav buttons  
+
+---
+
+##### Option F: Mixed Component (multiple types)
+**Characteristics:** Has forms AND charts AND cards  
+**Example:** `InstantQuoteForm` (forms + charts + result cards)  
+**Strategy:** Break into sub-components, migrate each using appropriate pattern  
+**Migration Order:**
+1. Container/layout (page wrapper)
+2. Form elements (inputs, buttons)
+3. Charts (if any)
+4. Result cards (if any)
+
+**[Jump to Mixed Component Strategy](#type-4-mixed-components-advanced)**
+
+---
+
+#### STEP 3: Does it have sub-components?
+
+##### YES - Complex Component
+**Examples:** InstantQuoteForm (forms + charts + cards), Dashboard pages  
+**Strategy:**
+1. List all sub-component types (forms, charts, cards, etc.)
+2. Find reference component for EACH type
+3. Open Semantic Classes Registry for available classes
+4. Migrate in order: Container → Forms → Charts → Cards
+
+**Checklist:**
+- [ ] Identified all sub-component types
+- [ ] Found reference for each type
+- [ ] Opened semantic classes registry
+- [ ] Planned migration order
+
+---
+
+##### NO - Simple Component
+**Examples:** Button-only component, Single input field, Icon component  
+**Strategy:**
+1. Identify single pattern to apply
+2. Find one reference component
+3. Apply pattern directly
+
+---
+
+#### STEP 4: Pre-Migration Prep (Before Touching Code)
+
+**Open These Files:**
+1. ✅ `DOC/SEMANTIC-CLASSES-REGISTRY.md` - All available classes
+2. ✅ Reference component(s) for your type
+3. ✅ `tasks.md` verification commands for this phase
+4. ✅ `DESIGN-SYSTEM-SOT.md` (this file) - Component type section
+
+**Document Current State:**
+```powershell
+# Count elements BEFORE migration
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "<button" | Measure-Object
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "<input" | Measure-Object
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "<select" | Measure-Object
+# Write down counts - must be 0 after migration
+```
+
+---
+
+#### STEP 5: During Migration (Element-by-Element)
+
+**For EACH element in your component, apply decision:**
+
+```
+Element is <button>?
+├─ YES → Replace with <Button> component from ui/button.tsx
+└─ NO → Continue to next check
+
+Element is <input type="text/number/email">?
+├─ YES → Add className="form-input w-full"
+└─ NO → Continue to next check
+
+Element is <select>?
+├─ YES → Add className="form-select w-full"
+└─ NO → Continue to next check
+
+Element is a chart (Bar, Line, Area, etc.)?
+├─ YES → Use useChartColors() hook, replace hardcoded colors
+└─ NO → Continue to next check
+
+Element has hardcoded color class (bg-gray-*, text-slate-*)?
+├─ YES → Replace with semantic token (bg-surface, text-foreground)
+└─ NO → Element is OK, move to next
+
+Element is a container (modal, card, panel)?
+├─ Modal → Use .theme-card
+├─ Data Card → Use .detail-card
+├─ Metric Card → Use .metric-card
+└─ Simple div → Use bg-surface, rounded-lg
+
+Element is text/label/value?
+├─ Cost Label → Use .cost-item-label
+├─ Cost Value → Use .cost-item-value
+├─ Metric Label → Use .metric-card-label
+├─ Metric Value → Use .metric-card-value
+└─ Generic → Use text-foreground or text-subtle
+```
+
+---
+
+#### STEP 6: Post-Migration Verification (MANDATORY)
+
+**Run ALL verification commands from tasks.md for your phase:**
+
+```powershell
+# Example for InstantQuoteForm:
+
+# 1. No hardcoded colors
+Select-String -Path "src\components\InstantQuoteForm.tsx" -Pattern "bg-gray|text-gray|bg-slate"
+# Expected: 0 matches
+
+# 2. No form-select on text inputs
+Select-String -Path "src\components\InstantQuoteForm.tsx" -Pattern '<input.*form-select'
+# Expected: 0 matches
+
+# 3. Charts use hook (if has charts)
+Select-String -Path "src\components\InstantQuoteForm.tsx" -Pattern "useChartColors"
+# Expected: 1+ matches if has charts
+
+# 4. All buttons replaced
+Select-String -Path "src\components\InstantQuoteForm.tsx" -Pattern "<button"
+# Expected: 0 matches (all should be <Button>)
+```
+
+**Visual Tests (MANDATORY for ALL components):**
+1. Open in browser
+2. Test Dark theme → Screenshot
+3. Switch to Light theme → Screenshot
+4. Switch to Purple theme → Screenshot
+5. Verify:
+   - [ ] No hardcoded colors visible
+   - [ ] All text readable (good contrast)
+   - [ ] Neumorphic shadows visible
+   - [ ] No white/black bleed-through
+
+**Runtime Tests:**
+1. Open browser console
+2. Interact with ALL features
+3. Switch themes while component open
+4. Expected: 0 errors in console
+
+---
+
+#### STEP 7: Mark Complete & Move On
+
+**Only when ALL checks pass:**
+- [ ] Verification commands returned expected results
+- [ ] Visual tests passed in all 3 themes
+- [ ] No runtime errors in console
+- [ ] Code is clean (no commented code, TODOs removed)
+
+**Then:**
+1. Update migration progress in tasks.md
+2. Commit with atomic message: "Migrate [ComponentName] to neumorphic design"
+3. Move to next component
+
+---
+
+## 📦 COMPONENT TYPE TAXONOMY (Detailed Patterns)
+
+### Type 1: Form Components
+
+**Characteristics:** Input fields, dropdowns, checkboxes, buttons  
+**Examples:** InstallerSignupModal, HomeownerSignInModal, ProfileManagement  
+
+**Migration Pattern:**
+- All `<button>` → `<Button>` component
+- All `<input type="text/number/email">` → `.form-input` class
+- All `<select>` → `.form-select` class
+- Labels use `text-subtle` or `text-foreground-muted`
+- Error messages use `text-destructive`
+
+**Reference Components:**
+- ✅ `InstallerSignupModal.tsx` - Multi-step form with validation
+- ✅ `HomeownerSignInModal.tsx` - Auth form with social login
+
+**Code Example:**
+```tsx
+// ❌ BEFORE
+<div className="mb-4">
+  <label className="block text-gray-700 dark:text-gray-300 mb-2">
+    Email
+  </label>
+  <input 
+    type="email"
+    className="w-full px-4 py-2 border rounded-lg bg-white dark:bg-gray-800"
+  />
+</div>
+
+// ✅ AFTER
+<div className="mb-4">
+  <label className="block text-subtle mb-2">
+    Email
+  </label>
+  <input 
+    type="email"
+    className="form-input w-full"
+  />
+</div>
+```
+
+**Verification:**
+```powershell
+# No hardcoded grays
+Select-String -Path "src\components\YourForm.tsx" -Pattern "bg-gray|text-gray"
+# Expected: 0 matches
+
+# All buttons are Button component
+Select-String -Path "src\components\YourForm.tsx" -Pattern "<button"
+# Expected: 0 matches
+```
+
+---
+
+### Type 2: Data Visualization Components (Charts)
+
+**Characteristics:** Uses Recharts, graphs, dynamic data colors  
+**Examples:** SavingsChart, FinancialProjections, PerformanceGraph  
+
+**Migration Pattern:**
+- Chart colors MUST use `useChartColors()` hook
+- Hook MUST read from CSS variables (not design tokens)
+- NO hardcoded hex colors (`fill="#FF6B00"`)
+- Chart background uses `bg-surface`
+- Grid/axis use colors from hook (grid, axis, text)
+
+**Critical Rules:**
+1. ❌ NEVER `import { colors } from '@/design-tokens'`
+2. ❌ NEVER hardcode colors: `fill="#FF6B00"`
+3. ✅ ALWAYS use hook: `const chartColors = useChartColors(); fill={chartColors.primary}`
+4. ✅ ALWAYS test in all 3 themes (color MUST change)
+
+**Reference Component:**
+- ✅ `SavingsChart.tsx` - Complete chart implementation
+
+**Code Example:**
+```tsx
+// ❌ BEFORE - Hardcoded orange
+import { colors } from '@/design-tokens';
+<Bar dataKey="Annual Cost" fill="#FF6B00" />
+<CartesianGrid stroke="#e5e7eb" />
+
+// ✅ AFTER - Theme-adaptive
+import { useChartColors } from '@/hooks/useChartColors';
+
+const MyChart = () => {
+  const chartColors = useChartColors();
+  
+  return (
+    <BarChart>
+      <Bar dataKey="Annual Cost" fill={chartColors.primary} />
+      <CartesianGrid stroke={chartColors.grid} />
+      <XAxis tick={{ fill: chartColors.text }} />
+    </BarChart>
+  );
+};
+```
+
+**Verification:**
+```powershell
+# No hardcoded hex colors
+Select-String -Path "src\components\YourChart.tsx" -Pattern "fill=['\"]#|stroke=['\"]#"
+# Expected: 0 matches (except in gradient IDs)
+
+# Uses useChartColors hook
+Select-String -Path "src\components\YourChart.tsx" -Pattern "useChartColors"
+# Expected: At least 2 matches (import + usage)
+
+# Hook reads CSS variables (not design tokens)
+Select-String -Path "src\hooks\useChartColors.ts" -Pattern "getComputedStyle"
+# Expected: At least 1 match
+```
+
+---
+
+### Type 3: Result/Data Display Cards
+
+**Characteristics:** Display calculated data, metrics, summaries  
+**Examples:** Cost Breakdown, System Specifications, Financial Projections summary  
+
+**Migration Pattern:**
+- Container uses `.detail-card` (has neumorphic shadow)
+- Headers use `.detail-card-header`
+- Values use type-specific classes:
+  - Cost data: `.cost-item-label` + `.cost-item-value`
+  - Performance: `.performance-item-label` + `.performance-item-value`
+  - Specs: `.spec-card-label` + `.spec-card-value`
+  - Metrics: `.metric-card-label` + `.metric-card-value`
+
+**Neumorphic Enhancement Checklist:**
+- [ ] Card has `box-shadow: var(--shadow-outset-md)` or stronger
+- [ ] Hover state uses `var(--shadow-outset-lg)`
+- [ ] Background is `rgb(var(--color-surface))`
+- [ ] Border uses `rgb(var(--color-border))`
+- [ ] NO `bg-gray-*` or `text-gray-*` classes
+
+**Code Example:**
+```tsx
+// ❌ BEFORE
+<div className="bg-gray-800 rounded-lg p-6">
+  <h3 className="text-xl font-bold text-gray-100 mb-4">Cost Breakdown</h3>
+  <div className="flex justify-between">
+    <span className="text-gray-400">System Cost</span>
+    <span className="text-gray-100 font-bold">{formatCurrency(cost)}</span>
+  </div>
+</div>
+
+// ✅ AFTER
+<div className="detail-card">
+  <h3 className="detail-card-header">Cost Breakdown</h3>
+  <div className="cost-item">
+    <span className="cost-item-label">System Cost</span>
+    <span className="cost-item-value">{formatCurrency(cost)}</span>
+  </div>
+</div>
+```
+
+**Verification:**
+```powershell
+# No hardcoded grays
+Select-String -Path "src\components\YourCard.tsx" -Pattern "bg-gray|text-gray|bg-slate|text-slate"
+# Expected: 0 matches
+
+# Uses semantic card classes
+Select-String -Path "src\components\YourCard.tsx" -Pattern "detail-card|cost-item|spec-card|performance-item|metric-card"
+# Expected: 5+ matches
+```
+
+---
+
+### Type 4: Mixed Components (Advanced)
+
+**Characteristics:** Complex components with multiple element types  
+**Examples:** InstantQuoteForm (forms + charts + cards), Dashboard pages  
+
+**Migration Strategy:**
+1. **Identify Sub-Components:** List all types (forms, charts, cards)
+2. **Find References:** Get reference component for EACH type
+3. **Plan Order:** Container → Forms → Charts → Cards
+4. **Migrate Atomically:** Complete entire component in one commit
+
+**Sub-Component Pattern Mapping:**
+| Sub-Component Type | Pattern to Use | Reference Component |
+|-------------------|----------------|-------------------|
+| Form inputs | Form Pattern | InstallerSignupModal.tsx |
+| Charts | Chart Pattern | SavingsChart.tsx |
+| Result cards | Card Pattern | See card examples above |
+| Modal container | `.theme-card` | HomeownerSignInModal.tsx |
+
+**Example: InstantQuoteForm Migration Order**
+1. ✅ Container (page layout, sections)
+2. ✅ Form inputs (postcode, location, budget, etc.)
+3. ✅ Chart (SavingsChart component)
+4. ✅ Result cards (Cost Breakdown, Specs, Performance)
+
+**Verification (ALL patterns combined):**
+```powershell
+# Form checks
+Select-String -Path "src\components\InstantQuoteForm.tsx" -Pattern '<input.*form-select'
+# Expected: 0
+
+# Chart checks
+Select-String -Path "src\components\SavingsChart.tsx" -Pattern "fill=['\"]#"
+# Expected: 0
+
+# Card checks
+Select-String -Path "src\components\InstantQuoteForm.tsx" -Pattern "bg-gray|text-gray"
+# Expected: 0
+```
+
+---
+
+## �📋 Table of Contents
 
 1. [Overview](#overview)
 2. [Design Principles](#design-principles)

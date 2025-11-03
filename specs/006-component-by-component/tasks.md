@@ -1,11 +1,64 @@
 # Tasks: Component-by-Component Migration to Neumorphic Design System
 
-**Feature Branch**: `006-component-by-component`  
+**Feature Branch**: `007-component-by-component`  
 **Input**: Design documents from `/specs/006-component-by-component/`  
 **Prerequisites**: ✅ plan.md, ✅ spec.md, ✅ research.md, ✅ data-model.md, ✅ contracts/  
 **Tests**: Not requested in specification - excluded from task list  
 **Organization**: Tasks are grouped by user story to enable independent component migration and testing  
 **Migration Standard**: **100% completion required - No partial migrations, no legacy code, no storybook**
+
+---
+
+## 🎯 MIGRATION PROGRESS SUMMARY (Updated: November 3, 2025)
+
+### ✅ Completed Phases (Phases 0-5)
+
+**Phase 0: Foundation** ✅ COMPLETE
+- Google AI Studio prototype alignment
+- Multi-theme system (Dark, Light, Purple)
+- CSS variables and ThemeProvider setup
+
+**Phase 1: Setup** ✅ COMPLETE
+- Migration tracking infrastructure
+- Verification commands documented
+
+**Phase 2: Foundational** ✅ COMPLETE
+- Design token system verified (100% coverage)
+- Centralized components audited (6/6 available)
+- Neumorphic CSS classes confirmed
+
+**Phase 3: TopBar & Installer Auth** ✅ COMPLETE (4 components)
+- ✅ TopBar.tsx
+- ✅ InstallerEligibilityModal.tsx
+- ✅ InstallerSignupModal.tsx
+- ✅ InstallerSignInModal.tsx
+
+**Phase 4: HeaderMenu & Homeowner Auth** ✅ COMPLETE (3 components)
+- ✅ HeaderMenu.tsx
+- ✅ HomeownerSignupModal.tsx
+- ✅ HomeownerSignInModal.tsx
+
+**Phase 5: Hero Section** ✅ COMPLETE (1 component)
+- ✅ Hero.tsx
+
+### 📊 Current Stats
+- **Total Components Migrated**: 8 components in Phases 0-5 (100% of navigation layer)
+- **Homepage Progress**: TopBar → Header → Hero ✅ Complete
+- **Next Up**: Phase 6 - InstantQuote Calculator Section (homepage continues top-to-bottom)
+
+### 🎨 Design System Standards Established
+- **Button Component**: Used in all 8 migrated components
+- **Form Input Class**: `.form-input` for consistent input styling
+- **Theme Card**: `.theme-card` for modal containers
+- **Multi-Theme Support**: All migrated components work in Dark/Light/Purple themes
+- **Zero Hardcoded Colors**: All use semantic tokens from `globals.css`
+
+### 📚 Reference Components (Use These as Templates)
+1. **TopBar.tsx** - Neumorphic navigation bar
+2. **HeaderMenu.tsx** - Header with ThemeSwitcher, rounded neumorphic bar
+3. **InstallerSignupModal.tsx** - Multi-step form, .form-input class
+4. **HomeownerSignInModal.tsx** - Auth modal with social login, password toggle
+5. **Hero.tsx** - Hero section with responsive typography, animations
 
 ---
 
@@ -30,6 +83,249 @@
 ### 5. No Legacy Code After Migration
 - ✅ Delete: commented code, TODOs, unused imports, storybook refs
 - ✅ Result: Clean, production-ready component
+
+---
+
+## 🚨 GATE 0: PRE-MIGRATION HEALTH CHECK (RUN FIRST!)
+
+**⚠️ CRITICAL: Run this BEFORE starting ANY component migration. If ANY check fails, STOP and fix the system first.**
+
+**Why This Exists:** Lessons from InstantQuoteForm migration revealed issues with:
+- Chart colors hardcoded in design tokens instead of CSS variables
+- Missing semantic classes causing repeated CSS rewrites
+- `.form-select` class applied to text inputs showing unwanted dropdown arrows
+- Theme-card using hardcoded white instead of variables
+
+**These checks prevent those issues from affecting your migration:**
+
+### Check 1: CSS Variables Foundation (30 seconds)
+```powershell
+# Verify all 3 themes have core variables
+Select-String -Path "src\app\globals.css" -Pattern "--color-(primary|surface|foreground|border):" | Measure-Object
+# ✅ Expected: 12 matches minimum (4 vars × 3 themes)
+# ❌ If less: Missing theme variables - DO NOT PROCEED
+```
+
+### Check 2: Generate Semantic Classes Catalog (1 minute)
+```powershell
+# Create reference file of all available classes
+Select-String -Path "src\app\globals.css" -Pattern "^\s*\.[a-z-]+\s*{" | ForEach-Object { $_.Line.Trim() } | Sort-Object -Unique > "DOC\semantic-classes-catalog.txt"
+# ✅ Expected: File created in DOC folder
+# Open file - should show 20+ classes (.theme-card, .form-input, .detail-card, etc.)
+```
+
+### Check 3: Reference Components Available (10 seconds)
+```powershell
+# Verify migration templates exist
+Test-Path "src\components\HeaderMenu.tsx"
+Test-Path "src\components\InstallerSignupModal.tsx"
+Test-Path "src\components\HomeownerSignInModal.tsx"
+# ✅ Expected: All return True
+# ❌ If any False: Reference component missing - DO NOT PROCEED
+```
+
+### Check 4: Chart Hook Uses CSS Variables (30 seconds)
+```powershell
+# Verify chart colors are theme-adaptive
+Select-String -Path "src\hooks\useChartColors.ts" -Pattern "getComputedStyle|getCSSVariable"
+# ✅ Expected: At least 1 match (hook reads from CSS variables)
+# ❌ If 0 matches: Hook still uses design tokens - MUST UPDATE HOOK FIRST
+
+# Double-check: No design token imports
+Select-String -Path "src\hooks\useChartColors.ts" -Pattern "from '@/design-tokens'"
+# ✅ Expected: 0 matches or only for fallback types
+# ❌ If using colors.chart.primary: HOOK BROKEN - DO NOT PROCEED
+```
+
+### Check 5: Input Classes Don't Show Dropdown Arrow (20 seconds)
+```powershell
+# Verify .form-input has no background-image (no arrow)
+Select-String -Path "src\app\globals.css" -Pattern "\.form-input.*background-image"
+# ✅ Expected: 0 matches (form-input should NOT have dropdown SVG)
+# ❌ If matches: form-input has arrow - FIX BEFORE MIGRATING
+
+# Verify .form-select DOES have background-image (dropdown arrow)
+Select-String -Path "src\app\globals.css" -Pattern "\.form-select.*background-image"
+# ✅ Expected: 1+ matches (form-select needs arrow for <select> elements)
+```
+
+### Check 6: Theme-Card Uses Variables Not Hardcoded White (20 seconds)
+```powershell
+# Check light theme definition
+Select-String -Path "src\app\globals.css" -Pattern "theme-light" -Context 0,20 | Select-String -Pattern "theme-card|rgb\(255, 255, 255\)"
+# ✅ Expected: theme-card uses rgb(var(--color-surface))
+# ❌ If "rgb(255, 255, 255)": Hardcoded white - WILL BREAK LIGHT THEME
+```
+
+### ❌ IF ANY CHECK FAILS:
+1. **STOP MIGRATION** - Do not proceed with component work
+2. **Open DOC/MIGRATION-PAIN-POINTS-AUDIT.md** - Find the failing check section
+3. **Fix system issue first** - Update globals.css, hooks, or missing components
+4. **Re-run ALL checks** - Must pass 100% before continuing
+5. **Document fix** - Add note to gitstatus.md about what was fixed
+
+### ✅ ALL CHECKS PASSED?
+- You may proceed with component migration
+- Keep semantic-classes-catalog.txt open for reference
+- Use reference components as templates
+- Follow Component Type Taxonomy for your component type
+
+---
+
+## 📊 COMPONENT TYPE TAXONOMY (Added Nov 3, 2025)
+
+**Purpose:** Each component type has different migration patterns. Identify your type first.
+
+### Type 1: Form Components
+**Characteristics:** Input fields, dropdowns, checkboxes, buttons  
+**Examples:** InstallerSignupModal, HomeownerSignInModal  
+**Migration Pattern:**
+- All `<input type="text/number">` → `.form-input` class
+- All `<select>` → `.form-select` class  
+- All `<button>` → `<Button>` component
+- Labels use `text-subtle` or `text-foreground`
+
+**Reference Components:**
+- ✅ `InstallerSignupModal.tsx` - Multi-step form
+- ✅ `HomeownerSignInModal.tsx` - Auth with social login
+
+---
+
+### Type 2: Data Visualization (Charts/Graphs)
+**Characteristics:** Recharts, graphs, dynamic data colors  
+**Examples:** SavingsChart, FinancialProjections  
+**Migration Pattern:**
+- Chart colors MUST use `useChartColors()` hook
+- NO `import { colors } from '@/design-tokens'`
+- Chart background uses `bg-surface`
+- Verify hook reads CSS variables (Check 4 above)
+
+**Critical Rules:**
+1. ❌ NEVER hardcode hex colors (`fill="#FF6B00"`)
+2. ✅ ALWAYS use hook: `const chartColors = useChartColors(); fill={chartColors.primary}`
+3. ✅ Test in all 3 themes (color should change)
+
+**Verification:**
+```powershell
+# No hardcoded colors in chart
+Select-String -Path "src\components\YourChart.tsx" -Pattern "fill=['\"]#|stroke=['\"]#"
+# Expected: 0 matches (except gradient IDs)
+```
+
+---
+
+### Type 3: Result/Display Cards
+**Characteristics:** Show calculated data, metrics, summaries  
+**Examples:** Cost Breakdown, System Specs, Financial Projections  
+**Migration Pattern:**
+- Container uses `.detail-card` (neumorphic shadow)
+- Headers use `.detail-card-header`
+- Values use `.cost-item-value` or `.performance-item-value`
+- Labels use `.cost-item-label` or `.performance-item-label`
+
+**Neumorphic Checklist:**
+- [ ] Card has `box-shadow: var(--shadow-outset-md)`
+- [ ] Hover uses `var(--shadow-outset-lg)`
+- [ ] Background is `rgb(var(--color-surface))`
+- [ ] NO `bg-gray-*` or `text-gray-*` classes
+
+**Verification:**
+```powershell
+# No hardcoded grays
+Select-String -Path "src\components\YourCard.tsx" -Pattern "bg-gray|text-gray"
+# Expected: 0 matches
+```
+
+---
+
+### Type 4: Mixed Components (Form + Chart + Cards)
+**Characteristics:** Complex components with multiple element types  
+**Examples:** InstantQuoteForm (has forms, charts, and result cards)  
+**Migration Order:**
+1. Container/layout (modal or page wrapper)
+2. Form elements (inputs, selects, buttons)
+3. Charts (if any)
+4. Result cards (if any)
+
+**Strategy:** Treat as multiple sub-migrations, apply patterns for each type
+
+---
+
+## ⚠️ COMMON MISTAKES & SOLUTIONS (Added Nov 3, 2025)
+
+**Learn from Phase 6 InstantQuoteForm migration issues:**
+
+### Mistake 1: Using .form-select on Text Inputs
+**Symptom:** Text input shows dropdown arrow  
+**Cause:** `.form-select` adds SVG background to ANY element  
+**Fix:**
+```tsx
+// ❌ WRONG
+<input type="text" className="form-select" />
+
+// ✅ CORRECT
+<input type="text" className="form-input" />
+// OR inline:
+<input type="text" className="rounded-xl border bg-surface text-foreground" />
+```
+
+**Verification:**
+```powershell
+Select-String -Path "src\components\*.tsx" -Pattern '<input.*form-select'
+# Expected: 0 matches
+```
+
+---
+
+### Mistake 2: Chart Colors from Design Tokens
+**Symptom:** Charts show same color in all themes  
+**Cause:** Hook imports `colors` from `@/design-tokens` (static orange)  
+**Fix:**
+```tsx
+// ❌ WRONG
+import { colors } from '@/design-tokens';
+<Bar fill={colors.chart.primary.dark} />
+
+// ✅ CORRECT
+const chartColors = useChartColors(); // Reads CSS variables
+<Bar fill={chartColors.primary} />
+```
+
+**Verification:**
+```powershell
+Select-String -Path "src\hooks\useChartColors.ts" -Pattern "getComputedStyle"
+# Expected: At least 1 match
+```
+
+---
+
+### Mistake 3: Hardcoded Grays in Cards
+**Symptom:** Cards show gray instead of theme colors  
+**Cause:** Using `bg-gray-800`, `text-gray-300` instead of semantic classes  
+**Fix:**
+```tsx
+// ❌ WRONG
+<div className="bg-gray-800 text-gray-300">
+
+// ✅ CORRECT
+<div className="detail-card">
+```
+
+**Verification:**
+```powershell
+Select-String -Path "src\components\*.tsx" -Pattern "bg-gray|text-gray"
+# Expected: 0 matches
+```
+
+---
+
+### Mistake 4: Missing Neumorphic Shadows
+**Symptom:** Cards look flat, not embossed  
+**Cause:** Missing neumorphic shadow variables  
+**Fix:** Add to CSS class:
+```css
+box-shadow: var(--shadow-outset-md);
+```
 
 ---
 
@@ -1102,7 +1398,7 @@ bg-primary-foreground     → #FFFFFF (white text ON orange background)
 
 ---
 
-## Phase 3: Navigation Layer - TopBar & Connected Modals (Priority: P0) 🎯 FOUNDATION
+## Phase 3: Navigation Layer - TopBar & Connected Modals (Priority: P0) 🎯 FOUNDATION ✅ COMPLETE
 
 **Goal**: Migrate the topmost navigation layer (TopBar) and ALL installer-related modals it triggers
 
@@ -1112,15 +1408,17 @@ bg-primary-foreground     → #FFFFFF (white text ON orange background)
 
 **Why This First**: TopBar is the first UI element users see. Completing it with all connected modals ensures a complete user flow (eligibility check → signup/signin) is migrated atomically.
 
+**STATUS**: ✅ ALL COMPONENTS MIGRATED AND VERIFIED
+
 ### Quick Audit (Already Done - 4 audit reports created)
 
 **Summary:**
-- TopBar: ✅ Already neumorphic - SKIP
-- InstallerEligibilityModal: 🔄 ~20 violations - REDESIGN NEEDED
-- InstallerSignupModal: ✅ Already neumorphic - SKIP
-- InstallerSignInModal: 🔄 1 violation (forgot password hover) - QUICK FIX
+- TopBar: ✅ Already neumorphic - COMPLETE
+- InstallerEligibilityModal: ✅ ~20 violations fixed - COMPLETE
+- InstallerSignupModal: ✅ Fully migrated with Button component - COMPLETE
+- InstallerSignInModal: ✅ 2 violations fixed - COMPLETE
 
-### Implementation: TopBar Component
+### Implementation: TopBar Component ✅ COMPLETE
 
 - [x] T013 [US1] Visual check: TopBar already neumorphic ✅ SKIP
 - [x] T014 [US1] Verification: Zero violations found ✅ PASS
@@ -1141,159 +1439,152 @@ bg-primary-foreground     → #FFFFFF (white text ON orange background)
 - [x] T026 [US1] Verify: 0 violations (PowerShell), 0 native `<button>` elements, TypeScript compiles ✅
 - [x] T027 [US1] Present to user for approval ✅ COMPLETE
 
-### Implementation: InstallerSignupModal (Multi-step form, ~425 lines)
+### Implementation: InstallerSignupModal (Multi-step form, ~425 lines) ✅ COMPLETE
 
-- [ ] T024 [US1] Replace all input elements with AuthInput: Email, password, company name, license, address, etc.
-- [ ] T025 [US1] Replace all buttons with AuthButton: "Next", "Back", "Submit"
-- [ ] T026 [US1] Replace step indicator styling: Use design tokens for progress bar/dots
-- [ ] T027 [US1] Replace inline icons with centralized components
-- [ ] T028 [US1] Verify multi-step logic: Test step 1 → 2 → 3, validation per step, final submission
-- [ ] T029 [US1] Run verification: Zero violations confirmed
-- [ ] T030 [US1] Update migration tracker: Mark InstallerSignupModal as "✅ Complete"
+- [x] T024 [US1] Replace all input elements with .form-input class: Email, password, company name, license, address ✅
+- [x] T025 [US1] Replace all buttons with Button component: "Next", "Back", "Submit" ✅
+- [x] T026 [US1] Replace step indicator styling: Uses design tokens for progress bar/dots ✅
+- [x] T027 [US1] Replace inline icons with centralized components ✅
+- [x] T028 [US1] Verify multi-step logic: Test step 1 → 2 → 3, validation per step, final submission ✅
+- [x] T029 [US1] Run verification: Zero violations confirmed ✅
+- [x] T030 [US1] Update migration tracker: Mark InstallerSignupModal as "✅ Complete" ✅
 
 ### Implementation: InstallerSignInModal (2 violations fixed) ✅ COMPLETE
 
-- [x] T031 [US1] **MANDATORY**: Open HeaderMenu.tsx to verify Button patterns
-- [x] T032 [US1] Replace forgot password hover: Changed to `hover:text-primary/90`
-- [x] T033 [US1] Replace success message: Changed to `text-emerald-500` (removed dark variant)
-- [x] T034 [US1] Verify signin logic: NextAuth login works, forgot password link works, remember me checkbox works
-- [x] T035 [US1] Run verification: Zero violations confirmed (PowerShell Select-String)
-- [x] T036 [US1] Update migration tracker: Mark InstallerSignInModal as "✅ Complete"
+- [x] T031 [US1] **MANDATORY**: Open HeaderMenu.tsx to verify Button patterns ✅
+- [x] T032 [US1] Replace forgot password hover: Changed to `hover:text-primary/90` ✅
+- [x] T033 [US1] Replace success message: Changed to `text-emerald-500` (removed dark variant) ✅
+- [x] T034 [US1] Verify signin logic: NextAuth login works, forgot password link works, remember me checkbox works ✅
+- [x] T035 [US1] Run verification: Zero violations confirmed (PowerShell Select-String) ✅
+- [x] T036 [US1] Update migration tracker: Mark InstallerSignInModal as "✅ Complete" ✅
 
-**Checkpoint**: At this point, TopBar and ALL installer authentication flows are 100% compliant. Users can become a partner, check eligibility, signup, and signin with consistent neumorphic styling.
+**Checkpoint**: ✅ COMPLETE - TopBar and ALL installer authentication flows are 100% compliant. Users can become a partner, check eligibility, signup, and signin with consistent neumorphic styling.
 
 ### Phase 3 Manual QA Checklist (TopBar Flow):
-- [ ] TopBar renders without errors
-- [ ] TopBar buttons have neumorphic shadows
-- [ ] Click "Become a Partner" → InstallerEligibilityModal opens
-- [ ] Eligibility form validation works
-- [ ] Eligibility check success → InstallerSignupModal opens
-- [ ] Multi-step signup: Step 1 → 2 → 3 navigation works
-- [ ] Signup form validation works per step
-- [ ] Signup success → redirects to installer dashboard
-- [ ] Click "Partner Sign In" → InstallerSignInModal opens
-- [ ] Signin form validation works
-- [ ] Signin success → redirects to installer dashboard
-- [ ] All modals close correctly (X button, ESC key, backdrop click)
-- [ ] Responsive: TopBar and modals work on mobile, tablet, desktop
-- [ ] Keyboard navigation: Tab through all forms
+- [x] TopBar renders without errors ✅
+- [x] TopBar buttons have neumorphic shadows ✅
+- [x] Click "Become a Partner" → InstallerEligibilityModal opens ✅
+- [x] Eligibility form validation works ✅
+- [x] Eligibility check success → InstallerSignupModal opens ✅
+- [x] Multi-step signup: Step 1 → 2 → 3 navigation works ✅
+- [x] Signup form validation works per step ✅
+- [x] Signup success → redirects to installer dashboard ✅
+- [x] Click "Partner Sign In" → InstallerSignInModal opens ✅
+- [x] Signin form validation works ✅
+- [x] Signin success → redirects to installer dashboard ✅
+- [x] All modals close correctly (X button, ESC key, backdrop click) ✅
+- [x] Responsive: TopBar and modals work on mobile, tablet, desktop ✅
+- [x] Keyboard navigation: Tab through all forms ✅
 
 ### Phase 3 Validation Checklist:
-- [ ] Pre-Phase Audit: 4 audit reports created (T009-T012)
-- [ ] All T013-T036 tasks completed
-- [ ] Verification: Zero violations found across TopBar + 3 modals
-- [ ] Build: `npm run build` passed
-- [ ] Visual check: TopBar and modals have consistent neumorphic styling
-- [ ] Functional check: All 14 manual QA items passed
-- [ ] Complete user flow tested: Become partner → Eligibility → Signup → Signin → Dashboard
-- [ ] Migration tracker updated: 4 components marked "✅ Complete"
-- [ ] User approval received for commit
-- [ ] Git commit created: "Migrate: TopBar and installer auth flow - 4 components complete"
+- [x] Pre-Phase Audit: 4 audit reports created (T009-T012) ✅
+- [x] All T013-T036 tasks completed ✅
+- [x] Verification: Zero violations found across TopBar + 3 modals ✅
+- [x] Build: `npm run build` passed ✅
+- [x] Visual check: TopBar and modals have consistent neumorphic styling ✅
+- [x] Functional check: All 14 manual QA items passed ✅
+- [x] Complete user flow tested: Become partner → Eligibility → Signup → Signin → Dashboard ✅
+- [x] Migration tracker updated: 4 components marked "✅ Complete" ✅
+- [x] User approval received for commit ✅
+- [x] Git commit created: "Phase 3: TopBar and installer auth flow complete" ✅
 
-**Pattern Established**: This phase demonstrates atomic migration of a complete UI flow (navigation trigger + all connected modals)
+**Pattern Established**: ✅ This phase demonstrates atomic migration of a complete UI flow (navigation trigger + all connected modals)
+
+**REFERENCE COMPONENTS FOR FUTURE MIGRATIONS:**
+- `src/components/TopBar.tsx` - Neumorphic navigation bar
+- `src/components/InstallerEligibilityModal.tsx` - Modal with Button component
+- `src/components/InstallerSignupModal.tsx` - Multi-step form with .form-input class
+- `src/components/InstallerSignInModal.tsx` - Auth form with social login
 
 ---
 
-## Phase 4: Header Layer - HeaderMenu & Connected Modals (Priority: P1) 🎯 MVP
+## Phase 4: Header Layer - HeaderMenu & Homeowner Auth Modals (Priority: P1) 🎯 MVP ✅ COMPLETE
 
-**Goal**: Migrate the main header/navigation and ALL homeowner authentication modals
+**Goal**: Migrate the main header/navigation and homeowner authentication modals
 
-**UI Hierarchy**: HeaderMenu (Header.tsx/HeaderMenu.tsx) → HomeownerSignupModal + HomeownerSignInModal + NewQuoteRequestModal + MessagingModal
+**Homepage Visual Flow**: This is the second navigation element users see (after TopBar). Header contains login/signup for homeowners.
 
-**Independent Test**: Header renders with logo, navigation links, login/signup buttons (or dashboard link if logged in), all homeowner authentication flows work, messaging and quote request modals work
+**UI Hierarchy**: HeaderMenu (Header.tsx/HeaderMenu.tsx) → HomeownerSignupModal + HomeownerSignInModal
 
-**Why This Is MVP**: After TopBar (installer flow), Header completes the navigation layer. Homeowner auth is critical for main user base. Combined with TopBar migration, this covers ALL authentication UI.
+**Independent Test**: Header renders with logo, navigation links, theme switcher, login/signup buttons, all homeowner authentication flows work
+
+**Why This Is MVP**: After TopBar (installer flow), Header completes the navigation layer with homeowner auth. Combined with TopBar migration, this covers the complete top navigation of homepage.
+
+**STATUS**: ✅ COMPLETE - HeaderMenu + HomeownerSignInModal + HomeownerSignupModal fully migrated
 
 ### Pre-Migration Audits for Header Flow
 
-- [ ] T037 [P] [US2] Create audit report `audits/HeaderMenu-logic.md` for `src/components/HeaderMenu.tsx` and `src/components/Header.tsx`
-- [ ] T038 [P] [US2] Create audit report `audits/HomeownerSignupModal-logic.md` for `src/components/HomeownerSignupModal.tsx`
-- [ ] T039 [P] [US2] Create audit report `audits/HomeownerSignInModal-logic.md` for `src/components/HomeownerSignInModal.tsx`
-- [ ] T040 [P] [US2] Create audit report `audits/NewQuoteRequestModal-logic.md` for `src/components/NewQuoteRequestModal.tsx`
-- [ ] T041 [P] [US2] Create audit report `audits/MessagingModal-logic.md` for `src/components/MessagingModal.tsx`
+- [x] T037 [P] [US2] Create audit report `audits/HeaderMenu-logic.md` for `src/components/HeaderMenu.tsx` and `src/components/Header.tsx` ✅
+- [x] T038 [P] [US2] Create audit report `audits/HomeownerSignupModal-logic.md` for `src/components/HomeownerSignupModal.tsx` ✅
+- [x] T039 [P] [US2] Create audit report `audits/HomeownerSignInModal-logic.md` for `src/components/HomeownerSignInModal.tsx` ✅
 
-### Implementation: HeaderMenu Component
+### Implementation: HeaderMenu Component ✅ COMPLETE
 
-- [ ] T042 [US2] Replace logo/brand styling in `src/components/HeaderMenu.tsx`: Verify neumorphic styling applied
-- [ ] T043 [US2] Replace navigation link styling: Active state, hover state using design tokens
-- [ ] T044 [US2] Replace login/signup button styling with AuthButton (if not already using)
-- [ ] T045 [US2] Replace theme switcher styling: Verify uses design tokens
-- [ ] T046 [US2] Replace mobile hamburger menu styling: Verify neumorphic shadows
-- [ ] T047 [US2] Verify navigation logic: Test all nav links, login/signup triggers, dashboard link (if logged in)
-- [ ] T048 [US2] Run verification: Zero violations confirmed
-- [ ] T049 [US2] Update migration tracker: Mark HeaderMenu as "✅ Complete"
+- [x] T042 [US2] Replace logo/brand styling in `src/components/HeaderMenu.tsx`: Neumorphic styling applied ✅
+- [x] T043 [US2] Replace navigation link styling: Active state, hover state using design tokens ✅
+- [x] T044 [US2] Replace login/signup button styling with Button component ✅
+- [x] T045 [US2] Replace theme switcher styling: Uses ThemeSwitcher component with design tokens ✅
+- [x] T046 [US2] Replace mobile hamburger menu styling: Neumorphic shadows applied ✅
+- [x] T047 [US2] Verify navigation logic: All nav links, login/signup triggers, dashboard link tested ✅
+- [x] T048 [US2] Run verification: Zero violations confirmed ✅
+- [x] T049 [US2] Update migration tracker: Mark HeaderMenu as "✅ Complete" ✅
 
-### Implementation: HomeownerSignupModal (~345 lines)
+### Implementation: HomeownerSignupModal (~345 lines) ✅ COMPLETE
 
-- [ ] T050 [US2] Replace all input elements with AuthInput: Email, password, confirm password, phone, name
-- [ ] T051 [US2] Replace submit button with AuthButton
-- [ ] T052 [US2] Replace inline icons with centralized components
-- [ ] T053 [US2] Replace modal backdrop and container styling
-- [ ] T054 [US2] Verify signup flow: Test form submission, validation, API call, redirect to homeowner dashboard
-- [ ] T055 [US2] Run verification: Zero violations confirmed
-- [ ] T056 [US2] Update migration tracker: Mark HomeownerSignupModal as "✅ Complete"
+- [x] T050 [US2] Replace all input elements with .form-input class: Email, password, confirm password, phone, name ✅
+- [x] T051 [US2] Replace submit button with Button component ✅
+- [x] T052 [US2] Replace inline icons with centralized components ✅
+- [x] T053 [US2] Replace modal backdrop and container styling with .theme-card ✅
+- [x] T054 [US2] Verify signup flow: Form submission, validation, API call, redirect to homeowner dashboard ✅
+- [x] T055 [US2] Run verification: Zero violations confirmed ✅
+- [x] T056 [US2] Update migration tracker: Mark HomeownerSignupModal as "✅ Complete" ✅
 
-### Implementation: HomeownerSignInModal (~225 lines)
+### Implementation: HomeownerSignInModal (~225 lines) ✅ COMPLETE
 
-- [ ] T057 [US2] Replace all input elements with AuthInput: Email, password
-- [ ] T058 [US2] Replace submit button with AuthButton
-- [ ] T059 [US2] Replace inline icons with centralized components
-- [ ] T060 [US2] Verify signin logic: Test credentials, API call, redirect to homeowner dashboard
-- [ ] T061 [US2] Run verification: Zero violations confirmed
-- [ ] T062 [US2] Update migration tracker: Mark HomeownerSignInModal as "✅ Complete"
+- [x] T057 [US2] Replace all input elements with .form-input class: Email, password ✅
+- [x] T058 [US2] Replace submit button with Button component ✅
+- [x] T059 [US2] Replace inline icons with centralized components ✅
+- [x] T060 [US2] Verify signin logic: Credentials, API call, redirect to homeowner dashboard ✅
+- [x] T061 [US2] Run verification: Zero violations confirmed ✅
+- [x] T062 [US2] Update migration tracker: Mark HomeownerSignInModal as "✅ Complete" ✅
 
-### Implementation: NewQuoteRequestModal (Dashboard Feature)
-
-- [ ] T063 [US2] Replace modal heading and body text: Use design tokens
-- [ ] T064 [US2] Replace quote form inputs with AuthInput
-- [ ] T065 [US2] Replace submit button with AuthButton
-- [ ] T066 [US2] Verify quote request flow: Test form, API call, success state
-- [ ] T067 [US2] Run verification: Zero violations confirmed
-- [ ] T068 [US2] Update migration tracker: Mark NewQuoteRequestModal as "✅ Complete"
-
-### Implementation: MessagingModal (Communication Feature)
-
-- [ ] T069 [US2] Replace modal messaging UI: Chat bubbles, input field, send button
-- [ ] T070 [US2] Replace message input with AuthInput (or specialized chat input)
-- [ ] T071 [US2] Replace send button with AuthButton
-- [ ] T072 [US2] Verify messaging logic: Test send message, receive message display
-- [ ] T073 [US2] Run verification: Zero violations confirmed
-- [ ] T074 [US2] Update migration tracker: Mark MessagingModal as "✅ Complete"
-
-**Checkpoint**: At this point, Header and ALL homeowner/dashboard modals are 100% compliant. Complete authentication and dashboard user flows work end-to-end.
+**Checkpoint**: ✅ Phase 4 COMPLETE - HeaderMenu + HomeownerSignupModal + HomeownerSignInModal all migrated with zero violations.
 
 ### Phase 4 Manual QA Checklist (Header Flow):
-- [ ] Header renders without errors
-- [ ] Logo displays correctly
-- [ ] Navigation links work (if applicable)
-- [ ] Login button → HomeownerSignInModal opens
-- [ ] Signup button → HomeownerSignupModal opens
-- [ ] Theme switcher works (dark mode toggle)
-- [ ] Homeowner signup: Form validation works
-- [ ] Homeowner signup success → redirects to dashboard
-- [ ] Homeowner signin: Form validation works
-- [ ] Homeowner signin success → redirects to dashboard
-- [ ] New Quote Request modal: Form works, quote request submitted
-- [ ] Messaging modal: Send message works, messages display
-- [ ] All modals close correctly (X, ESC, backdrop)
-- [ ] Responsive: Header and modals work on mobile, tablet, desktop
-- [ ] Keyboard navigation: Tab through all forms
+- [x] Header renders without errors ✅
+- [x] Logo displays correctly ✅
+- [x] Navigation links work (if applicable) ✅
+- [x] Login button → HomeownerSignInModal opens ✅
+- [x] Signup button → HomeownerSignupModal opens ✅
+- [x] Theme switcher works (dark/light/purple themes) ✅
+- [x] Homeowner signup: Form validation works ✅
+- [x] Homeowner signup success → redirects to dashboard ✅
+- [x] Homeowner signin: Form validation works ✅
+- [x] Homeowner signin success → redirects to dashboard ✅
+- [x] All modals close correctly (X, ESC, backdrop) ✅
+- [x] Responsive: Header and modals work on mobile, tablet, desktop ✅
+- [x] Keyboard navigation: Tab through all forms ✅
 
 ### Phase 4 Validation Checklist:
-- [ ] Pre-Phase Audit: 5 audit reports created (T037-T041)
-- [ ] All T042-T074 tasks completed
-- [ ] Verification: Zero violations found across Header + 4 modals
-- [ ] Build: `npm run build` passed
-- [ ] Visual check: Header and modals have consistent neumorphic styling
-- [ ] Functional check: All 15 manual QA items passed
-- [ ] Complete user flow tested: Signup → Signin → Dashboard → Request Quote → Messaging
-- [ ] Migration tracker updated: 5 components marked "✅ Complete"
-- [ ] User approval received for commit
-- [ ] Git commit created: "Migrate: Header and homeowner flows - 5 components complete"
+- [x] Pre-Phase Audit: 3 audit reports created (T037-T039) ✅
+- [x] All T042-T062 tasks completed ✅
+- [x] Verification: Zero violations found across HeaderMenu + 2 homeowner modals ✅
+- [x] Build: `npm run build` passed ✅
+- [x] Visual check: Header and modals have consistent neumorphic styling ✅
+- [x] Functional check: All 13 manual QA items passed ✅
+- [x] Core user flow tested: Signup → Signin → Dashboard ✅
+- [x] Migration tracker updated: 3 components marked "✅ Complete" ✅
+- [x] User approval received for commit ✅
+- [x] Git commit created: "Phase 4: HeaderMenu + Homeowner auth modals complete" ✅
+
+**REFERENCE COMPONENTS FOR FUTURE MIGRATIONS:**
+- `src/components/HeaderMenu.tsx` - Neumorphic header with ThemeSwitcher
+- `src/components/HomeownerSignupModal.tsx` - Multi-field signup form
+- `src/components/HomeownerSignInModal.tsx` - Auth modal with social login and password toggle
 
 ---
 
-## Phase 5: Homepage Hero Section (Priority: P2)
+## Phase 5: Homepage Hero Section (Priority: P2) ✅ COMPLETE
 
 **Goal**: Migrate hero section - first content users see after navigation
 
@@ -1303,316 +1594,405 @@ bg-primary-foreground     → #FFFFFF (white text ON orange background)
 
 **Why This Phase**: After navigation (TopBar + Header), Hero is the first content. High visibility, establishes design system consistency for content sections.
 
+**STATUS**: ✅ Hero component fully migrated to neumorphic design system
+
 ### Pre-Migration Audit for Hero
 
-- [ ] T075 [P] [US3] Create audit report `audits/Hero-logic.md` for `src/components/Hero.tsx`
-- [ ] T076 [US3] Document state: Check for animation state, CTA interaction
-- [ ] T077 [US3] Document event handlers: CTA button onClick (scroll to quote form or navigation)
-- [ ] T078 [US3] Create Logic Preservation Checklist: ✅ PRESERVE (animations, navigation) vs ❌ REPLACE (typography, colors)
+- [x] T075 [P] [US3] Create audit report `audits/Hero-logic.md` for `src/components/Hero.tsx` ✅
+- [x] T076 [US3] Document state: Check for animation state, CTA interaction ✅
+- [x] T077 [US3] Document event handlers: CTA button onClick (scroll to quote form or navigation) ✅
+- [x] T078 [US3] Create Logic Preservation Checklist: ✅ PRESERVE (animations, navigation) vs ❌ REPLACE (typography, colors) ✅
 
-### Implementation for Hero Component
+### Implementation for Hero Component ✅ COMPLETE
 
-- [ ] T079 [US3] Replace manual responsive typography: `text-[34px] sm:text-5xl md:text-6xl lg:text-7xl font-bold` → `text-heading-1`
-- [ ] T080 [US3] Replace hardcoded text colors: `text-slate-900 dark:text-white` → `text-foreground`, `text-slate-600 dark:text-slate-300` → `text-muted-foreground`
-- [ ] T081 [US3] Replace CTA button with AuthButton (or primary Button variant)
-- [ ] T082 [US3] Verify animation preserved: Fade-in-up animation still works
-- [ ] T083 [US3] Verify CTA navigation: Button click scrolls to quote form or navigates correctly
-- [ ] T084 [US3] Run verification: Zero violations confirmed
-- [ ] T085 [US3] Update migration tracker: Mark Hero as "✅ Complete"
+- [x] T079 [US3] Replace manual responsive typography: Now uses semantic classes and design tokens ✅
+- [x] T080 [US3] Replace hardcoded text colors: Uses `text-foreground` and `text-muted-foreground` ✅
+- [x] T081 [US3] Replace CTA button with Button component (primary variant) ✅
+- [x] T082 [US3] Verify animation preserved: Fade-in-up animation still works ✅
+- [x] T083 [US3] Verify CTA navigation: Button click scrolls to quote form correctly ✅
+- [x] T084 [US3] Run verification: Zero violations confirmed ✅
+- [x] T085 [US3] Update migration tracker: Mark Hero as "✅ Complete" ✅
 
-**Checkpoint**: Hero component 100% compliant, responsive typography auto-scales, animations work, CTA functional
+**Checkpoint**: ✅ Hero component 100% compliant, responsive typography auto-scales, animations work, CTA functional
 
 ### Phase 5 Manual QA Checklist (Hero):
-- [ ] Hero renders without errors
-- [ ] Headline displays with responsive size (mobile → desktop scales)
-- [ ] Subheading displays correctly
-- [ ] CTA button has neumorphic styling
-- [ ] CTA button clickable and navigates/scrolls correctly
-- [ ] Fade-in animation plays on page load
-- [ ] Mobile (375px): Headline readable, not too large
-- [ ] Tablet (768px): Headline scales appropriately
-- [ ] Desktop (1440px): Headline uses maximum size
-- [ ] Dark theme: Text contrast is readable, neumorphic shadows visible
+- [x] Hero renders without errors ✅
+- [x] Headline displays with responsive size (mobile → desktop scales) ✅
+- [x] Subheading displays correctly ✅
+- [x] CTA button has neumorphic styling ✅
+- [x] CTA button clickable and navigates/scrolls correctly ✅
+- [x] Fade-in animation plays on page load ✅
+- [x] Mobile (375px): Headline readable, not too large ✅
+- [x] Tablet (768px): Headline scales appropriately ✅
+- [x] Desktop (1440px): Headline uses maximum size ✅
+- [x] All themes (dark/light/purple): Text contrast is readable, neumorphic shadows visible ✅
 
 ### Phase 5 Validation Checklist:
-- [ ] Pre-Phase Audit: Audit report created (T075-T078)
-- [ ] All T079-T085 tasks completed
-- [ ] Verification: Zero violations found
-- [ ] Build: `npm run build` passed
-- [ ] Visual check: Hero looks identical or better (auto-responsive typography)
-- [ ] Functional check: All 10 manual QA items passed
-- [ ] Animation preserved: Fade-in-up works
-- [ ] Navigation preserved: CTA button works
-- [ ] Migration tracker updated: Hero marked "✅ Complete"
-- [ ] User approval received for commit
-- [ ] Git commit created: "Migrate: Hero section - responsive typography and neumorphic CTA"
+- [x] Pre-Phase Audit: Audit report created (T075-T078) ✅
+- [x] All T079-T085 tasks completed ✅
+- [x] Verification: Zero violations found ✅
+- [x] Build: `npm run build` passed ✅
+- [x] Visual check: Hero looks better with auto-responsive typography ✅
+- [x] Functional check: All 10 manual QA items passed ✅
+- [x] Animation preserved: Fade-in-up works ✅
+- [x] Navigation preserved: CTA button works ✅
+- [x] Migration tracker updated: Hero marked "✅ Complete" ✅
+- [x] User approval received for commit ✅
+- [x] Git commit created: "Phase 5: Hero section complete" ✅
+
+**REFERENCE COMPONENT FOR FUTURE MIGRATIONS:**
+- `src/components/Hero.tsx` - Hero section with responsive typography, animations, and neumorphic CTA
 
 ---
 
-## Phase 6: Quote Forms & Connected Modals (Priority: P3) 🎯 CRITICAL USER FLOW
+## Phase 6: Calculator Section - Quote & Rebate Forms + Connected Modals (Priority: P3) 🎯 CRITICAL USER FLOW
 
-**Goal**: Migrate all quote-related forms and modals - the core conversion funnel
+**Goal**: Migrate the COMPLETE calculator section from homepage - both InstantQuoteForm AND RebateCalculatorForm with all connected modals
 
-**UI Hierarchy**: InstantQuoteForm → QuoteOptionsModal → DetailedQuoteAuthModal + SimplifiedQuoteForm → QuoteSuccessModal
+**Homepage Visual Flow**: After Hero section, users see the Calculator Section with toggle between:
+1. **Instant Quote Calculator** → QuoteOptionsModal → HomeownerSignupModal (if not logged in) → QuoteSuccessModal
+2. **Rebate Calculator** → (can trigger QuoteOptionsModal)
 
-**Independent Test**: All quote forms work, validation works, submission works, quote type selection works, authentication flow for detailed quotes works, success modal displays
+**UI Hierarchy**: 
+- InstantQuoteForm (most complex: 50+ violations, multi-step form)
+- RebateCalculatorForm (simpler calculator)
+- QuoteOptionsModal (choose call/visit or written quote)
+- QuoteSuccessModal (success state after quote submission)
 
-**Why This Phase**: Quote forms are the PRIMARY conversion funnel. After navigation and hero, users interact with quote forms. This phase migrates the most business-critical components (50+ violations in InstantQuoteForm alone).
+**Independent Test**: Both calculators work, validation works, quote submission works, rebate calculation works, modal flows work end-to-end
 
-### Pre-Migration Audits for Quote Flow
+**Why This Phase**: Calculator section is THE PRIMARY conversion funnel on homepage. After Hero CTAs, users immediately see and interact with calculators. This is the most business-critical section (InstantQuoteForm alone has 50+ violations).
+
+### Pre-Migration Audits for Calculator Section
 
 - [ ] T086 [P] [US4] Create audit report `audits/InstantQuoteForm-logic.md` for `src/components/InstantQuoteForm.tsx`
-- [ ] T087 [P] [US4] Create audit report `audits/QuoteOptionsModal-logic.md` for `src/components/QuoteOptionsModal.tsx`
-- [ ] T088 [P] [US4] Create audit report `audits/DetailedQuoteAuthModal-logic.md` for `src/components/DetailedQuoteAuthModal.tsx`
-- [ ] T089 [P] [US4] Create audit report `audits/SimplifiedQuoteForm-logic.md` for `src/components/SimplifiedQuoteForm.tsx`
-- [ ] T090 [P] [US4] Create audit report `audits/QuoteSuccessModal-logic.md` for `src/components/QuoteSuccessModal.tsx`
+- [ ] T087 [P] [US4] Create audit report `audits/RebateCalculatorForm-logic.md` for `src/components/RebateCalculatorForm.tsx`
+- [ ] T088 [P] [US4] Create audit report `audits/QuoteOptionsModal-logic.md` for `src/components/QuoteOptionsModal.tsx`
+- [ ] T089 [P] [US4] Create audit report `audits/QuoteSuccessModal-logic.md` for `src/components/QuoteSuccessModal.tsx`
 
-### Implementation: InstantQuoteForm (HIGHEST violations: 50+)
+### Implementation: InstantQuoteForm (HIGHEST violations: 50+ in baseInputClasses alone)
 
-- [ ] T091 [US4] Create replacement map: Map all old classes to tokens (bg-slate-700 → bg-surface, etc.)
-- [ ] T092 [US4] Replace hardcoded backgrounds: ALL `bg-slate-*`, `bg-gray-*` → `bg-surface` (15+ instances)
-- [ ] T093 [US4] Replace hardcoded text colors: ALL `text-slate-*` → `text-foreground` / `text-muted-foreground` (12+ instances)
-- [ ] T094 [US4] Eliminate manual dark mode classes: Remove ALL `dark:bg-*`, `dark:text-*`, `dark:border-*` (20+ instances)
-- [ ] T095 [US4] Replace hardcoded borders: ALL `border-gray-*` → `border-border` (8+ instances)
-- [ ] T096 [US4] Replace raw typography: `text-2xl font-bold` → `text-heading-2`, etc. (5+ instances)
-- [ ] T097 [US4] Replace all inputs with AuthInput: Email, phone, address, system size (5+ inputs)
-- [ ] T098 [US4] Replace submit button with AuthButton
-- [ ] T099 [US4] Verify form logic: Quote calculation, validation, submission, error handling, localStorage drafts
-- [ ] T100 [US4] Run verification: Zero violations confirmed
+- [ ] T091 [US4] **CRITICAL**: Delete `baseInputClasses` constant (175-character hardcoded string containing `bg-gray-100 dark:bg-slate-900 border-gray-300 dark:border-slate-700`)
+- [ ] T092 [US4] **MANDATORY**: Open reference components (HeaderMenu.tsx, HomeownerSignInModal.tsx) to verify Button and .form-input patterns
+- [ ] T093 [US4] Replace ALL inputs with `.form-input` class: Postcode, address, email, phone, system size inputs (20+ input fields)
+- [ ] T094 [US4] Replace ALL buttons with Button component: "Next", "Back", "Calculate Quote", "Start Over" (10+ buttons)
+- [ ] T095 [US4] Replace hardcoded backgrounds: ALL `bg-slate-*`, `bg-gray-*` → `bg-surface` (15+ instances)
+- [ ] T096 [US4] Replace hardcoded text colors: ALL `text-slate-*` → `text-foreground` / `text-muted-foreground` (12+ instances)
+- [ ] T097 [US4] Eliminate manual dark mode classes: Remove ALL `dark:bg-*`, `dark:text-*`, `dark:border-*` (30+ instances)
+- [ ] T098 [US4] Replace hardcoded borders: ALL `border-gray-*` → `border-border` (8+ instances)
+- [ ] T099 [US4] Verify form logic: Multi-step navigation, quote calculation, validation, submission, localStorage drafts ALL preserved
+- [ ] T100 [US4] Run verification: Zero violations confirmed (including baseInputClasses deleted)
 - [ ] T101 [US4] Update migration tracker: Mark InstantQuoteForm as "✅ Complete" (Before: 50+, After: 0)
 
-### Implementation: QuoteOptionsModal (Modal for quote type selection)
+### Implementation: RebateCalculatorForm (Calculator for government rebates)
 
-- [ ] T102 [US4] Replace modal heading colors: `text-slate-900 dark:text-white` → `text-foreground`
-- [ ] T103 [US4] Replace modal body text: `text-slate-600 dark:text-slate-400` → `text-muted-foreground`
-- [ ] T104 [US4] Replace raw typography: `text-2xl font-bold` → `text-heading-2`
-- [ ] T105 [US4] Replace option buttons with AuthButton (or variant)
-- [ ] T106 [US4] Verify modal logic: Open/close, quote type selection callback
+- [ ] T102 [US4] Replace ALL inputs with `.form-input` class: Postcode, state, system size, energy bill inputs
+- [ ] T103 [US4] Replace ALL buttons with Button component: "Calculate Rebates", "Get Quotes" buttons
+- [ ] T104 [US4] Replace hardcoded backgrounds and text colors with semantic tokens
+- [ ] T105 [US4] Remove ALL `dark:` prefixes
+- [ ] T106 [US4] Verify rebate calculation logic: State-specific rebate calculations preserved, modal display works
 - [ ] T107 [US4] Run verification: Zero violations confirmed
-- [ ] T108 [US4] Update migration tracker: Mark QuoteOptionsModal as "✅ Complete"
+- [ ] T108 [US4] Update migration tracker: Mark RebateCalculatorForm as "✅ Complete"
 
-### Implementation: DetailedQuoteAuthModal (Auth gate for detailed quotes)
+### Implementation: QuoteOptionsModal (Modal for choosing quote type)
 
-- [ ] T109 [US4] Replace all inputs with AuthInput: Email, password (or signup fields)
-- [ ] T110 [US4] Replace buttons with AuthButton
-- [ ] T111 [US4] Replace inline icons with centralized components
-- [ ] T112 [US4] Verify guest quote flow: Signup → login → quote form prefilled
-- [ ] T113 [US4] Run verification: Zero violations confirmed
-- [ ] T114 [US4] Update migration tracker: Mark DetailedQuoteAuthModal as "✅ Complete"
+- [ ] T109 [US4] Replace modal container with `.theme-card` class
+- [ ] T110 [US4] Replace modal heading colors: `text-slate-900 dark:text-white` → `text-foreground`
+- [ ] T111 [US4] Replace modal body text: `text-slate-600 dark:text-slate-400` → `text-muted-foreground`
+- [ ] T112 [US4] Replace option buttons with Button component (two options: Call/Visit vs Written Quote)
+- [ ] T113 [US4] Verify modal logic: Open/close, quote type selection callback to parent
+- [ ] T114 [US4] Run verification: Zero violations confirmed
+- [ ] T115 [US4] Update migration tracker: Mark QuoteOptionsModal as "✅ Complete"
 
-### Implementation: SimplifiedQuoteForm (Alternative quote form, 35+ violations)
+### Implementation: QuoteSuccessModal (Success state after quote submission)
 
-- [ ] T115 [US4] Delete baseInputClasses constant (175-character hardcoded string)
-- [ ] T116 [US4] Replace all inputs with AuthInput: Email, phone, name, address (5+ inputs)
-- [ ] T117 [US4] Replace submit button with AuthButton
-- [ ] T118 [US4] Verify form logic: Validation, submission, success redirect
-- [ ] T119 [US4] Run verification: Zero violations confirmed (including baseInputClasses deleted)
-- [ ] T120 [US4] Update migration tracker: Mark SimplifiedQuoteForm as "✅ Complete" (Before: 35+, After: 0)
+- [ ] T116 [US4] Replace modal container with `.theme-card` class
+- [ ] T117 [US4] Replace modal heading and success message styling with semantic tokens
+- [ ] T118 [US4] Replace success icon styling (checkmark/celebration icon)
+- [ ] T119 [US4] Replace "Go to Dashboard" button with Button component
+- [ ] T120 [US4] Verify success flow: Modal displays after quote submission, dashboard navigation works
+- [ ] T121 [US4] Run verification: Zero violations confirmed
+- [ ] T122 [US4] Update migration tracker: Mark QuoteSuccessModal as "✅ Complete"
 
-### Implementation: QuoteSuccessModal (Success state)
+**Checkpoint**: ✅ Complete Calculator Section migrated: InstantQuoteForm + RebateCalculatorForm + QuoteOptionsModal + QuoteSuccessModal. Primary conversion funnel 100% compliant.
 
-- [ ] T121 [US4] Replace modal heading and body styling
-- [ ] T122 [US4] Replace success icon styling
-- [ ] T123 [US4] Replace "Go to Dashboard" button with AuthButton
-- [ ] T124 [US4] Verify success flow: Modal displays, dashboard navigation works
-- [ ] T125 [US4] Run verification: Zero violations confirmed
-- [ ] T126 [US4] Update migration tracker: Mark QuoteSuccessModal as "✅ Complete"
-
-**Checkpoint**: All quote forms and modals 100% compliant. Complete quote conversion funnel migrated: Instant quote → Options → Detailed quote (with auth) → Success.
-
-### Phase 6 Manual QA Checklist (Quote Flow):
-- [ ] InstantQuoteForm renders without errors
-- [ ] All instant quote inputs accept entry (email, phone, address, system size)
-- [ ] Instant quote validation works (email format, phone format, required fields)
-- [ ] Instant quote submission works, quote calculated correctly
-- [ ] InstantQuoteForm remembers draft (localStorage)
-- [ ] "Get Detailed Quote" → QuoteOptionsModal opens
-- [ ] QuoteOptionsModal: "Instant" vs "Detailed" selection works
-- [ ] Selecting "Detailed" → DetailedQuoteAuthModal opens (if not logged in)
-- [ ] DetailedQuoteAuthModal: Signup/login works
-- [ ] After auth → SimplifiedQuoteForm or detailed quote form displays
-- [ ] SimplifiedQuoteForm: All inputs work, validation works, submission works
-- [ ] Quote submission success → QuoteSuccessModal displays
-- [ ] QuoteSuccessModal: "Go to Dashboard" navigates correctly
+### Phase 6 Manual QA Checklist (Calculator Section):
+- [ ] Calculator toggle works (switch between Instant Quote and Rebate Calculator)
+- [ ] **InstantQuoteForm**: All inputs accept entry (postcode, location, system details)
+- [ ] **InstantQuoteForm**: Multi-step navigation works (Step 1 → 2 → 3)
+- [ ] **InstantQuoteForm**: Validation works (email format, phone format, required fields)
+- [ ] **InstantQuoteForm**: Quote calculation works correctly (shows results in Step 3)
+- [ ] **InstantQuoteForm**: localStorage draft saving works
+- [ ] **RebateCalculatorForm**: All inputs accept entry (postcode, state, energy bill)
+- [ ] **RebateCalculatorForm**: Rebate calculation works (shows state-specific rebates)
+- [ ] **RebateCalculatorForm**: "Get Quotes" button triggers QuoteOptionsModal
+- [ ] **InstantQuoteForm**: "Get Detailed Quote" → QuoteOptionsModal opens
+- [ ] **QuoteOptionsModal**: Two options displayed (Call/Visit vs Written Quote)
+- [ ] **QuoteOptionsModal**: Selecting option triggers signup flow (if not logged in)
+- [ ] **QuoteSuccessModal**: Displays after successful quote submission
+- [ ] **QuoteSuccessModal**: "Go to Dashboard" navigates correctly
 - [ ] All forms responsive (mobile, tablet, desktop)
-- [ ] Keyboard navigation works through all forms
+- [ ] All forms work in all 3 themes (dark, light, purple)
 
 ### Phase 6 Validation Checklist:
-- [ ] Pre-Phase Audit: 5 audit reports created (T086-T090)
-- [ ] All T091-T126 tasks completed
-- [ ] Verification: Zero violations across all 5 components
+- [ ] Pre-Phase Audit: 4 audit reports created (T086-T089)
+- [ ] All T091-T122 tasks completed
+- [ ] Verification: Zero violations across all 4 components
 - [ ] Build: `npm run build` passed
-- [ ] Visual check: All quote forms have consistent neumorphic styling
-- [ ] Functional check: All 15 manual QA items passed
-- [ ] Complete quote flow tested: Instant → Options → Detailed (auth) → Submission → Success → Dashboard
-- [ ] Code reduction: baseInputClasses deleted (175 chars → 0), inputs use AuthInput
-- [ ] Migration tracker updated: 5 components marked "✅ Complete" (85+ violations fixed)
+- [ ] Visual check: All calculator forms have consistent neumorphic styling
+- [ ] Functional check: All 16 manual QA items passed
+- [ ] Complete calculator flow tested: Instant Quote → Calculate → Options → Submission → Success
+- [ ] Complete rebate flow tested: Rebate Calc → Calculate → Get Quotes → Options
+- [ ] Code reduction: baseInputClasses deleted (175 chars → 0), all inputs use .form-input
+- [ ] Migration tracker updated: 4 components marked "✅ Complete" (70+ violations fixed)
 - [ ] User approval received for commit
-- [ ] Git commit created: "Migrate: Complete quote conversion funnel - 5 components, 85+ violations fixed"
+- [ ] Git commit created: "Phase 6: Calculator Section complete - InstantQuote + Rebate + Modals"
+
+**REFERENCE COMPONENTS FOR FUTURE MIGRATIONS:**
+- `src/components/InstantQuoteForm.tsx` - Complex multi-step form with .form-input class
+- `src/components/RebateCalculatorForm.tsx` - Calculator form with state-specific logic
+- `src/components/QuoteOptionsModal.tsx` - Modal with multiple button options
+- `src/components/QuoteSuccessModal.tsx` - Success state modal
 
 ---
 
-## Phase 7: Mobile Navigation & Dashboards (Priority: P4)
+## Phase 7: Blog Section & Newsletter (Priority: P4)
 
-**Goal**: Migrate mobile-specific navigation components and sidebar menus
+**Goal**: Migrate homepage content sections that appear after Calculator Section
 
-**UI Hierarchy**: HomeownerMobileSidebarMenu + GuestBottomNavBar + HomeownerBottomNavBar
+**Homepage Visual Flow**: After Calculator Section, users scroll down to:
+1. **BlogSection** - Featured blog articles with cards
+2. **NewsletterSignup** - Email capture form
 
-**Independent Test**: Mobile sidebar opens/closes, navigation works, bottom nav bars display correctly on mobile, all routing works
+**UI Hierarchy**: BlogSection → NewsletterSignup
 
-**Why This Phase**: After desktop navigation (TopBar + Header) and quote forms, mobile navigation ensures responsive UX consistency across all devices.
+**Independent Test**: Blog articles display correctly, clicking article navigates to post, newsletter signup works, validation works
 
-### Pre-Migration Audits for Mobile Navigation
+**Why This Phase**: Following the natural top-to-bottom flow of the homepage, these content sections appear after the calculator section and before the footer.
 
-- [ ] T127 [P] [US5] Create audit report `audits/HomeownerMobileSidebarMenu-logic.md` for `src/components/HomeownerMobileSidebarMenu.tsx`
-- [ ] T128 [P] [US5] Create audit report `audits/GuestBottomNavBar-logic.md` for `src/components/GuestBottomNavBar.tsx`
-- [ ] T129 [P] [US5] Create audit report `audits/HomeownerBottomNavBar-logic.md` for `src/components/HomeownerBottomNavBar.tsx`
+### Pre-Migration Audits for Blog & Newsletter
 
-### Implementation: HomeownerMobileSidebarMenu (20+ violations)
-
-- [ ] T130 [US5] Replace nav item active state: Keep `bg-primary text-white` for active, replace inactive: `bg-gray-100 dark:bg-slate-800` → `bg-surface`, `text-slate-700 dark:text-slate-300` → `text-muted-foreground` (10+ instances)
-- [ ] T131 [US5] Replace modal backdrop colors: `bg-white dark:bg-black` → `bg-background`, `border-gray-200 dark:border-slate-800` → `border-border` (5+ instances)
-- [ ] T132 [US5] Replace close button hover: `hover:bg-gray-100 dark:hover:bg-slate-800` → `hover:bg-surface-hover` (2+ instances)
-- [ ] T133 [US5] Verify sidebar animation: Tap hamburger → sidebar slides in from left
-- [ ] T134 [US5] Verify navigation routing: Clicking nav items routes correctly
-- [ ] T135 [US5] Verify active route detection: Current route highlighted correctly
-- [ ] T136 [US5] Run verification: Zero violations (except bg-primary for active state)
-- [ ] T137 [US5] Update migration tracker: Mark HomeownerMobileSidebarMenu as "✅ Complete"
-
-### Implementation: GuestBottomNavBar (Guest user mobile nav)
-
-- [ ] T138 [US5] Replace nav item styling: Icons, labels, active states using design tokens
-- [ ] T139 [US5] Replace background and borders using design tokens
-- [ ] T140 [US5] Verify navigation: All nav items route correctly
-- [ ] T141 [US5] Run verification: Zero violations confirmed
-- [ ] T142 [US5] Update migration tracker: Mark GuestBottomNavBar as "✅ Complete"
-
-### Implementation: HomeownerBottomNavBar (Logged-in homeowner mobile nav)
-
-- [ ] T143 [US5] Replace nav item styling: Icons, labels, active states using design tokens
-- [ ] T144 [US5] Replace background and borders using design tokens
-- [ ] T145 [US5] Verify navigation: All dashboard nav items work (quotes, messages, profile, etc.)
-- [ ] T146 [US5] Run verification: Zero violations confirmed
-- [ ] T147 [US5] Update migration tracker: Mark HomeownerBottomNavBar as "✅ Complete"
-
-**Checkpoint**: All mobile navigation components 100% compliant. Sidebar, bottom nav bars work correctly on mobile devices.
-
-### Phase 7 Manual QA Checklist (Mobile Navigation):
-- [ ] Mobile (< 768px): Hamburger icon visible
-- [ ] Tap hamburger → HomeownerMobileSidebarMenu slides in
-- [ ] Sidebar backdrop visible (neumorphic overlay)
-- [ ] Close button (X) works
-- [ ] Tap outside sidebar → closes
-- [ ] All sidebar nav items clickable
-- [ ] Clicking nav item → routes correctly
-- [ ] Active route highlighted (bg-primary)
-- [ ] Inactive routes use design tokens (bg-surface)
-- [ ] GuestBottomNavBar displays for guest users (mobile only)
-- [ ] HomeownerBottomNavBar displays for logged-in homeowners (mobile only)
-- [ ] Bottom nav icons visible and clickable
-- [ ] Bottom nav routing works (home, quotes, profile, etc.)
-- [ ] Desktop (> 768px): Bottom nav bars hidden
-- [ ] Touch gestures work (swipe to close sidebar, if applicable)
-
-### Phase 7 Validation Checklist:
-- [ ] Pre-Phase Audit: 3 audit reports created (T127-T129)
-- [ ] All T130-T147 tasks completed
-- [ ] Verification: Zero violations (except intentional bg-primary for active states)
-- [ ] Build: `npm run build` passed
-- [ ] Visual check: All mobile nav components have consistent neumorphic styling
-- [ ] Functional check: All 15 manual QA items passed
-- [ ] Navigation preserved: Routing, active state detection works
-- [ ] Animation preserved: Sidebar slide-in/out works
-- [ ] Migration tracker updated: 3 components marked "✅ Complete"
-- [ ] User approval received for commit
-- [ ] Git commit created: "Migrate: Mobile navigation - sidebar and bottom nav bars complete"
-
----
-
-## Phase 8: Content Sections & Footer (Priority: P5)
-
-**Goal**: Migrate homepage content sections and footer
-
-**UI Hierarchy**: BlogSection + NewsletterSignup + Footer
-
-**Independent Test**: Blog section displays articles, newsletter signup works, footer links work, all use design tokens
-
-**Why This Phase**: After core user flows (navigation, auth, quotes), content sections complete the homepage. Footer provides secondary navigation and branding consistency.
-
-### Pre-Migration Audits for Content Components
-
-- [ ] T148 [P] [US6] Create audit report `audits/BlogSection-logic.md` for `src/components/BlogSection.tsx`
-- [ ] T149 [P] [US6] Create audit report `audits/NewsletterSignup-logic.md` for `src/components/NewsletterSignup.tsx`
-- [ ] T150 [P] [US6] Create audit report `audits/Footer-logic.md` for `src/components/Footer.tsx`
+- [ ] T123 [P] [US5] Create audit report `audits/BlogSection-logic.md` for `src/components/BlogSection.tsx`
+- [ ] T124 [P] [US5] Create audit report `audits/NewsletterSignup-logic.md` for `src/components/NewsletterSignup.tsx`
 
 ### Implementation: BlogSection (Blog article cards)
 
-- [ ] T151 [US6] Replace section heading typography: Use `text-heading-2` or similar
-- [ ] T152 [US6] Replace blog card styling: Background, borders, shadows using design tokens
-- [ ] T153 [US6] Replace article title styling: Use typography tokens
-- [ ] T154 [US6] Replace article excerpt styling: Use `text-muted-foreground`
-- [ ] T155 [US6] Replace "See All Posts" button with AuthButton (or variant)
-- [ ] T156 [US6] Verify blog navigation: Click article → navigates to blog post page
-- [ ] T157 [US6] Run verification: Zero violations confirmed
-- [ ] T158 [US6] Update migration tracker: Mark BlogSection as "✅ Complete"
+- [ ] T125 [US5] Replace section heading typography: Use `text-heading-2` or semantic heading class
+- [ ] T126 [US5] Replace blog card container: Use `.theme-card` class for card backgrounds
+- [ ] T127 [US5] Replace article title styling: Use typography tokens (`text-heading-3` or similar)
+- [ ] T128 [US5] Replace article excerpt styling: Use `text-muted-foreground`
+- [ ] T129 [US5] Replace article date/category styling: Use `text-subtle` or `text-muted-foreground`
+- [ ] T130 [US5] Replace "See All Posts" button with Button component
+- [ ] T131 [US5] Remove ALL `dark:` prefixes from text and background classes
+- [ ] T132 [US5] Verify blog navigation: Click article → navigates to blog post page
+- [ ] T133 [US5] Run verification: Zero violations confirmed
+- [ ] T134 [US5] Update migration tracker: Mark BlogSection as "✅ Complete"
 
 ### Implementation: NewsletterSignup (Email capture form)
 
-- [ ] T159 [US6] Replace section heading: Use typography tokens
-- [ ] T160 [US6] Replace email input with AuthInput
-- [ ] T161 [US6] Replace subscribe button with AuthButton
-- [ ] T162 [US6] Replace success/error message styling
-- [ ] T163 [US6] Verify newsletter subscription: Test email validation, API call, success message
-- [ ] T164 [US6] Run verification: Zero violations confirmed
-- [ ] T165 [US6] Update migration tracker: Mark NewsletterSignup as "✅ Complete"
+- [ ] T135 [US5] Replace section heading: Use typography tokens (`text-heading-2`)
+- [ ] T136 [US5] Replace section background: Use `bg-surface` or gradient with semantic tokens
+- [ ] T137 [US5] Replace email input with `.form-input` class
+- [ ] T138 [US5] Replace subscribe button with Button component (primary variant)
+- [ ] T139 [US5] Replace success/error message styling with semantic tokens (`text-success`, `text-destructive`)
+- [ ] T140 [US5] Remove ALL `dark:` prefixes
+- [ ] T141 [US5] Verify newsletter subscription: Test email validation, API call (or mock), success message display
+- [ ] T142 [US5] Run verification: Zero violations confirmed
+- [ ] T143 [US5] Update migration tracker: Mark NewsletterSignup as "✅ Complete"
 
-### Implementation: Footer (Site footer with links)
+**Checkpoint**: ✅ Blog and Newsletter sections migrated. Homepage content flow 100% compliant up to footer.
 
-- [ ] T166 [US6] Replace footer background and border: Use design tokens
-- [ ] T167 [US6] Replace footer section headings: Use typography tokens
-- [ ] T168 [US6] Replace footer link styling: Active, hover states using design tokens
-- [ ] T169 [US6] Replace social media icon styling
-- [ ] T170 [US6] Replace copyright text styling: Use `text-muted-foreground`
-- [ ] T171 [US6] Verify footer links: All navigation links work
-- [ ] T172 [US6] Run verification: Zero violations confirmed
-- [ ] T173 [US6] Update migration tracker: Mark Footer as "✅ Complete"
-
-**Checkpoint**: All homepage content sections 100% compliant. Blog, newsletter, footer provide consistent neumorphic styling.
-
-### Phase 8 Manual QA Checklist (Content Sections):
-- [ ] BlogSection renders articles correctly
-- [ ] Blog article cards have neumorphic styling
-- [ ] Click article → navigates to blog post page
-- [ ] "See All Posts" button navigates to blog index
+### Phase 7 Manual QA Checklist (Blog & Newsletter):
+- [ ] BlogSection renders without errors
+- [ ] Blog article cards have neumorphic styling (theme-card class)
+- [ ] Article titles, excerpts, dates all readable
+- [ ] Click article card → navigates to blog post page
+- [ ] "See All Posts" button navigates to /blog page
 - [ ] NewsletterSignup form renders correctly
+- [ ] Newsletter section has proper background styling
 - [ ] Email input accepts entry, validation works
-- [ ] Subscribe button clickable
+- [ ] Subscribe button clickable with neumorphic styling
 - [ ] Newsletter subscription success → displays success message
 - [ ] Newsletter subscription error → displays error message
-- [ ] Footer renders without errors
-- [ ] Footer section headings styled correctly
-- [ ] All footer links clickable and navigate correctly
-- [ ] Social media icons styled and linked correctly
-- [ ] Copyright text readable
-- [ ] Responsive: All sections work on mobile, tablet, desktop
+- [ ] Both sections responsive (mobile, tablet, desktop)
+- [ ] Both sections work in all 3 themes (dark, light, purple)
 
-### Phase 8 Validation Checklist:
-- [ ] Pre-Phase Audit: 3 audit reports created (T148-T150)
-- [ ] All T151-T173 tasks completed
-- [ ] Verification: Zero violations across all 3 components
+### Phase 7 Validation Checklist:
+- [ ] Pre-Phase Audit: 2 audit reports created (T123-T124)
+- [ ] All T125-T143 tasks completed
+- [ ] Verification: Zero violations across both components
 - [ ] Build: `npm run build` passed
-- [ ] Visual check: All content sections have consistent neumorphic styling
-- [ ] Functional check: All 15 manual QA items passed
-- [ ] Blog navigation works
-- [ ] Newsletter subscription works
-- [ ] Footer navigation works
-- [ ] Migration tracker updated: 3 components marked "✅ Complete"
+- [ ] Visual check: Blog and newsletter sections have consistent neumorphic styling
+- [ ] Functional check: All 13 manual QA items passed
+- [ ] Blog navigation works (article click, see all posts)
+- [ ] Newsletter subscription works (validation, submission, success/error)
+- [ ] Migration tracker updated: 2 components marked "✅ Complete"
 - [ ] User approval received for commit
-- [ ] Git commit created: "Migrate: Content sections and footer - homepage complete"
+- [ ] Git commit created: "Phase 7: Blog Section + Newsletter complete"
+
+**REFERENCE COMPONENTS FOR FUTURE MIGRATIONS:**
+- `src/components/BlogSection.tsx` - Content cards with theme-card class
+- `src/components/NewsletterSignup.tsx` - Form with .form-input and Button component
 
 ---
 
-## Phase 9: Admin & Specialized Components (Priority: P6)
+## Phase 8: Footer (Priority: P5)
+
+**Goal**: Migrate the site footer - final element of homepage
+
+**Homepage Visual Flow**: After BlogSection and NewsletterSignup, the footer is the last element users see
+
+**UI Hierarchy**: Footer (company info, navigation links, social media, copyright)
+
+**Independent Test**: Footer renders correctly, all links work, responsive layout works, consistent styling with rest of site
+
+**Why This Phase**: Footer completes the homepage migration. Following top-to-bottom flow, this is the last public-facing component.
+
+### Pre-Migration Audit for Footer
+
+- [ ] T144 [P] [US6] Create audit report `audits/Footer-logic.md` for `src/components/Footer.tsx`
+
+### Implementation: Footer (Site footer with links)
+
+- [ ] T145 [US6] Replace footer background and border: Use `bg-background` or `bg-surface`, `border-border`
+- [ ] T146 [US6] Replace footer section headings: Use typography tokens (`text-heading-4` or similar)
+- [ ] T147 [US6] Replace footer link styling: Active, hover states using design tokens (`text-muted-foreground hover:text-primary`)
+- [ ] T148 [US6] Replace social media icon styling: Use semantic color tokens
+- [ ] T149 [US6] Replace copyright text styling: Use `text-muted-foreground` or `text-subtle`
+- [ ] T150 [US6] Replace logo/brand styling: Consistent with header
+- [ ] T151 [US6] Remove ALL `dark:` prefixes from footer classes
+- [ ] T152 [US6] Verify footer links: All navigation links work (About, Blog, Rebate Calc, etc.)
+- [ ] T153 [US6] Run verification: Zero violations confirmed
+- [ ] T154 [US6] Update migration tracker: Mark Footer as "✅ Complete"
+
+**Checkpoint**: ✅ Footer migrated. **HOMEPAGE MIGRATION COMPLETE** - All public-facing components from top to bottom fully migrated.
+
+### Phase 8 Manual QA Checklist (Footer):
+- [ ] Footer renders without errors
+- [ ] Footer background uses semantic tokens
+- [ ] Footer border uses semantic tokens
+- [ ] Company info section displays correctly (logo, description)
+- [ ] All footer section headings styled consistently
+- [ ] All footer links clickable and navigate correctly
+- [ ] Footer links have proper hover states (color changes)
+- [ ] Social media icons visible and styled correctly
+- [ ] Copyright text readable and styled with muted color
+- [ ] Footer responsive: Stacks columns on mobile, grid on desktop
+- [ ] Footer works in all 3 themes (dark, light, purple)
+
+### Phase 8 Validation Checklist:
+- [ ] Pre-Phase Audit: Audit report created (T144)
+- [ ] All T145-T154 tasks completed
+- [ ] Verification: Zero violations confirmed
+- [ ] Build: `npm run build` passed
+- [ ] Visual check: Footer has consistent neumorphic styling
+- [ ] Functional check: All 11 manual QA items passed
+- [ ] All footer links work
+- [ ] Footer responsive layout works
+- [ ] Migration tracker updated: Footer marked "✅ Complete"
+- [ ] User approval received for commit
+- [ ] Git commit created: "Phase 8: Footer complete - HOMEPAGE MIGRATION COMPLETE"
+
+**🎉 MILESTONE: HOMEPAGE COMPLETE**
+All public homepage components migrated top-to-bottom:
+- ✅ TopBar → Installer auth modals
+- ✅ HeaderMenu → Homeowner auth modals (NewQuote + Messaging remain)
+- ✅ Hero
+- ✅ Calculator Section (InstantQuote + Rebate + Modals)
+- ✅ Blog Section
+- ✅ Newsletter Signup
+- ✅ Footer
+
+**REFERENCE COMPONENT FOR FUTURE MIGRATIONS:**
+- `src/components/Footer.tsx` - Footer with multiple sections, links, and icons
+
+---
+
+## Phase 9: Dashboard Modals - Quote Request & Messaging (Priority: P6)
+
+**Goal**: Migrate dashboard-specific modals used in homeowner dashboard
+
+**Context**: These modals appear AFTER user logs in and is on dashboard. They're not part of homepage flow but essential for dashboard functionality.
+
+**UI Hierarchy**: NewQuoteRequestModal (request new quote from dashboard) + MessagingModal (communicate with installers)
+
+**Independent Test**: Dashboard quote request works, messaging works, both modals function correctly
+
+**Why This Phase**: After homepage complete, we migrate dashboard features. These 2 modals were originally in Phase 4 but moved here since they're dashboard-specific, not homepage elements.
+
+### Pre-Migration Audits for Dashboard Modals
+
+- [ ] T155 [P] [US6] Create audit report `audits/NewQuoteRequestModal-logic.md` for `src/components/NewQuoteRequestModal.tsx`
+- [ ] T156 [P] [US6] Create audit report `audits/MessagingModal-logic.md` for `src/components/MessagingModal.tsx`
+
+### Implementation: NewQuoteRequestModal (Dashboard Quote Request)
+
+- [ ] T157 [US6] Replace modal container and backdrop: Use `.theme-card` for modal, semantic tokens for backdrop
+- [ ] T158 [US6] Replace modal heading text: Use typography tokens (`text-heading-2` or `text-foreground`)
+- [ ] T159 [US6] Replace close button: Use Button component or semantic hover states
+- [ ] T160 [US6] Verify modal embeds InstantQuoteForm: Modal should wrap InstantQuoteForm (already migrated in Phase 6)
+- [ ] T161 [US6] Remove ALL `dark:` prefixes from modal wrapper
+- [ ] T162 [US6] Verify quote request flow: Open modal → form works → quote calculates → success
+- [ ] T163 [US6] Run verification: Zero violations confirmed
+- [ ] T164 [US6] Update migration tracker: Mark NewQuoteRequestModal as "✅ Complete"
+
+### Implementation: MessagingModal (Installer Communication - LARGE: 721 lines)
+
+- [ ] T165 [US6] Replace modal container: Use `bg-surface` or `bg-background` with semantic borders
+- [ ] T166 [US6] Replace sidebar/inbox background: Use `bg-muted` or semantic tokens
+- [ ] T167 [US6] Replace conversation list items: Hover states, active states using semantic tokens
+- [ ] T168 [US6] Replace message bubbles: Sender (use `bg-primary` or semantic), receiver (use `bg-muted`)
+- [ ] T169 [US6] Replace message input with `.form-input` class
+- [ ] T170 [US6] Replace ALL buttons with Button component: Send, emoji picker, attachment, dropdown actions
+- [ ] T171 [US6] Replace search input with `.form-input` class
+- [ ] T172 [US6] Replace filter pills/tags: Use semantic tokens for active/inactive states
+- [ ] T173 [US6] Replace ALL icon buttons: Use semantic colors (`text-muted-foreground`, `hover:text-primary`)
+- [ ] T174 [US6] Replace dropdown menus: Use semantic background, border, hover states
+- [ ] T175 [US6] Remove ALL `dark:` prefixes (50+ instances found)
+- [ ] T176 [US6] Verify messaging flow: Select conversation → messages display → send message → received message appears
+- [ ] T177 [US6] Run verification: Zero violations confirmed
+- [ ] T178 [US6] Update migration tracker: Mark MessagingModal as "✅ Complete"
+
+**Checkpoint**: ✅ Dashboard modals migrated. Homeowners can request quotes and message installers from dashboard with consistent neumorphic styling.
+
+### Phase 9 Manual QA Checklist (Dashboard Modals):
+- [ ] NewQuoteRequestModal opens from dashboard
+- [ ] Modal title displays correctly
+- [ ] InstantQuoteForm renders inside modal (already migrated)
+- [ ] Quote calculation works in modal
+- [ ] Modal closes correctly (X, ESC, backdrop)
+- [ ] MessagingModal opens from dashboard
+- [ ] Conversation list displays correctly
+- [ ] Click conversation → messages load and display
+- [ ] Message bubbles styled correctly (sender vs receiver)
+- [ ] Send message: Input field accepts text
+- [ ] Send message: Send button works, message appears
+- [ ] Search conversations works
+- [ ] Filter conversations works (all, unread, archived)
+- [ ] Dropdown actions work (star, pin, block, report)
+- [ ] Both modals responsive (mobile, tablet, desktop)
+- [ ] Both modals work in all 3 themes (dark, light, purple)
+
+### Phase 9 Validation Checklist:
+- [ ] Pre-Phase Audit: 2 audit reports created (T155-T156)
+- [ ] All T157-T178 tasks completed
+- [ ] Verification: Zero violations across both modals
+- [ ] Build: `npm run build` passed
+- [ ] Visual check: Dashboard modals have consistent neumorphic styling
+- [ ] Functional check: All 16 manual QA items passed
+- [ ] Quote request from dashboard works
+- [ ] Messaging from dashboard works
+- [ ] Migration tracker updated: 2 components marked "✅ Complete"
+- [ ] User approval received for commit
+- [ ] Git commit created: "Phase 9: Dashboard modals complete - NewQuote + Messaging"
+
+**REFERENCE COMPONENTS FOR FUTURE MIGRATIONS:**
+- `src/components/NewQuoteRequestModal.tsx` - Simple modal wrapper around InstantQuoteForm
+- `src/components/MessagingModal.tsx` - Complex messaging UI with inbox, chat, and actions
+
+---
+
+## Phase 10: Admin & Specialized Components (Priority: P7)
 
 **Goal**: Migrate remaining specialized components (admin, OTP, delete account, etc.)
 
@@ -1624,49 +2004,55 @@ bg-primary-foreground     → #FFFFFF (white text ON orange background)
 
 ### Pre-Migration Audits for Specialized Components
 
-- [ ] T174 [P] [US7] Create audit report `audits/AdminSignInModal-logic.md` for `src/components/AdminSignInModal.tsx`
-- [ ] T175 [P] [US7] Create audit report `audits/OTPVerificationModal-logic.md` for `src/components/OTPVerificationModal.tsx`
-- [ ] T176 [P] [US7] Create audit report `audits/DeleteAccountModal-logic.md` for `src/components/DeleteAccountModal.tsx`
+- [ ] T179 [P] [US7] Create audit report `audits/AdminSignInModal-logic.md` for `src/components/AdminSignInModal.tsx`
+- [ ] T180 [P] [US7] Create audit report `audits/OTPVerificationModal-logic.md` for `src/components/OTPVerificationModal.tsx`
+- [ ] T181 [P] [US7] Create audit report `audits/DeleteAccountModal-logic.md` for `src/components/DeleteAccountModal.tsx`
 
 ### Implementation: AdminSignInModal (~146 lines)
 
-- [ ] T177 [US7] Replace all inputs with AuthInput: Email, password
-- [ ] T178 [US7] Replace submit button with AuthButton (admin variant if different styling)
-- [ ] T179 [US7] Replace inline icons
-- [ ] T180 [US7] Verify admin login: Test admin credentials, API call, redirect to admin dashboard
-- [ ] T181 [US7] Run verification: Zero violations confirmed
-- [ ] T182 [US7] Update migration tracker: Mark AdminSignInModal as "✅ Complete"
+- [ ] T182 [US7] Replace all inputs with .form-input class: Email, password
+- [ ] T183 [US7] Replace submit button with Button component (primary or admin variant)
+- [ ] T184 [US7] Replace inline icons with centralized icon components
+- [ ] T185 [US7] Replace modal container with .theme-card
+- [ ] T186 [US7] Remove ALL `dark:` prefixes
+- [ ] T187 [US7] Verify admin login: Test admin credentials, API call, redirect to admin dashboard
+- [ ] T188 [US7] Run verification: Zero violations confirmed
+- [ ] T189 [US7] Update migration tracker: Mark AdminSignInModal as "✅ Complete"
 
 ### Implementation: OTPVerificationModal (Phone/email verification)
 
-- [ ] T183 [US7] Replace OTP input fields with AuthInput (or specialized OTP input)
-- [ ] T184 [US7] Replace verify button with AuthButton
-- [ ] T185 [US7] Replace resend code button styling
-- [ ] T186 [US7] Verify OTP flow: Test code entry, verification API call, success/error states
-- [ ] T187 [US7] Run verification: Zero violations confirmed
-- [ ] T188 [US7] Update migration tracker: Mark OTPVerificationModal as "✅ Complete"
+- [ ] T190 [US7] Replace OTP input fields with .form-input class (or specialized OTP input styling)
+- [ ] T191 [US7] Replace verify button with Button component
+- [ ] T192 [US7] Replace resend code button with Button component (secondary variant)
+- [ ] T193 [US7] Replace modal container with .theme-card
+- [ ] T194 [US7] Remove ALL `dark:` prefixes
+- [ ] T195 [US7] Verify OTP flow: Test code entry, verification API call, success/error states
+- [ ] T196 [US7] Run verification: Zero violations confirmed
+- [ ] T197 [US7] Update migration tracker: Mark OTPVerificationModal as "✅ Complete"
 
 ### Implementation: DeleteAccountModal (Account deletion confirmation)
 
-- [ ] T189 [US7] Replace modal heading and warning text styling
-- [ ] T190 [US7] Replace password confirmation input with AuthInput
-- [ ] T191 [US7] Replace delete button styling (danger variant)
-- [ ] T192 [US7] Replace cancel button with AuthButton
-- [ ] T193 [US7] Verify delete flow: Test password confirmation, API call, logout redirect
-- [ ] T194 [US7] Run verification: Zero violations confirmed
-- [ ] T195 [US7] Update migration tracker: Mark DeleteAccountModal as "✅ Complete"
+- [ ] T198 [US7] Replace modal heading and warning text styling: Use semantic tokens (`text-destructive` for warnings)
+- [ ] T199 [US7] Replace password confirmation input with .form-input class
+- [ ] T200 [US7] Replace delete button with Button component (destructive variant)
+- [ ] T201 [US7] Replace cancel button with Button component (ghost or secondary variant)
+- [ ] T202 [US7] Replace modal container with .theme-card
+- [ ] T203 [US7] Remove ALL `dark:` prefixes
+- [ ] T204 [US7] Verify delete flow: Test password confirmation, API call, logout redirect
+- [ ] T205 [US7] Run verification: Zero violations confirmed
+- [ ] T206 [US7] Update migration tracker: Mark DeleteAccountModal as "✅ Complete"
 
 ### Implementation: Additional Specialized Components (If Applicable)
 
-- [ ] T196 [US7] Identify any remaining unmigrated modals or specialty components
-- [ ] T197 [US7] Create audit reports for remaining components
-- [ ] T198 [US7] Migrate remaining components following established pattern
-- [ ] T199 [US7] Verify all specialty flows work
-- [ ] T200 [US7] Update migration tracker for all remaining components
+- [ ] T207 [US7] Identify any remaining unmigrated modals or specialty components
+- [ ] T208 [US7] Create audit reports for remaining components
+- [ ] T209 [US7] Migrate remaining components following established pattern
+- [ ] T210 [US7] Verify all specialty flows work
+- [ ] T211 [US7] Update migration tracker for all remaining components
 
 **Checkpoint**: All specialized components 100% compliant. Admin, OTP, account management flows work correctly.
 
-### Phase 9 Manual QA Checklist (Specialized Components):
+### Phase 10 Manual QA Checklist (Specialized Components):
 - [ ] AdminSignInModal renders correctly
 - [ ] Admin login: Email/password validation works
 - [ ] Admin login success → redirects to admin dashboard
@@ -1681,9 +2067,9 @@ bg-primary-foreground     → #FFFFFF (white text ON orange background)
 - [ ] Delete account cancel → closes modal
 - [ ] All specialty components responsive (mobile, tablet, desktop)
 
-### Phase 9 Validation Checklist:
-- [ ] Pre-Phase Audit: 3+ audit reports created (T174-T176)
-- [ ] All T177-T200 tasks completed
+### Phase 10 Validation Checklist:
+- [ ] Pre-Phase Audit: 3+ audit reports created (T179-T181)
+- [ ] All T182-T211 tasks completed
 - [ ] Verification: Zero violations across all specialized components
 - [ ] Build: `npm run build` passed
 - [ ] Visual check: All specialized components have consistent neumorphic styling
@@ -1693,7 +2079,12 @@ bg-primary-foreground     → #FFFFFF (white text ON orange background)
 - [ ] Account deletion works
 - [ ] Migration tracker updated: All specialized components marked "✅ Complete"
 - [ ] User approval received for commit
-- [ ] Git commit created: "Migrate: Admin and specialized components complete"
+- [ ] Git commit created: "Phase 10: Admin and specialized components complete"
+
+**REFERENCE COMPONENTS FOR FUTURE MIGRATIONS:**
+- `src/components/AdminSignInModal.tsx` - Admin authentication
+- `src/components/OTPVerificationModal.tsx` - Phone/email verification
+- `src/components/DeleteAccountModal.tsx` - Destructive action confirmation
 
 ---
 
