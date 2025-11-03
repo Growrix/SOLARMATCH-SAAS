@@ -1,0 +1,37 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Delete .storybook config",
+			"type": "shell",
+			"command": "rmdir /s /q \".storybook\"",
+			"args": [],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Delete stories directory",
+			"type": "shell",
+			"command": "rmdir /s /q \"stories\"",
+			"args": [],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Delete storybook config contract",
+			"type": "shell",
+			"command": "del /f /q \"specs\\004-centralized-theme-color\\contracts\\storybook.config.contract.md\"",
+			"args": [],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Delete backup storybook config contract",
+			"type": "shell",
+			"command": "del /f /q \"backup-2025-10-28\\specs\\004-centralized-theme-color\\contracts\\storybook.config.contract.md\"",
+			"args": [],
+			"isBackground": false,
+			"group": "build"
+		}
+	]
+}
