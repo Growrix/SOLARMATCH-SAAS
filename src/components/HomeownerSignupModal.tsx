@@ -240,7 +240,7 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
       onClick={handleClose}
     >
       <div
-        className="theme-card relative w-full max-w-lg p-8 animate-slide-in-up max-h-[90vh] overflow-y-auto"
+  className="theme-card relative w-full max-w-md p-8 animate-slide-in-up max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
@@ -261,7 +261,7 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-foreground mb-2">Create Homeowner Account</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-2">Create account</h2>
           <p className="text-subtle text-sm">
             Join thousands of homeowners who have gone solar
           </p>
@@ -334,7 +334,7 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
                 value={formData.email}
                 onChange={handleInputChange}
                 required
-                className="w-full bg-surface/5 border border-border/50 rounded-xl pl-11 pr-4 py-3 text-foreground placeholder-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-neu-inset transition-colors"
+                className="form-input w-full pl-11 pr-4 py-3"
               />
             </div>
 
@@ -351,7 +351,7 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
                 onChange={handleInputChange}
                 required
                 minLength={8}
-                className="w-full bg-surface/5 border border-border/50 rounded-xl pl-11 pr-12 py-3 text-foreground placeholder-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-neu-inset transition-colors"
+                className="form-input w-full pl-11 pr-12 py-3"
               />
               <button
                 type="button"
@@ -383,7 +383,7 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
                 required
-                className="w-full bg-surface/5 border border-border/50 rounded-xl pl-11 pr-4 py-3 text-foreground placeholder-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-neu-inset transition-colors"
+                className="form-input w-full pl-11 pr-4 py-3"
               />
             </div>
           </div>

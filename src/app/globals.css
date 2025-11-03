@@ -545,17 +545,39 @@ body {
   min-height: 100vh;
 }
 
-/* Unified theme card (legacy support) */
-.theme-card {
-  background: rgb(var(--color-background-elevated));
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-outset-xl);
-  transition: all var(--duration-normal) var(--ease-in-out);
-}
+/* ============================================
+   COMPONENT LAYER - Tailwind Components
+   High specificity to prevent utility overrides
+   ============================================ */
+@layer components {
+  /* Unified theme card (legacy support) */
+  .theme-card {
+    background: rgb(var(--color-background));
+    border-radius: var(--radius-xl);
+    border: 1px solid rgb(var(--color-border) / 0.5);
+    box-shadow: var(--shadow-outset-md);
+    transition: all var(--duration-normal) var(--ease-in-out);
+  }
 
-.theme-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-outset-xl), 0 4px 8px rgba(0, 0, 0, 0.2);
+  .theme-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-outset-lg);
+  }
+
+  /* Form input semantic class - uses surface color (same as modal background) */
+  .form-input {
+    @apply bg-surface border border-border/50 rounded-xl text-foreground transition-all;
+    box-shadow: var(--shadow-inset-md) !important;
+  }
+
+  .form-input::placeholder {
+    @apply text-foreground-tertiary;
+  }
+
+  .form-input:focus {
+    @apply outline-none border-accent;
+    box-shadow: var(--shadow-inset-md), 0 0 0 1px rgb(var(--color-accent)) !important;
+  }
 }
 
 /* ============================================
@@ -791,9 +813,8 @@ body {
 }
 
 /* --- THEME-SPECIFIC MODAL OVERRIDES --- */
-/* Light theme: Pure white modals for clean, professional look */
+/* Light theme: Custom shadows for better contrast on light background */
 :root.theme-light .theme-card {
-  background: rgb(255, 255, 255); /* Pure white for modals in light theme */
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 

@@ -24,11 +24,194 @@
 
 ---
 
+## 🔥 CRITICAL: AUTH MODAL MIGRATION LESSONS (Read This First!)
+
+### Pain Points from Auth Modal Migration (November 2, 2025)
+
+**The Struggle:** Auth modal form background colors showed white/wrong colors in light theme despite multiple fix attempts.
+
+**Root Causes Identified:**
+1. ❌ **Overcomplicated CSS**: Created `.form-input` class but components used inline classes instead
+2. ❌ **Inconsistent Approaches**: Some inputs used `bg-background`, others used `bg-surface`, some used custom classes
+3. ❌ **Hardcoded Overrides**: Light theme `.theme-card` was hardcoded to white (`rgb(255, 255, 255)`) instead of using variables
+4. ❌ **Partial Updates**: Only fixed 1 of 4 modals initially, creating inconsistency
+5. ❌ **Multiple Failed Attempts**: Tried @apply, rgba(), CSS variables directly, creating confusion
+
+**The Final Solution:**
+1. ✅ **One Central Class**: `.form-input` in globals.css with embossed style (`shadow-inset-md`)
+2. ✅ **One Background Variable**: All modals, inputs, and buttons use `bg-surface` (equals `--color-surface`)
+3. ✅ **Theme Consistency**: All 3 themes (Dark, Light, Purple) use same variable structure
+4. ✅ **No Hardcoded Values**: Light theme `.theme-card` changed from white to `rgb(var(--color-surface))`
+5. ✅ **All Components Updated**: All 4 auth modals updated atomically
+
+### The Universal Rule That Prevents This
+
+**🔴 ONE CLASS, ONE PURPOSE, ONE VARIABLE**
+
+```css
+/* ✅ CORRECT - globals.css DEFAULT .theme-card */
+.theme-card {
+  background: rgb(var(--color-surface));  /* MUST use --color-surface, NOT --color-background-elevated */
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-outset-xl);
+}
+
+/* ✅ CORRECT - globals.css .form-input */
+.form-input {
+  @apply bg-surface border border-border/50 rounded-xl text-foreground transition-all;
+  box-shadow: var(--shadow-inset-md) !important;  /* Embossed style */
+}
+
+/* ✅ CORRECT - Component usage */
+<div className="theme-card p-8">  {/* Modal/card uses theme-card = bg-surface */}
+  <input className="form-input w-full pl-11 pr-4 py-3" />  {/* Input uses form-input = bg-surface */}
+</div>
+
+/* ❌ WRONG - Using --color-background-elevated */
+.theme-card {
+  background: rgb(var(--color-background-elevated));  /* WRONG! Will show different color than inputs */
+}
+
+/* ❌ WRONG - Mixing approaches */
+<input className="w-full bg-surface border border-border/50 rounded-xl..." />  /* Inline classes */
+<input className="form-input" />  /* Custom class */
+<input className="bg-background ..." />  /* Different variable */
+```
+
+**Why This Works:**
+- ✅ One source of truth (`.form-input` class)
+- ✅ One background color (`bg-surface` = `--color-surface`)
+- ✅ **CRITICAL**: `.theme-card` uses SAME variable (`--color-surface`) as inputs
+- ✅ All themes inherit automatically (no overrides needed)
+- ✅ Embossed style applied consistently (`.shadow-inset-md`)
+
+**🚨 THE ROOT CAUSE OF WHITE BACKGROUNDS:**
+- `.theme-card` was using `rgb(var(--color-background-elevated))` (line 554)
+- Light theme override tried to fix with `rgb(var(--color-surface))` (line 816)
+- BUT default `.theme-card` applied FIRST, so override didn't work
+- **FIX**: Change default `.theme-card` to use `--color-surface` ALWAYS
+
+### Mandatory Pre-Migration Checklist (Prevents All Issues)
+
+Before migrating ANY component with forms/inputs:
+
+```bash
+# 1. Check if .form-input class exists in globals.css
+grep -A 5 "\.form-input {" src/app/globals.css
+# Expected: Class definition with bg-surface and shadow-inset-md
+
+# 2. Check if modal/container uses bg-surface or --color-surface
+grep -E "(theme-card|modal|container).*background:" src/app/globals.css
+# Expected: background: rgb(var(--color-surface)) or bg-surface
+
+# 3. Verify all 3 themes have --color-surface defined
+grep --color-surface src/app/globals.css
+# Expected: 3 matches (dark, light, purple themes)
+
+# 4. Verify --color-surface equals --color-background-elevated in each theme
+# Dark: --color-surface: 26 26 26; --color-background-elevated: 26 26 26;
+# Light: --color-surface: 232 237 244; --color-background-elevated: 232 237 244;
+# Purple: --color-surface: 62 41 108; --color-background-elevated: 62 41 108;
+```
+
+**If ANY check fails → Fix globals.css FIRST before migrating components**
+
+### Migration Pattern (Guaranteed Success)
+
+**Step 1: Verify Central Classes Exist**
+```bash
+# Check form input class
+grep "\.form-input" src/app/globals.css
+
+# Check modal background
+grep "theme-card.*background" src/app/globals.css
+```
+
+**Step 2: Use Central Classes Only**
+```tsx
+// ✅ CORRECT - All modals
+<div className="theme-card relative w-full max-w-md p-8">
+  {/* Modal uses theme-card = bg-surface */}
+</div>
+
+// ✅ CORRECT - All inputs
+<input className="form-input w-full pl-11 pr-4 py-3" />
+{/* Input uses form-input = bg-surface + embossed */}
+
+// ✅ CORRECT - All buttons (already using bg-surface in previous migrations)
+<Button variant="primary" className="px-5 py-2">
+  {/* Button component uses bg-surface */}
+</Button>
+```
+
+**Step 3: Test All 3 Themes**
+```bash
+# Open browser, switch themes
+# Dark → Inputs match modal (dark gray #1A1A1A)
+# Light → Inputs match modal (light gray #E8EDF4)
+# Purple → Inputs match modal (purple #3E296C)
+```
+
+**Step 4: Verify Zero Hardcoded Colors**
+```bash
+# Should return ZERO results
+grep -E "bg-(white|gray|slate|zinc)" src/components/YourModal.tsx
+grep -E "rgb\(255, 255, 255\)" src/components/YourModal.tsx
+grep -E "rgba\(" src/components/YourModal.tsx
+```
+
+### Anti-Patterns That Created the Problem
+
+❌ **DON'T DO THIS:**
+```tsx
+// ❌ Creating custom class but not using it
+// globals.css has .form-input
+<input className="w-full bg-background border border-border/50..." />
+
+// ❌ Using different background variables
+<div className="bg-background">  {/* Modal */}
+  <input className="bg-surface" />  {/* Input */}
+</div>
+
+// ❌ Hardcoding theme-specific values
+:root.theme-light .theme-card {
+  background: rgb(255, 255, 255); /* Hardcoded white */
+}
+
+// ❌ Updating only some components
+// Fixed HomeownerSignInModal
+// Forgot InstallerSignInModal
+```
+
+✅ **DO THIS:**
+```tsx
+// ✅ Use central class everywhere
+<input className="form-input w-full pl-11 pr-4 py-3" />
+
+// ✅ Use same variable for modal and inputs
+<div className="theme-card">  {/* Uses --color-surface */}
+  <input className="form-input" />  {/* Uses --color-surface */}
+</div>
+
+// ✅ Use variables, not hardcoded values
+:root.theme-light .theme-card {
+  background: rgb(var(--color-surface));
+}
+
+// ✅ Update ALL related components atomically
+// Fixed: HomeownerSignInModal
+// Fixed: InstallerSignInModal
+// Fixed: HomeownerSignupModal
+// Fixed: InstallerSignupModal
+```
+
+---
+
 ## 🎯 Overview
 
 ### What is This System?
 
-This is a **neumorphic dark-theme design system** built on:
+This is a **neumorphic multi-theme design system** built on:
 - **Design Tokens**: Semantic variables for colors, typography, spacing, shadows
 - **Tailwind CSS**: Utility-first CSS framework
 - **TypeScript**: Type-safe design token interfaces

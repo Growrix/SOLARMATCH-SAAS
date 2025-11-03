@@ -56,48 +56,435 @@
 
 ---
 
-## ✅ THE SOLUTION: 100% COMPLETE MIGRATION RULES
+## ✅ THE SOLUTION: ATOMIC MIGRATION SYSTEM (Prevents Auth Modal Issues)
 
-### 🎯 6 GOLDEN RULES (Zero Tolerance)
+### 🔥 PRE-FLIGHT SYSTEM CHECK (Run BEFORE Touching ANY Component)
 
-#### RULE #1: MIGRATE ENTIRE COMPONENT OR NOTHING
-- ❌ **NEVER** migrate "just the form" or "just the buttons"
-- ✅ **ALWAYS** migrate 100% of component in one go
-- ✅ ALL buttons + inputs + text + borders + backgrounds + shadows
+**Lessons from Auth Modal Migration (November 2, 2025):**
+- ❌ Problem: Form backgrounds showed white/wrong colors
+- ❌ Root Cause: Light theme `.theme-card` hardcoded to white instead of using variables
+- ❌ Root Cause: Components used inline classes instead of central `.form-input` class
+- ✅ Solution: Verify system health BEFORE migration to catch these issues early
 
-#### RULE #2: NO HARDCODED VALUES AFTER MIGRATION
-```bash
-# These searches MUST return ZERO results after migration
-grep -E 'bg-(slate|gray|zinc)-[0-9]' Component.tsx
-grep -E 'text-(slate|gray)-[0-9]' Component.tsx
-grep -E 'border-(slate|gray)-[0-9]' Component.tsx
-grep -E 'dark:' Component.tsx
+```powershell
+# === MANDATORY SYSTEM HEALTH CHECK ===
+# Run ALL these commands BEFORE starting migration
+
+# 1. Verify .form-input class exists with embossed style
+Select-String -Path "src\app\globals.css" -Pattern "\.form-input" -Context 0,7
+# Expected: Class with bg-surface, border, rounded-xl, shadow-inset-md
+
+# 2. Verify .theme-card uses variables (NOT hardcoded white)
+Select-String -Path "src\app\globals.css" -Pattern "theme-card.*background"
+# Expected: background: rgb(var(--color-surface))
+# Expected: NO "rgb(255, 255, 255)" or "white"
+
+# 3. Verify all 3 themes have --color-surface defined  
+Select-String -Path "src\app\globals.css" -Pattern "--color-surface:"
+# Expected: 3 matches (theme-dark, theme-light, theme-purple)
+
+# 4. Verify Button component exists
+Test-Path "src\components\ui\button.tsx"
+# Expected: True
+
+# 5. Verify reference components exist
+Test-Path "src\components\HeaderMenu.tsx"
+Test-Path "src\components\InstallerSignupModal.tsx" 
+Test-Path "src\components\HomeownerSignInModal.tsx"
+# Expected: All True
 ```
 
-#### RULE #3: NO DARK: PREFIXES EVER
-- ❌ `dark:bg-slate-800`, `dark:text-white`, `dark:border-gray-700`
-- ✅ Use semantic tokens - they handle ALL 3 themes automatically
-
-#### RULE #4: ZERO LEGACY CODE AFTER MIGRATION
-- ✅ No commented-out CSS
-- ✅ No unused imports
-- ✅ No Storybook/Chromatic references (we don't use them)
-- ✅ No deprecated classes
-- ✅ No "TODO: migrate later" comments
-
-#### RULE #5: UI CHANGES ONLY - PRESERVE ALL LOGIC
-**CAN Change:** `className` strings, Button wrapper (`<button>` → `<Button>`)  
-**CANNOT Change:** hooks, event handlers, API calls, validation, props, JSX structure
-
-#### RULE #6: REFERENCE COMPONENTS BEFORE STARTING
-**MANDATORY - Open FIRST:**
-1. `src/components/HeaderMenu.tsx` - Button patterns
-2. `src/components/InstallerSignupModal.tsx` - Form patterns
-3. `src/app/globals.css` - All available tokens
+**If ANY check fails:**
+1. ❌ STOP migration immediately
+2. 🔧 Fix globals.css or create missing components FIRST
+3. ✅ Re-run system check until all pass
+4. ✅ THEN start component migration
 
 ---
 
-### 📋 COMPLETE MIGRATION CHECKLIST (Run BEFORE marking task complete)
+### 🎯 RULE #1: ATOMIC MIGRATION (100% or Nothing)
+
+```powershell
+# BEFORE starting migration - Count all elements
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "<button" -AllMatches | Measure-Object -Line
+# Example output: Count: 5
+
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "<input" -AllMatches | Measure-Object -Line
+# Example output: Count: 3
+
+# AFTER migration - ALL must be zero
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "<button" -AllMatches | Measure-Object -Line
+# Expected: Count: 0 (all replaced with Button component)
+
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "bg-(slate|gray|zinc|neutral|stone)-" 
+# Expected: NO MATCHES
+```
+
+**The Rule:**
+- ❌ NEVER migrate "just the form" or "just the buttons"
+- ✅ ALWAYS migrate 100% of component in one atomic commit
+- ✅ Count all elements BEFORE → Verify all replaced AFTER
+
+---
+
+### 🎯 RULE #2: USE CENTRAL CLASSES (One Class, One Purpose)
+
+**Auth Modal Lesson:** Created `.form-input` class but used inline classes instead = confusion + wasted time.
+
+```tsx
+// ❌ WRONG - Class exists but not using it
+// globals.css has .form-input defined
+<input className="w-full bg-surface border border-border/50 rounded-xl pl-11 pr-4 py-3..." />
+
+// ❌ WRONG - Mixing different background variables
+<div className="theme-card">  {/* Uses --color-surface */}
+  <input className="bg-background" />  {/* Uses --color-background - DIFFERENT! */}
+</div>
+
+// ✅ CORRECT - Use central class everywhere
+<input className="form-input w-full pl-11 pr-4 py-3" />
+
+// ✅ CORRECT - All use same variable (--color-surface)
+<div className="theme-card">  {/* Uses --color-surface */}
+  <input className="form-input" />  {/* Uses --color-surface */}
+  <Button variant="primary">Click</Button>  {/* Uses --color-surface */}
+</div>
+```
+
+**Available Central Classes:**
+- `.form-input` → All text inputs (embossed style, bg-surface)
+- `.theme-card` → All modals/cards (bg-surface, neumorphic shadow)
+- `Button` component → All buttons (never use `<button>`)
+
+---
+
+### 🎯 RULE #3: TEST ALL 3 THEMES (Before Marking Complete)
+
+**Auth Modal Lesson:** Light theme broken because `.theme-card` was hardcoded to white.
+
+```powershell
+# Manual theme testing (MANDATORY)
+# 1. npm run dev
+# 2. Open browser
+# 3. Switch to Dark theme → Verify all elements visible, consistent
+# 4. Switch to Light theme → Verify all elements visible, consistent  
+# 5. Switch to Purple theme → Verify all elements visible, consistent
+
+# What to check in EACH theme:
+# [ ] Modal/card background matches input background
+# [ ] Button background matches modal/input background
+# [ ] Text is readable (proper contrast)
+# [ ] Shadows are visible (embossed inputs, raised buttons)
+# [ ] Hover states work correctly
+# [ ] Focus states (ring-accent) are visible
+```
+
+**If ANY theme looks wrong:**
+1. ❌ DO NOT mark task complete
+2. 🔍 Check if using central classes (`.form-input`, `.theme-card`)
+3. 🔧 Fix and re-test all 3 themes
+
+---
+
+### 🎯 RULE #4: ZERO HARDCODED VALUES
+
+```powershell
+# These searches MUST return EMPTY after migration
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "bg-(slate|gray|zinc|neutral|stone|teal|blue)-"
+# Expected: NO MATCHES
+
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "text-(slate|gray|zinc)-"
+# Expected: NO MATCHES
+
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "dark:"
+# Expected: NO MATCHES (themes handled by variables)
+
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "rgb\(255, 255, 255\)|rgba\("
+# Expected: NO MATCHES (use variables, not hardcoded RGB)
+```
+
+---
+
+### 🎯 RULE #5: ZERO LEGACY CODE
+
+```powershell
+# Check for legacy code BEFORE marking complete
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "(TODO|FIXME|HACK|XXX)"
+# Expected: NO MATCHES
+
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "@storybook|chromatic"
+# Expected: NO MATCHES
+
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "/\*.*commented.*\*/"
+# Expected: NO MATCHES
+```
+
+---
+
+### 🎯 RULE #6: OPEN REFERENCE COMPONENTS FIRST
+
+**Auth Modal Lesson:** Multiple failed attempts could have been avoided by checking existing components first.
+
+**MANDATORY - Open these files BEFORE starting:**
+```powershell
+code src\components\HeaderMenu.tsx
+code src\components\InstallerSignupModal.tsx  
+code src\components\HomeownerSignInModal.tsx
+code src\app\globals.css
+```
+
+**Copy Exact Patterns - Don't Guess:**
+```tsx
+// ✅ CORRECT - Copied from HomeownerSignInModal.tsx
+import Button from '@/components/ui/button';
+
+<input className="form-input w-full pl-11 pr-4 py-3" />
+<Button variant="primary" className="w-full py-3">Submit</Button>
+
+// ❌ WRONG - Invented new approach
+<input style={{ background: 'var(--color-surface)' }} />  // Inline styles
+<button className="bg-primary">Submit</button>  // Native button
+```
+
+---
+
+### 🎯 RULE #7: LOGIC PRESERVATION (UI Changes Only)
+
+**CAN Change:**
+- ✅ `className` strings
+- ✅ Button wrapper (`<button>` → `<Button>`)
+- ✅ CSS class names
+- ✅ Shadow/color/spacing values
+
+**CANNOT Change:**
+- ❌ `useState`, `useEffect`, `useMemo` hooks
+- ❌ Event handlers (`onClick`, `onSubmit`)
+- ❌ API calls, data fetching
+- ❌ Form validation logic
+- ❌ Props interface/types
+- ❌ JSX structure
+
+---
+
+### 📋 COMPLETE PRE-MIGRATION CHECKLIST (Run BEFORE Starting)
+
+```powershell
+# === STEP 1: SYSTEM HEALTH CHECK (5 minutes) ===
+# Run all commands from PRE-FLIGHT SYSTEM CHECK section above
+# If ANY fails → Fix globals.css first, don't proceed
+
+# === STEP 2: COMPONENT INVENTORY (2 minutes) ===
+# Count all elements needing migration
+(Select-String -Path "src\components\YourComponent.tsx" -Pattern "<button" -AllMatches).Matches.Count
+(Select-String -Path "src\components\YourComponent.tsx" -Pattern "<input" -AllMatches).Matches.Count
+(Select-String -Path "src\components\YourComponent.tsx" -Pattern "<select" -AllMatches).Matches.Count
+(Select-String -Path "src\components\YourComponent.tsx" -Pattern "bg-(slate|gray|zinc)-" -AllMatches).Matches.Count
+(Select-String -Path "src\components\YourComponent.tsx" -Pattern "dark:" -AllMatches).Matches.Count
+
+# Write down counts - you'll verify all are zero after migration
+
+# === STEP 3: OPEN REFERENCE COMPONENTS (1 minute) ===
+code src\components\HeaderMenu.tsx
+code src\components\InstallerSignupModal.tsx
+code src\components\HomeownerSignInModal.tsx
+code src\app\globals.css
+
+# === STEP 4: LOGIC AUDIT (2 minutes) ===
+# Read component - identify what CANNOT be changed:
+# - useState/useEffect hooks?
+# - Form validation?
+# - API calls?
+# - Event handlers?
+
+# Write down: "This component has X hooks, Y handlers - preserve all"
+
+# === READY TO MIGRATE ===
+# Total pre-flight time: 10 minutes
+# Prevents 90% of issues and rework
+```
+
+---
+
+### 📋 COMPLETE POST-MIGRATION VERIFICATION (Run AFTER Migration)
+
+```powershell
+# === STEP 1: ZERO NATIVE ELEMENTS ===
+(Select-String -Path "src\components\YourComponent.tsx" -Pattern "<button" -AllMatches).Matches.Count
+# Expected: 0 (all replaced with Button component)
+
+# === STEP 2: ZERO HARDCODED COLORS ===
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "bg-(slate|gray|zinc|neutral|stone|teal|blue)-"
+# Expected: NO MATCHES
+
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "text-(slate|gray|zinc)-"
+# Expected: NO MATCHES
+
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "border-(slate|gray)-"
+# Expected: NO MATCHES
+
+# === STEP 3: ZERO DARK: PREFIXES ===
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "dark:"
+# Expected: NO MATCHES
+
+# === STEP 4: ZERO LEGACY CODE ===
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "(TODO|FIXME|HACK|XXX)"
+# Expected: NO MATCHES
+
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "@storybook|chromatic"
+# Expected: NO MATCHES
+
+# === STEP 5: TYPESCRIPT COMPILES ===
+npx tsc --noEmit --project .
+# Expected: 0 errors
+
+# === STEP 6: CENTRAL CLASSES VERIFICATION ===
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "(form-input|theme-card|Button)"
+# Expected: Component uses central classes, not inline styles
+
+# === STEP 7: VISUAL TEST (ALL 3 THEMES) ===
+# 1. npm run dev
+# 2. Open component in browser
+# 3. Switch Dark → Light → Purple themes
+# 4. Verify: All elements visible, consistent, interactive
+# 5. Verify: Modal/input/button backgrounds match in each theme
+
+# === STEP 8: FUNCTIONAL TEST ===
+# Test ALL buttons, forms, modals, interactions
+# Verify: Everything works exactly as before migration
+
+# === ALL CHECKS PASS → MARK TASK COMPLETE ===
+# If ANY fails → Fix and re-run ALL checks
+```
+
+---
+
+### 🚫 ANTI-PATTERNS (What NOT to Do)
+
+#### Anti-Pattern #1: Partial Migration
+```tsx
+// ❌ WRONG - Only migrated form, forgot button
+<form className="bg-surface shadow-neu-outset p-6">  // ✅ Migrated
+  <input className="form-input" />                   // ✅ Migrated
+  <button className="bg-teal-600">Submit</button>    // ❌ NOT MIGRATED
+</form>
+
+// ✅ CORRECT - All elements migrated
+<form className="bg-surface shadow-neu-outset p-6">
+  <input className="form-input" />
+  <Button variant="primary">Submit</Button>
+</form>
+```
+
+#### Anti-Pattern #2: Leaving Legacy Code
+```tsx
+// ❌ WRONG - Commented code and TODOs left behind
+// import { useTheme } from 'next-themes';  // TODO: Remove
+import Button from '@/components/ui/button';
+
+export default function Component() {
+  // const { theme } = useTheme();  // Old - remove later
+  return <Button variant="primary">Click</Button>;
+  {/* <button className="bg-teal-600">Old</button> */}
+}
+
+// ✅ CORRECT - Clean, production-ready code
+import Button from '@/components/ui/button';
+
+export default function Component() {
+  return <Button variant="primary">Click</Button>;
+}
+```
+
+#### Anti-Pattern #3: Inventing New Patterns Instead of Copying
+```tsx
+// ❌ WRONG - Didn't check reference components, invented inline styles
+<input 
+  style={{ background: 'rgb(var(--color-surface))' }}
+  className="border-border rounded-xl"
+/>
+
+// ✅ CORRECT - Copied exact pattern from HomeownerSignInModal.tsx
+<input className="form-input w-full pl-11 pr-4 py-3" />
+```
+
+#### Anti-Pattern #4: Mixing Background Variables
+```tsx
+// ❌ WRONG - Inconsistent variables (auth modal issue)
+<div className="theme-card">  {/* Uses --color-background-elevated */}
+  <input className="bg-background" />  {/* Uses --color-background - DIFFERENT! */}
+</div>
+
+// ✅ CORRECT - Consistent variables
+<div className="theme-card">  {/* Uses --color-surface */}
+  <input className="form-input" />  {/* Uses --color-surface */}
+</div>
+```
+
+#### Anti-Pattern #5: Skipping Theme Testing
+```tsx
+// ❌ WRONG - Only tested dark theme
+// Looks good in dark → Mark complete
+// Light theme broken (white backgrounds) → Rework needed
+
+// ✅ CORRECT - Tested all 3 themes before marking complete
+// Dark ✅ → Light ✅ → Purple ✅ → Mark complete
+```
+
+#### Anti-Pattern #6: Hardcoding Theme-Specific Values
+```css
+/* ❌ WRONG - Hardcoded white in light theme */
+:root.theme-light .theme-card {
+  background: rgb(255, 255, 255);
+}
+
+/* ✅ CORRECT - Use variables */
+:root.theme-light .theme-card {
+  background: rgb(var(--color-surface));
+}
+```
+
+---
+
+### 🎯 SUMMARY: The Atomic Migration Workflow
+
+```
+1. PRE-FLIGHT (10 min)
+   ├── System health check (globals.css, classes exist)
+   ├── Component inventory (count buttons, inputs, violations)
+   ├── Open reference components (copy patterns, don't invent)
+   └── Logic audit (identify what NOT to change)
+
+2. MIGRATION (15-30 min)
+   ├── Replace ALL buttons with Button component
+   ├── Replace ALL inputs with form-input class
+   ├── Replace ALL hardcoded colors with semantic tokens
+   ├── Remove ALL dark: prefixes
+   ├── Remove ALL legacy code (comments, TODOs, unused imports)
+   └── Preserve ALL logic (hooks, handlers, validation)
+
+3. VERIFICATION (10 min)
+   ├── Zero native elements (grep returns empty)
+   ├── Zero hardcoded colors (grep returns empty)
+   ├── Zero dark: prefixes (grep returns empty)
+   ├── Zero legacy code (grep returns empty)
+   ├── TypeScript compiles (0 errors)
+   ├── Visual test (all 3 themes look correct)
+   ├── Functional test (all interactions work)
+   └── Central classes used (form-input, theme-card, Button)
+
+4. COMMIT
+   ├── User approval received
+   ├── Commit message: "redesign: [Component] neumorphic - X violations fixed"
+   └── Mark task complete in tasks.md
+
+Total Time: 35-50 minutes per component
+Success Rate: 100% (if checklist followed)
+Rework Risk: 0% (atomic migration prevents partial work)
+```
+
+---
+
+## 🎯 QUICK COMPONENT CHECKLIST (Use This Every Time)
 
 ```bash
 # 1. Count ALL interactive elements (must migrate ALL)

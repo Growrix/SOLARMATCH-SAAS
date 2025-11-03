@@ -222,7 +222,7 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
   
   if (!isOpen) return null;
 
-  const baseInputClasses = "w-full bg-surface/5 border border-border/50 rounded-xl px-4 py-3 text-foreground placeholder-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-neu-inset transition-colors";
+  const baseInputClasses = "form-input w-full px-4 py-3";
 
   return (
     <div

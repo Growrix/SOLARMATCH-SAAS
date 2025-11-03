@@ -715,7 +715,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
   };
 
   const formatCurrency = (amount: number) => new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
-  const baseInputClasses = "w-full dark:neu-input bg-surface border-none rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground dark:shadow-[inset_4px_4px_8px_var(--neu-shadow-inset-dark),inset_-4px_-4px_8px_var(--neu-shadow-inset-light)] focus:dark:shadow-[inset_6px_6px_12px_var(--neu-shadow-inset-dark),inset_-6px_-6px_12px_var(--neu-shadow-inset-light),0_0_0_2px_rgba(107,114,128,0.3)] focus:outline-none transition-all duration-300";
+  const baseInputClasses = "form-input w-full px-4 py-3";
   
   const budgetOptions = {
     residential: [
@@ -776,10 +776,29 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
         <div className="flex items-center space-x-4">
           {[1, 2, 3].map((step) => (
             <React.Fragment key={step}>
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${currentStep >= step ? 'bg-primary text-white shadow-neu-outset' : 'bg-background text-muted-foreground shadow-neu-inset'}`}>
-                {step === 3 && quoteResult ? <CheckCircle2 className="h-5 w-5" /> : step}
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all
+                  ${currentStep === step
+                    ? 'theme-light:bg-black theme-light:text-white theme-dark:bg-white theme-dark:text-black theme-purple:bg-accent theme-purple:text-accent-foreground'
+                    : 'bg-surface text-foreground shadow-neu-inset'}
+                  ${currentStep === step ? 'shadow-neu-outset' : ''}
+                `}
+              >
+                {step === 3 && quoteResult ? (
+                  <CheckCircle2 className="h-5 w-5" />
+                ) : (
+                  <span>{step}</span>
+                )}
               </div>
-              {step < 3 && <div className={`w-12 h-1 rounded-full transition-all ${currentStep > step ? 'bg-primary shadow-neu-inset-sm' : 'bg-background shadow-neu-inset'}`}></div>}
+              {step < 3 && (
+                <div
+                  className={`w-12 h-1 rounded-full transition-all ${
+                    currentStep > step
+                      ? 'bg-primary shadow-neu-inset-sm'
+                      : 'bg-background shadow-neu-inset'
+                  }`}
+                ></div>
+              )}
             </React.Fragment>
           ))}
         </div>
@@ -1710,7 +1729,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                         <span className="text-foreground font-semibold">{formatCurrency(quoteResult.totalCost * 0.1)}</span>
                       </div>
                       
-                      <div className="border-t border-slate-200 dark:border-slate-600 pt-3 mt-3">
+                      <div className="border-t border-border pt-3 mt-3">
                         <div className="flex justify-between items-center text-lg font-semibold">
                           <span className="text-foreground">Subtotal</span>
                           <span className="text-foreground">{formatCurrency(quoteResult.totalCost)}</span>
@@ -1747,7 +1766,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                         )}
                       </div>
                       
-                      <div className="border-t-2 border-primary/20 pt-4 mt-4 bg-primary/5 dark:bg-primary/10 rounded-lg p-4">
+                      <div className="border-t-2 border-primary/20 pt-4 mt-4 bg-primary/5 rounded-lg p-4">
                         <div className="flex justify-between items-center text-xl font-bold">
                           <span className="text-foreground">Final Price</span>
                           <span className="text-primary">{formatCurrency(quoteResult.finalPrice)}</span>
@@ -1758,19 +1777,19 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                   
                   {/* System Specifications */}
                   <div className="space-y-6">
-                    <div className="bg-slate-50/50 dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700">
+                    <div className="bg-surface rounded-2xl p-6 border border-border">
                       <h3 className="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
                         <span className="text-2xl">⚡</span>
                         System Specifications
                       </h3>
                       
                       <div className="grid grid-cols-2 gap-4 mb-6">
-                        <div className="text-center p-4 bg-white/50 dark:bg-slate-700/30 rounded-xl">
+                        <div className="text-center p-4 bg-surface/50 rounded-xl border border-border/30">
                           <p className="text-3xl font-bold text-primary">{quoteResult.systemSize}kW</p>
                           <p className="text-sm text-subtle mt-1">System Size</p>
                         </div>
                         
-                        <div className="text-center p-4 bg-white/50 dark:bg-slate-700/30 rounded-xl">
+                        <div className="text-center p-4 bg-surface/50 rounded-xl border border-border/30">
                           <p className="text-3xl font-bold text-foreground">{Math.ceil(quoteResult.systemSize * 1000 / 440)}</p>
                           <p className="text-sm text-subtle mt-1">Solar Panels</p>
                         </div>
@@ -1802,15 +1821,15 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                     </div>
                     
                     {/* Energy Performance */}
-                    <div className="bg-slate-50/50 dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700">
+                    <div className="bg-surface rounded-2xl p-6 border border-border">
                       <h3 className="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
                         <span className="text-2xl">🌞</span>
                         Energy Performance
                       </h3>
                       
                       <div className="space-y-4">
-                        <div className="flex justify-between items-center p-3 bg-white/50 dark:bg-slate-700/30 rounded-lg">
-                          <span className="text-slate-700 dark:text-slate-300">Annual Generation</span>
+                        <div className="flex justify-between items-center p-3 bg-surface/50 rounded-lg border border-border/30">
+                          <span className="text-subtle">Annual Generation</span>
                           <span className="text-foreground font-semibold">{quoteResult.annualProduction?.toLocaleString()} kWh</span>
                         </div>
                         
@@ -1839,18 +1858,18 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
             {quoteResult.quoteType === 'commercial' && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                  <div className="space-y-6">
-                    <div className="bg-gray-100/50 dark:bg-slate-800/50 rounded-2xl p-6 border border-gray-200 dark:border-slate-700/50"><div className="text-center"><p className="text-subtle">Estimated Out-of-Pocket Cost</p><p className="text-4xl md:text-5xl font-bold text-primary tracking-tight mt-1">{formatCurrency(quoteResult.finalPrice)}</p></div><div className="mt-6 pt-6 border-t border-gray-200 dark:border-slate-700"><h3 className="text-lg font-semibold text-foreground mb-4 text-center">Cost Breakdown</h3><div className="space-y-3 max-w-md mx-auto"><div className="flex justify-between items-center text-sm"><span className="text-subtle">Total System Cost</span><span className="text-slate-800 dark:text-white font-medium">{formatCurrency(quoteResult.totalCost)}</span></div><div className="flex justify-between items-center text-sm text-emerald-600 dark:text-emerald-500"><span>Federal Rebate (STCs)</span><span className="font-medium">-{formatCurrency(quoteResult.federalRebate)}</span></div></div></div></div>
-                    <div className="bg-gray-100/50 dark:bg-slate-800/50 rounded-2xl p-6 border border-gray-200 dark:border-slate-700/50 text-center"><h3 className="text-lg font-semibold text-foreground mb-2">Simple Payback Period</h3><p className="text-4xl font-bold text-primary tracking-tight">{quoteResult.simplePaybackYears ?? 'N/A'} Years</p></div>
+                    <div className="bg-surface rounded-2xl p-6 border border-border"><div className="text-center"><p className="text-subtle">Estimated Out-of-Pocket Cost</p><p className="text-4xl md:text-5xl font-bold text-primary tracking-tight mt-1">{formatCurrency(quoteResult.finalPrice)}</p></div><div className="mt-6 pt-6 border-t border-border"><h3 className="text-lg font-semibold text-foreground mb-4 text-center">Cost Breakdown</h3><div className="space-y-3 max-w-md mx-auto"><div className="flex justify-between items-center text-sm"><span className="text-subtle">Total System Cost</span><span className="text-foreground font-medium">{formatCurrency(quoteResult.totalCost)}</span></div><div className="flex justify-between items-center text-sm text-success"><span>Federal Rebate (STCs)</span><span className="font-medium">-{formatCurrency(quoteResult.federalRebate)}</span></div></div></div></div>
+                    <div className="bg-surface rounded-2xl p-6 border border-border text-center"><h3 className="text-lg font-semibold text-foreground mb-2">Simple Payback Period</h3><p className="text-4xl font-bold text-primary tracking-tight">{quoteResult.simplePaybackYears ?? 'N/A'} Years</p></div>
                  </div>
                  <div className="space-y-6">
-                    <div className="bg-gray-100/50 dark:bg-slate-800/50 rounded-2xl p-6 border border-gray-200 dark:border-slate-700/50"><h3 className="text-lg font-semibold text-foreground mb-4 text-center">Recommended System</h3><div className="grid grid-cols-2 gap-4 text-center"><div><p className="text-2xl font-bold text-foreground">{quoteResult.systemSize}kW</p><p className="text-sm text-subtle">System Size</p></div><div><p className="text-2xl font-bold text-foreground">{formData.batteryIncluded ? 'Yes' : 'No'}</p><p className="text-sm text-subtle">Battery Included</p></div></div></div>
-                    <div className="bg-gray-100/50 dark:bg-slate-800/50 rounded-2xl p-6 border border-gray-200 dark:border-slate-700/50"><h3 className="text-lg font-semibold text-foreground mb-4 text-center">Annual Savings Breakdown</h3><div className="space-y-3"><div className="flex justify-between items-center text-sm"><span className="text-subtle">Energy Savings</span><span className="text-emerald-600 dark:text-emerald-500 font-medium">{formatCurrency(quoteResult.energySavings)}</span></div><div className="flex justify-between items-center text-sm"><span className="text-subtle">Demand Charge Savings</span><span className="text-emerald-600 dark:text-emerald-500 font-medium">{formatCurrency(quoteResult.demandChargeSavings)}</span></div><div className="flex justify-between items-center text-base pt-2 border-t border-gray-200 dark:border-slate-700"><span className="text-slate-800 dark:text-white font-bold">Total Annual Savings</span><span className="text-emerald-500 font-bold">{formatCurrency(quoteResult.annualSavings)}</span></div></div></div>
+                    <div className="bg-surface rounded-2xl p-6 border border-border"><h3 className="text-lg font-semibold text-foreground mb-4 text-center">Recommended System</h3><div className="grid grid-cols-2 gap-4 text-center"><div><p className="text-2xl font-bold text-foreground">{quoteResult.systemSize}kW</p><p className="text-sm text-subtle">System Size</p></div><div><p className="text-2xl font-bold text-foreground">{formData.batteryIncluded ? 'Yes' : 'No'}</p><p className="text-sm text-subtle">Battery Included</p></div></div></div>
+                    <div className="bg-surface rounded-2xl p-6 border border-border"><h3 className="text-lg font-semibold text-foreground mb-4 text-center">Annual Savings Breakdown</h3><div className="space-y-3"><div className="flex justify-between items-center text-sm"><span className="text-subtle">Energy Savings</span><span className="text-success font-medium">{formatCurrency(quoteResult.energySavings)}</span></div><div className="flex justify-between items-center text-sm"><span className="text-subtle">Demand Charge Savings</span><span className="text-success font-medium">{formatCurrency(quoteResult.demandChargeSavings)}</span></div><div className="flex justify-between items-center text-base pt-2 border-t border-border"><span className="text-foreground font-bold">Total Annual Savings</span><span className="text-success font-bold">{formatCurrency(quoteResult.annualSavings)}</span></div></div></div>
                  </div>
               </div>
             )}
             
             <div className="my-8"><SavingsChart finalPrice={quoteResult.finalPrice} annualSavings={quoteResult.annualSavings} currentAnnualBill={quoteResult.currentAnnualBill} /></div>
-            <div className="mt-8 bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4"><h4 className="text-yellow-600 dark:text-yellow-400 font-semibold mb-2">Important Information</h4><ul className="text-yellow-700 dark:text-yellow-200 text-sm space-y-1">{quoteResult.disclaimers.map((d: string, i: number) => (<li key={i} className="flex items-start space-x-2"><span className="text-yellow-500 dark:text-yellow-400 mt-1">•</span><span>{d}</span></li>))}</ul></div>
+            <div className="mt-8 bg-warning/10 border border-warning/30 rounded-xl p-4"><h4 className="text-warning font-semibold mb-2">Important Information</h4><ul className="text-warning/90 text-sm space-y-1">{quoteResult.disclaimers.map((d: string, i: number) => (<li key={i} className="flex items-start space-x-2"><span className="text-warning mt-1">•</span><span>{d}</span></li>))}</ul></div>
             
             {/* Action Buttons - only default and secondary variants */}
             {hideSubmitButton ? (

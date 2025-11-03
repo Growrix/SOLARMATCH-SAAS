@@ -248,7 +248,7 @@ const HomeownerSignInModal: React.FC<HomeownerSignInModalProps> = ({
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder="Email address"
-                className="w-full bg-surface/5 border border-border/50 rounded-xl pl-11 pr-4 py-3 text-foreground placeholder-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-neu-inset transition-colors"
+                className="form-input w-full pl-11 pr-4 py-3"
                 required
               />
             </div>
@@ -268,7 +268,7 @@ const HomeownerSignInModal: React.FC<HomeownerSignInModalProps> = ({
                 value={formData.password}
                 onChange={handleInputChange}
                 placeholder="Password"
-                className="w-full bg-surface/5 border border-border/50 rounded-xl pl-11 pr-12 py-3 text-foreground placeholder-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-neu-inset transition-colors"
+                className="form-input w-full pl-11 pr-12 py-3"
                 required
               />
               <button
