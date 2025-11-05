@@ -46,6 +46,12 @@
   --color-border: 44 44 44;               /* #2C2C2C - Subtle borders */
   --color-border-strong: 64 64 64;        /* #404040 - Emphasized borders */
   
+  /* Status Colors */
+  --color-success: 74 222 128;            /* #4ADE80 - green-400 */
+  --color-warning: 250 204 21;            /* #FACC15 - yellow-400 */
+  --color-error: 248 113 113;             /* #F87171 - red-400 */
+  --color-info: 96 165 250;               /* #60A5FA - blue-400 */
+  
   /* Legacy aliases for backward compatibility - TO BE DEPRECATED */
   --color-primary: 255 255 255;
   --color-primary-hover: 230 230 230;
@@ -53,7 +59,7 @@
   --color-secondary: 26 26 26;
   --color-secondary-foreground: 243 244 246;
   --color-background-alt: 26 26 26;
-  --color-surface: 26 26 26;
+  --color-surface: 18 18 18;            /* #121212 - updated for dark theme */
   --color-surface-hover: 37 37 37;
   --color-muted: 209 213 219;              /* Updated to match gray-300 */
   --color-subtle: 255 255 255;
@@ -164,6 +170,12 @@
   --color-border: 156 163 175;            /* #9CA3AF - Stronger borders for visibility */
   --color-border-strong: 107 114 128;     /* #6B7280 - Even more emphasized borders */
   
+  /* Status Colors */
+  --color-success: 22 163 74;             /* #16A34A - green-600 */
+  --color-warning: 234 179 8;             /* #EAB308 - yellow-500 */
+  --color-error: 220 38 38;               /* #DC2626 - red-600 */
+  --color-info: 37 99 235;                /* #2563EB - blue-600 */
+  
   /* Legacy aliases for backward compatibility */
   --color-primary: 0 0 0;
   --color-primary-hover: 37 37 37;
@@ -265,6 +277,12 @@
   /* Border Colors */
   --color-border: 76 51 131;              /* #4C3383 - Purple borders */
   --color-border-strong: 109 73 184;      /* #6D49B8 - Emphasized purple borders */
+  
+  /* Status Colors */
+  --color-success: 74 222 128;            /* #4ADE80 - green-400 */
+  --color-warning: 250 204 21;            /* #FACC15 - yellow-400 */
+  --color-error: 248 113 113;             /* #F87171 - red-400 */
+  --color-info: 147 197 253;              /* #93C5FD - blue-300 (lighter for purple background) */
   
   /* Legacy aliases for backward compatibility */
   --color-primary: 167 139 250;
@@ -552,7 +570,7 @@ body {
 @layer components {
   /* Unified theme card (legacy support) */
   .theme-card {
-    background: rgb(var(--color-background));
+    background: rgb(var(--color-surface));
     border-radius: var(--radius-xl);
     border: 1px solid rgb(var(--color-border) / 0.5);
     box-shadow: var(--shadow-outset-md);
@@ -577,6 +595,380 @@ body {
   .form-input:focus {
     @apply outline-none border-accent;
     box-shadow: var(--shadow-inset-md), 0 0 0 1px rgb(var(--color-accent)) !important;
+  }
+
+  /* Form select semantic class - neumorphic design with theme colors */
+  .form-select {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background-color: rgb(var(--color-surface)) !important;
+    border: 1px solid rgb(var(--color-border) / 0.5) !important;
+    border-radius: var(--radius-xl) !important;
+    color: rgb(var(--color-foreground)) !important;
+    padding: 0.75rem 2.5rem 0.75rem 1rem !important;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-inset-md) !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23FFFFFF' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") !important;
+    background-position: right 0.75rem center !important;
+    background-repeat: no-repeat !important;
+    background-size: 1.25em 1.25em !important;
+  }
+
+  .form-select:hover {
+    background-color: rgb(var(--color-surface-hover)) !important;
+    border-color: rgb(var(--color-border)) !important;
+  }
+
+  .form-select:focus {
+    outline: none !important;
+    border-color: rgb(var(--color-accent)) !important;
+    box-shadow: var(--shadow-inset-md), 0 0 0 2px rgb(var(--color-accent) / 0.2) !important;
+  }
+
+  .form-select option {
+    background-color: rgb(var(--color-background-elevated)) !important;
+    color: rgb(var(--color-foreground)) !important;
+    padding: 0.75rem 1rem !important;
+    font-weight: 500 !important;
+  }
+  
+  .form-select option:hover {
+    background-color: rgb(var(--color-accent)) !important;
+    color: rgb(var(--color-background)) !important;
+  }
+  
+  .form-select option:checked,
+  .form-select option:focus {
+    background: linear-gradient(90deg, rgb(var(--color-accent)) 0%, rgb(var(--color-accent)) 100%) !important;
+    color: rgb(var(--color-background)) !important;
+  }
+
+  /* Results Section - Metric Cards */
+  .metric-card {
+    background-color: rgb(var(--color-background));
+    box-shadow: var(--shadow-neu-inset);
+    border-radius: var(--radius-2xl);
+    padding: 1.5rem;
+    border: 1px solid rgb(var(--color-border));
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .metric-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-2xl);
+    padding: 1px;
+    background: linear-gradient(135deg, 
+      rgb(var(--color-border) / 0.1), 
+      rgb(var(--color-border) / 0.05)
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .metric-card:hover {
+    box-shadow: var(--shadow-neu-inset-sm);
+    border-color: rgb(var(--color-border) / 0.8);
+  }
+
+  .metric-card-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: rgb(var(--color-foreground));
+    text-shadow: 0 1px 2px rgb(var(--color-background) / 0.3);
+  }
+
+  .metric-card-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgb(var(--color-foreground-subtle));
+  }
+
+  .metric-card-description {
+    font-size: 0.75rem;
+    color: rgb(var(--color-foreground-muted));
+  }
+
+  /* Results Section - Detail Cards */
+  .detail-card {
+    background-color: rgb(var(--color-background));
+    border-radius: var(--radius-2xl);
+    padding: 1.5rem;
+    border: 1px solid rgb(var(--color-border));
+    box-shadow: var(--shadow-neu-inset);
+    transition: all 0.3s ease;
+  }
+
+  .detail-card:hover {
+    box-shadow: var(--shadow-neu-inset-sm);
+  }
+
+  .detail-card-header {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: rgb(var(--color-foreground));
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* Results Section - Cost Breakdown Items */
+  .cost-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background-color: rgb(var(--color-surface));
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-inset-sm);
+    border: 1px solid rgb(var(--color-border) / 0.3);
+    transition: all 0.2s ease;
+  }
+
+  .cost-item:hover {
+    box-shadow: var(--shadow-inset-md);
+    border-color: rgb(var(--color-border) / 0.5);
+  }
+
+  .cost-item-label {
+    color: rgb(var(--color-foreground));
+    font-weight: 500;
+  }
+
+  .cost-item-value {
+    color: rgb(var(--color-foreground));
+    font-weight: 600;
+  }
+
+  /* Results Section - Spec Cards */
+  .spec-card {
+    text-align: center;
+    padding: 1rem;
+    background-color: rgb(var(--color-background-elevated));
+    border-radius: var(--radius-xl);
+    border: 1px solid rgb(var(--color-border) / 0.5);
+    box-shadow: var(--shadow-neu-inset);
+    transition: all 0.2s ease;
+  }
+
+  .spec-card:hover {
+    box-shadow: var(--shadow-neu-inset-sm);
+    border-color: rgb(var(--color-border));
+  }
+
+  .spec-card-value {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: rgb(var(--color-primary));
+    text-shadow: 0 1px 2px rgb(var(--color-background) / 0.3);
+  }
+
+  .spec-card-label {
+    font-size: 0.875rem;
+    color: rgb(var(--color-foreground-subtle));
+    margin-top: 0.25rem;
+  }
+
+  /* Results Section - Performance Items */
+  .performance-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.875rem 1rem;
+    background-color: rgb(var(--color-surface));
+    border-radius: var(--radius-lg);
+    border: 1px solid rgb(var(--color-border) / 0.4);
+    box-shadow: var(--shadow-inset-sm);
+    transition: all 0.2s ease;
+  }
+
+  .performance-item:hover {
+    box-shadow: var(--shadow-inset-md);
+    background-color: rgb(var(--color-surface-hover));
+    border-color: rgb(var(--color-border) / 0.6);
+  }
+
+  .performance-item-label {
+    color: rgb(var(--color-foreground-subtle));
+    font-size: 0.875rem;
+  }
+
+  .performance-item-value {
+    color: rgb(var(--color-foreground));
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+
+  /* Results Section - Summary Box */
+  .summary-box {
+    background: linear-gradient(135deg, rgb(var(--color-primary) / 0.08), rgb(var(--color-primary) / 0.03));
+    border-radius: var(--radius-xl);
+    padding: 1.25rem;
+    border: 2px solid rgb(var(--color-primary) / 0.25);
+    box-shadow: var(--shadow-neu-inset-sm), 0 0 20px rgb(var(--color-primary) / 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .summary-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, 
+      transparent, 
+      rgb(var(--color-primary) / 0.5), 
+      transparent
+    );
+  }
+
+  .summary-box:hover {
+    border-color: rgb(var(--color-primary) / 0.4);
+    box-shadow: var(--shadow-neu-inset), 0 0 30px rgb(var(--color-primary) / 0.15);
+  }
+
+  .summary-box-label {
+    color: rgb(var(--color-foreground));
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+
+  .summary-box-value {
+    color: rgb(var(--color-primary));
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-shadow: 0 1px 3px rgb(var(--color-primary) / 0.3);
+  }
+
+  /* Results Section - Rebate Items */
+  .rebate-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: rgb(var(--color-success));
+  }
+
+  .rebate-item-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .rebate-item-value {
+    font-weight: 600;
+  }
+
+  /* Results Section - Warning/Disclaimer Box */
+  .disclaimer-box {
+    background-color: rgb(var(--color-warning) / 0.1);
+    border: 1px solid rgb(var(--color-warning) / 0.3);
+    border-radius: var(--radius-xl);
+    padding: 1rem;
+  }
+
+  .disclaimer-box-title {
+    color: rgb(var(--color-warning));
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .disclaimer-box-list {
+    color: rgb(var(--color-warning) / 0.9);
+    font-size: 0.875rem;
+  }
+
+  .disclaimer-box-list li {
+    display: flex;
+    align-items: start;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  /* Toggle Switch Components */
+  .toggle-switch {
+    @apply relative inline-flex items-center rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2;
+  }
+
+  .toggle-switch-sm {
+    @apply h-5 w-9;
+  }
+
+  .toggle-switch-md {
+    @apply h-6 w-11;
+  }
+
+  .toggle-switch-off {
+    @apply bg-background border border-border;
+    box-shadow: var(--shadow-inset-md);
+  }
+
+  .toggle-switch-on {
+    @apply bg-accent;
+    box-shadow: var(--shadow-outset-sm);
+  }
+
+  .toggle-knob {
+    @apply inline-block transform rounded-full bg-surface transition-transform duration-200;
+    box-shadow: var(--shadow-outset-sm);
+  }
+
+  .toggle-knob-sm {
+    @apply h-3 w-3;
+  }
+
+  .toggle-knob-md {
+    @apply h-4 w-4;
+  }
+
+  .toggle-knob-off-sm {
+    @apply translate-x-1;
+  }
+
+  .toggle-knob-on-sm {
+    @apply translate-x-5;
+  }
+
+  .toggle-knob-off-md {
+    @apply translate-x-1;
+  }
+
+  .toggle-knob-on-md {
+    @apply translate-x-6;
+  }
+
+  /* Info Section - Neumorphic inset container */
+  .info-section {
+    @apply bg-surface/30 rounded-xl border border-border p-4;
+    box-shadow: var(--shadow-inset-md);
+  }
+
+  .info-section-lg {
+    @apply p-6;
+  }
+
+  /* Icon Container - Small embossed circle */
+  .icon-container {
+    @apply p-2 bg-surface/50 rounded-lg;
+    box-shadow: var(--shadow-inset-sm);
+  }
+
+  /* Slider Track - Neumorphic inset */
+  .slider-track {
+    @apply w-full h-2 bg-background rounded-lg appearance-none cursor-pointer;
+    box-shadow: var(--shadow-inset-md);
   }
 }
 

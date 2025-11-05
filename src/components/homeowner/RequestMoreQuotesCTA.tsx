@@ -1,4 +1,5 @@
 import React from 'react';
+import Button from '@/components/ui/button';
 
 interface RequestMoreQuotesCTAProps {
   remaining: number;
@@ -26,19 +27,15 @@ const RequestMoreQuotesCTA: React.FC<RequestMoreQuotesCTAProps> = ({
   const progress = quoteLimit > 0 ? Math.min(100, (used / quoteLimit) * 100) : 0;
   const hasRemaining = remaining > 0;
 
-  const baseButtonClasses =
-    'w-full sm:w-auto inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
-
-  const disabledButtonClasses = 'bg-muted text-muted-foreground cursor-not-allowed';
-  const primaryButtonClasses = 'bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:outline-primary';
-  const secondaryButtonClasses = 'bg-warning text-warning-foreground hover:bg-warning/90 focus-visible:outline-warning';
-
   return (
-    <section className={`theme-card p-4 sm:p-6 ${className}`}>
-      <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+  <section
+    className={`bg-background rounded-card p-5 sm:p-6 shadow-neu-outset transition-all duration-200 hover:shadow-neu-inset focus-within:shadow-neu-inset ${className}`}
+    tabIndex={-1}
+  >
+  <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 shadow-neu-inset rounded-lg p-3 bg-background/80">
         <div>
           <p className="text-caption uppercase tracking-wide text-muted-foreground">Quote Requests</p>
-          <h2 className="text-body-large font-semibold text-foreground">
+          <h2 className="text-heading-3 text-foreground">
             {isFirstQuote 
               ? 'Request Your First Quote'
               : requiresVerification 
@@ -54,7 +51,7 @@ const RequestMoreQuotesCTA: React.FC<RequestMoreQuotesCTAProps> = ({
         {!isFirstQuote && (
           <div className="text-right">
             <p className="text-caption text-muted-foreground">Remaining balance</p>
-            <p className="text-2xl font-bold text-primary">{Math.max(remaining, 0)}</p>
+            <p className="text-heading-2 text-primary">{Math.max(remaining, 0)}</p>
           </div>
         )}
       </header>
@@ -80,28 +77,30 @@ const RequestMoreQuotesCTA: React.FC<RequestMoreQuotesCTAProps> = ({
           <p className="text-body-small text-muted-foreground">
             Welcome! You&apos;re ready to get quotes from verified solar installers. No phone verification required for your first quote.
           </p>
-          <button
+          <Button
             type="button"
             onClick={onRequest}
             disabled={isProcessing}
-            className={`${baseButtonClasses} ${primaryButtonClasses}`}
+            variant="secondary"
+            className="w-full sm:w-auto px-6 py-2.5"
           >
             {isProcessing ? 'Opening…' : 'Get Started'}
-          </button>
+          </Button>
         </div>
       ) : requiresVerification ? (
         <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
           <p className="text-body-small text-warning">
             Your phone number must be verified before you can request more quotes. This keeps the marketplace fair and secure.
           </p>
-          <button
+          <Button
             type="button"
             onClick={onVerifyContact}
             disabled={isProcessing}
-            className={`${baseButtonClasses} ${secondaryButtonClasses}`}
+            variant="secondary"
+            className="w-full sm:w-auto px-6 py-2.5 bg-warning/10 text-warning hover:bg-warning/15"
           >
             {isProcessing ? 'Opening…' : 'Verify phone number'}
-          </button>
+          </Button>
         </div>
       ) : (
         <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
@@ -110,14 +109,15 @@ const RequestMoreQuotesCTA: React.FC<RequestMoreQuotesCTAProps> = ({
               ? 'Ready to explore more installers? Launch the quote request wizard to tailor your next project.'
               : 'You have reached your current quote limit. Increase your allowance or check with support for options.'}
           </p>
-          <button
+          <Button
             type="button"
             onClick={hasRemaining ? onRequest : undefined}
             disabled={!hasRemaining || isProcessing}
-            className={`${baseButtonClasses} ${hasRemaining ? primaryButtonClasses : disabledButtonClasses}`}
+            variant="secondary"
+            className="w-full sm:w-auto px-6 py-2.5"
           >
             {hasRemaining ? (isProcessing ? 'Opening…' : 'Request more quotes') : 'Limit reached'}
-          </button>
+          </Button>
         </div>
       )}
     </section>

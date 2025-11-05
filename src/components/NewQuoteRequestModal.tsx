@@ -1,9 +1,14 @@
 'use client'
 
+
 import React, { useEffect } from 'react';
 import InstantQuoteForm from './InstantQuoteForm';
 
-const XIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>;
+const XIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+  </svg>
+);
 
 interface NewQuoteRequestModalProps {
   isOpen: boolean;
@@ -13,8 +18,8 @@ interface NewQuoteRequestModalProps {
   initialData?: Record<string, unknown> | null;
 }
 
-const NewQuoteRequestModal: React.FC<NewQuoteRequestModalProps> = ({ 
-  isOpen, 
+const NewQuoteRequestModal: React.FC<NewQuoteRequestModalProps> = ({
+  isOpen,
   onClose,
   onQuoteCalculated,
   onProceedToDetailedQuote,
@@ -22,7 +27,9 @@ const NewQuoteRequestModal: React.FC<NewQuoteRequestModalProps> = ({
 }) => {
   useEffect(() => {
     if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
     document.addEventListener('keydown', handleKeyDown);
     document.body.style.overflow = 'hidden';
     return () => {
@@ -34,26 +41,28 @@ const NewQuoteRequestModal: React.FC<NewQuoteRequestModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div 
-      className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center px-4 py-8 animate-fade-in"
+    <div
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center px-4 py-8 sm:py-20 animate-fade-in"
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
     >
-      <div 
-        className="theme-card relative w-full max-w-5xl p-4 sm:p-6 lg:p-8 animate-slide-in-up max-h-[95vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
+      <div
+        className="theme-card relative w-full max-w-5xl p-4 sm:p-6 lg:p-8 max-h-[95vh] overflow-y-auto animate-slide-in-up"
+        onClick={e => e.stopPropagation()}
       >
-        <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Request a New Quote</h2>
-            <button
-            onClick={onClose}
-            className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors p-2 rounded-lg"
-            aria-label="Close"
-            >
-                <XIcon />
-            </button>
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-subtle hover:text-foreground transition-colors p-2 sm:p-3 rounded-xl bg-background shadow-neu-inset hover:shadow-neu-outset"
+          aria-label="Close"
+        >
+          <XIcon />
+        </button>
+        <div className="text-center mb-6 sm:mb-8">
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Request a New Quote</h2>
+          <p className="text-muted-foreground text-sm">Fill out the form below to get a personalized solar quote from verified installers.</p>
         </div>
-        
-        <InstantQuoteForm 
+        <InstantQuoteForm
           onQuoteCalculated={onQuoteCalculated}
           onProceedToDetailedQuote={onProceedToDetailedQuote}
           initialData={initialData ?? null}

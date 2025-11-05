@@ -28,83 +28,145 @@ const Footer: React.FC<FooterProps> = ({ onBecomePartnerClick, onPartnerSignInCl
   return (
   <footer className="border-t border-border mt-0 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16">
           {/* Company Info */}
           <div>
-            <div className="flex items-center space-x-2 mb-6">
+            <div className="flex items-center space-x-3 mb-6">
               <div className="bg-background shadow-neu-inset p-3 rounded-xl">
                 <Sun />
               </div>
-              <span className="text-foreground text-xl font-bold">SolarMatch</span>
+              <span className="text-heading-3 font-bold text-foreground">SolarMatch</span>
             </div>
-            <p className="text-muted-foreground mb-6 leading-relaxed">
+            <p className="text-body text-muted-foreground mb-8 leading-relaxed">
               Australia&apos;s trusted platform for connecting homeowners with verified solar installers. 
               Get quotes, calculate rebates, and go solar with confidence.
             </p>
-            <div className="flex space-x-4">
-              <a href="#" className="hover:text-primary transition-colors" aria-label="Facebook"><Facebook /></a>
-              <a href="#" className="hover:text-primary transition-colors" aria-label="Twitter"><Twitter /></a>
-              <a href="#" className="hover:text-primary transition-colors" aria-label="Instagram"><Instagram /></a>
-              <a href="#" className="hover:text-primary transition-colors" aria-label="LinkedIn"><Linkedin /></a>
+            <div className="flex gap-3">
+              <a href="#" className="bg-background shadow-neu-inset hover:shadow-neu-inset-lg p-3 rounded-xl transition-all duration-300 group" aria-label="Facebook">
+                <Facebook />
+              </a>
+              <a href="#" className="bg-background shadow-neu-inset hover:shadow-neu-inset-lg p-3 rounded-xl transition-all duration-300 group" aria-label="Twitter">
+                <Twitter />
+              </a>
+              <a href="#" className="bg-background shadow-neu-inset hover:shadow-neu-inset-lg p-3 rounded-xl transition-all duration-300 group" aria-label="Instagram">
+                <Instagram />
+              </a>
+              <a href="#" className="bg-background shadow-neu-inset hover:shadow-neu-inset-lg p-3 rounded-xl transition-all duration-300 group" aria-label="LinkedIn">
+                <Linkedin />
+              </a>
             </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-foreground text-lg font-semibold mb-6">Quick Links</h3>
+            <h3 className="text-heading-4 font-bold text-foreground mb-6">Quick Links</h3>
             <ul className="space-y-3">
-              <li><button onClick={() => alert('How It Works Clicked')} className="text-muted-foreground hover:text-primary transition-colors">How It Works</button></li>
-              <li><button onClick={onScrollToRebate} className="text-muted-foreground hover:text-primary transition-colors">Rebate Calculator</button></li>
-              <li><button onClick={onScrollToQuote} className="text-muted-foreground hover:text-primary transition-colors">Get Your Instant Quote</button></li>
-              <li><button onClick={onBlogClick} className="text-muted-foreground hover:text-primary transition-colors">Blog & News</button></li>
-              <li><button onClick={onGovernmentNewsClick} className="text-muted-foreground hover:text-primary transition-colors">Government News</button></li>
+              <li>
+                <button onClick={() => alert('How It Works Clicked')} className="text-body text-muted-foreground hover:text-primary transition-colors text-left w-full">
+                  How It Works
+                </button>
+              </li>
+              <li>
+                <button onClick={onScrollToRebate} className="text-body text-muted-foreground hover:text-primary transition-colors text-left w-full">
+                  Rebate Calculator
+                </button>
+              </li>
+              <li>
+                <button onClick={onScrollToQuote} className="text-body text-muted-foreground hover:text-primary transition-colors text-left w-full">
+                  Get Your Instant Quote
+                </button>
+              </li>
+              <li>
+                <button onClick={onBlogClick} className="text-body text-muted-foreground hover:text-primary transition-colors text-left w-full">
+                  Blog & News
+                </button>
+              </li>
+              <li>
+                <button onClick={onGovernmentNewsClick} className="text-body text-muted-foreground hover:text-primary transition-colors text-left w-full">
+                  Government News
+                </button>
+              </li>
             </ul>
           </div>
 
           {/* For Installers */}
           <div>
-            <h3 className="text-foreground text-lg font-semibold mb-6">For Installers</h3>
+            <h3 className="text-heading-4 font-bold text-foreground mb-6">For Installers</h3>
             <ul className="space-y-3">
               <li>
-                <button onClick={onBecomePartnerClick} className="text-muted-foreground hover:text-primary transition-colors text-left flex items-center space-x-2"><Building /><span>Become a Partner</span></button>
+                <button onClick={onBecomePartnerClick} className="text-body text-muted-foreground hover:text-primary transition-colors text-left flex items-center gap-2 w-full">
+                  <Building />
+                  <span>Become a Partner</span>
+                </button>
               </li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Partner Benefits</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Lead Quality</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Pricing Plans</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Support Center</a></li>
-              <li><button onClick={onPartnerSignInClick} className="text-muted-foreground hover:text-primary transition-colors">Partner Login</button></li>
+              <li>
+                <a href="#" className="text-body text-muted-foreground hover:text-primary transition-colors block">
+                  Partner Benefits
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-body text-muted-foreground hover:text-primary transition-colors block">
+                  Lead Quality
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-body text-muted-foreground hover:text-primary transition-colors block">
+                  Pricing Plans
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-body text-muted-foreground hover:text-primary transition-colors block">
+                  Support Center
+                </a>
+              </li>
+              <li>
+                <button onClick={onPartnerSignInClick} className="text-body text-muted-foreground hover:text-primary transition-colors text-left w-full">
+                  Partner Login
+                </button>
+              </li>
             </ul>
           </div>
 
           {/* Contact Info */}
           <div>
-            <h3 className="text-foreground text-lg font-semibold mb-6">Contact Us</h3>
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3"><Phone className="h-5 w-5 text-primary" /><span className="text-muted-foreground">1300 SOLAR (76527)</span></div>
-              <div className="flex items-center space-x-3"><Mail className="h-5 w-5 text-primary" /><span className="text-muted-foreground">hello@solarmatch.com.au</span></div>
-              <div className="flex items-start space-x-3"><MapPin className="h-5 w-5 text-primary mt-1" /><span className="text-muted-foreground">Level 10, 123 Collins Street<br />Melbourne VIC 3000</span></div>
+            <h3 className="text-heading-4 font-bold text-foreground mb-6">Contact Us</h3>
+            <div className="space-y-4 mb-8">
+              <div className="flex items-center gap-3">
+                <Phone className="h-5 w-5 text-primary" />
+                <span className="text-body text-muted-foreground">1300 SOLAR (76527)</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Mail className="h-5 w-5 text-primary" />
+                <span className="text-body text-muted-foreground">hello@solarmatch.com.au</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <MapPin className="h-5 w-5 text-primary mt-1" />
+                <span className="text-body text-muted-foreground">Level 10, 123 Collins Street<br />Melbourne VIC 3000</span>
+              </div>
             </div>
-            <div className="mt-6 p-4">
-              <p className="text-sm text-muted-foreground mb-2"><strong className="text-foreground">Operating Hours:</strong></p>
-              <p className="text-sm text-muted-foreground">Mon - Fri: 8:00 AM - 6:00 PM AEST<br />Sat: 9:00 AM - 4:00 PM AEST</p>
+            <div className="bg-surface shadow-neu-inset rounded-xl p-4">
+              <p className="text-body-small font-semibold text-foreground mb-2">Operating Hours:</p>
+              <p className="text-body-small text-muted-foreground">Mon - Fri: 8:00 AM - 6:00 PM AEST<br />Sat: 9:00 AM - 4:00 PM AEST</p>
             </div>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-border mt-12 pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <div className="flex flex-wrap justify-center md:justify-start gap-x-6 gap-y-2 text-sm text-muted-foreground">
-              <a href="#" className="hover:text-primary transition-colors">About Us</a>
-              <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
-              <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>
-              <a href="#" className="hover:text-primary transition-colors">Installer Terms</a>
-              <a href="#" className="hover:text-primary transition-colors">Cookie Policy</a>
-              <a href="#" className="hover:text-primary transition-colors">Sitemap</a>
-            </div>
-            <div className="text-sm text-muted-foreground text-center md:text-right">
-              <p>&copy; {new Date().getFullYear()} SolarMatch Australia. All rights reserved.</p>
-              <p className="mt-1">ABN: 12 345 678 901</p>
+        <div className="border-t border-border mt-16 pt-8">
+          <div className="bg-surface shadow-neu-inset rounded-2xl p-6">
+            <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
+              <div className="flex flex-wrap justify-center lg:justify-start gap-x-6 gap-y-3">
+                <a href="#" className="text-body-small text-muted-foreground hover:text-primary transition-colors">About Us</a>
+                <a href="#" className="text-body-small text-muted-foreground hover:text-primary transition-colors">Privacy Policy</a>
+                <a href="#" className="text-body-small text-muted-foreground hover:text-primary transition-colors">Terms of Service</a>
+                <a href="#" className="text-body-small text-muted-foreground hover:text-primary transition-colors">Installer Terms</a>
+                <a href="#" className="text-body-small text-muted-foreground hover:text-primary transition-colors">Cookie Policy</a>
+                <a href="#" className="text-body-small text-muted-foreground hover:text-primary transition-colors">Sitemap</a>
+              </div>
+              <div className="text-body-small text-muted-foreground text-center lg:text-right">
+                <p>&copy; {new Date().getFullYear()} SolarMatch Australia. All rights reserved.</p>
+                <p className="mt-1">ABN: 12 345 678 901</p>
+              </div>
             </div>
           </div>
         </div>

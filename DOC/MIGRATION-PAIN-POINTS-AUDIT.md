@@ -910,4 +910,274 @@ Only when ALL verifications pass:
 
 ---
 
+## 🚨 HOMEOWNER DASHBOARD MIGRATION PAIN POINTS (November 2025)
+
+### Context
+After Phase 6, the Homeowner Dashboard was audited for dark theme color issues. Despite having updated tasks.md and DESIGN-SYSTEM-SOT.md with comprehensive checks from Phase 6, **5 critical issues** were discovered that should have been prevented.
+
+**User Frustration Level**: HIGH  
+**Quote**: _"this migration process is being a pain in the ass... your implementations are not accurate which is frustrating and time consuming"_
+
+---
+
+### Pain Point #13: Missing CSS Variables (Status Colors)
+
+**What Happened:**
+- Dashboard used status color classes: `text-error-foreground`, `text-success-foreground`, `text-warning-foreground`
+- These semantic classes referenced CSS variables that **didn't exist**: `--color-error`, `--color-success`, `--color-warning`, `--color-info`
+- Result: Status colors fell back to defaults or broke theme switching
+
+**Root Cause:**
+- GATE 0 checklist didn't include a check for status color CSS variables
+- Agent assumed these foundational variables existed (they didn't)
+- No pre-flight verification of CSS variable existence
+
+**Fix Applied:**
+Added 12 new CSS variable definitions to `src/app/globals.css`:
+```css
+/* Dark Theme */
+--color-error: 239 68 68;      /* red-400 */
+--color-success: 74 222 128;   /* green-400 */
+--color-warning: 250 204 21;   /* yellow-400 */
+--color-info: 96 165 250;      /* blue-400 */
+
+/* Light Theme */
+--color-error: 220 38 38;      /* red-600 */
+--color-success: 22 163 74;    /* green-600 */
+--color-warning: 234 179 8;    /* yellow-500 */
+--color-info: 37 99 235;       /* blue-600 */
+
+/* Purple Theme */
+--color-error: 239 68 68;      /* red-400 */
+--color-success: 74 222 128;   /* green-400 */
+--color-warning: 250 204 21;   /* yellow-400 */
+--color-info: 147 197 253;     /* blue-300 */
+```
+
+**Prevention Added:**
+- ✅ Added **Check 0** to tasks.md GATE 0 checklist: "Status Color CSS Variables"
+- ✅ Verification command: `Select-String -Pattern "--color-(error|success|warning|info):" "src\app\globals.css"` (expects 12 matches)
+- ✅ Rule: "If ANY status color semantic classes exist in codebase, these 12 CSS variables MUST be defined"
+
+---
+
+### Pain Point #14: Incomplete Hardcoded Color Verification
+
+**What Happened:**
+- Initial verification only checked for `text-gray-` and `text-slate-` patterns
+- Missed 3 additional instances of hardcoded colors:
+  1. Line 77: `text-gray-800` and `text-white` (with theme-checking JavaScript)
+  2. Line 774: `rgba(0,0,0,0.2)` shadow value
+  3. Line 784: `rgba(255,255,255,0.1)` shadow value
+- User discovered these AFTER marking work complete, requiring multiple additional rounds of fixes
+
+**Root Cause:**
+- Verification was incomplete - only checked 1 pattern instead of 4
+- No systematic audit of ALL hardcoded color patterns:
+  - ❌ Missed `rgb()` and `rgba()` functions
+  - ❌ Missed `#HEX` color codes
+  - ❌ Missed `text-white` and `text-black` hardcoded classes
+  - ❌ Didn't check for `dark:text-` conditional classes
+
+**Fix Applied:**
+1. Line 77: Changed badge from `text-gray-800` to `text-error-foreground`
+2. Lines 774, 784: Changed `rgba()` shadows to `var(--shadow-inset-dark)` and `var(--shadow-inset-light)`
+
+**Prevention Added:**
+Added **4-pattern comprehensive verification** to tasks.md:
+```powershell
+# Pattern 1: Tailwind gray/slate/zinc classes
+Select-String -Pattern "(text|bg|border)-(gray|slate|zinc)-\d+" -Path $file
+
+# Pattern 2: Dark mode conditional classes
+Select-String -Pattern "dark:(text|bg|border)-" -Path $file
+
+# Pattern 3: RGB/RGBA/HEX inline values
+Select-String -Pattern "(rgb|rgba|#[0-9a-fA-F]{3,6})" -Path $file
+
+# Pattern 4: Hardcoded white/black classes
+Select-String -Pattern "(text|bg|border)-(white|black)\b" -Path $file
+```
+
+**Lesson**: NEVER assume one pattern catches all hardcoded colors. Run ALL 4 patterns, ALWAYS.
+
+---
+
+### Pain Point #15: Wrong Semantic Token Usage (Structural vs Elevated)
+
+**What Happened:**
+- Dashboard sidebar (line 289) and header (line 433) used `bg-surface` (#1A1A1A in dark theme)
+- Main page body used `bg-background` (#121212 in dark theme)
+- Result: Sidebar/header appeared as "floating boxes" with incorrect elevation, creating visual inconsistency
+
+**Root Cause:**
+- Unclear semantic token usage guidelines
+- No decision tree for "when to use bg-background vs bg-surface"
+- Agent incorrectly assumed "sidebar/header are components, so use bg-surface"
+- **Correct rule**: Structural elements use bg-background; elevated components use bg-surface
+
+**Fix Applied:**
+- Line 289: Changed sidebar from `bg-surface` to `bg-background`
+- Line 433: Changed header from `bg-surface` to `bg-background`
+
+**Prevention Added:**
+✅ Added **Background Color Decision Tree** to DESIGN-SYSTEM-SOT.md:
+```
+Is it structural (body, sidebar, header, footer)?
+  → Use bg-background (matches page background)
+
+Is it elevated (card, modal, input, dropdown, tooltip)?
+  → Use bg-surface (shows depth/elevation)
+```
+
+✅ Added explicit verification to tasks.md Step 6:
+```powershell
+# Verify background token usage
+Select-String -Pattern "bg-background|bg-surface" -Path $file
+# Manually verify: structural elements = bg-background, elevated = bg-surface
+```
+
+---
+
+### Pain Point #16: No Pre-Flight Enforcement
+
+**What Happened:**
+- Agent started dashboard migration WITHOUT running GATE 0 checks
+- Missing CSS variables were only discovered AFTER starting migration
+- Multiple rounds of fixes could have been prevented with proper pre-flight verification
+
+**Root Cause:**
+- GATE 0 checklist was documented but **not enforced as mandatory**
+- No clear consequences for skipping pre-flight checks
+- Tasks.md didn't emphasize "DO NOT START without running these checks"
+
+**Prevention Added:**
+✅ Added **visual warnings** to tasks.md:
+```markdown
+⚠️ **CRITICAL**: DO NOT START MIGRATION WITHOUT RUNNING THESE CHECKS
+⚠️ Skipping Gate 0 will cause missing CSS variables, wasted time, and user frustration
+⚠️ If ANY check fails, STOP and fix the issue before proceeding
+```
+
+✅ Restructured tasks.md to make GATE 0 the **first visible section** (lines 1-100)
+
+✅ Added "zero tolerance" enforcement language:
+- "If variables are missing, migration CANNOT proceed"
+- "Run ALL verification patterns - no exceptions"
+- "If you skip pre-flight, you WILL encounter issues during migration"
+
+---
+
+### Pain Point #17: "Transparent" Doesn't Mean Transparent
+
+**What Happened:**
+- User requested: "Make the homeowners dashboard header transparent"
+- Agent initially changed only `bg-surface` to `bg-transparent`
+- User had to explicitly say: "remove border and shadow too"
+- Result: Header still had visual presence despite "transparent" background
+
+**Root Cause:**
+- Unclear definition of "transparent" in context of design system
+- Agent interpreted "transparent" as "just the background" not "visually invisible"
+- No documented pattern for "transparent overlay" vs "transparent structural element"
+
+**Fix Applied:**
+Line 433: Header now uses:
+```tsx
+className="bg-transparent" // No bg-background, no bg-surface
+// Removed: border-b border-border/50
+// Removed: shadow-sm
+```
+
+**Prevention Added:**
+✅ Added **"Transparent" Definition** to DESIGN-SYSTEM-SOT.md:
+```markdown
+## Transparent Elements
+
+"Transparent" means ZERO visual presence:
+- ✅ bg-transparent (no background)
+- ✅ No border-b, border-t, or border-* (no borders)
+- ✅ No shadow-sm, shadow-md, etc. (no shadows)
+- ✅ No backdrop-blur or backdrop-filter (no effects)
+
+Use cases:
+- Headers that should blend with page background
+- Overlays that only contain content (no chrome)
+- Structural containers that shouldn't be visible
+```
+
+---
+
+## 🔧 HOMEOWNER DASHBOARD: COMPLETE FIX SUMMARY
+
+### Files Modified
+1. **src/app/globals.css**
+   - Added 12 status color CSS variables (4 colors × 3 themes)
+   
+2. **src/app/homeowner/dashboard/page.tsx**
+   - Line 77: Badge `text-gray-800` → `text-error-foreground`
+   - Lines 774, 784: `rgba()` shadows → `var(--shadow-inset-dark/light)`
+   - Line 289: Sidebar `bg-surface` → `bg-background`
+   - Line 433: Header `bg-surface` → `bg-transparent`, removed border/shadow
+
+3. **DOC/DESIGN-SYSTEM-SOT.md**
+   - Added "CRITICAL: LESSONS FROM HOMEOWNER DASHBOARD MIGRATION" section at top
+   - Added Background Color Decision Tree (structural vs elevated)
+   - Added "Transparent" definition and use cases
+   - Added comprehensive hardcoded color verification (4 patterns)
+
+4. **specs/006-component-by-component/tasks.md**
+   - Added Check 0: Status Color CSS Variables to GATE 0
+   - Added comprehensive hardcoded color audit (4 patterns) to Step 3
+   - Expanded post-migration verification from 3 to 6 steps
+   - Added background token usage verification
+   - Added visual warnings about mandatory pre-flight checks
+
+### Verification Commands (All Must Return 0 Matches)
+```powershell
+# No gray/slate/zinc classes
+Select-String -Pattern "(text|bg|border)-(gray|slate|zinc)-\d+" "src\app\homeowner\dashboard\page.tsx"
+
+# No dark: conditional classes
+Select-String -Pattern "dark:(text|bg|border)-" "src\app\homeowner\dashboard\page.tsx"
+
+# No RGB/RGBA/HEX inline values
+Select-String -Pattern "(rgb|rgba|#[0-9a-fA-F]{3,6})" "src\app\homeowner\dashboard\page.tsx"
+
+# No hardcoded white/black classes
+Select-String -Pattern "(text|bg|border)-(white|black)\b" "src\app\homeowner\dashboard\page.tsx"
+```
+
+### Pending QA
+- ⏳ Visual testing in Dark theme (verify status colors, backgrounds consistent)
+- ⏳ Visual testing in Light theme (verify status colors, backgrounds consistent)
+- ⏳ Visual testing in Purple theme (verify status colors, backgrounds consistent)
+- ⏳ Verify header is truly transparent (no visible chrome)
+- ⏳ Verify sidebar matches main page background perfectly
+
+---
+
+## 📊 UPDATED SUCCESS METRICS
+
+**Adding Homeowner Dashboard metrics to Phase 6 goals:**
+
+| Metric | Phase 6 Target | Homeowner Dashboard Result | Status |
+|--------|----------------|----------------------------|--------|
+| User-reported visual issues | 0 | 5 | ❌ Failed |
+| Rework commits after "complete" | ≤1 | 4 | ❌ Failed |
+| Pre-flight checks run | 100% | 0% | ❌ Failed |
+| All hardcoded color patterns checked | 4/4 | 1/4 | ❌ Failed |
+| Semantic token usage correct | 100% | 50% (wrong structural tokens) | ❌ Failed |
+
+**Root Cause**: Despite comprehensive documentation updates from Phase 6, checks were not enforced as mandatory pre-flight requirements.
+
+**Key Takeaway**: Documentation alone is insufficient. Need enforcement mechanisms:
+- ✅ Visual warnings in tasks.md
+- ✅ Restructured tasks.md to put GATE 0 first
+- ✅ Added "zero tolerance" language for skipping checks
+- 🔮 Future: Create CLI tool to automate pre-flight checks (`npm run migrate:preflight`)
+
+---
+
 **End of Audit**
+

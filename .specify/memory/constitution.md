@@ -303,14 +303,15 @@ Primitives (Raw Values)          Semantic Tokens (Meaningful Names)
 - Icon library for auth flows
 
 **In Progress**:
-- Component-by-component migration (spec 007)
+- Component-by-component migration (spec 006)
 - 40% → 95% design system compliance
 - Eliminating 285 hardcoded class violations
 
 **Reference Documents**:
 - `DOC/DESIGN-SYSTEM-SOT.md`: Complete token reference
 - `DOC/DESIGN-SYSTEM-AUDIT-REPORT.md`: Compliance status and action plan
-- `specs/007-component-by-component/spec.md`: Migration specification
+- `specs/006-component-by-component/spec.md`: Migration specification
+- `specs/007-migration-and-build/spec.md`: **Migration and Build Execution Standards (MANDATORY)** - Complete workflow, verification commands, and quality gates for ALL migration and build work
 
 ### VII. Code Documentation
 **Teaching-first documentation philosophy**
@@ -1279,44 +1280,111 @@ Create checklist directly under task with:
 ### Component Migration Workflow (UI Components)
 **MANDATORY for all UI component refactoring or design token migration**
 
-#### 1. Pre-Migration Audit (10 minutes)
+---
+
+## 🎯 MANDATORY: USE SPEC 007 FOR ALL MIGRATION WORK
+
+> **⚠️ CRITICAL CHANGE (November 4, 2025)**: This section is now DEPRECATED. For complete, authoritative migration and build standards, **ALWAYS** reference:
+> 
+> ## **PRIMARY REFERENCE: `specs/007-migration-and-build/spec.md`**
+> ### Migration and Build Execution Standards
+> 
+> **This spec is the SINGLE SOURCE OF TRUTH for all migration and build work.**
+> 
+> ### What's in the Spec:
+> 
+> #### **Foundation (Must Complete First)**
+> - **GATE 0 Pre-Flight Checks** (FR-001 to FR-007) - Verify system health BEFORE any work
+> - **6 Comprehensive Verification Commands** (FR-008 to FR-016) - Detect ALL hardcoded values
+> - **Multi-Theme Testing Requirements** (FR-017 to FR-022) - Dark, Light, Purple themes mandatory
+> 
+> #### **Complete Workflow**
+> - **13-Step Migration Workflow** - From GATE 0 through commit
+> - **10 User Stories** (P0 to P3 prioritized) - Each independently testable
+> - **64 Functional Requirements** (FR-001 to FR-064) - All testable and measurable
+> - **12 Success Criteria** (SC-001 to SC-012) - 80% rework reduction, 90% first-time quality
+> 
+> #### **Quality & Prevention**
+> - **8 Edge Case Scenarios** - System failures, partial migrations, theme bugs, build failures
+> - **Complete Failure Handling** - Exact procedures for each failure type
+> - **Prevention Mechanisms** - Stops all 15 pain points from MIGRATION-PAIN-POINTS.md
+> 
+> ### When to Use the Spec:
+> - ✅ Starting ANY component migration → See US1 (GATE 0)
+> - ✅ Verifying completion → See US2 (6 verification commands)
+> - ✅ Testing themes → See US3 (multi-theme testing)
+> - ✅ Creating logic audit → See US4 (logic preservation)
+> - ✅ Committing work → See US9 (atomic commits)
+> - ✅ Unsure if "done" → Check all success criteria
+> 
+> ### Why This Matters:
+> Previous migrations suffered from 15+ repeated mistakes (documented in MIGRATION-PAIN-POINTS.md):
+> - Wrong background class usage
+> - Incomplete verification (found hardcoded values later)
+> - No multi-theme testing (broke light/purple themes)
+> - No pre-migration audit (broke functionality)
+> - Partial migrations (false "complete" reports)
+> 
+> **Spec 007 systematically prevents ALL of these issues.**
+> 
+> ---
+> 
+> **This constitution section remains for quick reference only. For actual work, ALWAYS use the spec.**
+
+---
+
+#### 1. Pre-Migration Audit (10 minutes) - **SEE SPEC US4 FOR COMPLETE REQUIREMENTS**
 **Goal**: Document current component state BEFORE touching code
+
+> **Updated Process**: See `specs/007-migration-and-build/spec.md` → User Story 4: Logic Preservation Audit (FR-023 to FR-030) for comprehensive audit requirements.
 
 ```bash
 # Read the component file
 cat src/components/YourComponent.tsx
 
-# Identify violations
-grep -E "(bg-slate-|text-slate-|dark:|text-[0-9]xl|font-bold)" src/components/YourComponent.tsx
+# Identify violations - RUN ALL 6 VERIFICATION COMMANDS (see spec)
+# Command 1: Hardcoded gray/slate colors
+grep -E "(bg-slate-|text-slate-|text-zinc-|bg-gray-|bg-zinc-|border-gray-|border-slate-)" src/components/YourComponent.tsx
 
-# Document component logic
-# - State variables (useState, useEffect)
-# - Event handlers (onClick, onChange)
-# - Props and their purposes
-# - Conditional rendering logic
+# Command 2: Manual dark mode classes
+grep "dark:" src/components/YourComponent.tsx
+
+# Command 3: RGB/RGBA/HEX colors (excluding SVG)
+grep -E "(rgba\(|rgb\(|#[0-9a-fA-F]{3,6})" src/components/YourComponent.tsx | grep -v "viewBox\|fill="
+
+# Command 4: Hardcoded white/black
+grep -E "(text-white|bg-white|text-black|bg-black)" src/components/YourComponent.tsx
+
+# Command 5: Hardcoded typography
+grep -E "(text-xs|text-sm|text-base|text-lg|text-xl|text-2xl|text-3xl|font-bold|font-semibold)" src/components/YourComponent.tsx
+
+# Command 6: Manual responsive classes without semantic tokens
+grep -E "(sm:text-|md:text-|lg:text-)" src/components/YourComponent.tsx
 ```
 
-**Create Logic Preservation Checklist**:
+**Create Logic Preservation Checklist** (see spec for complete template):
 - [ ] List all state variables and their purposes
 - [ ] List all event handlers and what they do
 - [ ] Document form validation logic (if applicable)
 - [ ] Document API calls or data fetching (if applicable)
 - [ ] Identify high-risk areas (complex logic, nested conditionals)
 
-#### 2. Migration Planning (5 minutes)
-**Map Old → New Patterns**:
+#### 2. Migration Planning (5 minutes) - **SEE SPEC US5 FOR COMPLETE REQUIREMENTS**
+**Map Old → New Patterns** (see `DESIGN-SYSTEM-SOT.md` for complete token reference):
 
 | Old Pattern | New Pattern | Example |
 |------------|-------------|---------|
 | `bg-slate-700` | `bg-surface` | Card backgrounds |
-| `text-slate-400` | `text-muted` | Secondary text |
+| `text-slate-400` | `text-muted-foreground` | Secondary text |
 | `dark:text-white` | `text-foreground` | CSS variables handle theme |
 | `text-2xl font-bold` | `text-heading-2` | Typography tokens |
 | `px-6 py-4` | `px-card-padding py-card-padding` | Spacing tokens |
 | Inline SVG icons | Icon library | `<MailIcon className="w-5 h-5" />` |
 
-#### 3. Execute Migration (20-40 minutes)
-**100% Clean Replacement Rule**: NO hybrid patterns allowed
+> **Updated Requirements**: See `specs/007-migration-and-build/spec.md` → User Story 5: 100% Clean Replacement Enforcement (FR-031 to FR-037)
+
+#### 3. Execute Migration (20-40 minutes) - **FOLLOW 13-STEP WORKFLOW IN SPEC**
+**100% Clean Replacement Rule**: NO hybrid patterns allowed (see spec FR-031)
 
 ```tsx
 // ❌ WRONG: Mixing old and new
@@ -1336,66 +1404,80 @@ grep -E "(bg-slate-|text-slate-|dark:|text-[0-9]xl|font-bold)" src/components/Yo
 7. Remove ALL `dark:` manual classes (CSS variables handle theme)
 8. Replace inline SVG with icon library components
 
-#### 4. Immediate Testing (10 minutes)
+#### 4. Immediate Testing (10 minutes) - **SEE SPEC US3, US6, US7 FOR COMPLETE REQUIREMENTS**
 **Test in Development Server**:
 
 ```bash
 npm run dev
 ```
 
-**Manual QA Checklist**:
+**Manual QA Checklist** (see spec for comprehensive requirements):
+- [ ] **MANDATORY**: Test in ALL 3 themes (Dark, Light, Purple) - See spec US3 (FR-017 to FR-022)
+- [ ] **MANDATORY**: Test at 5 breakpoints (320px, 375px, 768px, 1024px, 1440px) - See spec US6 (FR-038 to FR-042)
 - [ ] Component renders without errors
 - [ ] All interactive states work (hover, focus, active, disabled)
-- [ ] Theme switching works (Dark theme functional, light theme future)
 - [ ] Responsive design works (mobile 320px, tablet 768px, desktop 1024px+)
 - [ ] All functionality preserved (buttons click, forms submit, modals open)
 - [ ] No console errors or warnings
 - [ ] Browser DevTools shows no CSS conflicts
 
-**Logic Preservation Verification**:
+**Logic Preservation Verification** (see spec US4):
 - [ ] All state variables still work correctly
 - [ ] All event handlers fire correctly
 - [ ] Form validation still works (if applicable)
 - [ ] API calls still work (if applicable)
 - [ ] Conditional rendering still works correctly
 
-#### 5. Accessibility Check (5 minutes)
-**WCAG 2.1 AA Compliance**:
+> **Critical Update**: Multi-theme testing is now MANDATORY. See `specs/007-migration-and-build/spec.md` → User Story 3 for complete theme testing requirements.
 
-- [ ] Color contrast ≥ 4.5:1 (text vs background)
+#### 5. Accessibility Check (5 minutes) - **SEE SPEC US7 FOR COMPLETE REQUIREMENTS**
+**WCAG 2.1 AA Compliance** (see spec FR-043 to FR-048):
+
+- [ ] Color contrast ≥ 4.5:1 (body text vs background) - MANDATORY
+- [ ] Color contrast ≥ 3:1 (large text 18px+ vs background) - MANDATORY
 - [ ] Focus ring visible on all interactive elements
 - [ ] Keyboard navigation works (Tab, Enter, Escape)
 - [ ] ARIA labels present where needed
 - [ ] Touch targets ≥ 44×44px on mobile
+- [ ] Forms have visible labels or aria-labels
+- [ ] Modals trap focus and close on Escape
+- [ ] Decorative icons have aria-hidden="true"
+- [ ] Functional icons have aria-label
 
 **Tools**:
 - Chrome DevTools Lighthouse (Accessibility score)
 - Manual keyboard navigation test
 - Color contrast checker (built into DevTools)
 
-#### 6. Build Validation (5 minutes)
-**Pre-Commit Checks**:
+> **Updated Requirements**: See `specs/007-migration-and-build/spec.md` → User Story 7: Accessibility Validation for complete WCAG 2.1 AA requirements.
+
+#### 6. Build Validation (5 minutes) - **SEE SPEC US8 FOR COMPLETE REQUIREMENTS**
+**Pre-Commit Checks** (see spec FR-049 to FR-053):
 
 ```bash
-# TypeScript validation
-npx tsc --noEmit  # Must pass with 0 errors
+# MANDATORY: TypeScript validation - MUST pass with 0 errors
+npx tsc --noEmit --project .
 
-# Production build test
-npm run build     # Must pass (warnings acceptable if documented)
+# MANDATORY: Production build test - MUST succeed
+npm run build
 
-# Prisma validation (if schema changes)
+# Optional: Prisma validation (if schema changes)
 npx prisma validate
 ```
 
-#### 7. Commit When 100% Validated
-**Atomic Commit Rule**: ONE component per commit
+> **Updated Requirements**: See `specs/007-migration-and-build/spec.md` → User Story 8: Build Validation and Error Prevention. TypeScript and build checks are MANDATORY before commit.
+
+#### 7. Commit When 100% Validated - **SEE SPEC US9 FOR COMPLETE REQUIREMENTS**
+**Atomic Commit Rule**: ONE component per commit (see spec FR-054 to FR-058)
+
+> **Updated Format**: See `specs/007-migration-and-build/spec.md` → User Story 9: Git Commit Standards for complete commit message format.
 
 ```bash
 git add src/components/YourComponent.tsx
-git commit -m "refactor(YourComponent): migrate to design token system
+git commit -m "Migrate: YourComponent - Replace hardcoded classes with design tokens
 
 - Replaced 15 hardcoded bg-slate-* with bg-surface/bg-primary
-- Replaced 8 text-slate-* with text-foreground/text-muted
+- Replaced 8 text-slate-* with text-foreground/text-muted-foreground
 - Replaced text-2xl font-bold with text-heading-2
 - Replaced px-6 py-4 with px-card-padding py-card-padding
 - Removed all dark: manual classes (CSS variables now handle theme)
@@ -1408,41 +1490,51 @@ Logic preserved:
 - API calls unchanged
 
 Validation:
-- Manual QA checklist passed
-- TypeScript validation passed
-- Build passed
-- Accessibility check passed
+- Verification: 0/0/0/0/0/0 (all 6 commands passed)
+- Multi-theme testing: Dark ✓, Light ✓, Purple ✓
+- Responsive testing: 320px ✓, 375px ✓, 768px ✓, 1024px ✓, 1440px ✓
+- Accessibility: WCAG 2.1 AA compliant
+- TypeScript: 0 errors
+- Build: Successful
 - Zero console errors
 
-Closes #007 (Component-by-Component Migration - YourComponent)"
+Refs: specs/007-migration-and-build/spec.md"
 ```
 
-#### 8. Documentation Update
-**Update Migration Tracker**:
+#### 8. Documentation Update - **SEE SPEC US10 FOR COMPLETE REQUIREMENTS**
+**Update Migration Tracker** (see spec FR-059 to FR-064):
 
 ```markdown
-| Component | Status | Violations Before | Violations After | Date |
-|-----------|--------|-------------------|------------------|------|
-| YourComponent | ✅ Complete | 25 | 0 | 2025-11-01 |
+| Component | Status | Violations Before | Violations After | Date | Commit | Themes | Responsive | A11y |
+|-----------|--------|-------------------|------------------|------|--------|--------|------------|------|
+| YourComponent | ✅ Complete | 25 | 0 | 2025-11-04 | abc1234 | ✓✓✓ | ✓✓✓✓✓ | ✓ |
 ```
 
 **Update Spec Progress** (if applicable):
-- Mark user story complete in `specs/007-component-by-component/spec.md`
+- Mark user story complete in `specs/006-component-by-component/spec.md`
 - Update compliance metric (40% → 47% → ...)
+- Update `tasks.md` task status
+- Add single changelog entry summarizing day's work (not per component)
+
+> **Important**: Do NOT create new documentation files unless specifically requested (see spec FR-062). Update tracker + tasks.md only.
 
 #### Red Flags 🚨
-**STOP immediately if you see**:
+**STOP immediately if you see** (see spec Edge Cases section for complete failure handling):
 
-1. **Functionality Broken**: Component doesn't work after migration
-2. **TypeScript Errors**: Type errors introduced
-3. **Build Fails**: Production build broken
-4. **Hybrid Patterns**: Mixed old + new class names
-5. **Logic Changed**: Behavior different from original
-6. **Console Errors**: New warnings or errors
-7. **Accessibility Regression**: Keyboard nav broken, contrast too low
-8. **Theme Switching Broken**: Component doesn't adapt to theme changes
+1. **GATE 0 Failed**: System health checks not passing (STOP all work, fix system)
+2. **Functionality Broken**: Component doesn't work after migration
+3. **TypeScript Errors**: Type errors introduced
+4. **Build Fails**: Production build broken
+5. **Hybrid Patterns**: Mixed old + new class names (verification failed)
+6. **Logic Changed**: Behavior different from original
+7. **Console Errors**: New warnings or errors
+8. **Accessibility Regression**: Keyboard nav broken, contrast too low
+9. **Theme Switching Broken**: Component doesn't adapt to theme changes
+10. **Partial Verification**: Some verification commands passed but not all 6
 
 **If any red flag appears**: Revert changes, fix issue, re-test before committing.
+
+> **Complete Failure Handling**: See `specs/007-migration-and-build/spec.md` → Edge Cases section for detailed procedures on handling each failure scenario.
 
 ---
 

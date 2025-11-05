@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import { LeadStatus as LeadStatusEnum } from '@prisma/client';
 import { useTheme, type Theme } from '@/components/ThemeProvider';
+import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import HomeownerBottomNavBar from '@/components/HomeownerBottomNavBar';
 import HomeownerMobileSidebarMenu from '@/components/HomeownerMobileSidebarMenu';
 import NewQuoteRequestModal from '@/components/NewQuoteRequestModal';
@@ -22,6 +23,7 @@ import FirstQuoteSuccessModal from '@/components/homeowner/FirstQuoteSuccessModa
 import LeadEditModal from '@/components/homeowner/LeadEditModal';
 import LeadPreviewModal from '@/components/homeowner/LeadPreviewModal';
 import { LiveCountdownBar } from '@/components/LiveCountdownBar'; // Phase 4.5: Enhanced live countdown
+import Button from '@/components/ui/button';
 
 // --- Icon Components ---
 const SunIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>;
@@ -46,35 +48,38 @@ const EyeIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height=
 const XCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>;
 const TrophyIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>;
 
-// ThemeSwitcher Component
-const ThemeSwitcher: React.FC<{ theme: Theme; setTheme: (theme: Theme) => void }> = ({ theme, setTheme }) => {
-  const options: { name: Theme; label: string; icon: React.ReactNode }[] = [
-    { name: 'light', label: 'Light', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg> },
-    { name: 'dark', label: 'Dark', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg> },
-    { name: 'system', label: 'System', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg> },
-  ];
-  return (
-    <div className="flex items-center p-1 rounded-full bg-muted">
-      {options.map((opt) => (
-        <button key={opt.name} onClick={() => setTheme(opt.name)} className={`p-1.5 rounded-full transition-colors duration-fast focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background focus:ring-primary ${ theme === opt.name ? 'bg-background shadow-button' : 'text-muted-foreground hover:text-foreground'}`} aria-label={`Switch to ${opt.name} theme`} title={`Switch to ${opt.name} theme`}>{opt.icon}</button>
-      ))}
-    </div>
-  );
-};
 
-// NavItem Component
-const NavItem: React.FC<{ icon: React.ReactNode; title: string; isActive: boolean; onClick: () => void; badgeCount?: number; }> = ({ icon, title, isActive, onClick, badgeCount }) => (
-    <button onClick={onClick} className={`w-full flex items-center justify-between space-x-3 px-4 py-2.5 rounded-card transition-colors text-body-small font-medium ${ isActive ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-primary/10 hover:text-primary'}`}>
-        <div className="flex items-center space-x-3">
-            {icon}
-            <span>{title}</span>
-        </div>
-        {badgeCount && badgeCount > 0 && (
-            <span className="bg-error text-error-foreground text-caption font-bold w-5 h-5 rounded-full flex items-center justify-center">
-                {badgeCount}
-            </span>
-        )}
-    </button>
+
+// NavItem Component - Neumorphic collapsible design
+const NavItem: React.FC<{ 
+  icon: React.ReactNode; 
+  title: string; 
+  isActive: boolean; 
+  onClick: () => void; 
+  badgeCount?: number; 
+  isCollapsed?: boolean;
+}> = ({ icon, title, isActive, onClick, badgeCount, isCollapsed = false }) => (
+  <button 
+    onClick={onClick} 
+    className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-3 py-2.5 rounded-lg transition-all duration-300 text-body-small font-medium group relative ${
+    isActive 
+      ? 'bg-primary/10 text-primary shadow-neu-inset' 
+      : 'text-muted-foreground hover:bg-surface hover:text-primary hover:shadow-neu-outset-sm'
+    }`}
+    title={isCollapsed ? title : undefined}
+  >
+    <div className={`flex items-center ${isCollapsed ? '' : 'space-x-3'}`}>
+      <span className={isCollapsed ? '' : 'flex-shrink-0'}>{icon}</span>
+      {!isCollapsed && <span className="truncate">{title}</span>}
+    </div>
+    {!isCollapsed && badgeCount && badgeCount > 0 && (
+      <span
+        className="bg-error text-error-foreground text-caption font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-neu-outset-sm"
+      >
+        {badgeCount}
+      </span>
+    )}
+  </button>
 );
 
 type QuoteTypeOption = 'CALL_VISIT' | 'WRITTEN_QUOTE' | 'BIDDING';
@@ -127,7 +132,7 @@ const STATUS_LABELS: Record<LeadStatus, { label: string; description: string; ac
   [LeadStatusEnum.DRAFT]: {
     label: 'Draft',
     description: 'Awaiting submission',
-    accent: 'bg-surface border border-border text-foreground',
+      accent: 'bg-background border border-border text-foreground',
   },
   [LeadStatusEnum.PENDING_PHONE]: {
     label: 'Needs Verification',
@@ -137,7 +142,7 @@ const STATUS_LABELS: Record<LeadStatus, { label: string; description: string; ac
   [LeadStatusEnum.PENDING_APPROVAL]: {
     label: 'Awaiting Review',
     description: 'Admin is reviewing your lead',
-    accent: 'bg-info/10 text-info border border-info/30',
+  accent: '',
   },
   [LeadStatusEnum.APPROVED]: {
     label: 'Approved',
@@ -167,12 +172,12 @@ const STATUS_LABELS: Record<LeadStatus, { label: string; description: string; ac
   [LeadStatusEnum.EXPIRED]: {
     label: 'Expired',
     description: 'No activity for 30 days',
-    accent: 'bg-surface border border-border text-muted-foreground',
+    accent: 'bg-background border border-border text-muted-foreground',
   },
   [LeadStatusEnum.CANCELLED]: {
     label: 'Cancelled',
     description: 'Removed by homeowner',
-    accent: 'bg-surface border border-border text-muted-foreground',
+    accent: 'bg-background border border-border text-muted-foreground',
   },
   [LeadStatusEnum.FLAGGED]: {
     label: 'Flagged',
@@ -252,45 +257,167 @@ const getQuoteTypeIcon = (quoteType: QuoteTypeOption) => {
   }
 };
 
-// Sidebar Component
+// Collapse Icon Component
+const CollapseIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+    <path d="m15 18-6-6 6-6"/>
+  </svg>
+);
+
+const ExpandIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+    <path d="m9 18 6-6-6-6"/>
+  </svg>
+);
+
+// Sidebar Component - Neumorphic Collapsible Design
 interface HomeownerSidebarProps {
   activePage: string;
   setActivePage: (page: string) => void;
   onLogoutClick: () => void;
   onHomeClick: () => void;
   onMessagesClick: () => void;
+  isCollapsed: boolean;
+  setIsCollapsed: (collapsed: boolean) => void;
 }
 
-const HomeownerSidebar: React.FC<HomeownerSidebarProps> = ({ activePage, setActivePage, onLogoutClick, onHomeClick, onMessagesClick }) => {
+const HomeownerSidebar: React.FC<HomeownerSidebarProps> = ({ activePage, setActivePage, onLogoutClick, onHomeClick, onMessagesClick, isCollapsed, setIsCollapsed }) => {
   const [quotesOpen, setQuotesOpen] = useState(true);
+  
   return (
-    <aside className="dashboard-sidebar w-64 flex-shrink-0 border-r border-border dark:border-border-dark bg-surface dark:bg-surface-dark flex flex-col p-4 h-full">
-      <div className="flex items-center justify-between h-16 px-2 border-b border-border dark:border-border-dark mb-4">
-          <button onClick={onHomeClick} className="flex items-center space-x-3">
-              <SunIcon />
-              <span className="text-2xl font-bold text-primary">SolarMatch</span>
+    <aside
+      className={`dashboard-sidebar ${isCollapsed ? 'w-20' : 'w-64'} flex-shrink-0 border-r border-border bg-background flex flex-col h-full transition-all duration-300 ease-in-out shadow-neu-outset`}
+      style={{ overflow: 'hidden' }}
+    >
+      {/* Header with Logo/Icon and Collapse Button - Centered collapse icon */}
+      <div className={`flex items-center justify-between h-16 px-3 border-b border-border mb-4 relative`}>
+        <button
+          onClick={onHomeClick}
+          className={`flex items-center ${isCollapsed ? 'flex-col' : 'space-x-3'} hover:opacity-80 transition-opacity`}
+          style={{ width: isCollapsed ? '100%' : undefined, justifyContent: 'center' }}
+        >
+          <SunIcon />
+          {!isCollapsed && <span className="text-2xl font-bold text-primary">SolarMatch</span>}
+        </button>
+        {/* Collapse Toggle Button - visually refined for collapsed mode */}
+        {isCollapsed ? (
+          <button
+            onClick={() => setIsCollapsed(false)}
+            className="fixed top-4 left-[84px] h-8 w-8 flex items-center justify-center rounded-full bg-surface text-primary shadow-neu-inset border border-border transition-all duration-200"
+            title="Expand sidebar"
+            style={{ zIndex: 100, boxShadow: '0 2px 8px var(--shadow-dark)' }}
+          >
+            {/* ChevronRight icon, larger and high contrast */}
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
           </button>
+        ) : (
+          <button
+            onClick={() => setIsCollapsed(true)}
+            className="absolute top-1/2 -translate-y-1/2 right-2 p-2 rounded-lg bg-surface text-muted-foreground hover:text-primary transition-all duration-300 shadow-neu-inset hover:shadow-neu-outset"
+            title="Collapse sidebar"
+          >
+            <CollapseIcon />
+          </button>
+        )}
       </div>
-      <nav className="flex-grow space-y-1">
-        <NavItem icon={<LayoutDashboardIcon />} title="Dashboard Overview" isActive={activePage === 'Dashboard Overview'} onClick={() => setActivePage('Dashboard Overview')} />
+
+      {/* Navigation Items */}
+      <nav className={`flex-grow space-y-1 ${isCollapsed ? 'px-2' : 'px-4'} overflow-y-auto`}>
+        <NavItem
+          icon={<LayoutDashboardIcon />}
+          title="Dashboard Overview"
+          isActive={activePage === 'Dashboard Overview'}
+          onClick={() => setActivePage('Dashboard Overview')}
+          isCollapsed={isCollapsed}
+        />
+        {/* Quote Requests Section */}
         <div>
-          <button onClick={() => setQuotesOpen(!quotesOpen)} className="w-full flex items-center justify-between px-4 py-2.5 rounded-card text-muted-foreground hover:bg-primary/10 hover:text-primary text-body-small font-medium transition-colors">
-            <div className="flex items-center space-x-3"><FileTextIcon /><span>My Quote Requests</span></div>
-            <ChevronDownIcon className={`transition-transform duration-fast ${quotesOpen ? 'rotate-180' : ''}`} />
-          </button>
-          {quotesOpen && (
-            <div className="pl-7 mt-1 space-y-1">
-              <NavItem icon={<PhoneCallIcon />} title="Call/Visit Quotes" isActive={activePage === 'Call/Visit Quotes'} onClick={() => setActivePage('Call/Visit Quotes')} />
-              <NavItem icon={<FileSignatureIcon />} title="Written Quotes" isActive={activePage === 'Written Quotes'} onClick={() => setActivePage('Written Quotes')} />
-            </div>
+          {!isCollapsed ? (
+            <>
+              <button
+                onClick={() => setQuotesOpen(!quotesOpen)}
+                className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-surface hover:text-primary text-body-small font-medium transition-all duration-300 shadow-neu-inset"
+                style={{ background: 'none', color: 'inherit' }}
+              >
+                <div className="flex items-center space-x-3">
+                  <FileTextIcon />
+                  <span>My Quote Requests</span>
+                </div>
+                <ChevronDownIcon className={`transition-transform duration-300 ${quotesOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {quotesOpen && (
+                <div className="pl-4 mt-1 space-y-1">
+                  <NavItem
+                    icon={<PhoneCallIcon />}
+                    title="Call/Visit Quotes"
+                    isActive={activePage === 'Call/Visit Quotes'}
+                    onClick={() => setActivePage('Call/Visit Quotes')}
+                    isCollapsed={false}
+                  />
+                  <NavItem
+                    icon={<FileSignatureIcon />}
+                    title="Written Quotes"
+                    isActive={activePage === 'Written Quotes'}
+                    onClick={() => setActivePage('Written Quotes')}
+                    isCollapsed={false}
+                  />
+                </div>
+              )}
+            </>
+          ) : (
+            // When collapsed, show just the icon for quotes
+            <NavItem
+              icon={<FileTextIcon />}
+              title="My Quote Requests"
+              isActive={activePage === 'Call/Visit Quotes' || activePage === 'Written Quotes'}
+              onClick={() => setActivePage('Call/Visit Quotes')}
+              isCollapsed={isCollapsed}
+            />
           )}
         </div>
-        <NavItem icon={<GavelIcon />} title="Bidding Room" isActive={activePage === 'Bidding Room'} onClick={() => setActivePage('Bidding Room')} />
-        <NavItem icon={<SparklesIcon />} title="AI Insights" isActive={activePage === 'AI Insights'} onClick={() => setActivePage('AI Insights')} />
-        <NavItem icon={<MessageSquareIcon />} title="Messages" isActive={false} onClick={onMessagesClick} badgeCount={3} />
-        <NavItem icon={<UserIcon />} title="My Profile" isActive={activePage === 'My Profile'} onClick={() => setActivePage('My Profile')} />
+        <NavItem
+          icon={<GavelIcon />}
+          title="Bidding Room"
+          isActive={activePage === 'Bidding Room'}
+          onClick={() => setActivePage('Bidding Room')}
+          isCollapsed={isCollapsed}
+        />
+        <NavItem
+          icon={<SparklesIcon />}
+          title="AI Insights"
+          isActive={activePage === 'AI Insights'}
+          onClick={() => setActivePage('AI Insights')}
+          isCollapsed={isCollapsed}
+        />
+        <NavItem
+          icon={<MessageSquareIcon />}
+          title="Messages"
+          isActive={false}
+          onClick={onMessagesClick}
+          badgeCount={3}
+          isCollapsed={isCollapsed}
+        />
+        <NavItem
+          icon={<UserIcon />}
+          title="My Profile"
+          isActive={activePage === 'My Profile'}
+          onClick={() => setActivePage('My Profile')}
+          isCollapsed={isCollapsed}
+        />
       </nav>
-      <div className="mt-auto"><button onClick={onLogoutClick} className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-card transition-colors text-body-small font-medium text-muted-foreground hover:bg-primary/10 hover:text-primary"><LogOutIcon /><span>Logout</span></button></div>
+
+      {/* Logout Button */}
+      <div className={`mt-auto ${isCollapsed ? 'px-2' : 'px-4'} pb-4`}>
+        <button
+          onClick={onLogoutClick}
+          className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'} px-3 py-2.5 rounded-lg transition-all duration-300 text-body-small font-medium text-muted-foreground hover:bg-surface hover:text-error shadow-neu-inset hover:shadow-neu-outset`}
+          title={isCollapsed ? "Logout" : undefined}
+          style={{ background: 'none', color: 'inherit' }}
+        >
+          <LogOutIcon />
+          {!isCollapsed && <span>Logout</span>}
+        </button>
+      </div>
     </aside>
   );
 };
@@ -298,34 +425,56 @@ const HomeownerSidebar: React.FC<HomeownerSidebarProps> = ({ activePage, setActi
 // DashboardHeader Component
 interface DashboardHeaderProps {
   pageTitle: string;
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
 }
 
-interface DashboardHeaderProps {
-  pageTitle: string;
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
-  onNewQuoteClick: () => void;
-}
-
-const DashboardHeader: React.FC<DashboardHeaderProps> = ({ pageTitle, theme, setTheme, onNewQuoteClick }) => {
+const DashboardHeader: React.FC<DashboardHeaderProps> = ({ pageTitle }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   return (
-    <header className="glass-header h-20 flex-shrink-0 flex items-center justify-between px-4 sm:px-8">
+  <header className="h-20 flex-shrink-0 flex items-center justify-between px-4 sm:px-8 bg-transparent backdrop-blur-sm">
       <div className="flex items-center space-x-4">
           <h1 className="text-heading-4 font-bold text-foreground">{pageTitle}</h1>
       </div>
       <div className="flex items-center space-x-1 sm:space-x-2">
         <div className={`flex items-center justify-end transition-colors duration-normal ${isSearchOpen ? 'bg-muted rounded-card' : ''}`}>
-          <input type="text" placeholder="Search..." className={`bg-transparent focus:outline-none transition-colors duration-normal ease-in-out text-body-small ${ isSearchOpen ? 'w-32 sm:w-40 py-2 pl-3 pr-2' : 'w-0 p-0' }`}/>
-          <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="p-2 rounded-full hover:bg-muted text-muted-foreground" aria-label="Toggle search"><SearchIcon /></button>
+          <input 
+            type="text" 
+            placeholder="Search..." 
+            className={`bg-transparent focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-normal ease-in-out text-body-small text-foreground placeholder:text-muted-foreground ${ isSearchOpen ? 'w-32 sm:w-40 py-2 pl-3 pr-2' : 'w-0 p-0' }`}
+          />
+          <button 
+            onClick={() => setIsSearchOpen(!isSearchOpen)} 
+            className="p-2 rounded-full hover:bg-muted text-muted-foreground hover:text-primary transition-colors duration-fast shadow-neu-inset hover:shadow-neu-outset-sm" 
+            aria-label="Toggle search"
+          >
+            <SearchIcon />
+          </button>
         </div>
-        <button onClick={onNewQuoteClick} className="hidden sm:block bg-accent dark:bg-accent text-white px-4 py-2 rounded-button text-button font-semibold hover:bg-accent-hover dark:hover:bg-accent-hover transition-colors shadow-button">Request New Quote</button>
-        <ThemeSwitcher theme={theme} setTheme={setTheme} />
-        <button className="p-2 rounded-full hover:bg-muted text-muted-foreground hidden sm:block"><HelpCircleIcon /></button>
-        <button className="relative p-2 rounded-full hover:bg-muted text-muted-foreground"><BellIcon /><span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-error ring-2 ring-background"></span></button>
-        <button><Image src="https://picsum.photos/seed/user/40/40" alt="User Avatar" width={40} height={40} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full" /></button>
+        <ThemeSwitcher />
+        <button 
+          className="p-2 rounded-full hover:bg-muted text-muted-foreground hover:text-primary transition-colors duration-fast shadow-neu-inset hover:shadow-neu-outset-sm hidden sm:block"
+          aria-label="Help"
+        >
+          <HelpCircleIcon />
+        </button>
+        <button 
+          className="relative p-2 rounded-full hover:bg-muted text-muted-foreground hover:text-primary transition-colors duration-fast shadow-neu-inset hover:shadow-neu-outset-sm"
+          aria-label="Notifications"
+        >
+          <BellIcon />
+          <span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-error ring-2 ring-background animate-pulse"></span>
+        </button>
+        <button 
+          className="rounded-full ring-2 ring-border hover:ring-primary transition-all duration-fast shadow-neu-outset"
+          aria-label="User profile"
+        >
+          <Image 
+            src="https://picsum.photos/seed/user/40/40" 
+            alt="User Avatar" 
+            width={40} 
+            height={40} 
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full" 
+          />
+        </button>
       </div>
     </header>
   );
@@ -371,22 +520,30 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
     actionText: string; 
     onClick?: () => void;
   }> = ({ icon, title, value, change, actionText, onClick }) => (
-    <div className="theme-card p-3 flex flex-col">
-      <div className="flex justify-between items-start">
-        <p className="text-body-small font-medium text-muted-foreground">{title}</p>
-        <div className="p-2 bg-primary/10 rounded-card">{icon}</div>
+  <div
+    className="bg-background rounded-card p-4 flex flex-col shadow-neu-outset transition-all duration-200 hover:shadow-neu-inset focus-within:shadow-neu-inset"
+    tabIndex={-1}
+  >
+    <div className="flex justify-between items-start mb-3">
+      <p className="text-body-small font-medium text-muted-foreground">{title}</p>
+      <div className="p-2.5 bg-background rounded-lg shadow-neu-inset transition-all duration-200">
+        {icon}
       </div>
-      <p className="text-xl sm:text-2xl font-bold text-foreground mt-2">{value}</p>
-      <p className="text-caption text-muted-foreground mt-1">{change}</p>
-      <div className="flex-grow" />
-      <button 
-        onClick={onClick}
-        className="text-body-small font-semibold text-primary hover:text-primary/80 transition-colors mt-4 text-left"
-      >
-        {actionText} &rarr;
-      </button>
     </div>
-  );
+    <p className="text-2xl sm:text-3xl font-bold text-foreground mb-1">{value}</p>
+    <p className="text-caption text-muted-foreground mb-4">{change}</p>
+    <div className="flex-grow" />
+    <div className="flex w-full justify-start">
+      <Button
+        onClick={onClick}
+        variant="ghost"
+        className="w-auto px-0 py-0 text-xs text-primary text-left"
+        style={{boxShadow: 'none', background: 'none'}}>
+        {actionText} →
+      </Button>
+    </div>
+  </div>
+);
 
   if (isLoading) {
     return (
@@ -395,7 +552,9 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
           <div className="h-6 bg-muted rounded w-48 mb-6"></div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="theme-card p-3">
+              <div key={i} className="bg-background rounded-card p-4" style={{
+                boxShadow: '6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light)'
+              }}>
                 <div className="h-16 bg-muted rounded mb-2"></div>
                 <div className="h-8 bg-muted rounded mb-2"></div>
                 <div className="h-4 bg-muted rounded"></div>
@@ -410,20 +569,23 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
   if (error) {
     return (
       <div className="animate-fade-in">
-        <div className="theme-card p-6 text-center">
-          <div className="text-error mb-2">
-            <svg className="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <div className="bg-background rounded-card p-8 text-center" style={{
+          boxShadow: '8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light)'
+        }}>
+          <div className="text-error mb-3">
+            <svg className="h-14 w-14 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 15.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
-          <h3 className="text-heading-4 font-semibold text-foreground mb-2">Failed to load dashboard</h3>
-          <p className="text-muted-foreground mb-4">{error}</p>
-          <button 
+          <h3 className="text-heading-4 font-bold text-foreground mb-2">Failed to load dashboard</h3>
+          <p className="text-muted-foreground mb-6">{error}</p>
+          <Button 
             onClick={() => window.location.reload()}
-            className="bg-accent dark:bg-accent text-white px-4 py-2 rounded-button hover:bg-accent-hover dark:hover:bg-accent-hover transition-colors"
+            variant="secondary"
+            className="px-6 py-2.5"
           >
             Reload page
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -432,7 +594,9 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
   if (!summary) {
     return (
       <div className="animate-fade-in">
-        <div className="theme-card p-6 text-center">
+  <div className="bg-background rounded-card p-8 text-center" style={{
+          boxShadow: '8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light)'
+        }}>
           <p className="text-muted-foreground">No dashboard data available</p>
         </div>
       </div>
@@ -479,26 +643,30 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
       />
 
       {/* Phase 4.11: Bidding Quota Indicator */}
-      <div className="theme-card border-2 border-warning/30 p-4 mb-6">
+  <div className="bg-background rounded-card border-2 border-warning/30 p-5 mb-6" style={{
+        boxShadow: '6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light)'
+      }}>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-warning/20 rounded-card text-warning">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-warning/20 rounded-lg text-warning" style={{
+              boxShadow: 'inset 3px 3px 6px var(--shadow-inset-dark), inset -3px -3px 6px var(--shadow-inset-light)'
+            }}>
               <TrophyIcon />
             </div>
             <div>
-              <h3 className="text-body-small font-semibold text-foreground">
+              <h3 className="text-lg font-bold text-foreground">
                 Competitive Bidding Quota
               </h3>
-              <p className="text-caption text-muted-foreground">
+              <p className="text-caption text-muted-foreground mt-0.5">
                 One-time bidding request per homeowner
               </p>
             </div>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold text-warning">
+            <div className="text-3xl font-bold text-warning">
               {summary.biddingQuotaRemaining ?? 0} / 1
             </div>
-            <div className="text-caption text-muted-foreground">
+            <div className="text-caption text-muted-foreground mt-1">
               {(summary.biddingQuotaRemaining ?? 0) === 1 ? 'Available' : 'Used'}
             </div>
           </div>
@@ -540,17 +708,22 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
         />
       </div>
 
-      <div className="theme-card p-4 sm:p-6">
-        <h3 className="text-body-large sm:text-heading-4 font-bold text-foreground mb-4">Recent Quote Requests</h3>
+  <div className="bg-background rounded-card p-5 sm:p-6" style={{
+        boxShadow: '8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light)'
+      }}>
+        <h3 className="text-body-large sm:text-heading-4 font-bold text-foreground mb-5" style={{
+          textShadow: '2px 2px 4px var(--shadow-dark), -1px -1px 2px var(--shadow-light)'
+        }}>Recent Quote Requests</h3>
         {summary.recentLeads.length === 0 ? (
-          <div className="text-center py-10">
-            <p className="text-muted-foreground">No quote requests yet.</p>
-            <button 
+          <div className="text-center py-12">
+            <p className="text-muted-foreground mb-4">No quote requests yet.</p>
+            <Button 
               onClick={onRequestMoreQuotes}
-              className="mt-2 text-primary hover:text-primary/80 font-semibold"
+              variant="secondary"
+              className="px-6 py-2.5"
             >
-              Create your first request &rarr;
-            </button>
+              Create your first request →
+            </Button>
           </div>
         ) : (
           <div className="space-y-3">
@@ -559,85 +732,76 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
               const canEdit = lead.status === LeadStatusEnum.PENDING_APPROVAL;
               const canCancel = lead.status !== LeadStatusEnum.PURCHASED;
               const canPreview = [LeadStatusEnum.APPROVED as string, LeadStatusEnum.PURCHASED as string, LeadStatusEnum.QUOTED as string, LeadStatusEnum.ACCEPTED as string].includes(lead.status);
-              
+
               return (
-                <div key={lead.id} className="rounded-card border border-border overflow-hidden hover:shadow-card transition-all">
-                  {/* Phase 4.5: Live countdown bar at top of card - ONLY for APPROVED leads */}
-                  {lead.expiresAt && lead.status === LeadStatusEnum.APPROVED && (
-                    <LiveCountdownBar
-                      expiresAt={lead.expiresAt}
-                      leadId={lead.id}
-                      leadStatus={lead.status}
-                      quoteType={lead.quoteType}
-                      position="top"
-                    />
-                  )}
-                  
-                  {/* Lead card content */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 hover:bg-muted/30 transition-colors gap-2">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        {/* Phase 4.11: Quote type icon */}
-                        <span className="flex-shrink-0 text-primary">
+                    <div
+                      key={lead.id}
+                      className="flex items-center gap-3 p-3 rounded-full bg-background shadow-neu-outset transition-all duration-normal min-h-[80px]"
+                      style={{ position: 'relative' }}
+                    >
+                      {/* Left circular icon with strong neumorphic shadow */}
+                      <div className="flex-shrink-0 flex items-center justify-center w-16 h-16 rounded-full bg-background shadow-neu-outset border-4 border-background relative" style={{ zIndex: 2 }}>
+                        <span className="flex items-center justify-center w-12 h-12 rounded-full bg-surface shadow-neu-inset text-primary text-2xl">
                           {getQuoteTypeIcon(lead.quoteType)}
                         </span>
-                        <span className="text-body-small font-medium text-foreground">
-                          {QUOTE_TYPE_LABELS[lead.quoteType]}
-                        </span>
-                        
-                        {/* Phase 4.13: Verification badge */}
-                        {lead.phoneVerified && (
-                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-success/10 text-success" title="Verified Contact">
-                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
-                            </svg>
-                            <span className="text-caption font-medium">Verified</span>
-                          </span>
-                        )}
-                        
-                        <span className={`text-caption px-2 py-0.5 rounded-full ${statusInfo.accent}`}>
-                          {statusInfo.label}
-                        </span>
                       </div>
-                      <p className="text-caption text-muted-foreground truncate">
-                        Created {formatDateTime(lead.createdAt)}
-                      </p>
+                      {/* Main card content area */}
+                      <div className="flex-1 flex flex-col justify-center min-w-0 pr-3">
+                        <div className="rounded-full bg-background shadow-neu-inset border border-border px-6 py-3 flex flex-col gap-2">
+                          {/* Countdown timer center-center in the embossed area, neumorphic */}
+                          {lead.expiresAt && lead.status === LeadStatusEnum.APPROVED && (
+                            <div className="flex items-center justify-center w-full h-full min-h-[32px] min-w-[120px]">
+                              <div className="rounded-lg bg-background shadow-neu-inset px-4 py-1 text-xs font-semibold text-foreground">
+                                <LiveCountdownBar
+                                  expiresAt={lead.expiresAt}
+                                  leadId={lead.id}
+                                  leadStatus={lead.status}
+                                  quoteType={lead.quoteType}
+                                  position="top"
+                                />
+                              </div>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-4" style={{ width: '100%' }}>
+                            <div className="flex flex-col min-w-0 flex-1">
+                              <span className="text-body-small font-bold text-foreground truncate">
+                                {QUOTE_TYPE_LABELS[lead.quoteType]}
+                              </span>
+                              <span className="text-caption text-muted-foreground truncate">
+                                Created {formatDateTime(lead.createdAt)}
+                              </span>
+                            </div>
+                            {/* Action button (right side, minimal, icon only, subtle) */}
+                            {canCancel && (
+                              <Button
+                                onClick={() => onCancelLead(lead)}
+                                variant="minimal"
+                                className="flex items-center gap-1 px-2 py-1 text-xs text-muted-foreground hover:text-error bg-transparent shadow-none"
+                                title="Cancel lead"
+                              >
+                                <XCircleIcon />
+                                <span className="hidden sm:inline">Cancel</span>
+                              </Button>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 mt-1">
+                            {/* Verification badge */}
+                            {lead.phoneVerified && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-success/10 text-success shadow-neu-inset text-xs" title="Verified Contact">
+                                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                                </svg>
+                                <span className="font-bold">Verified</span>
+                              </span>
+                            )}
+                            {/* Status badge */}
+                            <span className={`px-2.5 py-0.5 rounded-lg font-bold shadow-neu-inset text-xs ${statusInfo.accent}`}>
+                              {statusInfo.label}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    
-                    {/* Action Buttons */}
-                    <div className="flex items-center gap-1.5">
-                    {canEdit && (
-                      <button
-                        onClick={() => onEditLead(lead)}
-                        className="px-2.5 py-1.5 rounded-button text-caption font-medium bg-info/10 text-info hover:bg-info/20 transition-colors flex items-center gap-1"
-                        title="Edit lead"
-                      >
-                        <EditIcon /> Edit
-                      </button>
-                    )}
-                    
-                    {canPreview && (
-                      <button
-                        onClick={() => onPreviewLead(lead)}
-                        className="px-2.5 py-1.5 rounded-button text-caption font-medium bg-surface border border-border text-foreground hover:bg-primary/10 hover:text-primary transition-colors flex items-center gap-1"
-                        title="View details"
-                      >
-                        <EyeIcon /> View
-                      </button>
-                    )}
-                    
-                    {canCancel && (
-                      <button
-                        onClick={() => onCancelLead(lead)}
-                        className="px-2.5 py-1.5 rounded-button text-caption font-medium bg-error/10 text-error hover:bg-error/20 transition-colors flex items-center gap-1"
-                        title="Cancel lead"
-                      >
-                        <XCircleIcon /> Cancel
-                      </button>
-                    )}
-                  </div>
-                  </div>
-                </div>
               );
             })}
           </div>
@@ -685,6 +849,9 @@ export default function HomeownerDashboardPage() {
   const [editLeadModalOpen, setEditLeadModalOpen] = useState(false);
   const [previewLeadModalOpen, setPreviewLeadModalOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<RecentLeadSummary | null>(null);
+  
+  // Sidebar collapse state
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   // Aliases for component compatibility
   const isLoading = isLoadingSummary;
@@ -1103,15 +1270,12 @@ export default function HomeownerDashboardPage() {
   };
 
   return (
-    <div className="bg-background dark:bg-background-dark min-h-screen text-foreground dark:text-foreground-dark animate-fade-in">
-      <div className="md:pl-64">
+    <div className="bg-background min-h-screen text-foreground animate-fade-in">
+      <div className={`transition-all duration-300 ${isSidebarCollapsed ? 'md:pl-20' : 'md:pl-64'}`}>
         <div className="flex flex-col min-h-screen">
           <div className={`sticky top-0 z-20 transition-transform duration-normal ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
             <DashboardHeader 
               pageTitle={activePage} 
-              theme={theme} 
-              setTheme={setTheme}
-              onNewQuoteClick={handleNewQuoteClick}
             />
           </div>
           <main className="flex-1 p-3 sm:p-4 md:p-6 pb-24 sm:pb-8">
@@ -1120,7 +1284,7 @@ export default function HomeownerDashboardPage() {
         </div>
       </div>
       
-      {/* Desktop Sidebar */}
+      {/* Desktop Sidebar - Neumorphic Collapsible */}
       <div className="hidden md:fixed md:inset-y-0 md:left-0 md:z-40 md:flex">
           <HomeownerSidebar 
             activePage={activePage} 
@@ -1128,6 +1292,8 @@ export default function HomeownerDashboardPage() {
             onLogoutClick={handleLogout} 
             onHomeClick={handleHomeClick}
             onMessagesClick={handleMessagesClick}
+            isCollapsed={isSidebarCollapsed}
+            setIsCollapsed={setIsSidebarCollapsed}
           />
       </div>
 

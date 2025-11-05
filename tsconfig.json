@@ -37,7 +37,10 @@
   ],
   "exclude": [
     "node_modules",
-    "solarmatch_SOT",
+      "backup",
+      "backup/**",
+  "solarmatch_SOT",
+  "next-gen-web-agency",
     "backup-*",
     "prisma/seed-admin.ts",
     "prisma/seed-settings.ts",

@@ -31,6 +31,8 @@ module.exports = {
         'foreground-dark': 'rgb(var(--color-foreground) / <alpha-value>)',
         'foreground-secondary': 'rgb(var(--color-foreground-secondary) / <alpha-value>)',
         'foreground-tertiary': 'rgb(var(--color-foreground-tertiary) / <alpha-value>)',
+        'foreground-subtle': 'rgb(var(--color-foreground-subtle) / <alpha-value>)',
+        'foreground-muted': 'rgb(var(--color-foreground-muted) / <alpha-value>)',
         muted: 'rgb(var(--color-muted) / <alpha-value>)',
         'muted-foreground': 'rgb(var(--color-foreground-muted) / <alpha-value>)',
         subtle: 'rgb(var(--color-subtle) / <alpha-value>)',

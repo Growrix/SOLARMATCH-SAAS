@@ -2,7 +2,7 @@
 
 import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react';
 
-export type Theme = 'dark' | 'light' | 'purple';
+export type Theme = 'dark' | 'light' | 'purple' | 'system';
 
 export interface ThemeContextType {
   theme: Theme;
@@ -21,7 +21,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   // Load theme from localStorage on mount
   useEffect(() => {
     const savedTheme = localStorage.getItem('solarmatch-theme') as Theme;
-    if (savedTheme && ['dark', 'light', 'purple'].includes(savedTheme)) {
+    if (savedTheme && ['dark', 'light', 'purple', 'system'].includes(savedTheme)) {
       setTheme(savedTheme);
       document.documentElement.className = `theme-${savedTheme}`;
     } else {

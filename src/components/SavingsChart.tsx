@@ -37,10 +37,10 @@ const formatCurrency = (value: number) => new Intl.NumberFormat('en-AU', {
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-gray-200 dark:border-slate-700 shadow-lg">
-        <p className="font-bold text-slate-900 dark:text-white">{label}</p>
+      <div className="detail-card">
+        <p className="cost-item-label mb-2">{label}</p>
         {payload.map((pld: any, index: number) => (
-          <p key={index} style={{ color: pld.color }} className="text-sm">
+          <p key={index} style={{ color: pld.color }} className="text-sm performance-item-value">
             {`${pld.name}: ${formatCurrency(pld.value)}`}
           </p>
         ))}
@@ -86,18 +86,29 @@ const SavingsChart: React.FC<SavingsChartProps> = ({ finalPrice, annualSavings, 
     return { roiData: roiDataPoints, annualData: annualDataPoints, breakEvenYear };
   }, [finalPrice, annualSavings, currentAnnualBill]);
 
-  const activeTabClasses = 'bg-primary/10 text-primary';
-  const inactiveTabClasses = 'text-slate-500 dark:text-slate-400 hover:bg-gray-200/50 dark:hover:bg-slate-800/50';
-
   return (
-    <div className="bg-white/50 dark:bg-black/20 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-slate-800/50 p-4 sm:p-6">
+    <div className="detail-card">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
-        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2 sm:mb-0">Financial Projections</h3>
-        <div className="bg-gray-200 dark:bg-slate-800 p-1 rounded-lg flex space-x-1 w-full sm:w-auto">
-          <button onClick={() => setActiveTab('roi')} className={`w-full sm:w-auto px-3 py-1 rounded-md text-sm font-semibold transition-all flex items-center justify-center ${activeTab === 'roi' ? activeTabClasses : inactiveTabClasses}`}>
+        <h3 className="detail-card-header mb-2 sm:mb-0">Financial Projections</h3>
+        <div className="bg-surface p-1 rounded-lg flex space-x-1 w-full sm:w-auto border border-border">
+          <button 
+            onClick={() => setActiveTab('roi')} 
+            className={`w-full sm:w-auto px-3 py-1 rounded-md text-sm font-semibold transition-all flex items-center justify-center ${
+              activeTab === 'roi' 
+                ? 'bg-primary/10 text-primary' 
+                : 'text-foreground-subtle hover:bg-surface-hover'
+            }`}
+          >
             <LineChartIcon /> Long-Term ROI
           </button>
-          <button onClick={() => setActiveTab('annual')} className={`w-full sm:w-auto px-3 py-1 rounded-md text-sm font-semibold transition-all flex items-center justify-center ${activeTab === 'annual' ? activeTabClasses : inactiveTabClasses}`}>
+          <button 
+            onClick={() => setActiveTab('annual')} 
+            className={`w-full sm:w-auto px-3 py-1 rounded-md text-sm font-semibold transition-all flex items-center justify-center ${
+              activeTab === 'annual' 
+                ? 'bg-primary/10 text-primary' 
+                : 'text-foreground-subtle hover:bg-surface-hover'
+            }`}
+          >
             <BarChartIcon /> Annual Cost
           </button>
         </div>
@@ -105,7 +116,7 @@ const SavingsChart: React.FC<SavingsChartProps> = ({ finalPrice, annualSavings, 
 
       {activeTab === 'roi' && (
         <div className="animate-fade-in">
-          <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+          <p className="text-sm performance-item-label mb-4">
             This chart projects your net savings over 25 years. You&apos;re estimated to break even in
             <span className="font-bold text-primary"> {breakEvenYear !== null ? `Year ${breakEvenYear}` : 'N/A'}</span> and save approximately
             <span className="font-bold text-primary"> {formatCurrency(annualSavings * 25 - finalPrice)}</span> over the system&apos;s lifetime.
@@ -135,7 +146,7 @@ const SavingsChart: React.FC<SavingsChartProps> = ({ finalPrice, annualSavings, 
 
       {activeTab === 'annual' && (
         <div className="animate-fade-in">
-          <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+          <p className="text-sm performance-item-label mb-4">
             Comparison of your estimated annual electricity costs before and after installing solar panels.
             Your estimated annual savings are <span className="font-bold text-primary">{formatCurrency(annualSavings)}</span>.
           </p>

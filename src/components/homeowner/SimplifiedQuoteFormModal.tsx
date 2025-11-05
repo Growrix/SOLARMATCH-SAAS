@@ -46,7 +46,7 @@ const SimplifiedQuoteFormModal: React.FC<SimplifiedQuoteFormModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center px-4 py-8 animate-fade-in"
+      className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center px-4 py-8 animate-fade-in"
       onClick={onClose}
     >
       <div 
@@ -55,14 +55,14 @@ const SimplifiedQuoteFormModal: React.FC<SimplifiedQuoteFormModalProps> = ({
       >
         <div className="flex justify-between items-center mb-4">
           <div>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Request More Quotes</h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            <h2 className="text-heading-2 text-foreground">Request More Quotes</h2>
+            <p className="text-body-small text-muted-foreground mt-1">
               Review and update your details below to get new quotes from verified installers
             </p>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors p-2 rounded-lg"
+            className="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg"
             aria-label="Close"
           >
             <XIcon />

@@ -1,8 +1,82 @@
 # Design System - Source of Truth (SOT)
 **Purpose**: Complete reference for the neumorphic design system  
-**Date**: November 3, 2025 (Updated)  
+**Date**: November 4, 2025 (Updated - Post Homeowner Dashboard Audit)  
 **Status**: Active Standard  
 **Theme**: Multi-Theme System (Dark, Light, Purple)
+
+---
+
+## 🚨 CRITICAL: LESSONS FROM HOMEOWNER DASHBOARD MIGRATION (Nov 4, 2025)
+
+### What Went Wrong (Never Repeat These Mistakes):
+
+1. **❌ Missing CSS Variables** - Status colors (`--color-error`, `--color-success`, `--color-warning`, `--color-info`) were NOT defined in `globals.css`, causing theme inconsistencies
+   - **Fix Applied**: Added to all 3 themes (dark, light, purple)
+   - **Prevention**: Run CSS variable audit BEFORE starting ANY migration
+
+2. **❌ Incomplete Hardcoded Color Search** - Found `text-gray-800`/`text-white` on first check, then found `rgba()` values later
+   - **Fix Applied**: Comprehensive regex search for ALL color patterns
+   - **Prevention**: Use the complete verification command set (see below)
+
+3. **❌ Wrong Semantic Token Usage** - Used `bg-surface` for sidebar/header instead of `bg-background`
+   - **Fix Applied**: Structural elements (body, sidebar, header) use `bg-background`; cards/modals use `bg-surface`
+   - **Prevention**: Follow the Background Color Decision Tree (see below)
+
+4. **❌ No Pre-Migration Checklist** - Started migrating without verifying system health
+   - **Fix Applied**: Mandatory GATE 0 health check before ANY migration
+   - **Prevention**: NEVER skip GATE 0 checks
+
+### MANDATORY: Complete Hardcoded Color Verification (Use This Every Time)
+
+```powershell
+# Run ALL of these - if ANY return matches, migration is INCOMPLETE
+
+# 1. Hardcoded gray/slate/zinc colors
+Select-String -Path "src\app\your-component\*.tsx" -Pattern "text-gray-|text-slate-|text-zinc-|bg-gray-|bg-slate-|bg-zinc-"
+
+# 2. dark: prefixes (themes should use CSS variables, not dark:)
+Select-String -Path "src\app\your-component\*.tsx" -Pattern "dark:"
+
+# 3. Hardcoded RGB/RGBA/HEX colors (excluding SVG viewBox/fill)
+Select-String -Path "src\app\your-component\*.tsx" -Pattern "rgba\(|rgb\(|#[0-9a-fA-F]{3,6}" | Where-Object { $_.Line -notmatch "viewBox|fill=" }
+
+# 4. Hardcoded white/black (text-white, bg-white, text-black, bg-black)
+Select-String -Path "src\app\your-component\*.tsx" -Pattern "text-white|bg-white|text-black|bg-black"
+
+# Expected result for ALL: 0 matches (or NO OUTPUT)
+```
+
+### MANDATORY: Background Color Decision Tree
+
+**Question: What element am I styling?**
+
+```
+Is it a STRUCTURAL element (body, main container, sidebar, header)?
+├─ YES → Use bg-background (#121212 dark, #E0E5EC light, #2C1D4D purple)
+└─ NO → Continue
+
+Is it an ELEVATED element (card, modal, input, button)?
+├─ YES → Use bg-surface (#1A1A1A dark, #E8EDF4 light, #3E296C purple)
+└─ NO → Use bg-background or bg-transparent
+
+Is it a HOVER state?
+├─ YES → Use hover:bg-surface-hover
+└─ NO → Done
+```
+
+**Examples:**
+- ✅ `<body>` → `bg-background` (in globals.css)
+- ✅ `<main className="bg-background">` → Structural
+- ✅ `<aside className="bg-background">` → Sidebar (structural)
+- ✅ `<header className="bg-background">` → Header (structural)
+- ✅ `<div className="bg-surface rounded-card">` → Card (elevated)
+- ✅ `<input className="bg-surface">` → Input (elevated)
+- ✅ `<Button>` → Uses bg-surface internally (elevated)
+
+**Common Mistakes:**
+- ❌ `<aside className="bg-surface">` → Wrong! Use bg-background
+- ❌ `<header className="bg-surface">` → Wrong! Use bg-background
+- ❌ `<div className="bg-background rounded-card">` → Wrong! Cards use bg-surface
 
 ---
 

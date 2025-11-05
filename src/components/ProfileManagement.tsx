@@ -244,7 +244,7 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
                   className="hidden" 
                 />
                 {/* Migrated: buttons → shadcn Button - preserved onClick, disabled, upload/remove logic */}
-                <Button variant="minimal"
+                <Button
                   onClick={() => fileInputRef.current?.click()} 
                   disabled={isSaving} 
                   variant="default"
@@ -253,7 +253,7 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
                   Upload New
                 </Button>
                 {formData.image && (
-                  <Button variant="minimal"
+                  <Button
                     onClick={handleRemoveImage} 
                     disabled={isSaving} 
                     variant="destructive"
@@ -277,7 +277,7 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
           <h2 className="text-xl font-semibold text-foreground">Personal Information</h2>
           {/* Migrated: button → shadcn Button - preserved onClick, edit mode toggle */}
           {!isEditing && (
-            <Button variant="minimal"
+            <Button
               onClick={() => setIsEditing(true)} 
               variant="default"
             >
@@ -391,7 +391,7 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
           {/* Action Buttons - Migrated: buttons → shadcn Button - preserved onClick, saving state, disabled logic */}
           {isEditing && (
             <div className="flex space-x-3 pt-4">
-              <Button variant="minimal"
+              <Button
                 onClick={handleSave} 
                 disabled={isSaving} 
                 className="bg-success hover:bg-success/90"
@@ -405,7 +405,7 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
                   'Save Changes'
                 )}
               </Button>
-              <Button variant="minimal"
+              <Button
                 onClick={handleCancel} 
                 disabled={isSaving} 
                 variant="outline"
@@ -458,7 +458,7 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
             </div>
           </div>
           {/* Migrated: button → shadcn Button - preserved disabled state */}
-          <Button variant="minimal"
+          <Button
             disabled 
             variant="secondary"
             className="w-full"
@@ -476,7 +476,7 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
             Once you delete your account, there is no going back. Please be certain.
           </p>
           {/* Migrated: button → shadcn Button - preserved onClick, delete action */}
-          <Button variant="minimal"
+          <Button
             onClick={onDeleteClick} 
             variant="destructive"
           >

@@ -90,13 +90,32 @@
 
 **⚠️ CRITICAL: Run this BEFORE starting ANY component migration. If ANY check fails, STOP and fix the system first.**
 
-**Why This Exists:** Lessons from InstantQuoteForm migration revealed issues with:
+**Why This Exists:** Lessons from InstantQuoteForm and Homeowner Dashboard migrations revealed issues with:
 - Chart colors hardcoded in design tokens instead of CSS variables
 - Missing semantic classes causing repeated CSS rewrites
 - `.form-select` class applied to text inputs showing unwanted dropdown arrows
 - Theme-card using hardcoded white instead of variables
+- **NEW (Nov 4)**: Missing status color CSS variables (`--color-error`, etc.)
+- **NEW (Nov 4)**: Wrong semantic token usage (`bg-surface` vs `bg-background`)
+- **NEW (Nov 4)**: Incomplete hardcoded color verification
 
 **These checks prevent those issues from affecting your migration:**
+
+### Check 0: Status Color CSS Variables Exist (30 seconds) ⚠️ NEW
+```powershell
+# Verify all status colors are defined as CSS variables for ALL 3 themes
+Select-String -Path "src\app\globals.css" -Pattern "--color-error:|--color-success:|--color-warning:|--color-info:"
+
+# ✅ Expected: 12 matches (4 colors × 3 themes)
+# Dark theme: --color-error: 248 113 113 (red-400)
+# Light theme: --color-error: 220 38 38 (red-600)
+# Purple theme: --color-error: 248 113 113 (red-400)
+# (Same pattern for success, warning, info)
+
+# ❌ If < 12 matches: Missing status colors - WILL BREAK badges, alerts, status indicators
+```
+
+**Why This Matters**: Without these variables, `bg-error`, `text-success`, etc. won't work correctly across themes.
 
 ### Check 1: CSS Variables Foundation (30 seconds)
 ```powershell
@@ -172,22 +191,101 @@ Select-String -Path "src\app\globals.css" -Pattern "theme-light" -Context 0,20 |
 
 ---
 
-## 📊 COMPONENT TYPE TAXONOMY (Added Nov 3, 2025)
+## � MANDATORY PRE-MIGRATION AUDIT (Run BEFORE touching ANY component)
+
+**⚠️ CRITICAL: If you skip this, you WILL make mistakes. No exceptions.**
+
+### Step 1: Verify `.theme-card` uses `--color-surface` (NOT `--color-background`)
+
+```powershell
+# Check globals.css for .theme-card background
+Select-String -Path "src\app\globals.css" -Pattern "\.theme-card\s*\{" -Context 0,5
+
+# Expected output MUST include:
+#   background: rgb(var(--color-surface));
+# NOT:
+#   background: rgb(var(--color-background));
+```
+
+**Why This Matters:**
+- Modals/cards are ELEVATED elements → use `bg-surface`
+- Structural elements (body, sidebar, header) → use `bg-background`
+- If `.theme-card` uses wrong variable, modal won't match inputs
+
+### Step 2: Read DESIGN-SYSTEM-SOT.md Section on Modal/Card Backgrounds
+
+```powershell
+# Open and read this FIRST
+code DOC\DESIGN-SYSTEM-SOT.md
+# Jump to line 54: "MANDATORY: Background Color Decision Tree"
+```
+
+### Step 3: Check Reference Components for Your Type
+
+**For Modals:**
+```powershell
+# Open these to copy exact patterns
+code src\components\HomeownerSignInModal.tsx
+code src\components\InstallerSignupModal.tsx
+```
+
+**What to copy:**
+- Modal backdrop: `fixed inset-0 bg-black/80 backdrop-blur-sm z-50`
+- Modal container: `theme-card relative w-full max-w-md p-8 max-h-[90vh]`
+- Close button: `absolute top-4 right-4 text-subtle hover:text-foreground`
+- Form inputs: `form-input w-full pl-11 pr-4 py-3`
+- Buttons: `<Button variant="primary" className="w-full">`
+
+### Step 4: Mobile Responsiveness Check
+
+**Every modal MUST have:**
+- Responsive padding: `p-4 sm:p-6 lg:p-8` (NOT just `p-8`)
+- Responsive max-width: `max-w-md sm:max-w-lg lg:max-w-2xl`
+- Responsive vertical spacing: `py-8 sm:py-20`
+- Responsive text: `text-xl sm:text-2xl`
+- Responsive close button: `p-2 sm:p-3`
+
+### Step 5: Verify NO Hardcoded Colors
+
+```powershell
+# Run ALL of these - if ANY return matches, you're not done
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "text-gray-|text-slate-|bg-gray-|bg-slate-"
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "dark:"
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "text-white|bg-white|text-black|bg-black"
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "rgba\(|rgb\(|#[0-9a-fA-F]{3,6}" | Where-Object { $_.Line -notmatch "viewBox|fill=" }
+
+# Expected: 0 matches for ALL commands
+```
+
+**✅ ONLY PROCEED if all 5 steps pass. Otherwise, FIX THE SYSTEM FIRST.**
+
+---
+
+## �📊 COMPONENT TYPE TAXONOMY (Added Nov 3, 2025)
 
 **Purpose:** Each component type has different migration patterns. Identify your type first.
 
-### Type 1: Form Components
-**Characteristics:** Input fields, dropdowns, checkboxes, buttons  
-**Examples:** InstallerSignupModal, HomeownerSignInModal  
+### Type 1: Form Components / Modals
+**Characteristics:** Input fields, dropdowns, checkboxes, buttons, modal dialogs  
+**Examples:** InstallerSignupModal, HomeownerSignInModal, NewQuoteRequestModal  
 **Migration Pattern:**
+- Modal container → `.theme-card` class (uses `bg-surface` internally)
 - All `<input type="text/number">` → `.form-input` class
 - All `<select>` → `.form-select` class  
 - All `<button>` → `<Button>` component
 - Labels use `text-subtle` or `text-foreground`
 
+**Mobile Responsiveness (MANDATORY):**
+- [ ] Responsive padding: `p-4 sm:p-6 lg:p-8`
+- [ ] Responsive max-width: `max-w-md sm:max-w-lg lg:max-w-2xl`
+- [ ] Responsive vertical spacing: `py-8 sm:py-20`
+- [ ] Responsive text: `text-xl sm:text-2xl`
+- [ ] Responsive close button: `p-2 sm:p-3`
+
 **Reference Components:**
 - ✅ `InstallerSignupModal.tsx` - Multi-step form
 - ✅ `HomeownerSignInModal.tsx` - Auth with social login
+- ✅ `NewQuoteRequestModal.tsx` - Quote request with InstantQuoteForm
 
 ---
 
@@ -566,7 +664,7 @@ import Button from '@/components/ui/button';
 
 ```powershell
 # === STEP 1: SYSTEM HEALTH CHECK (5 minutes) ===
-# Run all commands from PRE-FLIGHT SYSTEM CHECK section above
+# Run all commands from GATE 0: PRE-MIGRATION HEALTH CHECK section above
 # If ANY fails → Fix globals.css first, don't proceed
 
 # === STEP 2: COMPONENT INVENTORY (2 minutes) ===
@@ -578,6 +676,15 @@ import Button from '@/components/ui/button';
 (Select-String -Path "src\components\YourComponent.tsx" -Pattern "dark:" -AllMatches).Matches.Count
 
 # Write down counts - you'll verify all are zero after migration
+
+# === STEP 3: COMPLETE HARDCODED COLOR AUDIT (2 minutes) ⚠️ NEW ===
+# Run ALL of these - comprehensive check for any hardcoded colors
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "text-gray-|text-slate-|text-zinc-|bg-gray-|bg-slate-|bg-zinc-"
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "dark:"
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "rgba\(|rgb\(|#[0-9a-fA-F]{3,6}" | Where-Object { $_.Line -notmatch "viewBox|fill=" }
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "text-white|bg-white|text-black|bg-black"
+
+# Document ALL matches - these MUST be fixed during migration
 
 # === STEP 3: OPEN REFERENCE COMPONENTS (1 minute) ===
 code src\components\HeaderMenu.tsx
@@ -620,6 +727,31 @@ Select-String -Path "src\components\YourComponent.tsx" -Pattern "border-(slate|g
 
 # === STEP 3: ZERO DARK: PREFIXES ===
 Select-String -Path "src\components\YourComponent.tsx" -Pattern "dark:"
+# Expected: NO MATCHES (themes handled by CSS variables)
+
+# === STEP 4: ZERO RGB/RGBA/HEX HARDCODING ⚠️ NEW ===
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "rgba\(|rgb\(|#[0-9a-fA-F]{3,6}" | Where-Object { $_.Line -notmatch "viewBox|fill=" }
+# Expected: NO MATCHES (use CSS variables for shadows/colors)
+
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "text-white|bg-white|text-black|bg-black"
+# Expected: NO MATCHES (use semantic tokens: text-foreground, bg-background, etc.)
+
+# === STEP 5: VERIFY BACKGROUND TOKEN USAGE ⚠️ NEW ===
+# Check that structural elements use bg-background, not bg-surface
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "className.*sidebar|className.*header|className.*aside" -Context 0,1
+
+# For each match, verify:
+# ✅ CORRECT: className="... bg-background ..." (structural)
+# ❌ WRONG: className="... bg-surface ..." (only for cards/modals)
+
+# === STEP 6: CENTRAL CLASS USAGE ===
+# If component has inputs, verify .form-input usage
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "<input" -Context 0,1 | Select-String -Pattern "form-input"
+# Expected: EVERY <input> has form-input class
+
+# If component has selects, verify .form-select usage  
+Select-String -Path "src\components\YourComponent.tsx" -Pattern "<select" -Context 0,1 | Select-String -Pattern "form-select"
+# Expected: EVERY <select> has form-select class
 # Expected: NO MATCHES
 
 # === STEP 4: ZERO LEGACY CODE ===
@@ -1925,16 +2057,16 @@ All public homepage components migrated top-to-bottom:
 - [ ] T155 [P] [US6] Create audit report `audits/NewQuoteRequestModal-logic.md` for `src/components/NewQuoteRequestModal.tsx`
 - [ ] T156 [P] [US6] Create audit report `audits/MessagingModal-logic.md` for `src/components/MessagingModal.tsx`
 
-### Implementation: NewQuoteRequestModal (Dashboard Quote Request)
+### ✅ Implementation: NewQuoteRequestModal (Dashboard Quote Request) - COMPLETE
 
-- [ ] T157 [US6] Replace modal container and backdrop: Use `.theme-card` for modal, semantic tokens for backdrop
-- [ ] T158 [US6] Replace modal heading text: Use typography tokens (`text-heading-2` or `text-foreground`)
-- [ ] T159 [US6] Replace close button: Use Button component or semantic hover states
-- [ ] T160 [US6] Verify modal embeds InstantQuoteForm: Modal should wrap InstantQuoteForm (already migrated in Phase 6)
-- [ ] T161 [US6] Remove ALL `dark:` prefixes from modal wrapper
-- [ ] T162 [US6] Verify quote request flow: Open modal → form works → quote calculates → success
-- [ ] T163 [US6] Run verification: Zero violations confirmed
-- [ ] T164 [US6] Update migration tracker: Mark NewQuoteRequestModal as "✅ Complete"
+- [x] T157 [US6] Replace modal container and backdrop: Use `.theme-card` for modal, semantic tokens for backdrop
+- [x] T158 [US6] Replace modal heading text: Use typography tokens (`text-heading-2` or `text-foreground`)
+- [x] T159 [US6] Replace close button: Use neumorphic button with semantic hover states
+- [x] T160 [US6] Verify modal embeds InstantQuoteForm: Modal should wrap InstantQuoteForm (already migrated in Phase 6)
+- [x] T161 [US6] Remove ALL `dark:` prefixes from modal wrapper
+- [x] T162 [US6] Verify quote request flow: Open modal → form works → quote calculates → success
+- [x] T163 [US6] Run verification: Zero violations confirmed
+- [x] T164 [US6] Update migration tracker: Mark NewQuoteRequestModal as "✅ Complete"
 
 ### Implementation: MessagingModal (Installer Communication - LARGE: 721 lines)
 
@@ -2373,4 +2505,948 @@ git commit -m "Migrate: AdminSignInModal & DetailedQuoteAuthModal"
 
 ---
 
+## Phase X: Admin Dashboard Migration to Neumorphic Design System 🎯 IN PROGRESS
+
+**Goal**: Migrate the complete Admin Dashboard interface to match the neumorphic design system established in the Homeowner Dashboard
+
+**Reference SOT**: Homeowner Dashboard components (HomeownerSidebar, HomeownerHeader, HomeownerBottomNavBar, HomeownerMobileSidebarMenu)
+
+**Components to Migrate**: 
+1. AdminSidebar.tsx - Desktop sidebar navigation
+2. AdminHeader.tsx - Top header with theme switcher
+3. AdminBottomNavBar.tsx - Mobile bottom navigation
+4. AdminMobileSidebarMenu.tsx - Mobile sidebar menu
+
+**STATUS**: 🔄 IN PROGRESS (Started: November 5, 2025)
+
+### Pre-Migration Health Check (GATE 0) ✅ COMPLETE
+
+All 6 mandatory checks PASSED:
+- ✅ CSS Variables Foundation: 15 semantic tokens found
+- ✅ Reference Components: All exist (TopBar, HeaderMenu, InstallerSignupModal)
+- ✅ Theme-Card: Uses CSS variables (not hardcoded white)
+- ✅ Form-Input: No dropdown arrow (correct)
+- ✅ Form-Select: Has dropdown arrow (correct)
+- ✅ Semantic Classes: System ready for migration
+
+### Pre-Migration Audit Results
+
+**AdminSidebar.tsx** (142 lines):
+- ❌ 9+ instances of `dark:` prefixes
+- ❌ Hardcoded colors: `border-gray-200`, `dark:border-slate-800`, `text-slate-400`, `text-slate-500`, `bg-gray-200`, `hover:bg-gray-200`
+- ✅ Already uses `bg-primary/10`, `text-primary` for active states
+- 🔧 Needs: Replace all gray/slate with semantic tokens, remove dark: prefixes, apply neumorphic shadow patterns
+
+**AdminHeader.tsx** (75 lines):
+- ❌ 6+ instances of `dark:` prefixes
+- ❌ Hardcoded colors: `bg-gray-100`, `dark:bg-slate-800`, `bg-white`, `dark:bg-slate-700`, `text-slate-900`, `dark:text-white`
+- ❌ Glass effect: `bg-white/80 dark:bg-slate-900/80 backdrop-blur-md` (should be solid neumorphic)
+- 🔧 Needs: Replace glass-header with neumorphic pattern, use semantic tokens, match HomeownerHeader
+
+**AdminBottomNavBar.tsx** (100 lines):
+- ❌ 3+ instances of `dark:` prefixes
+- ❌ Hardcoded colors: `text-slate-500`, `dark:text-slate-400`, `bg-white`, `dark:bg-black`, `border-gray-200`, `dark:border-slate-800`
+- ❌ Manual shadow: `shadow-[0_-2px_10px_rgba(0,0,0,0.1)]`
+- 🔧 Needs: Apply neumorphic mobile nav pattern from HomeownerBottomNavBar
+
+**AdminMobileSidebarMenu.tsx** (235 lines):
+- ❌ 10+ instances of `dark:` prefixes
+- ❌ Hardcoded colors: `bg-gray-100`, `dark:bg-slate-800`, `text-slate-700`, `dark:text-slate-300`, `bg-white`, `dark:bg-black`, `text-slate-900`, `dark:text-white`, `text-slate-500`, `dark:text-slate-400`, `border-gray-200`, `dark:border-slate-800`
+- ❌ Missing theme-card class for modal container
+- 🔧 Needs: Apply mobile sidebar pattern from homeowner version, use theme-card, semantic tokens throughout
+
+**Total Violations Found**: 40+ hardcoded color classes across 4 components
+
+### Migration Tasks
+
+**T-ADMIN-001**: [AdminSidebar] Replace all hardcoded gray/slate colors with semantic tokens
+- Replace `border-gray-200 dark:border-slate-800` → `border-border`
+- Replace `text-slate-400` → `text-muted-foreground`
+- Replace `text-slate-500 dark:text-slate-400` → `text-muted-foreground`
+- Replace `bg-gray-200 dark:hover:bg-slate-800` → `hover:bg-surface-hover`
+- Add `bg-background` to sidebar container
+- Apply `shadow-neu-outset` to sidebar
+
+**T-ADMIN-002**: [AdminSidebar] Copy navigation patterns from HomeownerSidebar
+- Use exact NavItem pattern with `shadow-neu-inset` for inactive states
+- Use `bg-primary/10 text-primary shadow-neu-inset` for active states
+- Copy hover transitions: `hover:bg-surface hover:text-primary hover:shadow-neu-outset-sm`
+
+**T-ADMIN-003**: [AdminSidebar] Run post-migration verification commands
+```powershell
+# Command 1: No hardcoded gray/slate
+Select-String -Path "src\components\AdminSidebar.tsx" -Pattern "text-gray-|text-slate-|bg-gray-|bg-slate-|border-gray-|border-slate-"
+
+# Command 2: No dark: prefixes
+Select-String -Path "src\components\AdminSidebar.tsx" -Pattern "dark:"
+
+# Command 3: No RGB/HEX colors
+Select-String -Path "src\components\AdminSidebar.tsx" -Pattern "rgba\(|rgb\(|#[0-9a-fA-F]{3,6}"
+
+# Command 4: No hardcoded white/black
+Select-String -Path "src\components\AdminSidebar.tsx" -Pattern "text-white|bg-white|text-black|bg-black"
+
+# Expected: 0 matches for ALL commands
+```
+
+**T-ADMIN-004**: [AdminHeader] Remove glass effect and apply neumorphic pattern
+- Replace `glass-header` with standard header styling
+- Replace `bg-white/80 dark:bg-slate-900/80 backdrop-blur-md` → `bg-background`
+- Replace `border-gray-200 dark:border-slate-800` → `border-border`
+- Add neumorphic shadow if needed
+
+**T-ADMIN-005**: [AdminHeader] Replace all hardcoded colors in ThemeSwitcher
+- Replace `bg-gray-100 dark:bg-slate-800` → `bg-surface`
+- Replace `bg-white dark:bg-slate-700` → `bg-surface`
+- Replace `text-slate-900 dark:text-white` → `text-foreground`
+- Replace `dark:text-gray-400 dark:hover:text-white` → `text-muted-foreground`
+
+**T-ADMIN-006**: [AdminHeader] Run post-migration verification commands
+```powershell
+# All 4 verification commands (same as AdminSidebar)
+# Expected: 0 matches for ALL commands
+```
+
+**T-ADMIN-007**: [AdminBottomNavBar] Apply neumorphic mobile nav pattern
+- Replace `bg-white dark:bg-black` → `bg-background`
+- Replace `border-gray-200 dark:border-slate-800` → `border-border`
+- Remove manual shadow, add semantic shadow class if needed
+- Replace `text-slate-500 dark:text-slate-400` → `text-muted-foreground`
+
+**T-ADMIN-008**: [AdminBottomNavBar] Run post-migration verification commands
+```powershell
+# All 4 verification commands
+# Expected: 0 matches for ALL commands
+```
+
+**T-ADMIN-009**: [AdminMobileSidebarMenu] Apply theme-card and semantic tokens
+- Replace modal container: `bg-white dark:bg-black` → use `theme-card` class
+- Replace `border-gray-200 dark:border-slate-800` → `border-border`
+- Replace `text-slate-900 dark:text-white` → `text-foreground`
+- Replace `text-slate-500 dark:text-slate-400` → `text-muted-foreground`
+- Replace `bg-gray-100 dark:bg-slate-800` → `bg-surface`
+- Replace `text-slate-700 dark:text-slate-300` → `text-foreground`
+
+**T-ADMIN-010**: [AdminMobileSidebarMenu] Copy NavItem pattern from HomeownerMobileSidebarMenu
+- Use exact button styling with semantic tokens
+- Apply proper hover states with neumorphic effects
+- Use `bg-primary text-white` for active states (matches homeowner pattern)
+
+**T-ADMIN-011**: [AdminMobileSidebarMenu] Run post-migration verification commands
+```powershell
+# All 4 verification commands
+# Expected: 0 matches for ALL commands
+```
+
+**T-ADMIN-012**: [Multi-Theme Testing] Test all admin components in 3 themes
+- Test Dark theme: Verify neumorphic shadows, contrast, colors
+- Test Light theme: Verify neumorphic styling, no color inversions
+- Test Purple theme: Verify purple accent colors, shadows work correctly
+- Document any theme-specific issues
+
+**T-ADMIN-013**: [Responsive Testing] Test at 5 breakpoints
+- 320px (iPhone SE): Mobile nav, sidebar behavior
+- 375px (iPhone 12): Mobile nav, spacing
+- 768px (Tablet): Sidebar transition point
+- 1024px (Desktop): Full sidebar visible
+- 1440px (Large Desktop): Layout consistency
+
+**T-ADMIN-014**: [Functionality Verification] Test all navigation and interactions
+- Verify all sidebar links navigate correctly
+- Verify theme switcher works in AdminHeader
+- Verify mobile menu opens/closes correctly
+- Verify logout button functions
+- Verify no broken functionality after UI migration
+
+**T-ADMIN-015**: [Build Validation] Run TypeScript and build checks
+```powershell
+npx tsc --noEmit
+npm run build
+```
+- Verify 0 TypeScript errors
+- Verify successful build
+- Document any build issues
+
+**T-ADMIN-016**: [Atomic Commits] Commit each component separately
+- Commit 1: `feat: migrate AdminSidebar to neumorphic design system`
+- Commit 2: `feat: migrate AdminHeader to neumorphic design system`
+- Commit 3: `feat: migrate AdminBottomNavBar to neumorphic design system`
+- Commit 4: `feat: migrate AdminMobileSidebarMenu to neumorphic design system`
+
+### Success Criteria
+- [ ] All 4 admin components migrated to neumorphic design
+- [ ] 0 hardcoded color classes remaining (all 4 verification commands return 0)
+- [ ] All 3 themes work correctly (Dark, Light, Purple)
+- [ ] Responsive at all 5 breakpoints
+- [ ] All navigation and functionality preserved
+- [ ] TypeScript compiles with 0 errors
+- [ ] Build succeeds with 0 errors
+- [ ] 4 atomic commits created
+
+### Migration Principles (from MIGRATION-PAIN-POINTS.md)
+1. ✅ Follow the SOT (DESIGN-SYSTEM-SOT.md) religiously
+2. ✅ Run pre-migration audit checklist (COMPLETED)
+3. ✅ Ensure mobile responsiveness (include in testing)
+4. ✅ Use semantic tokens only (no hardcoded classes)
+5. ✅ Follow mandatory pre and post workflow
+6. ✅ 100% migration (no partial work, no false reporting)
+7. ✅ Thorough testing and validation after each component
+8. ✅ Keep process simple (UI ONLY, no logic changes)
+9. ✅ Copy patterns from Homeowner Dashboard (SOT reference)
+10. ✅ Clean up legacy code (remove old classes completely)
+
+---
+
+## Phase Y: Admin Leads Page Migration to Neumorphic Design System 🎯 IN PROGRESS
+
+**Goal**: Migrate the Admin Leads Page to match the neumorphic design system with complete removal of hardcoded colors, dark: prefixes, and legacy patterns
+
+**Reference SOT**: DESIGN-SYSTEM-SOT.md, Homeowner Dashboard components
+
+**Components to Migrate**: 
+1. AdminLeadsPage (src/app/admin/leads/page.tsx) - Lead management table with filters, search, pagination
+
+**STATUS**: 🔄 IN PROGRESS (Started: November 5, 2025)
+
+### Pre-Migration Health Check (GATE 0) ✅ COMPLETE
+
+All 6 mandatory checks PASSED (inherited from Phase X):
+- ✅ CSS Variables Foundation: 15 semantic tokens found
+- ✅ Reference Components: All exist
+- ✅ Theme-Card: Uses CSS variables
+- ✅ Form-Input: Correct implementation
+- ✅ Form-Select: Correct implementation
+- ✅ Semantic Classes: System ready for migration
+
+### Pre-Migration Audit Results
+
+**AdminLeadsPage (src/app/admin/leads/page.tsx)** (427 lines):
+
+**🚨 CRITICAL VIOLATIONS FOUND**:
+
+1. **Status Badge Colors** (Lines ~50-90):
+   - ❌ `bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300` (Draft)
+   - ❌ `bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-200` (Pending)
+   - ❌ `bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-200` (Contacted)
+   - ❌ `bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200` (Converted)
+   - ❌ `bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-200` (Lost)
+   - ❌ `bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-200` (Archived)
+   - ❌ `bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300` (All)
+   - **Total**: 7 status badge variations with dark: prefixes
+
+2. **Table Styling** (Lines ~200-350):
+   - ❌ Table header: `bg-gray-50 dark:bg-slate-900 text-left text-xs font-medium text-gray-500 dark:text-slate-400`
+   - ❌ Table rows: `hover:bg-gray-50 dark:hover:bg-slate-800/50`
+   - ❌ Row borders: `border-b border-gray-200 dark:border-slate-700`
+   - ❌ Cell text: `text-sm text-gray-900 dark:text-white`, `text-slate-500 dark:text-slate-400`
+   - ❌ Empty cell: `text-slate-400 dark:text-slate-500`
+
+3. **Form Inputs & Filters** (Lines ~150-200):
+   - ❌ Search input: `bg-white dark:bg-slate-900 border-border dark:border-slate-700`
+   - ❌ Status filter: `bg-white dark:bg-slate-900 border-border dark:border-slate-700`
+   - ❌ Date filters: `bg-white dark:bg-slate-900 border-border dark:border-slate-700`
+   - ❌ Filter labels: `text-sm font-medium text-gray-700 dark:text-gray-300`
+   - ❌ NOT using `.form-input` or `.form-select` classes
+
+4. **Buttons** (Lines ~180-190):
+   - ❌ Search button: Custom styled with `bg-primary text-white`
+   - ❌ Clear button: Custom styled with `bg-white dark:bg-slate-800`
+   - ❌ NOT using `<Button>` component from centralized library
+
+5. **Loading State** (Lines ~280-290):
+   - ❌ Loading text: `text-slate-600 dark:text-slate-400`
+   - ❌ Spinner container: Custom implementation
+
+6. **Error State** (Lines ~275-280):
+   - ❌ Error container: `bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800`
+   - ❌ Error text: `text-red-800 dark:text-red-200`
+
+7. **Empty State** (Lines ~350-360):
+   - ❌ Empty container: `bg-white dark:bg-black/50`
+   - ❌ Empty text: `text-slate-600 dark:text-slate-400`, `text-gray-500 dark:text-gray-400`
+
+8. **Pagination** (Lines ~370-400):
+   - ❌ Page info text: `text-sm text-gray-700 dark:text-gray-300`
+   - ❌ Page button: `bg-white dark:bg-slate-800 border-gray-300 dark:border-slate-600`
+   - ❌ Active page: `bg-primary text-white`
+   - ❌ Disabled: `text-gray-400 dark:text-slate-500`
+
+9. **Additional Violations**:
+   - ❌ Multiple instances of `text-gray-400`, `text-gray-500`, `text-gray-700`, `text-gray-900`
+   - ❌ Multiple instances of `text-slate-400`, `text-slate-500`, `text-slate-600`, `text-slate-700`
+   - ❌ Multiple instances of `bg-gray-50`, `bg-gray-100`, `bg-white`, `bg-red-50`
+   - ❌ Multiple instances of `dark:bg-slate-800`, `dark:bg-slate-900`, `dark:text-slate-300`, `dark:text-slate-400`
+   - ❌ Manual responsive classes without semantic token base
+
+**Total Violations Found**: 80+ hardcoded color classes and dark: prefixes
+
+### Migration Tasks
+
+#### Phase Y.1: Status Badge System Migration
+
+**T-LEADS-001**: Create semantic status badge color system
+- Create utility function using CSS variables instead of hardcoded Tailwind classes
+- Define status mappings:
+  - Draft → `bg-muted text-muted-foreground`
+  - Pending → `bg-warning text-warning-foreground`
+  - Contacted → `bg-info text-info-foreground`
+  - Converted → `bg-success text-success-foreground`
+  - Lost → `bg-error text-error-foreground`
+  - Archived → `bg-surface text-muted-foreground`
+  - All → `bg-surface text-foreground`
+- Remove ALL dark: prefixes from status badges
+
+**T-LEADS-002**: Run status badge verification
+```powershell
+# Verify no hardcoded status colors
+Select-String -Path "src\app\admin\leads\page.tsx" -Pattern "bg-gray-100|bg-yellow-100|bg-blue-100|bg-green-100|bg-red-100|bg-purple-100|bg-slate-100"
+# Expected: 0 matches
+```
+
+#### Phase Y.2: Table Structure Migration
+
+**T-LEADS-003**: Migrate table header styling
+- Replace `bg-gray-50 dark:bg-slate-900` → `bg-surface`
+- Replace `text-gray-500 dark:text-slate-400` → `text-muted-foreground`
+- Keep `text-xs font-medium text-left` (structural classes)
+- Add `shadow-neu-inset` for neumorphic effect
+
+**T-LEADS-004**: Migrate table row styling
+- Replace `hover:bg-gray-50 dark:hover:bg-slate-800/50` → `hover:bg-surface-hover`
+- Replace `border-gray-200 dark:border-slate-700` → `border-border`
+- Replace `bg-white` → `bg-background` for row background
+
+**T-LEADS-005**: Migrate table cell text colors
+- Replace ALL `text-gray-900 dark:text-white` → `text-foreground`
+- Replace ALL `text-slate-500 dark:text-slate-400` → `text-muted-foreground`
+- Replace ALL `text-slate-400 dark:text-slate-500` → `text-muted-foreground`
+- Replace ALL `text-gray-400` → `text-muted-foreground`
+
+**T-LEADS-006**: Run table styling verification
+```powershell
+# Command 1: No hardcoded gray/slate in table
+Select-String -Path "src\app\admin\leads\page.tsx" -Pattern "bg-gray-50|bg-gray-100|text-gray-|text-slate-"
+
+# Command 2: No dark: prefixes in table
+Select-String -Path "src\app\admin\leads\page.tsx" -Pattern "dark:bg-slate-|dark:text-slate-|dark:border-slate-"
+
+# Expected: 0 matches for BOTH commands
+```
+
+#### Phase Y.3: Form Inputs & Filters Migration
+
+**T-LEADS-007**: Replace custom inputs with semantic form classes
+- Replace search input:
+  - Remove: `bg-white dark:bg-slate-900 border-border dark:border-slate-700`
+  - Add: `form-input` class (which uses `bg-surface border-border`)
+- Replace status filter select:
+  - Remove: `bg-white dark:bg-slate-900 border-border dark:border-slate-700`
+  - Add: `form-select` class
+- Replace date filters:
+  - Remove: `bg-white dark:bg-slate-900`
+  - Add: `form-input` class
+
+**T-LEADS-008**: Migrate filter label styling
+- Replace `text-gray-700 dark:text-gray-300` → `text-foreground`
+- Keep `text-sm font-medium` (structural classes)
+
+**T-LEADS-009**: Run form inputs verification
+```powershell
+# Verify form inputs use semantic classes
+Select-String -Path "src\app\admin\leads\page.tsx" -Pattern "bg-white dark:bg-slate-"
+# Expected: 0 matches
+
+# Verify form-input/form-select classes present
+Select-String -Path "src\app\admin\leads\page.tsx" -Pattern "form-input|form-select"
+# Expected: Multiple matches (at least 4)
+```
+
+#### Phase Y.4: Button Component Migration
+
+**T-LEADS-010**: Replace custom buttons with Button component
+- Import Button component: `import { Button } from "@/components/Button"`
+- Replace search button:
+  - Remove: Custom `bg-primary text-white` styling
+  - Use: `<Button variant="primary">Search</Button>`
+- Replace clear filters button:
+  - Remove: Custom `bg-white dark:bg-slate-800` styling
+  - Use: `<Button variant="ghost">Clear</Button>`
+
+**T-LEADS-011**: Migrate pagination buttons
+- Replace page number buttons with Button component:
+  - Active: `<Button variant="primary" size="sm">{page}</Button>`
+  - Inactive: `<Button variant="ghost" size="sm">{page}</Button>`
+  - Disabled: `<Button variant="ghost" size="sm" disabled>`
+- Remove ALL custom button styling with dark: prefixes
+
+**T-LEADS-012**: Run button verification
+```powershell
+# Verify Button component is imported
+Select-String -Path "src\app\admin\leads\page.tsx" -Pattern "import.*Button.*from"
+# Expected: 1 match
+
+# Verify no custom buttons remain
+Select-String -Path "src\app\admin\leads\page.tsx" -Pattern "bg-primary text-white|bg-white dark:bg-slate-8"
+# Expected: 0 matches
+```
+
+#### Phase Y.5: State Management Migration
+
+**T-LEADS-013**: Migrate loading state styling
+- Replace `text-slate-600 dark:text-slate-400` → `text-muted-foreground`
+- Ensure loading container uses `bg-background`
+
+**T-LEADS-014**: Migrate error state styling
+- Replace error container:
+  - Remove: `bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800`
+  - Add: `bg-error/10 border-error text-error-foreground`
+- Replace error text:
+  - Remove: `text-red-800 dark:text-red-200`
+  - Add: Already covered by container `text-error-foreground`
+
+**T-LEADS-015**: Migrate empty state styling
+- Replace empty container:
+  - Remove: `bg-white dark:bg-black/50`
+  - Add: `bg-surface shadow-neu-inset`
+- Replace empty text:
+  - Remove: `text-slate-600 dark:text-slate-400`, `text-gray-500 dark:text-gray-400`
+  - Add: `text-muted-foreground`
+
+**T-LEADS-016**: Run state management verification
+```powershell
+# Verify no hardcoded state colors
+Select-String -Path "src\app\admin\leads\page.tsx" -Pattern "bg-red-50|text-red-800|dark:bg-red-900|dark:text-red-200"
+# Expected: 0 matches
+
+Select-String -Path "src\app\admin\leads\page.tsx" -Pattern "bg-white dark:bg-black"
+# Expected: 0 matches
+```
+
+#### Phase Y.6: Final Cleanup & Verification
+
+**T-LEADS-017**: Run complete verification suite (ALL 6 COMMANDS)
+```powershell
+# Command 1: No hardcoded gray/slate colors
+Select-String -Path "src\app\admin\leads\page.tsx" -Pattern "text-gray-|text-slate-|bg-gray-|bg-slate-|border-gray-|border-slate-"
+
+# Command 2: No dark: prefixes
+Select-String -Path "src\app\admin\leads\page.tsx" -Pattern "dark:"
+
+# Command 3: No RGB/HEX colors
+Select-String -Path "src\app\admin\leads\page.tsx" -Pattern "rgba\(|rgb\(|#[0-9a-fA-F]{3,6}"
+
+# Command 4: No hardcoded white/black
+Select-String -Path "src\app\admin\leads\page.tsx" -Pattern "text-white|bg-white|text-black|bg-black"
+
+# Command 5: No hardcoded typography (if applicable)
+Select-String -Path "src\app\admin\leads\page.tsx" -Pattern "text-xs|text-sm|text-lg|text-xl|font-bold|font-semibold" | Where-Object { $_.Line -notmatch "text-xs font-medium|text-sm font-" }
+
+# Command 6: No manual responsive classes (verify mobile-first)
+Select-String -Path "src\app\admin\leads\page.tsx" -Pattern "sm:text-|md:text-|lg:text-" | Where-Object { $_.Line -notmatch "sm:px-|md:px-|lg:px-" }
+
+# Expected: 0 matches for Commands 1-4, minimal structural matches for 5-6
+```
+
+**T-LEADS-018**: Multi-theme testing
+- **Dark Theme**:
+  - [ ] Status badges display correctly with proper contrast
+  - [ ] Table header/rows have neumorphic shadows
+  - [ ] Form inputs are visible and properly styled
+  - [ ] Buttons have correct theming
+  - [ ] Loading/error/empty states are readable
+  - [ ] Pagination works correctly
+  
+- **Light Theme**:
+  - [ ] Neumorphic shadows are visible (outset/inset)
+  - [ ] Status badges have proper contrast
+  - [ ] Table styling is consistent
+  - [ ] All text is readable
+  
+- **Purple Theme**:
+  - [ ] Purple accent colors apply to buttons
+  - [ ] Purple shadows appear correctly
+  - [ ] Status badges maintain readability
+  - [ ] Overall purple aesthetic is consistent
+
+**T-LEADS-019**: Responsive testing at 5 breakpoints
+- **320px (iPhone SE)**:
+  - [ ] Table is scrollable horizontally
+  - [ ] Filters stack vertically
+  - [ ] Buttons are touch-friendly
+  - [ ] Text is readable
+  
+- **375px (iPhone 12)**:
+  - [ ] Layout adjusts properly
+  - [ ] No horizontal overflow
+  - [ ] Touch targets are adequate
+  
+- **768px (Tablet)**:
+  - [ ] Filters may display in 2 columns
+  - [ ] Table has more visible columns
+  - [ ] Pagination is properly spaced
+  
+- **1024px (Desktop)**:
+  - [ ] Full table layout visible
+  - [ ] Filters in horizontal row
+  - [ ] Optimal spacing and padding
+  
+- **1440px (Large Desktop)**:
+  - [ ] Layout doesn't stretch excessively
+  - [ ] Content remains centered/contained
+  - [ ] All elements scale appropriately
+
+**T-LEADS-020**: Functionality verification (LOGIC MUST NOT CHANGE)
+- [ ] Search functionality works identically
+- [ ] Status filter dropdown works correctly
+- [ ] Date range filters function properly
+- [ ] Pagination navigates correctly
+- [ ] Table sorting works (if applicable)
+- [ ] Row actions function correctly
+- [ ] All data displays accurately
+- [ ] No console errors
+- [ ] No broken API calls
+
+**T-LEADS-021**: Build validation
+```powershell
+# TypeScript check
+npx tsc --noEmit
+
+# Build check
+npm run build
+```
+- [ ] 0 TypeScript errors
+- [ ] Build succeeds
+- [ ] No runtime errors
+
+**T-LEADS-022**: Atomic commit
+```bash
+git add src/app/admin/leads/page.tsx
+git commit -m "feat: migrate Admin Leads Page to neumorphic design system
+
+- Replace all hardcoded gray/slate colors with semantic tokens
+- Remove ALL dark: prefixes (80+ instances)
+- Migrate status badges to use CSS variable-based system
+- Replace table styling with neumorphic patterns
+- Convert form inputs to use form-input/form-select classes
+- Replace custom buttons with Button component
+- Migrate loading/error/empty states to semantic tokens
+- Verify 0 violations across all 6 verification commands
+- Test across 3 themes (Dark, Light, Purple)
+- Test across 5 responsive breakpoints
+- Preserve ALL existing functionality (UI ONLY changes)"
+```
+
+### Success Criteria
+- [ ] Admin Leads Page fully migrated to neumorphic design
+- [ ] ALL 6 verification commands return 0 matches (MANDATORY)
+- [ ] 0 hardcoded colors remaining
+- [ ] 0 dark: prefixes remaining
+- [ ] Status badge system uses semantic tokens
+- [ ] Table uses neumorphic styling
+- [ ] Form inputs use semantic classes (form-input, form-select)
+- [ ] Buttons use centralized Button component
+- [ ] All 3 themes work correctly (Dark, Light, Purple)
+- [ ] Responsive at all 5 breakpoints
+- [ ] ALL functionality preserved (no logic changes)
+- [ ] TypeScript compiles with 0 errors
+- [ ] Build succeeds with 0 errors
+- [ ] 1 atomic commit created with comprehensive message
+
+### Migration Principles (from MIGRATION-PAIN-POINTS.md)
+1. ✅ Follow the SOT (DESIGN-SYSTEM-SOT.md) religiously
+2. ✅ Run pre-migration audit checklist (COMPLETED - 80+ violations found)
+3. ✅ Ensure mobile responsiveness (5 breakpoints tested)
+4. ✅ Use semantic tokens only (no hardcoded classes)
+5. ✅ Follow mandatory pre and post workflow (6 verification commands)
+6. ✅ 100% migration (no partial work, all violations addressed)
+7. ✅ Thorough testing and validation (3 themes, 5 breakpoints, functionality)
+8. ✅ Keep process simple (UI ONLY, no logic changes)
+9. ✅ Copy patterns from SOT reference components
+10. ✅ Clean up legacy code (remove ALL old classes)
+
+### Critical Reminders
+- **UI ONLY**: Do NOT modify state management, useEffect hooks, API calls, or business logic
+- **100% Replacement**: NO hybrid patterns (must replace, not add alongside)
+- **Multi-Theme Required**: ALL 3 themes must pass visual inspection
+- **Zero Violations**: All 6 verification commands MUST return 0 matches
+- **Atomic Commits**: One comprehensive commit with detailed message
+- **Logic Preservation**: Page must function identically after migration
+
+---
+
 **Report**: Task generation complete! 210 tasks created across 11 phases, organized by UI hierarchy for gradual top-to-bottom migration. Each phase migrates a complete user flow (navigation + connected modals). MVP is TopBar + Installer Auth (Phase 3), establishing pattern for remaining phases. Verification script (Phase 10) enforces 100% clean replacement rule. Estimated 20-25 hours to achieve 40% → 95% design system compliance with clear visual progress tracking.
+
+---
+
+## Phase Z: Admin Lead Details Page Migration to Neumorphic Design System  PENDING
+
+**Goal**: Migrate the Admin Lead Details Page to match the neumorphic design system with complete removal of hardcoded colors, dark: prefixes, theme conditionals, and custom hex values
+
+**Reference SOT**: DESIGN-SYSTEM-SOT.md, MIGRATION-PAIN-POINTS.md
+
+**Components to Migrate**: 
+1. AdminLeadDetailsPage (src/app/admin/leads/[id]/page.tsx) - 1227 lines with extensive hardcoded colors
+
+**STATUS**:  PENDING (Pre-audit completed: November 5, 2025)
+
+### Pre-Migration Health Check (GATE 0)  INHERITED
+
+All 6 mandatory checks PASSED (inherited from Phase Y):
+-  CSS Variables Foundation: 15 semantic tokens found
+-  Reference Components: 8 completed migrations available
+-  Theme-Card: Uses CSS variables
+-  Form-Input: Correct implementation
+-  Form-Select: Correct implementation
+-  Semantic Classes: System ready for migration
+
+### Pre-Migration Audit Results
+
+**AdminLeadDetailsPage (src/app/admin/leads/[id]/page.tsx)** (1227 lines):
+
+** CRITICAL VIOLATIONS FOUND** (Estimated 200+ violations):
+
+1. **Custom Hex Colors** (Lines 580-700+):
+   -  `bg-[#0A0F1E]` - Custom dark background
+   -  `bg-[#1A1F2E]` - Custom lighter background
+   - **Pattern**: Hard-coded hex values throughout
+
+2. **Theme Conditional Logic** (Lines 580-700+):
+   -  $`
+   -  $`
+   - **Pattern**: JavaScript template literals with theme conditionals
+
+3. **Hardcoded White/Black Colors** (Throughout):
+   -  	ext-white - Static white text
+   -  g-white - Static white backgrounds
+   -  	ext-gray-* - Gray color variants
+   -  g-gray-* - Gray background variants
+
+4. **Dark Mode Prefixes** (Throughout):
+   -  dark:bg-* - Dark mode background overrides
+   -  dark:text-* - Dark mode text color overrides
+   -  dark:border-* - Dark mode border overrides
+
+5. **Page Sections with Hardcoded Colors**:
+   - Header (back button, title, status badges)
+   - Homeowner Info Card
+   - Quote Quota Card
+   - Project Details Card
+   - Property Information Card
+   - Quote Data Display
+   - Admin Actions Section
+   - Approve Modal (with countdown options)
+   - Reject Modal (with reason textarea)
+   - Price Modal (with input)
+   - Installer Assignment Modal
+
+### Baseline Verification (Run before migration)
+
+**Command 1**: Hardcoded gray/slate colors
+`powershell
+Select-String -Path "src\app\admin\leads\[id]\page.tsx" -Pattern "text-gray-|text-slate-|bg-gray-|bg-slate-|border-gray-|border-slate-"
+`
+Expected: 50+ matches
+
+**Command 2**: Dark mode classes
+`powershell
+Select-String -Path "src\app\admin\leads\[id]\page.tsx" -Pattern "dark:"
+`
+Expected: 80+ matches
+
+**Command 3**: RGB/HEX colors
+`powershell
+Select-String -Path "src\app\admin\leads\[id]\page.tsx" -Pattern "rgba\(|rgb\(|#[0-9a-fA-F]{3,6}|bg-\[#"
+`
+Expected: 10+ matches
+
+**Command 4**: Hardcoded white/black
+`powershell
+Select-String -Path "src\app\admin\leads\[id]\page.tsx" -Pattern "text-white|bg-white|text-black|bg-black"
+`
+Expected: 30+ matches
+
+**Command 5**: Theme conditionals (JavaScript template literals)
+`powershell
+Select-String -Path "src\app\admin\leads\[id]\page.tsx" -Pattern "\$\{theme === "
+`
+Expected: 20+ matches
+
+**Command 6**: Hardcoded typography
+`powershell
+Select-String -Path "src\app\admin\leads\[id]\page.tsx" -Pattern "text-xs|text-sm|text-lg|text-xl|font-bold|font-semibold"
+`
+Expected: 100+ matches (INFO ONLY - typography may be intentional)
+
+### Migration Tasks
+
+#### Task Z-001: Document Current State
+- [ ] Run all 6 baseline verification commands
+- [ ] Document exact violation counts
+- [ ] Screenshot current appearance in all 3 themes
+- [ ] Document all interactive elements and modals
+- [ ] Create before/after comparison checklist
+
+#### Task Z-002: Migrate Header Section
+- [ ] Replace back button styles with semantic tokens
+- [ ] Migrate lead title to text-foreground
+- [ ] Update metadata text to text-muted-foreground
+- [ ] Migrate status badge to bg-{status} text-{status}-foreground pattern
+- [ ] Replace verified badge colors with semantic tokens
+- [ ] Remove ALL dark: prefixes from header
+- [ ] Remove ALL theme conditional logic from header
+
+#### Task Z-003: Migrate Homeowner Info Card
+- [ ] Replace card background: bg-[#*]  bg-surface
+- [ ] Update card title: text-*  text-foreground
+- [ ] Migrate label text: text-gray-*  text-muted-foreground
+- [ ] Replace value text: text-*  text-foreground
+- [ ] Update verified/unverified indicators with semantic colors
+- [ ] Remove ALL dark: prefixes
+- [ ] Remove ALL theme conditionals
+
+#### Task Z-004: Migrate Quote Quota Card
+- [ ] Replace card background with bg-surface
+- [ ] Update quota display colors to semantic tokens
+- [ ] Migrate progress indicators to theme-adaptive colors
+- [ ] Remove hardcoded hex colors
+- [ ] Remove ALL dark: prefixes
+
+#### Task Z-005: Migrate Project Details Card
+- [ ] Replace card background with bg-surface
+- [ ] Update all field labels to text-muted-foreground
+- [ ] Replace field values with text-foreground
+- [ ] Migrate icon colors to semantic tokens
+- [ ] Remove ALL dark: prefixes
+- [ ] Remove theme conditionals
+
+#### Task Z-006: Migrate Property Information Card
+- [ ] Replace card background with bg-surface
+- [ ] Update all labels and values to semantic tokens
+- [ ] Migrate address display to text-foreground
+- [ ] Remove hardcoded gray/slate colors
+- [ ] Remove ALL dark: prefixes
+
+#### Task Z-007: Migrate Quote Data Display Integration
+- [ ] Verify QuoteDataDisplay component is already migrated (if not, migrate separately)
+- [ ] Update integration wrapper to use semantic tokens
+- [ ] Remove ANY remaining hardcoded colors in wrapper
+- [ ] Test data display in all 3 themes
+
+#### Task Z-008: Migrate Admin Actions Section
+- [ ] Replace action button backgrounds with Button component or semantic tokens
+- [ ] Update button text colors to semantic tokens
+- [ ] Migrate hover states to shadow-neu-inset
+- [ ] Remove hardcoded colors from action buttons
+- [ ] Remove ALL dark: prefixes
+
+#### Task Z-009: Migrate Approve Modal
+- [ ] Replace modal background: bg-[#*]  bg-surface
+- [ ] Update modal title to text-foreground
+- [ ] Migrate countdown option buttons to Button component
+- [ ] Replace option backgrounds with bg-surface
+- [ ] Update option hover states with shadow-neu-inset
+- [ ] Replace form labels with text-muted-foreground
+- [ ] Remove ALL hardcoded colors
+- [ ] Remove ALL dark: prefixes
+- [ ] Remove theme conditionals
+
+#### Task Z-010: Migrate Reject Modal
+- [ ] Replace modal background with bg-surface
+- [ ] Update modal title to text-foreground
+- [ ] Migrate reason textarea to .form-input class
+- [ ] Replace textarea background/border with semantic tokens
+- [ ] Update button styles to Button component or semantic tokens
+- [ ] Remove ALL hardcoded colors
+- [ ] Remove ALL dark: prefixes
+
+#### Task Z-011: Migrate Price Modal
+- [ ] Replace modal background with bg-surface
+- [ ] Update modal title to text-foreground
+- [ ] Migrate price input to .form-input class
+- [ ] Replace input styling with semantic tokens
+- [ ] Update save button to Button component
+- [ ] Remove ALL hardcoded colors
+- [ ] Remove ALL dark: prefixes
+
+#### Task Z-012: Migrate Installer Assignment Modal
+- [ ] Replace modal background with bg-surface
+- [ ] Update modal title to text-foreground
+- [ ] Migrate installer dropdown to .form-select class
+- [ ] Replace dropdown styling with semantic tokens
+- [ ] Update assignment table styling to semantic tokens
+- [ ] Migrate table headers to text-muted-foreground
+- [ ] Replace table row hover states with semantic tokens
+- [ ] Update assign button to Button component
+- [ ] Remove ALL hardcoded colors
+- [ ] Remove ALL dark: prefixes
+
+#### Task Z-013: Post-Migration Verification (MANDATORY 0/0/0/0/0/0)
+`powershell
+# Command 1: Hardcoded gray/slate colors (MUST BE 0)
+Select-String -Path "src\app\admin\leads\[id]\page.tsx" -Pattern "text-gray-|text-slate-|bg-gray-|bg-slate-|border-gray-|border-slate-"
+
+# Command 2: Dark mode classes (MUST BE 0)
+Select-String -Path "src\app\admin\leads\[id]\page.tsx" -Pattern "dark:"
+
+# Command 3: RGB/HEX colors (MUST BE 0)
+Select-String -Path "src\app\admin\leads\[id]\page.tsx" -Pattern "rgba\(|rgb\(|#[0-9a-fA-F]{3,6}|bg-\[#"
+
+# Command 4: Hardcoded white/black (MUST BE 0)
+Select-String -Path "src\app\admin\leads\[id]\page.tsx" -Pattern "text-white|bg-white|text-black|bg-black"
+
+# Command 5: Theme conditionals (MUST BE 0)
+Select-String -Path "src\app\admin\leads\[id]\page.tsx" -Pattern "\$\{theme === "
+
+# Command 6: Hardcoded typography (INFO ONLY)
+Select-String -Path "src\app\admin\leads\[id]\page.tsx" -Pattern "text-xs|text-sm|text-lg|text-xl|font-bold|font-semibold"
+`
+
+**Required Result**: 0 matches for Commands 1-5 (Command 6 is informational only)
+
+#### Task Z-014: Dark Theme Testing
+- [ ] Navigate to lead details page
+- [ ] Verify all cards have proper bg-surface appearance
+- [ ] Check all text is visible (foreground, muted-foreground)
+- [ ] Verify status badges use semantic colors
+- [ ] Test all 4 modals (Approve, Reject, Price, Assignment)
+- [ ] Verify all form inputs use .form-input/.form-select
+- [ ] Check all buttons have proper neumorphic shadows
+- [ ] Verify no pure black (#000000) or pure white (#FFFFFF) visible
+
+#### Task Z-015: Light Theme Testing
+- [ ] Switch to Light theme
+- [ ] Verify neumorphic card styling (shadows, depth)
+- [ ] Check text contrast and readability
+- [ ] Verify all status badges adapt to light theme
+- [ ] Test all 4 modals for proper light theme appearance
+- [ ] Check form input styling matches neumorphic pattern
+- [ ] Verify button shadows and hover states
+- [ ] Ensure no dark theme colors bleeding through
+
+#### Task Z-016: Purple Theme Testing
+- [ ] Switch to Purple theme
+- [ ] Verify accent colors use purple palette
+- [ ] Check purple shadows on neumorphic elements
+- [ ] Verify status badges work with purple theme
+- [ ] Test all 4 modals in purple theme
+- [ ] Check form inputs match purple theme
+- [ ] Verify buttons have purple accent
+- [ ] Ensure consistent purple theme application
+
+#### Task Z-017: Responsive Testing (5 Breakpoints)
+`powershell
+# Test at: 320px, 375px, 768px, 1024px, 1440px
+`
+- [ ] 320px (Mobile Small): All cards stack, modals fit, text readable
+- [ ] 375px (Mobile): Cards and modals responsive, no overflow
+- [ ] 768px (Tablet): Proper 2-column layouts where appropriate
+- [ ] 1024px (Desktop): Optimal layout, modals centered
+- [ ] 1440px (Large Desktop): Content scales properly, no awkward gaps
+
+#### Task Z-018: Accessibility Testing
+- [ ] WCAG 2.1 AA contrast ratios (all text)
+- [ ] Keyboard navigation (Tab through all interactive elements)
+- [ ] Screen reader testing (ARIA labels on status badges, modals)
+- [ ] Focus indicators visible (all buttons, inputs, modals)
+- [ ] Modal trap focus (can't tab outside modal)
+- [ ] Escape key closes modals
+
+#### Task Z-019: Functionality Verification
+- [ ] Back button navigates to leads list
+- [ ] Status badge displays correctly
+- [ ] Verified badge shows/hides appropriately
+- [ ] Quote Data Display renders properly
+- [ ] Approve modal opens with countdown options
+- [ ] Approve action submits correctly
+- [ ] Reject modal opens with reason textarea
+- [ ] Reject action submits correctly
+- [ ] Price modal opens with input
+- [ ] Price save action works
+- [ ] Installer Assignment modal opens
+- [ ] Installer assignment submits correctly
+- [ ] All API calls function identically
+- [ ] No console errors
+- [ ] No broken functionality
+
+#### Task Z-020: Build Validation
+`powershell
+# TypeScript check
+npx tsc --noEmit
+
+# Build check
+npm run build
+`
+- [ ] 0 TypeScript errors
+- [ ] Build succeeds
+- [ ] No runtime errors
+
+#### Task Z-021: Atomic Commit
+`ash
+git add src/app/admin/leads/[id]/page.tsx
+git commit -m "feat: migrate Admin Lead Details Page to neumorphic design system
+
+- Remove ALL hardcoded hex colors (bg-[#0A0F1E], bg-[#1A1F2E])
+- Replace ALL theme conditional logic with semantic tokens
+- Remove ALL dark: prefixes (80+ instances)
+- Replace hardcoded gray/slate colors with semantic tokens (50+ instances)
+- Replace hardcoded white/black with semantic foreground/background
+- Migrate all cards to bg-surface
+- Migrate all text to text-foreground/text-muted-foreground
+- Migrate status badges to semantic token system
+- Migrate all 4 modals to semantic tokens
+- Convert form inputs to .form-input/.form-select classes
+- Replace all buttons with Button component or semantic tokens
+- Verify 0 violations across 5 core verification commands
+- Test across 3 themes (Dark, Light, Purple)
+- Test across 5 responsive breakpoints
+- Preserve ALL existing functionality (UI ONLY changes)
+
+Baseline: 200+ violations  Post-migration: 0 violations"
+`
+
+### Success Criteria
+- [ ] Admin Lead Details Page fully migrated to neumorphic design
+- [ ] ALL 5 core verification commands return 0 matches (MANDATORY)
+- [ ] 0 hardcoded hex colors (bg-[#*])
+- [ ] 0 theme conditionals (5{theme === ...})
+- [ ] 0 dark: prefixes remaining
+- [ ] 0 hardcoded gray/slate colors
+- [ ] 0 hardcoded white/black colors
+- [ ] All cards use bg-surface
+- [ ] All text uses semantic tokens
+- [ ] All 4 modals fully migrated
+- [ ] All form inputs use semantic classes
+- [ ] All buttons use Button component or semantic tokens
+- [ ] All 3 themes work correctly (Dark, Light, Purple)
+- [ ] Responsive at all 5 breakpoints
+- [ ] ALL functionality preserved (no logic changes)
+- [ ] TypeScript compiles with 0 errors
+- [ ] Build succeeds with 0 errors
+- [ ] 1 atomic commit created with comprehensive message
+
+### Migration Principles (from MIGRATION-PAIN-POINTS.md)
+1.  Follow the SOT (DESIGN-SYSTEM-SOT.md) religiously
+2.  Run pre-migration audit checklist (COMPLETED - 200+ violations estimated)
+3.  Ensure mobile responsiveness (5 breakpoints tested)
+4.  Use semantic tokens only (no hardcoded classes)
+5.  Follow mandatory pre and post workflow (6 verification commands)
+6.  100% migration (no partial work, all violations addressed)
+7.  Thorough testing and validation (3 themes, 5 breakpoints, functionality)
+8.  Keep process simple (UI ONLY, no logic changes)
+9.  Copy patterns from SOT reference components
+10.  Clean up legacy code (remove ALL old classes, theme conditionals, hex colors)
+
+### Critical Reminders
+- **UI ONLY**: Do NOT modify state management, useEffect hooks, API calls, or business logic
+- **100% Replacement**: NO hybrid patterns (must replace, not add alongside)
+- **Multi-Theme Required**: ALL 3 themes must pass visual inspection
+- **Zero Violations**: Commands 1-5 MUST return 0 matches (Command 6 informational only)
+- **Atomic Commits**: One comprehensive commit with detailed before/after message
+- **Logic Preservation**: Page must function identically after migration
+- **Remove Theme Conditionals**: Replace ALL $ with semantic tokens
+- **Remove Hex Colors**: Replace ALL g-[#...] with semantic tokens
+- **Complexity Warning**: This is a 1227-line file with extensive hardcoded patternsexpect 6-8 hours for complete migration
+
+---
+
+**Phase Z Report**: Pre-audit complete. Admin Lead Details Page identified with 200+ violations including custom hex colors, theme conditionals, dark: prefixes, and hardcoded white/black colors. 21 tasks created covering all sections (header, 6 cards, 4 modals, verification, testing). Estimated 6-8 hours for complete migration due to file complexity (1227 lines). Success criteria: 0/0/0/0/0 on core verification commands, 3 themes working, 5 breakpoint responsive, all functionality preserved.

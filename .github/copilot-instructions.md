@@ -54,3 +54,67 @@ FOLDER CREATION RULES:
 - Follow development best practices
 - Use TypeScript for type safety
 - Follow Next.js App Router conventions
+
+## Migration and Build Execution Standards
+
+For ANY component migration or build task, MUST follow: `specs/007-migration-and-build/plan.md`
+
+### 13-Step Workflow (No-Skip, Mandatory)
+
+When user requests migration work (e.g., "migrate the form", "migrate Hero component"):
+
+1. **Run GATE 0 health check** - Verify design system completeness
+2. **Create logic audit report** - Document all functionality to preserve
+3. **Run pre-migration verification** - Establish baseline violation count
+4. **Migrate component** - UI ONLY (NO logic changes, only className replacements)
+5. **Run post-migration verification** - MUST return 0/0/0/0/0/0 (all 6 commands)
+6. **Test Dark theme** - Verify colors, shadows, contrast
+7. **Test Light theme** - Verify neumorphic styling
+8. **Test Purple theme** - Verify purple shadows, accent colors
+9. **Test responsive** - 5 breakpoints (320px, 375px, 768px, 1024px, 1440px)
+10. **Test accessibility** - WCAG 2.1 AA (contrast, keyboard, ARIA)
+11. **Test functionality** - Verify all audited logic works identically
+12. **Run build validation** - `npx tsc --noEmit` and `npm run build`
+13. **Commit atomically** - One component per commit, descriptive message
+
+### Critical Rules
+
+- **UI ONLY**: NEVER modify state variables, event handlers, useEffect hooks, API calls, or validation logic
+- **100% Replacement**: NO hybrid patterns (mixing old + new classes)
+- **Multi-Theme Required**: ALL 3 themes must pass (not just Dark)
+- **Zero Violations**: Post-migration verification MUST be 0/0/0/0/0/0
+- **Atomic Commits**: One component per commit (not batched)
+- **Logic Preservation**: Component must function identically after migration
+
+### Quick Reference
+
+- **Full Spec**: `specs/007-migration-and-build/spec.md` (user stories, requirements, success criteria)
+- **Execution Plan**: `specs/007-migration-and-build/plan.md` (13-step workflow with commands)
+- **Design Tokens**: `DOC/DESIGN-SYSTEM-SOT.md` (color/typography token reference)
+- **Pain Points**: `DOC/MIGRATION-PAIN-POINTS.md` (lessons learned from previous migrations)
+
+### Verification Commands (PowerShell)
+
+Run all 6 commands to detect hardcoded values:
+
+```powershell
+# Command 1: Hardcoded gray/slate colors
+Select-String -Path "src\components\[path]\[Component].tsx" -Pattern "text-gray-|text-slate-|bg-gray-|bg-slate-|border-gray-|border-slate-"
+
+# Command 2: Dark mode classes
+Select-String -Path "src\components\[path]\[Component].tsx" -Pattern "dark:"
+
+# Command 3: RGB/HEX colors
+Select-String -Path "src\components\[path]\[Component].tsx" -Pattern "rgba\(|rgb\(|#[0-9a-fA-F]{3,6}"
+
+# Command 4: Hardcoded white/black
+Select-String -Path "src\components\[path]\[Component].tsx" -Pattern "text-white|bg-white|text-black|bg-black"
+
+# Command 5: Hardcoded typography
+Select-String -Path "src\components\[path]\[Component].tsx" -Pattern "text-xs|text-sm|text-lg|text-xl|font-bold|font-semibold"
+
+# Command 6: Manual responsive classes
+Select-String -Path "src\components\[path]\[Component].tsx" -Pattern "sm:text-|md:text-|lg:text-"
+```
+
+**Required Result**: 0 matches for ALL 6 commands before marking component complete.

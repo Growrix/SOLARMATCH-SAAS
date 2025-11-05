@@ -715,7 +715,6 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
   };
 
   const formatCurrency = (amount: number) => new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
-  const baseInputClasses = "form-input w-full px-4 py-3";
   
   const budgetOptions = {
     residential: [
@@ -823,7 +822,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                     onChange={(e) => handleInputChange('postcode', e.target.value)} 
                     onBlur={handleBlur} 
                     placeholder="e.g., 2000" 
-                    className={`${baseInputClasses} ${errors.postcode ? 'border-destructive' : ''}`}
+                    className={`w-full rounded-xl border px-4 py-3 text-base font-medium bg-surface text-foreground shadow-inner focus:outline-none focus:ring-2 focus:ring-primary ${errors.postcode ? 'border-destructive' : 'border-border'}`}
                     aria-invalid={errors.postcode ? 'true' : 'false'}
                     maxLength={4}
                     aria-required="true"
@@ -844,7 +843,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                     onChange={(e) => handleInputChange('location', e.target.value)} 
                     onBlur={handleBlur} 
                     placeholder="e.g., Sydney" 
-                    className={`${baseInputClasses} ${errors.location ? 'border-destructive' : ''}`}
+                    className={`w-full rounded-xl border px-4 py-3 text-base font-medium bg-surface text-foreground shadow-inner focus:outline-none focus:ring-2 focus:ring-primary ${errors.location ? 'border-destructive' : 'border-border'}`}
                     aria-required="true"
                     aria-describedby={errors.location ? 'location-error' : undefined}
                   />
@@ -862,7 +861,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                     value={formData.state} 
                     onChange={(e) => handleInputChange('state', e.target.value)} 
                     onBlur={handleBlur} 
-                    className={`${baseInputClasses} ${errors.state ? 'border-destructive' : ''}`}
+                    className={`form-select w-full ${errors.state ? 'border-destructive' : ''}`}
                     aria-required="true"
                     aria-describedby={errors.state ? 'state-error' : undefined}
                   >
@@ -889,7 +888,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                     name="retailer" 
                     value={formData.retailer} 
                     onChange={(e) => handleInputChange('retailer', e.target.value)} 
-                    className={baseInputClasses}
+                    className="form-select w-full"
                   >
                     <option value="">Select retailer (optional)</option>
                     <option value="origin">Origin Energy</option>
@@ -914,11 +913,11 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                       <button 
                         type="button"
                         onClick={() => handleInputChange('hasExistingSystem', !formData.hasExistingSystem)} 
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${formData.hasExistingSystem ? 'bg-primary' : 'bg-muted'}`}
+                        className={`toggle-switch toggle-switch-md ${formData.hasExistingSystem ? 'toggle-switch-on' : 'toggle-switch-off'}`}
                         aria-pressed={formData.hasExistingSystem}
                         aria-describedby="existing-system-description"
                       >
-                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${formData.hasExistingSystem ? 'translate-x-6' : 'translate-x-1'}`}/>
+                        <span className={`toggle-knob toggle-knob-md ${formData.hasExistingSystem ? 'toggle-knob-on-md' : 'toggle-knob-off-md'}`}/>
                       </button>
                     </div>
                   </fieldset>
@@ -939,7 +938,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                         step="0.5"
                         min="0.5"
                         max="100"
-                        className={`${baseInputClasses} ${errors.existingSystemSize ? 'border-destructive' : ''}`}
+                        className={`form-select w-full ${errors.existingSystemSize ? 'border-destructive' : ''}`}
                         aria-required={formData.hasExistingSystem}
                         aria-describedby={errors.existingSystemSize ? 'existing-size-error' : undefined}
                       />
@@ -1000,7 +999,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                           placeholder="e.g., 800" 
                           min="50"
                           max="5000"
-                          className={`${baseInputClasses} mt-3 ${errors.electricityValue ? 'border-destructive' : ''}`}
+                          className={`form-select w-full mt-3 ${errors.electricityValue ? 'border-destructive' : ''}`}
                           aria-describedby="monthly-kwh-help"
                         />
                       )}
@@ -1035,7 +1034,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                           placeholder="e.g., 600" 
                           min="150"
                           max="6000"
-                          className={`${baseInputClasses} mt-3 ${errors.electricityValue ? 'border-destructive' : ''}`}
+                          className={`form-select w-full mt-3 ${errors.electricityValue ? 'border-destructive' : ''}`}
                           aria-describedby="quarterly-bill-help"
                         />
                       )}
@@ -1080,7 +1079,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                     step="0.1"
                     min="1"
                     max={quoteType === 'residential' ? '30' : '100'}
-                    className={`${baseInputClasses} ${errors.systemSizeOverride ? 'border-destructive' : ''}`}
+                    className={`form-select w-full ${errors.systemSizeOverride ? 'border-destructive' : ''}`}
                     aria-describedby={errors.systemSizeOverride ? 'system-override-error' : 'system-override-help'}
                   />
                   {errors.systemSizeOverride && <p id="system-override-error" className="text-destructive text-xs mt-1" role="alert">{errors.systemSizeOverride}</p>}
@@ -1102,7 +1101,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                       step="5"
                       value={formData.desiredOffset} 
                       onChange={(e) => handleInputChange('desiredOffset', Number(e.target.value))}
-                      className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer slider"
+                      className="slider-track slider"
                     />
                     <div className="flex justify-between text-xs text-subtle mt-1">
                       <span>25% (Reduce bills)</span>
@@ -1116,9 +1115,9 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
               {/* Commercial Specific Inputs */}
               {quoteType === 'commercial' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-border">
-                    <div><label className="block text-subtle text-sm font-semibold mb-2">Peak Demand (kW)</label><input type="number" name="peakDemand" value={formData.peakDemand} onChange={(e) => handleInputChange('peakDemand', e.target.value)} onBlur={handleBlur} placeholder="e.g. 50" className={`${baseInputClasses} ${errors.peakDemand ? 'border-destructive' : ''}`}/>{errors.peakDemand && <p className="text-destructive text-xs mt-1">{errors.peakDemand}</p>}</div>
-                    <div><label className="block text-subtle text-sm font-semibold mb-2">Project Priority</label><select name="projectPriority" value={formData.projectPriority} onChange={(e) => handleInputChange('projectPriority', e.target.value)} className={baseInputClasses}><option value="reduce_bills">Reduce Energy Bills</option><option value="reduce_demand">Reduce Demand Charges</option><option value="max_roi">Maximize ROI</option></select></div>
-                    <div className="md:col-span-2 flex items-center justify-between p-4 bg-surface/30 rounded-xl"><p className="text-foreground font-semibold">Is it a three-phase power supply?</p><button onClick={() => handleInputChange('isThreePhase', !formData.isThreePhase)} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formData.isThreePhase ? 'bg-primary' : 'bg-muted'}`}><span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${formData.isThreePhase ? 'translate-x-6' : 'translate-x-1'}`}/></button></div>
+                    <div><label className="block text-subtle text-sm font-semibold mb-2">Peak Demand (kW)</label><input type="number" name="peakDemand" value={formData.peakDemand} onChange={(e) => handleInputChange('peakDemand', e.target.value)} onBlur={handleBlur} placeholder="e.g. 50" className={`form-select w-full ${errors.peakDemand ? 'border-destructive' : ''}`}/>{errors.peakDemand && <p className="text-destructive text-xs mt-1">{errors.peakDemand}</p>}</div>
+                    <div><label className="block text-subtle text-sm font-semibold mb-2">Project Priority</label><select name="projectPriority" value={formData.projectPriority} onChange={(e) => handleInputChange('projectPriority', e.target.value)} className="form-select w-full"><option value="reduce_bills">Reduce Energy Bills</option><option value="reduce_demand">Reduce Demand Charges</option><option value="max_roi">Maximize ROI</option></select></div>
+                    <div className="info-section md:col-span-2 flex items-center justify-between"><p className="text-foreground font-semibold">Is it a three-phase power supply?</p><button onClick={() => handleInputChange('isThreePhase', !formData.isThreePhase)} className={`toggle-switch toggle-switch-md ${formData.isThreePhase ? 'toggle-switch-on' : 'toggle-switch-off'}`}><span className={`toggle-knob toggle-knob-md ${formData.isThreePhase ? 'toggle-knob-on-md' : 'toggle-knob-off-md'}`}/></button></div>
                 </div>
               )}
 
@@ -1139,7 +1138,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                       name="panelOrientation" 
                       value={formData.panelOrientation} 
                       onChange={(e) => handleInputChange('panelOrientation', e.target.value)} 
-                      className={baseInputClasses}
+                      className="form-select w-full"
                       aria-describedby="orientation-help"
                     >
                       <option value="north">🧭 North (Best - 100%)</option>
@@ -1164,7 +1163,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                       name="roofTilt" 
                       value={formData.roofTilt} 
                       onChange={(e) => handleInputChange('roofTilt', e.target.value)} 
-                      className={baseInputClasses}
+                      className="form-select w-full"
                     >
                       <option value="flat">📐 Flat (0-10° - 92%)</option>
                       <option value="low">📐 Low Pitch (10-20° - 96%)</option>
@@ -1183,7 +1182,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                       name="shadingLevel" 
                       value={formData.shadingLevel} 
                       onChange={(e) => handleInputChange('shadingLevel', e.target.value)} 
-                      className={baseInputClasses}
+                      className="form-select w-full"
                     >
                       <option value="none">☀️ No Shade (100%)</option>
                       <option value="minimal">🌤️ Minimal Shade (&lt;10% - 95%)</option>
@@ -1204,7 +1203,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                       value={formData.roofType} 
                       onChange={(e) => handleInputChange('roofType', e.target.value)} 
                       onBlur={handleBlur} 
-                      className={`${baseInputClasses} ${errors.roofType ? 'border-destructive' : ''}`}
+                      className={`form-select w-full ${errors.roofType ? 'border-destructive' : ''}`}
                       aria-required="true"
                       aria-describedby={errors.roofType ? 'roof-type-error' : undefined}
                     >
@@ -1229,7 +1228,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                       name="panelBrand" 
                       value={formData.panelBrand} 
                       onChange={(e) => handleInputChange('panelBrand', e.target.value)} 
-                      className={baseInputClasses}
+                      className="form-select w-full"
                     >
                       <option value="">No preference</option>
                       <option value="tier1">🥇 Tier 1 Brands (Premium)</option>
@@ -1253,7 +1252,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                         name="usagePattern" 
                         value={formData.usagePattern} 
                         onChange={(e) => handleInputChange('usagePattern', e.target.value)} 
-                        className={baseInputClasses}
+                        className="form-select w-full"
                       >
                         <option value="spread">⏰ Evenly Spread (Day & Night)</option>
                         <option value="daytime">🌅 Mainly Daytime (Business Hours)</option>
@@ -1265,7 +1264,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                 </div>
                 
                 {/* Advanced Options */}
-                <div className="mt-6 p-4 bg-muted/50 rounded-xl border border-border">
+                <div className="info-section mt-6">
                   <h4 className="text-sm font-semibold text-foreground mb-3">
                     🔧 Advanced System Options
                   </h4>
@@ -1279,10 +1278,10 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                       <button 
                         type="button"
                         onClick={() => handleInputChange('includeOptimizers', !formData.includeOptimizers)} 
-                        className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${formData.includeOptimizers ? 'bg-primary' : 'bg-muted'}`}
+                        className={`toggle-switch toggle-switch-sm ${formData.includeOptimizers ? 'toggle-switch-on' : 'toggle-switch-off'}`}
                         aria-pressed={formData.includeOptimizers}
                       >
-                        <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${formData.includeOptimizers ? 'translate-x-5' : 'translate-x-1'}`}/>
+                        <span className={`toggle-knob toggle-knob-sm ${formData.includeOptimizers ? 'toggle-knob-on-sm' : 'toggle-knob-off-sm'}`}/>
                       </button>
                     </div>
                     
@@ -1294,10 +1293,10 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                       <button 
                         type="button"
                         onClick={() => handleInputChange('includeMicroinverters', !formData.includeMicroinverters)} 
-                        className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${formData.includeMicroinverters ? 'bg-primary' : 'bg-muted'}`}
+                        className={`toggle-switch toggle-switch-sm ${formData.includeMicroinverters ? 'toggle-switch-on' : 'toggle-switch-off'}`}
                         aria-pressed={formData.includeMicroinverters}
                       >
-                        <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${formData.includeMicroinverters ? 'translate-x-5' : 'translate-x-1'}`}/>
+                        <span className={`toggle-knob toggle-knob-sm ${formData.includeMicroinverters ? 'toggle-knob-on-sm' : 'toggle-knob-off-sm'}`}/>
                       </button>
                     </div>
                   </div>
@@ -1322,7 +1321,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                       value={formData.budgetRange} 
                       onChange={(e) => handleInputChange('budgetRange', e.target.value)} 
                       onBlur={handleBlur} 
-                      className={`${baseInputClasses} ${errors.budgetRange ? 'border-destructive' : ''}`}
+                      className={`form-select w-full ${errors.budgetRange ? 'border-destructive' : ''}`}
                       aria-required="true"
                       aria-describedby={errors.budgetRange ? 'budget-error' : undefined}
                     >
@@ -1345,7 +1344,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                       name="tariffPlan" 
                       value={formData.tariffPlan} 
                       onChange={(e) => handleInputChange('tariffPlan', e.target.value)} 
-                      className={baseInputClasses}
+                      className="form-select w-full"
                     >
                       <option value="">Select tariff type</option>
                       <option value="flat">📊 Flat Rate (Single rate all day)</option>
@@ -1370,7 +1369,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                       min="15"
                       max="60"
                       step="0.1"
-                      className={baseInputClasses}
+                      className="form-select w-full"
                       aria-describedby="retail-rate-help"
                     />
                     <p id="retail-rate-help" className="text-xs text-subtle mt-1">Leave blank to use state average</p>
@@ -1391,7 +1390,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                       min="0"
                       max="25"
                       step="0.1"
-                      className={baseInputClasses}
+                      className="form-select w-full"
                       aria-describedby="feed-in-help"
                     />
                     <p id="feed-in-help" className="text-xs text-subtle mt-1">Typical range: 6-12c/kWh</p>
@@ -1405,7 +1404,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                   🔋 Battery Storage Options
                 </legend>
                 
-                <div className="flex items-center justify-between p-4 bg-muted/50 rounded-xl border border-border mb-6">
+                <div className="info-section flex items-center justify-between mb-6">
                   <div className="flex items-center space-x-3">
                     <Battery className="h-5 w-5 text-primary" />
                     <div>
@@ -1416,17 +1415,17 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                   <button 
                     type="button"
                     onClick={() => handleInputChange('batteryIncluded', !formData.batteryIncluded)} 
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${formData.batteryIncluded ? 'bg-primary' : 'bg-muted'}`}
+                    className={`toggle-switch toggle-switch-md ${formData.batteryIncluded ? 'toggle-switch-on' : 'toggle-switch-off'}`}
                     aria-pressed={formData.batteryIncluded}
                     aria-describedby="battery-toggle-help"
                   >
-                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${formData.batteryIncluded ? 'translate-x-6' : 'translate-x-1'}`}/>
+                    <span className={`toggle-knob toggle-knob-md ${formData.batteryIncluded ? 'toggle-knob-on-md' : 'toggle-knob-off-md'}`}/>
                   </button>
                 </div>
                 
                 {formData.batteryIncluded && (
                   <div className="space-y-6 animate-fade-in">
-                    <div className="mb-6 p-4 bg-muted/50 rounded-xl border border-border">
+                    <div className="info-section mb-6">
                       <div className="flex items-start gap-3">
                         <div className="text-info text-xl">💡</div>
                         <div>
@@ -1450,7 +1449,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                           name="batteryCapacity" 
                           value={formData.batteryCapacity} 
                           onChange={(e) => handleInputChange('batteryCapacity', e.target.value)} 
-                          className={baseInputClasses}
+                          className="form-select w-full"
                         >
                           <option value="">Select capacity</option>
                           <option value="5">🔋 5 kWh (Small - Emergency backup)</option>
@@ -1466,7 +1465,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                           <input 
                             type="number" 
                             placeholder="Enter capacity in kWh" 
-                            className={`${baseInputClasses} mt-2`}
+                            className={`form-select w-full mt-2`}
                             min="3"
                             max="100"
                             step="0.5"
@@ -1485,7 +1484,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                           name="batteryBrand" 
                           value={formData.batteryBrand} 
                           onChange={(e) => handleInputChange('batteryBrand', e.target.value)} 
-                          className={baseInputClasses}
+                          className="form-select w-full"
                         >
                           <option value="">No brand preference</option>
                           <option value="tesla">🚗 Tesla Powerwall (Premium)</option>
@@ -1509,7 +1508,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                           name="backupCritical" 
                           value={formData.backupCritical} 
                           onChange={(e) => handleInputChange('backupCritical', e.target.value)} 
-                          className={baseInputClasses}
+                          className="form-select w-full"
                         >
                           <option value="essential">🏠 Essential circuits only (lights, fridge)</option>
                           <option value="partial">🔌 Partial home backup</option>
@@ -1528,7 +1527,7 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                           name="batteryUsage" 
                           value={formData.batteryUsage} 
                           onChange={(e) => handleInputChange('batteryUsage', e.target.value)} 
-                          className={baseInputClasses}
+                          className="form-select w-full"
                         >
                           <option value="self-consumption">🏠 Maximize self-consumption</option>
                           <option value="backup">⚡ Emergency backup power</option>
@@ -1553,10 +1552,10 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                           <button 
                             type="button"
                             onClick={() => handleInputChange('includeVPP', !formData.includeVPP)} 
-                            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${formData.includeVPP ? 'bg-primary' : 'bg-muted'}`}
+                            className={`toggle-switch toggle-switch-sm ${formData.includeVPP ? 'toggle-switch-on' : 'toggle-switch-off'}`}
                             aria-pressed={formData.includeVPP}
                           >
-                            <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${formData.includeVPP ? 'translate-x-5' : 'translate-x-1'}`}/>
+                            <span className={`toggle-knob toggle-knob-sm ${formData.includeVPP ? 'toggle-knob-on-sm' : 'toggle-knob-off-sm'}`}/>
                           </button>
                         </div>
                         
@@ -1568,10 +1567,10 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                           <button 
                             type="button"
                             onClick={() => handleInputChange('includeEVCharging', !formData.includeEVCharging)} 
-                            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${formData.includeEVCharging ? 'bg-primary' : 'bg-muted'}`}
+                            className={`toggle-switch toggle-switch-sm ${formData.includeEVCharging ? 'toggle-switch-on' : 'toggle-switch-off'}`}
                             aria-pressed={formData.includeEVCharging}
                           >
-                            <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${formData.includeEVCharging ? 'translate-x-5' : 'translate-x-1'}`}/>
+                            <span className={`toggle-knob toggle-knob-sm ${formData.includeEVCharging ? 'toggle-knob-on-sm' : 'toggle-knob-off-sm'}`}/>
                           </button>
                         </div>
                         
@@ -1583,10 +1582,10 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                           <button 
                             type="button"
                             onClick={() => handleInputChange('includeSmartHome', !formData.includeSmartHome)} 
-                            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${formData.includeSmartHome ? 'bg-primary' : 'bg-muted'}`}
+                            className={`toggle-switch toggle-switch-sm ${formData.includeSmartHome ? 'toggle-switch-on' : 'toggle-switch-off'}`}
                             aria-pressed={formData.includeSmartHome}
                           >
-                            <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${formData.includeSmartHome ? 'translate-x-5' : 'translate-x-1'}`}/>
+                            <span className={`toggle-knob toggle-knob-sm ${formData.includeSmartHome ? 'toggle-knob-on-sm' : 'toggle-knob-off-sm'}`}/>
                           </button>
                         </div>
                         
@@ -1598,10 +1597,10 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                           <button 
                             type="button"
                             onClick={() => handleInputChange('includeGridServices', !formData.includeGridServices)} 
-                            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${formData.includeGridServices ? 'bg-primary' : 'bg-muted'}`}
+                            className={`toggle-switch toggle-switch-sm ${formData.includeGridServices ? 'toggle-switch-on' : 'toggle-switch-off'}`}
                             aria-pressed={formData.includeGridServices}
                           >
-                            <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${formData.includeGridServices ? 'translate-x-5' : 'translate-x-1'}`}/>
+                            <span className={`toggle-knob toggle-knob-sm ${formData.includeGridServices ? 'toggle-knob-on-sm' : 'toggle-knob-off-sm'}`}/>
                           </button>
                         </div>
                       </div>
@@ -1635,11 +1634,19 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
 
         {currentStep === 3 && quoteResult && (
           <div className="animate-slide-in-top">
-            <div className="text-center mb-8"><div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10"><CheckCircle2 className="h-5 w-5" /></div><h2 className="text-2xl font-bold text-foreground mt-4 mb-2">Your Instant {quoteType === 'commercial' ? 'Commercial' : 'Residential'} Solar Quote</h2><p className="text-subtle">An estimate based on your provided details</p></div>
+            <div className="text-center mb-8">
+              <div className="icon-container mx-auto mb-4">
+                <CheckCircle2 className="h-6 w-6" />
+              </div>
+              <h2 className="text-2xl font-bold text-foreground mb-2">
+                Your Instant {quoteType === 'commercial' ? 'Commercial' : 'Residential'} Solar Quote
+              </h2>
+              <p className="text-foreground-subtle">An estimate based on your provided details</p>
+            </div>
             
             {/* Informational banner for homeowners with existing quotes */}
             {hideSubmitButton && (
-              <div className="mb-6 p-4 bg-muted/50 border border-border rounded-xl">
+              <div className="info-section mb-6">
                 <div className="flex items-start space-x-3">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-info mt-0.5 flex-shrink-0">
                     <circle cx="12" cy="12" r="10" />
@@ -1659,117 +1666,117 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
               <div className="space-y-8">
                 {/* Key Metrics Overview */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="bg-muted/50 rounded-2xl p-6 border border-border">
+                  <div className="metric-card">
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 bg-muted rounded-lg">
-                        <svg className="w-6 h-6 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="icon-container">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                         </svg>
                       </div>
                       <div>
-                        <h3 className="text-sm font-medium text-subtle">Out-of-Pocket Cost</h3>
-                        <p className="text-2xl font-bold text-foreground">{formatCurrency(quoteResult.finalPrice)}</p>
+                        <h3 className="metric-card-label">Out-of-Pocket Cost</h3>
+                        <p className="metric-card-value">{formatCurrency(quoteResult.finalPrice)}</p>
                       </div>
                     </div>
-                    <p className="text-xs text-muted-foreground">After all rebates and incentives</p>
+                    <p className="metric-card-description">After all rebates and incentives</p>
                   </div>
                   
-                  <div className="bg-muted/50 rounded-2xl p-6 border border-border">
+                  <div className="metric-card">
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 bg-muted rounded-lg">
-                        <svg className="w-6 h-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="icon-container">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                         </svg>
                       </div>
                       <div>
-                        <h3 className="text-sm font-medium text-subtle">Payback Period</h3>
-                        <p className="text-2xl font-bold text-success">{quoteResult.simplePaybackYears ?? 'N/A'} Years</p>
+                        <h3 className="metric-card-label">Payback Period</h3>
+                        <p className="metric-card-value">{quoteResult.simplePaybackYears ?? 'N/A'} Years</p>
                       </div>
                     </div>
-                    <p className="text-xs text-muted-foreground">Time to break even on investment</p>
+                    <p className="metric-card-description">Time to break even on investment</p>
                   </div>
                   
-                  <div className="bg-muted/50 rounded-2xl p-6 border border-border">
+                  <div className="metric-card">
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 bg-muted rounded-lg">
-                        <svg className="w-6 h-6 text-info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="icon-container">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
                       </div>
                       <div>
-                        <h3 className="text-sm font-medium text-subtle">Annual Savings</h3>
-                        <p className="text-2xl font-bold text-info">{formatCurrency(quoteResult.annualSavings)}</p>
+                        <h3 className="metric-card-label">Annual Savings</h3>
+                        <p className="metric-card-value">{formatCurrency(quoteResult.annualSavings)}</p>
                       </div>
                     </div>
-                    <p className="text-xs text-muted-foreground">Estimated electricity bill reduction</p>
+                    <p className="metric-card-description">Estimated electricity bill reduction</p>
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {/* Cost Breakdown */}
-                  <div className="bg-background shadow-neu-inset rounded-2xl p-6 border border-border">
-                    <h3 className="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
+                  <div className="detail-card">
+                    <h3 className="detail-card-header">
                       <span className="text-2xl">💰</span>
                       Detailed Cost Breakdown
                     </h3>
                     
                     <div className="space-y-4">
-                      <div className="flex justify-between items-center p-3 bg-background-alt rounded-xl shadow-neu-inset-sm">
-                        <span className="text-foreground font-medium">System Hardware</span>
-                        <span className="text-foreground font-semibold">{formatCurrency(quoteResult.totalCost * 0.6)}</span>
+                      <div className="cost-item">
+                        <span className="cost-item-label">System Hardware</span>
+                        <span className="cost-item-value">{formatCurrency(quoteResult.totalCost * 0.6)}</span>
                       </div>
                       
-                      <div className="flex justify-between items-center p-3 bg-background-alt rounded-xl shadow-neu-inset-sm">
-                        <span className="text-foreground font-medium">Installation & Labor</span>
-                        <span className="text-foreground font-semibold">{formatCurrency(quoteResult.totalCost * 0.3)}</span>
+                      <div className="cost-item">
+                        <span className="cost-item-label">Installation & Labor</span>
+                        <span className="cost-item-value">{formatCurrency(quoteResult.totalCost * 0.3)}</span>
                       </div>
                       
-                      <div className="flex justify-between items-center p-3 bg-background-alt rounded-xl shadow-neu-inset-sm">
-                        <span className="text-foreground font-medium">Design & Permits</span>
-                        <span className="text-foreground font-semibold">{formatCurrency(quoteResult.totalCost * 0.1)}</span>
+                      <div className="cost-item">
+                        <span className="cost-item-label">Design & Permits</span>
+                        <span className="cost-item-value">{formatCurrency(quoteResult.totalCost * 0.1)}</span>
                       </div>
                       
                       <div className="border-t border-border pt-3 mt-3">
                         <div className="flex justify-between items-center text-lg font-semibold">
-                          <span className="text-foreground">Subtotal</span>
-                          <span className="text-foreground">{formatCurrency(quoteResult.totalCost)}</span>
+                          <span className="cost-item-label">Subtotal</span>
+                          <span className="cost-item-value">{formatCurrency(quoteResult.totalCost)}</span>
                         </div>
                       </div>
                       
                       <div className="space-y-2 pt-2">
-                        <div className="flex justify-between items-center text-success">
-                          <span className="flex items-center gap-2">
+                        <div className="rebate-item">
+                          <span className="rebate-item-label">
                             <span>Federal Rebate (STCs)</span>
                             <InfoTooltip text="Small-scale Technology Certificates - Federal government incentive based on system size and location" />
                           </span>
-                          <span className="font-semibold">-{formatCurrency(quoteResult.federalRebate)}</span>
+                          <span className="rebate-item-value">-{formatCurrency(quoteResult.federalRebate)}</span>
                         </div>
                         
                         {quoteResult.batteryRebate > 0 && (
-                          <div className="flex justify-between items-center text-success">
-                            <span className="flex items-center gap-2">
+                          <div className="rebate-item">
+                            <span className="rebate-item-label">
                               <span>Battery Rebate</span>
                               <InfoTooltip text="Federal or state incentive for battery storage systems" />
                             </span>
-                            <span className="font-semibold">-{formatCurrency(quoteResult.batteryRebate)}</span>
+                            <span className="rebate-item-value">-{formatCurrency(quoteResult.batteryRebate)}</span>
                           </div>
                         )}
                         
                         {quoteResult.stateRebate > 0 && (
-                          <div className="flex justify-between items-center text-success">
-                            <span className="flex items-center gap-2">
+                          <div className="rebate-item">
+                            <span className="rebate-item-label">
                               <span>State Rebate</span>
                               <InfoTooltip text="State-specific rebates like Victoria's Solar Homes Program" />
                             </span>
-                            <span className="font-semibold">-{formatCurrency(quoteResult.stateRebate)}</span>
+                            <span className="rebate-item-value">-{formatCurrency(quoteResult.stateRebate)}</span>
                           </div>
                         )}
                       </div>
                       
-                      <div className="border-t-2 border-primary/20 pt-4 mt-4 bg-primary/5 rounded-lg p-4">
+                      <div className="summary-box">
                         <div className="flex justify-between items-center text-xl font-bold">
-                          <span className="text-foreground">Final Price</span>
-                          <span className="text-primary">{formatCurrency(quoteResult.finalPrice)}</span>
+                          <span className="summary-box-label">Final Price</span>
+                          <span className="summary-box-value">{formatCurrency(quoteResult.finalPrice)}</span>
                         </div>
                       </div>
                     </div>
@@ -1777,75 +1784,75 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
                   
                   {/* System Specifications */}
                   <div className="space-y-6">
-                    <div className="bg-surface rounded-2xl p-6 border border-border">
-                      <h3 className="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
+                    <div className="detail-card">
+                      <h3 className="detail-card-header">
                         <span className="text-2xl">⚡</span>
                         System Specifications
                       </h3>
                       
                       <div className="grid grid-cols-2 gap-4 mb-6">
-                        <div className="text-center p-4 bg-surface/50 rounded-xl border border-border/30">
-                          <p className="text-3xl font-bold text-primary">{quoteResult.systemSize}kW</p>
-                          <p className="text-sm text-subtle mt-1">System Size</p>
+                        <div className="spec-card">
+                          <p className="spec-card-value">{quoteResult.systemSize}kW</p>
+                          <p className="spec-card-label">System Size</p>
                         </div>
                         
-                        <div className="text-center p-4 bg-surface/50 rounded-xl border border-border/30">
-                          <p className="text-3xl font-bold text-foreground">{Math.ceil(quoteResult.systemSize * 1000 / 440)}</p>
-                          <p className="text-sm text-subtle mt-1">Solar Panels</p>
+                        <div className="spec-card">
+                          <p className="spec-card-value">{Math.ceil(quoteResult.systemSize * 1000 / 440)}</p>
+                          <p className="spec-card-label">Solar Panels</p>
                         </div>
                       </div>
                       
                       <div className="space-y-3 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-subtle">Panel Wattage</span>
-                          <span className="text-foreground font-medium">440W each</span>
+                          <span className="performance-item-label">Panel Wattage</span>
+                          <span className="performance-item-value">440W each</span>
                         </div>
                         
                         <div className="flex justify-between">
-                          <span className="text-subtle">Inverter Size</span>
-                          <span className="text-foreground font-medium">{Math.min(5, Math.floor(quoteResult.systemSize))}kW</span>
+                          <span className="performance-item-label">Inverter Size</span>
+                          <span className="performance-item-value">{Math.min(5, Math.floor(quoteResult.systemSize))}kW</span>
                         </div>
                         
                         <div className="flex justify-between">
-                          <span className="text-subtle">Battery Storage</span>
-                          <span className="text-foreground font-medium">
+                          <span className="performance-item-label">Battery Storage</span>
+                          <span className="performance-item-value">
                             {formData.batteryIncluded ? `${formData.batteryCapacity || '10'}kWh` : 'None'}
                           </span>
                         </div>
                         
                         <div className="flex justify-between">
-                          <span className="text-subtle">Warranty</span>
-                          <span className="text-foreground font-medium">25 years panels, 10 years inverter</span>
+                          <span className="performance-item-label">Warranty</span>
+                          <span className="performance-item-value">25 years panels, 10 years inverter</span>
                         </div>
                       </div>
                     </div>
                     
                     {/* Energy Performance */}
-                    <div className="bg-surface rounded-2xl p-6 border border-border">
-                      <h3 className="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
+                    <div className="detail-card">
+                      <h3 className="detail-card-header">
                         <span className="text-2xl">🌞</span>
                         Energy Performance
                       </h3>
                       
                       <div className="space-y-4">
-                        <div className="flex justify-between items-center p-3 bg-surface/50 rounded-lg border border-border/30">
-                          <span className="text-subtle">Annual Generation</span>
-                          <span className="text-foreground font-semibold">{quoteResult.annualProduction?.toLocaleString()} kWh</span>
+                        <div className="performance-item">
+                          <span className="performance-item-label">Annual Generation</span>
+                          <span className="performance-item-value">{quoteResult.annualProduction?.toLocaleString()} kWh</span>
                         </div>
                         
-                        <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
-                          <span className="text-subtle">Daily Average</span>
-                          <span className="text-foreground font-semibold">{Math.round((quoteResult.annualProduction || 0) / 365)} kWh</span>
+                        <div className="performance-item">
+                          <span className="performance-item-label">Daily Average</span>
+                          <span className="performance-item-value">{Math.round((quoteResult.annualProduction || 0) / 365)} kWh</span>
                         </div>
                         
-                        <div className="flex justify-between items-center p-3 bg-muted/50 rounded-lg border border-border">
-                          <span className="text-subtle">CO₂ Reduction</span>
-                          <span className="text-success font-semibold">{Math.round((quoteResult.annualProduction || 0) * 0.82)} kg/year</span>
+                        <div className="performance-item">
+                          <span className="performance-item-label">CO₂ Reduction</span>
+                          <span className="performance-item-value">{Math.round((quoteResult.annualProduction || 0) * 0.82)} kg/year</span>
                         </div>
                         
-                        <div className="flex justify-between items-center p-3 bg-muted/50 rounded-lg border border-border">
-                          <span className="text-subtle">25-Year Savings</span>
-                          <span className="text-info font-semibold">{formatCurrency((quoteResult.annualSavings || 0) * 25)}</span>
+                        <div className="performance-item">
+                          <span className="performance-item-label">25-Year Savings</span>
+                          <span className="performance-item-value">{formatCurrency((quoteResult.annualSavings || 0) * 25)}</span>
                         </div>
                       </div>
                     </div>
@@ -1858,18 +1865,84 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
             {quoteResult.quoteType === 'commercial' && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                  <div className="space-y-6">
-                    <div className="bg-surface rounded-2xl p-6 border border-border"><div className="text-center"><p className="text-subtle">Estimated Out-of-Pocket Cost</p><p className="text-4xl md:text-5xl font-bold text-primary tracking-tight mt-1">{formatCurrency(quoteResult.finalPrice)}</p></div><div className="mt-6 pt-6 border-t border-border"><h3 className="text-lg font-semibold text-foreground mb-4 text-center">Cost Breakdown</h3><div className="space-y-3 max-w-md mx-auto"><div className="flex justify-between items-center text-sm"><span className="text-subtle">Total System Cost</span><span className="text-foreground font-medium">{formatCurrency(quoteResult.totalCost)}</span></div><div className="flex justify-between items-center text-sm text-success"><span>Federal Rebate (STCs)</span><span className="font-medium">-{formatCurrency(quoteResult.federalRebate)}</span></div></div></div></div>
-                    <div className="bg-surface rounded-2xl p-6 border border-border text-center"><h3 className="text-lg font-semibold text-foreground mb-2">Simple Payback Period</h3><p className="text-4xl font-bold text-primary tracking-tight">{quoteResult.simplePaybackYears ?? 'N/A'} Years</p></div>
+                    <div className="detail-card">
+                      <div className="text-center">
+                        <p className="performance-item-label">Estimated Out-of-Pocket Cost</p>
+                        <p className="text-4xl md:text-5xl font-bold text-primary tracking-tight mt-1">{formatCurrency(quoteResult.finalPrice)}</p>
+                      </div>
+                      <div className="mt-6 pt-6 border-t border-border">
+                        <h3 className="detail-card-header justify-center">Cost Breakdown</h3>
+                        <div className="space-y-3 max-w-md mx-auto">
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="cost-item-label">Total System Cost</span>
+                            <span className="cost-item-value">{formatCurrency(quoteResult.totalCost)}</span>
+                          </div>
+                          <div className="rebate-item text-sm">
+                            <span>Federal Rebate (STCs)</span>
+                            <span className="rebate-item-value">-{formatCurrency(quoteResult.federalRebate)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="detail-card text-center">
+                      <h3 className="detail-card-header justify-center">Simple Payback Period</h3>
+                      <p className="text-4xl font-bold text-primary tracking-tight">{quoteResult.simplePaybackYears ?? 'N/A'} Years</p>
+                    </div>
                  </div>
                  <div className="space-y-6">
-                    <div className="bg-surface rounded-2xl p-6 border border-border"><h3 className="text-lg font-semibold text-foreground mb-4 text-center">Recommended System</h3><div className="grid grid-cols-2 gap-4 text-center"><div><p className="text-2xl font-bold text-foreground">{quoteResult.systemSize}kW</p><p className="text-sm text-subtle">System Size</p></div><div><p className="text-2xl font-bold text-foreground">{formData.batteryIncluded ? 'Yes' : 'No'}</p><p className="text-sm text-subtle">Battery Included</p></div></div></div>
-                    <div className="bg-surface rounded-2xl p-6 border border-border"><h3 className="text-lg font-semibold text-foreground mb-4 text-center">Annual Savings Breakdown</h3><div className="space-y-3"><div className="flex justify-between items-center text-sm"><span className="text-subtle">Energy Savings</span><span className="text-success font-medium">{formatCurrency(quoteResult.energySavings)}</span></div><div className="flex justify-between items-center text-sm"><span className="text-subtle">Demand Charge Savings</span><span className="text-success font-medium">{formatCurrency(quoteResult.demandChargeSavings)}</span></div><div className="flex justify-between items-center text-base pt-2 border-t border-border"><span className="text-foreground font-bold">Total Annual Savings</span><span className="text-success font-bold">{formatCurrency(quoteResult.annualSavings)}</span></div></div></div>
+                    <div className="detail-card">
+                      <h3 className="detail-card-header justify-center">Recommended System</h3>
+                      <div className="grid grid-cols-2 gap-4 text-center">
+                        <div className="spec-card">
+                          <p className="spec-card-value">{quoteResult.systemSize}kW</p>
+                          <p className="spec-card-label">System Size</p>
+                        </div>
+                        <div className="spec-card">
+                          <p className="spec-card-value">{formData.batteryIncluded ? 'Yes' : 'No'}</p>
+                          <p className="spec-card-label">Battery Included</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="detail-card">
+                      <h3 className="detail-card-header justify-center">Annual Savings Breakdown</h3>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="performance-item-label">Energy Savings</span>
+                          <span className="performance-item-value">{formatCurrency(quoteResult.energySavings)}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="performance-item-label">Demand Charge Savings</span>
+                          <span className="performance-item-value">{formatCurrency(quoteResult.demandChargeSavings)}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-base pt-2 border-t border-border">
+                          <span className="cost-item-label">Total Annual Savings</span>
+                          <span className="cost-item-value">{formatCurrency(quoteResult.annualSavings)}</span>
+                        </div>
+                      </div>
+                    </div>
                  </div>
               </div>
             )}
             
-            <div className="my-8"><SavingsChart finalPrice={quoteResult.finalPrice} annualSavings={quoteResult.annualSavings} currentAnnualBill={quoteResult.currentAnnualBill} /></div>
-            <div className="mt-8 bg-warning/10 border border-warning/30 rounded-xl p-4"><h4 className="text-warning font-semibold mb-2">Important Information</h4><ul className="text-warning/90 text-sm space-y-1">{quoteResult.disclaimers.map((d: string, i: number) => (<li key={i} className="flex items-start space-x-2"><span className="text-warning mt-1">•</span><span>{d}</span></li>))}</ul></div>
+            <div className="my-8">
+              <SavingsChart 
+                finalPrice={quoteResult.finalPrice} 
+                annualSavings={quoteResult.annualSavings} 
+                currentAnnualBill={quoteResult.currentAnnualBill} 
+              />
+            </div>
+            
+            <div className="disclaimer-box mt-8">
+              <h4 className="disclaimer-box-title">Important Information</h4>
+              <ul className="disclaimer-box-list">
+                {quoteResult.disclaimers.map((d: string, i: number) => (
+                  <li key={i}>
+                    <span className="mt-1">•</span>
+                    <span>{d}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
             
             {/* Action Buttons - only default and secondary variants */}
             {hideSubmitButton ? (
@@ -1931,6 +2004,10 @@ async function fetchStateRebates(state: string): Promise<any> {
   const exampleRules: Record<string, any> = { VIC: { enabled: true, type: 'flat', amount: 1400 }, NSW: { enabled: false } };
   return exampleRules[state] ?? { enabled: false };
 }
+
+
+
+
 
 
 

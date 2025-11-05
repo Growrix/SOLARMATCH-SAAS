@@ -67,7 +67,7 @@ const BlogSection: React.FC<BlogSectionProps> = ({ onSeeAllPostsClick, onNavigat
               aria-label={`Read article: ${article.title}`}
               onKeyPress={(e) => e.key === 'Enter' && onNavigateToPost(article)}
             >
-              <div className="p-6 lg:p-8">
+              <div className="p-6 lg:p-8 flex flex-col h-full">
                 <div className="flex items-center justify-between mb-4">
                   <div className="inline-flex items-center gap-2 bg-background shadow-neu-inset px-3 py-1.5 rounded-xl">
                     <div className="w-2 h-2 rounded-full bg-primary shadow-neu-inset-sm"></div>
@@ -100,7 +100,7 @@ const BlogSection: React.FC<BlogSectionProps> = ({ onSeeAllPostsClick, onNavigat
                   </div>
                 </div>
                 
-                <Button variant="secondary" className="inline-flex items-center space-x-2">
+                <Button variant="secondary" className="inline-flex items-center space-x-2 mt-auto">
                   <span>Read Article</span>
                   <ArrowRightIcon />
                 </Button>

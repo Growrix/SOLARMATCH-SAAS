@@ -1790,3 +1790,15 @@ I have fount that the buttons has inconcistent classes. Audit on all the buttons
 
 ***instructions***
 you have to create a comprehensive audit report of all the classes used in the site. Then create a new class naming convention that is concistent and easy to understand. Finally update all the classes in the site to reflect the new class naming convention. As we are worining on an existing site so we will only work on the messy parts and keep the existing concistent parts as it is. we will now go component by component and update all the classes accordingly. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on. for the dev purpose always comment beside classes that used what colors and in which component it is used. This will help us in future to track the classes and colors used in the site. 
+
+
+
+
+
+
+
+***miagration***
+lets migrate the "file" 
+
+***Instructions for migration***
+You must follow the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\tasks.md file for all the migration instructions. you must perform the Pre Audit before the task implimentation. Understand each and every classes , Hardcodings, Styles used in the componenet. 

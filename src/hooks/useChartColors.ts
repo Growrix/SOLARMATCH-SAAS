@@ -1,7 +1,17 @@
 'use client';
 
 import { useTheme } from '@/components/ThemeProvider';
-import { colors } from '@/design-tokens';
+import { useEffect, useState } from 'react';
+
+/**
+ * Convert RGB string to hex format
+ * @param rgb RGB string (e.g., "255 255 255")
+ * @returns Hex color string (#RRGGBB)
+ */
+function rgbToHex(rgb: string): string {
+  const [r, g, b] = rgb.split(' ').map(Number);
+  return `#${[r, g, b].map(x => x.toString(16).padStart(2, '0')).join('')}`;
+}
 
 /**
  * Convert hex color to rgba format
@@ -14,6 +24,17 @@ function hexToRgba(hex: string, alpha: number): string {
   const g = parseInt(hex.slice(3, 5), 16);
   const b = parseInt(hex.slice(5, 7), 16);
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+/**
+ * Get CSS variable value from root element
+ * @param varName CSS variable name (e.g., "--color-primary")
+ * @returns RGB string or fallback value
+ */
+function getCSSVariable(varName: string, fallback: string = '255 255 255'): string {
+  if (typeof window === 'undefined') return fallback;
+  const root = document.documentElement;
+  return getComputedStyle(root).getPropertyValue(varName).trim() || fallback;
 }
 
 /**
@@ -54,35 +75,88 @@ function hexToRgba(hex: string, alpha: number): string {
 export function useChartColors() {
   const { theme } = useTheme();
   const isDark = theme === 'dark' || theme === 'purple';
+  
+  // State to hold computed colors (re-computed on theme change)
+  const [colors, setColors] = useState(() => {
+    if (typeof window === 'undefined') {
+      // SSR fallback
+      return {
+        primary: '#FFFFFF',
+        secondary: '#14B8A6',
+        tertiary: '#9CA3AF',
+        success: '#22C55E',
+        warning: '#EAB308',
+        error: '#EF4444',
+        grid: '#2C2C2C',
+        axis: '#6B7280',
+        text: '#F5F5F5',
+      };
+    }
+    
+    // Read from CSS variables (theme-adaptive)
+    const primaryRgb = getCSSVariable('--color-primary', '255 255 255');
+    const foregroundRgb = getCSSVariable('--color-foreground', '245 245 245');
+    const borderRgb = getCSSVariable('--color-border', '44 44 44');
+    
+    return {
+      primary: rgbToHex(primaryRgb),
+      secondary: '#14B8A6', // Teal - consistent across themes
+      tertiary: '#9CA3AF',  // Gray - consistent across themes
+      success: isDark ? '#4ADE80' : '#16A34A',   // Green
+      warning: isDark ? '#FACC15' : '#CA8A04',   // Yellow
+      error: isDark ? '#F87171' : '#DC2626',     // Red
+      grid: rgbToHex(borderRgb),
+      axis: isDark ? '#6B7280' : '#9CA3AF',
+      text: rgbToHex(foregroundRgb),
+    };
+  });
 
-  const primaryColor = isDark ? colors.chart.primary.dark : colors.chart.primary.light;
+  // Update colors when theme changes
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    const primaryRgb = getCSSVariable('--color-primary', '255 255 255');
+    const foregroundRgb = getCSSVariable('--color-foreground', '245 245 245');
+    const borderRgb = getCSSVariable('--color-border', '44 44 44');
+    
+    setColors({
+      primary: rgbToHex(primaryRgb),
+      secondary: '#14B8A6', // Teal
+      tertiary: '#9CA3AF',  // Gray
+      success: isDark ? '#4ADE80' : '#16A34A',
+      warning: isDark ? '#FACC15' : '#CA8A04',
+      error: isDark ? '#F87171' : '#DC2626',
+      grid: rgbToHex(borderRgb),
+      axis: isDark ? '#6B7280' : '#9CA3AF',
+      text: rgbToHex(foregroundRgb),
+    });
+  }, [theme, isDark]);
 
   return {
     // Data series colors (for multi-series charts)
-    primary: primaryColor,
-    secondary: isDark ? colors.chart.secondary.dark : colors.chart.secondary.light,
-    tertiary: isDark ? colors.chart.tertiary.dark : colors.chart.tertiary.light,
+    primary: colors.primary,
+    secondary: colors.secondary,
+    tertiary: colors.tertiary,
 
     // Status colors (for conditional formatting, thresholds)
-    success: isDark ? colors.chart.success.dark : colors.chart.success.light,
-    warning: isDark ? colors.chart.warning.dark : colors.chart.warning.light,
-    error: isDark ? colors.chart.error.dark : colors.chart.error.light,
+    success: colors.success,
+    warning: colors.warning,
+    error: colors.error,
 
     // Gradient endpoints (for area charts, background fills)
-    // Now dynamically generated from design tokens - no hardcoded rgba!
     gradient: {
-      start: primaryColor,
-      end: isDark ? hexToRgba(primaryColor, 0.1) : hexToRgba(primaryColor, 0.05), // Faded primary
+      start: colors.primary,
+      end: hexToRgba(colors.primary, isDark ? 0.1 : 0.05),
     },
 
     // Grid/axis colors (for chart infrastructure)
-    grid: isDark ? colors.border.dark : colors.border.light,
-    axis: isDark ? colors.muted.dark : colors.muted.light,
-    text: isDark ? colors.foreground.dark : colors.foreground.light,
+    grid: colors.grid,
+    axis: colors.axis,
+    text: colors.text,
 
     // Utility
     isDark,
-    theme: resolvedTheme || 'light',
+    theme: theme || 'light',
 
     /**
      * Get color array for multi-series charts (cycles through primary/secondary/tertiary)
@@ -97,11 +171,7 @@ export function useChartColors() {
      * ```
      */
     getColorArray: (length: number): string[] => {
-      const baseColors = [
-        isDark ? colors.chart.primary.dark : colors.chart.primary.light,
-        isDark ? colors.chart.secondary.dark : colors.chart.secondary.light,
-        isDark ? colors.chart.tertiary.dark : colors.chart.tertiary.light,
-      ];
+      const baseColors = [colors.primary, colors.secondary, colors.tertiary];
       return Array.from({ length }, (_, i) => baseColors[i % baseColors.length]);
     },
 
@@ -120,12 +190,12 @@ export function useChartColors() {
      */
     getStatusColor: (value: number, thresholds?: { warning?: number; error?: number }): string => {
       if (thresholds?.error !== undefined && value >= thresholds.error) {
-        return isDark ? colors.chart.error.dark : colors.chart.error.light;
+        return colors.error;
       }
       if (thresholds?.warning !== undefined && value >= thresholds.warning) {
-        return isDark ? colors.chart.warning.dark : colors.chart.warning.light;
+        return colors.warning;
       }
-      return isDark ? colors.chart.success.dark : colors.chart.success.light;
+      return colors.success;
     },
   };
 }

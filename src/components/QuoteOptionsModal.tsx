@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
@@ -165,7 +165,7 @@ const QuoteOptionsModal: React.FC<QuoteOptionsModalProps> = ({
         className="theme-card max-w-3xl w-full p-8 relative animate-slide-in-up max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Migrated: button → shadcn Button - preserved onClick, close functionality */}
+        {/* Migrated: button ? shadcn Button - preserved onClick, close functionality */}
   <Button
           onClick={onClose}
           variant="ghost"
@@ -176,8 +176,8 @@ const QuoteOptionsModal: React.FC<QuoteOptionsModalProps> = ({
         </Button>
         
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Choose Your Quote Type</h2>
-          <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+          <h2 className="text-2xl font-bold text-foreground mb-4">Choose Your Quote Type</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
             Select how you&apos;d like to receive quotes from our verified solar installers
           </p>
         </div>
@@ -262,14 +262,14 @@ const QuoteOptionsModal: React.FC<QuoteOptionsModalProps> = ({
 
         {/* Error Message */}
         {error && (
-          <div className="mt-6 bg-background rounded-xl p-4 shadow-neu-inset bg-destructive/10 border border-destructive/30 flex items-start gap-2">
+          <div className="mt-6 rounded-xl p-4 shadow-neu-inset bg-destructive/10 border border-destructive/30 flex items-start gap-2">
             <AlertCircleIcon className="text-destructive flex-shrink-0 mt-0.5" />
             <p className="text-sm text-destructive/90">{error}</p>
           </div>
         )}
         
         <div className="theme-card mt-6 p-4 text-center">
-          <p className="text-slate-500 dark:text-slate-400 text-sm">
+          <p className="text-muted-foreground text-sm">
             Both options connect you with our network of verified, licensed solar installers.
             Your information is secure and will only be shared with installers you choose to engage with.
           </p>
