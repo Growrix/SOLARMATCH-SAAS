@@ -55,7 +55,8 @@ module.exports = {
         'warning-foreground': 'rgb(255 255 255 / <alpha-value>)',
         error: 'rgb(var(--color-error) / <alpha-value>)',
         'error-foreground': 'rgb(255 255 255 / <alpha-value>)',
-        // INFO COLOR REMOVED - White accent only theme, no info status color needed
+        info: 'rgb(var(--color-info) / <alpha-value>)',
+        'info-foreground': 'rgb(255 255 255 / <alpha-value>)',
         
         // shadcn/ui HSL-based colors (from globals.css)
         destructive: 'hsl(var(--destructive) / <alpha-value>)',
@@ -64,7 +65,8 @@ module.exports = {
         // Custom status colors (HSL format)
         'success-hsl': 'hsl(var(--success) / <alpha-value>)',
         'success-foreground-hsl': 'hsl(var(--success-foreground) / <alpha-value>)',
-        // INFO COLOR REMOVED - White accent only theme
+        'info-hsl': 'hsl(var(--info) / <alpha-value>)',
+        'info-foreground-hsl': 'hsl(var(--info-foreground) / <alpha-value>)',
         'warning-hsl': 'hsl(var(--warning) / <alpha-value>)',
         'warning-foreground-hsl': 'hsl(var(--warning-foreground) / <alpha-value>)',
       },

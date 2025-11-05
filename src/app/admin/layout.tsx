@@ -38,7 +38,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 	};
 	
 	return (
-		<div className="flex min-h-screen bg-slate-50 dark:bg-black">
+	<div className="flex min-h-screen bg-transparent">
 			{/* Desktop Sidebar - Always visible on desktop */}
 			<div className="hidden md:block">
 				<AdminSidebar activePage={activePage} />

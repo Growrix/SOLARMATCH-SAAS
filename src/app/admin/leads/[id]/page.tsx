@@ -10,6 +10,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/components/ThemeProvider';
+import Button from '@/components/Button';
 import QuoteDataDisplay from '@/components/admin/QuoteDataDisplay';
 import InstallerSelectorModal from '@/components/admin/InstallerSelectorModal';
 import AssignmentHistoryTable from '@/components/admin/AssignmentHistoryTable';
@@ -531,12 +532,12 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
 
   const getStatusColor = (status: string) => {
     const colors = {
-      DRAFT: theme === 'dark' ? 'bg-gray-500/20 text-gray-300' : 'bg-gray-100 text-gray-700',
-      APPROVED: theme === 'dark' ? 'bg-green-500/20 text-green-300' : 'bg-green-100 text-green-700',
-      REJECTED: theme === 'dark' ? 'bg-red-500/20 text-red-300' : 'bg-red-100 text-red-700',
-      PURCHASED: theme === 'dark' ? 'bg-blue-500/20 text-blue-300' : 'bg-blue-100 text-blue-700',
-      IN_PROGRESS: theme === 'dark' ? 'bg-yellow-500/20 text-yellow-300' : 'bg-yellow-100 text-yellow-700',
-      COMPLETED: theme === 'dark' ? 'bg-purple-500/20 text-purple-300' : 'bg-purple-100 text-purple-700',
+      DRAFT: 'bg-muted text-muted-foreground',
+      APPROVED: 'bg-success text-success-foreground',
+      REJECTED: 'bg-error text-error-foreground',
+      PURCHASED: 'bg-info text-info-foreground',
+      IN_PROGRESS: 'bg-warning text-warning-foreground',
+      COMPLETED: 'bg-accent text-accent-foreground',
     };
     return colors[status as keyof typeof colors] || colors.DRAFT;
   };
@@ -588,12 +589,12 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
   }
 
   return (
-    <div className={`min-h-screen p-8 ${theme === 'dark' ? 'bg-[#0A0F1E]' : 'bg-gray-50'}`}>
+    <div className="min-h-screen p-8 bg-background">
       {/* HEADER */}
       <div className="max-w-7xl mx-auto mb-8">
         <button
           onClick={() => router.push('/admin/leads')}
-          className={`flex items-center gap-2 mb-4 ${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}
+          className="flex items-center gap-2 mb-4 text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeftIcon />
           <span>Back to Leads</span>
@@ -601,15 +602,15 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
 
         <div className="flex items-center justify-between">
           <div>
-            <h1 className={`text-3xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+            <h1 className="text-3xl font-bold mb-2 text-foreground">
               Lead Details
             </h1>
             <div className="flex items-center gap-4">
-              <p className={`font-mono text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+              <p className="font-mono text-sm text-muted-foreground">
                 Quote ID: <span className="font-semibold">Q-{lead.id.slice(-8).toUpperCase()}</span>
               </p>
-              <span className={`text-sm ${theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>•</span>
-              <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+              <span className="text-sm text-muted-foreground">•</span>
+              <p className="text-sm text-muted-foreground">
                 Created: {formatDate(lead.createdAt)}
               </p>
             </div>
@@ -620,7 +621,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
               {lead.status}
             </span>
             {lead.phoneVerified && (
-              <span className="px-3 py-1 bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300 rounded-full text-xs font-medium">
+              <span className="px-3 py-1 bg-success text-success-foreground rounded-full text-xs font-medium">
                 ✓ Verified
               </span>
             )}
@@ -633,41 +634,41 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
         {/* LEFT COLUMN - Lead Details */}
         <div className="lg:col-span-2 space-y-6">
           {/* HOMEOWNER INFO */}
-          <div className={`p-6 rounded-lg ${theme === 'dark' ? 'bg-[#1A1F2E]' : 'bg-white'} shadow-sm`}>
-            <h2 className={`text-xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+          <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
+            <h2 className="text-xl font-semibold mb-4 text-foreground">
               Homeowner Information
             </h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Name</p>
-                <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                <p className="text-sm text-muted-foreground">Name</p>
+                <p className="font-medium text-foreground">
                   {lead.homeowner?.name || 'N/A'}
                 </p>
               </div>
               <div>
-                <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Email</p>
-                <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                <p className="text-sm text-muted-foreground">Email</p>
+                <p className="font-medium text-foreground">
                   {lead.homeowner?.email || 'N/A'}
                 </p>
               </div>
               <div>
-                <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Contact Number</p>
-                <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                <p className="text-sm text-muted-foreground">Contact Number</p>
+                <p className="font-medium text-foreground">
                   {lead.phoneNumber || 'Not provided'}
                   {lead.phoneNumber && (
                     <span className="ml-2">
                       {lead.phoneVerified ? (
-                        <span className="text-green-500 text-xs">✓ Verified</span>
+                        <span className="text-success text-xs">✓ Verified</span>
                       ) : (
-                        <span className="text-red-500 text-xs">✗ Not verified</span>
+                        <span className="text-error text-xs">✗ Not verified</span>
                       )}
                     </span>
                   )}
                 </p>
               </div>
               <div>
-                <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Quote Type</p>
-                <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                <p className="text-sm text-muted-foreground">Quote Type</p>
+                <p className="font-medium text-foreground">
                   <span className="mr-2">{getQuoteTypeIcon(lead.quoteType)}</span>
                   {getQuoteTypeLabel(lead.quoteType)}
                 </p>
@@ -677,30 +678,30 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
 
           {/* HOMEOWNER QUOTE QUOTA */}
           {lead.homeowner && (
-            <div className={`p-6 rounded-lg ${theme === 'dark' ? 'bg-[#1A1F2E]' : 'bg-white'} shadow-sm`}>
-              <h2 className={`text-xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+            <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
+              <h2 className="text-xl font-semibold mb-4 text-foreground">
                 📊 Quote Request Quota
               </h2>
               <div className="space-y-4">
                 <div className="grid grid-cols-3 gap-4">
                   <div className="text-center">
-                    <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Total Limit</p>
-                    <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-blue-400' : 'text-blue-600'}`}>
+                    <p className="text-sm text-muted-foreground">Total Limit</p>
+                    <p className="text-2xl font-bold text-info">
                       {lead.homeowner.leadSubmissionLimit}
                     </p>
                   </div>
                   <div className="text-center">
-                    <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Submitted</p>
-                    <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-yellow-400' : 'text-yellow-600'}`}>
+                    <p className="text-sm text-muted-foreground">Submitted</p>
+                    <p className="text-2xl font-bold text-warning">
                       {lead.homeowner.leadSubmissionCount}
                     </p>
                   </div>
                   <div className="text-center">
-                    <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Remaining</p>
+                    <p className="text-sm text-muted-foreground">Remaining</p>
                     <p className={`text-2xl font-bold ${
                       lead.homeowner.leadSubmissionLimit - lead.homeowner.leadSubmissionCount > 0
-                        ? theme === 'dark' ? 'text-green-400' : 'text-green-600'
-                        : theme === 'dark' ? 'text-red-400' : 'text-red-600'
+                        ? 'text-success'
+                        : 'text-error'
                     }`}>
                       {Math.max(0, lead.homeowner.leadSubmissionLimit - lead.homeowner.leadSubmissionCount)}
                     </p>
@@ -708,14 +709,14 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
                 </div>
                 
                 {/* Progress Bar */}
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                <div className="w-full bg-muted rounded-full h-3">
                   <div
                     className={`h-3 rounded-full transition-all ${
                       lead.homeowner.leadSubmissionCount >= lead.homeowner.leadSubmissionLimit
-                        ? 'bg-red-500'
+                        ? 'bg-error'
                         : lead.homeowner.leadSubmissionCount / lead.homeowner.leadSubmissionLimit > 0.8
-                        ? 'bg-yellow-500'
-                        : 'bg-green-500'
+                        ? 'bg-warning'
+                        : 'bg-success'
                     }`}
                     style={{
                       width: `${Math.min(100, (lead.homeowner.leadSubmissionCount / lead.homeowner.leadSubmissionLimit) * 100)}%`
@@ -725,7 +726,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
                 
                 {/* Status Message */}
                 {lead.homeowner.leadSubmissionCount >= lead.homeowner.leadSubmissionLimit && (
-                  <div className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-red-500/20 text-red-300' : 'bg-red-100 text-red-700'}`}>
+                  <div className="p-3 rounded-lg bg-error text-error-foreground">
                     <p className="text-sm font-medium">⚠️ Quota limit reached</p>
                   </div>
                 )}
@@ -734,44 +735,44 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
           )}
 
           {/* PROJECT DETAILS */}
-          <div className={`p-6 rounded-lg ${theme === 'dark' ? 'bg-[#1A1F2E]' : 'bg-white'} shadow-sm`}>
-            <h2 className={`text-xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+          <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
+            <h2 className="text-xl font-semibold mb-4 text-foreground">
               Project Details
             </h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Project Type</p>
-                <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                <p className="text-sm text-muted-foreground">Project Type</p>
+                <p className="font-medium text-foreground">
                   {lead.projectType}
                 </p>
               </div>
               <div>
-                <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Property Type</p>
-                <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                <p className="text-sm text-muted-foreground">Property Type</p>
+                <p className="font-medium text-foreground">
                   {lead.propertyType}
                 </p>
               </div>
               <div>
-                <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Location</p>
-                <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                <p className="text-sm text-muted-foreground">Location</p>
+                <p className="font-medium text-foreground">
                   {lead.location}, {lead.state}
                 </p>
               </div>
               <div>
-                <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Postcode</p>
-                <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                <p className="text-sm text-muted-foreground">Postcode</p>
+                <p className="font-medium text-foreground">
                   {lead.postcode}
                 </p>
               </div>
               <div>
-                <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Roof Type</p>
-                <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                <p className="text-sm text-muted-foreground">Roof Type</p>
+                <p className="font-medium text-foreground">
                   {lead.roofType}
                 </p>
               </div>
               <div>
-                <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Budget Range</p>
-                <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                <p className="text-sm text-muted-foreground">Budget Range</p>
+                <p className="font-medium text-foreground">
                   {lead.budgetRange}
                 </p>
               </div>
@@ -779,32 +780,32 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
           </div>
 
           {/* ENERGY DETAILS */}
-          <div className={`p-6 rounded-lg ${theme === 'dark' ? 'bg-[#1A1F2E]' : 'bg-white'} shadow-sm`}>
-            <h2 className={`text-xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+          <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
+            <h2 className="text-xl font-semibold mb-4 text-foreground">
               Energy Details
             </h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Energy Bill</p>
-                <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                <p className="text-sm text-muted-foreground">Energy Bill</p>
+                <p className="font-medium text-foreground">
                   £{lead.energyBill.toFixed(2)} / {lead.billType}
                 </p>
               </div>
               <div>
-                <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Desired Offset</p>
-                <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                <p className="text-sm text-muted-foreground">Desired Offset</p>
+                <p className="font-medium text-foreground">
                   {lead.desiredOffset}%
                 </p>
               </div>
               <div>
-                <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Battery Required</p>
-                <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                <p className="text-sm text-muted-foreground">Battery Required</p>
+                <p className="font-medium text-foreground">
                   {lead.batteryRequired ? `Yes (${lead.batteryCapacity})` : 'No'}
                 </p>
               </div>
               <div>
-                <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Timeframe</p>
-                <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                <p className="text-sm text-muted-foreground">Timeframe</p>
+                <p className="font-medium text-foreground">
                   {lead.timeframe || 'N/A'}
                 </p>
               </div>
@@ -812,8 +813,8 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
 
             {lead.additionalNotes && (
               <div className="mt-4">
-                <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Additional Notes</p>
-                <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'} mt-1`}>
+                <p className="text-sm text-muted-foreground">Additional Notes</p>
+                <p className="font-medium text-foreground mt-1">
                   {lead.additionalNotes}
                 </p>
               </div>
@@ -822,8 +823,8 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
 
           {/* QUOTE DATA (Phase 4.5) */}
           {lead.quoteData && (
-            <div className={`p-6 rounded-lg ${theme === 'dark' ? 'bg-[#1A1F2E]' : 'bg-white'} shadow-sm`}>
-              <h2 className={`text-xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+            <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
+              <h2 className="text-xl font-semibold mb-4 text-foreground">
                 📊 Instant Quote Calculation
               </h2>
               <QuoteDataDisplay quoteData={lead.quoteData} />
@@ -831,18 +832,19 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
           )}
 
           {/* ASSIGNMENT HISTORY (Phase 7) */}
-          <div className={`p-6 rounded-lg ${theme === 'dark' ? 'bg-[#1A1F2E]' : 'bg-white'} shadow-sm`}>
+          <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
             <div className="flex items-center justify-between mb-4">
-              <h2 className={`text-xl font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+              <h2 className="text-xl font-semibold text-foreground">
                 📋 Assignment History
               </h2>
               {!lead.archivedAt && (
-                <button
+                <Button
                   onClick={() => setShowAssignModal(true)}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm font-medium"
+                  variant="secondary"
+                  className="bg-info text-info-foreground text-sm"
                 >
                   + Assign to Installer
-                </button>
+                </Button>
               )}
             </div>
             <AssignmentHistoryTable
@@ -853,37 +855,37 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
           </div>
 
           {/* TIMESTAMPS */}
-          <div className={`p-6 rounded-lg ${theme === 'dark' ? 'bg-[#1A1F2E]' : 'bg-white'} shadow-sm`}>
-            <h2 className={`text-xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+          <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
+            <h2 className="text-xl font-semibold mb-4 text-foreground">
               Timeline
             </h2>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>Created</span>
-                <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                <span className="text-muted-foreground">Created</span>
+                <span className="font-medium text-foreground">
                   {formatDate(lead.createdAt)}
                 </span>
               </div>
               {lead.approvedAt && (
                 <div className="flex justify-between">
-                  <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>Approved</span>
-                  <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                  <span className="text-muted-foreground">Approved</span>
+                  <span className="font-medium text-foreground">
                     {formatDate(lead.approvedAt)}
                   </span>
                 </div>
               )}
               {lead.purchasedAt && (
                 <div className="flex justify-between">
-                  <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>Purchased</span>
-                  <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                  <span className="text-muted-foreground">Purchased</span>
+                  <span className="font-medium text-foreground">
                     {formatDate(lead.purchasedAt)}
                   </span>
                 </div>
               )}
               {lead.expiresAt && (
                 <div className="flex justify-between">
-                  <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>Expires</span>
-                  <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                  <span className="text-muted-foreground">Expires</span>
+                  <span className="font-medium text-foreground">
                     {formatDate(lead.expiresAt)}
                   </span>
                 </div>
@@ -896,37 +898,39 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
         <div className="space-y-6">
           {/* ACTION BUTTONS - Show for DRAFT, PENDING_APPROVAL, and PENDING_PHONE statuses */}
           {(['DRAFT', 'PENDING_APPROVAL', 'PENDING_PHONE'].includes(lead.status)) && (
-            <div className={`p-6 rounded-lg ${theme === 'dark' ? 'bg-[#1A1F2E]' : 'bg-white'} shadow-sm`}>
-              <h2 className={`text-xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+            <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
+              <h2 className="text-xl font-semibold mb-4 text-foreground">
                 Actions
               </h2>
               <div className="space-y-3">
-                <button
+                <Button
                   onClick={() => setShowApproveModal(true)}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 font-medium"
+                  variant="secondary"
+                  className="w-full bg-success text-success-foreground"
                 >
                   <CheckIcon />
                   Approve Lead
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => setShowRejectModal(true)}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 font-medium"
+                  variant="secondary"
+                  className="w-full bg-error text-error-foreground"
                 >
                   <XIcon />
                   Reject Lead
-                </button>
+                </Button>
               </div>
             </div>
           )}
 
           {/* PRICING */}
-          <div className={`p-6 rounded-lg ${theme === 'dark' ? 'bg-[#1A1F2E]' : 'bg-white'} shadow-sm`}>
-            <h2 className={`text-xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+          <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
+            <h2 className="text-xl font-semibold mb-4 text-foreground">
               Lead Pricing
             </h2>
             <div className="space-y-3">
               <div>
-                <label className={`block text-sm mb-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                <label className="block text-sm mb-2 text-muted-foreground">
                   Price (£)
                 </label>
                 <input
@@ -934,27 +938,24 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
                   value={leadPrice}
                   onChange={(e) => setLeadPrice(e.target.value)}
                   placeholder="Enter price"
-                  className={`w-full px-4 py-2 rounded-lg border ${
-                    theme === 'dark'
-                      ? 'bg-[#0A0F1E] border-gray-700 text-white'
-                      : 'bg-white border-gray-300 text-gray-900'
-                  }`}
+                  className="form-input w-full"
                 />
               </div>
-              <button
+              <Button
                 onClick={handleSavePrice}
                 disabled={savingPrice || !leadPrice}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                variant="secondary"
+                className="w-full bg-info text-info-foreground"
               >
                 {savingPrice ? <LoadingIcon /> : <SaveIcon />}
                 Save Price
-              </button>
+              </Button>
             </div>
           </div>
 
           {/* ADMIN NOTES */}
-          <div className={`p-6 rounded-lg ${theme === 'dark' ? 'bg-[#1A1F2E]' : 'bg-white'} shadow-sm`}>
-            <h2 className={`text-xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+          <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
+            <h2 className="text-xl font-semibold mb-4 text-foreground">
               Admin Notes
             </h2>
             <div className="space-y-3">
@@ -963,39 +964,36 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
                 onChange={(e) => setAdminNotes(e.target.value)}
                 placeholder="Add internal notes..."
                 rows={4}
-                className={`w-full px-4 py-2 rounded-lg border ${
-                  theme === 'dark'
-                    ? 'bg-[#0A0F1E] border-gray-700 text-white'
-                    : 'bg-white border-gray-300 text-gray-900'
-                }`}
+                className="form-input w-full"
               />
-              <button
+              <Button
                 onClick={handleSaveNotes}
                 disabled={savingNotes}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                variant="secondary"
+                className="w-full bg-info text-info-foreground"
               >
                 {savingNotes ? <LoadingIcon /> : <SaveIcon />}
                 Save Notes
-              </button>
+              </Button>
             </div>
           </div>
 
           {/* PURCHASE STATUS */}
           {lead.installerId && (
-            <div className={`p-6 rounded-lg ${theme === 'dark' ? 'bg-[#1A1F2E]' : 'bg-white'} shadow-sm`}>
-              <h2 className={`text-xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+            <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
+              <h2 className="text-xl font-semibold mb-4 text-foreground">
                 Purchase Info
               </h2>
               <div className="space-y-3">
                 <div>
-                  <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Installer</p>
-                  <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                  <p className="text-sm text-muted-foreground">Installer</p>
+                  <p className="font-medium text-foreground">
                     {lead.installer?.name || 'N/A'}
                   </p>
                 </div>
                 <div>
-                  <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Status</p>
-                  <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                  <p className="text-sm text-muted-foreground">Status</p>
+                  <p className="font-medium text-foreground">
                     {lead.purchaseStatus || 'Not Purchased'}
                   </p>
                 </div>
@@ -1005,21 +1003,22 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
 
           {/* LIFECYCLE ACTIONS (Phase 7) */}
           {!lead.archivedAt && (
-            <div className={`p-6 rounded-lg ${theme === 'dark' ? 'bg-[#1A1F2E]' : 'bg-white'} shadow-sm`}>
-              <h2 className={`text-xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+            <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
+              <h2 className="text-xl font-semibold mb-4 text-foreground">
                 Lead Lifecycle
               </h2>
               <div className="space-y-3">
                 {/* Resell Button - Only if purchased */}
                 {lead.installerId && (
-                  <button
+                  <Button
                     onClick={handleResell}
                     disabled={reselling}
-                    className="w-full px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 text-sm font-medium flex items-center justify-center gap-2"
+                    variant="secondary"
+                    className="w-full bg-warning text-warning-foreground text-sm"
                   >
                     {reselling ? <LoadingIcon /> : '🔄'}
                     Resell Lead
-                  </button>
+                  </Button>
                 )}
 
                 {/* Reset Timer - Only if has expiry */}
@@ -1032,56 +1031,55 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
                       min="1"
                       max="365"
                       placeholder="Days to extend"
-                      className={`w-full px-3 py-2 rounded-lg border text-sm ${
-                        theme === 'dark'
-                          ? 'bg-[#0A0F1E] border-gray-700 text-white'
-                          : 'bg-white border-gray-300 text-gray-900'
-                      }`}
+                      className="form-input w-full text-sm"
                     />
-                    <button
+                    <Button
                       onClick={handleResetTimer}
                       disabled={resettingTimer}
-                      className="w-full px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 disabled:opacity-50 text-sm font-medium flex items-center justify-center gap-2"
+                      variant="secondary"
+                      className="w-full bg-accent text-white text-sm"
                     >
                       {resettingTimer ? <LoadingIcon /> : '⏰'}
                       Extend Timer (+{resetDays}d)
-                    </button>
+                    </Button>
                   </div>
                 )}
 
                 {/* Archive Button */}
-                <button
+                <Button
                   onClick={handleArchive}
                   disabled={archiving}
-                  className="w-full px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 disabled:opacity-50 text-sm font-medium flex items-center justify-center gap-2"
+                  variant="secondary"
+                  className="w-full bg-muted text-muted-foreground text-sm"
                 >
                   {archiving ? <LoadingIcon /> : '🗄️'}
                   Archive Lead
-                </button>
+                </Button>
               </div>
             </div>
           )}
 
           {/* UNARCHIVE SECTION */}
           {lead.archivedAt && (
-            <div className={`p-6 rounded-lg ${theme === 'dark' ? 'bg-yellow-900/20 border-2 border-yellow-600' : 'bg-yellow-50 border-2 border-yellow-400'}`}>
-              <h2 className={`text-xl font-semibold mb-2 ${theme === 'dark' ? 'text-yellow-300' : 'text-yellow-900'}`}>
+            <div className="p-6 rounded-lg bg-warning/10 border-2 border-warning">
+              <h2 className="text-xl font-semibold mb-2 text-warning">
                 🗄️ Archived
               </h2>
-              <p className={`text-sm mb-4 ${theme === 'dark' ? 'text-yellow-200' : 'text-yellow-700'}`}>
+              <p className="text-sm mb-4 text-warning">
                 This lead is archived and hidden from all views.
               </p>
-              <p className={`text-xs mb-4 ${theme === 'dark' ? 'text-yellow-400/70' : 'text-yellow-600'}`}>
+              <p className="text-xs mb-4 text-muted-foreground">
                 Archived: {formatDate(lead.archivedAt)}
               </p>
-              <button
+              <Button
                 onClick={handleUnarchive}
                 disabled={unarchiving}
-                className="w-full px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 text-sm font-medium flex items-center justify-center gap-2"
+                variant="secondary"
+                className="w-full bg-success text-success-foreground text-sm"
               >
                 {unarchiving ? <LoadingIcon /> : '📤'}
                 Restore Lead
-              </button>
+              </Button>
             </div>
           )}
         </div>
@@ -1090,35 +1088,35 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
       {/* APPROVE MODAL */}
       {showApproveModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className={`max-w-md w-full mx-4 p-6 rounded-lg ${theme === 'dark' ? 'bg-[#1A1F2E]' : 'bg-white'}`}>
-            <h2 className={`text-2xl font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+          <div className="max-w-md w-full mx-4 p-6 rounded-lg bg-surface shadow-neu-outset">
+            <h2 className="text-2xl font-bold mb-4 text-foreground">
               Approve Lead
             </h2>
-            <p className={`mb-6 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+            <p className="mb-6 text-muted-foreground">
               This will approve the lead and make it visible to installers in the marketplace.
               {!leadPrice && ' Please set a price first.'}
             </p>
             
             {/* Phase 3: Countdown Timer Controls */}
-            <div className={`mb-6 p-4 rounded-lg border ${theme === 'dark' ? 'bg-[#0A0F1E] border-gray-700' : 'bg-gray-50 border-gray-300'}`}>
+            <div className="mb-6 p-4 rounded-lg border border-border bg-muted/30">
               <div className="flex items-center gap-2 mb-3">
                 <input
                   type="checkbox"
                   id="enableCountdown"
                   checked={enableCountdown}
                   onChange={(e) => setEnableCountdown(e.target.checked)}
-                  className="w-4 h-4 text-blue-600 rounded"
+                  className="w-4 h-4 text-info rounded"
                 />
                 <label 
                   htmlFor="enableCountdown" 
-                  className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}
+                  className="font-medium text-foreground"
                 >
                   Enable countdown timer
                 </label>
               </div>
               {enableCountdown && (
                 <div>
-                  <label className={`block text-sm mb-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                  <label className="block text-sm mb-2 text-muted-foreground">
                     Days until expiry
                   </label>
                   <input
@@ -1127,13 +1125,9 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
                     max="90"
                     value={countdownDays}
                     onChange={(e) => setCountdownDays(parseInt(e.target.value) || 7)}
-                    className={`w-full px-4 py-2 rounded-lg border ${
-                      theme === 'dark'
-                        ? 'bg-[#0A0F1E] border-gray-700 text-white'
-                        : 'bg-white border-gray-300 text-gray-900'
-                    }`}
+                    className="form-input w-full"
                   />
-                  <p className={`text-xs mt-1 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>
+                  <p className="text-xs mt-1 text-muted-foreground">
                     Lead will expire in {countdownDays} day{countdownDays !== 1 ? 's' : ''} (1-90 days range)
                   </p>
                 </div>
@@ -1141,24 +1135,22 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
             </div>
             
             <div className="flex gap-3">
-              <button
+              <Button
                 onClick={() => setShowApproveModal(false)}
-                className={`flex-1 px-4 py-2 rounded-lg ${
-                  theme === 'dark'
-                    ? 'bg-gray-700 text-white hover:bg-gray-600'
-                    : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
-                }`}
+                variant="secondary"
+                className="flex-1 bg-muted text-muted-foreground"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleApprove}
                 disabled={approving || !leadPrice}
-                className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                variant="secondary"
+                className="flex-1 bg-success text-success-foreground"
               >
                 {approving ? <LoadingIcon /> : <CheckIcon />}
                 Approve
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -1167,11 +1159,11 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
       {/* REJECT MODAL */}
       {showRejectModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className={`max-w-md w-full mx-4 p-6 rounded-lg ${theme === 'dark' ? 'bg-[#1A1F2E]' : 'bg-white'}`}>
-            <h2 className={`text-2xl font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+          <div className="max-w-md w-full mx-4 p-6 rounded-lg bg-surface shadow-neu-outset">
+            <h2 className="text-2xl font-bold mb-4 text-foreground">
               Reject Lead
             </h2>
-            <p className={`mb-4 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+            <p className="mb-4 text-muted-foreground">
               Please provide a reason for rejection. The homeowner will be notified.
             </p>
             <textarea
@@ -1179,34 +1171,28 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
               onChange={(e) => setRejectReason(e.target.value)}
               placeholder="Reason for rejection..."
               rows={4}
-              className={`w-full px-4 py-2 rounded-lg border mb-4 ${
-                theme === 'dark'
-                  ? 'bg-[#0A0F1E] border-gray-700 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
-              }`}
+              className="form-input w-full mb-4"
             />
             <div className="flex gap-3">
-              <button
+              <Button
                 onClick={() => {
                   setShowRejectModal(false);
                   setRejectReason('');
                 }}
-                className={`flex-1 px-4 py-2 rounded-lg ${
-                  theme === 'dark'
-                    ? 'bg-gray-700 text-white hover:bg-gray-600'
-                    : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
-                }`}
+                variant="secondary"
+                className="flex-1 bg-muted text-muted-foreground"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleReject}
                 disabled={rejecting || !rejectReason.trim()}
-                className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                variant="secondary"
+                className="flex-1 bg-error text-error-foreground"
               >
                 {rejecting ? <LoadingIcon /> : <XIcon />}
                 Reject
-              </button>
+              </Button>
             </div>
           </div>
         </div>

@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import React, { useState, useEffect } from 'react';
+import Button from '@/components/Button';
 
 // Icon Components
 const MailIcon = () => (
@@ -82,30 +83,31 @@ export default function NewsletterTable() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="grid grid-cols-3 gap-4 flex-1">
           <div className="theme-card p-4">
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">Total</p>
-            <p className="text-2xl font-bold text-slate-900 dark:text-white">{subscribers.length}</p>
+            <p className="text-sm text-muted-foreground mb-1">Total</p>
+            <p className="text-2xl font-bold text-foreground">{subscribers.length}</p>
           </div>
           <div className="theme-card p-4">
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">Active</p>
-            <p className="text-2xl font-bold text-success dark:text-green-400">
+            <p className="text-sm text-muted-foreground mb-1">Active</p>
+            <p className="text-2xl font-bold text-success">
               {subscribers.filter(s => s.isActive).length}
             </p>
           </div>
           <div className="theme-card p-4">
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">Unsubscribed</p>
-            <p className="text-2xl font-bold text-red-600 dark:text-red-400">
+            <p className="text-sm text-muted-foreground mb-1">Unsubscribed</p>
+            <p className="text-2xl font-bold text-error">
               {subscribers.filter(s => !s.isActive).length}
             </p>
           </div>
         </div>
-        <button
+        <Button
           onClick={fetchSubscribers}
           disabled={loading}
-          className="px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center gap-2 whitespace-nowrap"
+          variant="secondary"
+          className="flex items-center gap-2 whitespace-nowrap"
         >
           <RefreshIcon />
           <span>{loading ? 'Loading...' : 'Refresh'}</span>
-        </button>
+        </Button>
       </div>
 
       {/* Search Bar */}
@@ -117,7 +119,7 @@ export default function NewsletterTable() {
             placeholder="Search by email..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1 px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary"
+            className="form-input flex-1 rounded-xl bg-surface text-foreground shadow-neu-inset border border-border px-4 py-3 placeholder:text-muted-foreground"
           />
         </div>
       </div>
@@ -127,24 +129,24 @@ export default function NewsletterTable() {
         {loading ? (
           <div className="p-12 text-center">
             <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent mb-4"></div>
-            <p className="text-slate-600 dark:text-slate-400">Loading subscribers...</p>
+            <p className="text-muted-foreground">Loading subscribers...</p>
           </div>
         ) : error ? (
           <div className="p-12 text-center">
-            <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
-            <button
+            <p className="text-error mb-4">{error}</p>
+            <Button
               onClick={fetchSubscribers}
-              className="px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors"
+              variant="secondary"
             >
               Try Again
-            </button>
+            </Button>
           </div>
         ) : filteredSubscribers.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="inline-flex p-4 bg-slate-100 dark:bg-slate-800 rounded-full mb-4">
+            <div className="inline-flex p-4 bg-surface rounded-full mb-4">
               <MailIcon />
             </div>
-            <p className="text-slate-600 dark:text-slate-400">
+            <p className="text-muted-foreground">
               {searchQuery ? 'No subscribers match your search.' : 'No subscribers yet.'}
             </p>
           </div>
@@ -153,42 +155,42 @@ export default function NewsletterTable() {
             {/* Desktop Table */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                <thead className="bg-surface border-b border-border">
                   <tr>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase">
                       Email Address
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase">
                       Subscribed Date
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase">
                       Status
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                <tbody className="divide-y divide-border">
                   {filteredSubscribers.map((subscriber) => (
-                    <tr key={subscriber.id} className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                    <tr key={subscriber.id} className="hover:bg-surface transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="p-2 bg-primary/10 rounded-lg">
                             <MailIcon />
                           </div>
-                          <span className="font-medium text-slate-900 dark:text-white">
+                          <span className="font-medium text-foreground">
                             {subscriber.email}
                           </span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-slate-600 dark:text-slate-400">
+                      <td className="px-6 py-4 text-muted-foreground">
                         {formatDate(subscriber.subscribedAt)}
                       </td>
                       <td className="px-6 py-4">
                         {subscriber.isActive ? (
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-success/10 text-success">
                             ● Active
                           </span>
                         ) : (
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-error/10 text-error">
                             ● Unsubscribed
                           </span>
                         )}
@@ -200,27 +202,27 @@ export default function NewsletterTable() {
             </div>
 
             {/* Mobile Card View */}
-            <div className="md:hidden divide-y divide-slate-200 dark:divide-slate-700">
+            <div className="md:hidden divide-y divide-border">
               {filteredSubscribers.map((subscriber) => (
-                <div key={subscriber.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                <div key={subscriber.id} className="p-4 hover:bg-surface transition-colors">
                   <div className="flex items-start gap-3">
                     <div className="p-2 bg-primary/10 rounded-lg">
                       <MailIcon />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-slate-900 dark:text-white truncate">
+                      <p className="font-medium text-foreground truncate">
                         {subscriber.email}
                       </p>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                      <p className="text-sm text-muted-foreground mt-1">
                         {formatDate(subscriber.subscribedAt)}
                       </p>
                       <div className="mt-2">
                         {subscriber.isActive ? (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-success/10 text-success">
                             ● Active
                           </span>
                         ) : (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-error/10 text-error">
                             ● Unsubscribed
                           </span>
                         )}
@@ -232,7 +234,7 @@ export default function NewsletterTable() {
             </div>
 
             {/* Results Count */}
-            <div className="px-6 py-4 bg-slate-50 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 text-center text-sm text-slate-600 dark:text-slate-400">
+            <div className="px-6 py-4 bg-surface border-t border-border text-center text-sm text-muted-foreground">
               Showing {filteredSubscribers.length} of {subscribers.length} subscribers
             </div>
           </>

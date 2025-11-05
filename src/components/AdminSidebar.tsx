@@ -101,47 +101,68 @@ const LogOutIcon = () => (
   </svg>
 );
 
+import { useState } from "react";
+
+const ChevronDownIcon = ({ open }: { open: boolean }) => (
+  <svg className={`h-4 w-4 ml-2 transition-transform duration-300 ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+    <path d="m6 9 6 6 6-6" />
+  </svg>
+);
+
+const NavItem: React.FC<{ icon: React.ReactNode; title: string; isActive: boolean; onClick: () => void; isCollapsed?: boolean }> = ({ icon, title, isActive, onClick, isCollapsed }) => (
+  <button
+    onClick={onClick}
+    className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'} px-4 py-2.5 rounded-lg transition-all duration-300 text-sm font-medium group relative ${isActive ? 'bg-primary/10 text-primary shadow-neu-inset' : 'text-muted-foreground hover:bg-surface hover:text-primary hover:shadow-neu-outset-sm'}`}
+    title={isCollapsed ? title : undefined}
+  >
+    <span className={isCollapsed ? '' : 'flex-shrink-0'}>{icon}</span>
+    {!isCollapsed && <span className="truncate">{title}</span>}
+  </button>
+);
+
 const AdminSidebar: React.FC<{ activePage?: string }> = ({ activePage = 'Dashboard' }) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [leadsOpen, setLeadsOpen] = useState(true);
   return (
-    <aside className="dashboard-sidebar w-64 flex-shrink-0 border-r border-gray-200 dark:border-slate-800 flex flex-col p-4 h-full">
-      <div className="flex items-center justify-between h-16 px-2 border-b border-gray-200 dark:border-slate-800 mb-4">
-        <a href="/admin/dashboard" className="flex items-center space-x-3">
+    <aside className={`dashboard-sidebar ${isCollapsed ? 'w-20' : 'w-64'} flex-shrink-0 border-r border-border bg-background flex flex-col h-full transition-all duration-300 shadow-neu-outset`} style={{ overflow: 'hidden' }}>
+      <div className="flex items-center justify-between h-16 px-3 border-b border-border mb-4 relative">
+        <button
+          className={`flex items-center ${isCollapsed ? 'flex-col' : 'space-x-3'} hover:opacity-80 transition-opacity`}
+          style={{ width: isCollapsed ? '100%' : undefined, justifyContent: 'center' }}
+        >
           <SunIcon />
-          <span className="text-xl font-bold text-primary">SolarMatch</span>
-        </a>
+          {!isCollapsed && <span className="text-xl font-bold text-primary">SolarMatch</span>}
+        </button>
+        {isCollapsed ? (
+          <button
+            onClick={() => setIsCollapsed(false)}
+            className="fixed top-4 left-[84px] h-8 w-8 flex items-center justify-center rounded-full bg-surface text-primary shadow-neu-inset border border-border transition-all duration-200"
+            title="Expand sidebar"
+            style={{ zIndex: 100 }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+          </button>
+        ) : (
+          <button
+            onClick={() => setIsCollapsed(true)}
+            className="absolute top-1/2 -translate-y-1/2 right-2 p-2 rounded-lg bg-surface text-muted-foreground hover:text-primary transition-all duration-300 shadow-neu-inset hover:shadow-neu-outset"
+            title="Collapse sidebar"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+          </button>
+        )}
       </div>
-      <p className="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Admin Panel</p>
-      <nav className="flex-grow space-y-1">
-        <a href="/admin/dashboard" className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium ${activePage === 'Dashboard' ? 'bg-primary/10 text-primary dark:bg-primary/20' : 'text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800'}`}>
-          <LayoutDashboardIcon />
-          <span>Dashboard</span>
-        </a>
-        <a href="/admin/leads" className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium ${activePage === 'Leads' ? 'bg-primary/10 text-primary dark:bg-primary/20' : 'text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800'}`}>
-          <ClipboardListIcon />
-          <span>Leads</span>
-        </a>
-        <a href="/admin/homeowners" className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium ${activePage === 'Homeowners' ? 'bg-primary/10 text-primary dark:bg-primary/20' : 'text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800'}`}>
-          <HomeIcon />
-          <span>Homeowners</span>
-        </a>
-        <a href="/admin/installers" className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium ${activePage === 'Installers' ? 'bg-primary/10 text-primary dark:bg-primary/20' : 'text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800'}`}>
-          <WrenchIcon />
-          <span>Installers</span>
-        </a>
-        <a href="/admin/newsletter" className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium ${activePage === 'Newsletter' ? 'bg-primary/10 text-primary dark:bg-primary/20' : 'text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800'}`}>
-          <MailIcon />
-          <span>Newsletter</span>
-        </a>
-        <a href="/admin/instant-quotes" className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium ${activePage === 'Instant Quotes' ? 'bg-primary/10 text-primary dark:bg-primary/20' : 'text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800'}`}>
-          <CalculatorIcon />
-          <span>Instant Quotes</span>
-        </a>
+      <p className={`px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 ${isCollapsed ? 'hidden' : ''}`}>Admin Panel</p>
+      <nav className={`flex-grow space-y-1 ${isCollapsed ? 'px-2' : 'px-4'} overflow-y-auto`}>
+        <NavItem icon={<LayoutDashboardIcon />} title="Dashboard" isActive={activePage === 'Dashboard'} onClick={() => { window.location.href = '/admin/dashboard'; }} isCollapsed={isCollapsed} />
+        <NavItem icon={<ClipboardListIcon />} title="Leads" isActive={activePage === 'Leads'} onClick={() => { window.location.href = '/admin/leads'; }} isCollapsed={isCollapsed} />
+        <NavItem icon={<MailIcon />} title="Newsletter" isActive={activePage === 'Newsletter'} onClick={() => { window.location.href = '/admin/newsletter'; }} isCollapsed={isCollapsed} />
+        <NavItem icon={<CalculatorIcon />} title="Instant Quotes" isActive={activePage === 'Instant Quotes'} onClick={() => { window.location.href = '/admin/instant-quotes'; }} isCollapsed={isCollapsed} />
+        <NavItem icon={<HomeIcon />} title="Homeowners" isActive={activePage === 'Homeowners'} onClick={() => { window.location.href = '/admin/homeowners'; }} isCollapsed={isCollapsed} />
+        <NavItem icon={<WrenchIcon />} title="Installers" isActive={activePage === 'Installers'} onClick={() => { window.location.href = '/admin/installers'; }} isCollapsed={isCollapsed} />
       </nav>
       <div className="mt-auto">
-        <a href="/logout" className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-800">
-          <LogOutIcon />
-          <span>Logout</span>
-        </a>
+        <NavItem icon={<LogOutIcon />} title="Logout" isActive={false} onClick={() => { window.location.href = '/logout'; }} isCollapsed={isCollapsed} />
       </div>
     </aside>
   );

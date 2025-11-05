@@ -1445,63 +1445,93 @@ shadow-neu-outset-lg  // Large raised (hover states)
 
 ## 🧩 Component Classes
 
-### Buttons (globals.css)
+### Buttons
 
-#### Primary Button - Raised Effect
+**IMPORTANT: ALWAYS use the `<Button>` component with `variant="secondary"` for all normal buttons.**
 
-```css
-.neu-btn-primary {
-  @apply bg-primary text-foreground-dark;
-  @apply px-6 py-3 rounded-xl font-semibold;
-  box-shadow: 8px 8px 16px var(--neu-shadow-dark),
-              -8px -8px 16px var(--neu-shadow-light);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+#### ✅ CORRECT Button Usage
 
-.neu-btn-primary:hover {
-  box-shadow: 6px 6px 12px var(--neu-shadow-dark),
-              -6px -6px 12px var(--neu-shadow-light);
-  transform: translateY(-2px);
-}
-
-.neu-btn-primary:active {
-  box-shadow: inset 4px 4px 8px var(--neu-shadow-inset-dark),
-              inset -4px -4px 8px var(--neu-shadow-inset-light);
-  transform: translateY(0);
-}
-```
-
-**Usage:**
 ```tsx
-<button className="neu-btn-primary">
-  Click Me
-</button>
+import Button from '@/components/Button';
+
+// Normal action buttons - ALWAYS use variant="secondary"
+<Button variant="secondary" onClick={handleClick}>
+  Save Changes
+</Button>
+
+// With semantic colors for status
+<Button variant="secondary" className="bg-success text-success-foreground">
+  Approve
+</Button>
+
+<Button variant="secondary" className="bg-error text-error-foreground">
+  Reject
+</Button>
+
+<Button variant="secondary" className="bg-info text-info-foreground">
+  Save Price
+</Button>
+
+<Button variant="secondary" className="bg-warning text-warning-foreground">
+  Resell Lead
+</Button>
+
+// With disabled state
+<Button 
+  variant="secondary" 
+  disabled={loading}
+  className="bg-info text-info-foreground"
+>
+  {loading ? <LoadingIcon /> : 'Save'}
+</Button>
 ```
 
-#### Secondary Button - Subtle
+#### ❌ NEVER Do This
 
-```css
-.neu-btn-secondary {
-  @apply bg-primary text-foreground;
-  @apply px-6 py-3 rounded-xl font-medium;
-  box-shadow: 4px 4px 8px var(--neu-shadow-dark),
-              -4px -4px 8px var(--neu-shadow-light);
+```tsx
+// ❌ Don't use <button> elements directly
+<button className="neu-btn-secondary">Click</button>
+
+// ❌ Don't use hardcoded colors
+<button className="bg-blue-500 hover:bg-blue-600">Click</button>
+
+// ❌ Don't create custom button classes
+<button className="action-btn">Click</button>
+
+// ❌ Don't use neu-btn classes directly
+<button className="neu-btn-primary">Click</button>
+```
+
+#### Button Component (src/components/Button.tsx)
+
+The Button component automatically provides:
+- `variant="secondary"`: Neumorphic raised effect with `shadow-neu-outset`
+- Hover state: `hover:shadow-neu-inset` (pressed look)
+- Background: Uses `bg-surface` by default
+- Full theme support (Dark, Light, Purple)
+
+```tsx
+interface ButtonProps {
+  children: React.ReactNode;
+  variant?: 'primary' | 'secondary';  // Always use 'secondary' for normal buttons
+  withArrow?: boolean;
+  className?: string;
+  // ...all standard button props
 }
 ```
 
-#### Link Button - Minimal
+#### Status Color Classes (Combine with variant="secondary")
 
-```css
-.neu-btn-link {
-  @apply bg-transparent text-foreground;
-  @apply px-4 py-2 rounded-lg font-medium;
-  transition: all 0.3s ease;
-}
+Use these semantic color classes for status-based buttons:
 
-.neu-btn-link:hover {
-  @apply bg-surface/10;
-}
-```
+- **Success/Approve**: `bg-success text-success-foreground`
+- **Error/Reject**: `bg-error text-error-foreground`
+- **Info/Save**: `bg-info text-info-foreground`
+- **Warning/Resell**: `bg-warning text-warning-foreground`
+- **Muted/Cancel**: `bg-muted text-muted-foreground`
+- **Accent**: `bg-accent text-white`
+
+**DO NOT use hardcoded colors like `bg-blue-500`, `bg-green-500`, `bg-red-500`, etc.**
 
 ### Cards (globals.css)
 

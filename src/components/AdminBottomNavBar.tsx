@@ -65,7 +65,7 @@ const NavItem: React.FC<{
     className={`flex flex-col items-center justify-center space-y-1 w-full pt-2 pb-1 transition-colors duration-200 ${
       isActive 
         ? 'text-primary' 
-        : 'text-slate-500 dark:text-slate-400 hover:text-primary/80'
+        : 'text-muted-foreground hover:text-primary/80'
     }`}
   >
     {icon}
@@ -81,7 +81,7 @@ const AdminBottomNavBar: React.FC<AdminBottomNavBarProps> = ({
 }) => {
   return (
     <div 
-      className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white dark:bg-black border-t border-gray-200 dark:border-slate-800 shadow-[0_-2px_10px_rgba(0,0,0,0.1)] dark:shadow-[0_-2px_10px_rgba(0,0,0,0.2)] z-40"
+      className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-background border-t border-border shadow-neu-outset z-40"
       style={{
         height: `calc(4rem + env(safe-area-inset-bottom))`,
         paddingBottom: 'env(safe-area-inset-bottom)'

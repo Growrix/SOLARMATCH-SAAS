@@ -115,17 +115,17 @@ export function LiveCountdownBar({
   const colorClasses = {
     green: {
       bg: 'bg-success',
-      text: 'text-success-foreground',
+      text: 'text-foreground',
       trackBg: 'bg-success/10',
     },
     yellow: {
       bg: 'bg-warning',
-      text: 'text-warning-foreground',
+      text: 'text-foreground',
       trackBg: 'bg-warning/10',
     },
     red: {
       bg: 'bg-error',
-      text: 'text-error-foreground',
+      text: 'text-foreground',
       trackBg: 'bg-error/10',
     },
     expired: {
@@ -184,7 +184,7 @@ export function LiveCountdownBar({
       />
       
       {/* Countdown text */}
-      <span className={`text-sm font-medium ${colors.text === 'text-white' ? 'text-gray-900 dark:text-gray-100' : colors.text}`}>
+      <span className={`text-sm font-medium ${colors.text}`}>
         {countdown.displayText}
       </span>
       
