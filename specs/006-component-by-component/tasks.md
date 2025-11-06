@@ -60,11 +60,29 @@
 - [ ] 6.9: Functional verification - All navigation, collapse, badges work (15 min) - PENDING USER TESTING
 - [x] 6.10: Run 6-command verification on all sidebar files (10 min) ✅ ALL PASSED
 
+**Phase 7: Dashboard Header Centralization** 🔄 IN PROGRESS (November 6, 2025)
+- 🎯 **Goal**: Centralize dashboard header UI/UX across all 3 dashboards (Admin, Homeowner, Installer)
+- 📋 **Approach**: Extract embedded headers + create semantic CSS classes in globals.css
+- 📄 **Reference**: `DOC/DASHBOARD-HEADER-CENTRALIZATION-AUDIT.md`
+- 🔍 **SOT**: AdminHeader.tsx (h-20 structure, bg-transparent)
+- 📦 **Code Reduction**: ~117 lines removed from page files (56 + 61)
+
+**Subtasks**:
+- [ ] 7.1: Create semantic header CSS classes in globals.css (~120 lines) (20 min)
+- [ ] 7.2: Extract HomeownerDashboardHeader to component + apply classes (25 min)
+- [ ] 7.3: Extract InstallerDashboardHeader to component + apply classes (25 min)
+- [ ] 7.4: Update AdminHeader to use semantic classes (10 min)
+- [ ] 7.5: Fix ThemeSwitcher prop inconsistencies (standardize to context-based) (15 min)
+- [ ] 7.6: Run 6-command verification on all 3 headers (Expected: 0/0/0/0/0/0) (10 min)
+- [ ] 7.7: Visual verification - All 3 themes (Dark, Light, Purple) (15 min)
+- [ ] 7.8: Functional verification - Search, theme switcher, notifications work (10 min)
+
 ### 📊 Current Stats
 - **Total Components Migrated**: 8 components in Phases 0-5 (100% of navigation layer)
 - **Homepage Progress**: TopBar → Header → Hero ✅ Complete
-- **Current Work**: Phase 6 - Dashboard Sidebar Centralization (3 dashboards × 2 sidebars = 6 components)
-- **Next Up**: Phase 7 - InstantQuote Calculator Section (homepage continues top-to-bottom)
+- **Dashboard Sidebar Progress**: Phase 6 complete (6 components) ✅
+- **Current Work**: Phase 7 - Dashboard Header Centralization (3 headers)
+- **Next Up**: InstantQuote Calculator Section (homepage continues top-to-bottom)
 
 ### 🎨 Design System Standards Established
 - **Button Component**: Used in all 8 migrated components
