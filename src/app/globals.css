@@ -589,7 +589,7 @@ body {
   }
 
   .form-input::placeholder {
-    @apply text-foreground-tertiary;
+    @apply text-muted-foreground;
   }
 
   .form-input:focus {
@@ -1324,5 +1324,172 @@ body {
     background-color: rgb(var(--color-background-hover)) !important;
     color: rgb(var(--color-foreground-secondary)) !important;
   }
+}
+
+/* ============================================
+   DASHBOARD SIDEBAR - SEMANTIC CLASSES
+   Controls ALL visual aspects of sidebars
+   Used by: AdminSidebar, HomeownerSidebar, InstallerSidebar
+   Phase 6: Sidebar Centralization (Nov 6, 2025)
+   ============================================ */
+
+/* Container */
+.dashboard-sidebar-container {
+  @apply flex-shrink-0 border-r border-border bg-background flex flex-col h-full transition-all duration-300 ease-in-out shadow-neu-outset;
+  overflow: hidden;
+}
+
+.dashboard-sidebar-container--collapsed {
+  @apply w-20;
+}
+
+.dashboard-sidebar-container--expanded {
+  @apply w-64;
+}
+
+/* Header (Logo Area) */
+.dashboard-sidebar-header {
+  @apply flex items-center justify-between h-16 px-3 border-b border-border mb-4 relative;
+}
+
+.dashboard-sidebar-logo {
+  @apply flex items-center hover:opacity-80 transition-opacity;
+}
+
+.dashboard-sidebar-logo--collapsed {
+  @apply flex-col w-full justify-center;
+}
+
+.dashboard-sidebar-logo--expanded {
+  @apply space-x-3;
+}
+
+.dashboard-sidebar-logo-text {
+  @apply text-xl sm:text-2xl font-bold text-primary;
+}
+
+/* Collapse Button */
+.dashboard-collapse-btn {
+  @apply p-2 rounded-lg bg-surface text-muted-foreground hover:text-primary transition-all duration-300 shadow-neu-inset hover:shadow-neu-outset;
+}
+
+.dashboard-collapse-btn--floating {
+  @apply fixed top-4 h-8 w-8 flex items-center justify-center rounded-full bg-surface text-primary shadow-neu-inset border border-border transition-all duration-200;
+  z-index: 100;
+  box-shadow: 0 2px 8px var(--shadow-dark);
+}
+
+.dashboard-collapse-btn--floating-left {
+  left: 84px;
+}
+
+/* Navigation Container */
+.dashboard-sidebar-nav {
+  @apply flex-grow space-y-1 overflow-y-auto;
+}
+
+.dashboard-sidebar-nav--collapsed {
+  @apply px-2;
+}
+
+.dashboard-sidebar-nav--expanded {
+  @apply px-4;
+}
+
+/* Section Label (e.g., "Admin Panel") */
+.dashboard-sidebar-section-label {
+  @apply px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2;
+}
+
+.dashboard-sidebar-section-label--hidden {
+  @apply hidden;
+}
+
+/* Nav Item (Button) */
+.dashboard-nav-item {
+  @apply w-full flex items-center px-3 py-2.5 rounded-lg transition-all duration-300 text-body-small font-medium relative;
+  @apply text-muted-foreground hover:bg-surface hover:text-primary hover:shadow-neu-outset-sm;
+}
+
+.dashboard-nav-item--collapsed {
+  @apply justify-center;
+}
+
+.dashboard-nav-item--expanded {
+  @apply justify-between;
+}
+
+.dashboard-nav-item--active {
+  @apply bg-primary/10 text-primary shadow-neu-inset;
+}
+
+.dashboard-nav-item__icon {
+  @apply flex-shrink-0;
+}
+
+.dashboard-nav-item__text {
+  @apply truncate;
+}
+
+/* Nav Item Badge */
+.dashboard-nav-badge {
+  @apply bg-error text-error-foreground text-caption font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-neu-outset-sm;
+}
+
+/* Submenu (for Homeowner - collapsible parent/child) */
+.dashboard-nav-submenu {
+  @apply pl-4 mt-1 space-y-1;
+}
+
+.dashboard-nav-submenu-toggle {
+  @apply w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-surface hover:text-primary text-body-small font-medium transition-all duration-300 shadow-neu-inset;
+  background: none;
+  color: inherit;
+}
+
+.dashboard-nav-submenu-toggle__chevron {
+  @apply transition-transform duration-300;
+}
+
+.dashboard-nav-submenu-toggle__chevron--open {
+  @apply rotate-180;
+}
+
+/* Footer (Logout) */
+.dashboard-sidebar-footer {
+  @apply mt-auto pb-4;
+}
+
+.dashboard-sidebar-footer--collapsed {
+  @apply px-2;
+}
+
+.dashboard-sidebar-footer--expanded {
+  @apply px-4;
+}
+
+/* Mobile Sidebar */
+.dashboard-sidebar-mobile-backdrop {
+  @apply fixed inset-0 bg-black/80 backdrop-blur-sm z-50 transition-opacity duration-300;
+}
+
+.dashboard-sidebar-mobile-container {
+  @apply fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-background shadow-neu-outset-lg transform transition-transform duration-300 ease-in-out z-50 overflow-y-auto;
+}
+
+.dashboard-sidebar-mobile-container--closed {
+  @apply -translate-x-full;
+}
+
+.dashboard-sidebar-mobile-container--open {
+  @apply translate-x-0;
+}
+
+.dashboard-sidebar-mobile-header {
+  @apply flex items-center justify-between p-4 border-b border-border sticky top-0 bg-background z-10;
+}
+
+.dashboard-sidebar-mobile-close-btn {
+  @apply p-2 rounded-lg hover:bg-surface transition-colors text-muted-foreground hover:text-foreground;
 }
 

@@ -123,7 +123,7 @@ const NavItem: React.FC<{
         onClick={onClick} 
         className={`w-full flex items-center justify-center space-x-3 px-4 py-3 rounded-xl transition-colors text-base font-semibold ${
             isActive 
-                ? 'bg-primary text-white' 
+                ? 'bg-primary text-primary-foreground' 
                 : 'bg-surface text-foreground hover:bg-surface-hover'
         }`}
     >

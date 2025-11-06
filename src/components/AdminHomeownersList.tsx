@@ -1,7 +1,8 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
+import Button from '@/components/ui/button';
 
 // --- Icon Components ---
 const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>;
@@ -200,23 +201,23 @@ export default function AdminHomeownersList() {
       {/* Filters Button Only */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div></div>
-        <button
+        <Button
           onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+          variant="secondary"
         >
           <FilterIcon />
-          <span className="text-sm font-medium">Filters</span>
+          <span className="ml-2">Filters</span>
           {hasActiveFilters && (
-            <span className="ml-1 px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs rounded-full">
+            <span className="ml-1 px-2 py-0.5 bg-info text-info-foreground text-xs rounded-full">
               Active
             </span>
           )}
-        </button>
+        </Button>
       </div>
 
       {/* Search Bar */}
       <div className="relative">
-        <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400">
+        <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-muted-foreground">
           <SearchIcon />
         </div>
         <input
@@ -224,13 +225,13 @@ export default function AdminHomeownersList() {
           value={searchInput}
           onChange={handleSearchChange}
           placeholder="Search by name, email, phone, or postcode..."
-          className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-800 dark:text-white placeholder-slate-400"
+          className="w-full pl-10 pr-4 py-3 bg-surface shadow-neu-inset border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground placeholder:text-muted-foreground"
         />
       </div>
 
       {/* Quota Filter Chips */}
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Quota:</span>
+        <span className="text-sm font-medium text-muted-foreground">Quota:</span>
         {quotaChipOptions.map((option) => {
           const isActive = filters.quota === option.value;
           return (
@@ -240,8 +241,8 @@ export default function AdminHomeownersList() {
               onClick={() => toggleQuotaFilter(option.value)}
               className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors border ${
                 isActive
-                  ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                  : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+                  ? 'bg-primary text-white border-primary shadow-sm'
+                  : 'bg-surface border-border text-muted-foreground hover:bg-surface/50'
               }`}
             >
               {option.label}
@@ -252,7 +253,7 @@ export default function AdminHomeownersList() {
           <button
             type="button"
             onClick={() => toggleQuotaFilter(filters.quota)}
-            className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+            className="text-xs text-muted-foreground hover:text-foreground"
           >
             Clear
           </button>
@@ -261,11 +262,11 @@ export default function AdminHomeownersList() {
 
       {/* Filters Panel */}
       {showFilters && (
-        <div className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg p-4">
+        <div className="bg-surface shadow-neu-inset border border-border rounded-lg p-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Postcode Filter */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-muted-foreground mb-2">
                 Postcode
               </label>
               <input
@@ -273,19 +274,19 @@ export default function AdminHomeownersList() {
                 value={filters.postcode}
                 onChange={(e) => handleFilterChange('postcode', e.target.value)}
                 placeholder="e.g. SW1A"
-                className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-800 dark:text-white"
+                className="w-full px-3 py-2 bg-surface shadow-neu-inset border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground"
               />
             </div>
 
             {/* Status Filter */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-muted-foreground mb-2">
                 Status
               </label>
               <select
                 value={filters.status}
                 onChange={(e) => handleFilterChange('status', e.target.value)}
-                className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-800 dark:text-white"
+                className="w-full px-3 py-2 bg-surface shadow-neu-inset border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground"
               >
                 <option value="">All</option>
                 <option value="active">Active</option>
@@ -295,37 +296,37 @@ export default function AdminHomeownersList() {
 
             {/* Date From */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-muted-foreground mb-2">
                 Registered From
               </label>
               <input
                 type="date"
                 value={filters.from}
                 onChange={(e) => handleFilterChange('from', e.target.value)}
-                className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-800 dark:text-white"
+                className="w-full px-3 py-2 bg-surface shadow-neu-inset border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground"
               />
             </div>
 
             {/* Date To */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-muted-foreground mb-2">
                 Registered To
               </label>
               <input
                 type="date"
                 value={filters.to}
                 onChange={(e) => handleFilterChange('to', e.target.value)}
-                className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-800 dark:text-white"
+                className="w-full px-3 py-2 bg-surface shadow-neu-inset border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground"
               />
             </div>
           </div>
 
           {/* Clear Filters */}
           {hasActiveFilters && (
-            <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+            <div className="mt-4 pt-4 border-t border-border">
               <button
                 onClick={clearFilters}
-                className="flex items-center gap-2 px-3 py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
+                className="flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 <XIcon />
                 Clear all filters
@@ -337,8 +338,8 @@ export default function AdminHomeownersList() {
 
       {/* Error State */}
       {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-          <p className="text-red-800 dark:text-red-200 font-medium">{error}</p>
+        <div className="bg-surface shadow-neu-outset border border-error rounded-lg p-4">
+          <p className="text-error font-medium">{error}</p>
         </div>
       )}
 
@@ -346,20 +347,20 @@ export default function AdminHomeownersList() {
       {isLoading && (
         <div className="flex items-center justify-center py-12">
           <LoaderIcon />
-          <span className="ml-3 text-slate-600 dark:text-slate-400">Loading homeowners...</span>
+          <span className="ml-3 text-muted-foreground">Loading homeowners...</span>
         </div>
       )}
 
       {/* Empty State */}
       {!isLoading && homeowners.length === 0 && (
-        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-12 text-center">
-          <div className="text-slate-400 dark:text-slate-500 mb-4">
+        <div className="bg-surface rounded-lg border border-border p-12 text-center">
+          <div className="text-muted-foreground mb-4">
             <svg className="w-16 h-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-slate-800 dark:text-white mb-2">No homeowners found</h3>
-          <p className="text-slate-500 dark:text-slate-400">
+          <h3 className="text-lg font-medium text-foreground mb-2">No homeowners found</h3>
+          <p className="text-muted-foreground">
             {hasActiveFilters ? 'Try adjusting your search or filters' : 'No homeowners have registered yet'}
           </p>
         </div>
@@ -367,38 +368,38 @@ export default function AdminHomeownersList() {
 
       {/* Table */}
       {!isLoading && homeowners.length > 0 && (
-        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="bg-surface rounded-lg border border-border overflow-hidden">
           {/* Desktop Table */}
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
+              <thead className="bg-surface border-b border-border">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Homeowner
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Contact
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Postcode
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Lead Usage
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Remaining
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Registered
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+              <tbody className="divide-y divide-border">
                 {homeowners.map((homeowner) => (
-                  <tr key={homeowner.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
+                  <tr key={homeowner.id} className="hover:bg-surface/50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10">
@@ -411,10 +412,10 @@ export default function AdminHomeownersList() {
                           />
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-slate-900 dark:text-white">
+                          <div className="text-sm font-medium text-foreground">
                             {homeowner.name || 'No name'}
                           </div>
-                          <div className="text-sm text-slate-500 dark:text-slate-400">
+                          <div className="text-sm text-muted-foreground">
                             {homeowner.email}
                           </div>
                         </div>
@@ -422,17 +423,17 @@ export default function AdminHomeownersList() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex flex-col">
-                        <span className="text-sm text-slate-900 dark:text-white">
+                        <span className="text-sm text-foreground">
                           {homeowner.phone || 'No phone'}
                         </span>
                         {homeowner.phone && (
                           <span className={`mt-1 inline-flex items-center gap-1 text-xs font-medium ${
                             homeowner.phoneVerified
-                              ? 'text-success dark:text-green-300'
-                              : 'text-slate-500 dark:text-slate-400'
+                              ? 'text-success'
+                              : 'text-muted-foreground'
                           }`}>
                             <span className={`inline-block h-2 w-2 rounded-full ${
-                              homeowner.phoneVerified ? 'bg-green-500' : 'bg-slate-400'
+                              homeowner.phoneVerified ? 'bg-success' : 'bg-muted-foreground'
                             }`}></span>
                             {homeowner.phoneVerified ? 'Verified' : 'Unverified'}
                           </span>
@@ -440,22 +441,22 @@ export default function AdminHomeownersList() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-slate-900 dark:text-white">
+                      <div className="text-sm text-foreground">
                         {homeowner.postcode || 'Not set'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                         homeowner.isActive
-                          ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
-                          : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
+                          ? 'bg-success/10 text-success border border-success/20'
+                          : 'bg-error/10 text-error border border-error/20'
                       }`}>
                         {homeowner.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-slate-900 dark:text-white">
+                        <span className="text-sm font-medium text-foreground">
                           {homeowner.leadSubmissionCount}/
                           {editingId === homeowner.id ? (
                             <input
@@ -463,7 +464,7 @@ export default function AdminHomeownersList() {
                               min="1"
                               value={editValue}
                               onChange={(e) => setEditValue(Number(e.target.value))}
-                              className="w-16 px-2 py-1 text-sm border border-blue-500 rounded focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-blue-400"
+                              className="w-16 px-2 py-1 text-sm border border-blue-500 rounded focus:ring-2 focus:ring-blue-500 bg-surface border-info"
                               disabled={updating}
                             />
                           ) : (
@@ -475,14 +476,14 @@ export default function AdminHomeownersList() {
                             <button
                               onClick={() => handleSaveEdit(homeowner.id)}
                               disabled={updating}
-                              className="px-2 py-1 text-xs bg-success text-white rounded hover:bg-green-700 disabled:opacity-50"
+                              className="px-2 py-1 text-xs bg-success text-success-foreground rounded hover:bg-success/90 disabled:opacity-50"
                             >
                               {updating ? '...' : '✓'}
                             </button>
                             <button
                               onClick={handleCancelEdit}
                               disabled={updating}
-                              className="px-2 py-1 text-xs bg-slate-500 text-white rounded hover:bg-slate-600 disabled:opacity-50"
+                              className="px-2 py-1 text-xs bg-muted-foreground text-white rounded hover:bg-muted-foreground/80 disabled:opacity-50"
                             >
                               ✕
                             </button>
@@ -490,7 +491,7 @@ export default function AdminHomeownersList() {
                         ) : (
                           <button
                             onClick={() => handleEditClick(homeowner)}
-                            className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
+                            className="px-2 py-1 text-xs bg-info text-info-foreground rounded hover:bg-info/90"
                           >
                             Edit
                           </button>
@@ -500,13 +501,13 @@ export default function AdminHomeownersList() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                         homeowner.remainingLeadAllowance > 0
-                          ? 'bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-200'
-                          : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200'
+                          ? 'bg-success text-success-foreground'
+                          : 'bg-surface/50 text-muted-foreground'
                       }`}>
                         {homeowner.remainingLeadAllowance}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                       {formatDate(homeowner.createdAt)}
                     </td>
                   </tr>
@@ -516,7 +517,7 @@ export default function AdminHomeownersList() {
           </div>
 
           {/* Mobile Cards */}
-          <div className="md:hidden divide-y divide-slate-200 dark:divide-slate-700">
+          <div className="md:hidden divide-y divide-border">
             {homeowners.map((homeowner) => (
               <div key={homeowner.id} className="p-4">
                 <div className="flex items-center mb-3">
@@ -528,52 +529,52 @@ export default function AdminHomeownersList() {
                     className="h-12 w-12 rounded-full object-cover"
                   />
                   <div className="ml-3 flex-1">
-                    <div className="text-sm font-medium text-slate-900 dark:text-white">
+                    <div className="text-sm font-medium text-foreground">
                       {homeowner.name || 'No name'}
                     </div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400">
+                    <div className="text-xs text-muted-foreground">
                       {homeowner.email}
                     </div>
                   </div>
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                     homeowner.isActive
-                      ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
-                      : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
+                      ? 'bg-success text-success-foreground'
+                      : 'bg-error text-error-foreground'
                   }`}>
                     {homeowner.isActive ? 'Active' : 'Inactive'}
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
-                    <span className="text-slate-500 dark:text-slate-400">Phone:</span>
-                    <div className="text-slate-900 dark:text-white">{homeowner.phone || 'No phone'}</div>
+                    <span className="text-muted-foreground">Phone:</span>
+                    <div className="text-foreground">{homeowner.phone || 'No phone'}</div>
                     {homeowner.phone && (
                       <div className={`text-xs font-medium ${
                         homeowner.phoneVerified
-                          ? 'text-success dark:text-green-300'
-                          : 'text-slate-500 dark:text-slate-400'
+                          ? 'text-success'
+                          : 'text-muted-foreground'
                       }`}>
                         {homeowner.phoneVerified ? 'Verified' : 'Unverified'}
                       </div>
                     )}
                   </div>
                   <div>
-                    <span className="text-slate-500 dark:text-slate-400">Postcode:</span>
-                    <div className="text-slate-900 dark:text-white">{homeowner.postcode || 'Not set'}</div>
+                    <span className="text-muted-foreground">Postcode:</span>
+                    <div className="text-foreground">{homeowner.postcode || 'Not set'}</div>
                   </div>
                   <div>
-                    <span className="text-slate-500 dark:text-slate-400">Lead Usage:</span>
-                    <div className="text-slate-900 dark:text-white">
+                    <span className="text-muted-foreground">Lead Usage:</span>
+                    <div className="text-foreground">
                       {homeowner.leadSubmissionCount}/{homeowner.leadSubmissionLimit}
                     </div>
                   </div>
                   <div>
-                    <span className="text-slate-500 dark:text-slate-400">Remaining:</span>
-                    <div className="text-slate-900 dark:text-white">{homeowner.remainingLeadAllowance}</div>
+                    <span className="text-muted-foreground">Remaining:</span>
+                    <div className="text-foreground">{homeowner.remainingLeadAllowance}</div>
                   </div>
                   <div className="col-span-2">
-                    <span className="text-slate-500 dark:text-slate-400">Registered:</span>
-                    <div className="text-slate-900 dark:text-white">{formatDate(homeowner.createdAt)}</div>
+                    <span className="text-muted-foreground">Registered:</span>
+                    <div className="text-foreground">{formatDate(homeowner.createdAt)}</div>
                   </div>
                 </div>
               </div>
@@ -584,29 +585,29 @@ export default function AdminHomeownersList() {
 
       {/* Pagination */}
       {!isLoading && homeowners.length > 0 && (
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4">
+        <div className="bg-surface border border-border rounded-lg p-4">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             {/* Page Size Selector */}
             <div className="flex items-center gap-2">
-              <label className="text-sm text-slate-600 dark:text-slate-400">Show:</label>
+              <label className="text-sm text-muted-foreground">Show:</label>
               <select
                 value={pageSize}
                 onChange={(e) => {
                   setPageSize(Number(e.target.value));
                   setPage(1);
                 }}
-                className="px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-800 dark:text-white"
+                className="px-3 py-1.5 bg-surface shadow-neu-inset border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground"
               >
                 <option value="10">10</option>
                 <option value="25">25</option>
                 <option value="50">50</option>
                 <option value="100">100</option>
               </select>
-              <span className="text-sm text-slate-600 dark:text-slate-400">per page</span>
+              <span className="text-sm text-muted-foreground">per page</span>
             </div>
 
             {/* Page Info */}
-            <div className="text-sm text-slate-600 dark:text-slate-400">
+            <div className="text-sm text-muted-foreground">
               Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, total)} of {total}
             </div>
 
@@ -615,7 +616,7 @@ export default function AdminHomeownersList() {
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="p-2 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="p-2 border border-border rounded-lg hover:bg-surface/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronLeftIcon />
               </button>
@@ -639,8 +640,8 @@ export default function AdminHomeownersList() {
                       onClick={() => setPage(pageNumber)}
                       className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
                         page === pageNumber
-                          ? 'bg-blue-600 text-white'
-                          : 'border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
+                          ? 'bg-primary text-white'
+                          : 'border border-border hover:bg-surface/50 text-muted-foreground'
                       }`}
                     >
                       {pageNumber}
@@ -652,7 +653,7 @@ export default function AdminHomeownersList() {
               <button
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="p-2 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="p-2 border border-border rounded-lg hover:bg-surface/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronRightIcon />
               </button>

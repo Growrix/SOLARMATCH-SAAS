@@ -938,14 +938,14 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
                   value={leadPrice}
                   onChange={(e) => setLeadPrice(e.target.value)}
                   placeholder="Enter price"
-                  className="form-input w-full"
+                  className="form-input w-full rounded-xl bg-surface text-foreground shadow-neu-inset border border-border px-4 py-3 placeholder:text-muted-foreground"
                 />
               </div>
               <Button
                 onClick={handleSavePrice}
                 disabled={savingPrice || !leadPrice}
                 variant="secondary"
-                className="w-full bg-info text-info-foreground"
+                className="w-full"
               >
                 {savingPrice ? <LoadingIcon /> : <SaveIcon />}
                 Save Price
@@ -964,13 +964,13 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
                 onChange={(e) => setAdminNotes(e.target.value)}
                 placeholder="Add internal notes..."
                 rows={4}
-                className="form-input w-full"
+                className="form-input w-full rounded-xl bg-surface text-foreground shadow-neu-inset border border-border px-4 py-3 placeholder:text-muted-foreground"
               />
               <Button
                 onClick={handleSaveNotes}
                 disabled={savingNotes}
                 variant="secondary"
-                className="w-full bg-info text-info-foreground"
+                className="w-full"
               >
                 {savingNotes ? <LoadingIcon /> : <SaveIcon />}
                 Save Notes
@@ -1014,7 +1014,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
                     onClick={handleResell}
                     disabled={reselling}
                     variant="secondary"
-                    className="w-full bg-warning text-warning-foreground text-sm"
+                    className="w-full text-sm"
                   >
                     {reselling ? <LoadingIcon /> : '🔄'}
                     Resell Lead
@@ -1031,13 +1031,13 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
                       min="1"
                       max="365"
                       placeholder="Days to extend"
-                      className="form-input w-full text-sm"
+                      className="form-input w-full rounded-xl bg-surface text-foreground shadow-neu-inset border border-border px-4 py-3 text-sm placeholder:text-muted-foreground"
                     />
                     <Button
                       onClick={handleResetTimer}
                       disabled={resettingTimer}
                       variant="secondary"
-                      className="w-full bg-accent text-white text-sm"
+                      className="w-full text-sm"
                     >
                       {resettingTimer ? <LoadingIcon /> : '⏰'}
                       Extend Timer (+{resetDays}d)
@@ -1050,7 +1050,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
                   onClick={handleArchive}
                   disabled={archiving}
                   variant="secondary"
-                  className="w-full bg-muted text-muted-foreground text-sm"
+                  className="w-full text-sm"
                 >
                   {archiving ? <LoadingIcon /> : '🗄️'}
                   Archive Lead
@@ -1125,7 +1125,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
                     max="90"
                     value={countdownDays}
                     onChange={(e) => setCountdownDays(parseInt(e.target.value) || 7)}
-                    className="form-input w-full"
+                    className="form-input w-full placeholder:text-muted-foreground"
                   />
                   <p className="text-xs mt-1 text-muted-foreground">
                     Lead will expire in {countdownDays} day{countdownDays !== 1 ? 's' : ''} (1-90 days range)
@@ -1171,7 +1171,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
               onChange={(e) => setRejectReason(e.target.value)}
               placeholder="Reason for rejection..."
               rows={4}
-              className="form-input w-full mb-4"
+              className="form-input w-full mb-4 placeholder:text-muted-foreground"
             />
             <div className="flex gap-3">
               <Button

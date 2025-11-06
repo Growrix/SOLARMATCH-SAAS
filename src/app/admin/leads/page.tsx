@@ -154,6 +154,11 @@ export default function AdminLeadsPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 md:p-8">
+      {/* Page Title & Subtitle */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-foreground mb-2">Leads Management</h1>
+        <p className="text-lg text-muted-foreground">View, filter, and manage all homeowner leads in the system.</p>
+      </div>
       {/* Loading State */}
       {loading && (
         <div className="flex items-center justify-center py-12">
@@ -320,7 +325,17 @@ export default function AdminLeadsPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(lead.status)}`}>
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        lead.status === 'APPROVED'
+                          ? 'bg-success/10 text-success border border-success/20'
+                          : lead.status === 'REJECTED' || lead.status === 'CANCELLED'
+                            ? 'bg-error/10 text-error border border-error/20'
+                            : lead.status === 'PENDING_PHONE' || lead.status === 'PENDING_APPROVAL'
+                              ? 'bg-warning/10 text-warning border border-warning/20'
+                              : lead.status === 'EXPIRED'
+                                ? 'bg-muted text-muted-foreground border border-border'
+                                : 'bg-muted text-muted-foreground border border-border'
+                      }`}>
                         {formatStatus(lead.status)}
                       </span>
                     </td>

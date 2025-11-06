@@ -94,14 +94,14 @@ const NavItem: React.FC<{
 }> = ({ icon, title, isActive, onClick, badgeCount }) => (
     <button 
         onClick={onClick} 
-        className={'w-full flex items-center justify-between space-x-3 px-4 py-3 rounded-xl transition-colors text-base font-semibold ' + (isActive ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-700')}
+        className={'w-full flex items-center justify-between space-x-3 px-4 py-3 rounded-xl transition-colors text-base font-semibold ' + (isActive ? 'bg-primary text-primary-foreground' : 'bg-surface text-foreground hover:bg-surface-hover')}
     >
         <div className="flex items-center space-x-3">
             {icon}
             <span>{title}</span>
         </div>
         {badgeCount && badgeCount > 0 && (
-            <span className="bg-destructive text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+            <span className="bg-destructive text-destructive-foreground text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
                 {badgeCount}
             </span>
         )}
@@ -160,13 +160,13 @@ const HomeownerMobileSidebarMenu: React.FC<HomeownerMobileSidebarMenuProps> = ({
         >
             <div 
                 onClick={e => e.stopPropagation()} 
-                className="relative w-full max-w-xs bg-white dark:bg-black rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-800 flex flex-col p-6 animate-slide-in-up"
+                className="relative w-full max-w-xs bg-background rounded-2xl shadow-2xl border border-border flex flex-col p-6 animate-slide-in-up"
             >
                 <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">Menu</h2>
+                    <h2 className="text-xl font-bold text-foreground">Menu</h2>
                     <button 
                         onClick={onClose} 
-                        className="p-2 -mr-2 rounded-md text-slate-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800"
+                        className="p-2 -mr-2 rounded-md text-muted-foreground hover:bg-surface"
                     >
                         <XIcon />
                     </button>
@@ -218,7 +218,7 @@ const HomeownerMobileSidebarMenu: React.FC<HomeownerMobileSidebarMenuProps> = ({
                     />
                 </nav>
                 
-                <div className="mt-6 pt-6 border-t border-gray-200 dark:border-slate-800">
+                <div className="mt-6 pt-6 border-t border-border">
                     <button 
                         onClick={handleLogoutClick} 
                         className="w-full flex items-center justify-center space-x-3 px-4 py-3 rounded-xl transition-colors text-base font-semibold bg-destructive/10 text-destructive hover:bg-destructive/20"

@@ -1798,12 +1798,30 @@ you have to create a comprehensive audit report of all the classes used in the s
 
 
 ***migration & Redesign in neumorphic***
-lets migrate the "leads" page and all of its components.  
+lets migrate the admin/Installers page
 
 ***Instructions for migration***
-You must follow the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\tasks.md file for all the migration instructions. you must perform the Pre Audit before the task implimentation. Understand each and every classes , Hardcodings, Styles used in the componenet. The Audit Goal is to keep everything in your memeory so that the migration task can be performed completely, not partially. After the Audit. before migration started you must read this D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\MIGRATION-PAIN-POINTS.md  file to learn from previous migration issues. so that you do not repeate the same mistakes. and after that read this D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\DESIGN-SYSTEM-SOT.md file to understand the design system better.
-Must audit the The design SOT is homewoners Dashboard.  Make sure we are only migrating the UI , nothing else. No functionality changes, no logic changes, no data changes. just pure UI migration. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on.
- After that create a phase in the tasks.md file for this migration task. then start the migration task as per the instructions given in the tasks.md file. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on. 
+You must follow the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\tasks.md file for all the migration instructions. you must perform the Pre Audit before the task implimentation. Understand each and every classes , Hardcodings, Styles used in the componenet. The Audit Goal is to keep everything in your memeory so that the migration task can be performed completely, not partially. After the Audit. before migration started you must read this D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\MIGRATION-PAIN-POINTS.md  file to learn from previous migration issues. so that you do not repeate the same mistakes. and after that read this D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\DESIGN-SYSTEM-SOT.md file to understand the design system better. for better clarification and referrence read this file too D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\MIGRATION-QUICK-REFERENCE.md
+ Make sure we are only migrating the UI , nothing else. No functionality changes, no logic changes, no data changes. just pure UI migration. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on.
+ After that 
+ ***task execution***
+ you must  create a phase in the tasks.md file for this migration task. then start the migration task as per the instructions given in the tasks.md file and other supporting .md files.  Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on. 
 
 
+-------------------
 
+***Identify Pain points***
+read above all the conversations and specially my commands and identify all the pain points that I have been facing whilte migrating/desiging UI. the goal is to identify all ongoing problems and pain points in order to enhance the workflow. 
+
+***pick up the solutions point***
+read above all the conversations and specially my commands and identify all the solutions that I have suggested whilte migrating/desiging UI. the goal is to identify all ongoing solutions in order to enhance the workflow. e.g wrong/hardcoded place holder used before, But now solved with using a specific class. So you need to pick that class in order to solve similar issues further without heistations
+
+***Must follow Instructions***
+You must audit the necessary relevant files/strutcures etc whatever needed to understand the pain points and solutions. then you must update the above mentioned files accordingly. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on. Note that , these file are my on going SOT . So never relace anything entirely, always update specific areas, always check for outdated areas but let me know before updating it directly. 
+
+***Files to update***
+Your Findings should be updated in the existing workflow files : 
+-D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\MIGRATION-PAIN-POINTS.md
+-D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\DESIGN-SYSTEM-SOT.md
+-D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\MIGRATION-QUICK-REFERENCE.md
+- D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\tasks.md

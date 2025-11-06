@@ -112,11 +112,13 @@ const ChevronDownIcon = ({ open }: { open: boolean }) => (
 const NavItem: React.FC<{ icon: React.ReactNode; title: string; isActive: boolean; onClick: () => void; isCollapsed?: boolean }> = ({ icon, title, isActive, onClick, isCollapsed }) => (
   <button
     onClick={onClick}
-    className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'} px-4 py-2.5 rounded-lg transition-all duration-300 text-sm font-medium group relative ${isActive ? 'bg-primary/10 text-primary shadow-neu-inset' : 'text-muted-foreground hover:bg-surface hover:text-primary hover:shadow-neu-outset-sm'}`}
+    className={`dashboard-nav-item ${isCollapsed ? 'dashboard-nav-item--collapsed' : 'dashboard-nav-item--expanded'} ${isActive ? 'dashboard-nav-item--active' : ''}`}
     title={isCollapsed ? title : undefined}
   >
-    <span className={isCollapsed ? '' : 'flex-shrink-0'}>{icon}</span>
-    {!isCollapsed && <span className="truncate">{title}</span>}
+    <div className="flex items-center space-x-3">
+      <span className="dashboard-nav-item__icon">{icon}</span>
+      {!isCollapsed && <span className="dashboard-nav-item__text">{title}</span>}
+    </div>
   </button>
 );
 
@@ -124,36 +126,34 @@ const AdminSidebar: React.FC<{ activePage?: string }> = ({ activePage = 'Dashboa
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [leadsOpen, setLeadsOpen] = useState(true);
   return (
-    <aside className={`dashboard-sidebar ${isCollapsed ? 'w-20' : 'w-64'} flex-shrink-0 border-r border-border bg-background flex flex-col h-full transition-all duration-300 shadow-neu-outset`} style={{ overflow: 'hidden' }}>
-      <div className="flex items-center justify-between h-16 px-3 border-b border-border mb-4 relative">
+    <aside className={`dashboard-sidebar-container ${isCollapsed ? 'dashboard-sidebar-container--collapsed' : 'dashboard-sidebar-container--expanded'}`}>
+      <div className="dashboard-sidebar-header">
         <button
-          className={`flex items-center ${isCollapsed ? 'flex-col' : 'space-x-3'} hover:opacity-80 transition-opacity`}
-          style={{ width: isCollapsed ? '100%' : undefined, justifyContent: 'center' }}
+          className={`dashboard-sidebar-logo ${isCollapsed ? 'dashboard-sidebar-logo--collapsed' : 'dashboard-sidebar-logo--expanded'}`}
         >
           <SunIcon />
-          {!isCollapsed && <span className="text-xl font-bold text-primary">SolarMatch</span>}
+          {!isCollapsed && <span className="dashboard-sidebar-logo-text">SolarMatch</span>}
         </button>
         {isCollapsed ? (
           <button
             onClick={() => setIsCollapsed(false)}
-            className="fixed top-4 left-[84px] h-8 w-8 flex items-center justify-center rounded-full bg-surface text-primary shadow-neu-inset border border-border transition-all duration-200"
+            className="dashboard-collapse-btn--floating dashboard-collapse-btn--floating-left"
             title="Expand sidebar"
-            style={{ zIndex: 100 }}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
           </button>
         ) : (
           <button
             onClick={() => setIsCollapsed(true)}
-            className="absolute top-1/2 -translate-y-1/2 right-2 p-2 rounded-lg bg-surface text-muted-foreground hover:text-primary transition-all duration-300 shadow-neu-inset hover:shadow-neu-outset"
+            className="absolute top-1/2 -translate-y-1/2 right-2 dashboard-collapse-btn"
             title="Collapse sidebar"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
           </button>
         )}
       </div>
-      <p className={`px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 ${isCollapsed ? 'hidden' : ''}`}>Admin Panel</p>
-      <nav className={`flex-grow space-y-1 ${isCollapsed ? 'px-2' : 'px-4'} overflow-y-auto`}>
+      <p className={`dashboard-sidebar-section-label ${isCollapsed ? 'dashboard-sidebar-section-label--hidden' : ''}`}>Admin Panel</p>
+      <nav className={`dashboard-sidebar-nav ${isCollapsed ? 'dashboard-sidebar-nav--collapsed' : 'dashboard-sidebar-nav--expanded'}`}>
         <NavItem icon={<LayoutDashboardIcon />} title="Dashboard" isActive={activePage === 'Dashboard'} onClick={() => { window.location.href = '/admin/dashboard'; }} isCollapsed={isCollapsed} />
         <NavItem icon={<ClipboardListIcon />} title="Leads" isActive={activePage === 'Leads'} onClick={() => { window.location.href = '/admin/leads'; }} isCollapsed={isCollapsed} />
         <NavItem icon={<MailIcon />} title="Newsletter" isActive={activePage === 'Newsletter'} onClick={() => { window.location.href = '/admin/newsletter'; }} isCollapsed={isCollapsed} />
@@ -161,7 +161,7 @@ const AdminSidebar: React.FC<{ activePage?: string }> = ({ activePage = 'Dashboa
         <NavItem icon={<HomeIcon />} title="Homeowners" isActive={activePage === 'Homeowners'} onClick={() => { window.location.href = '/admin/homeowners'; }} isCollapsed={isCollapsed} />
         <NavItem icon={<WrenchIcon />} title="Installers" isActive={activePage === 'Installers'} onClick={() => { window.location.href = '/admin/installers'; }} isCollapsed={isCollapsed} />
       </nav>
-      <div className="mt-auto">
+      <div className={`dashboard-sidebar-footer ${isCollapsed ? 'dashboard-sidebar-footer--collapsed' : 'dashboard-sidebar-footer--expanded'}`}>
         <NavItem icon={<LogOutIcon />} title="Logout" isActive={false} onClick={() => { window.location.href = '/logout'; }} isCollapsed={isCollapsed} />
       </div>
     </aside>

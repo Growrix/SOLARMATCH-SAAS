@@ -41,10 +41,30 @@
 **Phase 5: Hero Section** ✅ COMPLETE (1 component)
 - ✅ Hero.tsx
 
+**Phase 6: Dashboard Sidebar Centralization** ✅ COMPLETE (November 6, 2025)
+- 🎯 **Goal**: Centralize sidebar UI/UX across all 3 dashboards (Admin, Homeowner, Installer)
+- 📋 **Approach**: Semantic CSS classes in globals.css (control look, preserve functionality)
+- 💾 **Backup**: Created at `backup/sidebar-centralization-20251106-142349/` (8.28 MB, 503 files)
+- 📄 **Reference**: `DOC/DASHBOARD-SIDEBAR-CENTRALIZATION-AUDIT.md`
+- ✅ **Result**: 6 components migrated, 0 hardcoded colors, all 3 sidebars now have collapse functionality
+
+**Subtasks**:
+- [x] 6.1: Create semantic CSS classes in globals.css (30 min) ✅
+- [x] 6.2: Update AdminSidebar.tsx to use new classes (20 min) ✅
+- [x] 6.3: Extract HomeownerSidebar to component + apply classes (30 min) ✅
+- [x] 6.4: Extract InstallerSidebar to component + add collapse + apply classes (30 min) ✅
+- [x] 6.5: Migrate HomeownerMobileSidebarMenu.tsx (hardcoded colors → semantic) (15 min) ✅
+- [x] 6.6: Migrate InstallerMobileSidebarMenu.tsx (verify semantic tokens) (15 min) ✅
+- [ ] 6.7: (Optional) Create shared icon library in src/components/icons/ (20 min) - SKIPPED
+- [ ] 6.8: Visual verification - All 3 themes (Dark, Light, Purple) (15 min) - PENDING USER TESTING
+- [ ] 6.9: Functional verification - All navigation, collapse, badges work (15 min) - PENDING USER TESTING
+- [x] 6.10: Run 6-command verification on all sidebar files (10 min) ✅ ALL PASSED
+
 ### 📊 Current Stats
 - **Total Components Migrated**: 8 components in Phases 0-5 (100% of navigation layer)
 - **Homepage Progress**: TopBar → Header → Hero ✅ Complete
-- **Next Up**: Phase 6 - InstantQuote Calculator Section (homepage continues top-to-bottom)
+- **Current Work**: Phase 6 - Dashboard Sidebar Centralization (3 dashboards × 2 sidebars = 6 components)
+- **Next Up**: Phase 7 - InstantQuote Calculator Section (homepage continues top-to-bottom)
 
 ### 🎨 Design System Standards Established
 - **Button Component**: Used in all 8 migrated components
@@ -258,6 +278,114 @@ Select-String -Path "src\components\YourComponent.tsx" -Pattern "rgba\(|rgb\(|#[
 ```
 
 **✅ ONLY PROCEED if all 5 steps pass. Otherwise, FIX THE SYSTEM FIRST.**
+
+---
+
+## 📐 ADMIN PAGE LAYOUT STANDARD (Added Nov 6, 2025)
+
+**Reference Document**: `DOC/ADMIN-LAYOUT-AUDIT.md` (Complete audit with 6-page analysis)
+
+### CRITICAL: Layout Inconsistency Identified
+
+**Problem**: Instant Quotes page uses centered container (`max-w-7xl mx-auto`) while all other admin pages use full-width layout.
+
+**Impact**: Visual inconsistency when navigating between admin pages (Instant Quotes looks different from Installers/Newsletter/Homeowners/Leads).
+
+### APPROVED STANDARD (Use for ALL Admin Pages)
+
+```tsx
+'use client';
+
+import React from 'react';
+import YourTableComponent from '@/components/admin/YourTableComponent';
+
+export default function AdminPageName() {
+  return (
+    <div className="p-4 sm:p-6 lg:p-8">
+      <YourTableComponent />
+    </div>
+  );
+}
+```
+
+### Key Rules:
+
+1. **✅ Full-Width Layout**: NO `max-w-*` or `mx-auto` on page level
+2. **✅ Responsive Padding**: `p-4 sm:p-6 lg:p-8` (16px → 24px → 32px)
+3. **✅ Component Extraction**: Page file <30 lines, all UI logic in component
+4. **✅ No Redundant Classes**: NO `min-h-screen bg-background text-foreground` (inherited from layout.tsx)
+
+### Reference Implementation (Gold Standard)
+
+**File**: `src/app/admin/installers/page.tsx` (20 lines)
+
+```tsx
+'use client';
+
+import React from 'react';
+import InstallersTable from '@/components/admin/InstallersTable';
+
+export default function AdminInstallersPage() {
+  return (
+    <div className="p-4 sm:p-6 lg:p-8">
+      <InstallersTable />
+    </div>
+  );
+}
+```
+
+### Current Status (6 Admin Pages)
+
+| Page | Status | Issue | Fix Required |
+|------|--------|-------|--------------|
+| Installers | ✅ **APPROVED STANDARD** | None | None - use as reference |
+| Newsletter | ✅ Consistent | None | None |
+| Homeowners | ✅ Consistent | None | None |
+| Leads | ⚠️ Minor | Uses `md:p-8` instead of `lg:p-8` | Change breakpoint during migration |
+| Dashboard | ⚠️ Placeholder | Not implemented yet | Use approved standard |
+| **Instant Quotes** | ❌ **NON-STANDARD** | `max-w-7xl mx-auto` + 1361-line page file | **HIGH PRIORITY FIX** |
+
+### Instant Quotes Page - Required Changes
+
+**Current Issues**:
+1. ❌ Uses `<div className="max-w-7xl mx-auto">` wrapper (inconsistent)
+2. ❌ 1361 lines of code embedded in page file (should be component)
+3. ❌ Content constrained to 1280px (wastes space on large screens)
+
+**Migration Tasks** (During Instant Quotes Migration):
+- [ ] Extract 1361 lines → `src/components/admin/InstantQuotesTable.tsx`
+- [ ] Remove `<div className="max-w-7xl mx-auto">` wrapper
+- [ ] Update page file to simple wrapper (match Installers pattern)
+- [ ] Verify full-width layout matches other admin pages
+- [ ] Test on large screens (1920px+) to confirm table uses full width
+
+### Migration Checklist (Every Admin Page)
+
+Before marking ANY admin page complete, verify:
+
+- [ ] Page file uses `className="p-4 sm:p-6 lg:p-8"` (exact spacing)
+- [ ] NO `max-w-*` or `mx-auto` on page-level wrapper
+- [ ] NO `min-h-screen bg-background text-foreground` (redundant)
+- [ ] Page file imports single table/list component
+- [ ] Page file is <30 lines
+- [ ] Component handles all state, filtering, pagination
+- [ ] Layout visually matches Installers/Newsletter/Homeowners pages
+
+### Verification Commands
+
+```powershell
+# Check for non-standard patterns
+Select-String -Path "src\app\admin\*\page.tsx" -Pattern "max-w-|mx-auto" -Exclude "*layout.tsx"
+# Expected: 1 match (instant-quotes) before fix, 0 matches after
+
+# Verify padding consistency
+Select-String -Path "src\app\admin\*\page.tsx" -Pattern 'className="p-4 sm:p-6 lg:p-8"'
+# Expected: 5 matches (installers, newsletter, homeowners, leads after fix, instant-quotes after fix)
+
+# Check page file size (should be <50 lines for simple wrapper)
+Get-ChildItem -Path "src\app\admin\*\page.tsx" | Where-Object { $_.Name -ne "layout.tsx" } | ForEach-Object { Write-Host "$($_.Name): $((Get-Content $_.FullName | Measure-Object -Line).Lines) lines" }
+# Expected: All <50 lines except instant-quotes (1361 lines) before migration
+```
 
 ---
 

@@ -13,7 +13,9 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import styles from './InstallersTable.module.css';
 import Image from 'next/image';
+import Button from '@/components/ui/button';
 
 interface Installer {
   id: string;
@@ -108,7 +110,7 @@ const InstallersTable: React.FC = () => {
     if (currentPage !== 1) {
       setCurrentPage(1);
     }
-  }, [searchQuery, phoneVerifiedFilter, installerVerifiedFilter]);
+  }, [searchQuery, phoneVerifiedFilter, installerVerifiedFilter, currentPage]);
 
   // Format date
   const formatDate = (dateString: string) => {
@@ -129,7 +131,7 @@ const InstallersTable: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Search */}
           <div className="md:col-span-1">
-            <label htmlFor="search" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <label htmlFor="search" className="block text-sm font-medium text-foreground mb-2">
               Search
             </label>
             <input
@@ -138,20 +140,20 @@ const InstallersTable: React.FC = () => {
               placeholder="Email, name, phone, company..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2 border border-border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+              className="form-input w-full rounded-xl bg-surface text-foreground shadow-neu-inset border border-border px-4 py-3 placeholder:text-muted-foreground focus:ring-2 focus:ring-primary focus:border-transparent"
             />
           </div>
 
           {/* Phone Verified Filter */}
           <div>
-            <label htmlFor="phoneVerified" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <label htmlFor="phoneVerified" className="block text-sm font-medium text-foreground mb-2">
               Phone Verified
             </label>
             <select
               id="phoneVerified"
               value={phoneVerifiedFilter}
               onChange={(e) => setPhoneVerifiedFilter(e.target.value)}
-              className="w-full px-4 py-2 border border-border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+              className="form-select w-full rounded-xl bg-surface text-foreground shadow-neu-inset border border-border px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent"
             >
               <option value="all">All</option>
               <option value="true">Verified</option>
@@ -161,14 +163,14 @@ const InstallersTable: React.FC = () => {
 
           {/* Installer Verified Filter */}
           <div>
-            <label htmlFor="installerVerified" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <label htmlFor="installerVerified" className="block text-sm font-medium text-foreground mb-2">
               Installer Verified
             </label>
             <select
               id="installerVerified"
               value={installerVerifiedFilter}
               onChange={(e) => setInstallerVerifiedFilter(e.target.value)}
-              className="w-full px-4 py-2 border border-border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+              className="form-select w-full rounded-xl bg-surface text-foreground shadow-neu-inset border border-border px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent"
             >
               <option value="all">All</option>
               <option value="true">Verified</option>
@@ -183,52 +185,53 @@ const InstallersTable: React.FC = () => {
         {loading ? (
           <div className="p-8 text-center">
             <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Loading installers...</p>
+            <p className="mt-2 text-sm text-muted-foreground">Loading installers...</p>
           </div>
         ) : error ? (
           <div className="p-8 text-center">
-            <p className="text-red-600 dark:text-red-400">{error}</p>
-            <button
+            <p className="text-error">{error}</p>
+            <Button
               onClick={fetchInstallers}
-              className="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
+              variant="primary"
+              className="mt-4"
             >
               Retry
-            </button>
+            </Button>
           </div>
         ) : installers.length === 0 ? (
           <div className="p-8 text-center">
-            <p className="text-slate-600 dark:text-slate-400">No installers found</p>
+            <p className="text-muted-foreground">No installers found</p>
           </div>
         ) : (
           <>
             {/* Desktop Table */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50 dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
+                <thead className="bg-surface shadow-neu-inset border-b border-border">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       Company / Contact
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       Email
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       Phone
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       Verified
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       Registered
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       Status
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-700">
+                <tbody className="bg-background divide-y divide-border">
                   {installers.map((installer) => (
-                    <tr key={installer.id} className="hover:bg-gray-50 dark:hover:bg-slate-800">
+                    <tr key={installer.id} className="hover:bg-surface-hover">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10">
@@ -249,51 +252,45 @@ const InstallersTable: React.FC = () => {
                             )}
                           </div>
                           <div className="ml-4">
-                            <div className="text-sm font-medium text-slate-900 dark:text-white">
+                            <div className="text-sm font-medium text-foreground">
                               {installer.companyName || 'No company name'}
                             </div>
-                            <div className="text-sm text-slate-500 dark:text-slate-400">
+                            <div className="text-sm text-muted-foreground">
                               {installer.name || 'No name'}
                             </div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-slate-900 dark:text-white">{installer.email}</div>
+                        <div className="text-sm text-foreground">{installer.email}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-slate-900 dark:text-white">
+                        <div className="text-sm text-foreground">
                           {installer.phone || 'N/A'}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex flex-col gap-1">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            installer.phoneVerified
-                              ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                              : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
-                          }`}>
-                            {installer.phoneVerified ? '✓ Phone' : '✗ Phone'}
+                          <span className={`${styles['badge-verify']} flex items-center gap-2 ${installer.phoneVerified === true ? 'text-success' : 'text-error'}`}> 
+                            <span className={`inline-block w-2 h-2 rounded-full ${installer.phoneVerified === true ? 'bg-success' : 'bg-error'}`}></span>
+                            {installer.phoneVerified === true ? <span>&#10003; Phone</span> : <span>&#10007; Phone</span>}
                           </span>
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            installer.installerVerified
-                              ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                              : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
-                          }`}>
-                            {installer.installerVerified ? '✓ Installer' : '✗ Installer'}
+                          <span className={`${styles['badge-verify']} flex items-center gap-2 ${installer.installerVerified === true ? 'text-success' : 'text-error'}`}> 
+                            <span className={`inline-block w-2 h-2 rounded-full ${installer.installerVerified === true ? 'bg-success' : 'bg-error'}`}></span>
+                            {installer.installerVerified === true ? <span>&#10003; Installer</span> : <span>&#10007; Installer</span>}
                           </span>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-slate-900 dark:text-white">
+                        <div className="text-sm text-foreground">
                           {formatDate(installer.createdAt)}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                           installer.isActive
-                            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                            : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                            ? 'bg-success/10 text-success border border-success/20'
+                            : 'bg-error/10 text-error border border-error/20'
                         }`}>
                           {installer.isActive ? 'Active' : 'Inactive'}
                         </span>
@@ -305,9 +302,9 @@ const InstallersTable: React.FC = () => {
             </div>
 
             {/* Mobile Cards */}
-            <div className="md:hidden divide-y divide-gray-200 dark:divide-slate-700">
+            <div className="md:hidden divide-y divide-border">
               {installers.map((installer) => (
-                <div key={installer.id} className="p-4 hover:bg-gray-50 dark:hover:bg-slate-800">
+                <div key={installer.id} className="p-4 hover:bg-surface-hover">
                   <div className="flex items-start gap-3 mb-3">
                     <div className="flex-shrink-0">
                       {installer.image ? (
@@ -327,10 +324,10 @@ const InstallersTable: React.FC = () => {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-medium text-slate-900 dark:text-white truncate">
+                      <h3 className="text-sm font-medium text-foreground truncate">
                         {installer.companyName || 'No company name'}
                       </h3>
-                      <p className="text-sm text-slate-500 dark:text-slate-400 truncate">
+                      <p className="text-sm text-muted-foreground truncate">
                         {installer.name || 'No name'}
                       </p>
                     </div>
@@ -338,42 +335,36 @@ const InstallersTable: React.FC = () => {
 
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-slate-600 dark:text-slate-400">Email:</span>
-                      <span className="text-slate-900 dark:text-white font-medium truncate ml-2">{installer.email}</span>
+                      <span className="text-muted-foreground">Email:</span>
+                      <span className="text-foreground font-medium truncate ml-2">{installer.email}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-600 dark:text-slate-400">Phone:</span>
-                      <span className="text-slate-900 dark:text-white font-medium">{installer.phone || 'N/A'}</span>
+                      <span className="text-muted-foreground">Phone:</span>
+                      <span className="text-foreground font-medium">{installer.phone || 'N/A'}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-600 dark:text-slate-400">Verified:</span>
+                      <span className="text-muted-foreground">Verified:</span>
                       <div className="flex gap-1">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          installer.phoneVerified
-                            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                            : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
-                        }`}>
-                          {installer.phoneVerified ? '✓ Phone' : '✗ Phone'}
+                        <span className={`${styles['badge-verify']} flex items-center gap-2 ${installer.phoneVerified === true ? 'text-success' : 'text-error'}`}> 
+                          <span className={`inline-block w-2 h-2 rounded-full ${installer.phoneVerified === true ? 'bg-success' : 'bg-error'}`}></span>
+                          {installer.phoneVerified === true ? <span>&#10003; Phone</span> : <span>&#10007; Phone</span>}
                         </span>
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          installer.installerVerified
-                            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                            : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
-                        }`}>
-                          {installer.installerVerified ? '✓ Installer' : '✗ Installer'}
+                        <span className={`${styles['badge-verify']} flex items-center gap-2 ${installer.installerVerified === true ? 'text-success' : 'text-error'}`}> 
+                          <span className={`inline-block w-2 h-2 rounded-full ${installer.installerVerified === true ? 'bg-success' : 'bg-error'}`}></span>
+                          {installer.installerVerified === true ? <span>&#10003; Installer</span> : <span>&#10007; Installer</span>}
                         </span>
                       </div>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-600 dark:text-slate-400">Registered:</span>
-                      <span className="text-slate-900 dark:text-white font-medium">{formatDate(installer.createdAt)}</span>
+                      <span className="text-muted-foreground">Registered:</span>
+                      <span className="text-foreground font-medium">{formatDate(installer.createdAt)}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-600 dark:text-slate-400">Status:</span>
+                      <span className="text-muted-foreground">Status:</span>
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                         installer.isActive
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                          : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                          ? 'bg-success/10 text-success border border-success/20'
+                          : 'bg-error/10 text-error border border-error/20'
                       }`}>
                         {installer.isActive ? 'Active' : 'Inactive'}
                       </span>
@@ -388,68 +379,68 @@ const InstallersTable: React.FC = () => {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-700 sm:px-6 rounded-lg theme-card">
+        <div className="theme-card flex items-center justify-between px-4 py-3 border-t border-border sm:px-6 rounded-lg">
           <div className="flex-1 flex justify-between sm:hidden">
-            <button
+            <Button
               onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
-              className="relative inline-flex items-center px-4 py-2 border border-border dark:border-slate-600 text-sm font-medium rounded-md text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              variant="outline"
             >
               Previous
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
               disabled={currentPage === totalPages}
-              className="ml-3 relative inline-flex items-center px-4 py-2 border border-border dark:border-slate-600 text-sm font-medium rounded-md text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              variant="outline"
+              className="ml-3"
             >
               Next
-            </button>
+            </Button>
           </div>
           <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm text-slate-700 dark:text-slate-300">
+              <p className="text-sm text-foreground">
                 Showing <span className="font-medium">{(currentPage - 1) * limit + 1}</span> to{' '}
                 <span className="font-medium">{Math.min(currentPage * limit, total)}</span> of{' '}
                 <span className="font-medium">{total}</span> results
               </p>
             </div>
             <div>
-              <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                <button
+              <nav className="relative z-0 inline-flex gap-1" aria-label="Pagination">
+                <Button
                   onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                   disabled={currentPage === 1}
-                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-border dark:border-slate-600 bg-white dark:bg-slate-800 text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  variant="minimal"
+                  className="px-3"
                 >
                   <span className="sr-only">Previous</span>
                   <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                     <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
-                </button>
+                </Button>
                 
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <button
+                  <Button
                     key={page}
                     onClick={() => setCurrentPage(page)}
-                    className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                      currentPage === page
-                        ? 'z-10 bg-primary border-primary text-white'
-                        : 'bg-white dark:bg-slate-800 border-border dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-700'
-                    }`}
+                    variant={currentPage === page ? 'primary' : 'minimal'}
+                    className="px-4"
                   >
                     {page}
-                  </button>
+                  </Button>
                 ))}
                 
-                <button
+                <Button
                   onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                   disabled={currentPage === totalPages}
-                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-border dark:border-slate-600 bg-white dark:bg-slate-800 text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  variant="minimal"
+                  className="px-3"
                 >
                   <span className="sr-only">Next</span>
                   <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                     <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
                   </svg>
-                </button>
+                </Button>
               </nav>
             </div>
           </div>

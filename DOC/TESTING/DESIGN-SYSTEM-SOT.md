@@ -6,150 +6,6 @@
 
 ---
 
-## 🚨 NEW: CRITICAL LESSONS FROM ADMIN LEAD DETAILS MIGRATION (Nov 5, 2025)
-
-### PAIN POINT #1: Shared Component Dependencies Not Identified
-
-**The Problem:**
-- Main page file (`src/app/admin/leads/[id]/page.tsx`) was migrated ✅
-- Verification commands checked ONLY the page file ✅
-- AI reported "migration complete" ✅
-- **BUT**: Page renders `QuoteDataDisplay`, `InstallerSelectorModal`, `AssignmentHistoryTable` components
-- These components still had `bg-white`, `dark:bg-gray-800`, `border-gray-200` ❌
-- User sees white cards and says "You said it's done, why are there white areas?" ❌
-
-**Why This Happened:**
-1. No component dependency tree was created before migration
-2. Verification commands only checked the main page file, not imported components
-3. AI assumed page migration = complete, without checking child components
-
-**The Solution: Component Tree Mapping (MANDATORY BEFORE MIGRATION)**
-
-```bash
-# STEP 1: Identify ALL components rendered by the page
-grep -E "import.*from.*components" src/app/admin/leads/[id]/page.tsx
-
-# STEP 2: For EACH imported component, check if it has hardcoded colors
-Select-String -Path "src\components\admin\QuoteDataDisplay.tsx" -Pattern "bg-white|bg-gray-|dark:"
-Select-String -Path "src\components\admin\InstallerSelectorModal.tsx" -Pattern "bg-white|bg-gray-|dark:"
-Select-String -Path "src\components\admin\AssignmentHistoryTable.tsx" -Pattern "bg-white|bg-gray-|dark:"
-
-# STEP 3: If ANY child component has hardcoded colors, add it to migration list
-# Migration is NOT complete until ALL components in the tree are migrated
-```
-
-**New Rule:**
-> **A page migration is ONLY complete when the page file AND ALL its child components are verified clean.**
-
----
-
-### PAIN POINT #2: Incomplete Verification Patterns
-
-**What Was Missed:**
-```powershell
-# Old verification only checked these:
-Select-String -Pattern "bg-white|bg-gray-|dark:"
-
-# But MISSED these patterns:
-dark:text-green-400          # Semantic colors with dark: prefix
-dark:text-blue-400           # Status colors with dark: prefix
-bg-yellow-50 dark:bg-yellow-950  # Warning backgrounds
-border-green-200 dark:border-green-900  # Semantic borders
-text-gray-900 dark:text-white     # Text colors
-```
-
-**Complete Verification Command Set (Use ALL 6):**
-
-```powershell
-# Command 1: Gray/slate/zinc hardcoded colors
-Select-String -Path "src\components\**\*.tsx" -Pattern "text-gray-|text-slate-|text-zinc-|bg-gray-|bg-slate-|bg-zinc-|border-gray-|border-slate-"
-
-# Command 2: ALL dark: prefixes (including semantic colors)
-Select-String -Path "src\components\**\*.tsx" -Pattern "dark:text-|dark:bg-|dark:border-"
-
-# Command 3: Hardcoded RGB/RGBA/HEX (excluding SVG)
-Select-String -Path "src\components\**\*.tsx" -Pattern "rgba\(|rgb\(|#[0-9a-fA-F]{3,6}" | Where-Object { $_.Line -notmatch "viewBox|fill=|d=" }
-
-# Command 4: Hardcoded white/black
-Select-String -Path "src\components\**\*.tsx" -Pattern "text-white\b|bg-white\b|text-black\b|bg-black\b|border-white\b"
-
-# Command 5: Hardcoded color names (blue, green, red, yellow, etc.)
-Select-String -Path "src\components\**\*.tsx" -Pattern "bg-(blue|green|red|yellow|purple|pink|orange|indigo|teal|cyan)-[0-9]|text-(blue|green|red|yellow|purple|pink|orange|indigo|teal|cyan)-[0-9]|border-(blue|green|red|yellow|purple|pink|orange|indigo|teal|cyan)-[0-9]"
-
-# Command 6: Hardcoded typography (should use semantic tokens)
-Select-String -Path "src\components\**\*.tsx" -Pattern "text-xs|text-sm|text-lg|text-xl|text-2xl|text-3xl|font-bold|font-semibold|font-medium"
-
-# EXPECTED RESULT: ALL commands return 0 matches
-# If ANY command returns matches, migration is INCOMPLETE
-```
-
-**New Rule:**
-> **Before reporting "migration complete", run ALL 6 verification commands and confirm 0/0/0/0/0/0 results.**
-
----
-
-### PAIN POINT #3: False Completion Reporting
-
-**User Quote:**
-> "You said several times it is done, but now saying you found hardcoded elements. are you insane? You are giving false information most of the time."
-
-**Why This Happened:**
-1. AI checked main file, found 0 hardcoded colors ✅
-2. AI reported "migration complete" ✅
-3. AI didn't check child components ❌
-4. User sees white areas, reports issue ❌
-5. AI re-checks, finds hardcoded colors in child components ❌
-6. User loses trust ❌
-
-**The Solution: Honest, Detailed Reporting**
-
-```markdown
-# ❌ WRONG RESPONSE:
-"Migration complete! All hardcoded colors removed."
-
-# ✅ CORRECT RESPONSE:
-"Migration Status:
-- ✅ Main page file (src/app/admin/leads/[id]/page.tsx): Clean (0 hardcoded colors)
-- ❌ QuoteDataDisplay component: 47 hardcoded colors found
-- ❌ InstallerSelectorModal component: Not checked yet
-- ❌ AssignmentHistoryTable component: Not checked yet
-
-**Migration is INCOMPLETE.** Child components must be migrated before marking this task complete."
-```
-
-**New Rule:**
-> **Never report "complete" unless ALL files in the component tree are verified clean. Be explicit about what's done and what's remaining.**
-
----
-
-### PAIN POINT #4: Tool Selection Mistakes
-
-**What Happened:**
-- Tried `apply_patch` tool 3+ times, all failed due to context matching
-- Kept retrying same approach instead of switching to `replace_string_in_file`
-- Wasted time and frustrated user
-
-**Tool Selection Guide:**
-
-```
-Need to change 1-3 specific lines with known exact context?
-├─ YES → Use replace_string_in_file (include 3-5 lines context before/after)
-└─ NO → Continue
-
-Need to change 10+ lines or restructure code?
-├─ YES → Use apply_patch
-└─ NO → Use replace_string_in_file
-
-Tool failed twice with same approach?
-├─ YES → STOP, analyze root cause, switch tool or approach
-└─ NO → Check context accuracy, try once more
-```
-
-**New Rule:**
-> **If a tool fails twice, stop and switch tools or approach. Don't repeat the same failure.**
-
----
-
 ## 🚨 CRITICAL: LESSONS FROM HOMEOWNER DASHBOARD MIGRATION (Nov 4, 2025)
 
 ### What Went Wrong (Never Repeat These Mistakes):
@@ -172,68 +28,25 @@ Tool failed twice with same approach?
 
 ### MANDATORY: Complete Hardcoded Color Verification (Use This Every Time)
 
-**STEP 1: Identify Component Tree (BEFORE Migration)**
-
 ```powershell
-# Find ALL components imported by the page
-Select-String -Path "src\app\your-page\page.tsx" -Pattern "import.*from.*components"
+# Run ALL of these - if ANY return matches, migration is INCOMPLETE
 
-# Example output:
-# import QuoteDataDisplay from '@/components/admin/QuoteDataDisplay'
-# import InstallerSelectorModal from '@/components/admin/InstallerSelectorModal'
-# import AssignmentHistoryTable from '@/components/admin/AssignmentHistoryTable'
+# 1. Hardcoded gray/slate/zinc colors
+Select-String -Path "src\app\your-component\*.tsx" -Pattern "text-gray-|text-slate-|text-zinc-|bg-gray-|bg-slate-|bg-zinc-"
 
-# Create a list of ALL files to verify:
-# - src/app/your-page/page.tsx (main file)
-# - src/components/admin/QuoteDataDisplay.tsx (child 1)
-# - src/components/admin/InstallerSelectorModal.tsx (child 2)
-# - src/components/admin/AssignmentHistoryTable.tsx (child 3)
+# 2. dark: prefixes (themes should use CSS variables, not dark:)
+Select-String -Path "src\app\your-component\*.tsx" -Pattern "dark:"
+
+# 3. Hardcoded RGB/RGBA/HEX colors (excluding SVG viewBox/fill)
+Select-String -Path "src\app\your-component\*.tsx" -Pattern "rgba\(|rgb\(|#[0-9a-fA-F]{3,6}" | Where-Object { $_.Line -notmatch "viewBox|fill=" }
+
+# 4. Hardcoded white/black (text-white, bg-white, text-black, bg-black)
+Select-String -Path "src\app\your-component\*.tsx" -Pattern "text-white|bg-white|text-black|bg-black"
+
+# Expected result for ALL: 0 matches (or NO OUTPUT)
 ```
 
-**STEP 2: Run ALL 6 Verification Commands on EACH File**
-
-```powershell
-# FOR EACH FILE in component tree, run ALL 6 commands:
-
-# Command 1: Hardcoded gray/slate/zinc colors
-Select-String -Path "src\app\your-component\*.tsx" -Pattern "text-gray-|text-slate-|text-zinc-|bg-gray-|bg-slate-|bg-zinc-|border-gray-|border-slate-"
-
-# Command 2: ALL dark: prefixes (including semantic colors like dark:text-green-400)
-Select-String -Path "src\app\your-component\*.tsx" -Pattern "dark:text-|dark:bg-|dark:border-"
-
-# Command 3: Hardcoded RGB/RGBA/HEX colors (excluding SVG viewBox/fill)
-Select-String -Path "src\app\your-component\*.tsx" -Pattern "rgba\(|rgb\(|#[0-9a-fA-F]{3,6}" | Where-Object { $_.Line -notmatch "viewBox|fill=|d=" }
-
-# Command 4: Hardcoded white/black
-Select-String -Path "src\app\your-component\*.tsx" -Pattern "text-white\b|bg-white\b|text-black\b|bg-black\b|border-white\b"
-
-# Command 5: Hardcoded semantic color names
-Select-String -Path "src\app\your-component\*.tsx" -Pattern "bg-(blue|green|red|yellow|purple|pink|orange|indigo|teal|cyan)-[0-9]|text-(blue|green|red|yellow|purple|pink|orange|indigo|teal|cyan)-[0-9]|border-(blue|green|red|yellow|purple|pink|orange|indigo|teal|cyan)-[0-9]"
-
-# Command 6: Hardcoded typography (should use semantic typography tokens)
-Select-String -Path "src\app\your-component\*.tsx" -Pattern "text-xs|text-sm|text-lg|text-xl|text-2xl|text-3xl|font-bold|font-semibold|font-medium"
-
-# Expected result for ALL: 0 matches (or NO OUTPUT) for EVERY FILE
-```
-
-**STEP 3: Report Completion Status Honestly**
-
-```markdown
-# ✅ CORRECT: Detailed Status Report
-Migration Verification Results:
-- Main File (page.tsx): 0/0/0/0/0/0 ✅ CLEAN
-- QuoteDataDisplay: 0/0/0/0/0/0 ✅ CLEAN
-- InstallerSelectorModal: 0/0/0/0/0/0 ✅ CLEAN
-- AssignmentHistoryTable: 0/0/0/0/0/0 ✅ CLEAN
-
-**Migration Status: COMPLETE** ✅
-
-# ❌ WRONG: Premature Completion
-"Migration complete! All colors removed."
-(Without checking child components)
-```
-
-### MANDATORY: Background Color Decision Tree (Updated Nov 5, 2025)
+### MANDATORY: Background Color Decision Tree
 
 **Question: What element am I styling?**
 
@@ -244,55 +57,11 @@ Is it a STRUCTURAL element (body, main container, sidebar, header)?
 
 Is it an ELEVATED element (card, modal, input, button)?
 ├─ YES → Use bg-surface (#1A1A1A dark, #E8EDF4 light, #3E296C purple)
-│         Add shadow-neu-outset for neumorphic effect
 └─ NO → Use bg-background or bg-transparent
 
 Is it a HOVER state?
-├─ YES → Use hover:bg-surface-hover or hover:shadow-neu-outset-lg
+├─ YES → Use hover:bg-surface-hover
 └─ NO → Done
-```
-
-**⚠️ CRITICAL: Available Semantic Tokens (NO OTHER OPTIONS)**
-
-```tsx
-// ✅ ONLY THESE EXIST IN THE SYSTEM:
-bg-background      // Structural elements (body, sidebar, header)
-bg-surface         // Elevated elements (cards, modals, inputs)
-bg-primary         // Primary button background
-bg-muted           // Muted backgrounds
-bg-accent          // Accent backgrounds
-bg-destructive     // Destructive action backgrounds
-
-// Status colors (for alerts, badges, etc.)
-bg-success         // Success states
-bg-error           // Error states
-bg-warning         // Warning states
-bg-info            // Info states
-
-// Text colors
-text-foreground    // Primary text
-text-muted-foreground  // Secondary/muted text
-text-subtle        // Tertiary/subtle text
-text-primary       // Primary brand text
-text-success       // Success text
-text-error         // Error text
-text-warning       // Warning text
-text-info          // Info text
-
-// Border colors
-border-border      // Default border
-border-primary     // Primary borders
-border-success     // Success borders
-border-error       // Error borders
-border-warning     // Warning borders
-border-info        // Info borders
-
-// ❌ THESE DO NOT EXIST - DO NOT USE:
-bg-card            // WRONG! Use bg-surface instead
-bg-elevated        // WRONG! Use bg-surface instead
-bg-modal           // WRONG! Use bg-surface instead
-text-default       // WRONG! Use text-foreground instead
-border-default     // WRONG! Use border-border instead
 ```
 
 **Examples:**
@@ -300,182 +69,14 @@ border-default     // WRONG! Use border-border instead
 - ✅ `<main className="bg-background">` → Structural
 - ✅ `<aside className="bg-background">` → Sidebar (structural)
 - ✅ `<header className="bg-background">` → Header (structural)
-- ✅ `<div className="bg-surface shadow-neu-outset rounded-lg">` → Card (elevated)
-- ✅ `<input className="bg-surface border-border">` → Input (elevated)
+- ✅ `<div className="bg-surface rounded-card">` → Card (elevated)
+- ✅ `<input className="bg-surface">` → Input (elevated)
 - ✅ `<Button>` → Uses bg-surface internally (elevated)
-- ✅ `<div className="bg-surface shadow-neu-outset">` → Modal content
-- ✅ `<span className="bg-success text-success-foreground">` → Success badge
 
 **Common Mistakes:**
 - ❌ `<aside className="bg-surface">` → Wrong! Use bg-background
 - ❌ `<header className="bg-surface">` → Wrong! Use bg-background
 - ❌ `<div className="bg-background rounded-card">` → Wrong! Cards use bg-surface
-- ❌ `<div className="bg-card">` → Wrong! bg-card doesn't exist, use bg-surface
-- ❌ `<div className="bg-elevated">` → Wrong! bg-elevated doesn't exist, use bg-surface
-- ❌ `<div className="bg-surface">` without shadow → Missing neumorphic effect! Add shadow-neu-outset
-
----
-
-## 📐 ADMIN DASHBOARD LAYOUT STANDARD (Added Nov 6, 2025)
-
-**Reference Audit**: See `DOC/ADMIN-LAYOUT-AUDIT.md` for complete analysis
-
-### APPROVED STANDARD: Full-Width Layout with Responsive Padding
-
-**Problem Identified**: Instant Quotes page uses centered container (`max-w-7xl mx-auto`) while all other admin pages use consistent full-width layout, causing visual inconsistency.
-
-**Approved Pattern** (Use this for ALL admin pages):
-
-```tsx
-'use client';
-
-import React from 'react';
-import YourTableComponent from '@/components/admin/YourTableComponent';
-
-export default function AdminPageName() {
-  return (
-    <div className="p-4 sm:p-6 lg:p-8">
-      <YourTableComponent />
-    </div>
-  );
-}
-```
-
-### Key Principles:
-
-1. **✅ Full-Width Layout**: NO `max-w-*` or `mx-auto` on page level
-   - Reason: Data tables need full screen width on large monitors (1920px+)
-   - Tables/components can set their own max-widths internally if needed
-
-2. **✅ Responsive Padding**: `p-4 sm:p-6 lg:p-8` (consistent breakpoints)
-   - Mobile (< 640px): 16px padding (`p-4`)
-   - Tablet (640px - 1024px): 24px padding (`sm:p-6`)
-   - Desktop (≥ 1024px): 32px padding (`lg:p-8`)
-
-3. **✅ Component Extraction**: Page file should be <30 lines
-   - ALL state management, filtering, pagination → in component
-   - Page file is simple wrapper only
-
-4. **✅ Theme Inheritance**: NO redundant classes on page
-   - ❌ WRONG: `min-h-screen bg-background text-foreground` (inherited from admin layout.tsx)
-   - ✅ CORRECT: Only `p-4 sm:p-6 lg:p-8`
-
-5. **✅ Consistency**: Every admin page should be structurally identical
-   - User navigates between pages without layout shifts
-   - Predictable, professional experience
-
-### Reference Implementation (Gold Standard):
-
-**File**: `src/app/admin/installers/page.tsx`
-
-```tsx
-'use client';
-
-/**
- * Admin Installers Page
- * Phase 7.5.13 - T342
- * 
- * Main page for managing installer verification and profiles.
- * Integrates all installer management components.
- */
-
-import React from 'react';
-import InstallersTable from '@/components/admin/InstallersTable';
-
-export default function AdminInstallersPage() {
-  return (
-    <div className="p-4 sm:p-6 lg:p-8">
-      <InstallersTable />
-    </div>
-  );
-}
-```
-
-**Why This Is Perfect**:
-- ✅ 20 lines total (simple, maintainable)
-- ✅ Single responsibility (page wrapper only)
-- ✅ Full-width layout with responsive padding
-- ✅ Component handles all complexity
-- ✅ Matches all other admin pages
-- ✅ No redundant classes
-
-### Current Status (6 Admin Pages):
-
-| Page | Structure | Status | Action Required |
-|------|-----------|--------|-----------------|
-| Installers | Simple wrapper + `p-4 sm:p-6 lg:p-8` | ✅ **APPROVED STANDARD** | None - use as reference |
-| Newsletter | Same as Installers | ✅ Consistent | None |
-| Homeowners | Same as Installers | ✅ Consistent | None |
-| Leads | Full-width but uses `md:p-8` | ⚠️ Minor cleanup needed | Change `md:p-8` → `lg:p-8`, remove redundant classes |
-| Dashboard | Placeholder | ⚠️ Needs implementation | Use approved standard when building |
-| **Instant Quotes** | **Centered container + max-w-7xl** | ❌ **NON-STANDARD** | **REQUIRED: Remove max-w-7xl, extract to component** |
-
-### Migration Checklist (Use for Every Admin Page):
-
-When migrating any admin page, verify:
-
-- [ ] Page file uses `className="p-4 sm:p-6 lg:p-8"` (exact spacing)
-- [ ] NO `max-w-*` or `mx-auto` on page-level wrapper
-- [ ] NO `min-h-screen bg-background text-foreground` (inherited from layout)
-- [ ] Page file imports single table/list component
-- [ ] Page file is <30 lines (all logic in component)
-- [ ] Component handles all state, filtering, pagination internally
-- [ ] Layout matches Installers/Newsletter/Homeowners reference pages
-
-### Verification Command:
-
-```powershell
-# Check all admin pages for non-standard patterns
-Select-String -Path "src\app\admin\*\page.tsx" -Pattern "max-w-|mx-auto" -Exclude "*layout.tsx"
-# Expected: 1 match (instant-quotes) before fix, 0 matches after fix
-
-# Verify padding consistency
-Select-String -Path "src\app\admin\*\page.tsx" -Pattern 'className="p-4 sm:p-6 lg:p-8"'
-# Expected: 5 matches (all pages except instant-quotes/dashboard)
-```
-
-### Common Mistakes to Avoid:
-
-❌ **WRONG - Centered Container**:
-```tsx
-<div className="p-4 sm:p-6 lg:p-8">
-  <div className="max-w-7xl mx-auto">  {/* ❌ Inconsistent with other pages */}
-    <YourTableComponent />
-  </div>
-</div>
-```
-
-❌ **WRONG - Redundant Classes**:
-```tsx
-<div className="min-h-screen bg-background text-foreground p-4 sm:p-6 md:p-8">  {/* ❌ Inherited from layout, wrong breakpoint */}
-  <YourTableComponent />
-</div>
-```
-
-❌ **WRONG - Embedded UI Logic**:
-```tsx
-export default function AdminPage() {
-  const [data, setData] = useState([]);  {/* ❌ Should be in component */}
-  // ...1000+ lines of logic...
-  return <div>...</div>;
-}
-```
-
-✅ **CORRECT - Approved Standard**:
-```tsx
-'use client';
-
-import React from 'react';
-import YourTableComponent from '@/components/admin/YourTableComponent';
-
-export default function AdminPageName() {
-  return (
-    <div className="p-4 sm:p-6 lg:p-8">
-      <YourTableComponent />
-    </div>
-  );
-}
-```
 
 ---
 
@@ -521,12 +122,12 @@ When migrating new components, **ALWAYS** open and study these examples:
 
 #### STEP 1: Run Gate 0 Health Check
 **MANDATORY:** Run all health checks in `tasks.md` GATE 0 section
-- [ ] CSS Variables Foundation (color-background, color-surface, color-foreground defined in globals.css)
-- [ ] Semantic Classes Catalog (file created with form-input, form-select patterns)
-- [ ] Reference Components Available (check migrated components list)
-- [ ] Chart Hook Uses CSS Variables (if component has charts - useChartColors hook exists)
-- [ ] Input Classes Properly Separated (no form-select class on text inputs)
-- [ ] Neumorphic Shadows Available (shadow-neu-outset, shadow-neu-inset defined in globals.css)
+- [ ] CSS Variables Foundation (12 matches expected)
+- [ ] Semantic Classes Catalog (file created)
+- [ ] Reference Components Available (all True)
+- [ ] Chart Hook Uses CSS Variables (if has charts)
+- [ ] Input Classes Properly Separated (no arrow on text inputs)
+- [ ] Theme-Card Uses Variables (not hardcoded white)
 
 **❌ IF ANY FAILS:** STOP migration, fix system issue, re-run checks
 
@@ -566,7 +167,7 @@ When migrating new components, **ALWAYS** open and study these examples:
 **Characteristics:** Pop-up windows, confirmation dialogs, auth modals  
 **Use Pattern:** Modal Migration Pattern  
 **Reference:** `HomeownerSignInModal.tsx`, `InstallerEligibilityModal.tsx`  
-**Container Pattern:** `className="bg-surface shadow-neu-outset rounded-lg p-8"` (elevated neumorphic surface)  
+**Container:** `.theme-card` (for modal content)  
 **[Jump to Modal Migration Guide](#migration-principles)**
 
 ---
@@ -620,82 +221,15 @@ When migrating new components, **ALWAYS** open and study these examples:
 
 ---
 
-#### STEP 4: Pre-Migration Prep (Before Touching Code) - UPDATED Nov 5, 2025
+#### STEP 4: Pre-Migration Prep (Before Touching Code)
 
-**STEP 4A: Map Component Dependency Tree (MANDATORY)**
-
-```powershell
-# 1. Find ALL components imported by the page/component
-Select-String -Path "src\app\your-page\page.tsx" -Pattern "import.*from.*components" | Select-Object -Property Line
-
-# Example output:
-# import QuoteDataDisplay from '@/components/admin/QuoteDataDisplay'
-# import InstallerSelectorModal from '@/components/admin/InstallerSelectorModal'
-
-# 2. Create component tree file (for tracking)
-@"
-Migration Component Tree: Admin Lead Details Page
-
-Main File:
-- src/app/admin/leads/[id]/page.tsx
-
-Child Components (MUST ALL BE MIGRATED):
-- src/components/admin/QuoteDataDisplay.tsx
-- src/components/admin/InstallerSelectorModal.tsx
-- src/components/admin/AssignmentHistoryTable.tsx
-
-Status:
-- [ ] Main file migrated
-- [ ] QuoteDataDisplay migrated
-- [ ] InstallerSelectorModal migrated
-- [ ] AssignmentHistoryTable migrated
-
-Migration is COMPLETE only when ALL checkboxes are checked.
-"@ | Out-File -FilePath "migration-tree.txt"
-
-# 3. For EACH child component, check if it imports MORE components (recursive)
-Select-String -Path "src\components\admin\QuoteDataDisplay.tsx" -Pattern "import.*from.*components"
-# If it does, add those to the tree as well
-```
-
-**STEP 4B: Quick Pre-Check (Identify Problem Areas)**
-
-```powershell
-# Run quick check on ALL files in the tree
-# This tells you which files NEED migration vs which are already clean
-
-$files = @(
-    "src\app\admin\leads\[id]\page.tsx",
-    "src\components\admin\QuoteDataDisplay.tsx",
-    "src\components\admin\InstallerSelectorModal.tsx",
-    "src\components\admin\AssignmentHistoryTable.tsx"
-)
-
-foreach ($file in $files) {
-    Write-Host "`n=== Checking $file ===" -ForegroundColor Cyan
-    
-    $hardcodedColors = (Select-String -Path $file -Pattern "bg-white|bg-gray-|dark:" -ErrorAction SilentlyContinue | Measure-Object).Count
-    
-    if ($hardcodedColors -gt 0) {
-        Write-Host "❌ NEEDS MIGRATION: $hardcodedColors hardcoded colors found" -ForegroundColor Red
-    } else {
-        Write-Host "✅ CLEAN: No hardcoded colors" -ForegroundColor Green
-    }
-}
-
-# Output tells you EXACTLY which files need work
-```
-
-**STEP 4C: Open Reference Files**
-
+**Open These Files:**
 1. ✅ `DOC/SEMANTIC-CLASSES-REGISTRY.md` - All available classes
 2. ✅ Reference component(s) for your type
 3. ✅ `tasks.md` verification commands for this phase
 4. ✅ `DESIGN-SYSTEM-SOT.md` (this file) - Component type section
-5. ✅ `migration-tree.txt` (created in Step 4A) - Track progress
 
-**STEP 4D: Document Current State**
-
+**Document Current State:**
 ```powershell
 # Count elements BEFORE migration
 Select-String -Path "src\components\YourComponent.tsx" -Pattern "<button" | Measure-Object
@@ -732,10 +266,10 @@ Element has hardcoded color class (bg-gray-*, text-slate-*)?
 └─ NO → Element is OK, move to next
 
 Element is a container (modal, card, panel)?
-├─ Modal → Use `bg-surface shadow-neu-outset rounded-lg p-8` (elevated neumorphic)
-├─ Data Card → Use `bg-surface shadow-neu-outset rounded-lg p-6` (elevated neumorphic)
-├─ Metric Card → Use `.metric-card` class (if defined) or `bg-surface shadow-neu-outset`
-└─ Simple div → Use `bg-surface rounded-lg` (elevated without shadow if non-interactive)
+├─ Modal → Use .theme-card
+├─ Data Card → Use .detail-card
+├─ Metric Card → Use .metric-card
+└─ Simple div → Use bg-surface, rounded-lg
 
 Element is text/label/value?
 ├─ Cost Label → Use .cost-item-label
@@ -747,141 +281,46 @@ Element is text/label/value?
 
 ---
 
-#### STEP 6: Post-Migration Verification (MANDATORY) - UPDATED Nov 5, 2025
+#### STEP 6: Post-Migration Verification (MANDATORY)
 
-**CRITICAL: Run ALL 6 Commands on ALL Files in Component Tree**
-
-Never report "migration complete" without verifying EVERY file in the component tree. A page is NOT complete if any child component has hardcoded colors.
-
-**The 6 Comprehensive Verification Commands:**
+**Run ALL verification commands from tasks.md for your phase:**
 
 ```powershell
-# Define ALL files in component tree (example):
-$files = @(
-    "src\app\admin\leads\[id]\page.tsx",              # Main file
-    "src\components\admin\QuoteDataDisplay.tsx",       # Child 1
-    "src\components\admin\InstallerSelectorModal.tsx", # Child 2
-    "src\components\admin\AssignmentHistoryTable.tsx"  # Child 3
-)
+# Example for InstantQuoteForm:
 
-# FOR EACH FILE, run ALL 6 verification commands:
-foreach ($file in $files) {
-    Write-Host "`n=== Verifying $file ===" -ForegroundColor Cyan
-    
-    # Command 1: Hardcoded gray/slate/zinc colors
-    $cmd1 = (Select-String -Path $file -Pattern "text-gray-|text-slate-|text-zinc-|bg-gray-|bg-slate-|bg-zinc-|border-gray-|border-slate-" -ErrorAction SilentlyContinue | Measure-Object).Count
-    Write-Host "1. Gray/slate colors: $cmd1 matches" -ForegroundColor $(if ($cmd1 -eq 0) { "Green" } else { "Red" })
-    
-    # Command 2: ALL dark: prefixes (this catches dark:text-green-400 patterns)
-    $cmd2 = (Select-String -Path $file -Pattern "dark:" -ErrorAction SilentlyContinue | Measure-Object).Count
-    Write-Host "2. Dark mode classes: $cmd2 matches" -ForegroundColor $(if ($cmd2 -eq 0) { "Green" } else { "Red" })
-    
-    # Command 3: RGB/RGBA/HEX colors (excluding SVG attributes)
-    $cmd3 = (Select-String -Path $file -Pattern "rgba\(|rgb\(|#[0-9a-fA-F]{3,6}" -ErrorAction SilentlyContinue | Where-Object { $_.Line -notmatch "viewBox|fill=|d=" } | Measure-Object).Count
-    Write-Host "3. RGB/HEX colors: $cmd3 matches" -ForegroundColor $(if ($cmd3 -eq 0) { "Green" } else { "Red" })
-    
-    # Command 4: Hardcoded white/black
-    $cmd4 = (Select-String -Path $file -Pattern "text-white\b|bg-white\b|text-black\b|bg-black\b|border-white\b" -ErrorAction SilentlyContinue | Measure-Object).Count
-    Write-Host "4. White/black: $cmd4 matches" -ForegroundColor $(if ($cmd4 -eq 0) { "Green" } else { "Red" })
-    
-    # Command 5: Hardcoded typography sizes
-    $cmd5 = (Select-String -Path $file -Pattern "text-xs|text-sm|text-lg|text-xl|text-2xl|text-3xl|font-bold|font-semibold|font-medium" -ErrorAction SilentlyContinue | Measure-Object).Count
-    Write-Host "5. Typography sizes: $cmd5 matches" -ForegroundColor $(if ($cmd5 -eq 0) { "Green" } else { "Red" })
-    
-    # Command 6: Manual responsive classes
-    $cmd6 = (Select-String -Path $file -Pattern "sm:text-|md:text-|lg:text-|xl:text-" -ErrorAction SilentlyContinue | Measure-Object).Count
-    Write-Host "6. Manual responsive: $cmd6 matches" -ForegroundColor $(if ($cmd6 -eq 0) { "Green" } else { "Red" })
-    
-    # Summary for this file
-    $total = $cmd1 + $cmd2 + $cmd3 + $cmd4 + $cmd5 + $cmd6
-    if ($total -eq 0) {
-        Write-Host "✅ CLEAN: $file (0/0/0/0/0/0)" -ForegroundColor Green
-    } else {
-        Write-Host "❌ INCOMPLETE: $file has $total violations ($cmd1/$cmd2/$cmd3/$cmd4/$cmd5/$cmd6)" -ForegroundColor Red
-    }
-}
-```
-
-**EXPECTED RESULT:** ALL files show `✅ CLEAN: 0/0/0/0/0/0`  
-**If ANY file shows violations, the migration is INCOMPLETE.**
-
-**Component-Specific Checks:**
-
-```powershell
-# For form components: No form-select on text inputs
-Select-String -Path "src\components\YourForm.tsx" -Pattern '<input.*form-select'
+# 1. No hardcoded colors
+Select-String -Path "src\components\InstantQuoteForm.tsx" -Pattern "bg-gray|text-gray|bg-slate"
 # Expected: 0 matches
 
-# For chart components: Must use useChartColors hook
-Select-String -Path "src\components\YourChart.tsx" -Pattern "useChartColors"
-# Expected: 1+ matches
+# 2. No form-select on text inputs
+Select-String -Path "src\components\InstantQuoteForm.tsx" -Pattern '<input.*form-select'
+# Expected: 0 matches
 
-# For button-heavy components: All buttons replaced
-Select-String -Path "src\components\YourComponent.tsx" -Pattern "<button"
+# 3. Charts use hook (if has charts)
+Select-String -Path "src\components\InstantQuoteForm.tsx" -Pattern "useChartColors"
+# Expected: 1+ matches if has charts
+
+# 4. All buttons replaced
+Select-String -Path "src\components\InstantQuoteForm.tsx" -Pattern "<button"
 # Expected: 0 matches (all should be <Button>)
 ```
 
 **Visual Tests (MANDATORY for ALL components):**
 1. Open in browser
-2. Test Dark theme → Screenshot → Check for white/gray bleed
-3. Switch to Light theme → Screenshot → Check neumorphic shadows
-4. Switch to Purple theme → Screenshot → Check purple accent
+2. Test Dark theme → Screenshot
+3. Switch to Light theme → Screenshot
+4. Switch to Purple theme → Screenshot
 5. Verify:
-   - [ ] No hardcoded colors visible in ANY theme
-   - [ ] All text readable (good contrast in all themes)
-   - [ ] Neumorphic shadows visible (cards, modals, inputs)
+   - [ ] No hardcoded colors visible
+   - [ ] All text readable (good contrast)
+   - [ ] Neumorphic shadows visible
    - [ ] No white/black bleed-through
-   - [ ] No flash of wrong colors when switching themes
 
 **Runtime Tests:**
-1. Open browser console (F12)
-2. Interact with ALL features (forms, buttons, modals)
-3. Switch themes while component is actively open
+1. Open browser console
+2. Interact with ALL features
+3. Switch themes while component open
 4. Expected: 0 errors in console
-5. Check for CSS variable warnings
-
-**Honest Reporting Template (MANDATORY Format):**
-
-```markdown
-### Migration Verification Report: [Component/Page Name]
-
-**Component Tree Identified:**
-- Main file: src/app/[path]/page.tsx
-- Child 1: src/components/[name].tsx
-- Child 2: src/components/[name].tsx
-- Child 3: src/components/[name].tsx
-
-**Verification Results:**
-- Main file: 0/0/0/0/0/0 ✅ CLEAN
-- Child 1: 0/0/0/0/0/0 ✅ CLEAN
-- Child 2: 15/47/0/8/0/0 ❌ INCOMPLETE (70 total violations)
-- Child 3: 0/0/0/0/0/0 ✅ CLEAN
-
-**Visual Testing:**
-- Dark theme: ❌ White cards visible in Child 2
-- Light theme: ❌ Not tested (Child 2 incomplete)
-- Purple theme: ❌ Not tested (Child 2 incomplete)
-
-**Runtime Testing:**
-- Console errors: N/A (incomplete migration)
-- Theme switching: N/A (incomplete migration)
-
-**Migration Status: INCOMPLETE** ❌
-
-**Reason:** Child 2 (ComponentName.tsx) has 70 hardcoded color violations. Main file being clean does NOT mean page is complete.
-
-**Next Steps:**
-1. Migrate Child 2 using semantic tokens
-2. Re-run 6-command verification on Child 2
-3. When Child 2 shows 0/0/0/0/0/0, proceed to visual testing
-4. Only after ALL files pass + visual tests pass → Mark complete
-```
-
-**NEVER use these false reporting patterns:**
-- ❌ "Migration complete" (without listing each file's verification status)
-- ❌ "All components migrated" (without showing 0/0/0/0/0/0 for each)
-- ❌ "Page is done" (without checking child components)
-- ❌ Reporting main file status only (must check ALL imports)
 
 ---
 
@@ -1086,10 +525,10 @@ Select-String -Path "src\components\YourCard.tsx" -Pattern "detail-card|cost-ite
 **Sub-Component Pattern Mapping:**
 | Sub-Component Type | Pattern to Use | Reference Component |
 |-------------------|----------------|-------------------|
-| Form inputs | `.form-input` class | InstallerSignupModal.tsx |
-| Charts | `useChartColors()` hook | SavingsChart.tsx |
-| Result cards | `bg-surface shadow-neu-outset` | See card examples above |
-| Modal container | `bg-surface shadow-neu-outset rounded-lg p-8` | HomeownerSignInModal.tsx |
+| Form inputs | Form Pattern | InstallerSignupModal.tsx |
+| Charts | Chart Pattern | SavingsChart.tsx |
+| Result cards | Card Pattern | See card examples above |
+| Modal container | `.theme-card` | HomeownerSignInModal.tsx |
 
 **Example: InstantQuoteForm Migration Order**
 1. ✅ Container (page layout, sections)
@@ -1132,196 +571,185 @@ Select-String -Path "src\components\InstantQuoteForm.tsx" -Pattern "bg-gray|text
 
 ---
 
-## 🔥 CRITICAL: NEUMORPHIC DESIGN SYSTEM - CURRENT STANDARDS (Nov 5, 2025)
+## 🔥 CRITICAL: AUTH MODAL MIGRATION LESSONS (Read This First!)
 
-### Current Design System Overview
+### Pain Points from Auth Modal Migration (November 2, 2025)
 
-**System:** Pure neumorphic design with CSS variables and Tailwind semantic tokens  
-**Approach:** No custom CSS classes for containers - use Tailwind + shadow utilities  
-**Pattern:** `bg-surface shadow-neu-outset` for ALL elevated elements
+**The Struggle:** Auth modal form background colors showed white/wrong colors in light theme despite multiple fix attempts.
 
-**Root Causes of Past Issues:**
-1. ❌ **Legacy .theme-card class**: Was hardcoded, caused theme inconsistencies - NOW REMOVED
-2. ❌ **Inconsistent Approaches**: Mixed custom classes with inline Tailwind - NOW STANDARDIZED
-3. ❌ **Partial Migrations**: Only fixed main file, not child components - NOW USE COMPONENT TREE MAPPING
-4. ❌ **Incomplete Verification**: Missed dark: patterns and border colors - NOW USE 6-COMMAND VERIFICATION
+**Root Causes Identified:**
+1. ❌ **Overcomplicated CSS**: Created `.form-input` class but components used inline classes instead
+2. ❌ **Inconsistent Approaches**: Some inputs used `bg-background`, others used `bg-surface`, some used custom classes
+3. ❌ **Hardcoded Overrides**: Light theme `.theme-card` was hardcoded to white (`rgb(255, 255, 255)`) instead of using variables
+4. ❌ **Partial Updates**: Only fixed 1 of 4 modals initially, creating inconsistency
+5. ❌ **Multiple Failed Attempts**: Tried @apply, rgba(), CSS variables directly, creating confusion
 
-**The Current Solution (November 5, 2025):**
-1. ✅ **Semantic Tokens Only**: Use `bg-surface`, `text-foreground`, `border-border` (NOT custom classes)
-2. ✅ **Neumorphic Shadows**: ALL elevated elements use `shadow-neu-outset` or `shadow-neu-inset`
-3. ✅ **Component Tree Verification**: Map ALL child components, verify EACH file with 6 commands
-4. ✅ **Multi-Theme Support**: Dark (#121212), Light (#E0E5EC), Purple (#2C1D4D) via CSS variables
-5. ✅ **Honest Reporting**: Never claim "complete" without 0/0/0/0/0/0 on ALL files
+**The Final Solution:**
+1. ✅ **One Central Class**: `.form-input` in globals.css with embossed style (`shadow-inset-md`)
+2. ✅ **One Background Variable**: All modals, inputs, and buttons use `bg-surface` (equals `--color-surface`)
+3. ✅ **Theme Consistency**: All 3 themes (Dark, Light, Purple) use same variable structure
+4. ✅ **No Hardcoded Values**: Light theme `.theme-card` changed from white to `rgb(var(--color-surface))`
+5. ✅ **All Components Updated**: All 4 auth modals updated atomically
 
-### The Universal Pattern (Current Standard)
+### The Universal Rule That Prevents This
 
-**🔴 SEMANTIC TOKENS + NEUMORPHIC SHADOWS**
+**🔴 ONE CLASS, ONE PURPOSE, ONE VARIABLE**
 
-```tsx
-/* ✅ CORRECT - Elevated Elements (Cards, Modals, Panels) */
-<div className="bg-surface shadow-neu-outset rounded-lg p-6">
-  {/* Card content */}
+```css
+/* ✅ CORRECT - globals.css DEFAULT .theme-card */
+.theme-card {
+  background: rgb(var(--color-surface));  /* MUST use --color-surface, NOT --color-background-elevated */
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-outset-xl);
+}
+
+/* ✅ CORRECT - globals.css .form-input */
+.form-input {
+  @apply bg-surface border border-border/50 rounded-xl text-foreground transition-all;
+  box-shadow: var(--shadow-inset-md) !important;  /* Embossed style */
+}
+
+/* ✅ CORRECT - Component usage */
+<div className="theme-card p-8">  {/* Modal/card uses theme-card = bg-surface */}
+  <input className="form-input w-full pl-11 pr-4 py-3" />  {/* Input uses form-input = bg-surface */}
 </div>
 
-/* ✅ CORRECT - Pressed/Input Elements */
-<input className="form-input w-full" />  // .form-input includes shadow-neu-inset
+/* ❌ WRONG - Using --color-background-elevated */
+.theme-card {
+  background: rgb(var(--color-background-elevated));  /* WRONG! Will show different color than inputs */
+}
 
-/* ✅ CORRECT - Modal Container */
-<div className="bg-surface shadow-neu-outset rounded-lg p-8 max-w-md">
-  {/* Modal content */}
-</div>
-
-/* ✅ CORRECT - Text Colors */
-<h2 className="text-foreground text-xl font-semibold">Title</h2>
-<p className="text-muted-foreground">Description</p>
-
-/* ❌ WRONG - Hardcoded Colors (OLD SYSTEM) */
-<div className="bg-white dark:bg-gray-800">  // Don't use hardcoded
-<div className="text-gray-900 dark:text-white">  // Don't use hardcoded
-<div className="theme-card">  // Legacy class - removed from system
+/* ❌ WRONG - Mixing approaches */
 <input className="w-full bg-surface border border-border/50 rounded-xl..." />  /* Inline classes */
-<input className="bg-surface border-border shadow-neu-inset" />  /* Mixing patterns */
+<input className="form-input" />  /* Custom class */
+<input className="bg-background ..." />  /* Different variable */
 ```
 
-**Why Current System Works:**
-- ✅ Semantic tokens directly in className (`bg-surface`, `text-foreground`, `border-border`)
-- ✅ Neumorphic shadows via utility classes (`shadow-neu-outset`, `shadow-neu-inset`)
-- ✅ CSS variables in globals.css define colors per theme
-- ✅ All themes inherit automatically via Tailwind config
-- ✅ No custom CSS classes needed for containers (except `.form-input`)
+**Why This Works:**
+- ✅ One source of truth (`.form-input` class)
+- ✅ One background color (`bg-surface` = `--color-surface`)
+- ✅ **CRITICAL**: `.theme-card` uses SAME variable (`--color-surface`) as inputs
+- ✅ All themes inherit automatically (no overrides needed)
+- ✅ Embossed style applied consistently (`.shadow-inset-md`)
 
-**🚨 CURRENT SYSTEM (Nov 5, 2025):**
-- ✅ `.form-input` class exists for form elements (includes embossed style)
-- ✅ Containers use inline Tailwind: `bg-surface shadow-neu-outset rounded-lg`
-- ✅ NO `.theme-card` class (removed from system)
-- ✅ ALL elevated elements follow same pattern: `bg-surface + shadow-neu-outset`
+**🚨 THE ROOT CAUSE OF WHITE BACKGROUNDS:**
+- `.theme-card` was using `rgb(var(--color-background-elevated))` (line 554)
+- Light theme override tried to fix with `rgb(var(--color-surface))` (line 816)
+- BUT default `.theme-card` applied FIRST, so override didn't work
+- **FIX**: Change default `.theme-card` to use `--color-surface` ALWAYS
 
-### Mandatory Pre-Migration Checklist (Current System - Nov 5, 2025)
+### Mandatory Pre-Migration Checklist (Prevents All Issues)
 
-Before migrating ANY component:
+Before migrating ANY component with forms/inputs:
 
-```powershell
+```bash
 # 1. Check if .form-input class exists in globals.css
-Select-String -Path "src\app\globals.css" -Pattern "\.form-input"
-# Expected: Class definition with bg-surface and shadow-neu-inset
+grep -A 5 "\.form-input {" src/app/globals.css
+# Expected: Class definition with bg-surface and shadow-inset-md
 
-# 2. Verify all 3 themes have CSS variables defined
-Select-String -Path "src\app\globals.css" -Pattern "--color-background:|--color-surface:|--color-foreground:"
-# Expected: 3 sets (dark, light, purple themes) - 9+ matches total
+# 2. Check if modal/container uses bg-surface or --color-surface
+grep -E "(theme-card|modal|container).*background:" src/app/globals.css
+# Expected: background: rgb(var(--color-surface)) or bg-surface
 
-# 3. Verify neumorphic shadows defined
-Select-String -Path "src\app\globals.css" -Pattern "--shadow-neu-outset|--shadow-neu-inset"
-# Expected: Multiple matches for both shadow types
+# 3. Verify all 3 themes have --color-surface defined
+grep --color-surface src/app/globals.css
+# Expected: 3 matches (dark, light, purple themes)
 
-# 4. Check Tailwind config has semantic tokens
-Select-String -Path "tailwind.config.js" -Pattern "bg-surface|text-foreground|border-border|shadow-neu"
-# Expected: Semantic tokens configured in theme extension
+# 4. Verify --color-surface equals --color-background-elevated in each theme
+# Dark: --color-surface: 26 26 26; --color-background-elevated: 26 26 26;
+# Light: --color-surface: 232 237 244; --color-background-elevated: 232 237 244;
+# Purple: --color-surface: 62 41 108; --color-background-elevated: 62 41 108;
 ```
 
-**If ANY check fails → Fix system configuration FIRST before migrating components**
+**If ANY check fails → Fix globals.css FIRST before migrating components**
 
-### Migration Pattern (Current System - Guaranteed Success)
+### Migration Pattern (Guaranteed Success)
 
-**Step 1: Map Component Tree**
-```powershell
-# Find ALL components imported by the file
-Select-String -Path "src\app\your-page\page.tsx" -Pattern "import.*from.*components"
-# List main file + all child components
+**Step 1: Verify Central Classes Exist**
+```bash
+# Check form input class
+grep "\.form-input" src/app/globals.css
+
+# Check modal background
+grep "theme-card.*background" src/app/globals.css
 ```
 
-**Step 2: Use Semantic Tokens + Neumorphic Shadows**
+**Step 2: Use Central Classes Only**
 ```tsx
-// ✅ CORRECT - Modal/Card Containers
-<div className="bg-surface shadow-neu-outset rounded-lg p-8 max-w-md">
-  {/* Modal content - elevated neumorphic surface */}
+// ✅ CORRECT - All modals
+<div className="theme-card relative w-full max-w-md p-8">
+  {/* Modal uses theme-card = bg-surface */}
 </div>
 
-// ✅ CORRECT - Form Inputs
-<input 
-  className="form-input w-full pl-11 pr-4 py-3" 
-  type="text"
-/>
-{/* .form-input class includes bg-surface + shadow-neu-inset */}
+// ✅ CORRECT - All inputs
+<input className="form-input w-full pl-11 pr-4 py-3" />
+{/* Input uses form-input = bg-surface + embossed */}
 
-// ✅ CORRECT - Text Elements
-<h2 className="text-foreground text-xl font-semibold">Title</h2>
-<p className="text-muted-foreground text-sm">Description</p>
-
-// ✅ CORRECT - Buttons
+// ✅ CORRECT - All buttons (already using bg-surface in previous migrations)
 <Button variant="primary" className="px-5 py-2">
-  {/* Button component uses bg-surface internally */}
+  {/* Button component uses bg-surface */}
 </Button>
 ```
 
 **Step 3: Test All 3 Themes**
-```powershell
-# Open browser to component
-# Switch themes: Dark → Light → Purple
-# Dark: bg-surface = #1A1A1A, text-foreground = #F3F4F6
-# Light: bg-surface = #E8EDF4, text-foreground = #1F2937
-# Purple: bg-surface = #3E296C, text-foreground = #E9D5FF
-# All should show neumorphic shadows (soft, subtle depth)
+```bash
+# Open browser, switch themes
+# Dark → Inputs match modal (dark gray #1A1A1A)
+# Light → Inputs match modal (light gray #E8EDF4)
+# Purple → Inputs match modal (purple #3E296C)
 ```
 
-**Step 4: Run 6-Command Verification on ALL Files**
-```powershell
-# Run on main file AND all child components
-Select-String -Path "src\components\YourComponent.tsx" -Pattern "text-gray-|bg-gray-|border-gray-"  # Cmd 1
-Select-String -Path "src\components\YourComponent.tsx" -Pattern "dark:"  # Cmd 2
-Select-String -Path "src\components\YourComponent.tsx" -Pattern "rgba\(|rgb\(|#[0-9a-fA-F]"  # Cmd 3
-Select-String -Path "src\components\YourComponent.tsx" -Pattern "text-white\b|bg-white\b"  # Cmd 4
-Select-String -Path "src\components\YourComponent.tsx" -Pattern "text-xs|text-sm|font-bold"  # Cmd 5
-Select-String -Path "src\components\YourComponent.tsx" -Pattern "sm:text-|md:text-"  # Cmd 6
-# EXPECTED: 0/0/0/0/0/0 for ALL files
+**Step 4: Verify Zero Hardcoded Colors**
+```bash
+# Should return ZERO results
+grep -E "bg-(white|gray|slate|zinc)" src/components/YourModal.tsx
+grep -E "rgb\(255, 255, 255\)" src/components/YourModal.tsx
+grep -E "rgba\(" src/components/YourModal.tsx
 ```
 
-### Anti-Patterns to Avoid (Updated Nov 5, 2025)
+### Anti-Patterns That Created the Problem
 
 ❌ **DON'T DO THIS:**
 ```tsx
-// ❌ Hardcoded colors with dark mode variants
-<div className="bg-white dark:bg-gray-800">
-<p className="text-gray-900 dark:text-white">
+// ❌ Creating custom class but not using it
+// globals.css has .form-input
+<input className="w-full bg-background border border-border/50..." />
 
-// ❌ Using bg-background for elevated elements
-<div className="bg-background rounded-lg p-6">  {/* Wrong! No elevation */}
+// ❌ Using different background variables
+<div className="bg-background">  {/* Modal */}
+  <input className="bg-surface" />  {/* Input */}
+</div>
 
-// ❌ Missing neumorphic shadows on cards/modals
-<div className="bg-surface rounded-lg p-6">  {/* Missing shadow-neu-outset */}
+// ❌ Hardcoding theme-specific values
+:root.theme-light .theme-card {
+  background: rgb(255, 255, 255); /* Hardcoded white */
+}
 
-// ❌ Only verifying main file, not child components
-"Main file clean (0/0/0/0/0/0) → Migration complete!" // Wrong if children not checked
-
-// ❌ Reporting complete without showing file-by-file results
-"Migration done! ✅" // Vague - no proof of verification
+// ❌ Updating only some components
+// Fixed HomeownerSignInModal
+// Forgot InstallerSignInModal
 ```
 
 ✅ **DO THIS:**
 ```tsx
-// ✅ Semantic tokens for all colors
-<div className="bg-surface shadow-neu-outset rounded-lg p-6">
-<p className="text-foreground">
+// ✅ Use central class everywhere
+<input className="form-input w-full pl-11 pr-4 py-3" />
 
-// ✅ bg-background ONLY for structural elements
-<body className="bg-background">
-<aside className="bg-background">  {/* Sidebar */}
+// ✅ Use same variable for modal and inputs
+<div className="theme-card">  {/* Uses --color-surface */}
+  <input className="form-input" />  {/* Uses --color-surface */}
+</div>
 
-// ✅ ALL elevated elements have neumorphic shadows
-<div className="bg-surface shadow-neu-outset rounded-lg p-6">  {/* Card */}
-<div className="bg-surface shadow-neu-outset rounded-lg p-8">  {/* Modal */}
+// ✅ Use variables, not hardcoded values
+:root.theme-light .theme-card {
+  background: rgb(var(--color-surface));
+}
 
-// ✅ Verify ALL files in component tree
-Main: 0/0/0/0/0/0 ✅
-Child1: 0/0/0/0/0/0 ✅
-Child2: 0/0/0/0/0/0 ✅
-→ NOW report complete
-
-// ✅ Detailed reporting showing each file
-"Verification Results:
-- page.tsx: 0/0/0/0/0/0 ✅ CLEAN
-- QuoteDataDisplay.tsx: 0/0/0/0/0/0 ✅ CLEAN
-- InstallerSelector.tsx: 0/0/0/0/0/0 ✅ CLEAN
-Status: COMPLETE ✅"
+// ✅ Update ALL related components atomically
+// Fixed: HomeownerSignInModal
+// Fixed: InstallerSignInModal
+// Fixed: HomeownerSignupModal
+// Fixed: InstallerSignupModal
 ```
 
 ---
@@ -2026,45 +1454,33 @@ shadow-neu-outset-lg  // Large raised (hover states)
 ```tsx
 import Button from '@/components/Button';
 
-// TYPE 1: Regular Action Buttons (Save, Cancel, Refresh, etc.)
-// Let variant="secondary" handle text colors (adapts to all themes)
+// Normal action buttons - ALWAYS use variant="secondary"
 <Button variant="secondary" onClick={handleClick}>
   Save Changes
 </Button>
 
-<Button variant="secondary" className="w-full">
+// With semantic colors for status
+<Button variant="secondary" className="bg-success text-success-foreground">
+  Approve
+</Button>
+
+<Button variant="secondary" className="bg-error text-error-foreground">
+  Reject
+</Button>
+
+<Button variant="secondary" className="bg-info text-info-foreground">
   Save Price
 </Button>
 
-<Button variant="secondary" className="w-full text-sm">
-  Extend Timer
-</Button>
-
-<Button variant="secondary" className="w-full text-sm">
-  Archive Lead
-</Button>
-
-// TYPE 2: Status Buttons (Approve/Reject/Restore with semantic colors)
-// Use bg-* and text-*-foreground to show semantic meaning
-<Button variant="secondary" className="w-full bg-success text-success-foreground">
-  <CheckIcon />
-  Approve Lead
-</Button>
-
-<Button variant="secondary" className="w-full bg-error text-error-foreground">
-  <XIcon />
-  Reject Lead
-</Button>
-
-<Button variant="secondary" className="w-full bg-success text-success-foreground">
-  Restore Lead
+<Button variant="secondary" className="bg-warning text-warning-foreground">
+  Resell Lead
 </Button>
 
 // With disabled state
 <Button 
   variant="secondary" 
   disabled={loading}
-  className="w-full"
+  className="bg-info text-info-foreground"
 >
   {loading ? <LoadingIcon /> : 'Save'}
 </Button>
@@ -2104,55 +1520,16 @@ interface ButtonProps {
 }
 ```
 
-#### ⚠️ CRITICAL: Two Button Patterns (Nov 5, 2025)
+#### Status Color Classes (Combine with variant="secondary")
 
-**Pattern 1: Regular Action Buttons (Save, Refresh, Cancel, Archive)**
-- **Purpose**: General actions without semantic meaning
-- **Rule**: Let `variant="secondary"` handle text colors
-- **Why**: `text-muted-foreground` adapts to all themes automatically
+Use these semantic color classes for status-based buttons:
 
-```tsx
-// ✅ CORRECT - No text color override (adapts to all themes)
-<Button variant="secondary" className="w-full">Save Price</Button>
-<Button variant="secondary" className="w-full text-sm">Extend Timer</Button>
-<Button variant="secondary" className="w-full h-12">Refresh</Button>
-
-// ❌ WRONG - Breaks theme adaptation (white text invisible on light theme)
-<Button variant="secondary" className="w-full bg-info text-info-foreground">Save</Button>
-<Button variant="secondary" className="w-full bg-accent text-white">Extend</Button>
-```
-
-**Pattern 2: Status Buttons (Approve/Reject/Restore)**
-- **Purpose**: Actions with semantic meaning (success/error/warning)
-- **Rule**: Use `bg-*` and `text-*-foreground` to convey status
-- **Why**: Green = approve, Red = reject, visual distinction needed
-
-```tsx
-// ✅ CORRECT - Status colors show semantic meaning
-<Button variant="secondary" className="w-full bg-success text-success-foreground">
-  Approve Lead
-</Button>
-<Button variant="secondary" className="w-full bg-error text-error-foreground">
-  Reject Lead
-</Button>
-<Button variant="secondary" className="w-full bg-warning text-warning-foreground">
-  Review Later
-</Button>
-```
-
-**Decision Tree:**
-```
-Does the button convey STATUS (approve/reject/restore/warning)?
-├─ YES → Use bg-success/error/warning + text-*-foreground
-└─ NO → Use ONLY w-full, text-sm (let variant handle text color)
-```
-
-**Allowed className Props on Regular Action Buttons:**
-- ✅ Width/sizing: `w-full`, `w-auto`, `max-w-md`
-- ✅ Typography size: `text-sm`, `text-base` (NOT color)
-- ✅ Spacing: `px-6`, `py-3`, `mx-auto`
-- ❌ Text colors: `text-white`, `text-*-foreground` (breaks theme)
-- ❌ Background colors: `bg-info`, `bg-accent` (for status only)
+- **Success/Approve**: `bg-success text-success-foreground`
+- **Error/Reject**: `bg-error text-error-foreground`
+- **Info/Save**: `bg-info text-info-foreground`
+- **Warning/Resell**: `bg-warning text-warning-foreground`
+- **Muted/Cancel**: `bg-muted text-muted-foreground`
+- **Accent**: `bg-accent text-white`
 
 **DO NOT use hardcoded colors like `bg-blue-500`, `bg-green-500`, `bg-red-500`, etc.**
 
@@ -2183,23 +1560,13 @@ Does the button convey STATUS (approve/reject/restore/warning)?
 </div>
 ```
 
-#### Card Pattern (Current System - Nov 5, 2025)
+#### Theme Card (Alias for neu-card)
 
-**NO custom CSS class needed - use inline Tailwind:**
-
-```tsx
-// ✅ CORRECT - Card/Modal Container
-<div className="bg-surface shadow-neu-outset rounded-lg p-6">
-  <h3 className="text-foreground text-lg font-semibold mb-4">Card Title</h3>
-  <p className="text-muted-foreground">Card content...</p>
-</div>
+```css
+.theme-card {
+  @apply neu-card; /* Same as neu-card */
+}
 ```
-
-**Pattern Explained:**
-- `bg-surface` = Elevated background (uses --color-surface CSS variable)
-- `shadow-neu-outset` = Neumorphic raised shadow (defined in globals.css)
-- `rounded-lg` = Border radius (16px)
-- `p-6` = Padding (24px)
 
 #### Pressed Card - Concave Effect
 
@@ -2767,9 +2134,10 @@ import Button from '@/components/ui/button';
 | Buttons | `<Button variant="primary\|secondary\|ghost">` | `@/components/ui/button` | See HeaderMenu.tsx |
 | Form Inputs | `.neu-input` class | globals.css | See FORM-DESIGN-STANDARD-SOT.md |
 | Auth Inputs | `<AuthInput />` | `@/components/auth` | Auth-specific inputs with icons |
-| Cards | `bg-surface shadow-neu-outset rounded-lg` | Inline Tailwind | Standard card pattern |
-| Modals | `bg-surface shadow-neu-outset rounded-lg p-8` | Inline Tailwind | Modal container |
-| Alerts | Status color classes | `bg-success`, `bg-error`, `bg-warning`, `bg-info` | Status indicators |
+| Cards | `.neu-card` or `.theme-card` | globals.css | Standard card pattern |
+| Icon Container | `.auth-icon-container` | globals.css | Neumorphic icon wrapper |
+| Alerts | `.neu-alert-error\|success\|warning\|info` | globals.css | Status alerts |
+| Modal | `.theme-card` + backdrop | globals.css | Modal container |
 
 **BEFORE CODING:**
 1. Open `HeaderMenu.tsx` - Check Button usage
@@ -3536,15 +2904,12 @@ export function LoginForm() {
 - ✅ Responsive spacing utilities
 - ✅ Status colors: `bg-success`, `bg-error`, `bg-warning`, `bg-info`
 
-**Component Classes (globals.css) - Updated Nov 5, 2025**
-- ✅ `.form-input` - Form input fields with neumorphic inset style
-- ✅ `.form-select` - Dropdown select fields with neumorphic style
-- ✅ Semantic tokens: `bg-surface`, `bg-background`, `text-foreground`, `border-border`
-- ✅ Neumorphic shadows: `shadow-neu-outset` (raised), `shadow-neu-inset` (pressed)
-- ✅ Status colors: `bg-success`, `bg-error`, `bg-warning`, `bg-info`
-- ❌ `.theme-card` - REMOVED (use inline: `bg-surface shadow-neu-outset rounded-lg`)
-- ❌ `.neu-card` - REMOVED (use inline: `bg-surface shadow-neu-outset rounded-lg`)
-- ❌ `.neu-btn-*` - REMOVED (use `<Button>` component from `@/components/ui/button`)
+**Component Classes (globals.css)**
+- ✅ `.neu-input` - Neumorphic input fields
+- ✅ `.neu-card` / `.theme-card` - Card containers
+- ✅ `.auth-icon-container` - Icon wrappers (80x80px)
+- ✅ `.neu-alert-error/success/warning/info` - Status alerts
+- ✅ `.neu-btn-primary/secondary/link` - Button styles (legacy, prefer Button component)
 
 **Centralized Components**
 - ✅ `Button` component (`@/components/ui/button`) - Primary, Secondary, Ghost variants

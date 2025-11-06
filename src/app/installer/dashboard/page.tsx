@@ -11,6 +11,7 @@ import InstallerMessagingModal from '@/components/InstallerMessagingModal';
 import InstallerMarketplace from '@/components/InstallerMarketplace';
 import InstallerPurchasedLeads from '@/components/InstallerPurchasedLeads';
 import InstallerAssignedLeads from '@/components/installer/InstallerAssignedLeads';
+import InstallerSidebar from '@/components/installer/InstallerSidebar';
 
 // --- Icon Components ---
 const LayoutDashboardIcon = () => (
@@ -179,81 +180,6 @@ const NavItem: React.FC<{
   </button>
 );
 
-// Sidebar Component
-const InstallerSidebar: React.FC<{ 
-  activePage: string; 
-  setActivePage: (page: string) => void; 
-  onLogoutClick: () => void; 
-  onHomeClick: () => void;
-}> = ({ activePage, setActivePage, onLogoutClick, onHomeClick }) => {
-  return (
-    <aside className="dashboard-sidebar w-64 flex-shrink-0 border-r border-border flex flex-col p-4 h-full">
-      <div className="flex items-center justify-between h-16 px-2 border-b border-border mb-4">
-        <button onClick={onHomeClick} className="flex items-center space-x-3">
-          <SunIcon />
-          <span className="text-2xl font-bold text-primary">SolarMatch</span>
-        </button>
-      </div>
-      <nav className="flex-grow space-y-1">
-        <NavItem 
-          icon={<LayoutDashboardIcon />} 
-          title="Dashboard Overview" 
-          isActive={activePage === 'Dashboard Overview'} 
-          onClick={() => setActivePage('Dashboard Overview')} 
-        />
-        <NavItem 
-          icon={<ZapIcon />} 
-          title="Lead Feed" 
-          isActive={activePage === 'Lead Feed'} 
-          onClick={() => setActivePage('Lead Feed')} 
-          badgeCount={5} 
-        />
-        <NavItem 
-          icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/></svg>} 
-          title="Marketplace" 
-          isActive={activePage === 'Marketplace'} 
-          onClick={() => setActivePage('Marketplace')} 
-        />
-        <NavItem 
-          icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>} 
-          title="My Purchased Leads" 
-          isActive={activePage === 'My Purchased Leads'} 
-          onClick={() => setActivePage('My Purchased Leads')} 
-        />
-        <NavItem 
-          icon={<ClipboardCheckIcon />} 
-          title="Assigned Leads" 
-          isActive={activePage === 'Assigned Leads'} 
-          onClick={() => setActivePage('Assigned Leads')} 
-        />
-        <NavItem 
-          icon={<GavelIcon />} 
-          title="Active Bids" 
-          isActive={activePage === 'Active Bids'} 
-          onClick={() => setActivePage('Active Bids')} 
-        />
-        <NavItem 
-          icon={<MessageSquareIcon />} 
-          title="Messages" 
-          isActive={activePage === 'Messages'} 
-          onClick={() => setActivePage('Messages')} 
-          badgeCount={3} 
-        />
-        {/* Company Profile removed - legacy incomplete feature */}
-      </nav>
-      <div className="mt-auto">
-        <button 
-          onClick={onLogoutClick} 
-          className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium text-subtle hover:bg-surface-hover"
-        >
-          <LogOutIcon />
-          <span>Logout</span>
-        </button>
-      </div>
-    </aside>
-  );
-};
-
 // Dashboard Header Component
 const DashboardHeader: React.FC<{ 
   pageTitle: string;
@@ -323,6 +249,7 @@ export default function InstallerDashboardPage() {
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [showMessagingModal, setShowMessagingModal] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   // Mock installer profile
   const mockInstaller = {
@@ -443,7 +370,7 @@ export default function InstallerDashboardPage() {
 
   return (
     <div className="homeowner-dashboard-bg min-h-screen text-foreground animate-fade-in">
-      <div className="md:pl-64">
+      <div className={`transition-all duration-300 ${isSidebarCollapsed ? 'md:pl-20' : 'md:pl-64'}`}>
         <div className="flex flex-col min-h-screen">
           <div className={`sticky top-0 z-20 transition-transform duration-300 ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
             <DashboardHeader pageTitle={activePage} theme={theme} setTheme={setTheme} />
@@ -461,6 +388,8 @@ export default function InstallerDashboardPage() {
           setActivePage={setActivePage} 
           onLogoutClick={handleLogout} 
           onHomeClick={handleHomeClick}
+          isCollapsed={isSidebarCollapsed}
+          setIsCollapsed={setIsSidebarCollapsed}
         />
       </div>
 
