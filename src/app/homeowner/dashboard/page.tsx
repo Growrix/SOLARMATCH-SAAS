@@ -25,6 +25,7 @@ import LeadPreviewModal from '@/components/homeowner/LeadPreviewModal';
 import { LiveCountdownBar } from '@/components/LiveCountdownBar'; // Phase 4.5: Enhanced live countdown
 import Button from '@/components/ui/button';
 import HomeownerSidebar from '@/components/homeowner/HomeownerSidebar';
+import { HomeownerDashboardHeader } from '@/components/homeowner/HomeownerDashboardHeader';
 
 // --- Icon Components ---
 const SunIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>;
@@ -271,63 +272,7 @@ const ExpandIcon = () => (
   </svg>
 );
 
-// DashboardHeader Component
-interface DashboardHeaderProps {
-  pageTitle: string;
-}
-
-const DashboardHeader: React.FC<DashboardHeaderProps> = ({ pageTitle }) => {
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  return (
-  <header className="h-20 flex-shrink-0 flex items-center justify-between px-4 sm:px-8 bg-transparent backdrop-blur-sm">
-      <div className="flex items-center space-x-4">
-          <h1 className="text-heading-4 font-bold text-foreground">{pageTitle}</h1>
-      </div>
-      <div className="flex items-center space-x-1 sm:space-x-2">
-        <div className={`flex items-center justify-end transition-colors duration-normal ${isSearchOpen ? 'bg-muted rounded-card' : ''}`}>
-          <input 
-            type="text" 
-            placeholder="Search..." 
-            className={`bg-transparent focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-normal ease-in-out text-body-small text-foreground placeholder:text-muted-foreground ${ isSearchOpen ? 'w-32 sm:w-40 py-2 pl-3 pr-2' : 'w-0 p-0' }`}
-          />
-          <button 
-            onClick={() => setIsSearchOpen(!isSearchOpen)} 
-            className="p-2 rounded-full hover:bg-muted text-muted-foreground hover:text-primary transition-colors duration-fast shadow-neu-inset hover:shadow-neu-outset-sm" 
-            aria-label="Toggle search"
-          >
-            <SearchIcon />
-          </button>
-        </div>
-        <ThemeSwitcher />
-        <button 
-          className="p-2 rounded-full hover:bg-muted text-muted-foreground hover:text-primary transition-colors duration-fast shadow-neu-inset hover:shadow-neu-outset-sm hidden sm:block"
-          aria-label="Help"
-        >
-          <HelpCircleIcon />
-        </button>
-        <button 
-          className="relative p-2 rounded-full hover:bg-muted text-muted-foreground hover:text-primary transition-colors duration-fast shadow-neu-inset hover:shadow-neu-outset-sm"
-          aria-label="Notifications"
-        >
-          <BellIcon />
-          <span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-error ring-2 ring-background animate-pulse"></span>
-        </button>
-        <button 
-          className="rounded-full ring-2 ring-border hover:ring-primary transition-all duration-fast shadow-neu-outset"
-          aria-label="User profile"
-        >
-          <Image 
-            src="https://picsum.photos/seed/user/40/40" 
-            alt="User Avatar" 
-            width={40} 
-            height={40} 
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full" 
-          />
-        </button>
-      </div>
-    </header>
-  );
-};
+// DashboardHeader component now extracted to src/components/homeowner/HomeownerDashboardHeader.tsx
 
 // PlaceholderContent Component
 const PlaceholderContent: React.FC<{ title: string }> = ({ title }) => (
@@ -1123,7 +1068,7 @@ export default function HomeownerDashboardPage() {
       <div className={`transition-all duration-300 ${isSidebarCollapsed ? 'md:pl-20' : 'md:pl-64'}`}>
         <div className="flex flex-col min-h-screen">
           <div className={`sticky top-0 z-20 transition-transform duration-normal ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
-            <DashboardHeader 
+            <HomeownerDashboardHeader 
               pageTitle={activePage} 
             />
           </div>
