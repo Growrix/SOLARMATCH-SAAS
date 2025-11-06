@@ -4,8 +4,13 @@ import { ThemeSwitcher } from './ThemeSwitcher';
 
 const AdminHeader: React.FC = () => {
   return (
-    <header className="h-20 flex items-center justify-end px-4 sm:px-8 bg-transparent">
-      <ThemeSwitcher />
+    <header className="dashboard-header">
+      <div className="dashboard-header__left">
+        {/* Empty - Admin header has no left content */}
+      </div>
+      <div className="dashboard-header__right">
+        <ThemeSwitcher />
+      </div>
     </header>
   );
 };
