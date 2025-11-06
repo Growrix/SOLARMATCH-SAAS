@@ -1,5 +1,6 @@
 ﻿import React from 'react';
 import { type Theme } from './ThemeProvider';
+import { ThemeSwitcher } from './ThemeSwitcher';
 
 const SunIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -7,46 +8,7 @@ const SunIcon = () => (
   </svg>
 );
 
-interface ThemeSwitcherProps {
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
-}
-
-const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({ theme, setTheme }) => {
-  // Single dark theme for now - structure preserved for future theme additions
-  const options: { name: Theme; label: string; icon: React.ReactNode }[] = [
-    {
-      name: 'dark',
-      label: 'Dark',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-        </svg>
-      )
-    },
-    // Future themes can be added here
-  ];
-
-  return (
-    <div className="flex items-center gap-1">
-      {options.map((opt) => (
-        <button
-          key={opt.name}
-          onClick={() => setTheme(opt.name)}
-          className={`p-2 rounded-full transition-all duration-200 focus:outline-none ${
-            theme === opt.name
-              ? 'bg-background shadow-neu-inset text-primary'
-              : 'text-muted-foreground hover:text-foreground hover:bg-background hover:shadow-neu-outset-sm active:shadow-neu-inset-sm'
-          }`}
-          aria-label={`Switch to ${opt.name} theme`}
-          title={`${opt.label} theme (active)`}
-        >
-          {opt.icon}
-        </button>
-      ))}
-    </div>
-  );
-};
+// Local ThemeSwitcher component removed - now using centralized version from ./ThemeSwitcher
 interface HeaderProps {
     theme: Theme;
     setTheme: (theme: Theme) => void;
@@ -79,9 +41,7 @@ const Header: React.FC<HeaderProps> = ({ theme, setTheme, isLoggedIn, onLoginCli
             {/* Right Side: Theme Switcher + Navigation */}
             <div className="flex items-center space-x-3 sm:space-x-4">
               {/* Theme Switcher */}
-              <div className="bg-background rounded-full shadow-neu-inset p-1">
-                <ThemeSwitcher theme={theme} setTheme={setTheme} />
-              </div>
+              <ThemeSwitcher />
               
               {/* Desktop Navigation */}
               <div className="hidden sm:flex items-center space-x-2">
