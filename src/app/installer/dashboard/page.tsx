@@ -12,6 +12,7 @@ import InstallerMarketplace from '@/components/InstallerMarketplace';
 import InstallerPurchasedLeads from '@/components/InstallerPurchasedLeads';
 import InstallerAssignedLeads from '@/components/installer/InstallerAssignedLeads';
 import InstallerSidebar from '@/components/installer/InstallerSidebar';
+import { InstallerDashboardHeader } from '@/components/installer/InstallerDashboardHeader';
 
 // --- Icon Components ---
 const LayoutDashboardIcon = () => (
@@ -77,27 +78,7 @@ const SunIcon = () => (
   </svg>
 );
 
-const BellIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
-    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
-    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
-  </svg>
-);
-
-const SearchIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
-    <circle cx="11" cy="11" r="8"/>
-    <path d="m21 21-4.3-4.3"/>
-  </svg>
-);
-
-const HelpCircleIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
-    <circle cx="12" cy="12" r="10"/>
-    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-    <path d="M12 17h.01"/>
-  </svg>
-);
+// BellIcon, SearchIcon, and HelpCircleIcon moved to InstallerDashboardHeader component
 
 // Theme Switcher Component
 const ThemeSwitcher: React.FC<{ theme: Theme; setTheme: (theme: Theme) => void }> = ({ theme, setTheme }) => {
@@ -181,55 +162,7 @@ const NavItem: React.FC<{
 );
 
 // Dashboard Header Component
-const DashboardHeader: React.FC<{ 
-  pageTitle: string;
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
-}> = ({ pageTitle, theme, setTheme }) => {
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-
-  return (
-    <header className="glass-header h-20 flex-shrink-0 flex items-center justify-between px-4 sm:px-8">
-      <div className="flex items-center space-x-4">
-        <h1 className="text-lg font-bold text-foreground">{pageTitle}</h1>
-      </div>
-      <div className="flex items-center space-x-1 sm:space-x-2">
-        <div className={`flex items-center justify-end transition-colors duration-300 ${isSearchOpen ? 'bg-surface rounded-lg' : ''}`}>
-          <input 
-            type="text" 
-            placeholder="Search leads..." 
-            className={`bg-transparent focus:outline-none transition-colors duration-300 ease-in-out text-sm ${ 
-              isSearchOpen ? 'w-32 sm:w-40 py-2 pl-3 pr-2' : 'w-0 p-0' 
-            }`}
-          />
-          <button 
-            onClick={() => setIsSearchOpen(!isSearchOpen)} 
-            className="p-2 rounded-full hover:bg-surface-hover text-subtle" 
-            aria-label="Toggle search"
-          >
-            <SearchIcon />
-          </button>
-        </div>
-        <ThemeSwitcher theme={theme} setTheme={setTheme} />
-        <button className="p-2 rounded-full hover:bg-surface-hover text-subtle hidden sm:block">
-          <HelpCircleIcon />
-        </button>
-        <button className="relative p-2 rounded-full hover:bg-surface-hover text-subtle">
-          <BellIcon />
-          <span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-destructive ring-2 ring-white dark:ring-black/50"></span>
-        </button>
-        <button>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img 
-            src="https://picsum.photos/seed/installer/40/40" 
-            alt="Installer Avatar" 
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full" 
-          />
-        </button>
-      </div>
-    </header>
-  );
-};
+// DashboardHeader component now extracted to src/components/installer/InstallerDashboardHeader.tsx
 
 // Placeholder Content Component
 const PlaceholderContent: React.FC<{ title: string }> = ({ title }) => (
@@ -373,7 +306,7 @@ export default function InstallerDashboardPage() {
       <div className={`transition-all duration-300 ${isSidebarCollapsed ? 'md:pl-20' : 'md:pl-64'}`}>
         <div className="flex flex-col min-h-screen">
           <div className={`sticky top-0 z-20 transition-transform duration-300 ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
-            <DashboardHeader pageTitle={activePage} theme={theme} setTheme={setTheme} />
+            <InstallerDashboardHeader pageTitle={activePage} />
           </div>
           <main className="flex-1 p-3 sm:p-4 md:p-6 pb-24 sm:pb-8">
             {renderContent()}
