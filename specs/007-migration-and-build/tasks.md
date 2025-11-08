@@ -297,12 +297,267 @@ This tasks.md defines how to BUILD the migration execution system itself (GATE 0
 
 ## Implementation Strategy
 
+---
+
+## Phase 13: URGENT - Installer Dashboard Navigation Fix (P0) 🚨 CRITICAL
+
+**Added**: November 6, 2025  
+**Status**: IN PROGRESS  
+**Backup Created**: `backup/installer-nav-fix-20251106-183630`
+
+**Goal**: Fix Installer dashboard navigation to follow Admin dashboard pattern (route-based navigation) while preserving all Lead Feed components and functionality
+
+**Problem Statement**: 
+- Current Installer dashboard uses state-based navigation (anti-pattern)
+- Only Lead Feed and its components are needed (other tabs are demo content)
+- Previous migration attempts created standalone pages, causing issues
+- Need simple solution that matches Admin dashboard architecture
+
+**Solution Approach**:
+- Keep ALL Lead Feed components exactly as they are (no refactoring)
+- Create new route-based structure matching Admin dashboard layout
+- Use existing InstallerSidebar and InstallerDashboardHeader components
+- Move only Lead Feed to new structure, discard demo tabs
+
+**Source of Truth**: Admin dashboard (`src/app/admin/layout.tsx`, `src/components/AdminSidebar.tsx`)
+
+### Pre-Implementation Audit
+
+**Current Structure**:
+```
+src/app/installer/dashboard/page.tsx (383 lines)
+├── State-based navigation with useState('Lead Feed')
+├── Switch statement for renderContent()
+├── InstallerLeadFeed component (KEEP AS-IS)
+├── Demo tabs: Dashboard Overview, Marketplace, etc. (DISCARD)
+└── Handler functions: handleUnlockLead, handleSubmitQuote, handleStartChat (PRESERVE)
+
+src/components/installer/InstallerSidebar.tsx
+├── NavItem components with onClick handlers
+└── State-based navigation (CONVERT TO ROUTES)
+
+src/components/installer/InstallerDashboardHeader.tsx
+└── Header component (REUSE AS-IS)
+```
+
+**Target Structure** (Admin Pattern):
+```
+src/app/installer/
+├── layout.tsx (NEW - copy from admin/layout.tsx pattern)
+└── leads/
+    └── page.tsx (NEW - contains Lead Feed component + handlers)
+```
+
+### Tasks:
+
+- [x] T301 [CRITICAL] Create full backup of current state → `backup/installer-nav-fix-20251106-183630`
+- [ ] T302 [CRITICAL] Audit current Installer dashboard (document all functionality to preserve)
+- [ ] T303 [P0] Create new Installer layout file: `src/app/installer/layout.tsx`
+  - Copy structure from `src/app/admin/layout.tsx`
+  - Reuse `InstallerSidebar`, `InstallerDashboardHeader`, `InstallerBottomNavBar`
+  - Use pathname-based active page detection
+  - Remove state management (no useState for activePage)
+- [ ] T304 [P0] Update InstallerSidebar to use Next.js Link for navigation
+  - Replace onClick handlers with `<Link href="/installer/leads">` 
+  - Keep only "Lead Feed" navigation item (remove demo tabs)
+  - Preserve collapse/expand functionality
+  - Remove activePage prop, use pathname for active state
+- [ ] T305 [P0] Create new Lead Feed route: `src/app/installer/leads/page.tsx`
+  - Move InstallerLeadFeed component import
+  - Move handler functions: handleUnlockLead, handleSubmitQuote, handleStartChat
+  - Add mockInstaller data
+  - Remove all demo tab logic
+- [ ] T306 [P1] Update InstallerDashboardHeader (if needed)
+  - Verify header works with new layout
+  - Remove any state dependencies
+- [ ] T307 [P1] Test navigation flow
+  - Verify /installer redirects or shows default view
+  - Verify /installer/leads shows Lead Feed
+  - Test sidebar navigation (desktop)
+  - Test bottom navigation (mobile)
+  - Test collapse/expand sidebar
+- [ ] T308 [P1] Test Lead Feed functionality
+  - Verify Unlock Lead button works
+  - Verify Submit Quote modal works
+  - Verify Start Chat works
+  - Test all filters and pagination
+- [ ] T309 [P1] Clean up old files
+  - Archive old dashboard page: `src/app/installer/dashboard/page.tsx.old`
+  - Remove unused imports
+  - Remove demo component imports (if any)
+- [ ] T310 [P2] Update documentation
+  - Update `DOC/DASHBOARD-NAVIGATION-AUDIT.md` with resolution
+  - Document new Installer structure
+  - Add migration notes for reference
+- [ ] T311 [P2] Run build validation
+  - `npx tsc --noEmit` (TypeScript check)
+  - `npm run build` (Production build)
+  - Fix any errors
+- [ ] T312 [P3] Commit changes
+  - Git commit with message: "fix: Migrate Installer dashboard to route-based navigation (Admin pattern)"
+  - Include all new/modified files
+  - Reference backup location in commit message
+
+**Success Criteria**:
+- ✅ Installer dashboard uses route-based navigation (matches Admin pattern)
+- ✅ All Lead Feed components work identically (zero functional changes)
+- ✅ InstallerSidebar uses Next.js Link components
+- ✅ No state-based navigation (no useState for activePage)
+- ✅ TypeScript compilation passes (0 errors)
+- ✅ Production build succeeds
+- ✅ Mobile and desktop navigation work correctly
+- ✅ Full backup exists for rollback if needed
+
+**Estimated Effort**: 2-3 hours
+
+**Risk Mitigation**:
+- Full backup created before starting
+- Keep all Lead Feed components unchanged
+- Follow proven Admin dashboard pattern
+- Test after each major change
+- Can rollback from backup if issues occur
+
+**Checkpoint**: ✅ After T305, core navigation should work. After T308, full functionality verified.
+
+---
+
+## Phase 14: URGENT - Homeowner Dashboard Navigation Fix (P0) 🚨 CRITICAL
+
+**Added**: November 6, 2025  
+**Status**: IN PROGRESS  
+**Backup Created**: `backup/homeowner-nav-fix-20251106-185814`
+
+**Goal**: Fix Homeowner dashboard navigation to follow Admin dashboard pattern (route-based navigation) while preserving Dashboard Overview, My Profile, and Messages pages
+
+**Problem Statement**:
+- Current Homeowner dashboard uses state-based navigation (anti-pattern)
+- Need to keep: Dashboard Overview, My Profile, Messages
+- Need to remove: My Quote Requests (Call/Visit, Written), Bidding Room, AI Insights
+- Should match Admin/Installer dashboard architecture
+
+**Solution Approach**:
+- Keep Dashboard Overview, ProfileManagement, and Messages components as-is
+- Create route-based structure matching Admin/Installer dashboards
+- Remove demo/placeholder tabs
+- Use existing HomeownerSidebar and HomeownerDashboardHeader
+
+**Source of Truth**: Admin dashboard (`src/app/admin/layout.tsx`) and Installer dashboard (`src/app/installer/layout.tsx`)
+
+### Pre-Implementation Audit
+
+**Current Structure**:
+```
+src/app/homeowner/dashboard/page.tsx (1331 lines)
+├── State-based navigation with useState('Dashboard Overview')
+├── Switch statement for renderContent()
+├── DashboardOverviewContent component (KEEP)
+├── ProfileManagement component (KEEP)
+├── Messaging modal (KEEP)
+└── Placeholder tabs: Call/Visit Quotes, Written Quotes, Bidding Room, AI Insights (REMOVE)
+
+src/components/homeowner/HomeownerSidebar.tsx (201 lines)
+├── NavItem components with onClick handlers
+├── Collapsible "My Quote Requests" submenu (REMOVE)
+├── Bidding Room, AI Insights tabs (REMOVE)
+└── State-based navigation (CONVERT TO ROUTES)
+```
+
+**Target Structure** (Admin/Installer Pattern):
+```
+src/app/homeowner/
+├── layout.tsx (NEW - copy from installer/layout.tsx pattern)
+├── dashboard/
+│   └── page.tsx (NEW - Dashboard Overview content)
+├── profile/
+│   └── page.tsx (NEW - ProfileManagement component)
+└── messages/
+    └── page.tsx (NEW - Messages content)
+```
+
+### Tasks:
+
+- [x] T401 [CRITICAL] Create full backup → `backup/homeowner-nav-fix-20251106-185814`
+- [ ] T402 [CRITICAL] Audit current Homeowner dashboard (document all functionality to preserve)
+- [ ] T403 [P0] Create new Homeowner layout file: `src/app/homeowner/layout.tsx`
+  - Copy structure from `src/app/installer/layout.tsx`
+  - Reuse `HomeownerSidebar`, `HomeownerDashboardHeader`, `HomeownerBottomNavBar`
+  - Use pathname-based active page detection
+  - Remove state management (no useState for activePage)
+- [ ] T404 [P0] Update HomeownerSidebar to use Next.js Link for navigation
+  - Replace onClick handlers with `<Link href="/homeowner/dashboard">`
+  - Keep only: Dashboard Overview, My Profile, Messages
+  - Remove: My Quote Requests submenu, Bidding Room, AI Insights
+  - Preserve collapse/expand functionality
+  - Remove activePage/setActivePage props, use pathname
+- [ ] T405 [P0] Create Dashboard Overview route: `src/app/homeowner/dashboard/page.tsx`
+  - Move DashboardOverviewContent component
+  - Keep all dashboard logic and state
+  - Preserve all modals and handlers
+- [ ] T406 [P0] Create Profile route: `src/app/homeowner/profile/page.tsx`
+  - Move ProfileManagement component
+  - Keep handleDeleteAccount functionality
+- [ ] T407 [P0] Create Messages route: `src/app/homeowner/messages/page.tsx`
+  - Move MessagingModal or create Messages content page
+  - Preserve all messaging functionality
+- [ ] T408 [P1] Archive old dashboard page
+  - Rename `src/app/homeowner/dashboard/page.tsx` to `page.tsx.old.20251106`
+- [ ] T409 [P1] Test navigation flow
+  - Verify /homeowner/dashboard shows Dashboard Overview
+  - Verify /homeowner/profile shows ProfileManagement
+  - Verify /homeowner/messages shows Messages
+  - Test sidebar navigation (desktop)
+  - Test bottom navigation (mobile)
+  - Test collapse/expand sidebar
+- [ ] T410 [P1] Test all preserved functionality
+  - Verify quote request modals work
+  - Verify verification flows work
+  - Verify lead edit/preview/cancel work
+  - Test all dashboard stats and data loading
+- [ ] T411 [P2] Clean up removed components
+  - Remove unused placeholder content references
+  - Remove unused imports
+- [ ] T412 [P2] Update documentation
+  - Update `DOC/DASHBOARD-NAVIGATION-AUDIT.md` with resolution
+  - Document new Homeowner structure
+- [ ] T413 [P2] Run build validation
+  - `npx tsc --noEmit` (TypeScript check)
+  - `npm run build` (Production build)
+- [ ] T414 [P3] Commit changes
+  - Git commit: "fix: Migrate Homeowner dashboard to route-based navigation"
+  - Reference backup location
+
+**Success Criteria**:
+- ✅ Homeowner dashboard uses route-based navigation (no useState for activePage)
+- ✅ Matches Admin/Installer dashboard pattern
+- ✅ Dashboard Overview, Profile, Messages preserved with full functionality
+- ✅ Quote Requests, Bidding Room, AI Insights removed
+- ✅ HomeownerSidebar uses Next.js Link components
+- ✅ TypeScript compilation passes
+- ✅ Production build succeeds
+- ✅ Mobile and desktop navigation work
+- ✅ Full backup available for rollback
+
+**Estimated Effort**: 3-4 hours
+
+**Risk Mitigation**:
+- Full backup created before starting
+- Keep all functional components unchanged
+- Follow proven Admin/Installer pattern
+- Test after each route creation
+- Can rollback from backup if needed
+
+**Checkpoint**: ✅ After T407, all core routes exist. After T410, full functionality verified.
+
+---
+
 **Recommended Execution Order**:
-1. **Phase 1-3 FIRST** (Foundation - P0): GATE 0, Verification, Multi-Theme (blocking for all migration work)
-2. **Phases 4-7 NEXT** (Standards - P1): Logic, Replacement, Responsive, Accessibility (can work in parallel)
-3. **Phases 8-10 NEXT** (Process - P2-P3): Build, Commit, Documentation (can work in parallel)
-4. **Phase 11** (Integration): Constitution updates, quick reference
-5. **Phase 12** (Validation): Test the system, get user approval
+1. **Phase 14 IMMEDIATE** (Homeowner Navigation Fix - P0): Fix Homeowner dashboard navigation (URGENT)
+2. **Phase 13 COMPLETED** ✅ (Installer Navigation Fix - P0): Installer dashboard fixed
+3. **Phase 1-3 FIRST** (Foundation - P0): GATE 0, Verification, Multi-Theme (blocking for all migration work)
+4. **Phases 4-7 NEXT** (Standards - P1): Logic, Replacement, Responsive, Accessibility (can work in parallel)
+5. **Phases 8-10 NEXT** (Process - P2-P3): Build, Commit, Documentation (can work in parallel)
+6. **Phase 11** (Integration): Constitution updates, quick reference
+7. **Phase 12** (Validation): Test the system, get user approval
 
 **Estimated Effort**:
 - Phases 1-3 (Foundation): 4-6 hours (critical path)

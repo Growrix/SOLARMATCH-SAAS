@@ -1798,15 +1798,17 @@ you have to create a comprehensive audit report of all the classes used in the s
 
 
 ***migration & Redesign in neumorphic***
-lets migrate the admin/Installers page
+lets migrate the Select Quote Distribution modal of the homeowners dashboard 
 
 ***Instructions for migration***
 You must follow the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\tasks.md file for all the migration instructions. you must perform the Pre Audit before the task implimentation. Understand each and every classes , Hardcodings, Styles used in the componenet. The Audit Goal is to keep everything in your memeory so that the migration task can be performed completely, not partially. After the Audit. before migration started you must read this D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\MIGRATION-PAIN-POINTS.md  file to learn from previous migration issues. so that you do not repeate the same mistakes. and after that read this D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\DESIGN-SYSTEM-SOT.md file to understand the design system better. for better clarification and referrence read this file too D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\MIGRATION-QUICK-REFERENCE.md
  Make sure we are only migrating the UI , nothing else. No functionality changes, no logic changes, no data changes. just pure UI migration. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on.
  After that 
- ***task execution***
+
+  ***task execution***
  you must  create a phase in the tasks.md file for this migration task. then start the migration task as per the instructions given in the tasks.md file and other supporting .md files.  Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on. 
 
+***Special notes*** There are rounting issues noticed in the installerr dashboard. the URl does not show correctly. so please make sure to fix that too while migrating the UI. e.g while navigating to lead feed page the URL should be /installer/lead-feed but currently it shows installer/dashboard . so please make sure to fix that too while migrating the UI.  Identify all such routing issues and fix them while migrating the UI.
 
 -------------------
 

@@ -1064,8 +1064,53 @@ export default function HomeownerDashboardPage() {
   };
 
   return (
-    <>
-      {renderContent()}
+    <div className="bg-background min-h-screen text-foreground animate-fade-in">
+      <div className={`transition-all duration-300 ${isSidebarCollapsed ? 'md:pl-20' : 'md:pl-64'}`}>
+        <div className="flex flex-col min-h-screen">
+          <div className={`sticky top-0 z-20 transition-transform duration-normal ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
+            <HomeownerDashboardHeader 
+              pageTitle={activePage} 
+            />
+          </div>
+          <main className="flex-1 p-3 sm:p-4 md:p-6 pb-24 sm:pb-8">
+            {renderContent()}
+          </main>
+        </div>
+      </div>
+      
+      {/* Desktop Sidebar - Neumorphic Collapsible */}
+      <div className="hidden md:fixed md:inset-y-0 md:left-0 md:z-40 md:flex">
+          <HomeownerSidebar 
+            activePage={activePage} 
+            setActivePage={setActivePage} 
+            onLogoutClick={handleLogout} 
+            onHomeClick={handleHomeClick}
+            onMessagesClick={handleMessagesClick}
+            isCollapsed={isSidebarCollapsed}
+            setIsCollapsed={setIsSidebarCollapsed}
+          />
+      </div>
+
+      {/* Mobile Navigation */}
+      <HomeownerBottomNavBar 
+        activePage={activePage}
+        setActivePage={setActivePage}
+        onNewQuoteClick={handleNewQuoteClick}
+        currentPage="dashboard"
+        onHomeClick={handleHomeClick}
+        onDashboardClick={() => {}}
+        onMenuClick={() => setIsMobileMenuOpen(true)}
+        onMessagesClick={handleMessagesClick}
+        unreadMessagesCount={3}
+      />
+      <HomeownerMobileSidebarMenu
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+        activePage={activePage}
+        setActivePage={setActivePage}
+        onLogoutClick={handleLogout}
+        onMessagesClick={handleMessagesClick}
+      />
 
       {/* Modals */}
       <NewQuoteRequestModal
@@ -1281,6 +1326,6 @@ export default function HomeownerDashboardPage() {
           }}
         />
       )}
-    </>
+    </div>
   );
 }

@@ -3661,6 +3661,7 @@ export function LoginForm() {
 2. **AUTH-COMPONENTS-AUDIT.md** - Auth component violations
 3. **AUTH-MIGRATION-PROGRESS.md** - Migration tracking
 4. **COMPLETED-FORM-IMPROVEMENTS.md** - Recent improvements
+5. **BUTTON-AUDIT-COMPLETE.md** - Complete button component audit (Added Nov 8, 2025)
 
 ### Design Token Files
 
@@ -3675,7 +3676,9 @@ export function LoginForm() {
 
 - `src/components/auth/` - Centralized auth components
 - `src/components/icons/auth/` - Centralized icons
-- `src/app/globals.css` - CSS classes (lines 1-921)
+- `src/app/globals.css` - CSS classes (lines 1-1572)
+- `src/components/ui/button.tsx` - Button component with 6 variants (Added Nov 8, 2025)
+- `src/components/admin/` - Admin dashboard components
 
 ### Configuration
 
@@ -3684,7 +3687,196 @@ export function LoginForm() {
 
 ---
 
+## 📚 Component Library Development Process (Added Nov 8, 2025)
+
+### Overview
+Component Library documentation (e.g., `/admin/components`) must be built from **comprehensive audits**, not assumed patterns. This prevents fake classes, inaccurate usage counts, and outdated documentation.
+
+### MANDATORY 5-STEP WORKFLOW
+
+#### STEP 1: Audit globals.css (ALL 1572 lines)
+```powershell
+code src\app\globals.css
+
+# IDENTIFY:
+# - @layer components classes (form-input, form-select, theme-card, detail-card, etc.)
+# - Custom semantic classes (dashboard-*, toggle-*, slider-*, etc.)
+# - Neumorphic shadow definitions (--shadow-neu-outset, --shadow-neu-inset)
+# - Custom dashboard classes (dashboard-header__action-btn, dashboard-collapse-btn, etc.)
+
+# DOCUMENT: Class name, purpose, usage pattern, defined location
+```
+
+#### STEP 2: Audit Component Files (Button, Badge, Card, Form, etc.)
+```powershell
+code src\components\ui\button.tsx
+
+# IDENTIFY:
+# - Component variants (e.g., Button has 6: primary, secondary, ghost, outline, minimal, destructive)
+# - Exact className strings for each variant
+# - Base classes applied to all variants
+# - Props interface (variant, withArrow, etc.)
+
+# DOCUMENT: Component name, variant names, exact classNames, props, usage
+```
+
+#### STEP 3: Grep Codebase for Real Usage Patterns
+```powershell
+# Find button patterns
+Select-String -Path "src\**\*.tsx" -Pattern "className.*button|className.*btn" | Select-Object -First 50
+
+# Count form pattern usage
+Select-String -Path "src\**\*.tsx" -Pattern "form-input|form-select" | Measure-Object
+
+# Count card pattern usage
+Select-String -Path "src\**\*.tsx" -Pattern "theme-card|detail-card" | Measure-Object
+
+# Find dashboard action buttons
+Select-String -Path "src\**\*.tsx" -Pattern "dashboard-header__action-btn|dashboard-collapse-btn"
+
+# Find raw Tailwind button patterns (not using Button component)
+Select-String -Path "src\**\*.tsx" -Pattern "px-6 py-3 rounded-full.*shadow-neu"
+```
+
+#### STEP 4: Create Comprehensive Audit Document
+**Template: COMPONENT-AUDIT-COMPLETE.md**
+
+```markdown
+# [COMPONENT TYPE] AUDIT - COMPLETE
+**Date**: [Date]
+**Auditor**: [Name]
+**Source**: globals.css + src/components/ui/[component].tsx + codebase scan
+
+---
+
+## REAL [COMPONENT] COMPONENT (src/components/ui/[component].tsx)
+
+### Component Props:
+- `variant`: 'primary' | 'secondary' | etc.
+- Other props...
+
+### Base Classes (ALL [components]):
+[Exact base className string from component file]
+
+### Variant Classes:
+
+#### 1. **[Variant Name]** (`variant="[name]"`)
+**Classes**:
+```
+[Exact className string from component file]
+```
+**Usage**: [Describe usage]
+**Used In**: [Real file paths from grep results]
+
+[Repeat for each variant]
+
+---
+
+## CUSTOM CLASSES (globals.css)
+
+### [N]. **[Custom Class Name]** (`.custom-class-name`)
+**Classes**: CUSTOM CLASS (defined in globals.css)
+```css
+[Exact CSS from globals.css]
+```
+**Usage**: [Describe usage]
+**Used In**: [Real file paths from codebase]
+
+---
+
+## RAW TAILWIND PATTERNS (No Component)
+
+### [N]. **[Pattern Name]**
+**Classes**:
+```
+[Exact className string from real usage in codebase]
+```
+**Used In**: [Real file paths from grep results]
+
+---
+
+## SUMMARY
+
+### Total [Component] Patterns Found: **[N]**
+
+### Breakdown:
+- **Component Variants**: [N] (list variant names)
+- **Custom Classes**: [N] (list custom class names)
+- **Raw Tailwind Patterns**: [N] (list raw pattern names)
+
+### Key Findings:
+1. [Key finding 1]
+2. [Key finding 2]
+3. [Key finding 3]
+
+---
+
+## RECOMMENDATIONS
+
+1. [Recommendation 1]
+2. [Recommendation 2]
+3. [Recommendation 3]
+
+---
+
+## FILES AUDITED:
+- `src/app/globals.css` (lines [start]-[end])
+- `src/components/ui/[component].tsx` (lines [start]-[end])
+- `src/components/admin/*` (usage audit)
+- `src/components/homeowner/*` (usage audit)
+- `src/components/installer/*` (usage audit)
+```
+
+**CRITICAL RULES FOR AUDIT DOCUMENT**:
+- ✅ List EVERY real pattern with: name, exact className, real usage count, real locations
+- ❌ NO fake patterns, NO assumed classes, NO made-up examples
+- ✅ Document: Component variants, custom classes (globals.css), raw Tailwind patterns
+- ✅ Usage counts must match grep count
+- ✅ "Used In" must be real file paths from codebase
+
+#### STEP 5: Build Component Library ONLY from Audit Document
+```tsx
+// ComponentLibraryTable.tsx
+const buttonsPatterns: ComponentPattern[] = [
+  {
+    name: 'Primary Button (variant="primary")', // From audit doc
+    description: 'Button component primary variant', // From audit doc
+    className: '[EXACT className from Button component file]', // From audit doc
+    usageCount: 25, // From grep count in audit
+    usedIn: ['Real/File/Path.tsx', 'Another/Real/Path.tsx'], // From audit doc
+    example: (
+      <button className="[EXACT className from Button component]">
+        [Real button text from codebase]
+      </button>
+    ),
+  },
+  // Repeat for EVERY pattern in audit document
+];
+```
+
+**VERIFICATION BEFORE MARKING COMPLETE**:
+1. ✅ Every pattern exists in Button component OR globals.css OR codebase (verify with grep)
+2. ✅ No fake classNames (check each with `Select-String`)
+3. ✅ Usage counts match real grep count from audit
+4. ✅ "Used In" locations are real file paths (not assumed)
+5. ✅ Example code matches real component usage (not mock examples)
+6. ✅ Audit document created and referenced in Component Library
+
+**WHY THIS MATTERS**:
+- ❌ Without audit: Fake patterns, wrong classes, outdated docs, user confusion, rework
+- ✅ With audit: Real patterns, correct classes, accurate docs, user trust, no rework
+
+**REFERENCE EXAMPLE**: See `BUTTON-AUDIT-COMPLETE.md` for complete audit of all 14 real button patterns (6 Button variants, 4 custom dashboard classes, 4 raw Tailwind patterns).
+
+---
+
 ## 📝 Changelog
+
+### November 8, 2025
+- Added Component Library Development Process (5-step workflow)
+- Added BUTTON-AUDIT-COMPLETE.md to resources
+- Updated globals.css line count (1-1572)
+- Added Button component to Component Library resources
 
 ### November 1, 2025
 - Created comprehensive design system SOT

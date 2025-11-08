@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 
 // --- Icon Components ---
 const SunIcon = () => (
@@ -125,7 +126,6 @@ const NavItem: React.FC<NavItemProps> = ({ icon, title, isActive, onClick, badge
 // Installer Sidebar Component
 interface InstallerSidebarProps {
   activePage: string;
-  setActivePage: (page: string) => void;
   onLogoutClick: () => void;
   onHomeClick: () => void;
   isCollapsed: boolean;
@@ -134,14 +134,13 @@ interface InstallerSidebarProps {
 
 const InstallerSidebar: React.FC<InstallerSidebarProps> = ({
   activePage,
-  setActivePage,
   onLogoutClick,
   onHomeClick,
   isCollapsed,
   setIsCollapsed,
 }) => {
   return (
-    <aside className={`dashboard-sidebar-container ${isCollapsed ? 'dashboard-sidebar-container--collapsed' : 'dashboard-sidebar-container--expanded'}`}>
+      <aside className={`dashboard-sidebar-container ${isCollapsed ? 'dashboard-sidebar-container--collapsed' : 'dashboard-sidebar-container--expanded'}`}>
       {/* Header with Logo/Icon and Collapse Button */}
       <div className="dashboard-sidebar-header">
         <button
@@ -156,7 +155,7 @@ const InstallerSidebar: React.FC<InstallerSidebarProps> = ({
         {isCollapsed ? (
           <button
             onClick={() => setIsCollapsed(false)}
-            className="dashboard-collapse-btn dashboard-collapse-btn--floating"
+            className="dashboard-collapse-btn dashboard-collapse-btn--floating dashboard-collapse-btn--floating-left"
             title="Expand sidebar"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -169,64 +168,25 @@ const InstallerSidebar: React.FC<InstallerSidebarProps> = ({
             className="dashboard-collapse-btn"
             title="Collapse sidebar"
           >
-            <CollapseIcon />
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
           </button>
         )}
       </div>
 
       {/* Navigation Items */}
       <nav className={`dashboard-nav ${isCollapsed ? 'px-2' : 'px-4'}`}>
-        <NavItem
-          icon={<LayoutDashboardIcon />}
-          title="Dashboard Overview"
-          isActive={activePage === 'Dashboard Overview'}
-          onClick={() => setActivePage('Dashboard Overview')}
-          isCollapsed={isCollapsed}
-        />
-        <NavItem
-          icon={<ZapIcon />}
-          title="Lead Feed"
-          isActive={activePage === 'Lead Feed'}
-          onClick={() => setActivePage('Lead Feed')}
-          badgeCount={5}
-          isCollapsed={isCollapsed}
-        />
-        <NavItem
-          icon={<MarketplaceIcon />}
-          title="Marketplace"
-          isActive={activePage === 'Marketplace'}
-          onClick={() => setActivePage('Marketplace')}
-          isCollapsed={isCollapsed}
-        />
-        <NavItem
-          icon={<UsersIcon />}
-          title="My Purchased Leads"
-          isActive={activePage === 'My Purchased Leads'}
-          onClick={() => setActivePage('My Purchased Leads')}
-          isCollapsed={isCollapsed}
-        />
-        <NavItem
-          icon={<ClipboardCheckIcon />}
-          title="Assigned Leads"
-          isActive={activePage === 'Assigned Leads'}
-          onClick={() => setActivePage('Assigned Leads')}
-          isCollapsed={isCollapsed}
-        />
-        <NavItem
-          icon={<GavelIcon />}
-          title="Active Bids"
-          isActive={activePage === 'Active Bids'}
-          onClick={() => setActivePage('Active Bids')}
-          isCollapsed={isCollapsed}
-        />
-        <NavItem
-          icon={<MessageSquareIcon />}
-          title="Messages"
-          isActive={activePage === 'Messages'}
-          onClick={() => setActivePage('Messages')}
-          badgeCount={3}
-          isCollapsed={isCollapsed}
-        />
+        <Link href="/installer/leads">
+          <NavItem
+            icon={<ZapIcon />}
+            title="Lead Feed"
+            isActive={activePage === 'Lead Feed'}
+            onClick={() => {}}
+            badgeCount={5}
+            isCollapsed={isCollapsed}
+          />
+        </Link>
       </nav>
 
       {/* Logout Button */}
@@ -240,7 +200,7 @@ const InstallerSidebar: React.FC<InstallerSidebarProps> = ({
           {!isCollapsed && <span>Logout</span>}
         </button>
       </div>
-    </aside>
+      </aside>
   );
 };
 

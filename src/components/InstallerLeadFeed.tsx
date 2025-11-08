@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import QuoteBuilderModal from './QuoteBuilderModal';
 import { LiveCountdownBar } from '@/components/LiveCountdownBar';
+import Button from '@/components/ui/button';
 
 // --- Icon Components ---
 const FilterIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3z"/></svg>;
@@ -125,69 +126,75 @@ const StripeUnlockModal: React.FC<{
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl p-6 w-full max-w-md mx-4 animate-scale-in">
-        <button 
+      <div className="theme-card relative w-full max-w-md mx-4 p-6">
+        <Button 
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+          variant="minimal"
+          className="absolute top-4 right-4 p-2"
         >
           <XIcon />
-        </button>
+        </Button>
 
         <div className="text-center">
           <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
             <CreditCardIcon className="h-8 w-8 text-primary" />
           </div>
           
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+          <h3 className="text-xl font-bold text-foreground mb-2">
             Unlock Lead Contact
           </h3>
           
-          <p className="text-slate-600 dark:text-slate-400 mb-6">
+          <p className="text-muted-foreground mb-6">
             Unlock contact details for this call/visit lead in {lead.location.suburb}, {lead.location.state}
           </p>
 
           {/* Lead Summary */}
-          <div className="bg-gray-50 dark:bg-slate-800 rounded-lg p-4 mb-6 text-left">
+          <div className="bg-surface/50 shadow-neu-inset rounded-lg p-4 mb-6 text-left border border-border">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Location:</span>
-              <span className="text-sm text-slate-900 dark:text-white">
+              <span className="text-sm font-medium text-muted-foreground">Location:</span>
+              <span className="text-sm text-foreground">
                 {lead.location.suburb}, {lead.location.postcode}
               </span>
             </div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-slate-600 dark:text-slate-400">System Size:</span>
-              <span className="text-sm text-slate-900 dark:text-white">{lead.systemDetails.estimatedSize}</span>
+              <span className="text-sm font-medium text-muted-foreground">System Size:</span>
+              <span className="text-sm text-foreground">{lead.systemDetails.estimatedSize}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Unlock Price:</span>
+              <span className="text-sm font-medium text-muted-foreground">Unlock Price:</span>
               <span className="text-lg font-bold text-primary">${lead.unlockPrice}</span>
             </div>
           </div>
 
           {paymentStatus === 'idle' && (
             <div className="space-y-4">
-              <div className="text-sm text-slate-500 dark:text-slate-400">
-                Credit Balance: <span className="font-semibold text-slate-700 dark:text-slate-300">
+              <div className="text-sm text-muted-foreground">
+                Credit Balance: <span className="font-semibold text-foreground">
                   ${installer.creditBalance}
                 </span>
               </div>
               
               {installer.creditBalance >= lead.unlockPrice ? (
-                <button
+                <Button
                   onClick={handlePayment}
                   disabled={isProcessing}
-                  className="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
+                  variant="primary"
+                  className="w-full py-3"
                 >
                   {isProcessing ? 'Processing...' : `Pay $${lead.unlockPrice} to Unlock`}
-                </button>
+                </Button>
               ) : (
                 <div className="space-y-3">
-                  <div className="text-sm text-red-600 dark:text-red-400">
+                  <div className="text-sm text-destructive">
                     Insufficient credit balance. Please top up your account.
                   </div>
-                  <button className="w-full bg-gray-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 py-3 rounded-lg font-semibold cursor-not-allowed">
+                  <Button 
+                    disabled 
+                    variant="secondary"
+                    className="w-full py-3 cursor-not-allowed"
+                  >
                     Insufficient Credits
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
@@ -196,15 +203,15 @@ const StripeUnlockModal: React.FC<{
           {paymentStatus === 'processing' && (
             <div className="text-center">
               <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-              <p className="text-slate-600 dark:text-slate-400">Processing payment...</p>
+              <p className="text-muted-foreground">Processing payment...</p>
             </div>
           )}
 
           {paymentStatus === 'success' && (
             <div className="text-center">
-              <CheckCircleIcon className="h-12 w-12 text-green-500 mx-auto mb-4" />
-              <p className="text-success dark:text-green-400 font-semibold">Payment successful!</p>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
+              <CheckCircleIcon className="h-12 w-12 text-success mx-auto mb-4" />
+              <p className="text-success font-semibold">Payment successful!</p>
+              <p className="text-sm text-muted-foreground mt-2">
                 Contact details are now unlocked
               </p>
             </div>
@@ -213,8 +220,8 @@ const StripeUnlockModal: React.FC<{
           {paymentStatus === 'error' && (
             <div className="text-center">
               <AlertCircleIcon className="h-12 w-12 text-destructive mx-auto mb-4" />
-              <p className="text-red-600 dark:text-red-400 font-semibold">Payment failed</p>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
+              <p className="text-destructive font-semibold">Payment failed</p>
+              <p className="text-sm text-muted-foreground mt-2">
                 Please try again or contact support
               </p>
             </div>
@@ -244,25 +251,25 @@ const LeadCard: React.FC<{
     
     switch (lead.status) {
       case 'new':
-        return `${baseClasses} bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400`;
+        return `${baseClasses} bg-success/10 text-success`;
       case 'unlocked':
-        return `${baseClasses} bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400`;
+        return `${baseClasses} bg-info/10 text-info`;
       case 'submitted':
-        return `${baseClasses} bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400`;
+        return `${baseClasses} bg-primary/10 text-primary`;
       case 'contacted':
-        return `${baseClasses} bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400`;
+        return `${baseClasses} bg-warning/10 text-warning`;
       case 'expired':
-        return `${baseClasses} bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400`;
+        return `${baseClasses} bg-destructive/10 text-destructive`;
       default:
-        return `${baseClasses} bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400`;
+        return `${baseClasses} bg-muted text-muted-foreground`;
     }
   };
 
   const getPriorityColor = () => {
     switch (lead.priority) {
-      case 'high': return 'border-l-red-500';
-      case 'medium': return 'border-l-orange-500';
-      case 'low': return 'border-l-green-500';
+      case 'high': return 'border-l-destructive';
+      case 'medium': return 'border-l-warning';
+      case 'low': return 'border-l-success';
     }
   };
 
@@ -279,23 +286,23 @@ const LeadCard: React.FC<{
 
   return (
     <>
-      <div className={`theme-card border-l-4 ${getPriorityColor()} p-6 transition-colors duration-200 animate-fade-in`}>
+      <div className={`theme-card border-l-4 ${getPriorityColor()} p-6 transition-colors duration-200`}>
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center space-x-3">
           <div className="flex items-center space-x-2">
             {lead.type === 'call_visit' ? (
-              <PhoneIcon className="h-5 w-5 text-blue-500" />
+              <PhoneIcon className="h-5 w-5 text-info" />
             ) : (
-              <FileTextIcon className="h-5 w-5 text-purple-500" />
+              <FileTextIcon className="h-5 w-5 text-primary" />
             )}
-            <span className="font-semibold text-slate-900 dark:text-white">
+            <span className="font-semibold text-foreground">
               {lead.type === 'call_visit' ? 'Call/Visit Lead' : 'Written Quote Lead'}
             </span>
           </div>
           
           {canUnlock && (
-            <div className="flex items-center space-x-1 text-orange-600 dark:text-orange-400">
+            <div className="flex items-center space-x-1 text-warning">
               <LockIcon className="h-4 w-4" />
               <span className="text-xs font-medium">Unlock Required</span>
             </div>
@@ -306,7 +313,7 @@ const LeadCard: React.FC<{
           <span className={getStatusBadge()}>
             {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
           </span>
-          <span className="text-xs text-slate-500 dark:text-slate-400">
+          <span className="text-xs text-muted-foreground">
             {formatTimeAgo(lead.dateSubmitted)}
           </span>
         </div>
@@ -316,22 +323,22 @@ const LeadCard: React.FC<{
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div className="space-y-2">
           <div className="flex items-center space-x-2 text-sm">
-            <MapPinIcon className="h-4 w-4 text-slate-500 dark:text-slate-400" />
-            <span className="text-slate-900 dark:text-white">
+            <MapPinIcon className="h-4 w-4 text-muted-foreground" />
+            <span className="text-foreground">
               {lead.location.suburb}, {lead.location.postcode}, {lead.location.state}
             </span>
           </div>
           
           <div className="flex items-center space-x-2 text-sm">
-            <BoltIcon className="h-4 w-4 text-slate-500 dark:text-slate-400" />
-            <span className="text-slate-900 dark:text-white">
+            <BoltIcon className="h-4 w-4 text-muted-foreground" />
+            <span className="text-foreground">
               {lead.systemDetails.estimatedSize} • {lead.systemDetails.roofType} Roof
             </span>
           </div>
           
           <div className="flex items-center space-x-2 text-sm">
-            <DollarSignIcon className="h-4 w-4 text-slate-500 dark:text-slate-400" />
-            <span className="text-slate-900 dark:text-white">
+            <DollarSignIcon className="h-4 w-4 text-muted-foreground" />
+            <span className="text-foreground">
               Budget: {lead.systemDetails.budget}
             </span>
           </div>
@@ -341,7 +348,7 @@ const LeadCard: React.FC<{
           {/* Countdown timer - Show for active marketplace leads (mock data uses 'new' for approved leads) */}
           {lead.status === 'new' && (
             <div className="flex items-center space-x-2 text-sm">
-              <CalendarIcon className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+              <CalendarIcon className="h-4 w-4 text-muted-foreground" />
               <LiveCountdownBar
                 expiresAt={lead.expiresAt.toISOString()}
                 leadId={String(lead.id)}
@@ -353,16 +360,16 @@ const LeadCard: React.FC<{
           )}
           
           <div className="flex items-center space-x-2 text-sm">
-            <FileTextIcon className="h-4 w-4 text-slate-500 dark:text-slate-400" />
-            <span className="text-slate-900 dark:text-white">
+            <FileTextIcon className="h-4 w-4 text-muted-foreground" />
+            <span className="text-foreground">
               {lead.quotesReceived} quotes received
             </span>
           </div>
           
           {lead.type === 'call_visit' && (
             <div className="flex items-center space-x-2 text-sm">
-              <CreditCardIcon className="h-4 w-4 text-slate-500 dark:text-slate-400" />
-              <span className="text-slate-900 dark:text-white">
+              <CreditCardIcon className="h-4 w-4 text-muted-foreground" />
+              <span className="text-foreground">
                 Unlock: ${lead.unlockPrice}
               </span>
             </div>
@@ -372,25 +379,25 @@ const LeadCard: React.FC<{
 
       {/* Contact Info (if unlocked) */}
       {isUnlockedByInstaller && (
-        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-4">
+        <div className="bg-success/10 border border-success/20 rounded-lg p-4 mb-4 shadow-neu-inset">
           <div className="flex items-center space-x-2 mb-2">
-            <UnlockIcon className="h-4 w-4 text-success dark:text-green-400" />
-            <span className="text-sm font-semibold text-green-700 dark:text-green-400">
+            <UnlockIcon className="h-4 w-4 text-success" />
+            <span className="text-sm font-semibold text-success">
               Contact Details Unlocked
             </span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
             <div>
-              <span className="font-medium text-slate-700 dark:text-slate-300">Name:</span>
-              <span className="ml-2 text-slate-900 dark:text-white">{lead.contact.name}</span>
+              <span className="font-medium text-muted-foreground">Name:</span>
+              <span className="ml-2 text-foreground">{lead.contact.name}</span>
             </div>
             <div>
-              <span className="font-medium text-slate-700 dark:text-slate-300">Phone:</span>
-              <span className="ml-2 text-slate-900 dark:text-white">{lead.contact.phone}</span>
+              <span className="font-medium text-muted-foreground">Phone:</span>
+              <span className="ml-2 text-foreground">{lead.contact.phone}</span>
             </div>
             <div className="md:col-span-2">
-              <span className="font-medium text-slate-700 dark:text-slate-300">Email:</span>
-              <span className="ml-2 text-slate-900 dark:text-white">{lead.contact.email}</span>
+              <span className="font-medium text-muted-foreground">Email:</span>
+              <span className="ml-2 text-foreground">{lead.contact.email}</span>
             </div>
           </div>
         </div>
@@ -399,37 +406,40 @@ const LeadCard: React.FC<{
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-2">
         {canUnlock && (
-          <button
+          <Button
             onClick={() => onUnlock(lead.id)}
-            className="flex items-center space-x-2 bg-primary text-white px-4 py-2 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
+            variant="primary"
+            className="flex items-center space-x-2"
           >
             <LockIcon className="h-4 w-4" />
             <span>Unlock Lead (${lead.unlockPrice})</span>
-          </button>
+          </Button>
         )}
 
         {canQuote && (
-          <button
+          <Button
             onClick={() => setIsQuoteModalOpen(true)}
-            className="flex items-center space-x-2 bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+            variant="primary"
+            className="flex items-center space-x-2"
           >
             <SendIcon className="h-4 w-4" />
             <span>Submit Quote</span>
-          </button>
+          </Button>
         )}
 
         {isUnlockedByInstaller && (
-          <button
+          <Button
             onClick={() => onStartChat(lead.id)}
-            className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+            variant="secondary"
+            className="flex items-center space-x-2"
           >
             <PhoneIcon className="h-4 w-4" />
             <span>Start Chat</span>
-          </button>
+          </Button>
         )}
 
         {lead.type === 'written' && !canQuote && (
-          <div className="text-sm text-slate-500 dark:text-slate-400 italic">
+          <div className="text-sm text-muted-foreground italic">
             Available for written quotes only
           </div>
         )}
@@ -638,22 +648,23 @@ const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Lead Feed</h1>
-          <p className="text-slate-600 dark:text-slate-400">
+          <h1 className="text-2xl font-bold text-foreground">Lead Feed</h1>
+          <p className="text-muted-foreground">
             Available leads for {installer.companyName}
           </p>
         </div>
         
         <div className="flex items-center space-x-3">
-          <button
+          <Button
             onClick={handleRefresh}
-            className="flex items-center space-x-2 px-4 py-2 bg-gray-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
+            variant="secondary"
+            className="flex items-center space-x-2"
           >
             <RefreshIcon className={loading ? 'animate-spin' : ''} />
             <span>Refresh</span>
-          </button>
+          </Button>
           
-          <div className="text-sm text-slate-500 dark:text-slate-400">
+          <div className="text-sm text-muted-foreground">
             Updated: {lastUpdated ? lastUpdated.toLocaleTimeString() : ''}
           </div>
         </div>
@@ -664,23 +675,11 @@ const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({
         <div className="theme-card p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Available Leads</p>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">{filteredLeads.length}</p>
+              <p className="text-sm font-medium text-muted-foreground">Available Leads</p>
+              <p className="text-2xl font-bold text-foreground">{filteredLeads.length}</p>
             </div>
-            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-              <FileTextIcon className="h-5 w-5 text-info dark:text-blue-400" />
-            </div>
-          </div>
-        </div>
-
-        <div className="theme-card p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Unlocked Today</p>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">3</p>
-            </div>
-            <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
-              <UnlockIcon className="h-5 w-5 text-success dark:text-green-400" />
+            <div className="w-10 h-10 bg-info/10 rounded-lg flex items-center justify-center">
+              <FileTextIcon className="h-5 w-5 text-info" />
             </div>
           </div>
         </div>
@@ -688,8 +687,20 @@ const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({
         <div className="theme-card p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Credit Balance</p>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">${installer.creditBalance}</p>
+              <p className="text-sm font-medium text-muted-foreground">Unlocked Today</p>
+              <p className="text-2xl font-bold text-foreground">3</p>
+            </div>
+            <div className="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center">
+              <UnlockIcon className="h-5 w-5 text-success" />
+            </div>
+          </div>
+        </div>
+
+        <div className="theme-card p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Credit Balance</p>
+              <p className="text-2xl font-bold text-foreground">${installer.creditBalance}</p>
             </div>
             <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
               <CreditCardIcon className="h-5 w-5 text-primary" />
@@ -700,11 +711,11 @@ const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({
         <div className="theme-card p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Success Rate</p>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">{installer.successRate}%</p>
+              <p className="text-sm font-medium text-muted-foreground">Success Rate</p>
+              <p className="text-2xl font-bold text-foreground">{installer.successRate}%</p>
             </div>
-            <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
-              <CheckCircleIcon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+              <CheckCircleIcon className="h-5 w-5 text-primary" />
             </div>
           </div>
         </div>
@@ -715,13 +726,13 @@ const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({
         <div className="flex flex-col lg:flex-row lg:items-center gap-4">
           {/* Search */}
           <div className="relative flex-1">
-            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
             <input
               type="text"
               placeholder="Search by location, system size, or property type..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+              className="form-input w-full pl-10 pr-4 py-2 rounded-xl bg-surface text-foreground shadow-neu-inset border border-border placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
@@ -730,7 +741,7 @@ const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({
             <select
               value={filters.leadType}
               onChange={(e) => setFilters(prev => ({ ...prev, leadType: e.target.value as any }))}
-              className="px-3 py-2 border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+              className="form-input px-3 py-2 rounded-xl bg-surface text-foreground shadow-neu-inset border border-border focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="all">All Types</option>
               <option value="call_visit">Call/Visit</option>
@@ -740,7 +751,7 @@ const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({
             <select
               value={filters.status}
               onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value as any }))}
-              className="px-3 py-2 border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+              className="form-input px-3 py-2 rounded-xl bg-surface text-foreground shadow-neu-inset border border-border focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="all">All Status</option>
               <option value="new">New</option>
@@ -753,13 +764,13 @@ const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({
               placeholder="Postcode"
               value={filters.postcode}
               onChange={(e) => setFilters(prev => ({ ...prev, postcode: e.target.value }))}
-              className="w-24 px-3 py-2 border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+              className="form-input w-24 px-3 py-2 rounded-xl bg-surface text-foreground shadow-neu-inset border border-border placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
             />
 
             <select
               value={filters.dateRange}
               onChange={(e) => setFilters(prev => ({ ...prev, dateRange: e.target.value as any }))}
-              className="px-3 py-2 border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+              className="form-input px-3 py-2 rounded-xl bg-surface text-foreground shadow-neu-inset border border-border focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="all">All Time</option>
               <option value="today">Today</option>
@@ -778,11 +789,11 @@ const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({
           </div>
         ) : filteredLeads.length === 0 ? (
           <div className="theme-card text-center py-12">
-            <AlertCircleIcon className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+            <AlertCircleIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">
               No leads found
             </h3>
-            <p className="text-slate-600 dark:text-slate-400">
+            <p className="text-muted-foreground">
               Try adjusting your filters or check back later for new leads.
             </p>
           </div>

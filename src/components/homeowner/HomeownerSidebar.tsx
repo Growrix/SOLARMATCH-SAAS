@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 
 // Icon Components
 const SunIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>;
@@ -45,7 +46,6 @@ const NavItem: React.FC<{
 // HomeownerSidebar Props
 interface HomeownerSidebarProps {
   activePage: string;
-  setActivePage: (page: string) => void;
   onLogoutClick: () => void;
   onHomeClick: () => void;
   onMessagesClick: () => void;
@@ -56,14 +56,12 @@ interface HomeownerSidebarProps {
 // HomeownerSidebar Component
 const HomeownerSidebar: React.FC<HomeownerSidebarProps> = ({ 
   activePage, 
-  setActivePage, 
   onLogoutClick, 
   onHomeClick, 
   onMessagesClick, 
   isCollapsed, 
   setIsCollapsed 
 }) => {
-  const [quotesOpen, setQuotesOpen] = useState(true);
   
   return (
     <aside className={`dashboard-sidebar-container ${isCollapsed ? 'dashboard-sidebar-container--collapsed' : 'dashboard-sidebar-container--expanded'}`}>
@@ -98,86 +96,32 @@ const HomeownerSidebar: React.FC<HomeownerSidebarProps> = ({
 
       {/* Navigation Items */}
       <nav className={`dashboard-sidebar-nav ${isCollapsed ? 'dashboard-sidebar-nav--collapsed' : 'dashboard-sidebar-nav--expanded'}`}>
-        <NavItem
-          icon={<LayoutDashboardIcon />}
-          title="Dashboard Overview"
-          isActive={activePage === 'Dashboard Overview'}
-          onClick={() => setActivePage('Dashboard Overview')}
-          isCollapsed={isCollapsed}
-        />
-        {/* Quote Requests Section with Submenu */}
-        <div>
-          {!isCollapsed ? (
-            <>
-              <button
-                onClick={() => setQuotesOpen(!quotesOpen)}
-                className="dashboard-nav-submenu-toggle"
-              >
-                <div className="flex items-center space-x-3">
-                  <FileTextIcon />
-                  <span>My Quote Requests</span>
-                </div>
-                <ChevronDownIcon className={`dashboard-nav-submenu-toggle__chevron ${quotesOpen ? 'dashboard-nav-submenu-toggle__chevron--open' : ''}`} />
-              </button>
-              {quotesOpen && (
-                <div className="dashboard-nav-submenu">
-                  <NavItem
-                    icon={<PhoneCallIcon />}
-                    title="Call/Visit Quotes"
-                    isActive={activePage === 'Call/Visit Quotes'}
-                    onClick={() => setActivePage('Call/Visit Quotes')}
-                    isCollapsed={false}
-                  />
-                  <NavItem
-                    icon={<FileSignatureIcon />}
-                    title="Written Quotes"
-                    isActive={activePage === 'Written Quotes'}
-                    onClick={() => setActivePage('Written Quotes')}
-                    isCollapsed={false}
-                  />
-                </div>
-              )}
-            </>
-          ) : (
-            // When collapsed, show just the icon for quotes
-            <NavItem
-              icon={<FileTextIcon />}
-              title="My Quote Requests"
-              isActive={activePage === 'Call/Visit Quotes' || activePage === 'Written Quotes'}
-              onClick={() => setActivePage('Call/Visit Quotes')}
-              isCollapsed={isCollapsed}
-            />
-          )}
-        </div>
-        <NavItem
-          icon={<GavelIcon />}
-          title="Bidding Room"
-          isActive={activePage === 'Bidding Room'}
-          onClick={() => setActivePage('Bidding Room')}
-          isCollapsed={isCollapsed}
-        />
-        <NavItem
-          icon={<SparklesIcon />}
-          title="AI Insights"
-          isActive={activePage === 'AI Insights'}
-          onClick={() => setActivePage('AI Insights')}
-          isCollapsed={isCollapsed}
-        />
+        <Link href="/homeowner/dashboard">
+          <NavItem
+            icon={<LayoutDashboardIcon />}
+            title="Dashboard Overview"
+            isActive={activePage === 'Dashboard Overview'}
+            onClick={() => {}}
+            isCollapsed={isCollapsed}
+          />
+        </Link>
         <NavItem
           icon={<MessageSquareIcon />}
           title="Messages"
-          isActive={false}
+          isActive={activePage === 'Messages'}
           onClick={onMessagesClick}
           badgeCount={3}
           isCollapsed={isCollapsed}
         />
-        <NavItem
-          icon={<UserIcon />}
-          title="My Profile"
-          isActive={activePage === 'My Profile'}
-          onClick={() => setActivePage('My Profile')}
-          isCollapsed={isCollapsed}
-        />
+        <Link href="/homeowner/profile">
+          <NavItem
+            icon={<UserIcon />}
+            title="My Profile"
+            isActive={activePage === 'My Profile'}
+            onClick={() => {}}
+            isCollapsed={isCollapsed}
+          />
+        </Link>
       </nav>
 
       {/* Logout Button */}

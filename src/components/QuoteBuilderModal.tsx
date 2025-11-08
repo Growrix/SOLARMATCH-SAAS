@@ -113,16 +113,16 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({ isOpen, onClose, 
           </div>
           {/* Migrated: buttons → shadcn Button - preserved onClick, alert functionality */}
           <div className="flex items-center gap-2 w-full md:w-auto">
-            <Button onClick={() => alert("Save Draft clicked")} variant="minimal" size="sm" className="w-full md:w-auto">
+            <Button onClick={() => alert("Save Draft clicked")} variant="minimal" className="w-full md:w-auto px-4 py-2">
               <Save className="h-4 w-4" /> Save Draft
             </Button>
-            <Button variant="minimal" size="sm" className="w-full md:w-auto">
+            <Button variant="minimal" className="w-full md:w-auto px-4 py-2">
               <Eye className="h-4 w-4" /> Preview PDF
             </Button>
-            <Button variant="minimal" size="sm" className="w-full md:w-auto">
+            <Button variant="minimal" className="w-full md:w-auto px-4 py-2">
               <Send className="h-4 w-4" /> Send Quote
             </Button>
-            <Button onClick={onClose} variant="minimal" size="icon" className="absolute top-4 right-4 md:static">
+            <Button onClick={onClose} variant="minimal" className="absolute top-4 right-4 md:static p-2">
               <X className="h-4 w-4" />
             </Button>
           </div>
@@ -195,7 +195,7 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({ isOpen, onClose, 
               <div className="flex items-center gap-2">
                 <label className="text-xs text-muted-foreground">Customer View</label>
                 {/* Toggle preserved as-is - custom toggle pattern, not using Button component */}
-                <button onClick={() => setViewMode(v => v === 'installer' ? 'customer' : 'installer')} className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${viewMode === 'customer' ? 'bg-primary' : 'bg-slate-400'}`}><span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${viewMode === 'customer' ? 'translate-x-5' : 'translate-x-1'}`}/></button>
+                <button onClick={() => setViewMode(v => v === 'installer' ? 'customer' : 'installer')} className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${viewMode === 'customer' ? 'bg-primary' : 'bg-border'}`}><span className={`inline-block h-3 w-3 transform rounded-full bg-surface transition-transform ${viewMode === 'customer' ? 'translate-x-5' : 'translate-x-1'}`}/></button>
               </div>
             </div>
             {/* Totals */}

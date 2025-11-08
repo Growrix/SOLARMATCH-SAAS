@@ -199,6 +199,94 @@ npx tsc --noEmit --project .
 ❌ Test dark only → Mark complete → Light broken → Rework  
 ✅ Test dark/light/purple → All work → Mark complete → No rework
 
+### Rule #6: ALL ADMIN PAGES (NEW OR MIGRATED) FOLLOW SAME STRUCTURE (Added Nov 8, 2025)
+❌ Build admin page with inline logic/state → 600+ lines → Hard to maintain  
+✅ Simple wrapper (p-4 sm:p-6 lg:p-8) → Extract to component → 20 lines → Maintainable
+
+**APPROVED PATTERN FOR ALL ADMIN PAGES** (new or migrated):
+```tsx
+'use client';
+
+import React from 'react';
+import YourTableComponent from '@/components/admin/YourTableComponent';
+
+export default function AdminPageName() {
+  return (
+    <div className="p-4 sm:p-6 lg:p-8">
+      <YourTableComponent />
+    </div>
+  );
+}
+```
+
+**VERIFICATION**: Check page file is <30 lines, has NO useState/useEffect, imports single component, uses EXACT padding pattern `p-4 sm:p-6 lg:p-8`. Run: `Get-Content "src\app\admin\your-page\page.tsx" | Measure-Object -Line` (should be <30).
+
+### Rule #7: COMPONENT LIBRARY DEVELOPMENT REQUIRES COMPREHENSIVE AUDIT FIRST (Added Nov 8, 2025)
+❌ Build library with assumed patterns → Fake button classes → Inaccurate docs → Rework  
+✅ Audit globals.css + Button component + codebase → Create audit doc → Build library → Accurate
+
+**MANDATORY WORKFLOW FOR COMPONENT LIBRARY DEVELOPMENT**:
+```powershell
+# STEP 1: Audit globals.css (ALL 1572 lines)
+code src\app\globals.css
+# - Identify @layer components classes
+# - Document custom semantic classes (dashboard-*, toggle-*, form-*, etc.)
+
+# STEP 2: Audit component files (Button, Badge, Card, Form)
+code src\components\ui\button.tsx
+# - Document ALL variant classes with EXACT classNames
+# - Example: Button has 6 variants: primary, secondary, ghost, outline, minimal, destructive
+
+# STEP 3: Grep codebase for real usage patterns
+Select-String -Path "src\**\*.tsx" -Pattern "className.*button|className.*btn" | Select-Object -First 50
+Select-String -Path "src\**\*.tsx" -Pattern "form-input|form-select" | Measure-Object
+Select-String -Path "src\**\*.tsx" -Pattern "theme-card|detail-card" | Measure-Object
+
+# STEP 4: Create comprehensive audit document (e.g., BUTTON-AUDIT-COMPLETE.md)
+# - List EVERY real pattern with: name, exact className, real usage count, real locations
+# - NO fake patterns, NO assumed classes, NO made-up examples
+# - Document: Component variants, custom classes, raw Tailwind patterns
+
+# STEP 5: Build library ONLY from audit document
+# - Copy exact classNames from audit
+# - Use real usage count from grep
+# - Use real "Used In" locations from codebase
+# - Examples must match real component usage
+```
+
+**VERIFICATION BEFORE MARKING COMPLETE**:
+1. ✅ Every pattern exists in Button component OR globals.css OR codebase (verify with grep)
+2. ✅ No fake classNames (check each with `Select-String`)
+3. ✅ Usage counts match real grep count
+4. ✅ "Used In" locations are real file paths (not assumed)
+5. ✅ Example code matches real component usage (not mock examples)
+
+**REFERENCE**: See `BUTTON-AUDIT-COMPLETE.md` for complete audit of all 14 real button patterns (6 Button variants, 4 custom dashboard classes, 4 raw Tailwind patterns).
+
+
+### Rule #6: ALL ADMIN PAGES FOLLOW SAME STRUCTURE (NEW - Nov 8, 2025)
+❌ Build page with inline state/logic (600+ lines) → Inconsistent with other pages → Rework  
+✅ Simple wrapper + component extraction (<30 lines) → Consistent → No rework  
+
+**MANDATORY Pattern for ALL Admin Pages** (new OR migrated):
+```tsx
+'use client';
+
+import React from 'react';
+import YourTableComponent from '@/components/admin/YourTableComponent';
+
+export default function AdminPageName() {
+  return (
+    <div className="p-4 sm:p-6 lg:p-8">
+      <YourTableComponent />
+    </div>
+  );
+}
+```
+
+**Reference:** `src/app/admin/installers/page.tsx` (20 lines, gold standard)  
+**See:** DESIGN-SYSTEM-SOT.md → "📐 ADMIN DASHBOARD LAYOUT STANDARD"
+
 ### Rule #6: HONEST REPORTING (NEVER CLAIM COMPLETE WITHOUT PROOF)
 ❌ "Migration complete!" (vague) → User finds white areas → Trust broken  
 ✅ "Main: 0/0/0/0/0/0 ✅, Child1: 0/0/0/0/0/0 ✅ → Complete" (detailed) → Trust maintained

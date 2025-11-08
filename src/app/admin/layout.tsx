@@ -58,7 +58,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 			{/* Main content area */}
 			<div className="flex-1 flex flex-col">
 				{/* Header for all pages */}
-				<AdminHeader pageTitle={getPageTitle()} />
+				<AdminHeader />
 				
 				<main className="flex-1 overflow-auto">
 					{children}

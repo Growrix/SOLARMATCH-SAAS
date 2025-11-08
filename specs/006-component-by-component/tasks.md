@@ -60,29 +60,125 @@
 - [ ] 6.9: Functional verification - All navigation, collapse, badges work (15 min) - PENDING USER TESTING
 - [x] 6.10: Run 6-command verification on all sidebar files (10 min) ✅ ALL PASSED
 
-**Phase 7: Dashboard Header Centralization** 🔄 IN PROGRESS (November 6, 2025)
+**Phase 7: Dashboard Header Centralization** ✅ COMPLETE (November 6, 2025)
 - 🎯 **Goal**: Centralize dashboard header UI/UX across all 3 dashboards (Admin, Homeowner, Installer)
 - 📋 **Approach**: Extract embedded headers + create semantic CSS classes in globals.css
 - 📄 **Reference**: `DOC/DASHBOARD-HEADER-CENTRALIZATION-AUDIT.md`
 - 🔍 **SOT**: AdminHeader.tsx (h-20 structure, bg-transparent)
-- 📦 **Code Reduction**: ~117 lines removed from page files (56 + 61)
+- 📦 **Code Reduction**: 129 lines removed from page files (55 + 74)
+- ✅ **Result**: 3 headers centralized, 0 hardcoded colors, ThemeSwitcher standardized
 
 **Subtasks**:
-- [ ] 7.1: Create semantic header CSS classes in globals.css (~120 lines) (20 min)
-- [ ] 7.2: Extract HomeownerDashboardHeader to component + apply classes (25 min)
-- [ ] 7.3: Extract InstallerDashboardHeader to component + apply classes (25 min)
-- [ ] 7.4: Update AdminHeader to use semantic classes (10 min)
-- [ ] 7.5: Fix ThemeSwitcher prop inconsistencies (standardize to context-based) (15 min)
-- [ ] 7.6: Run 6-command verification on all 3 headers (Expected: 0/0/0/0/0/0) (10 min)
-- [ ] 7.7: Visual verification - All 3 themes (Dark, Light, Purple) (15 min)
-- [ ] 7.8: Functional verification - Search, theme switcher, notifications work (10 min)
+- [x] 7.1: Create semantic header CSS classes in globals.css (~120 lines) (20 min) ✅
+- [x] 7.2: Extract HomeownerDashboardHeader to component + apply classes (25 min) ✅
+- [x] 7.3: Extract InstallerDashboardHeader to component + apply classes (25 min) ✅
+- [x] 7.4: Update AdminHeader to use semantic classes (10 min) ✅
+- [x] 7.5: Fix ThemeSwitcher prop inconsistencies (standardize to context-based) (15 min) ✅
+- [x] 7.6: Run 6-command verification on all 3 headers (Expected: 0/0/0/0/0/0) (10 min) ✅ ALL PASSED
+- [ ] 7.7: Visual verification - All 3 themes (Dark, Light, Purple) (15 min) - PENDING USER TESTING
+- [ ] 7.8: Functional verification - Search, theme switcher, notifications work (10 min) - PENDING USER TESTING
+
+**Phase 8: Installer Lead Feed Migration** 🚧 IN PROGRESS (November 6, 2025)
+- 🎯 **Goal**: Migrate Installer Lead Feed page to neumorphic design system with 100% design token compliance
+- 📋 **Approach**: UI-only migration (preserve ALL functionality, state management, API calls)
+- 🔍 **Component Tree**: InstallerLeadFeed.tsx + QuoteBuilderModal.tsx (child component)
+- 📄 **Location**: `src/components/InstallerLeadFeed.tsx` (818 lines), `src/components/QuoteBuilderModal.tsx` (213 lines)
+- 📦 **Routing Note**: Rendered within `/installer/dashboard` page using state-based navigation (`activePage === 'Lead Feed'`)
+- ⚠️ **Routing Issue**: URL shows `/installer/dashboard` when on Lead Feed - this is CORRECT (SPA-style dashboard with client-side state navigation)
+
+**Subtasks**:
+- [x] 8.1: GATE 0 Health Check - Run all verification commands (10 min) ✅
+- [x] 8.2: Component Tree Mapping - Identify ALL files (InstallerLeadFeed + QuoteBuilderModal) (5 min) ✅
+- [x] 8.3: Pre-Migration Audit - Document hardcoded values, current classes, logic inventory (15 min) 🚧 IN PROGRESS
+- [ ] 8.4: Migrate InstallerLeadFeed.tsx - UI only (cards, inputs, badges, buttons) (45 min)
+- [ ] 8.5: Migrate QuoteBuilderModal.tsx - UI only (modal, form, preview) (30 min)
+- [ ] 8.6: Run 6-command verification on BOTH files (Expected: 0/0/0/0/0/0) (10 min)
+- [ ] 8.7: Visual verification - All 3 themes (Dark, Light, Purple) (15 min)
+- [ ] 8.8: Visual verification - All 5 breakpoints (320px, 375px, 768px, 1024px, 1440px) (15 min)
+- [ ] 8.9: Functional verification - Search, filters, unlock, quote submission work (20 min)
+- [ ] 8.10: TypeScript + Build validation - `npx tsc --noEmit` and `npm run build` (5 min)
+- [ ] 8.11: User approval and atomic commit (5 min)
+
+**Phase 15: Homeowner Select Quote Distribution Modal** 🎯 ACTIVE (November 6, 2025)
+- 🎯 **Goal**: Migrate Select Quote Distribution modal to neumorphic design with 100% design token compliance
+- 📋 **Approach**: UI-only migration (preserve ALL functionality - validation, count selection, submission logic)
+- 🔍 **Component Tree**: Single component - QuoteTypeDistributionModal.tsx (332 lines)
+- 📄 **Location**: `src/components/homeowner/QuoteTypeDistributionModal.tsx`
+- 📦 **Context**: Used in Homeowner Dashboard when requesting quotes
+- 📸 **Screenshot**: Available in user attachments showing modal with 3 quote type sections
+
+**Pre-Migration Audit Results** (6-Command Verification):
+```
+Command 1 (gray/slate colors):    38 matches ❌
+Command 2 (dark: prefixes):        47 matches ❌
+Command 3 (RGB/HEX):               0 matches ✅
+Command 4 (white/black):           12 matches ❌
+Command 5 (color names):           18 matches ❌ (emerald, amber)
+Command 6 (typography):            25 matches ❌
+```
+
+**Hardcoded Values Inventory**:
+- **Container**: `bg-white dark:bg-slate-800` (1 instance) → Replace with `bg-surface`
+- **Header**: `text-slate-900 dark:text-white`, `border-slate-200 dark:border-slate-700` → Semantic tokens
+- **Remaining Quota**: `bg-emerald-50 dark:bg-emerald-900/20`, `border-emerald-200 dark:border-emerald-800` → `bg-success/10 border-success`
+- **Quote Type Cards**: `.theme-card` already used (3 instances) ✅ BUT text colors need update
+- **Count Selector Buttons**: `bg-emerald-600` (active), `bg-amber-600` (bidding) → Use semantic accent colors
+- **Total Count Display**: Conditional backgrounds (red-50/red-900, blue-50/blue-900, slate-50/slate-900) → Semantic status
+- **Footer Buttons**: `bg-slate-100 dark:bg-slate-700`, `bg-emerald-600` → Neumorphic button pattern
+- **Typography**: Multiple `text-sm`, `text-lg`, `text-2xl`, `font-bold`, `font-semibold` → Keep for structure
+
+**Logic Preservation Checklist** (DO NOT MODIFY):
+- ✅ State management: `callVisitCount`, `writtenQuoteCount`, `biddingCount`
+- ✅ Validation: `totalSelected`, `isValid`, `exceedsQuota`
+- ✅ Count handlers: `handleCallVisitChange`, `handleWrittenQuoteChange`, `handleBiddingChange`
+- ✅ Submission: `handleSubmit` with distributions array
+- ✅ Props: `remainingQuota`, `userAlreadyHasBiddingLead`, etc.
+- ✅ useEffect: Reset counts on modal open
+
+**Subtasks**:
+- [x] 15.1: GATE 0 Health Check - Run all verification commands (5 min) ✅
+- [x] 15.2: Component Tree Mapping - Identify all files (2 min) ✅ (Single file)
+- [x] 15.3: Pre-Migration Audit - Document all hardcoded values (10 min) ✅
+- [ ] 15.4: Create backup at `backup/quote-distribution-modal-20251106/` (2 min)
+- [ ] 15.5: Migrate modal container & header section (15 min)
+  - Replace `bg-white dark:bg-slate-800` with `bg-surface shadow-neu-outset`
+  - Replace header text and border colors with semantic tokens
+- [ ] 15.6: Migrate Remaining Quota display section (10 min)
+  - Replace `bg-emerald-50 dark:bg-emerald-900/20` with success semantic pattern
+- [ ] 15.7: Migrate 3 Quote Type Cards (Call/Visit, Written, Bidding) (25 min)
+  - Update text colors from `text-slate-*` to `text-foreground` and `text-muted-foreground`
+  - Keep `.theme-card` class (already neumorphic) ✅
+- [ ] 15.8: Migrate Count Selector Buttons (20 min)
+  - Replace `bg-emerald-600` active state with semantic primary
+  - Replace `bg-amber-600` bidding state with warning semantic
+  - Replace inactive `bg-slate-100 dark:bg-slate-700` with neumorphic pattern
+- [ ] 15.9: Migrate Total Count Display (conditional backgrounds) (15 min)
+  - Replace red/blue/slate conditional backgrounds with semantic status tokens
+- [ ] 15.10: Migrate Footer Buttons (Cancel & Confirm) (10 min)
+  - Replace with neumorphic button pattern (inset shadow for secondary, primary for confirm)
+- [ ] 15.11: Run 6-command verification (Expected: 0/0/0/0/0/0) (5 min)
+- [ ] 15.12: Visual verification - All 3 themes (Dark, Light, Purple) (15 min)
+- [ ] 15.13: Visual verification - All 5 breakpoints (320px, 375px, 768px, 1024px, 1440px) (10 min)
+- [ ] 15.14: Functional verification - All count selection, validation, submission (15 min)
+  - Test: Count selection (0-4 for Call/Visit and Written, 0-1 for Bidding)
+  - Test: Total calculation and quota enforcement
+  - Test: Bidding one-time limit validation
+  - Test: Form submission with correct distributions array
+- [ ] 15.15: TypeScript + Build validation (5 min)
+- [ ] 15.16: User approval and atomic commit (5 min)
+  - Commit message: "feat: migrate QuoteTypeDistributionModal to neumorphic design"
+
+**Estimated Total Time**: 2 hours 30 minutes
 
 ### 📊 Current Stats
 - **Total Components Migrated**: 8 components in Phases 0-5 (100% of navigation layer)
 - **Homepage Progress**: TopBar → Header → Hero ✅ Complete
-- **Dashboard Sidebar Progress**: Phase 6 complete (6 components) ✅
-- **Current Work**: Phase 7 - Dashboard Header Centralization (3 headers)
-- **Next Up**: InstantQuote Calculator Section (homepage continues top-to-bottom)
+- **Dashboard Infrastructure**: Phase 6 (sidebars) + Phase 7 (headers) ✅ Complete
+  - Sidebars: 6 components centralized (Admin, Homeowner, Installer × desktop/mobile)
+  - Headers: 3 components centralized (Admin, Homeowner, Installer)
+- **Current Work**: Phase 15 - Homeowner Quote Distribution Modal 🎯 ACTIVE
+- **Paused**: Phase 8 - Installer Lead Feed Migration
+- **Next Up**: Complete Phase 15, then continue Phase 8
 
 ### 🎨 Design System Standards Established
 - **Button Component**: Used in all 8 migrated components

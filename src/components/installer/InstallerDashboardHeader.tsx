@@ -5,16 +5,16 @@ import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { Search as SearchIcon, HelpCircle as HelpCircleIcon, Bell as BellIcon } from "lucide-react";
 
 interface InstallerDashboardHeaderProps {
-  pageTitle: string;
+  // No pageTitle prop
 }
 
-export const InstallerDashboardHeader: React.FC<InstallerDashboardHeaderProps> = ({ pageTitle }) => {
+export const InstallerDashboardHeader: React.FC<InstallerDashboardHeaderProps> = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   return (
     <header className="dashboard-header">
       <div className="dashboard-header__left">
-        <h1 className="dashboard-header__title">{pageTitle}</h1>
+        {/* No page title shown */}
       </div>
       <div className="dashboard-header__right">
         {/* Search Input */}
