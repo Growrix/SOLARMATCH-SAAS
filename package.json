@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "seed:admin": "npx tsx prisma/seed-admin.ts",
+    "seed:complete": "npx tsx prisma/seed-complete.ts",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "chromatic": "chromatic --exit-zero-on-changes",
