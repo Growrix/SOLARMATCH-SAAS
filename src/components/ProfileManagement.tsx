@@ -247,8 +247,7 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
                 <Button
                   onClick={() => fileInputRef.current?.click()} 
                   disabled={isSaving} 
-                  variant="default"
-                  size="sm"
+                  variant="secondary"
                 >
                   Upload New
                 </Button>
@@ -257,7 +256,6 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
                     onClick={handleRemoveImage} 
                     disabled={isSaving} 
                     variant="destructive"
-                    size="sm"
                   >
                     Remove
                   </Button>
@@ -279,7 +277,7 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
           {!isEditing && (
             <Button
               onClick={() => setIsEditing(true)} 
-              variant="default"
+              variant="secondary"
             >
               Edit Profile
             </Button>

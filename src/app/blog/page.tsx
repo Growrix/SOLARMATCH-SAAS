@@ -4,13 +4,14 @@ import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Footer from '@/components/Footer';
+import Button from '@/components/ui/button';
 import type { Post } from '@/types/blog';
 import { allArticles, categories } from '@/data/blogData';
 
 // --- Icon Components ---
-const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-slate-400"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>;
-const CalendarIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>;
-const UserIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
+const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-muted-foreground"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>;
+const CalendarIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-muted-foreground"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>;
+const UserIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-muted-foreground"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
 const ArrowRightIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><line x1="5" x2="19" y1="12" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>;
 
 const ARTICLES_PER_PAGE = 6;
@@ -35,17 +36,17 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, onNavigateToPost }) 
     <div className="p-6 flex flex-col flex-grow">
       <div className="flex items-center justify-between mb-3">
         <span className="text-xs font-semibold text-primary bg-primary/10 px-3 py-1 rounded-full">{article.category}</span>
-        <span className="text-xs text-slate-500 dark:text-slate-500">{article.readTime}</span>
+        <span className="text-xs text-muted-foreground">{article.readTime}</span>
       </div>
-      <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-3 leading-snug group-hover:text-primary transition-colors flex-grow">
+      <h3 className="text-lg font-bold text-foreground mb-3 leading-snug group-hover:text-primary transition-colors flex-grow">
         {article.title}
       </h3>
-      <p className="text-slate-600 dark:text-slate-400 mb-4 leading-relaxed text-sm">{article.excerpt}</p>
-      <div className="flex items-center justify-between text-sm text-slate-500 dark:text-slate-500 mt-auto pt-4 border-t border-gray-200 dark:border-slate-800">
+      <p className="text-muted-foreground mb-4 leading-relaxed text-sm">{article.excerpt}</p>
+      <div className="flex items-center justify-between text-sm text-muted-foreground mt-auto pt-4 border-t border-border">
         <div className="flex items-center space-x-2"><UserIcon /><span>{article.author}</span></div>
         <div className="flex items-center space-x-2"><CalendarIcon /><span>{article.date}</span></div>
       </div>
-      <div className="text-primary group-hover:text-teal-700 dark:group-hover:text-teal-400 transition-colors inline-flex items-center space-x-2 font-semibold mt-4">
+      <div className="text-primary group-hover:text-primary/80 transition-colors inline-flex items-center space-x-2 font-semibold mt-4">
         <span>Read Article</span><ArrowRightIcon />
       </div>
     </div>
@@ -83,10 +84,10 @@ export default function BlogPage() {
     <div className="min-h-screen flex flex-col blog-page-bg animate-fade-in">
       <main className="flex-grow pb-24 md:pb-0">
         {/* Hero Section */}
-        <section className="py-16 sm:py-24 bg-gray-100/50 dark:bg-black/50">
+        <section className="py-16 sm:py-24 bg-surface/30">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center animate-fade-in-up">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-slate-900 dark:text-white mb-4 tracking-tight">The SolarMatch Blog</h1>
-            <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">Your definitive guide to solar energy, rebates, and technology in Australia.</p>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground mb-4 tracking-tight">The SolarMatch Blog</h1>
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto">Your definitive guide to solar energy, rebates, and technology in Australia.</p>
           </div>
         </section>
         
@@ -103,19 +104,20 @@ export default function BlogPage() {
               </div>
             ) : (
               <div className="text-center py-16">
-                <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-200">No Articles Found</h3>
-                <p className="mt-2 text-slate-500 dark:text-slate-400">Try adjusting your search or filter.</p>
+                <h3 className="text-2xl font-bold text-foreground">No Articles Found</h3>
+                <p className="mt-2 text-muted-foreground">Try adjusting your search or filter.</p>
               </div>
             )}
 
             {visibleCount < filteredArticles.length && (
               <div className="text-center mt-16">
-                <button 
+                <Button 
                   onClick={() => setVisibleCount(c => c + ARTICLES_PER_PAGE)} 
-                  className="bg-primary text-white px-8 py-3 rounded-xl text-lg font-semibold hover:bg-primary/90 transition-all transform hover:scale-105 shadow-lg"
+                  variant="primary"
+                  className="px-8 py-3 text-lg"
                 >
                   Load More Articles
-                </button>
+                </Button>
               </div>
             )}
           </div>

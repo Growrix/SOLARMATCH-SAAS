@@ -1,3 +1,13 @@
+/* Dark theme: theme-card uses elevated background and shows shadow on hover and active */
+:root.theme-dark .theme-card {
+  background: #121212;
+  box-shadow: var(--shadow-outset-md);
+}
+:root.theme-dark .theme-card:hover,
+:root.theme-dark .theme-card:active {
+  box-shadow: var(--shadow-outset-lg);
+  transform: translateY(-2px);
+}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -478,6 +488,64 @@ body {
   box-shadow: var(--shadow-outset-md);
 }
 
+/* --- TACTILE DESIGN --- */
+/* Tactile class: subtle raised appearance with depth perception */
+.tactile {
+  @apply bg-surface rounded-lg border border-border transition-all duration-300;
+  box-shadow: var(--shadow-outset-sm);
+}
+
+.tactile:hover {
+  box-shadow: var(--shadow-outset-md);
+  transform: translateY(-1px);
+}
+
+.tactile:active {
+  box-shadow: var(--shadow-inset-sm);
+  transform: translateY(0);
+}
+
+/* --- NEUMORPHIC TABLE --- */
+/* Reusable table pattern from admin/leads - complete neumorphic data table styling */
+.neu-table-container {
+  @apply bg-surface rounded-2xl overflow-hidden;
+  box-shadow: var(--shadow-outset-md);
+}
+
+.neu-table {
+  @apply w-full;
+}
+
+.neu-table thead {
+  @apply bg-surface;
+  box-shadow: var(--shadow-inset-md);
+}
+
+.neu-table thead th {
+  @apply px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider;
+}
+
+.neu-table tbody {
+  @apply divide-y divide-border;
+}
+
+.neu-table tbody tr {
+  @apply hover:bg-surface-hover cursor-pointer transition-colors;
+}
+
+.neu-table tbody td {
+  @apply px-6 py-4 whitespace-nowrap;
+}
+
+/* Table cell text variants */
+.neu-table-cell-primary {
+  @apply text-sm font-medium text-foreground;
+}
+
+.neu-table-cell-secondary {
+  @apply text-sm text-muted-foreground;
+}
+
 /* --- INPUTS --- */
 
 .neu-input {
@@ -570,7 +638,15 @@ body {
 @layer components {
   /* Unified theme card (legacy support) */
   .theme-card {
-    background: rgb(var(--color-surface));
+  background: rgb(var(--color-surface));
+}
+
+:root.theme-light .theme-card {
+  background: #e0e5ec;
+}
+
+:root.theme-purple .theme-card {
+  background: #2c1d4d;
     border-radius: var(--radius-xl);
     border: 1px solid rgb(var(--color-border) / 0.5);
     box-shadow: var(--shadow-outset-md);

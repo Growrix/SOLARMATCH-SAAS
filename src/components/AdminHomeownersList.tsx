@@ -464,7 +464,7 @@ export default function AdminHomeownersList() {
                               min="1"
                               value={editValue}
                               onChange={(e) => setEditValue(Number(e.target.value))}
-                              className="w-16 px-2 py-1 text-sm border border-blue-500 rounded focus:ring-2 focus:ring-blue-500 bg-surface border-info"
+                              className="w-16 px-2 py-1 text-sm border border-info rounded focus:ring-2 focus:ring-info bg-surface"
                               disabled={updating}
                             />
                           ) : (

@@ -1798,7 +1798,7 @@ you have to create a comprehensive audit report of all the classes used in the s
 
 
 ***migration & Redesign in neumorphic***
-lets migrate the Select Quote Distribution modal of the homeowners dashboard 
+lets migrate the Blog page and blog post page  
 
 ***Instructions for migration***
 You must follow the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\tasks.md file for all the migration instructions. you must perform the Pre Audit before the task implimentation. Understand each and every classes , Hardcodings, Styles used in the componenet. The Audit Goal is to keep everything in your memeory so that the migration task can be performed completely, not partially. After the Audit. before migration started you must read this D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\MIGRATION-PAIN-POINTS.md  file to learn from previous migration issues. so that you do not repeate the same mistakes. and after that read this D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\DESIGN-SYSTEM-SOT.md file to understand the design system better. for better clarification and referrence read this file too D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\MIGRATION-QUICK-REFERENCE.md

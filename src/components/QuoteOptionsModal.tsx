@@ -169,7 +169,6 @@ const QuoteOptionsModal: React.FC<QuoteOptionsModalProps> = ({
   <Button
           onClick={onClose}
           variant="ghost"
-          size="icon"
           className="absolute top-4 right-4"
         >
           <X className="h-4 w-4" />

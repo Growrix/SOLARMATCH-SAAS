@@ -42,16 +42,16 @@ const Footer: React.FC<FooterProps> = ({ onBecomePartnerClick, onPartnerSignInCl
               Get quotes, calculate rebates, and go solar with confidence.
             </p>
             <div className="flex gap-3">
-              <a href="#" className="bg-background shadow-neu-inset hover:shadow-neu-inset-lg p-3 rounded-xl transition-all duration-300 group" aria-label="Facebook">
+              <a href="#" className="tactile p-4" aria-label="Facebook">
                 <Facebook />
               </a>
-              <a href="#" className="bg-background shadow-neu-inset hover:shadow-neu-inset-lg p-3 rounded-xl transition-all duration-300 group" aria-label="Twitter">
+              <a href="#" className="tactile p-4" aria-label="Twitter">
                 <Twitter />
               </a>
-              <a href="#" className="bg-background shadow-neu-inset hover:shadow-neu-inset-lg p-3 rounded-xl transition-all duration-300 group" aria-label="Instagram">
+              <a href="#" className="tactile p-4" aria-label="Instagram">
                 <Instagram />
               </a>
-              <a href="#" className="bg-background shadow-neu-inset hover:shadow-neu-inset-lg p-3 rounded-xl transition-all duration-300 group" aria-label="LinkedIn">
+              <a href="#" className="tactile p-4" aria-label="LinkedIn">
                 <Linkedin />
               </a>
             </div>
@@ -144,16 +144,16 @@ const Footer: React.FC<FooterProps> = ({ onBecomePartnerClick, onPartnerSignInCl
                 <span className="text-body text-muted-foreground">Level 10, 123 Collins Street<br />Melbourne VIC 3000</span>
               </div>
             </div>
-            <div className="bg-surface shadow-neu-inset rounded-xl p-4">
+            <div className="tactile p-4">
               <p className="text-body-small font-semibold text-foreground mb-2">Operating Hours:</p>
               <p className="text-body-small text-muted-foreground">Mon - Fri: 8:00 AM - 6:00 PM AEST<br />Sat: 9:00 AM - 4:00 PM AEST</p>
             </div>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-border mt-16 pt-8">
-          <div className="bg-surface shadow-neu-inset rounded-2xl p-6">
+  {/* Bottom Bar */}
+  <div className="mt-16 pt-8">
+          <div className="tactile p-4 rounded-2xl">
             <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
               <div className="flex flex-wrap justify-center lg:justify-start gap-x-6 gap-y-3">
                 <a href="#" className="text-body-small text-muted-foreground hover:text-primary transition-colors">About Us</a>

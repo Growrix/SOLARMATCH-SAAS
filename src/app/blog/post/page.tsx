@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Footer from '@/components/Footer';
+import Button from '@/components/ui/button';
 import HomeownerSignInModal from '@/components/HomeownerSignInModal';
 import HomeownerSignupModal from '@/components/HomeownerSignupModal';
 import type { Post } from '@/types/blog';
@@ -18,9 +19,9 @@ interface Comment {
 
 // Icon Components
 const ArrowLeftIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 mr-2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>;
-const CalendarIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>;
-const UserIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
-const ClockIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
+const CalendarIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-muted-foreground"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>;
+const UserIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-muted-foreground"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
+const ClockIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-muted-foreground"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
 const TwitterIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>;
 const FacebookIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>;
 const LinkedinIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>;
@@ -197,7 +198,7 @@ export default function BlogPostPage() {
             {/* Back Button */}
             <button 
               onClick={handleBackToBlog} 
-              className="inline-flex items-center text-primary hover:text-teal-700 dark:hover:text-teal-400 font-semibold text-sm mb-8"
+              className="inline-flex items-center text-primary hover:text-primary/80 font-semibold text-sm mb-8"
             >
               <ArrowLeftIcon />
               Back to All Articles
@@ -207,10 +208,10 @@ export default function BlogPostPage() {
             <span className="text-sm font-semibold text-primary bg-primary/10 px-3 py-1 rounded-full mb-4 inline-block">{post.category}</span>
             
             {/* Title */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-6 tracking-tight">{post.title}</h1>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6 tracking-tight">{post.title}</h1>
             
             {/* Meta */}
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-slate-500 dark:text-slate-400 mb-8 border-y border-gray-200 dark:border-slate-700 py-4">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-muted-foreground mb-8 border-y border-border py-4">
               <div className="flex items-center space-x-2"><UserIcon /><span>By {post.author}</span></div>
               <div className="flex items-center space-x-2"><CalendarIcon /><span>{post.date}</span></div>
               <div className="flex items-center space-x-2"><ClockIcon /><span>{post.readTime}</span></div>
@@ -218,35 +219,35 @@ export default function BlogPostPage() {
             
             {/* Body */}
             <div className="prose prose-lg dark:prose-invert max-w-none space-y-6">
-              <p className="text-xl font-light text-slate-600 dark:text-slate-300">{post.excerpt}</p>
+              <p className="text-xl font-light text-muted-foreground">{post.excerpt}</p>
               
-              <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
+              <p className="text-foreground leading-relaxed">
                 As Australia continues its transition towards a renewable energy future, staying updated on government incentives is crucial for homeowners considering a solar investment. The landscape of rebates and tariffs is constantly evolving, with significant changes implemented at the start of 2024. This guide will walk you through the key updates to ensure you can maximize your savings.
               </p>
               
-              <blockquote className="border-l-4 border-primary pl-4 my-6 italic text-slate-700 dark:text-slate-300">
+              <blockquote className="border-l-4 border-primary pl-4 my-6 italic text-foreground">
                 &ldquo;The most significant change is the adjustment to the Small-scale Technology Certificate (STC) calculation, which directly impacts the upfront discount on your system.&rdquo;
               </blockquote>
               
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mt-8 mb-4">Understanding the STC Deeming Period Reduction</h2>
-              <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
+              <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">Understanding the STC Deeming Period Reduction</h2>
+              <p className="text-foreground leading-relaxed">
                 Small-scale Technology Certificates (STCs) are a federal government incentive that reduces the initial cost of installing a solar system. The number of STCs you receive is based on your system&apos;s size, your location, and the &quot;deeming period&quot; – the number of years until the scheme ends in 2030.
               </p>
               
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mt-8 mb-4">State-Based Rebates and Loans</h2>
-              <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
+              <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">State-Based Rebates and Loans</h2>
+              <p className="text-foreground leading-relaxed">
                 While the federal STC scheme is national, several states and territories continue to offer their own incentives. It&apos;s vital to check the specific eligibility criteria for your state, as they often include income thresholds, property valuations, and requirements to use accredited installers.
               </p>
             </div>
 
             {/* Share Section */}
-            <div className="mt-12 pt-8 border-t border-gray-200 dark:border-slate-700">
-              <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-4 text-center">Share this article</h3>
+            <div className="mt-12 pt-8 border-t border-border">
+              <h3 className="text-lg font-semibold text-foreground mb-4 text-center">Share this article</h3>
               <div className="flex items-center justify-center space-x-2">
-                <button className="h-10 w-10 flex items-center justify-center rounded-full border border-gray-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"><TwitterIcon /></button>
-                <button className="h-10 w-10 flex items-center justify-center rounded-full border border-gray-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"><FacebookIcon /></button>
-                <button className="h-10 w-10 flex items-center justify-center rounded-full border border-gray-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"><LinkedinIcon /></button>
-                <button className="h-10 w-10 flex items-center justify-center rounded-full border border-gray-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"><LinkIcon /></button>
+                <button className="h-10 w-10 flex items-center justify-center rounded-full border border-border text-muted-foreground hover:bg-surface hover:text-foreground transition-colors"><TwitterIcon /></button>
+                <button className="h-10 w-10 flex items-center justify-center rounded-full border border-border text-muted-foreground hover:bg-surface hover:text-foreground transition-colors"><FacebookIcon /></button>
+                <button className="h-10 w-10 flex items-center justify-center rounded-full border border-border text-muted-foreground hover:bg-surface hover:text-foreground transition-colors"><LinkedinIcon /></button>
+                <button className="h-10 w-10 flex items-center justify-center rounded-full border border-border text-muted-foreground hover:bg-surface hover:text-foreground transition-colors"><LinkIcon /></button>
               </div>
             </div>
 
@@ -254,9 +255,9 @@ export default function BlogPostPage() {
             <div className="theme-card mt-12 p-6 flex flex-col sm:flex-row items-center gap-6">
               <Image src="https://i.pravatar.cc/150?img=3" alt={post.author} width={80} height={80} className="rounded-full flex-shrink-0" />
               <div className="text-center sm:text-left">
-                <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Written by</p>
-                <h4 className="text-xl font-bold text-slate-900 dark:text-white mt-1">{post.author}</h4>
-                <p className="text-slate-600 dark:text-slate-400 mt-2">
+                <p className="text-sm font-semibold text-muted-foreground">Written by</p>
+                <h4 className="text-xl font-bold text-foreground mt-1">{post.author}</h4>
+                <p className="text-muted-foreground mt-2">
                   {post.author} is a senior energy analyst at SolarMatch, with over a decade of experience in renewable energy policy and consumer advocacy.
                 </p>
               </div>
@@ -264,7 +265,7 @@ export default function BlogPostPage() {
 
             {/* Comments Section */}
             <div className="mt-16 comments-section">
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Comments ({comments.length})</h2>
+              <h2 className="text-2xl font-bold text-foreground mb-6">Comments ({comments.length})</h2>
               
               {/* Comment Form */}
               <div className="theme-card p-6 mb-8">
@@ -273,17 +274,17 @@ export default function BlogPostPage() {
                   onChange={(e) => setNewComment(e.target.value)}
                   placeholder="Write your comment..."
                   rows={4}
-                  className="w-full bg-white dark:bg-slate-800 p-3 rounded-lg border border-border dark:border-slate-700 focus:ring-primary focus:border-primary transition"
+                  className="form-input w-full rounded-xl bg-surface text-foreground shadow-neu-inset border border-border px-4 py-3 placeholder:text-muted-foreground"
                   aria-label="Write a comment"
                 ></textarea>
                 <div className="flex justify-end mt-3">
-                  <button 
+                  <Button 
                     onClick={handlePostComment}
-                    type="button"
-                    className="bg-primary text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-primary/90 transition-all text-sm shadow-md hover:shadow-lg"
+                    variant="primary"
+                    className="px-6 py-2.5 text-sm"
                   >
                     Post Comment
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -294,10 +295,10 @@ export default function BlogPostPage() {
                     <Image src={comment.avatar} alt={comment.author} width={40} height={40} className="rounded-full flex-shrink-0 mt-1" />
                     <div>
                       <div className="flex items-center gap-3">
-                        <h5 className="font-bold text-slate-900 dark:text-white">{comment.author}</h5>
-                        <span className="text-xs text-slate-500 dark:text-slate-400">{comment.date}</span>
+                        <h5 className="font-bold text-foreground">{comment.author}</h5>
+                        <span className="text-xs text-muted-foreground">{comment.date}</span>
                       </div>
-                      <p className="text-slate-600 dark:text-slate-400 mt-1">{comment.text}</p>
+                      <p className="text-muted-foreground mt-1">{comment.text}</p>
                     </div>
                   </div>
                 ))}

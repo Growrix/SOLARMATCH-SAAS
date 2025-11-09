@@ -344,9 +344,6 @@ export default function Home() {
           onClose={() => setIsHomeownerSignupModalOpen(false)}
           onSuccess={handleHomeownerSignupSuccess}
           onSwitchToSignIn={() => setIsHomeownerSignupModalOpen(false)}
-          context="quote"
-          quoteData={pendingQuoteData}
-          quoteType={selectedQuoteType || undefined}
         />
       )}
 

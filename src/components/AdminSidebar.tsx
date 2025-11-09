@@ -80,11 +80,11 @@ const FileTextIcon = () => (
     <polyline points="10 9 9 9 8 9" />
   </svg>
 );
-const PaintbrushIcon = () => (
+const LayersIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
-    <path d="M17 3a2.85 2.85 0 0 0-4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-    <path d="m15 5 4 4" />
-    <path d="M22 11.5c0 2-1.5 3.5-3.5 3.5S15 13.5 15 11.5 16.5 8 18.5 8s3.5 1.5 3.5 3.5z" />
+    <polygon points="12 2 2 7 12 12 22 7 12 2" />
+    <polyline points="2 17 12 22 22 17" />
+    <polyline points="2 12 12 17 22 12" />
   </svg>
 );
 const SettingsIcon = () => (
@@ -134,15 +134,7 @@ const AdminSidebar: React.FC<{ activePage?: string }> = ({ activePage = 'Dashboa
           <SunIcon />
           {!isCollapsed && <span className="dashboard-sidebar-logo-text">SolarMatch</span>}
         </button>
-        {isCollapsed ? (
-          <button
-            onClick={() => setIsCollapsed(false)}
-            className="dashboard-collapse-btn--floating dashboard-collapse-btn--floating-left"
-            title="Expand sidebar"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
-          </button>
-        ) : (
+        {!isCollapsed && (
           <button
             onClick={() => setIsCollapsed(true)}
             className="absolute top-1/2 -translate-y-1/2 right-2 dashboard-collapse-btn"
@@ -151,11 +143,21 @@ const AdminSidebar: React.FC<{ activePage?: string }> = ({ activePage = 'Dashboa
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
           </button>
         )}
+        {isCollapsed && (
+          <button
+            onClick={() => setIsCollapsed(false)}
+            className="dashboard-uncollapse-btn absolute top-1/2 -translate-y-1/2 right-2"
+            title="Expand sidebar"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+          </button>
+        )}
       </div>
       <p className={`dashboard-sidebar-section-label ${isCollapsed ? 'dashboard-sidebar-section-label--hidden' : ''}`}>Admin Panel</p>
       <nav className={`dashboard-sidebar-nav ${isCollapsed ? 'dashboard-sidebar-nav--collapsed' : 'dashboard-sidebar-nav--expanded'}`}>
         <NavItem icon={<LayoutDashboardIcon />} title="Dashboard" isActive={activePage === 'Dashboard'} onClick={() => { window.location.href = '/admin/dashboard'; }} isCollapsed={isCollapsed} />
         <NavItem icon={<ClipboardListIcon />} title="Leads" isActive={activePage === 'Leads'} onClick={() => { window.location.href = '/admin/leads'; }} isCollapsed={isCollapsed} />
+        <NavItem icon={<LayersIcon />} title="Components" isActive={activePage === 'Components'} onClick={() => { window.location.href = '/admin/components'; }} isCollapsed={isCollapsed} />
         <NavItem icon={<MailIcon />} title="Newsletter" isActive={activePage === 'Newsletter'} onClick={() => { window.location.href = '/admin/newsletter'; }} isCollapsed={isCollapsed} />
         <NavItem icon={<CalculatorIcon />} title="Instant Quotes" isActive={activePage === 'Instant Quotes'} onClick={() => { window.location.href = '/admin/instant-quotes'; }} isCollapsed={isCollapsed} />
         <NavItem icon={<HomeIcon />} title="Homeowners" isActive={activePage === 'Homeowners'} onClick={() => { window.location.href = '/admin/homeowners'; }} isCollapsed={isCollapsed} />

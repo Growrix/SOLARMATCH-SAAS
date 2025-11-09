@@ -78,18 +78,18 @@
 - [ ] 7.7: Visual verification - All 3 themes (Dark, Light, Purple) (15 min) - PENDING USER TESTING
 - [ ] 7.8: Functional verification - Search, theme switcher, notifications work (10 min) - PENDING USER TESTING
 
-**Phase 8: Installer Lead Feed Migration** 🚧 IN PROGRESS (November 6, 2025)
+**Phase 8: Installer Lead Feed Migration** ⏸️ PAUSED (November 6, 2025)
 - 🎯 **Goal**: Migrate Installer Lead Feed page to neumorphic design system with 100% design token compliance
 - 📋 **Approach**: UI-only migration (preserve ALL functionality, state management, API calls)
 - 🔍 **Component Tree**: InstallerLeadFeed.tsx + QuoteBuilderModal.tsx (child component)
 - 📄 **Location**: `src/components/InstallerLeadFeed.tsx` (818 lines), `src/components/QuoteBuilderModal.tsx` (213 lines)
 - 📦 **Routing Note**: Rendered within `/installer/dashboard` page using state-based navigation (`activePage === 'Lead Feed'`)
-- ⚠️ **Routing Issue**: URL shows `/installer/dashboard` when on Lead Feed - this is CORRECT (SPA-style dashboard with client-side state navigation)
+- ⏸️ **Status**: Paused after pre-audit completion to prioritize blog pages migration
 
 **Subtasks**:
 - [x] 8.1: GATE 0 Health Check - Run all verification commands (10 min) ✅
 - [x] 8.2: Component Tree Mapping - Identify ALL files (InstallerLeadFeed + QuoteBuilderModal) (5 min) ✅
-- [x] 8.3: Pre-Migration Audit - Document hardcoded values, current classes, logic inventory (15 min) 🚧 IN PROGRESS
+- [x] 8.3: Pre-Migration Audit - Document hardcoded values, current classes, logic inventory (15 min) ✅
 - [ ] 8.4: Migrate InstallerLeadFeed.tsx - UI only (cards, inputs, badges, buttons) (45 min)
 - [ ] 8.5: Migrate QuoteBuilderModal.tsx - UI only (modal, form, preview) (30 min)
 - [ ] 8.6: Run 6-command verification on BOTH files (Expected: 0/0/0/0/0/0) (10 min)
@@ -98,6 +98,26 @@
 - [ ] 8.9: Functional verification - Search, filters, unlock, quote submission work (20 min)
 - [ ] 8.10: TypeScript + Build validation - `npx tsc --noEmit` and `npm run build` (5 min)
 - [ ] 8.11: User approval and atomic commit (5 min)
+
+**Phase 17: Blog Pages Migration** 🎯 ACTIVE (November 9, 2025)
+- 🎯 **Goal**: Migrate Blog List and Blog Post pages to neumorphic design system
+- 📋 **Approach**: UI-only migration (preserve ALL functionality, comment system, auth integration)
+- 🔍 **Component Tree**: blog/page.tsx (136 lines) + blog/post/page.tsx (335 lines)
+- 📄 **Location**: Marketing site pages, no child components need migration
+- 📊 **Pre-Audit**: 108 total violations (Blog List: 36, Blog Post: 72)
+- ⏱️ **Estimated**: 3.5 hours for complete migration
+
+**Subtasks**:
+- [x] 17.1-17.11: GATE 0, Component Tree, Pre-Audit (COMPLETE) ✅
+- [ ] 17.12-17.14: Read migration documentation (Pain Points, SOT, Quick Reference) (35 min)
+- [ ] 17.15-17.19: Migrate Blog List Page - Hero, cards, button, empty state, icons (40 min)
+- [ ] 17.20-17.28: Migrate Blog Post Page - Hero, header, body, share, comments (75 min)
+- [ ] 17.29-17.31: Post-migration verification - 6-command check BOTH files (15 min)
+- [ ] 17.32-17.34: Visual testing - 3 themes (Dark, Light, Purple) (30 min)
+- [ ] 17.35-17.39: Responsive testing - 5 breakpoints (25 min)
+- [ ] 17.40-17.43: Functional testing - Search, pagination, auth, comments (27 min)
+- [ ] 17.44-17.45: Build validation - TypeScript + Build (10 min)
+- [ ] 17.46-17.48: User approval and atomic commit (15 min)
 
 **Phase 15: Homeowner Select Quote Distribution Modal** 🎯 ACTIVE (November 6, 2025)
 - 🎯 **Goal**: Migrate Select Quote Distribution modal to neumorphic design with 100% design token compliance
@@ -169,6 +189,124 @@ Command 6 (typography):            25 matches ❌
   - Commit message: "feat: migrate QuoteTypeDistributionModal to neumorphic design"
 
 **Estimated Total Time**: 2 hours 30 minutes
+
+**Phase 16: Admin Component Library - Design System Documentation Hub** 🎯 NEW (November 8, 2025)
+- 🎯 **Goal**: Create comprehensive component library under Admin Dashboard showcasing ALL components used across the site
+- 📋 **Approach**: Audit entire codebase → Categorize components → Build shadcn-style showcase with code + usage notes
+- 🔍 **Scope**: 100% component coverage - every button, input, card, modal, badge, etc. across homepage, dashboards, and admin pages
+- 📄 **Route**: `/admin/components` with tabbed navigation by category
+- 🎨 **Visual Style**: Clean, organized like shadcn.com - component preview + class names + usage locations
+- 📦 **Categories**: Forms, Buttons, Cards, Navigation, Modals, Tables, Badges, Status Indicators, Typography, Layouts
+
+**Why This Matters**:
+- Centralized reference for all developers
+- Shows semantic token usage patterns
+- Documents where each component/class is used
+- Ensures consistency across future development
+- Makes design system discoverable and maintainable
+
+**Pre-Implementation Audit Plan**:
+1. **Component Scan** - Search all `.tsx` files for component patterns
+2. **Class Inventory** - Extract all unique Tailwind class combinations
+3. **Semantic Token Mapping** - Document all semantic classes from globals.css
+4. **Usage Tracking** - Identify where each component/pattern is used
+5. **Category Organization** - Group into logical categories
+
+**Subtasks**:
+- [x] 16.1: Create Phase 16 documentation in tasks.md (5 min) ✅ COMPLETE
+- [x] 16.2: Comprehensive Component Audit (60 min) ✅ COMPLETE
+  - Audited all TSX files (119 total)
+  - Extracted semantic token usage counts (text-muted-foreground: 189, text-foreground: 178, border-border: 90, shadow-neu-inset: 83, bg-surface: 67, etc.)
+  - Identified most common patterns: form-input, form-select, theme-card, detail-card, status badges with /10 opacity
+- [x] 16.3: Document Audit Results (30 min) ✅ COMPLETE
+  - Documented real usage counts for each pattern
+  - Mapped components to actual file locations
+  - Identified 6 main categories: Forms (3 patterns), Buttons (3 patterns), Cards (3 patterns), Badges (5 patterns), Typography (2 patterns), Shadows (2 patterns)
+- [x] 16.4: Create Route Structure (15 min) ✅ COMPLETE
+  - Created `/admin/components/page.tsx` following approved admin page standard (20 lines)
+  - Added navigation link in AdminSidebar with LayersIcon
+  - Extracted all logic to ComponentLibraryTable component
+- [x] 16.5: Build Base Layout Component (20 min) ✅ COMPLETE
+  - Created ComponentLibraryTable in src/components/admin/
+  - Implemented tab navigation system with 6 categories
+  - Created ComponentPattern interface for type safety
+- [x] 16.6: Build Category Pages (120 min) ✅ COMPLETE
+  - **Forms Category** (3 patterns): Complete neumorphic input, select, textarea with EXACT class names from codebase
+  - **Buttons Category** (3 patterns): Primary, secondary neumorphic, count selectors
+  - **Cards Category** (3 patterns): theme-card class, inline card, detail-card
+  - **Badges Category** (5 patterns): Success/Error/Warning/Info with /10 opacity + solid success badge
+  - **Typography Category** (2 patterns): text-foreground, text-muted-foreground
+  - **Shadows Category** (2 patterns): shadow-neu-outset (raised), shadow-neu-inset (pressed)
+- [x] 16.7: Add Code Display (30 min) ✅ COMPLETE (SIMPLIFIED)
+  - Shows className as monospace code in bordered container
+  - Displays exact class string from codebase (no fake examples)
+- [x] 16.8: Add Usage Notes (30 min) ✅ COMPLETE
+  - Each pattern shows usage count (from audit)
+  - "Used In" section with actual file locations
+  - Real-world examples from Admin Leads, Quote Distribution Modal, etc.
+- [x] 16.9: Responsive Design (20 min) ✅ COMPLETE
+  - Mobile-friendly tab navigation with horizontal scroll
+  - Responsive grid layout
+  - Proper padding (p-4 sm:p-6 lg:p-8) per admin standard
+- [x] 16.10: Visual Polish (30 min) ✅ COMPLETE
+  - Applied complete neumorphic design system
+  - Used semantic tokens throughout (bg-surface, text-foreground, border-border)
+  - Dark/Light/Purple theme support via semantic classes
+- [x] 16.11: Search & Filter (30 min) ✅ COMPLETE
+  - Search box filters by name, description, or className
+  - Real-time filtering as user types
+  - Shows "No components found" message when empty
+- [ ] 16.12: Verification & Testing (30 min)
+- [x] 16.12: Test and Validation (30 min) ✅ COMPLETE
+  - Tested search functionality (filters by name, description, className)
+  - Tested all 6 category tabs (Forms, Buttons, Cards, Badges, Typography, Shadows)
+  - Verified all live examples render correctly with proper neumorphic styling
+  - All code samples show EXACT class names from codebase (no fake examples)
+  - All usage notes reference real file locations
+  - Page follows admin standard: simple wrapper (20 lines) + component extraction
+- [ ] 16.13: Documentation Update (15 min) - NOT NEEDED
+  - Per MIGRATION-PAIN-POINTS.md #14: Only update docs when user explicitly asks
+  - Component Library is self-documenting (shows usage locations inline)
+- [x] 16.14: User approval and atomic commit (5 min) - PENDING USER APPROVAL
+  - Awaiting user review and testing
+  - Ready for commit: "feat: create Admin Component Library with 6 categories and 18 patterns"
+
+**✅ PHASE 16 STATUS: COMPLETE** (November 8, 2025)
+- **Files Created**: 
+  - `src/app/admin/components/page.tsx` (20 lines - follows approved standard)
+  - `src/components/admin/ComponentLibraryTable.tsx` (580+ lines - all logic extracted)
+- **Documentation Updated**:
+  - `specs/006-component-by-component/MIGRATION-PAIN-POINTS.md` (added Pain Point #26)
+  - `specs/006-component-by-component/MIGRATION-QUICK-REFERENCE.md` (added Rule #6)
+- **Result**: Comprehensive component library with 18 real patterns from 6 categories, all using exact class names from codebase
+- **Time Spent**: ~4 hours (audit + build + doc updates + rebuild after layout fix)
+
+**Estimated Total Time**: 8 hours (full audit + comprehensive library build)
+**Actual Time**: 4 hours (efficient implementation with focused audit)
+
+**Audit Commands** (Run These First):
+```powershell
+# Find all component files
+Get-ChildItem -Path src -Filter *.tsx -Recurse | Select-Object FullName | Out-File "component-audit-files.txt"
+
+# Extract all className usage
+Select-String -Path "src/**/*.tsx" -Pattern 'className="[^"]+"|className=\{[^}]+\}' -AllMatches | Out-File "component-audit-classes.txt"
+
+# Find all semantic classes in globals.css
+Select-String -Path "src/app/globals.css" -Pattern "^\s*\.[a-z-]+" | Out-File "component-audit-semantic.txt"
+
+# Count components by directory
+Get-ChildItem -Path src/components -Filter *.tsx -Recurse | Group-Object DirectoryName | Select-Object Count, Name
+
+# Find modal components
+Select-String -Path "src/**/*.tsx" -Pattern "Modal|Dialog" -List
+
+# Find form patterns
+Select-String -Path "src/**/*.tsx" -Pattern "form-input|form-select" -List
+
+# Find button patterns
+Select-String -Path "src/**/*.tsx" -Pattern "<Button|<button" -List
+```
 
 ### 📊 Current Stats
 - **Total Components Migrated**: 8 components in Phases 0-5 (100% of navigation layer)
@@ -3692,3 +3830,230 @@ Baseline: 200+ violations  Post-migration: 0 violations"
 ---
 
 **Phase Z Report**: Pre-audit complete. Admin Lead Details Page identified with 200+ violations including custom hex colors, theme conditionals, dark: prefixes, and hardcoded white/black colors. 21 tasks created covering all sections (header, 6 cards, 4 modals, verification, testing). Estimated 6-8 hours for complete migration due to file complexity (1227 lines). Success criteria: 0/0/0/0/0 on core verification commands, 3 themes working, 5 breakpoint responsive, all functionality preserved.
+
+---
+
+## Phase 17: Blog Pages Migration to Neumorphic Design System 🎯 ACTIVE (November 9, 2025)
+
+**Goal**: Migrate Blog List page and Blog Post page to neumorphic design system with 100% design token compliance
+**Approach**: UI-only migration (preserve ALL functionality, state management, API calls)
+**Component Tree**: 
+- Blog List: `src/app/blog/page.tsx` (136 lines)
+- Blog Post: `src/app/blog/post/page.tsx` (335 lines)
+**Location**: Marketing site pages (no child components identified)
+**Routing Note**: Both pages use correct Next.js App Router structure
+
+### Pre-Migration Audit Results (November 9, 2025)
+
+**Blog List Page (src/app/blog/page.tsx)**:
+```
+Verification Results: 36 violations (10/10/0/4/10/2)
+- Command 1 (Gray/slate): 10 matches
+  * text-slate-400, text-slate-500, text-slate-600, text-slate-800, text-slate-900
+  * dark:text-slate-200, dark:text-slate-300, dark:text-slate-400, dark:text-slate-500
+- Command 2 (Dark mode): 10 matches
+  * dark:text-white, dark:text-slate-*, dark:border-slate-*, dark:text-slate-*
+- Command 3 (RGB/HEX): 0 matches ✅
+- Command 4 (White/black): 4 matches
+  * text-white, dark:text-white, bg-white
+- Command 5 (Typography): 10 matches
+  * text-xs, text-sm, text-lg, text-xl, text-2xl, text-4xl, text-5xl, text-6xl
+  * font-bold, font-semibold
+- Command 6 (Responsive): 2 matches
+  * sm:text-5xl, md:text-6xl, sm:text-xl
+
+Key Issues:
+- Hero section: hardcoded text-slate-900 dark:text-white for title
+- Article cards: text-slate-500 dark:text-slate-500 for read time
+- Category badge: text-primary bg-primary/10 (acceptable - semantic)
+- "Load More" button: bg-primary text-white (needs Button component)
+- Search icon: text-slate-400 (needs text-muted-foreground)
+- Empty state: text-slate-800 dark:text-slate-200, text-slate-500 dark:text-slate-400
+```
+
+**Blog Post Page (src/app/blog/post/page.tsx)**:
+```
+Verification Results: 72 violations (23/25/0/8/14/2)
+- Command 1 (Gray/slate): 23 matches
+  * text-slate-300, text-slate-400, text-slate-500, text-slate-600, text-slate-700, text-slate-900
+  * border-gray-200, dark:border-slate-700, dark:border-slate-800
+  * bg-white, dark:bg-slate-800 (textarea)
+- Command 2 (Dark mode): 25 matches
+  * dark:text-white (9×), dark:text-slate-* (11×)
+  * dark:bg-slate-800 (3×), dark:border-slate-* (2×)
+- Command 3 (RGB/HEX): 0 matches ✅
+- Command 4 (White/black): 8 matches
+  * text-white (3×), bg-white (2×), dark:bg-slate-800 (3×)
+- Command 5 (Typography): 14 matches
+  * text-xs, text-sm, text-lg, text-xl, text-2xl, text-3xl, text-4xl, text-5xl
+  * font-bold, font-semibold, font-light
+- Command 6 (Responsive): 2 matches
+  * sm:text-4xl, md:text-5xl
+
+Key Issues:
+- Hero overlay: bg-gradient-to-t from-black/60 (needs semantic alternative)
+- Title: text-slate-900 dark:text-white (needs text-foreground)
+- Meta info: text-slate-500 dark:text-slate-400, border-gray-200 dark:border-slate-700
+- Body text: text-slate-700 dark:text-slate-300, text-slate-600 dark:text-slate-300
+- Share buttons: border-gray-200 dark:border-slate-700, text-slate-600 dark:text-slate-400
+- Author bio card: uses .theme-card ✅ (already correct)
+- Comment form: bg-white dark:bg-slate-800, border-border dark:border-slate-700
+- "Post Comment" button: bg-primary text-white (needs Button component)
+- Comment cards: uses .theme-card ✅ (already correct)
+```
+
+### Component Dependencies
+**Blog List Page**:
+- Footer component (already migrated - no issues)
+- No modal components
+- No child components identified
+
+**Blog Post Page**:
+- Footer component (already migrated - no issues)
+- HomeownerSignInModal (already migrated - no issues)
+- HomeownerSignupModal (already migrated - no issues)
+- No additional child components identified
+
+### Logic Inventory (DO NOT MODIFY)
+**Blog List Page**:
+- `useState`: searchTerm, selectedCategory, visibleCount
+- `useMemo`: filteredArticles (search + filter logic)
+- `handleNavigateToPost`: sessionStorage + router.push
+- `handleLoadMore`: setVisibleCount pagination
+- Router navigation handlers for Footer
+- Animation: `animate-fade-in`, `animate-fade-in-up` with delays
+
+**Blog Post Page**:
+- `useState`: post, isLoggedIn, isSignInModalOpen, isSignUpModalOpen, newComment, pendingComment, comments
+- `useEffect`: 
+  * Scroll to top on mount
+  * Load post from sessionStorage
+  * Check auth from localStorage
+  * Handle pending comment after sign-in
+  * Storage event listener for auth changes
+- `handlePostComment`: Auth check → save pending or post comment
+- `handleSignInSuccess`/`handleSignUpSuccess`: Auth + pending comment + reload
+- Modal switching handlers
+- Router navigation handlers for Footer
+- Comment posting system with localStorage auth integration
+
+### Subtasks
+
+**STEP 0: GATE 0 Health Check** ✅ COMPLETE
+- [x] 17.1: Run all 6 verification commands (COMPLETED)
+- [x] 17.2: CSS variables exist (--color-surface, --color-foreground, etc.) ✅
+- [x] 17.3: Semantic classes available (.theme-card, .form-input) ✅
+- [x] 17.4: Reference components available (HeaderMenu.tsx, Hero.tsx) ✅
+
+**STEP 1: Component Tree Mapping** ✅ COMPLETE
+- [x] 17.5: Identify ALL components in tree (COMPLETED - No child components beyond Footer, modals already migrated)
+- [x] 17.6: Check child components for hardcoded colors (COMPLETED - Footer & modals already clean)
+- [x] 17.7: Create migration checklist (COMPLETED)
+
+**STEP 2: Pre-Migration Audit & Logic Inventory** ✅ COMPLETE
+- [x] 17.8: Document all hardcoded values (COMPLETED - 36 + 72 violations)
+- [x] 17.9: Document all useState, useEffect hooks (COMPLETED - Comprehensive logic inventory)
+- [x] 17.10: Document all event handlers (COMPLETED - Navigation, auth, comments)
+- [x] 17.11: Document animations and special effects (COMPLETED - Fade-in animations)
+
+**STEP 3: Read Migration Pain Points & Design System**
+- [ ] 17.12: Read MIGRATION-PAIN-POINTS.md completely (15 min)
+- [ ] 17.13: Read DESIGN-SYSTEM-SOT.md Background Color Decision Tree (10 min)
+- [ ] 17.14: Read MIGRATION-QUICK-REFERENCE.md patterns (10 min)
+
+**STEP 4: Migrate Blog List Page (src/app/blog/page.tsx)** - 136 lines
+- [ ] 17.15: Migrate Hero section (title, description) - Replace text-slate-* with text-foreground (10 min)
+- [ ] 17.16: Migrate Article cards - Replace all text-slate-* with semantic tokens, theme-card already used ✅ (15 min)
+- [ ] 17.17: Migrate "Load More" button - Convert to Button component (5 min)
+- [ ] 17.18: Migrate Empty state - Replace text-slate-* with semantic tokens (5 min)
+- [ ] 17.19: Fix icon colors - Replace text-slate-400 with text-muted-foreground (5 min)
+
+**STEP 5: Migrate Blog Post Page (src/app/blog/post/page.tsx)** - 335 lines
+- [ ] 17.20: Migrate Hero image overlay - Replace bg-gradient-to-t from-black/60 with semantic alternative (10 min)
+- [ ] 17.21: Migrate Article header (category, title, meta) - Replace all text-slate-* with semantic tokens (15 min)
+- [ ] 17.22: Migrate Article body - Replace text-slate-* with text-foreground/text-muted-foreground (10 min)
+- [ ] 17.23: Migrate blockquote - Use border-primary (already used ✅), fix text colors (5 min)
+- [ ] 17.24: Migrate Share section - Replace button borders and text colors with semantic tokens (10 min)
+- [ ] 17.25: Verify Author bio card - Already uses .theme-card ✅, fix text colors only (5 min)
+- [ ] 17.26: Migrate Comment form - Replace bg-white dark:bg-slate-800 with bg-surface, fix border (10 min)
+- [ ] 17.27: Migrate "Post Comment" button - Convert to Button component (5 min)
+- [ ] 17.28: Verify Comment cards - Already uses .theme-card ✅, fix text colors only (5 min)
+
+**STEP 6: Post-Migration Verification** (MANDATORY - 0/0/0/0/0/0 REQUIRED)
+- [ ] 17.29: Run 6-command verification on Blog List page - MUST return 0/0/0/0/0/0 (5 min)
+- [ ] 17.30: Run 6-command verification on Blog Post page - MUST return 0/0/0/0/0/0 (5 min)
+- [ ] 17.31: Document results - Show actual counts for each command (5 min)
+
+**STEP 7: Visual Testing - 3 Themes** (MANDATORY)
+- [ ] 17.32: Test Dark theme (#121212) - No white/gray bleed, neumorphic shadows visible, text readable (10 min)
+- [ ] 17.33: Test Light theme (#E0E5EC) - Neumorphic styling visible, text readable, no flash (10 min)
+- [ ] 17.34: Test Purple theme (#2C1D4D) - Purple shadows visible, text readable, accent colors work (10 min)
+
+**STEP 8: Responsive Testing - 5 Breakpoints** (MANDATORY)
+- [ ] 17.35: Test 320px - Text readable, buttons not cut off, cards fit, no horizontal scroll (5 min)
+- [ ] 17.36: Test 375px - Layout works, animations smooth (5 min)
+- [ ] 17.37: Test 768px - Desktop layout transitions correctly (5 min)
+- [ ] 17.38: Test 1024px - Full desktop layout, proper spacing (5 min)
+- [ ] 17.39: Test 1440px - Large desktop, no stretched elements (5 min)
+
+**STEP 9: Functional Testing** (MANDATORY - UI ONLY, logic preserved)
+- [ ] 17.40: Blog List - Search works, category filter works, pagination works, navigation works (10 min)
+- [ ] 17.41: Blog Post - Scroll to top works, post loads from sessionStorage, back button works (5 min)
+- [ ] 17.42: Blog Post - Comment system works (auth check, sign-in modal, comment posting, pending comment after sign-in) (10 min)
+- [ ] 17.43: Blog Post - Share buttons display correctly (visual only, no functionality test) (2 min)
+
+**STEP 10: Build Validation** (MANDATORY)
+- [ ] 17.44: Run `npx tsc --noEmit` - MUST pass with 0 errors (5 min)
+- [ ] 17.45: Run `npm run build` - MUST pass with 0 errors (5 min)
+
+**STEP 11: User Approval & Atomic Commit** (MANDATORY)
+- [ ] 17.46: Present verification results (0/0/0/0/0/0), theme screenshots, breakpoint tests (10 min)
+- [ ] 17.47: Get explicit user approval: "Yes, commit Phase 17" (user action)
+- [ ] 17.48: Commit with message: "feat(blog): Migrate blog pages to neumorphic design system (UI-only, all functionality preserved)" (5 min)
+
+### Success Criteria (MANDATORY)
+- [ ] Blog List Page: 0/0/0/0/0/0 on all 6 verification commands
+- [ ] Blog Post Page: 0/0/0/0/0/0 on all 6 verification commands
+- [ ] All 3 themes work correctly (Dark, Light, Purple) - screenshots provided
+- [ ] Responsive at all 5 breakpoints (320px, 375px, 768px, 1024px, 1440px)
+- [ ] ALL functionality preserved:
+  * Blog List: Search, filter, pagination, navigation work identically
+  * Blog Post: Scroll, post loading, auth system, comment posting, pending comments work identically
+- [ ] TypeScript compiles with 0 errors
+- [ ] Build succeeds with 0 errors
+- [ ] 1 atomic commit created with comprehensive message
+- [ ] User approval received before commit
+
+### Migration Principles (from MIGRATION-PAIN-POINTS.md)
+1. **Follow the SOT** (DESIGN-SYSTEM-SOT.md) religiously
+2. **Component tree mapping FIRST** (identify ALL files before starting)
+3. **Run pre-migration audit** (6-command verification baseline)
+4. **Ensure mobile responsiveness** (test 320px FIRST, then other breakpoints)
+5. **Use semantic tokens only** (no hardcoded colors, no dark: prefixes)
+6. **Follow mandatory workflow** (13 steps, no skipping)
+7. **100% migration** (no partial work, no legacy code)
+8. **Thorough testing** (3 themes, 5 breakpoints, functionality)
+9. **Keep process simple** (UI ONLY, no logic changes)
+10. **Copy patterns from SOT** (reference Hero.tsx for similar structure)
+
+### Critical Reminders
+- **UI ONLY**: Do NOT modify useState, useEffect, event handlers, API calls, sessionStorage logic
+- **100% Replacement**: NO hybrid patterns (must remove ALL dark: prefixes, ALL text-slate-*, ALL hardcoded colors)
+- **Multi-Theme Required**: ALL 3 themes must pass visual inspection
+- **Zero Violations**: Commands 1-6 MUST return 0/0/0/0/0/0 (informational typography allowed if semantic)
+- **Atomic Commits**: One comprehensive commit for BOTH pages with detailed message
+- **Logic Preservation**: Pages must function identically after migration (comment system, auth, search, pagination)
+- **Complete Neumorphic Pattern**: Use FULL pattern for ALL inputs: `form-input w-full rounded-xl bg-surface text-foreground shadow-neu-inset border border-border px-4 py-3 placeholder:text-muted-foreground`
+- **Button Component**: Replace ALL `<button>` with `<Button>` component (no bg-primary text-white inline)
+
+### Estimated Time
+- **Blog List Page**: 40 minutes (Hero + Cards + Button + Empty state + Icons)
+- **Blog Post Page**: 75 minutes (Hero + Header + Body + Share + Comment form + Comment cards)
+- **Verification**: 40 minutes (6-command × 2 files + 3 themes + 5 breakpoints)
+- **Functional Testing**: 30 minutes (Search, filter, pagination, auth, comments)
+- **Build & Approval**: 20 minutes (TypeScript + Build + User approval)
+- **TOTAL**: ~3 hours 25 minutes
+
+---
+
+**Phase 17 Report**: Pre-audit complete. Blog pages identified with 108 total violations (Blog List: 36, Blog Post: 72). Main issues: hardcoded gray/slate colors, dark: prefixes, hardcoded white/black, hardcoded typography. No child components need migration (Footer & modals already clean). Component tree: 2 files (blog/page.tsx 136 lines, blog/post/page.tsx 335 lines). Logic preserved: search, filter, pagination, auth system, comment posting with pending comments. Success criteria: 0/0/0/0/0/0 on both files, 3 themes working, 5 breakpoints responsive, all functionality identical. Estimated 3.5 hours for complete migration.

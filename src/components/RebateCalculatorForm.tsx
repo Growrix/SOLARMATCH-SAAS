@@ -453,7 +453,6 @@ const RebateCalculatorForm: React.FC<Props> = ({ onGetQuotesClick }) => {
                       <Button 
                         onClick={() => setShowModal(false)} 
                         variant="ghost"
-                        size="sm"
                         className="p-2 -mr-2"
                         aria-label="Close"
                       >

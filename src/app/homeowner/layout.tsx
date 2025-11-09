@@ -73,18 +73,19 @@ export default function HomeownerLayout({ children }: { children: React.ReactNod
 						{children}
 					</main>
 					
-					{/* Mobile Bottom Navigation */}
-					<div className="md:hidden">
-						<HomeownerBottomNavBar
-							activePage={activePage}
-							setActivePage={() => {}}
-							onNewQuoteClick={() => {}}
-							onMenuClick={() => setIsMobileMenuOpen(true)}
-							currentPage="homeownerDashboard"
-							onHomeClick={handleHomeClick}
-							onDashboardClick={() => {}}
-						/>
-					</div>
+				{/* Mobile Bottom Navigation */}
+				<div className="md:hidden">
+					<HomeownerBottomNavBar
+						activePage={activePage}
+						setActivePage={() => {}}
+						onNewQuoteClick={() => {}}
+						onMenuClick={() => setIsMobileMenuOpen(true)}
+						currentPage="dashboard"
+						onHomeClick={handleHomeClick}
+						onDashboardClick={() => {}}
+						onMessagesClick={handleMessagesClick}
+					/>
+				</div>
 				</div>
 			</div>
 		</div>
