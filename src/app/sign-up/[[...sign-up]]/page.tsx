@@ -1,9 +1,24 @@
+'use client';
+
 import { SignUp } from '@clerk/nextjs';
+import { useSearchParams } from 'next/navigation';
 
 export default function SignUpPage() {
+  const searchParams = useSearchParams();
+  const role = searchParams.get('role');
+  const isInstaller = role === 'installer';
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
       <div className="w-full max-w-md">
+        {isInstaller && (
+          <div className="mb-6 rounded-2xl bg-primary/10 border border-primary/30 p-4 text-center shadow-neu-inset">
+            <h3 className="text-lg font-bold text-primary mb-1">Installer Signup</h3>
+            <p className="text-sm text-muted-foreground">
+              You&apos;re signing up as a solar installer partner
+            </p>
+          </div>
+        )}
         <SignUp 
           appearance={{
             elements: {
@@ -24,7 +39,10 @@ export default function SignUpPage() {
               identityPreviewEditButton: 'text-primary hover:underline',
             },
           }}
-          redirectUrl="/dashboard"
+          unsafeMetadata={{
+            role: isInstaller ? 'INSTALLER' : 'HOMEOWNER',
+          }}
+          redirectUrl={isInstaller ? '/installer/dashboard' : '/homeowner/dashboard'}
           routing="path"
           path="/sign-up"
         />

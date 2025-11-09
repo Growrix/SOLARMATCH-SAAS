@@ -74,6 +74,8 @@ export async function POST(req: Request) {
           name: first_name && last_name ? `${first_name} ${last_name}` : null,
           role: role as 'HOMEOWNER' | 'INSTALLER' | 'ADMIN',
           isActive: true,
+          // Set installerVerified to false for INSTALLER role, undefined for others
+          ...(role === 'INSTALLER' && { installerVerified: false }),
         },
       });
 

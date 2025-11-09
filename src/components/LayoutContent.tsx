@@ -74,10 +74,9 @@ export default function LayoutContent({ children }: LayoutContentProps) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Installer handlers - redirect to Clerk signup/signin
+  // Installer handlers - Show eligibility modal first, then redirect to Clerk signup
   const handleBecomePartner = () => {
-    // TODO: Add role selection in Clerk signup
-    router.push('/sign-up');
+    setIsEligibilityModalOpen(true);
   };
 
   const handlePartnerSignIn = () => {
@@ -87,7 +86,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
   const handleEligible = () => {
     setIsEligibilityModalOpen(false);
     // Redirect to Clerk signup with installer role indication
-    router.push('/sign-up');
+    router.push('/sign-up?role=installer');
   };
 
   // Homeowner handlers - Now use Clerk routing
