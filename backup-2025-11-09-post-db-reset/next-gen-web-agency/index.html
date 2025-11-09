@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Next-Gen Web Agency</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+            colors: {
+              'brand-dark': '#111827',
+              'brand-gray': {
+                100: '#F3F4F6',
+                200: '#E5E7EB',
+                300: '#D1D5DB',
+                400: '#6B7280',
+              },
+              'neumorphic-background': '#E0E5EC',
+              'neumorphic-shadow-dark': '#A3B1C6',
+              'neumorphic-shadow-light': '#FFFFFF',
+              'brand-accent': '#111827', // Changed from orange to black
+            },
+            boxShadow: {
+              'neumorphic-outset': '6px 6px 12px #a3b1c6, -6px -6px 12px #ffffff',
+              'neumorphic-inset': 'inset 6px 6px 12px #a3b1c6, inset -6px -6px 12px #ffffff',
+              'neumorphic-outset-sm': '4px 4px 8px #a3b1c6, -4px -4px 8px #ffffff',
+              'neumorphic-inset-sm': 'inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff',
+            }
+          }
+        }
+      }
+    </script>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-neumorphic-background text-brand-dark">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
