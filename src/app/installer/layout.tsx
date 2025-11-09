@@ -22,8 +22,7 @@ export default function InstallerLayout({ children }: { children: React.ReactNod
 	const activePage = getActivePage();
 	
 	const handleLogout = async () => {
-		await signOut();
-		window.location.href = '/';
+		await signOut({ redirectUrl: '/' });
 	};
 	
 	const handleHomeClick = () => {

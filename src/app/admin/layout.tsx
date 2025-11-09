@@ -40,8 +40,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 	};
 
 	const handleLogout = async () => {
-		await signOut();
-		window.location.href = '/';
+		await signOut({ redirectUrl: '/' });
 	};
 	
 	return (
