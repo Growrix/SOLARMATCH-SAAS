@@ -1,6 +1,7 @@
 "use client";
 import React from 'react';
 import { usePathname } from 'next/navigation';
+import { useClerk } from '@clerk/nextjs';
 import AdminSidebar from '@/components/AdminSidebar';
 import AdminMobileSidebarMenu from '@/components/AdminMobileSidebarMenu';
 import AdminBottomNavBar from '@/components/AdminBottomNavBar';
@@ -8,6 +9,7 @@ import AdminHeader from '@/components/AdminHeader';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
 	const pathname = usePathname();
+	const { signOut } = useClerk();
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 	
 	// Determine active page based on pathname
@@ -36,12 +38,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 		if (pathname.includes('/instant-quotes')) return 'Guest Instant Quotes';
 		return 'Dashboard';
 	};
+
+	const handleLogout = async () => {
+		await signOut();
+		window.location.href = '/';
+	};
 	
 	return (
 	<div className="flex min-h-screen bg-transparent">
 			{/* Desktop Sidebar - Always visible on desktop */}
 			<div className="hidden md:block">
-				<AdminSidebar activePage={activePage} />
+				<AdminSidebar activePage={activePage} onLogoutClick={handleLogout} />
 			</div>
 			
 			{/* Mobile Sidebar Menu */}
@@ -51,7 +58,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 					onClose={() => setIsMobileMenuOpen(false)}
 					activePage={activePage}
 					setActivePage={() => {}}
-					onLogoutClick={() => {}}
+					onLogoutClick={handleLogout}
 				/>
 			</div>
 			

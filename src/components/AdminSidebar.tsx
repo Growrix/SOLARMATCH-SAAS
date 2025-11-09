@@ -122,7 +122,7 @@ const NavItem: React.FC<{ icon: React.ReactNode; title: string; isActive: boolea
   </button>
 );
 
-const AdminSidebar: React.FC<{ activePage?: string }> = ({ activePage = 'Dashboard' }) => {
+const AdminSidebar: React.FC<{ activePage?: string; onLogoutClick: () => void }> = ({ activePage = 'Dashboard', onLogoutClick }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [leadsOpen, setLeadsOpen] = useState(true);
   return (
@@ -164,7 +164,7 @@ const AdminSidebar: React.FC<{ activePage?: string }> = ({ activePage = 'Dashboa
         <NavItem icon={<WrenchIcon />} title="Installers" isActive={activePage === 'Installers'} onClick={() => { window.location.href = '/admin/installers'; }} isCollapsed={isCollapsed} />
       </nav>
       <div className={`dashboard-sidebar-footer ${isCollapsed ? 'dashboard-sidebar-footer--collapsed' : 'dashboard-sidebar-footer--expanded'}`}>
-        <NavItem icon={<LogOutIcon />} title="Logout" isActive={false} onClick={() => { window.location.href = '/logout'; }} isCollapsed={isCollapsed} />
+        <NavItem icon={<LogOutIcon />} title="Logout" isActive={false} onClick={onLogoutClick} isCollapsed={isCollapsed} />
       </div>
     </aside>
   );
