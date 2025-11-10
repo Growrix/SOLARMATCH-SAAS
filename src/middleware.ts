@@ -38,15 +38,24 @@ export default clerkMiddleware(async (auth, req) => {
 
       if (response.ok) {
         const data = await response.json();
-        userRole = data.role || 'HOMEOWNER';
-        console.log(`[Middleware] User synced from DB, role: ${userRole}`);
+        userRole = data.role;
+        console.log(`[Middleware] ✅ User synced from DB, role: ${userRole}`);
       } else {
-        console.warn(`[Middleware] API sync failed (${response.status}), defaulting to HOMEOWNER`);
-        userRole = 'HOMEOWNER'; // Default fallback
+        const errorData = await response.json().catch(() => ({}));
+        console.error(`[Middleware] ❌ API sync failed (${response.status}):`, errorData.message || errorData.error);
+        // NO DEFAULT - Redirect to setup page instead
+        const setupUrl = new URL('/setup-account', req.url);
+        setupUrl.searchParams.set('error', 'role_not_found');
+        setupUrl.searchParams.set('redirect_url', req.url);
+        return NextResponse.redirect(setupUrl);
       }
     } catch (error) {
-      console.warn('[Middleware] Error syncing user, defaulting to HOMEOWNER:', error);
-      userRole = 'HOMEOWNER'; // Default fallback - allow access
+      console.error('[Middleware] ❌ Error syncing user:', error);
+      // NO DEFAULT - Redirect to setup page instead
+      const setupUrl = new URL('/setup-account', req.url);
+      setupUrl.searchParams.set('error', 'sync_failed');
+      setupUrl.searchParams.set('redirect_url', req.url);
+      return NextResponse.redirect(setupUrl);
     }
   }
 

@@ -21,3 +21,7 @@ Take a local backup of this current state of this site, make sure it restores to
 
 ***chat/task continuation prompt***
 This chat becomes very slow after many messages. To start a new chat and keep continuity, please crafft a prompt with the tasks are done are what to do next. so that we dont lose context. 
+
+
+
+I chose the Path A: Hybrid (RECOMMENDED) . now create a phase in the tasks.md and start implimenting accordingly. 

@@ -2,10 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
+import { useUser, useClerk } from '@clerk/nextjs';
 import TopBar from './TopBar';
 import HeaderMenu from './HeaderMenu';
 import InstallerEligibilityModal from './InstallerEligibilityModal';
+import InstallerSignInModal from './InstallerSignInModal';
+import InstallerSignupModal from './InstallerSignupModal';
+import HomeownerSignupModal from './HomeownerSignupModal';
+import HomeownerSignInModal from './HomeownerSignInModal';
 import GuestBottomNavBar from './GuestBottomNavBar';
 import HomeownerBottomNavBar from './HomeownerBottomNavBar';
 import HomeownerMobileSidebarMenu from './HomeownerMobileSidebarMenu';
@@ -20,7 +24,9 @@ export default function LayoutContent({ children }: LayoutContentProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { isSignedIn, user, isLoaded } = useUser();
+  const { signOut } = useClerk();
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // Check if we're on installer or homeowner routes (dashboard pages have their own headers)
   const isInstallerRoute = pathname?.startsWith('/installer');
@@ -30,12 +36,34 @@ export default function LayoutContent({ children }: LayoutContentProps) {
   
   // Installer modal states
   const [isEligibilityModalOpen, setIsEligibilityModalOpen] = useState(false);
+  const [isInstallerSignInModalOpen, setIsInstallerSignInModalOpen] = useState(false);
+  const [isInstallerSignupModalOpen, setIsInstallerSignupModalOpen] = useState(false);
+  
+  // Homeowner modal states
+  const [isHomeownerSignupModalOpen, setIsHomeownerSignupModalOpen] = useState(false);
+  const [isHomeownerSignInModalOpen, setIsHomeownerSignInModalOpen] = useState(false);
   
   // Homeowner navbar states
   const [activeDashboardPage, setActiveDashboardPage] = useState('Dashboard Overview');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isNewQuoteModalOpen, setIsNewQuoteModalOpen] = useState(false);
   const [isMessagingModalOpen, setIsMessagingModalOpen] = useState(false);
+
+  // Check login status from Clerk
+  useEffect(() => {
+    if (isLoaded && isSignedIn && user) {
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
+    }
+    
+    // Check if there's an action query parameter (e.g., ?action=signin)
+    const urlParams = new URLSearchParams(window.location.search);
+    const action = urlParams.get('action');
+    if (action === 'signin' && !isSignedIn) {
+      setIsHomeownerSignInModalOpen(true);
+    }
+  }, [isSignedIn, user, isLoaded]);
 
   // Effect for header visibility on scroll
   useEffect(() => {
@@ -80,22 +108,157 @@ export default function LayoutContent({ children }: LayoutContentProps) {
   };
 
   const handlePartnerSignIn = () => {
-    router.push('/sign-in');
+    setIsInstallerSignInModalOpen(true);
   };
 
   const handleEligible = () => {
     setIsEligibilityModalOpen(false);
-    // Redirect to Clerk signup with installer role indication
-    router.push('/sign-up?role=installer');
+    setIsInstallerSignupModalOpen(true);
+  };
+
+  const handleInstallerSignupSuccess = async () => {
+    setIsInstallerSignupModalOpen(false);
+    console.log('Installer signed up successfully');
+    
+    // Get role from Clerk user metadata
+    try {
+      const role = user?.unsafeMetadata?.role;
+      
+      console.log('User role from Clerk after signup:', role);
+      
+      // Redirect based on actual role (should be INSTALLER)
+      if (role === 'INSTALLER') {
+        router.push('/installer/dashboard');
+      } else if (role === 'HOMEOWNER') {
+        router.push('/homeowner/dashboard');
+      } else if (role === 'ADMIN') {
+        router.push('/admin/dashboard');
+      } else {
+        // Fallback
+        router.push('/installer/dashboard');
+      }
+    } catch (error) {
+      console.error('Error getting role after signup:', error);
+      // Fallback to installer dashboard
+      router.push('/installer/dashboard');
+    }
+  };
+
+  const handleInstallerSignInSuccess = async () => {
+    setIsInstallerSignInModalOpen(false);
+    console.log('Installer signed in successfully');
+    
+    // Get role from Clerk user metadata
+    try {
+      const role = user?.unsafeMetadata?.role;
+      
+      console.log('User role from Clerk:', role);
+      
+      // Redirect based on actual role
+      if (role === 'INSTALLER') {
+        router.push('/installer/dashboard');
+      } else if (role === 'HOMEOWNER') {
+        router.push('/homeowner/dashboard');
+      } else if (role === 'ADMIN') {
+        router.push('/admin/dashboard');
+      } else {
+        // Fallback
+        router.push('/installer/dashboard');
+      }
+    } catch (error) {
+      console.error('Error getting role:', error);
+      // Fallback to installer dashboard
+      router.push('/installer/dashboard');
+    }
+  };
+
+  const handleSwitchToInstallerSignIn = () => {
+    setIsInstallerSignupModalOpen(false);
+    setIsInstallerSignInModalOpen(true);
   };
 
   // Homeowner handlers - Now use Clerk routing
   const handleLoginClick = () => {
-    router.push('/sign-in');
+    setIsHomeownerSignInModalOpen(true);
   };
 
   const handleSignupClick = () => {
-    router.push('/sign-up');
+    setIsHomeownerSignupModalOpen(true);
+  };
+
+  const handleHomeownerSignupSuccess = async () => {
+    setIsHomeownerSignupModalOpen(false);
+    console.log('Homeowner signed up successfully');
+    
+    // Get role from Clerk user metadata
+    try {
+      const role = user?.unsafeMetadata?.role;
+      
+      console.log('User role from Clerk after signup:', role);
+      
+      // Redirect based on actual role (should be HOMEOWNER)
+      if (role === 'HOMEOWNER') {
+        router.push('/homeowner/dashboard');
+      } else if (role === 'INSTALLER') {
+        router.push('/installer/dashboard');
+      } else if (role === 'ADMIN') {
+        router.push('/admin/dashboard');
+      } else {
+        // Fallback
+        router.push('/homeowner/dashboard');
+      }
+    } catch (error) {
+      console.error('Error getting role after signup:', error);
+      // Fallback to homeowner dashboard
+      router.push('/homeowner/dashboard');
+    }
+  };
+
+  const handleHomeownerSignInSuccess = async () => {
+    setIsHomeownerSignInModalOpen(false);
+    console.log('Homeowner signed in successfully');
+    
+    // Check if we should return to the previous page or go to dashboard
+    const urlParams = new URLSearchParams(window.location.search);
+    const action = urlParams.get('action');
+    if (action === 'signin') {
+      // Remove the action query parameter and stay on the same page
+      window.history.replaceState({}, '', window.location.pathname);
+      window.location.reload();
+    } else {
+      // Get role from Clerk user metadata
+      try {
+        const role = user?.unsafeMetadata?.role;
+        
+        console.log('User role from Clerk:', role);
+        
+        // Redirect based on actual role
+        if (role === 'INSTALLER') {
+          router.push('/installer/dashboard');
+        } else if (role === 'HOMEOWNER') {
+          router.push('/homeowner/dashboard');
+        } else if (role === 'ADMIN') {
+          router.push('/admin/dashboard');
+        } else {
+          // Fallback to homeowner
+          router.push('/homeowner/dashboard');
+        }
+      } catch (error) {
+        console.error('Error getting role:', error);
+        // Fallback to homeowner dashboard
+        router.push('/homeowner/dashboard');
+      }
+    }
+  };
+
+  const handleSwitchToSignup = () => {
+    setIsHomeownerSignInModalOpen(false);
+    setIsHomeownerSignupModalOpen(true);
+  };
+
+  const handleSwitchToLogin = () => {
+    setIsHomeownerSignupModalOpen(false);
+    setIsHomeownerSignInModalOpen(true);
   };
 
   // Guest bottom navbar handlers
@@ -133,10 +296,10 @@ export default function LayoutContent({ children }: LayoutContentProps) {
   };
 
   const handleGuestLogin = () => {
-    router.push('/sign-in');
+    setIsHomeownerSignInModalOpen(true);
   };
 
-  // Homeowner navbar handlers
+  // Homeowner bottom navbar handlers
   const handleHomeownerHomeClick = () => {
     router.push('/');
   };
@@ -179,8 +342,8 @@ export default function LayoutContent({ children }: LayoutContentProps) {
     setIsMobileSidebarOpen(true);
   };
 
-  const handleLogout = () => {
-    // Clerk handles logout via UserButton, but if needed:
+  const handleLogout = async () => {
+    await signOut();
     router.push('/');
   };
 
@@ -222,6 +385,35 @@ export default function LayoutContent({ children }: LayoutContentProps) {
         isOpen={isEligibilityModalOpen}
         onClose={() => setIsEligibilityModalOpen(false)}
         onEligible={handleEligible}
+      />
+      <InstallerSignInModal 
+        isOpen={isInstallerSignInModalOpen}
+        onClose={() => setIsInstallerSignInModalOpen(false)}
+        onSuccess={() => {}} // Clerk handles redirect via afterSignInUrl
+        onOpenSignup={() => {
+          setIsInstallerSignInModalOpen(false);
+          setIsInstallerSignupModalOpen(true);
+        }}
+      />
+      <InstallerSignupModal 
+        isOpen={isInstallerSignupModalOpen}
+        onClose={() => setIsInstallerSignupModalOpen(false)}
+        onSuccess={() => {}} // Clerk handles redirect via afterSignUpUrl
+        onSwitchToSignIn={handleSwitchToInstallerSignIn}
+      />
+
+      {/* Homeowner Modals */}
+      <HomeownerSignupModal 
+        isOpen={isHomeownerSignupModalOpen}
+        onClose={() => setIsHomeownerSignupModalOpen(false)}
+        onSuccess={() => {}} // Clerk handles redirect via afterSignUpUrl
+        onSwitchToSignIn={handleSwitchToLogin}
+      />
+      <HomeownerSignInModal 
+        isOpen={isHomeownerSignInModalOpen}
+        onClose={() => setIsHomeownerSignInModalOpen(false)}
+        onSuccess={() => {}} // Clerk handles redirect via afterSignInUrl
+        onSwitchToSignUp={handleSwitchToSignup}
       />
 
       {/* Homeowner Dashboard Modals (Global) */}
