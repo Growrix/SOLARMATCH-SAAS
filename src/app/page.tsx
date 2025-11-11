@@ -9,6 +9,7 @@ import RebateCalculatorForm from '../components/RebateCalculatorForm';
 import QuoteOptionsModal from '../components/QuoteOptionsModal';
 import QuoteSuccessModal from '../components/QuoteSuccessModal';
 import HomeownerSignupModal from '../components/HomeownerSignupModal';
+import HomeownersInfoForm from '../components/HomeownersInfoForm';
 import Footer from '../components/Footer';
 import BlogSection from '../components/BlogSection';
 import NewsletterSignup from '../components/NewsletterSignup';
@@ -42,11 +43,13 @@ export default function Home() {
   const { data: session, status } = useSession();
   const [activeCalculator, setActiveCalculator] = useState<'quote' | 'rebate'>('quote');
   const [isQuoteOptionsModalOpen, setIsQuoteOptionsModalOpen] = useState(false);
+  const [isHomeownersInfoFormOpen, setIsHomeownersInfoFormOpen] = useState(false);
   const [isHomeownerSignupModalOpen, setIsHomeownerSignupModalOpen] = useState(false);
   const [isQuoteSuccessModalOpen, setIsQuoteSuccessModalOpen] = useState(false);
   const [selectedQuoteType, setSelectedQuoteType] = useState<'call_visit' | 'written' | null>(null);
   const [quoteData, setQuoteData] = useState<any>(null);
   const [pendingQuoteData, setPendingQuoteData] = useState<any>(null);
+  const [homeownerInfo, setHomeownerInfo] = useState<{ name: string; phone: string; address: string } | null>(null);
 
   // Ensure page starts at top on mount
   useEffect(() => {
@@ -112,9 +115,16 @@ export default function Home() {
         alert('An unexpected error occurred. Please try again.');
       }
     } else {
-      // User is not logged in - show signup modal
-      setIsHomeownerSignupModalOpen(true);
+      // User is not logged in - show HomeownersInfoForm first
+      setIsHomeownersInfoFormOpen(true);
     }
+  };
+
+  const handleHomeownerInfoContinue = (info: { name: string; phone: string; address: string }) => {
+    // Store homeowner info and proceed to signup
+    setHomeownerInfo(info);
+    setIsHomeownersInfoFormOpen(false);
+    setIsHomeownerSignupModalOpen(true);
   };
 
   const handleHomeownerSignupSuccess = async () => {
@@ -335,6 +345,14 @@ export default function Home() {
           onClose={() => setIsQuoteOptionsModalOpen(false)}
           onSelectOption={handleQuoteOptionSelected}
           quoteData={pendingQuoteData}
+        />
+      )}
+
+      {isHomeownersInfoFormOpen && (
+        <HomeownersInfoForm
+          isOpen={isHomeownersInfoFormOpen}
+          onClose={() => setIsHomeownersInfoFormOpen(false)}
+          onContinue={handleHomeownerInfoContinue}
         />
       )}
 
