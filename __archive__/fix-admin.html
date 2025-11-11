@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fix Admin Password</title>
+</head>
+<body>
+    <h1>Fix Admin Password</h1>
+    <button onclick="fixPassword()">SET ADMIN PASSWORD</button>
+    <pre id="result"></pre>
+
+    <script>
+        async function fixPassword() {
+            document.getElementById('result').textContent = 'Setting password...';
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/fix-admin', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+                
+                if (data.success && data.passwordTest) {
+                    alert('✅ Password set! Now try logging in at /admin');
+                }
+            } catch (error) {
+                document.getElementById('result').textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
