@@ -5,7 +5,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getClerkSession } from '@/lib/clerk-auth-helpers';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { updateHomeownerQuoteLimit } from '@/lib/services/homeowner-admin-service';
 
 interface RouteParams {
@@ -15,7 +16,7 @@ interface RouteParams {
 }
 
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
-  const session = await getClerkSession();
+  const session = await getServerSession(authOptions);
 
   if (!session?.user || session.user.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Admin access required' }, { status: 403 });

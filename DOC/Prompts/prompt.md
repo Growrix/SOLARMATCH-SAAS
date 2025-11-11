@@ -1795,7 +1795,7 @@ you have to create a comprehensive audit report of all the classes used in the s
 
 
 
-
+------------------------------------------------------
 
 ***migration & Redesign in neumorphic***
 lets migrate the Blog page and blog post page  
@@ -1810,7 +1810,7 @@ You must follow the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\
 
 ***Special notes*** There are rounting issues noticed in the installerr dashboard. the URl does not show correctly. so please make sure to fix that too while migrating the UI. e.g while navigating to lead feed page the URL should be /installer/lead-feed but currently it shows installer/dashboard . so please make sure to fix that too while migrating the UI.  Identify all such routing issues and fix them while migrating the UI.
 
--------------------
+------------------------------------------------
 
 ***Identify Pain points***
 read above all the conversations and specially my commands and identify all the pain points that I have been facing whilte migrating/desiging UI. the goal is to identify all ongoing problems and pain points in order to enhance the workflow. 
@@ -1827,3 +1827,24 @@ Your Findings should be updated in the existing workflow files :
 -D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\DESIGN-SYSTEM-SOT.md
 -D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\MIGRATION-QUICK-REFERENCE.md
 - D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\tasks.md
+
+
+---------------------------------------------------
+
+***The scenario***
+Previously we have built a next.js auth system which is D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\nextjsAuth.md\AuditNextjsAuth.md . and also built the sites lead generation system with user based actions. The auth modals were bit different than now. It had more fileds to fillup and more steps. Now we have redesigned the auth modals to be more user friendly and less fileds to fillup. So now we need to update the existing auth system to reflect the new auth modals and flow. Please read the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\nextjsAuth.md\AuditNextjsAuth.md file carefully to understand the existing auth system. After that read the new auth modals design and flow carefully to understand the new auth system. After that create a mapping of old auth flow to new auth flow. Identify what needs to be changed in the existing auth system in order to reflect the new auth modals and flow. Finally update the existing auth system to reflect the new auth modals and flow. Make sure to keep everything aligned with the flows related to the auth such as lead generations , lead management etc.
+
+not only that, we will completely build the auth system e.g the google/apple auth integration, forgot password flow, email verification flow everything from scratch as per the new auth modals and flow. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on.
+
+
+I need a detailed plan from you before you start implimenting anything. The plan should include the steps you will take to update the existing auth system and build the new auth system from scratch. The plan should also include the timeline for each step. Make sure to cover everything in the plan. create the plan in this D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\nextjsAuth.md folder. The plan should have 2 parts : one for updating the existing auth system and one for building the new auth system from scratch. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on , two the uncompeted auth system to build from scratch. 
+
+first we need to make sure the users can signup/login using the email and password as per the new auth modals and flow. after that we will integrate the google/apple auth. then we will build the forgot password flow, email verification flow everything step by step. 
+
+***UI/UX Blueprint: Layout & Routing Standards*** 
+follow : D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\DESIGN-SYSTEM-SOT.md
+D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\MIGRATION-QUICK-REFERENCE.md
+
+***instructions***
+check the audit report that mentioned above , but you can perform more audit if needed. then create a detailed plan as mentioned above. Make sure to plan meets Industry standards and best practices. do not overcomplicate things. keep it simple yet robust. 
+***The goal*** is to have a complete, robust, user friendly auth system that reflects the new auth modals and flow. it should work end to end without any issues.

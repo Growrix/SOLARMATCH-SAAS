@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useSession } from 'next-auth/react';
 
 interface ContactVerificationModalProps {
   isOpen: boolean;
@@ -58,7 +58,7 @@ const ContactVerificationModal: React.FC<ContactVerificationModalProps> = ({
   onClose,
   onOTPRequested,
 }) => {
-  const { user } = useUser();
+  const { data: session, update: updateSession } = useSession();
   const [phoneNumber, setPhoneNumber] = useState(defaultPhone ?? '');
   const [error, setError] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -114,16 +114,11 @@ const ContactVerificationModal: React.FC<ContactVerificationModalProps> = ({
     try {
       const trimmedPhone = phoneNumber.trim();
       
-      // Fetch current user phone from API to check if it changed
-      const userResponse = await fetch('/api/user');
-      const userData = await userResponse.json();
-      const currentPhone = userData.user?.phone;
-      
       // Check if phone number has changed from the current user's phone
-      const phoneHasChanged = currentPhone !== trimmedPhone;
+      const phoneHasChanged = session?.user?.phone !== trimmedPhone;
       
       // If phone number changed, update it in the database first
-      if (phoneHasChanged && currentPhone !== null) {
+      if (phoneHasChanged && session?.user?.phone !== null) {
         const updateResponse = await fetch('/api/user/update-phone', {
           method: 'PUT',
           headers: {
@@ -139,7 +134,12 @@ const ContactVerificationModal: React.FC<ContactVerificationModalProps> = ({
           return;
         }
 
-        // Clerk user metadata will be updated via webhook automatically
+        // Update the session with the new phone number
+        await updateSession({
+          phone: trimmedPhone,
+          phoneVerified: false // Reset verification status
+        });
+
         setStatusMessage('Phone number updated. Sending verification code...');
       }
 

@@ -10,7 +10,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getClerkSession } from '@/lib/clerk-auth-helpers';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { cancelLead } from '@/lib/services/lead-service';
 
 export async function PATCH(
@@ -19,7 +20,7 @@ export async function PATCH(
 ) {
   try {
     // Check authentication
-    const session = await getClerkSession();
+    const session = await getServerSession(authOptions);
     
     if (!session || !session.user) {
       return NextResponse.json(

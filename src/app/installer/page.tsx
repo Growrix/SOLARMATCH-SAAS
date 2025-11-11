@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useClerk } from '@clerk/nextjs';
+import { signOut } from 'next-auth/react';
 import { useTheme, type Theme } from '@/components/ThemeProvider';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -26,7 +26,6 @@ const InfoCard: React.FC<{
 
 export default function InstallerHomePage() {
   const router = useRouter();
-  const { signOut } = useClerk();
   const { theme, setTheme } = useTheme();
   const [activePage, setActivePage] = useState('Home');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -54,7 +53,9 @@ export default function InstallerHomePage() {
   }, [lastScrollY]);
 
   const handleLogout = async () => {
-    await signOut();
+    // Clear authentication state using NextAuth
+    await signOut({ redirect: false });
+    // Redirect to guest homepage
     router.push('/');
   };
 
@@ -97,8 +98,16 @@ export default function InstallerHomePage() {
         <Header
           theme={theme}
           setTheme={setTheme}
+          isLoggedIn={true}
+          onLoginClick={() => {}}
+          onSignupClick={() => {}}
+          onLogoutClick={handleLogout}
           onHomeClick={handleHomeClick}
           onDashboardClick={handleDashboardClick}
+          onHomeownerDashboardClick={handleHomeownerDashboardClick}
+          onInstallerDashboardClick={handleInstallerDashboardClick}
+          onInstallerHomeClick={handleInstallerHomeClick}
+          onAdminDashboardClick={handleAdminDashboardClick}
         />
       </div>
       <main className="flex-grow">

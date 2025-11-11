@@ -13,7 +13,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import {
   PhoneIcon,
@@ -78,7 +78,7 @@ interface Lead {
 }
 
 export default function LeadDetailPage({ params }: { params: { id: string } }) {
-  const { user, isSignedIn, isLoaded } = useUser();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [lead, setLead] = useState<Lead | null>(null);
   const [loading, setLoading] = useState(true);
@@ -86,19 +86,19 @@ export default function LeadDetailPage({ params }: { params: { id: string } }) {
 
   // Redirect if not authenticated or not installer
   useEffect(() => {
-    if (isLoaded && !isSignedIn) {
-      router.push('/sign-in');
-    } else if (isLoaded && isSignedIn && user?.publicMetadata?.role !== 'INSTALLER') {
+    if (status === 'unauthenticated') {
+      router.push('/api/auth/signin');
+    } else if (status === 'authenticated' && session?.user?.role !== 'INSTALLER') {
       router.push('/');
     }
-  }, [isLoaded, isSignedIn, user, router]);
+  }, [status, session, router]);
 
   // Fetch lead details
   useEffect(() => {
-    if (isSignedIn) {
+    if (status === 'authenticated') {
       fetchLeadDetails();
     }
-  }, [isSignedIn, params.id]);
+  }, [status, params.id]);
 
   async function fetchLeadDetails() {
     try {

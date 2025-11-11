@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
+import { useSession } from 'next-auth/react';
 import DetailedInformationModal from '@/components/DetailedInformationModal';
 import QuoteSuccessModal from '@/components/QuoteSuccessModal';
 
 export default function InstantQuoteCompletePage() {
   const router = useRouter();
-  const { user, isSignedIn, isLoaded } = useUser();
+  const { data: session, status } = useSession();
   const [showDetailedInfoModal, setShowDetailedInfoModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [pendingQuoteData, setPendingQuoteData] = useState<any>(null);
@@ -16,12 +16,12 @@ export default function InstantQuoteCompletePage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Wait for Clerk to load
-    if (!isLoaded) return;
+    // Wait for NextAuth session status resolution
+    if (status === 'loading') return;
 
-    // Redirect to sign-in if not authenticated
-    if (!isSignedIn) {
-      router.push('/sign-in');
+    // Redirect to NextAuth sign-in if not authenticated
+    if (status === 'unauthenticated') {
+      router.push('/api/auth/signin');
       return;
     }
 
@@ -50,7 +50,7 @@ export default function InstantQuoteCompletePage() {
       console.error('[InstantQuoteComplete] Error parsing quote data:', err);
       router.push('/');
     }
-  }, [isLoaded, isSignedIn, router]);
+  }, [status, router]);
 
   const handleDetailedInfoSubmit = async (data: {
     name: string;
@@ -159,7 +159,7 @@ export default function InstantQuoteCompletePage() {
   };
 
   // Show loading state while checking authentication
-  if (!isLoaded || !isSignedIn) {
+  if (status === 'loading') {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">

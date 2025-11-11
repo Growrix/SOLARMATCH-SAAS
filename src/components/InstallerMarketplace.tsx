@@ -16,7 +16,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import {
   MapPinIcon,
@@ -49,7 +49,7 @@ interface Lead {
 }
 
 export default function InstallerMarketplace() {
-  const { user } = useUser();
+  const { data: session } = useSession();
   const router = useRouter();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -82,7 +82,7 @@ export default function InstallerMarketplace() {
 
   // Handle lead purchase
   async function handlePurchase(leadId: string) {
-    if (!user?.publicMetadata?.installerVerified) {
+    if (!session?.user?.installerVerified) {
       alert('You must be verified to purchase leads. Please complete installer verification.');
       return;
     }
@@ -180,7 +180,7 @@ export default function InstallerMarketplace() {
       </div>
 
       {/* Verification Warning */}
-      {!user?.publicMetadata?.installerVerified && (
+      {!session?.user?.installerVerified && (
         <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 flex items-start space-x-3">
           <ShieldCheckIcon className="h-6 w-6 text-yellow-600 dark:text-yellow-400 flex-shrink-0" />
           <div>
@@ -276,9 +276,9 @@ export default function InstallerMarketplace() {
                 {/* Purchase Button */}
                 <button
                   onClick={() => handlePurchase(lead.id)}
-                  disabled={purchasing === lead.id || !user?.publicMetadata?.installerVerified}
+                  disabled={purchasing === lead.id || !session?.user?.installerVerified}
                   className={`w-full py-3 px-4 rounded-lg font-semibold transition-colors ${
-                    !user?.publicMetadata?.installerVerified
+                    !session?.user?.installerVerified
                       ? 'bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed'
                       : purchasing === lead.id
                       ? 'bg-blue-400 text-white cursor-wait'

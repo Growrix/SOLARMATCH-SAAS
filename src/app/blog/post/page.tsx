@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Footer from '@/components/Footer';
 import Button from '@/components/ui/button';
+import HomeownerSignInModal from '@/components/HomeownerSignInModal';
+import HomeownerSignupModal from '@/components/HomeownerSignupModal';
 import type { Post } from '@/types/blog';
 
 interface Comment {
@@ -29,6 +31,8 @@ export default function BlogPostPage() {
   const router = useRouter();
   const [post, setPost] = useState<Post | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
+  const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [pendingComment, setPendingComment] = useState('');
   const [comments, setComments] = useState<Comment[]>([
@@ -112,10 +116,9 @@ export default function BlogPostPage() {
     // Check if user is logged in
     const userAuth = localStorage.getItem('homeownerAuth');
     if (userAuth !== 'true') {
-      // Save the comment temporarily and redirect to sign-in
+      // Save the comment temporarily and open sign-in modal
       setPendingComment(newComment);
-      sessionStorage.setItem('redirectAfterAuth', window.location.pathname);
-      router.push('/sign-in');
+      setIsSignInModalOpen(true);
       return;
     }
     
@@ -130,6 +133,46 @@ export default function BlogPostPage() {
     
     setComments(prev => [...prev, newCommentObject]);
     setNewComment("");
+  };
+
+  const handleSignInSuccess = () => {
+    setIsSignInModalOpen(false);
+    
+    // Set authentication state in localStorage
+    localStorage.setItem('homeownerAuth', 'true');
+    
+    // If there's a pending comment, save it to sessionStorage before reload
+    if (pendingComment.trim()) {
+      sessionStorage.setItem('pendingBlogComment', pendingComment);
+    }
+    
+    // Force a page reload to update the header and entire app state
+    window.location.reload();
+  };
+
+  const handleSignUpSuccess = () => {
+    setIsSignUpModalOpen(false);
+    
+    // Set authentication state in localStorage
+    localStorage.setItem('homeownerAuth', 'true');
+    
+    // If there's a pending comment, save it to sessionStorage before reload
+    if (pendingComment.trim()) {
+      sessionStorage.setItem('pendingBlogComment', pendingComment);
+    }
+    
+    // Force a page reload to update the header and entire app state
+    window.location.reload();
+  };
+
+  const handleSwitchToSignUp = () => {
+    setIsSignInModalOpen(false);
+    setIsSignUpModalOpen(true);
+  };
+
+  const handleSwitchToSignIn = () => {
+    setIsSignUpModalOpen(false);
+    setIsSignInModalOpen(true);
   };
 
   const handleBecomePartner = () => router.push('/installer');
@@ -272,6 +315,21 @@ export default function BlogPostPage() {
         onScrollToRebate={handleScrollToRebate}
         onBlogClick={handleBlogClick}
         onGovernmentNewsClick={handleGovernmentNewsClick}
+      />
+
+      {/* Authentication Modals */}
+      <HomeownerSignInModal
+        isOpen={isSignInModalOpen}
+        onClose={() => setIsSignInModalOpen(false)}
+        onSuccess={handleSignInSuccess}
+        onSwitchToSignUp={handleSwitchToSignUp}
+      />
+
+      <HomeownerSignupModal
+        isOpen={isSignUpModalOpen}
+        onClose={() => setIsSignUpModalOpen(false)}
+        onSuccess={handleSignUpSuccess}
+        onSwitchToSignIn={handleSwitchToSignIn}
       />
     </div>
   );

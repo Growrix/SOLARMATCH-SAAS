@@ -1,0 +1,68 @@
+openapi: 3.0.3
+info:
+  title: SolarMatch Auth Common Schemas
+  version: 1.0.0
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        code:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+      required: [error]
+    RateLimitError:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+      example:
+        error: Too many requests. Please try again later.
+        code: RATE_LIMITED
+    SuccessMessage:
+      type: object
+      properties:
+        message:
+          type: string
+      required: [message]
+    VerifyRequestBody:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required: [email]
+    VerifyConfirmQuery:
+      type: object
+      properties:
+        token:
+          type: string
+      required: [token]
+    PasswordForgotBody:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required: [email]
+    PasswordResetBody:
+      type: object
+      properties:
+        token:
+          type: string
+        newPassword:
+          type: string
+          minLength: 8
+      required: [token, newPassword]
+    InstallerProfilePatch:
+      type: object
+      properties:
+        companyName:
+          type: string
+        businessAddress:
+          type: string
+        postcode:
+          type: string
+      required: [companyName, businessAddress, postcode]

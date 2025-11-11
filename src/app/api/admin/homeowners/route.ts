@@ -6,13 +6,13 @@
 // ============================================================================
 
 import { NextRequest, NextResponse } from 'next/server';
-
+import { getServerSession } from 'next-auth';
 import { Prisma } from '@prisma/client';
-import { getClerkSession } from '@/lib/clerk-auth-helpers';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 export async function GET(request: NextRequest) {
   try {
-    const session = await getClerkSession();
+    const session = await getServerSession(authOptions);
 
     if (!session?.user?.id || session.user.role !== 'ADMIN') {
       return NextResponse.json(

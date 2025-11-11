@@ -1,7 +1,6 @@
 "use client";
 import React from 'react';
 import { usePathname } from 'next/navigation';
-import { useClerk } from '@clerk/nextjs';
 import HomeownerSidebar from '@/components/homeowner/HomeownerSidebar';
 import HomeownerMobileSidebarMenu from '@/components/HomeownerMobileSidebarMenu';
 import HomeownerBottomNavBar from '@/components/HomeownerBottomNavBar';
@@ -9,7 +8,6 @@ import { HomeownerDashboardHeader } from '@/components/homeowner/HomeownerDashbo
 
 export default function HomeownerLayout({ children }: { children: React.ReactNode }) {
 	const pathname = usePathname();
-	const { signOut } = useClerk();
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 	const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(false);
 	const [showMessagingModal, setShowMessagingModal] = React.useState(false);
@@ -25,7 +23,9 @@ export default function HomeownerLayout({ children }: { children: React.ReactNod
 	const activePage = getActivePage();
 	
 	const handleLogout = async () => {
-		await signOut({ redirectUrl: '/' });
+		const { signOut } = await import('next-auth/react');
+		await signOut({ redirect: false });
+		window.location.href = '/';
 	};
 	
 	const handleHomeClick = () => {

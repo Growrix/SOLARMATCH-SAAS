@@ -6,8 +6,8 @@
 // ============================================================================
 
 import { NextRequest, NextResponse } from 'next/server';
-
-import { getClerkSession } from '@/lib/clerk-auth-helpers';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 // ============================================================================
@@ -16,7 +16,7 @@ import { prisma } from '@/lib/prisma';
 export async function GET(request: NextRequest) {
   try {
     // Get authenticated session
-    const session = await getClerkSession();
+    const session = await getServerSession(authOptions);
     
     // Check for ADMIN role
     if (!session?.user?.id || session.user.role !== 'ADMIN') {

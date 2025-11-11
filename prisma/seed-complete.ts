@@ -42,7 +42,6 @@ async function main() {
     where: { email: 'installer1@test.com' },
     update: {},
     create: {
-      clerkId: 'test_installer_1_clerk_id',
       email: 'installer1@test.com',
       name: 'Solar Pro Installations',
       role: 'INSTALLER',
@@ -62,7 +61,6 @@ async function main() {
     where: { email: 'installer2@test.com' },
     update: {},
     create: {
-      clerkId: 'test_installer_2_clerk_id',
       email: 'installer2@test.com',
       name: 'Green Energy Solutions',
       role: 'INSTALLER',
@@ -87,7 +85,6 @@ async function main() {
     where: { email: 'homeowner1@test.com' },
     update: {},
     create: {
-      clerkId: 'test_homeowner_1_clerk_id',
       email: 'homeowner1@test.com',
       name: 'John Smith',
       role: 'HOMEOWNER',
@@ -105,7 +102,6 @@ async function main() {
     where: { email: 'homeowner2@test.com' },
     update: {},
     create: {
-      clerkId: 'test_homeowner_2_clerk_id',
       email: 'homeowner2@test.com',
       name: 'Jane Doe',
       role: 'HOMEOWNER',
@@ -250,7 +246,6 @@ async function main() {
   console.log('\n🔑 Test Credentials:');
   console.log('\n   ADMIN:');
   console.log(`   - Email: ${adminUser.email}`);
-  console.log(`   - Clerk ID: ${adminUser.clerkId}`);
   console.log(`   - Access: /admin (all dashboards)`);
 
   console.log('\n   INSTALLER 1 (VERIFIED):');
@@ -274,11 +269,9 @@ async function main() {
   console.log(`   - Access: /homeowner (phone verification required)`);
 
   console.log('\n📝 Next Steps:');
-  console.log('   1. Create Clerk accounts for test users (use emails above)');
-  console.log('   2. Set publicMetadata.role for each user in Clerk Dashboard');
-  console.log('   3. Test login with each role → verify correct dashboard redirect');
-  console.log('   4. Test lead submission → purchase → contact flow');
-  console.log('   5. Test admin approval/rejection of leads');
+  console.log('   1. Test login with each role → verify correct dashboard redirect');
+  console.log('   2. Test lead submission → purchase → contact flow');
+  console.log('   3. Test admin approval/rejection of leads');
   console.log('\n');
 }
 

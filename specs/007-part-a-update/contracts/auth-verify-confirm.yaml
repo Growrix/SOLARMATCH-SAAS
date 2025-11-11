@@ -1,0 +1,34 @@
+openapi: 3.0.3
+info:
+  title: Confirm Email Verification
+  version: 1.0.0
+paths:
+  /api/auth/verify/confirm:
+    get:
+      summary: Confirm a verification token and verify the user email
+      operationId: confirmVerification
+      parameters:
+        - in: query
+          name: token
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Email verified
+          content:
+            application/json:
+              schema:
+                $ref: './common-schemas.yaml#/components/schemas/SuccessMessage'
+        '400':
+          description: Invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: './common-schemas.yaml#/components/schemas/ErrorResponse'
+        '410':
+          description: Token expired or already used
+          content:
+            application/json:
+              schema:
+                $ref: './common-schemas.yaml#/components/schemas/ErrorResponse'

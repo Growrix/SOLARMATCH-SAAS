@@ -2,12 +2,13 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
+import { useSession } from 'next-auth/react';
 import Hero from '../components/Hero';
 import InstantQuoteForm from '../components/InstantQuoteForm';
 import RebateCalculatorForm from '../components/RebateCalculatorForm';
 import QuoteOptionsModal from '../components/QuoteOptionsModal';
 import QuoteSuccessModal from '../components/QuoteSuccessModal';
+import HomeownerSignupModal from '../components/HomeownerSignupModal';
 import Footer from '../components/Footer';
 import BlogSection from '../components/BlogSection';
 import NewsletterSignup from '../components/NewsletterSignup';
@@ -38,9 +39,10 @@ const TagIcon = () => (
 
 export default function Home() {
   const router = useRouter();
-  const { user, isSignedIn, isLoaded } = useUser();
+  const { data: session, status } = useSession();
   const [activeCalculator, setActiveCalculator] = useState<'quote' | 'rebate'>('quote');
   const [isQuoteOptionsModalOpen, setIsQuoteOptionsModalOpen] = useState(false);
+  const [isHomeownerSignupModalOpen, setIsHomeownerSignupModalOpen] = useState(false);
   const [isQuoteSuccessModalOpen, setIsQuoteSuccessModalOpen] = useState(false);
   const [selectedQuoteType, setSelectedQuoteType] = useState<'call_visit' | 'written' | null>(null);
   const [quoteData, setQuoteData] = useState<any>(null);
@@ -64,14 +66,14 @@ export default function Home() {
     // Convert to API format: 'call_visit' -> 'CALL_VISIT', 'written' -> 'WRITTEN_QUOTE'
     const apiQuoteType = type === 'call_visit' ? 'CALL_VISIT' : 'WRITTEN_QUOTE';
     
-    // Check if user is already logged in (Clerk)
-    if (isSignedIn && user) {
+    // Check if user is already logged in
+    if (status === 'authenticated' && session?.user) {
       // User is logged in - submit quote directly without signup
       console.log('User already logged in, submitting quote request:', { 
         quoteType: apiQuoteType, 
         quoteData: pendingQuoteData,
-        userId: user.id,
-        userEmail: user.emailAddresses[0]?.emailAddress
+        userId: session.user.id,
+        userEmail: session.user.email
       });
       
       try {
@@ -110,12 +112,111 @@ export default function Home() {
         alert('An unexpected error occurred. Please try again.');
       }
     } else {
-      // User is not logged in - save quote data and redirect to Clerk signup
-      sessionStorage.setItem('pendingQuoteData', JSON.stringify({
-        quoteType: selectedQuoteType,
-        quoteData: pendingQuoteData
-      }));
-      router.push('/sign-up?redirect_url=/instant-quote/complete');
+      // User is not logged in - show signup modal
+      setIsHomeownerSignupModalOpen(true);
+    }
+  };
+
+  const handleHomeownerSignupSuccess = async () => {
+    // Phase 4.10: Lead creation with proper session polling
+    // Ensures NextAuth session is fully established before creating lead
+    setIsHomeownerSignupModalOpen(false);
+    
+    console.log('[Guest Flow] Signup successful, waiting for session...', { 
+      quoteType: selectedQuoteType, 
+      quoteData: pendingQuoteData 
+    });
+    
+    // Session polling: Wait for NextAuth session to be ready
+    let sessionReady = false;
+    let attempts = 0;
+    const maxAttempts = 25; // 5 seconds max (25 * 200ms)
+    
+    while (!sessionReady && attempts < maxAttempts) {
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      try {
+        const response = await fetch('/api/auth/session');
+        const sessionData = await response.json();
+        
+        if (sessionData?.user?.role === 'HOMEOWNER' && sessionData?.user?.id) {
+          console.log('[Guest Flow] Session ready!', { 
+            userId: sessionData.user.id, 
+            email: sessionData.user.email 
+          });
+          sessionReady = true;
+          break;
+        }
+      } catch (error) {
+        console.error('[Guest Flow] Session check error:', error);
+      }
+      
+      attempts++;
+    }
+    
+    if (!sessionReady) {
+      console.error('[Guest Flow] Session not ready after 5 seconds');
+      alert('Login successful but session not ready. Please create your quote from the dashboard.');
+      router.push('/homeowner/dashboard');
+      return;
+    }
+    
+    // NOW session is ready - create lead via API
+    try {
+      // Convert quoteType format: 'call_visit' -> 'CALL_VISIT', 'written' -> 'WRITTEN_QUOTE'
+      const apiQuoteType = selectedQuoteType === 'call_visit' ? 'CALL_VISIT' : 'WRITTEN_QUOTE';
+      
+      console.log('[Guest Flow] Creating lead...', {
+        selectedQuoteType,
+        apiQuoteType,
+        postcode: pendingQuoteData?.postcode || pendingQuoteData?.propertyPostcode
+      });
+      
+      const response = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          quoteType: apiQuoteType,
+          propertyPostcode: pendingQuoteData?.postcode || pendingQuoteData?.propertyPostcode,
+          location: pendingQuoteData?.location,
+          state: pendingQuoteData?.state,
+          energyBill: pendingQuoteData?.electricityValue || pendingQuoteData?.energyBill || 0,
+          propertyAddress: pendingQuoteData?.address,
+          propertyType: pendingQuoteData?.propertyType || 'residential',
+          roofType: pendingQuoteData?.roofType,
+          budgetRange: pendingQuoteData?.budgetRange,
+          desiredOffset: pendingQuoteData?.desiredOffset || 100,
+          batteryRequired: pendingQuoteData?.batteryRequired || false,
+          batteryCapacity: pendingQuoteData?.batteryCapacity,
+          timeframe: pendingQuoteData?.timeframe,
+          additionalNotes: pendingQuoteData?.additionalNotes,
+          billType: pendingQuoteData?.billType || 'quarterly',
+          quoteData: pendingQuoteData
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        console.log('[Guest Flow] Lead created successfully!', { leadId: data.lead?.id });
+        setIsQuoteSuccessModalOpen(true);
+        setPendingQuoteData(null);
+      } else {
+        console.error('[Guest Flow] Lead creation failed:', data);
+        
+        // Show user-friendly error message
+        if (response.status === 403 && data.requiresVerification) {
+          alert('Account created successfully! However, phone verification is required. Please complete verification from your dashboard.');
+        } else {
+          alert(data.error || 'Failed to create lead. Please try again from your dashboard.');
+        }
+        
+        router.push('/homeowner/dashboard');
+      }
+    } catch (err) {
+      console.error('[Guest Flow] Lead creation error:', err);
+      alert('Failed to create lead. Please try again from your dashboard.');
+      router.push('/homeowner/dashboard');
     }
   };
 
@@ -234,6 +335,15 @@ export default function Home() {
           onClose={() => setIsQuoteOptionsModalOpen(false)}
           onSelectOption={handleQuoteOptionSelected}
           quoteData={pendingQuoteData}
+        />
+      )}
+
+      {isHomeownerSignupModalOpen && (
+        <HomeownerSignupModal
+          isOpen={isHomeownerSignupModalOpen}
+          onClose={() => setIsHomeownerSignupModalOpen(false)}
+          onSuccess={handleHomeownerSignupSuccess}
+          onSwitchToSignIn={() => setIsHomeownerSignupModalOpen(false)}
         />
       )}
 

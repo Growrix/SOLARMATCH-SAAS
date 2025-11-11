@@ -1,7 +1,6 @@
 "use client";
 import React from 'react';
 import { usePathname } from 'next/navigation';
-import { useClerk } from '@clerk/nextjs';
 import InstallerSidebar from '@/components/installer/InstallerSidebar';
 import InstallerMobileSidebarMenu from '@/components/InstallerMobileSidebarMenu';
 import InstallerBottomNavBar from '@/components/InstallerBottomNavBar';
@@ -9,7 +8,6 @@ import { InstallerDashboardHeader } from '@/components/installer/InstallerDashbo
 
 export default function InstallerLayout({ children }: { children: React.ReactNode }) {
 	const pathname = usePathname();
-	const { signOut } = useClerk();
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 	const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(false);
 	
@@ -22,7 +20,9 @@ export default function InstallerLayout({ children }: { children: React.ReactNod
 	const activePage = getActivePage();
 	
 	const handleLogout = async () => {
-		await signOut({ redirectUrl: '/' });
+		const { signOut } = await import('next-auth/react');
+		await signOut({ redirect: false });
+		window.location.href = '/';
 	};
 	
 	const handleHomeClick = () => {

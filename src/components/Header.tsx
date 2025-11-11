@@ -1,7 +1,4 @@
-﻿'use client';
-
-import React from 'react';
-import { SignInButton, SignUpButton, UserButton, useUser } from '@clerk/nextjs';
+﻿import React from 'react';
 import { type Theme } from './ThemeProvider';
 import { ThemeSwitcher } from './ThemeSwitcher';
 
@@ -15,12 +12,19 @@ const SunIcon = () => (
 interface HeaderProps {
     theme: Theme;
     setTheme: (theme: Theme) => void;
+    isLoggedIn: boolean;
+    onLoginClick: () => void;
+    onSignupClick: () => void;
+    onLogoutClick: () => void;
     onHomeClick: () => void;
     onDashboardClick: () => void;
+    onHomeownerDashboardClick: () => void;
+    onInstallerDashboardClick: () => void;
+    onInstallerHomeClick: () => void;
+    onAdminDashboardClick: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ theme, setTheme, onHomeClick, onDashboardClick }) => {
-  const { isSignedIn, user } = useUser();
+const Header: React.FC<HeaderProps> = ({ theme, setTheme, isLoggedIn, onLoginClick, onSignupClick, onLogoutClick, onHomeClick, onDashboardClick, onHomeownerDashboardClick, onInstallerDashboardClick, onInstallerHomeClick, onAdminDashboardClick }) => {
 
   return (
     <header className="py-4 sm:py-6">
@@ -41,7 +45,7 @@ const Header: React.FC<HeaderProps> = ({ theme, setTheme, onHomeClick, onDashboa
               
               {/* Desktop Navigation */}
               <div className="hidden sm:flex items-center space-x-2">
-                {isSignedIn ? (
+                {isLoggedIn ? (
                   <>
                     <button 
                       onClick={onDashboardClick}
@@ -49,32 +53,27 @@ const Header: React.FC<HeaderProps> = ({ theme, setTheme, onHomeClick, onDashboa
                     >
                       Dashboard
                     </button>
-                    <UserButton 
-                      appearance={{
-                        elements: {
-                          avatarBox: 'w-10 h-10 shadow-neu-outset rounded-full',
-                          userButtonPopoverCard: 'theme-card shadow-neu-outset',
-                          userButtonPopoverActionButton: 'text-foreground hover:text-primary',
-                        }
-                      }}
-                    />
+                    <button 
+                      onClick={onLogoutClick}
+                      className="px-5 py-2 text-sm font-bold tracking-wider text-foreground hover:text-primary transition-colors rounded-full bg-background shadow-neu-outset-sm hover:shadow-neu-inset-sm active:shadow-neu-inset-sm active:scale-[0.98]"
+                    >
+                      Logout
+                    </button>
                   </>
                 ) : (
                   <>
-                    <SignInButton mode="modal">
-                      <button 
-                        className="px-5 py-2 text-sm font-bold tracking-wider text-foreground hover:text-primary transition-colors rounded-full bg-background shadow-neu-outset-sm hover:shadow-neu-inset-sm active:shadow-neu-inset-sm active:scale-[0.98]"
-                      >
-                        Login
-                      </button>
-                    </SignInButton>
-                    <SignUpButton mode="modal">
-                      <button 
-                        className="px-5 py-2 text-sm font-bold tracking-wider border border-primary text-primary rounded-full bg-transparent shadow-neu-outset-sm hover:shadow-neu-inset-sm active:shadow-neu-inset-sm active:scale-[0.98]"
-                      >
-                        Sign Up
-                      </button>
-                    </SignUpButton>
+                    <button 
+                      onClick={onLoginClick}
+                      className="px-5 py-2 text-sm font-bold tracking-wider text-foreground hover:text-primary transition-colors rounded-full bg-background shadow-neu-outset-sm hover:shadow-neu-inset-sm active:shadow-neu-inset-sm active:scale-[0.98]"
+                    >
+                      Login
+                    </button>
+                    <button 
+                      onClick={onSignupClick}
+                      className="px-5 py-2 text-sm font-bold tracking-wider border border-primary text-primary rounded-full bg-transparent shadow-neu-outset-sm hover:shadow-neu-inset-sm active:shadow-neu-inset-sm active:scale-[0.98]"
+                    >
+                      Sign Up
+                    </button>
                   </>
                 )}
               </div>

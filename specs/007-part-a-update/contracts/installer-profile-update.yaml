@@ -1,0 +1,44 @@
+openapi: 3.0.3
+info:
+  title: Update Installer Profile (Minimal Onboarding)
+  version: 1.0.0
+paths:
+  /api/installer/profile:
+    patch:
+      summary: Update minimal installer profile fields
+      operationId: updateInstallerProfile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './common-schemas.yaml#/components/schemas/InstallerProfilePatch'
+      responses:
+        '200':
+          description: Profile updated and profileComplete may be set true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  profileComplete:
+                    type: boolean
+                required: [profileComplete]
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: './common-schemas.yaml#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (only INSTALLER may call)
+          content:
+            application/json:
+              schema:
+                $ref: './common-schemas.yaml#/components/schemas/ErrorResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: './common-schemas.yaml#/components/schemas/ErrorResponse'

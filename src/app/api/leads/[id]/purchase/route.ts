@@ -9,7 +9,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getClerkSession } from '@/lib/clerk-auth-helpers';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { 
   createPurchaseIntent, 
   confirmPurchase 
@@ -21,7 +22,7 @@ export async function POST(
 ) {
   try {
     // 1. Authentication check
-    const session = await getClerkSession();
+    const session = await getServerSession(authOptions);
     
     if (!session || !session.user) {
       return NextResponse.json(

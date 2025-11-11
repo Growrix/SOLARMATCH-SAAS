@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Admin User - SolarMatch</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        button {
+            width: 100%;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+        .result.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .result.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .result h3 {
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .credentials {
+            background: #fff;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border-left: 4px solid #28a745;
+        }
+        .credentials p {
+            margin: 8px 0;
+            font-family: 'Courier New', monospace;
+        }
+        .credentials strong {
+            color: #333;
+        }
+        .warning {
+            background: #fff3cd;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+            color: #856404;
+            font-size: 14px;
+            border-left: 4px solid #ffc107;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Create Admin User</h1>
+        <p class="subtitle">Initialize your SolarMatch admin account</p>
+        
+        <button id="createBtn" onclick="createAdmin()">
+            Create Admin Credentials
+        </button>
+
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        async function createAdmin() {
+            const btn = document.getElementById('createBtn');
+            const result = document.getElementById('result');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Creating admin user...';
+            result.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/admin/create-initial', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    result.className = 'result success';
+                    result.innerHTML = `
+                        <h3>✅ Admin User Created Successfully!</h3>
+                        <div class="credentials">
+                            <p><strong>📧 Email:</strong> ${data.credentials.email}</p>
+                            <p><strong>🔑 Password:</strong> ${data.credentials.password}</p>
+                            <p><strong>🌐 Login URL:</strong> <a href="${data.credentials.loginUrl}" target="_blank">${data.credentials.loginUrl}</a></p>
+                        </div>
+                        <div class="warning">
+                            ⚠️ ${data.warning}
+                        </div>
+                    `;
+                    btn.innerHTML = '✅ Admin Created';
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `
+                        <h3>⚠️ ${data.error || 'Error'}</h3>
+                        <p>${data.message || data.details || 'An error occurred'}</p>
+                        ${data.email ? `<p>Email: <strong>${data.email}</strong></p>` : ''}
+                    `;
+                    btn.disabled = false;
+                    btn.innerHTML = 'Try Again';
+                }
+
+                result.style.display = 'block';
+
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `
+                    <h3>❌ Connection Error</h3>
+                    <p>Failed to connect to the server. Make sure the development server is running.</p>
+                    <p style="margin-top: 10px; font-size: 12px; color: #666;">${error.message}</p>
+                `;
+                result.style.display = 'block';
+                btn.disabled = false;
+                btn.innerHTML = 'Try Again';
+            }
+        }
+    </script>
+</body>
+</html>

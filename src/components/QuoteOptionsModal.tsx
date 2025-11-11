@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useSession } from 'next-auth/react';
 import OTPVerificationModal from './OTPVerificationModal';
 import Button from '@/components/ui/button';
 import { X } from 'lucide-react';
@@ -25,7 +25,7 @@ const QuoteOptionsModal: React.FC<QuoteOptionsModalProps> = ({
   onSelectOption,
   quoteData 
 }) => {
-  const { user } = useUser();
+  const { data: session } = useSession();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showOTPModal, setShowOTPModal] = useState(false);

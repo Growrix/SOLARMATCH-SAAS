@@ -16,7 +16,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import {
   MapPinIcon,
@@ -49,7 +49,7 @@ interface Lead {
 }
 
 export default function InstallerMarketplacePage() {
-  const { user, isSignedIn, isLoaded } = useUser();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,19 +59,19 @@ export default function InstallerMarketplacePage() {
 
   // Redirect if not authenticated or not installer
   useEffect(() => {
-    if (isLoaded && !isSignedIn) {
-      router.push('/sign-in');
-    } else if (isLoaded && isSignedIn && user?.publicMetadata?.role !== 'INSTALLER') {
+    if (status === 'unauthenticated') {
+      router.push('/api/auth/signin');
+    } else if (status === 'authenticated' && session?.user?.role !== 'INSTALLER') {
       router.push('/');
     }
-  }, [isLoaded, isSignedIn, user, router]);
+  }, [status, session, router]);
 
   // Fetch marketplace leads
   useEffect(() => {
-    if (isSignedIn) {
+    if (status === 'authenticated') {
       fetchMarketplaceLeads();
     }
-  }, [isSignedIn]);
+  }, [status]);
 
   async function fetchMarketplaceLeads() {
     try {
@@ -93,7 +93,7 @@ export default function InstallerMarketplacePage() {
 
   // Handle lead purchase
   async function handlePurchase(leadId: string) {
-    if (!user?.publicMetadata?.installerVerified) {
+    if (!session?.user?.installerVerified) {
       alert('You must be verified to purchase leads. Please complete installer verification.');
       router.push('/installer/dashboard'); // Redirect to dashboard where verification is shown
       return;
@@ -207,7 +207,7 @@ export default function InstallerMarketplacePage() {
         </div>
 
         {/* Verification Warning */}
-        {!user?.publicMetadata?.installerVerified && (
+        {!session?.user?.installerVerified && (
           <div className="mb-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
             <div className="flex items-center">
               <ShieldCheckIcon className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mr-2" />
@@ -328,9 +328,9 @@ export default function InstallerMarketplacePage() {
 
                   <button
                     onClick={() => handlePurchase(lead.id)}
-                    disabled={!user?.publicMetadata?.installerVerified || purchasing === lead.id}
+                    disabled={!session?.user?.installerVerified || purchasing === lead.id}
                     className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
-                      !user?.publicMetadata?.installerVerified
+                      !session?.user?.installerVerified
                         ? 'bg-slate-300 dark:bg-slate-600 text-slate-500 dark:text-slate-400 cursor-not-allowed'
                         : purchasing === lead.id
                         ? 'bg-brand-400 text-white cursor-wait'

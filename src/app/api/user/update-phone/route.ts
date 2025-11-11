@@ -6,14 +6,15 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { getClerkSession } from "@/lib/clerk-auth-helpers";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createAuditLog } from "@/lib/services/audit-logger";
 
 export async function PUT(request: NextRequest) {
   try {
     // Authenticate user
-    const session = await getClerkSession();
+    const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: "Unauthorized" },

@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-import { getClerkSession } from '@/lib/clerk-auth-helpers';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(req: NextRequest) {
   try {
     // Check authentication
-    const session = await getClerkSession();
+    const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

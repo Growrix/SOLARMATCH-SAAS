@@ -8,14 +8,15 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { getClerkSession } from "@/lib/clerk-auth-helpers";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { phoneVerificationService } from "@/lib/services/phone-verification-service";
 import { createAuditLog } from "@/lib/services/audit-logger";
 
 export async function POST(request: NextRequest) {
   try {
     // Authenticate user
-    const session = await getClerkSession();
+    const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: "Unauthorized" },

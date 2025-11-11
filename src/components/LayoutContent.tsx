@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useUser, useClerk } from '@clerk/nextjs';
+import { useSession, signOut } from 'next-auth/react';
 import TopBar from './TopBar';
 import HeaderMenu from './HeaderMenu';
 import InstallerEligibilityModal from './InstallerEligibilityModal';
@@ -23,8 +23,7 @@ interface LayoutContentProps {
 export default function LayoutContent({ children }: LayoutContentProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { isSignedIn, user, isLoaded } = useUser();
-  const { signOut } = useClerk();
+  const { data: session, status } = useSession(); // Get NextAuth session
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -49,9 +48,9 @@ export default function LayoutContent({ children }: LayoutContentProps) {
   const [isNewQuoteModalOpen, setIsNewQuoteModalOpen] = useState(false);
   const [isMessagingModalOpen, setIsMessagingModalOpen] = useState(false);
 
-  // Check login status from Clerk
+  // Check login status from NextAuth session
   useEffect(() => {
-    if (isLoaded && isSignedIn && user) {
+    if (status === 'authenticated' && session?.user) {
       setIsLoggedIn(true);
     } else {
       setIsLoggedIn(false);
@@ -60,10 +59,10 @@ export default function LayoutContent({ children }: LayoutContentProps) {
     // Check if there's an action query parameter (e.g., ?action=signin)
     const urlParams = new URLSearchParams(window.location.search);
     const action = urlParams.get('action');
-    if (action === 'signin' && !isSignedIn) {
+    if (action === 'signin' && status === 'unauthenticated') {
       setIsHomeownerSignInModalOpen(true);
     }
-  }, [isSignedIn, user, isLoaded]);
+  }, [session, status]);
 
   // Effect for header visibility on scroll
   useEffect(() => {
@@ -102,7 +101,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Installer handlers - Show eligibility modal first, then redirect to Clerk signup
+  // Installer handlers
   const handleBecomePartner = () => {
     setIsEligibilityModalOpen(true);
   };
@@ -120,11 +119,13 @@ export default function LayoutContent({ children }: LayoutContentProps) {
     setIsInstallerSignupModalOpen(false);
     console.log('Installer signed up successfully');
     
-    // Get role from Clerk user metadata
+    // Fetch fresh session to get updated role
     try {
-      const role = user?.unsafeMetadata?.role;
+      const response = await fetch('/api/auth/session');
+      const sessionData = await response.json();
+      const role = sessionData?.user?.role;
       
-      console.log('User role from Clerk after signup:', role);
+      console.log('User role from fresh session after signup:', role);
       
       // Redirect based on actual role (should be INSTALLER)
       if (role === 'INSTALLER') {
@@ -138,7 +139,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
         router.push('/installer/dashboard');
       }
     } catch (error) {
-      console.error('Error getting role after signup:', error);
+      console.error('Error fetching session after signup:', error);
       // Fallback to installer dashboard
       router.push('/installer/dashboard');
     }
@@ -148,11 +149,13 @@ export default function LayoutContent({ children }: LayoutContentProps) {
     setIsInstallerSignInModalOpen(false);
     console.log('Installer signed in successfully');
     
-    // Get role from Clerk user metadata
+    // Fetch fresh session to get updated role
     try {
-      const role = user?.unsafeMetadata?.role;
+      const response = await fetch('/api/auth/session');
+      const sessionData = await response.json();
+      const role = sessionData?.user?.role;
       
-      console.log('User role from Clerk:', role);
+      console.log('User role from fresh session:', role);
       
       // Redirect based on actual role
       if (role === 'INSTALLER') {
@@ -166,7 +169,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
         router.push('/installer/dashboard');
       }
     } catch (error) {
-      console.error('Error getting role:', error);
+      console.error('Error fetching session:', error);
       // Fallback to installer dashboard
       router.push('/installer/dashboard');
     }
@@ -177,7 +180,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
     setIsInstallerSignInModalOpen(true);
   };
 
-  // Homeowner handlers - Now use Clerk routing
+  // Homeowner handlers
   const handleLoginClick = () => {
     setIsHomeownerSignInModalOpen(true);
   };
@@ -190,11 +193,13 @@ export default function LayoutContent({ children }: LayoutContentProps) {
     setIsHomeownerSignupModalOpen(false);
     console.log('Homeowner signed up successfully');
     
-    // Get role from Clerk user metadata
+    // Fetch fresh session to get updated role
     try {
-      const role = user?.unsafeMetadata?.role;
+      const response = await fetch('/api/auth/session');
+      const sessionData = await response.json();
+      const role = sessionData?.user?.role;
       
-      console.log('User role from Clerk after signup:', role);
+      console.log('User role from fresh session after signup:', role);
       
       // Redirect based on actual role (should be HOMEOWNER)
       if (role === 'HOMEOWNER') {
@@ -208,7 +213,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
         router.push('/homeowner/dashboard');
       }
     } catch (error) {
-      console.error('Error getting role after signup:', error);
+      console.error('Error fetching session after signup:', error);
       // Fallback to homeowner dashboard
       router.push('/homeowner/dashboard');
     }
@@ -226,11 +231,13 @@ export default function LayoutContent({ children }: LayoutContentProps) {
       window.history.replaceState({}, '', window.location.pathname);
       window.location.reload();
     } else {
-      // Get role from Clerk user metadata
+      // Fetch fresh session to get updated role
       try {
-        const role = user?.unsafeMetadata?.role;
+        const response = await fetch('/api/auth/session');
+        const sessionData = await response.json();
+        const role = sessionData?.user?.role;
         
-        console.log('User role from Clerk:', role);
+        console.log('User role from fresh session:', role);
         
         // Redirect based on actual role
         if (role === 'INSTALLER') {
@@ -244,21 +251,30 @@ export default function LayoutContent({ children }: LayoutContentProps) {
           router.push('/homeowner/dashboard');
         }
       } catch (error) {
-        console.error('Error getting role:', error);
+        console.error('Error fetching session:', error);
         // Fallback to homeowner dashboard
         router.push('/homeowner/dashboard');
       }
     }
   };
 
-  const handleSwitchToSignup = () => {
-    setIsHomeownerSignInModalOpen(false);
-    setIsHomeownerSignupModalOpen(true);
+  const handleLogoutClick = async () => {
+    console.log('User logging out');
+    // Use NextAuth signOut instead of localStorage
+    await signOut({ redirect: false });
+    setIsLoggedIn(false);
+    // Redirect to homepage
+    router.push('/');
   };
 
-  const handleSwitchToLogin = () => {
+  const handleSwitchToSignIn = () => {
     setIsHomeownerSignupModalOpen(false);
     setIsHomeownerSignInModalOpen(true);
+  };
+
+  const handleSwitchToSignUp = () => {
+    setIsHomeownerSignInModalOpen(false);
+    setIsHomeownerSignupModalOpen(true);
   };
 
   // Guest bottom navbar handlers
@@ -299,7 +315,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
     setIsHomeownerSignInModalOpen(true);
   };
 
-  // Homeowner bottom navbar handlers
+  // Homeowner navbar handlers
   const handleHomeownerHomeClick = () => {
     router.push('/');
   };
@@ -310,7 +326,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
 
   // Smart dashboard handler that routes based on role
   const handleDashboardClick = () => {
-    const role = user?.publicMetadata?.role as string;
+    const role = session?.user?.role;
     
     if (role === 'INSTALLER') {
       router.push('/installer/dashboard');
@@ -343,32 +359,31 @@ export default function LayoutContent({ children }: LayoutContentProps) {
   };
 
   const handleLogout = async () => {
-    await signOut();
+    // Clear NextAuth session
+    await signOut({ redirect: false });
+    // Redirect to homepage
     router.push('/');
   };
 
   // Check if we're on a guest page (home and all blog pages)
   const isGuestPage = pathname === '/' || pathname?.startsWith('/blog');
-  
-  // Get user role from Clerk
-  const userRole = user?.publicMetadata?.role as string;
 
   return (
     <>
       {/* Only show main site header/topbar on non-installer, non-homeowner, and non-admin routes */}
       {!isInstallerRoute && !isHomeownerRoute && !isAdminRoute && (
         <div className={`sticky top-0 z-30 transition-transform duration-300 ease-in-out ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
-          {!isSignedIn && (
+          {!isLoggedIn && (
             <TopBar 
               onBecomePartnerClick={handleBecomePartner}
               onPartnerSignInClick={handlePartnerSignIn}
             />
           )}
           <HeaderMenu 
-            isLoggedIn={isSignedIn}
+            isLoggedIn={isLoggedIn}
             onLoginClick={handleLoginClick}
             onSignupClick={handleSignupClick}
-            onLogoutClick={handleLogout}
+            onLogoutClick={handleLogoutClick}
             onDashboardClick={handleDashboardClick}
             onHomeownerDashboardClick={handleHomeownerDashboardClick}
             onInstallerDashboardClick={() => router.push('/installer/dashboard')}
@@ -386,34 +401,37 @@ export default function LayoutContent({ children }: LayoutContentProps) {
         onClose={() => setIsEligibilityModalOpen(false)}
         onEligible={handleEligible}
       />
+      
+      <InstallerSignupModal 
+        isOpen={isInstallerSignupModalOpen}
+        onClose={() => setIsInstallerSignupModalOpen(false)}
+        onSuccess={handleInstallerSignupSuccess}
+        onSwitchToSignIn={handleSwitchToInstallerSignIn}
+      />
+      
       <InstallerSignInModal 
         isOpen={isInstallerSignInModalOpen}
         onClose={() => setIsInstallerSignInModalOpen(false)}
-        onSuccess={() => {}} // Clerk handles redirect via afterSignInUrl
+        onSuccess={handleInstallerSignInSuccess}
         onOpenSignup={() => {
           setIsInstallerSignInModalOpen(false);
           setIsInstallerSignupModalOpen(true);
         }}
-      />
-      <InstallerSignupModal 
-        isOpen={isInstallerSignupModalOpen}
-        onClose={() => setIsInstallerSignupModalOpen(false)}
-        onSuccess={() => {}} // Clerk handles redirect via afterSignUpUrl
-        onSwitchToSignIn={handleSwitchToInstallerSignIn}
       />
 
       {/* Homeowner Modals */}
       <HomeownerSignupModal 
         isOpen={isHomeownerSignupModalOpen}
         onClose={() => setIsHomeownerSignupModalOpen(false)}
-        onSuccess={() => {}} // Clerk handles redirect via afterSignUpUrl
-        onSwitchToSignIn={handleSwitchToLogin}
+        onSuccess={handleHomeownerSignupSuccess}
+        onSwitchToSignIn={handleSwitchToSignIn}
       />
+      
       <HomeownerSignInModal 
         isOpen={isHomeownerSignInModalOpen}
         onClose={() => setIsHomeownerSignInModalOpen(false)}
-        onSuccess={() => {}} // Clerk handles redirect via afterSignInUrl
-        onSwitchToSignUp={handleSwitchToSignup}
+        onSuccess={handleHomeownerSignInSuccess}
+        onSwitchToSignUp={handleSwitchToSignUp}
       />
 
       {/* Homeowner Dashboard Modals (Global) */}
@@ -430,7 +448,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
       />
 
       {/* Conditional Bottom Navigation - Role-Based Rendering */}
-      {isSignedIn && !isDashboardRoute && !isInstallerRoute && !isHomeownerRoute && !isAdminRoute && userRole === 'HOMEOWNER' ? (
+      {isLoggedIn && !isDashboardRoute && !isInstallerRoute && !isHomeownerRoute && !isAdminRoute && session?.user?.role === 'HOMEOWNER' ? (
         // Logged-in HOMEOWNER on main pages (/, /blog, etc.) - NOT on /homeowner routes
         <>
           <HomeownerBottomNavBar 
@@ -453,7 +471,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
             onLogoutClick={handleLogout}
           />
         </>
-      ) : !isSignedIn && isGuestPage ? (
+      ) : !isLoggedIn && isGuestPage ? (
         // Guest (not logged in) on main pages
         <GuestBottomNavBar 
           onHomeClick={handleGuestHome}

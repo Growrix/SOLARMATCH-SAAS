@@ -1,9 +1,9 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import { ClerkProvider } from '@clerk/nextjs'
 import { ThemeProvider } from '../components/ThemeProvider'
 import LayoutContent from '../components/LayoutContent'
+import NextAuthProvider from '../components/NextAuthProvider'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -20,11 +20,11 @@ export default function RootLayout({
   return (
     <html lang="en" style={{ scrollBehavior: 'smooth' }}>
       <body className={inter.className}>
-        <ClerkProvider>
+        <NextAuthProvider>
           <ThemeProvider>
             <LayoutContent>{children}</LayoutContent>
           </ThemeProvider>
-        </ClerkProvider>
+        </NextAuthProvider>
       </body>
     </html>
   )

@@ -13,7 +13,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import {
   PhoneIcon,
@@ -48,7 +48,7 @@ interface PurchasedLead {
 }
 
 export default function PurchasedLeadsPage() {
-  const { user, isSignedIn, isLoaded } = useUser();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [leads, setLeads] = useState<PurchasedLead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,19 +56,19 @@ export default function PurchasedLeadsPage() {
 
   // Redirect if not authenticated or not installer
   useEffect(() => {
-    if (isLoaded && !isSignedIn) {
-      router.push('/sign-in');
-    } else if (isLoaded && isSignedIn && user?.publicMetadata?.role !== 'INSTALLER') {
+    if (status === 'unauthenticated') {
+      router.push('/api/auth/signin');
+    } else if (status === 'authenticated' && session?.user?.role !== 'INSTALLER') {
       router.push('/');
     }
-  }, [isLoaded, isSignedIn, user, router]);
+  }, [status, session, router]);
 
   // Fetch purchased leads
   useEffect(() => {
-    if (isSignedIn) {
+    if (status === 'authenticated') {
       fetchPurchasedLeads();
     }
-  }, [isSignedIn]);
+  }, [status]);
 
   async function fetchPurchasedLeads() {
     try {

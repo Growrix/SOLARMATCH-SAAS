@@ -5,7 +5,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getClerkSession } from '@/lib/clerk-auth-helpers';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { createAuditLog, AUDIT_ACTIONS } from '@/lib/services/audit-logger';
 import { createNotification } from '@/lib/services/notification-service';
@@ -38,7 +39,7 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getClerkSession();
+    const session = await getServerSession(authOptions);
 
     // Check authentication
     if (!session?.user) {

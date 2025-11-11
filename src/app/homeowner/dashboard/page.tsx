@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useUser, useClerk } from '@clerk/nextjs';
+import { signOut, useSession } from 'next-auth/react';
 import { LeadStatus as LeadStatusEnum } from '@prisma/client';
 import { useTheme, type Theme } from '@/components/ThemeProvider';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
@@ -609,8 +609,7 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
 export default function HomeownerDashboardPage() {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
-  const { user, isLoaded } = useUser();
-  const { signOut } = useClerk();
+  const { data: session, update: updateSession } = useSession();
   const [activePage, setActivePage] = useState('Dashboard Overview');
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -742,8 +741,8 @@ export default function HomeownerDashboardPage() {
   }, [lastScrollY]);
 
   const handleLogout = async () => {
-    // Clear authentication state using Clerk
-    await signOut();
+    // Clear authentication state using NextAuth
+    await signOut({ redirect: false });
     // Redirect to guest homepage
     router.push('/');
   };
@@ -788,8 +787,10 @@ export default function HomeownerDashboardPage() {
     setShowOTPModal(false);
     setPendingOTP(null);
     
-    // Phone verification is now complete - Clerk user metadata will be updated via webhook
-    // No need to manually update session as Clerk handles this automatically
+    // Update session to reflect phone verification success
+    await updateSession({
+      phoneVerified: true,
+    });
     
     // Refresh dashboard summary
     const updatedSummary = await fetchDashboardSummary();
@@ -1215,7 +1216,7 @@ export default function HomeownerDashboardPage() {
 
       <ContactVerificationModal
         isOpen={showContactVerificationModal}
-        defaultPhone={user?.phoneNumbers?.[0]?.phoneNumber || ''}
+        defaultPhone={session?.user?.phone || ''}
         onClose={() => setShowContactVerificationModal(false)}
         onOTPRequested={handleOTPRequested}
       />
@@ -1223,7 +1224,7 @@ export default function HomeownerDashboardPage() {
       <OTPVerificationModal
         isOpen={showOTPModal}
         onClose={() => setShowOTPModal(false)}
-        phoneNumber={pendingOTP?.phoneNumber || user?.phoneNumbers?.[0]?.phoneNumber || ''}
+        phoneNumber={pendingOTP?.phoneNumber || session?.user?.phone || ''}
         verificationId={pendingOTP?.verificationId || ''}
         expiresAt={pendingOTP?.expiresAt || new Date()}
         onVerificationSuccess={handleOTPVerificationSuccess}

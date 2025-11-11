@@ -11,7 +11,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getClerkSession } from '@/lib/clerk-auth-helpers';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { archiveLead } from '@/lib/services/lead-service';
 import { UserRole } from '@prisma/client';
 
@@ -21,7 +22,7 @@ export async function POST(
 ) {
   try {
     // 1. Authenticate
-    const session = await getClerkSession();
+    const session = await getServerSession(authOptions);
     
     if (!session?.user) {
       return NextResponse.json(
