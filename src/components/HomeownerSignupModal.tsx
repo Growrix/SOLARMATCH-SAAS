@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useSignUp } from '@clerk/nextjs';
-import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import Button from '@/components/ui/button';
 
 // --- Icon Components (matching SOT) ---
@@ -83,15 +82,11 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
   onSuccess,
   onSwitchToSignIn 
 }) => {
-  const router = useRouter();
-  const { isLoaded, signUp, setActive } = useSignUp();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [pendingVerification, setPendingVerification] = useState(false);
-  const [verificationCode, setVerificationCode] = useState('');
 
   const [formData, setFormData] = useState({
     email: '',
@@ -161,181 +156,58 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
       return;
     }
 
-    if (!isLoaded) {
-      setError("Authentication system is loading. Please try again.");
-      setLoading(false);
-      return;
-    }
-
     try {
-      // Create signup with Clerk SDK
-      const result = await signUp.create({
-        emailAddress: formData.email,
-        password: formData.password,
-        unsafeMetadata: {
-          role: 'HOMEOWNER'
-        }
+      // Call the registration API
+      const response = await fetch('/api/auth/register/homeowner', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
       });
 
-      // If email verification is required
-      if (result.status === 'missing_requirements') {
-        await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
-        setPendingVerification(true);
-        setSuccess('Verification email sent! Please check your email and enter the code below.');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Registration failed');
+      }
+
+      // Registration successful
+      setSuccess('Account created successfully! Redirecting to dashboard...');
+      
+      // Automatically sign in the user with their new credentials
+      const signInResult = await signIn('credentials', {
+        redirect: false,
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (signInResult?.error) {
+        setError('Account created but automatic login failed. Please sign in manually.');
         setLoading(false);
         return;
       }
 
-      // If signup is complete, set the session active
-      if (result.status === 'complete') {
-        await setActive({ session: result.createdSessionId });
-        setSuccess('Account created successfully! Verifying role and redirecting...');
-        
-        // Wait for webhook to sync user to database, then verify role
-        setTimeout(async () => {
-          try {
-            const response = await fetch('/api/user/sync', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                email: formData.email,
-              }),
-            });
-            
-            if (response.ok) {
-              const data = await response.json();
-              if (data.role === 'HOMEOWNER') {
-                console.log('[HomeownerSignup] ✅ Role verified: HOMEOWNER');
-                router.push('/homeowner/dashboard');
-                onSuccess();
-              } else {
-                console.error('[HomeownerSignup] ❌ Unexpected role:', data.role);
-                setError('Account created but role verification failed. Please contact support.');
-                setLoading(false);
-              }
-            } else {
-              console.error('[HomeownerSignup] ❌ Role verification failed');
-              setError('Account created but role verification failed. Please try signing in.');
-              setLoading(false);
-            }
-          } catch (error) {
-            console.error('[HomeownerSignup] ❌ Error verifying role:', error);
-            setError('Account created but role verification failed. Please try signing in.');
-            setLoading(false);
-          }
-        }, 1000); // Wait 1 second for webhook to process
+      if (signInResult?.ok) {
+        setTimeout(() => {
+          onSuccess();
+        }, 1000);
       }
-    } catch (err: any) {
-      console.error('Signup error:', err);
-      setError(err?.errors?.[0]?.message || 'An error occurred during registration');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred during registration');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleVerifyEmail = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setSuccess(null);
-
-    if (!signUp) {
-      setError('Verification session not found. Please try signing up again.');
-      setLoading(false);
-      return;
-    }
-
-    if (!verificationCode || verificationCode.length !== 6) {
-      setError('Please enter a valid 6-digit verification code.');
-      setLoading(false);
-      return;
-    }
-
-    try {
-      // Verify the email with the code
-      const completeSignUp = await signUp.attemptEmailAddressVerification({
-        code: verificationCode,
-      });
-
-      if (completeSignUp.status === 'complete') {
-        if (!setActive) {
-          setError('Session activation failed. Please try again.');
-          setLoading(false);
-          return;
-        }
-        await setActive({ session: completeSignUp.createdSessionId });
-        setSuccess('Email verified! Verifying role and redirecting...');
-        
-        // Wait for webhook to sync user to database, then verify role before redirect
-        setTimeout(async () => {
-          try {
-            const response = await fetch('/api/user/sync', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                email: formData.email,
-              }),
-            });
-            
-            if (response.ok) {
-              const data = await response.json();
-              if (data.role === 'HOMEOWNER') {
-                console.log('[HomeownerSignup] ✅ Email verified, role confirmed: HOMEOWNER');
-                onClose();
-                onSuccess();
-                router.push('/homeowner/dashboard');
-              } else {
-                console.error('[HomeownerSignup] ❌ Unexpected role after verification:', data.role);
-                setError('Email verified but role verification failed. Please contact support.');
-                setLoading(false);
-              }
-            } else {
-              console.error('[HomeownerSignup] ❌ Role verification failed after email verification');
-              setError('Email verified but role verification failed. Please try signing in.');
-              setLoading(false);
-            }
-          } catch (error) {
-            console.error('[HomeownerSignup] ❌ Error verifying role:', error);
-            setError('Email verified but role verification failed. Please try signing in.');
-            setLoading(false);
-          }
-        }, 1000); // Wait 1 second for webhook to process
-      } else {
-        setError('Verification failed. Please try again.');
-        setLoading(false);
-      }
-    } catch (err: any) {
-      console.error('Verification error:', err);
-      setError(err?.errors?.[0]?.message || 'Invalid verification code. Please try again.');
-      setLoading(false);
-    }
-  };
-
-  const handleResendCode = async () => {
-    if (!signUp) {
-      setError('Verification session not found. Please try signing up again.');
-      return;
-    }
-
-    try {
-      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
-      setSuccess('Verification code resent! Please check your email.');
-      setError(null);
-    } catch (err: any) {
-      setError('Failed to resend code. Please try again.');
-    }
-  };
-
   const handleGoogleSignup = async () => {
-    if (!isLoaded || !signUp) return;
     setLoading(true);
     setError(null);
     try {
-      await signUp.authenticateWithRedirect({
-        strategy: 'oauth_google',
-        redirectUrl: '/sso-callback',
-        redirectUrlComplete: '/homeowner/dashboard',
-      });
+      await signIn('google', { callbackUrl: '/dashboard' });
     } catch (err) {
       setError('Google sign up failed. Please try again.');
       setLoading(false);
@@ -343,15 +215,10 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
   };
 
   const handleAppleSignup = async () => {
-    if (!isLoaded || !signUp) return;
     setLoading(true);
     setError(null);
     try {
-      await signUp.authenticateWithRedirect({
-        strategy: 'oauth_apple',
-        redirectUrl: '/sso-callback',
-        redirectUrlComplete: '/homeowner/dashboard',
-      });
+      await signIn('apple', { callbackUrl: '/dashboard' });
     } catch (err) {
       setError('Apple sign up failed. Please try again.');
       setLoading(false);
@@ -395,7 +262,7 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
             </svg>
           </div>
           <h2 className="text-2xl font-bold text-foreground mb-2">Create account</h2>
-          <p className="text-subtle text-sm">
+          <p className="text-subtle text-body-small">
             Join thousands of homeowners who have gone solar
           </p>
         </div>
@@ -404,14 +271,14 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Error Alert */}
           {error && (
-            <div className="bg-destructive/10 shadow-neu-inset border border-destructive/30 px-4 py-3 rounded-2xl text-sm text-destructive">
+            <div className="bg-destructive/10 shadow-neu-inset border border-destructive/30 px-4 py-3 rounded-2xl text-body-small text-destructive">
               {error}
             </div>
           )}
 
           {/* Success Alert */}
           {success && (
-            <div className="bg-success/10 shadow-neu-inset border border-success/30 px-4 py-3 rounded-2xl text-sm text-success">
+            <div className="bg-success/10 shadow-neu-inset border border-success/30 px-4 py-3 rounded-2xl text-body-small text-success">
               {success}
             </div>
           )}
@@ -449,62 +316,12 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
           {/* Divider */}
           <div className="flex items-center my-6">
             <div className="flex-1 border-t border-border"></div>
-            <span className="px-4 text-subtle text-sm">Or sign up with email</span>
+            <span className="px-4 text-subtle text-body-small">Or sign up with email</span>
             <div className="flex-1 border-t border-border"></div>
           </div>
 
-          {/* Verification Code Input */}
-          {pendingVerification ? (
-            <div className="space-y-4">
-              <div className="relative">
-                <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                </svg>
-                <input
-                  type="text"
-                  placeholder="Enter 6-digit code"
-                  value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  maxLength={6}
-                  autoFocus
-                  className="form-input w-full pl-11 pr-4 py-3 text-center text-lg tracking-widest"
-                />
-              </div>
-
-              <Button
-                type="button"
-                onClick={handleVerifyEmail}
-                disabled={loading || verificationCode.length !== 6}
-                variant="secondary"
-                className="w-full"
-              >
-                {loading ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span>Verifying...</span>
-                  </div>
-                ) : (
-                  'Verify Email'
-                )}
-              </Button>
-
-              <div className="text-center">
-                <button
-                  type="button"
-                  onClick={handleResendCode}
-                  disabled={loading}
-                  className="text-sm text-primary hover:text-primary-hover transition-colors disabled:opacity-50"
-                >
-                  Did not receive the code? Resend
-                </button>
-              </div>
-            </div>
-          ) : (
-            // Original signup form fields
-            <div className="space-y-4">
+          {/* Form Fields */}
+          <div className="space-y-4">
             {/* Email */}
             <div className="relative">
               <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -570,36 +387,33 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
               />
             </div>
           </div>
-          )}
 
-          {/* Submit Button - Only show for initial signup form */}
-          {!pendingVerification && (
-            <Button
-              type="submit"
-              variant="primary"
-              disabled={loading}
-              className="w-full shadow-neu-outset hover:shadow-neu-inset"
-            >
-              {loading ? (
-                <div className="flex items-center justify-center">
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                  <span>Creating Account...</span>
-                </div>
-              ) : (
-                <>
-                  <span>Create Account</span>
-                  <svg className="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </>
-              )}
-            </Button>
-          )}
+          {/* Submit Button */}
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={loading}
+            className="w-full shadow-neu-outset hover:shadow-neu-inset"
+          >
+            {loading ? (
+              <div className="flex items-center justify-center">
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                <span>Creating Account...</span>
+              </div>
+            ) : (
+              <>
+                <span>Create Account</span>
+                <svg className="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </>
+            )}
+          </Button>
         </form>
 
         {/* Footer */}
         <div className="mt-6 text-center">
-          <p className="text-subtle text-sm">
+          <p className="text-subtle text-body-small">
             Already have an account?{' '}
             <button
               onClick={onSwitchToSignIn}

@@ -1,8 +1,7 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useSignIn, useUser } from '@clerk/nextjs';
-import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import Button from '@/components/ui/button';
 
 // --- Icon Components ---
@@ -43,9 +42,6 @@ interface InstallerSignInProps {
 }
 
 const InstallerSignInModal: React.FC<InstallerSignInProps> = ({ isOpen, onClose, onSuccess, onOpenSignup }) => {
-  const router = useRouter();
-  const { isLoaded, signIn, setActive } = useSignIn();
-  const { user } = useUser();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -101,132 +97,51 @@ const InstallerSignInModal: React.FC<InstallerSignInProps> = ({ isOpen, onClose,
     setError(null);
     setSuccess(null);
 
-    if (!isLoaded || !signIn) {
-      setError("Authentication system is loading. Please try again.");
-      setLoading(false);
-      return;
-    }
-
     try {
-      const result = await signIn.create({
-        identifier: formData.email,
+      // Use NextAuth signIn with credentials provider
+      const result = await signIn('credentials', {
+        redirect: false, // Don't redirect automatically
+        email: formData.email,
         password: formData.password,
       });
 
-      if (result.status === 'complete') {
-        await setActive({ session: result.createdSessionId });
-        
-        // Fetch user role based on email and VALIDATE it's an installer
-        setTimeout(async () => {
-          try {
-            const response = await fetch('/api/user/sync', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                email: formData.email,
-              }),
-            });
-            
-            if (response.ok) {
-              const data = await response.json();
-              const userRole = data.role;
-              
-              console.log(`[InstallerSignIn] User role: ${userRole}`);
-              
-              // 🔒 CRITICAL: Validate user is actually an installer
-              if (userRole !== 'INSTALLER') {
-                setError(`You have a ${userRole.toLowerCase()} account. Please use the ${userRole.toLowerCase()} sign in.`);
-                setLoading(false);
-                // Sign out the user since they used wrong modal
-                await signIn.create({
-                  identifier: formData.email,
-                  password: '', // Invalid to force logout
-                }).catch(() => {}); // Ignore error, just trying to clear session
-                return;
-              }
-              
-              // User is confirmed INSTALLER, proceed
-              setSuccess('Signed in successfully! Redirecting to installer dashboard...');
-              router.push('/installer/dashboard');
-              onSuccess();
-            } else {
-              const errorData = await response.json();
-              setError(errorData.message || 'Failed to verify your account. Please try again.');
-              setLoading(false);
-            }
-          } catch (error) {
-            console.error('Failed to fetch user role:', error);
-            setError('Failed to verify your account. Please try again.');
-            setLoading(false);
-          }
-        }, 500); // Small delay to allow session to fully establish
-      } else {
-        setError('Sign in failed. Please check your credentials.');
+      if (result?.error) {
+        // Login failed - show error message
+        setError(result.error);
         setLoading(false);
+        return;
       }
-    } catch (err: any) {
-      console.error('Sign in error:', err);
-      setError(err?.errors?.[0]?.message || 'An error occurred during sign in. Please try again.');
+
+      if (result?.ok) {
+        // Login successful
+        setSuccess('Signed in successfully! Redirecting...');
+        setTimeout(() => {
+          onSuccess(); // Call parent's success handler
+        }, 1000);
+      }
+    } catch (err) {
+      setError('An error occurred during sign in. Please try again.');
       setLoading(false);
     }
   };
 
   const handleGoogleSignIn = async () => {
-    if (!isLoaded || !signIn) return;
     setLoading(true);
-    try {
-      await signIn.authenticateWithRedirect({
-        strategy: 'oauth_google',
-        redirectUrl: '/sso-callback',
-        redirectUrlComplete: '/installer/dashboard',
-      });
-    } catch (err) {
-      setError('Google sign in failed. Please try again.');
-      setLoading(false);
-    }
+    await signIn('google', { callbackUrl: '/installer/dashboard' });
   };
 
   const handleAppleSignIn = async () => {
-    if (!isLoaded || !signIn) return;
     setLoading(true);
-    try {
-      await signIn.authenticateWithRedirect({
-        strategy: 'oauth_apple',
-        redirectUrl: '/sso-callback',
-        redirectUrlComplete: '/installer/dashboard',
-      });
-    } catch (err) {
-      setError('Apple sign in failed. Please try again.');
-      setLoading(false);
-    }
+    await signIn('apple', { callbackUrl: '/installer/dashboard' });
   };
   
-  const handleForgotPassword = async () => {
+  const handleForgotPassword = () => {
     if (!formData.email.trim()) {
       setError('Please enter your email address first, then click "Forgot password?"');
       return;
     }
-
-    if (!isLoaded || !signIn) {
-      setError("Authentication system is loading. Please try again.");
-      return;
-    }
-
-    try {
-      // Send password reset email via Clerk
-      await signIn.create({
-        identifier: formData.email,
-        strategy: 'reset_password_email_code',
-      });
-      
-      setSuccess('Password reset email sent! Please check your inbox.');
-      setError(null);
-    } catch (err: any) {
-      console.error('Password reset error:', err);
-      // For security, show generic message even if email doesn't exist
-      setSuccess('If an installer account with this email exists, you will receive a password reset link shortly.');
-      setError(null);
-    }
+    setSuccess('If an installer account with this email exists, you will receive a password reset link shortly.');
+    setError(null);
   };
 
   if (!isOpen) return null;
@@ -257,7 +172,7 @@ const InstallerSignInModal: React.FC<InstallerSignInProps> = ({ isOpen, onClose,
           <h2 className="text-2xl font-bold text-foreground mb-2">
             Welcome Back
           </h2>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted-foreground text-body-small">
             Sign in to access your installer dashboard
           </p>
         </div>
@@ -267,8 +182,8 @@ const InstallerSignInModal: React.FC<InstallerSignInProps> = ({ isOpen, onClose,
             <div className="flex items-start space-x-3">
               <AlertTriangleIcon />
               <div>
-                <p className="text-destructive text-sm font-medium mb-1">Sign In Error</p>
-                <p className="text-destructive text-sm">{error}</p>
+                <p className="text-destructive text-body-small font-medium mb-1">Sign In Error</p>
+                <p className="text-destructive text-body-small">{error}</p>
               </div>
             </div>
           </div>
@@ -278,7 +193,7 @@ const InstallerSignInModal: React.FC<InstallerSignInProps> = ({ isOpen, onClose,
           <div className="bg-success/10 shadow-neu-inset border border-success/30 rounded-2xl p-4 mb-6">
             <div className="flex items-center space-x-3">
               <CheckCircleIcon />
-              <p className="text-success text-sm">{success}</p>
+              <p className="text-success text-body-small">{success}</p>
             </div>
           </div>
         )}
@@ -307,7 +222,7 @@ const InstallerSignInModal: React.FC<InstallerSignInProps> = ({ isOpen, onClose,
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-border"></div>
           </div>
-          <div className="relative flex justify-center text-sm">
+          <div className="relative flex justify-center text-body-small">
             <span className="px-3 bg-background text-subtle">or sign in with email</span>
           </div>
         </div>
@@ -360,7 +275,7 @@ const InstallerSignInModal: React.FC<InstallerSignInProps> = ({ isOpen, onClose,
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center justify-between text-body-small">
             <button
               type="button"
               onClick={handleForgotPassword}
@@ -388,7 +303,7 @@ const InstallerSignInModal: React.FC<InstallerSignInProps> = ({ isOpen, onClose,
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-body-small text-muted-foreground">
             Don&apos;t have an account?{' '}
             <button
               type="button"

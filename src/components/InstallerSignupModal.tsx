@@ -1,8 +1,7 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useSignUp } from '@clerk/nextjs';
-import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import Button from '@/components/ui/button';
 
 // --- Icon Components ---
@@ -78,15 +77,11 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
   onSuccess,
   onSwitchToSignIn 
 }) => {
-  const router = useRouter();
-  const { isLoaded, signUp, setActive } = useSignUp();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [pendingVerification, setPendingVerification] = useState(false);
-  const [verificationCode, setVerificationCode] = useState('');
 
   const [formData, setFormData] = useState({
     email: '',
@@ -126,8 +121,6 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
     setSuccess(null);
     setShowPassword(false);
     setShowConfirmPassword(false);
-    setPendingVerification(false);
-    setVerificationCode('');
     setLoading(false);
   };
 
@@ -155,181 +148,61 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
       return;
     }
 
-    if (!isLoaded) {
-      setError("Authentication system is loading. Please try again.");
-      setLoading(false);
-      return;
-    }
-
     try {
-      // Create signup with Clerk SDK
-      const result = await signUp.create({
-        emailAddress: formData.email,
-        password: formData.password,
-        unsafeMetadata: {
-          role: 'INSTALLER'
-        }
+      // Call the registration API
+      const response = await fetch('/api/auth/register/installer', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
       });
 
-      // If email verification is required
-      if (result.status === 'missing_requirements') {
-        await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
-        setPendingVerification(true);
-        setSuccess('Verification email sent! Please check your email and enter the code below.');
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Registration failed - show error
+        throw new Error(data.error || 'Registration failed');
+      }
+
+      // Registration successful
+      setSuccess('Account created successfully! Redirecting to dashboard...');
+      
+      // Automatically sign in the user with their new credentials
+      const signInResult = await signIn('credentials', {
+        redirect: false,
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (signInResult?.error) {
+        // Sign in failed after registration - shouldn't happen but handle it
+        setError('Account created but automatic login failed. Please sign in manually.');
         setLoading(false);
         return;
       }
 
-      // If signup is complete, set the session active
-      if (result.status === 'complete') {
-        await setActive({ session: result.createdSessionId });
-        setSuccess('Account created successfully! Verifying role and redirecting...');
-        
-        // Wait for webhook to sync user to database, then verify role
-        setTimeout(async () => {
-          try {
-            const response = await fetch('/api/user/sync', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                email: formData.email,
-              }),
-            });
-            
-            if (response.ok) {
-              const data = await response.json();
-              if (data.role === 'INSTALLER') {
-                console.log('[InstallerSignup] ✅ Role verified: INSTALLER');
-                router.push('/installer/dashboard');
-                onSuccess();
-              } else {
-                console.error('[InstallerSignup] ❌ Unexpected role:', data.role);
-                setError('Account created but role verification failed. Please contact support.');
-                setLoading(false);
-              }
-            } else {
-              console.error('[InstallerSignup] ❌ Role verification failed');
-              setError('Account created but role verification failed. Please try signing in.');
-              setLoading(false);
-            }
-          } catch (error) {
-            console.error('[InstallerSignup] ❌ Error verifying role:', error);
-            setError('Account created but role verification failed. Please try signing in.');
-            setLoading(false);
-          }
-        }, 1000); // Wait 1 second for webhook to process
+      if (signInResult?.ok) {
+        // Success! Redirect after short delay
+        setTimeout(() => {
+          onSuccess();
+        }, 1000);
       }
-    } catch (err: any) {
-      console.error('Signup error:', err);
-      setError(err?.errors?.[0]?.message || 'An error occurred during registration');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred during registration');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleVerifyEmail = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setSuccess(null);
-
-    if (!signUp) {
-      setError('Verification session not found. Please try signing up again.');
-      setLoading(false);
-      return;
-    }
-
-    if (!verificationCode || verificationCode.length !== 6) {
-      setError('Please enter a valid 6-digit verification code.');
-      setLoading(false);
-      return;
-    }
-
-    try {
-      // Verify the email with the code
-      const completeSignUp = await signUp.attemptEmailAddressVerification({
-        code: verificationCode,
-      });
-
-      if (completeSignUp.status === 'complete') {
-        if (!setActive) {
-          setError('Session activation failed. Please try again.');
-          setLoading(false);
-          return;
-        }
-        await setActive({ session: completeSignUp.createdSessionId });
-        setSuccess('Email verified! Verifying role and redirecting...');
-        
-        // Wait for webhook to sync user to database, then verify role before redirect
-        setTimeout(async () => {
-          try {
-            const response = await fetch('/api/user/sync', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                email: formData.email,
-              }),
-            });
-            
-            if (response.ok) {
-              const data = await response.json();
-              if (data.role === 'INSTALLER') {
-                console.log('[InstallerSignup] ✅ Email verified, role confirmed: INSTALLER');
-                onClose();
-                onSuccess();
-                router.push('/installer/dashboard');
-              } else {
-                console.error('[InstallerSignup] ❌ Unexpected role after verification:', data.role);
-                setError('Email verified but role verification failed. Please contact support.');
-                setLoading(false);
-              }
-            } else {
-              console.error('[InstallerSignup] ❌ Role verification failed after email verification');
-              setError('Email verified but role verification failed. Please try signing in.');
-              setLoading(false);
-            }
-          } catch (error) {
-            console.error('[InstallerSignup] ❌ Error verifying role:', error);
-            setError('Email verified but role verification failed. Please try signing in.');
-            setLoading(false);
-          }
-        }, 1000); // Wait 1 second for webhook to process
-      } else {
-        setError('Verification failed. Please try again.');
-        setLoading(false);
-      }
-    } catch (err: any) {
-      console.error('Verification error:', err);
-      setError(err?.errors?.[0]?.message || 'Invalid verification code. Please try again.');
-      setLoading(false);
-    }
-  };
-
-  const handleResendCode = async () => {
-    if (!signUp) {
-      setError('Verification session not found. Please try signing up again.');
-      return;
-    }
-
-    try {
-      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
-      setSuccess('Verification code resent! Please check your email.');
-      setError(null);
-    } catch (err: any) {
-      setError('Failed to resend code. Please try again.');
-    }
-  };
-
   const handleGoogleSignup = async () => {
-    if (!isLoaded || !signUp) return;
     setLoading(true);
     setError(null);
     try {
-      await signUp.authenticateWithRedirect({
-        strategy: 'oauth_google',
-        redirectUrl: '/sso-callback',
-        redirectUrlComplete: '/installer/dashboard',
-      });
+      await signIn('google', { callbackUrl: '/installer/dashboard' });
     } catch (err) {
       setError('Google sign up failed. Please try again.');
       setLoading(false);
@@ -337,15 +210,10 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
   };
 
   const handleAppleSignup = async () => {
-    if (!isLoaded || !signUp) return;
     setLoading(true);
     setError(null);
     try {
-      await signUp.authenticateWithRedirect({
-        strategy: 'oauth_apple',
-        redirectUrl: '/sso-callback',
-        redirectUrlComplete: '/installer/dashboard',
-      });
+      await signIn('apple', { callbackUrl: '/installer/dashboard' });
     } catch (err) {
       setError('Apple sign up failed. Please try again.');
       setLoading(false);
@@ -382,7 +250,7 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
           <h2 className="text-2xl font-bold text-foreground mb-2">
             Create Installer Account
           </h2>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted-foreground text-body-small">
             Sign in to access your dashboard.
           </p>
         </div>
@@ -392,8 +260,8 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
             <div className="flex items-start space-x-3">
               <AlertTriangleIcon />
               <div>
-                <p className="text-destructive text-sm font-medium mb-1">Sign Up Error</p>
-                <p className="text-destructive text-sm">{error}</p>
+                <p className="text-destructive text-body-small font-medium mb-1">Sign Up Error</p>
+                <p className="text-destructive text-body-small">{error}</p>
               </div>
             </div>
           </div>
@@ -402,7 +270,7 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
         {success && (
           <div className="bg-success/10 shadow-neu-inset border border-success/30 rounded-2xl p-4 mb-6 flex items-center space-x-3">
             <CheckCircleIcon />
-            <p className="text-success text-sm">{success}</p>
+            <p className="text-success text-body-small">{success}</p>
           </div>
         )}
 
@@ -432,64 +300,12 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-border"></div>
           </div>
-          <div className="relative flex justify-center text-sm">
+          <div className="relative flex justify-center text-body-small">
             <span className="px-3 bg-background text-muted-foreground">or</span>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Verification Code Input */}
-          {pendingVerification ? (
-            <div className="space-y-4">
-              <div className="relative">
-                <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                </svg>
-                <input
-                  type="text"
-                  placeholder="Enter 6-digit code"
-                  value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  maxLength={6}
-                  autoFocus
-                  className="form-input w-full pl-11 pr-4 py-3 text-center text-lg tracking-widest"
-                />
-              </div>
-
-              <Button
-                type="button"
-                onClick={handleVerifyEmail}
-                disabled={loading || verificationCode.length !== 6}
-                variant="secondary"
-                className="w-full"
-              >
-                {loading ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span>Verifying...</span>
-                  </div>
-                ) : (
-                  'Verify Email'
-                )}
-              </Button>
-
-              <div className="text-center">
-                <button
-                  type="button"
-                  onClick={handleResendCode}
-                  disabled={loading}
-                  className="text-sm text-primary hover:text-primary-hover transition-colors disabled:opacity-50"
-                >
-                  Did not receive the code? Resend
-                </button>
-              </div>
-            </div>
-          ) : (
-            // Original signup form fields
-            <>
           <div className="relative">
             <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground">
@@ -575,12 +391,10 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
               'Sign Up'
             )}
           </Button>
-          </>
-          )}
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted-foreground text-body-small">
             Already have an account?{' '}
             <button
               type="button"
