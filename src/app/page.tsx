@@ -191,7 +191,7 @@ export default function Home() {
           location: pendingQuoteData?.location,
           state: pendingQuoteData?.state,
           energyBill: pendingQuoteData?.electricityValue || pendingQuoteData?.energyBill || 0,
-          propertyAddress: pendingQuoteData?.address,
+          propertyAddress: homeownerInfo?.address || pendingQuoteData?.address, // 🆕 Use address from HomeownersInfoForm
           propertyType: pendingQuoteData?.propertyType || 'residential',
           roofType: pendingQuoteData?.roofType,
           budgetRange: pendingQuoteData?.budgetRange,
@@ -362,6 +362,7 @@ export default function Home() {
           onClose={() => setIsHomeownerSignupModalOpen(false)}
           onSuccess={handleHomeownerSignupSuccess}
           onSwitchToSignIn={() => setIsHomeownerSignupModalOpen(false)}
+          homeownerInfo={homeownerInfo} // 🆕 Pass contact info collected in HomeownersInfoForm
         />
       )}
 

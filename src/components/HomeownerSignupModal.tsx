@@ -69,18 +69,22 @@ interface HomeownerSignupModalProps {
   onClose: () => void;
   onSuccess: () => void;
   onSwitchToSignIn?: () => void;
+  homeownerInfo?: { name: string; phone: string; address: string } | null; // 🆕 Pass contact info from HomeownersInfoForm
 }
 
 /**
  * HomeownerSignupModal - Redesigned to match InstallerSignupModal (SOT)
  * Consistent modal structure, styling, and form design
  * Zero hardcoded colors, uses semantic tokens only
+ * 
+ * Updated: Now accepts homeownerInfo to populate User.name and User.phone during registration
  */
 const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({ 
   isOpen, 
   onClose, 
   onSuccess,
-  onSwitchToSignIn 
+  onSwitchToSignIn,
+  homeownerInfo // 🆕 Receive contact info collected in HomeownersInfoForm
 }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -157,7 +161,7 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
     }
 
     try {
-      // Call the registration API
+      // Call the registration API with contact info from HomeownersInfoForm
       const response = await fetch('/api/auth/register/homeowner', {
         method: 'POST',
         headers: {
@@ -166,6 +170,9 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
+          name: homeownerInfo?.name, // 🆕 Pass name to populate User.name
+          phone: homeownerInfo?.phone, // 🆕 Pass phone to populate User.phone
+          address: homeownerInfo?.address, // 🆕 Pass address for future use
         }),
       });
 

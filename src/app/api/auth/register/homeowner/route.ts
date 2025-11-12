@@ -13,13 +13,13 @@ export async function POST(request: NextRequest) {
   try {
     // Parse request body
     const body = await request.json();
-    const { email, password } = body;
+    const { email, password, name, phone, address } = body; // 🆕 Accept name, phone, address
 
     // ========================================================================
-    // VALIDATION - MINIMAL SIGNUP (email + password only)
+    // VALIDATION - EXTENDED SIGNUP (email, password, name, phone)
     // ========================================================================
     
-    // Check required fields (minimal signup per Part A spec)
+    // Check required fields (email and password are mandatory)
     if (!email || !password) {
       return NextResponse.json(
         { error: "Email and password are required" },
@@ -56,6 +56,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 🆕 Validate name (optional but recommended)
+    if (name && name.trim().length < 2) {
+      return NextResponse.json(
+        { error: "Name must be at least 2 characters long" },
+        { status: 400 }
+      );
+    }
+
+    // 🆕 Validate phone format (optional but recommended - Australian format)
+    if (phone) {
+      const phoneRegex = /^(\+?61|0)[2-478](?:[ -]?[0-9]){8}$/;
+      if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
+        return NextResponse.json(
+          { error: "Invalid Australian phone number format. Expected format: 04XX XXX XXX or +61 4XX XXX XXX" },
+          { status: 400 }
+        );
+      }
+    }
+
     // ========================================================================
     // CHECK IF USER ALREADY EXISTS
     // ========================================================================
@@ -82,7 +101,7 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // ========================================================================
-    // CREATE USER IN DATABASE (minimal fields)
+    // CREATE USER IN DATABASE (with contact info)
     // ========================================================================
     
     const user = await prisma.user.create({
@@ -91,15 +110,27 @@ export async function POST(request: NextRequest) {
         password: hashedPassword,
         role: "HOMEOWNER", // Set role as HOMEOWNER
         isActive: true,
-        // name, phone can be added later via profile update
+        name: name?.trim() || null, // 🆕 Store name from HomeownersInfoForm
+        phone: phone?.trim() || null, // 🆕 Store phone from HomeownersInfoForm
+        // Note: address is not in User model - stored in Lead model instead
       },
       select: {
         id: true,
         name: true,
         email: true,
         role: true,
+        phone: true, // 🆕 Include phone in response
         createdAt: true,
       },
+    });
+
+    // 🆕 Log successful registration with contact info
+    console.log('✅ [Registration] User created successfully:', {
+      userId: user.id,
+      email: user.email,
+      hasName: !!user.name,
+      hasPhone: !!user.phone,
+      role: user.role
     });
 
     // ========================================================================
@@ -115,6 +146,7 @@ export async function POST(request: NextRequest) {
           name: user.name,
           email: user.email,
           role: user.role,
+          phone: user.phone, // 🆕 Include phone in response
         },
       },
       { status: 201 } // 201 Created
