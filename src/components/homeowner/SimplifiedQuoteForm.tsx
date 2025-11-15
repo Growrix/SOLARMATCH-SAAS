@@ -171,7 +171,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
       for (const key of keys) {
         const value = data[key];
         if (typeof value === 'string' && value.trim() !== '') {
-          console.log(`? Found ${key}: "${value}"`);
+          console.log(`? Found ${key}:"${value}"`);
           return value;
         }
         if (typeof value === 'number' && !Number.isNaN(value)) {
@@ -179,7 +179,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
           return String(value);
         }
       }
-      console.log(`No value found for keys ${JSON.stringify(keys)}, using fallback: "${fallback}"`);
+      console.log(`No value found for keys ${JSON.stringify(keys)}, using fallback:"${fallback}"`);
       return fallback;
     };
 
@@ -205,7 +205,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
         if (typeof value === 'boolean') {
           return value;
         }
-        // Handle string "true"/"false"
+        // Handle string"true"/"false"
         if (typeof value === 'string') {
           if (value.toLowerCase() === 'true') return true;
           if (value.toLowerCase() === 'false') return false;
@@ -712,20 +712,20 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
   };
 
   const formatCurrency = (amount: number) => new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
-  const baseInputClasses = "w-full bg-surface backdrop-blur-sm border border-border rounded-xl px-4 py-3 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors";
+  const baseInputClasses ="w-full bg-surface backdrop-blur-sm border border-border rounded-xl px-4 py-3 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors";
   
   const budgetOptions = {
     residential: [
-      { value: "5000-10000", label: "$5,000 - $10,000" },
-      { value: "10000-20000", label: "$10,000 - $20,000" },
-      { value: "20000-30000", label: "$20,000 - $30,000" },
-      { value: "30000+", label: "$30,000+" },
+      { value:"5000-10000", label:"$5,000 - $10,000" },
+      { value:"10000-20000", label:"$10,000 - $20,000" },
+      { value:"20000-30000", label:"$20,000 - $30,000" },
+      { value:"30000+", label:"$30,000+" },
     ],
     commercial: [
-      { value: "20000-50000", label: "$20,000 - $50,000" },
-      { value: "50000-100000", label: "$50,000 - $100,000" },
-      { value: "100000-250000", label: "$100,000 - $250,000" },
-      { value: "250000+", label: "$250,000+" },
+      { value:"20000-50000", label:"$20,000 - $50,000" },
+      { value:"50000-100000", label:"$50,000 - $100,000" },
+      { value:"100000-250000", label:"$100,000 - $250,000" },
+      { value:"250000+", label:"$250,000+" },
     ]
   };
 
@@ -735,37 +735,37 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
         <button
           type="button"
           onClick={() => setQuoteType('residential')}
-          className={`flex items-center space-x-3 p-4 rounded-2xl border transition-all duration-200 ${
+          className={`flex items-center space-x-3 p-4 rounded-2xl border transition-colors duration-200 ${
             quoteType === 'residential'
               ? 'border-primary/50 bg-background shadow-neu-outset'
               : 'border-border bg-background shadow-neu-inset hover:shadow-neu-inset-sm'
           }`}
           aria-pressed={quoteType === 'residential'}
         >
-          <div className={`p-2 rounded-xl transition-all ${quoteType === 'residential' ? 'bg-background shadow-neu-inset text-primary' : 'bg-background shadow-neu-inset text-muted-foreground'}`}>
+          <div className={`p-2 rounded-xl transition-colors ${quoteType === 'residential' ? 'bg-background shadow-neu-inset text-primary' : 'bg-background shadow-neu-inset text-muted-foreground'}`}>
             <Home className="h-5 w-5" />
           </div>
           <div className="text-left">
-            <span className="font-semibold text-sm text-foreground">Residential</span>
-            <span className="block text-xs text-muted-foreground">For your home</span>
+            <span className="text-body-small text-foreground">Residential</span>
+            <span className="block text-caption text-muted-foreground">For your home</span>
           </div>
         </button>
         <button
           type="button"
           onClick={() => setQuoteType('commercial')}
-          className={`flex items-center space-x-3 p-4 rounded-2xl border transition-all duration-200 ${
+          className={`flex items-center space-x-3 p-4 rounded-2xl border transition-colors duration-200 ${
             quoteType === 'commercial'
               ? 'border-primary/50 bg-background shadow-neu-outset'
               : 'border-border bg-background shadow-neu-inset hover:shadow-neu-inset-sm'
           }`}
           aria-pressed={quoteType === 'commercial'}
         >
-          <div className={`p-2 rounded-xl transition-all ${quoteType === 'commercial' ? 'bg-background shadow-neu-inset text-primary' : 'bg-background shadow-neu-inset text-muted-foreground'}`}>
+          <div className={`p-2 rounded-xl transition-colors ${quoteType === 'commercial' ? 'bg-background shadow-neu-inset text-primary' : 'bg-background shadow-neu-inset text-muted-foreground'}`}>
             <Building className="h-5 w-5" />
           </div>
           <div className="text-left">
-            <span className="font-semibold text-sm text-foreground">Commercial</span>
-            <span className="block text-xs text-muted-foreground">For business</span>
+            <span className="text-body-small text-foreground">Commercial</span>
+            <span className="block text-caption text-muted-foreground">For business</span>
           </div>
         </button>
       </div>
@@ -773,14 +773,14 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
       {/* Form Section */}
       {!showResults && (
         <div className="theme-card p-4 sm:p-8 lg:p-12">
-          <h2 className="text-2xl font-bold text-foreground mb-8">Quote Request Details</h2>
+          <h2 className="text-heading-2 text-foreground mb-8">Quote Request Details</h2>
           <form noValidate className="space-y-10">
             {/* Section 1: Property Location */}
             <fieldset className="pb-8 border-b border-border">
-              <legend className="text-lg font-semibold text-foreground mb-4">Property Details</legend>
+              <legend className="text-heading-4 text-foreground mb-4">Property Details</legend>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="postcode" className="block text-subtle text-sm font-semibold mb-2">
+                  <label htmlFor="postcode" className="block text-subtle text-label mb-2">
                     <MapPin className="inline h-4 w-4 mr-1" />Postcode *
                     <InfoTooltip text="Your postcode determines solar rebate zones and local weather data for accurate estimates." />
                   </label>
@@ -792,17 +792,17 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                     onChange={(e) => handleInputChange('postcode', e.target.value)} 
                     onBlur={handleBlur} 
                     placeholder="e.g., 2000" 
-                    className={`w-full rounded-xl border px-4 py-3 text-base font-medium bg-surface text-foreground shadow-inner focus:outline-none focus:ring-2 focus:ring-primary ${errors.postcode ? 'border-destructive' : 'border-border'}`}
+                    className={`w-full rounded-xl border px-4 py-3 text-body bg-surface text-foreground shadow-inner focus:outline-none focus:ring-2 focus:ring-primary ${errors.postcode ? 'border-destructive' : 'border-border'}`}
                     aria-invalid={errors.postcode ? 'true' : 'false'}
                     maxLength={4}
                     aria-required="true"
                     aria-describedby={errors.postcode ? 'postcode-error' : undefined}
                   />
-                  {errors.postcode && <p id="postcode-error" className="text-destructive text-xs mt-1" role="alert">{errors.postcode}</p>}
+                  {errors.postcode && <p id="postcode-error" className="text-destructive text-caption mt-1" role="alert">{errors.postcode}</p>}
                 </div>
                 
                 <div>
-                  <label htmlFor="location" className="block text-subtle text-sm font-semibold mb-2">
+                  <label htmlFor="location" className="block text-subtle text-label mb-2">
                     <MapPin className="inline h-4 w-4 mr-1" />Location (Suburb) *
                   </label>
                   <input 
@@ -813,14 +813,14 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                     onChange={(e) => handleInputChange('location', e.target.value)} 
                     onBlur={handleBlur} 
                     placeholder="e.g., Sydney" 
-                    className={`w-full rounded-xl border px-4 py-3 text-base font-medium bg-surface text-foreground shadow-inner focus:outline-none focus:ring-2 focus:ring-primary ${errors.location ? 'border-destructive' : 'border-border'}`}
+                    className={`w-full rounded-xl border px-4 py-3 text-body bg-surface text-foreground shadow-inner focus:outline-none focus:ring-2 focus:ring-primary ${errors.location ? 'border-destructive' : 'border-border'}`}
                     aria-required="true"
                     aria-describedby={errors.location ? 'location-error' : undefined}
                   />
-                  {errors.location && <p id="location-error" className="text-destructive text-xs mt-1" role="alert">{errors.location}</p>}
+                  {errors.location && <p id="location-error" className="text-destructive text-caption mt-1" role="alert">{errors.location}</p>}
                 </div>
                 <div>
-                  <label htmlFor="state" className="block text-subtle text-sm font-semibold mb-2">
+                  <label htmlFor="state" className="block text-subtle text-label mb-2">
                     State *
                     <InfoTooltip text="Different states have varying solar rebates, feed-in tariffs, and weather conditions." />
                   </label>
@@ -844,10 +844,10 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                     <option value="ACT">Australian Capital Territory</option>
                     <option value="NT">Northern Territory</option>
                   </select>
-                  {errors.state && <p id="state-error" className="text-destructive text-xs mt-1" role="alert">{errors.state}</p>}
+                  {errors.state && <p id="state-error" className="text-destructive text-caption mt-1" role="alert">{errors.state}</p>}
                 </div>
                 <div>
-                  <label htmlFor="retailer" className="block text-subtle text-sm font-semibold mb-2">
+                  <label htmlFor="retailer" className="block text-subtle text-label mb-2">
                     Electricity Retailer (Optional)
                     <InfoTooltip text="Knowing your retailer helps provide more accurate tariff estimates." />
                   </label>
@@ -874,8 +874,8 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                     <legend className="sr-only">Existing solar system</legend>
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-foreground font-semibold">Do you already have solar panels?</p>
-                        <p className="text-subtle text-sm mt-1">We&apos;ll factor this into your quote calculations</p>
+                        <p className="text-foreground">Do you already have solar panels?</p>
+                        <p className="text-subtle text-body-small mt-1">We&apos;ll factor this into your quote calculations</p>
                       </div>
                       <button 
                         type="button"
@@ -890,7 +890,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                   </fieldset>
                   {formData.hasExistingSystem && (
                     <div className="mt-4 animate-fade-in">
-                      <label htmlFor="existingSystemSize" className="block text-subtle text-sm font-semibold mb-2">
+                      <label htmlFor="existingSystemSize" className="block text-subtle text-label mb-2">
                         Existing System Size (kW) *
                       </label>
                       <input 
@@ -904,11 +904,11 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                         step="0.5"
                         min="0.5"
                         max="100"
-                        className={`w-full rounded-xl border px-4 py-3 text-base font-medium bg-surface text-foreground shadow-inner focus:outline-none focus:ring-2 focus:ring-primary ${errors.existingSystemSize ? 'border-destructive' : 'border-border'}`}
+                        className={`w-full rounded-xl border px-4 py-3 text-body bg-surface text-foreground shadow-inner focus:outline-none focus:ring-2 focus:ring-primary ${errors.existingSystemSize ? 'border-destructive' : 'border-border'}`}
                         aria-required={formData.hasExistingSystem}
                         aria-describedby={errors.existingSystemSize ? 'existing-size-error' : undefined}
                       />
-                      {errors.existingSystemSize && <p id="existing-size-error" className="text-destructive text-xs mt-1" role="alert">{errors.existingSystemSize}</p>}
+                      {errors.existingSystemSize && <p id="existing-size-error" className="text-destructive text-caption mt-1" role="alert">{errors.existingSystemSize}</p>}
                     </div>
                   )}
                 </div>
@@ -917,15 +917,15 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
             
             {/* Section 2: Energy Usage & System Details */}
             <fieldset className="pb-6 border-b border-border">
-              <legend className="text-lg font-semibold text-foreground mb-4">⚡ Energy Usage & System Details</legend>
+              <legend className="text-heading-4 text-foreground mb-4">⚡ Energy Usage & System Details</legend>
               <div className="space-y-6">
                   <fieldset>
-                    <legend className="block text-subtle text-sm font-semibold mb-4">
+                    <legend className="block text-subtle text-label mb-4">
                       How would you like to tell us about your electricity usage? *
                       <InfoTooltip text="We can calculate your system size from either your bill amount or kWh usage. Choose what's easier for you." />
                     </legend>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className={`p-4 rounded-xl border-2 cursor-pointer transition-all focus-within:ring-2 focus-within:ring-primary ${electricityUsageType === 'monthly' ? 'border-primary bg-primary/10' : 'border-border bg-surface/20 hover:border-muted'}`}> 
+                      <div className={`p-4 rounded-xl border-2 cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-primary ${electricityUsageType === 'monthly' ? 'border-primary bg-primary/10' : 'border-border bg-surface/20 hover:border-muted'}`}> 
                         <label className="cursor-pointer">
                           <div className="flex items-center space-x-3">
                             <input 
@@ -938,8 +938,8 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                             />
                             <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ${electricityUsageType === 'monthly' ? 'border-primary bg-primary' : 'border-muted'}`}></div>
                             <div>
-                              <p className="text-foreground font-semibold">Monthly kWh</p>
-                              <p className="text-subtle text-sm">From your electricity bill</p>
+                              <p className="text-foreground">Monthly kWh</p>
+                              <p className="text-subtle text-body-small">From your electricity bill</p>
                             </div>
                           </div>
                           {electricityUsageType === 'monthly' && (
@@ -957,9 +957,9 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                             />
                           )}
                         </label>
-                        <p id="monthly-kwh-help" className="text-xs text-subtle mt-1">Typical range: 200-2000 kWh</p>
+                        <p id="monthly-kwh-help" className="text-caption text-subtle mt-1">Typical range: 200-2000 kWh</p>
                       </div>
-                      <div className={`p-4 rounded-xl border-2 cursor-pointer transition-all focus-within:ring-2 focus-within:ring-primary ${electricityUsageType === 'quarterly' ? 'border-primary bg-primary/10' : 'border-border bg-surface/20 hover:border-muted'}`}> 
+                      <div className={`p-4 rounded-xl border-2 cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-primary ${electricityUsageType === 'quarterly' ? 'border-primary bg-primary/10' : 'border-border bg-surface/20 hover:border-muted'}`}> 
                         <label className="cursor-pointer">
                           <div className="flex items-center space-x-3">
                             <input 
@@ -972,8 +972,8 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                             />
                             <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ${electricityUsageType === 'quarterly' ? 'border-primary bg-primary' : 'border-muted'}`}></div>
                             <div>
-                              <p className="text-foreground font-semibold">Quarterly Bill ($)</p>
-                              <p className="text-subtle text-sm">Total amount you pay</p>
+                              <p className="text-foreground">Quarterly Bill ($)</p>
+                              <p className="text-subtle text-body-small">Total amount you pay</p>
                             </div>
                           </div>
                           {electricityUsageType === 'quarterly' && (
@@ -991,28 +991,28 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                             />
                           )}
                         </label>
-                        <p id="quarterly-bill-help" className="text-xs text-subtle mt-1">Typical range: $300-$2000</p>
+                        <p id="quarterly-bill-help" className="text-caption text-subtle mt-1">Typical range: $300-$2000</p>
                       </div>
                       <div className="p-4 rounded-xl border-2 border-dashed border-border bg-surface/50">
                         <div className="text-center">
-                          <p className="text-subtle text-sm font-medium">Don&apos;t have your bill?</p>
-                          <p className="text-xs text-muted-foreground mt-1">We&apos;ll use average household usage for your area</p>
+                          <p className="text-subtle text-body-small">Don&apos;t have your bill?</p>
+                          <p className="text-caption text-muted-foreground mt-1">We&apos;ll use average household usage for your area</p>
                         </div>
                       </div>
                     </div>
-                    {errors.electricityValue && <p className="text-destructive text-xs mt-2" role="alert">{errors.electricityValue}</p>}
+                    {errors.electricityValue && <p className="text-destructive text-caption mt-2" role="alert">{errors.electricityValue}</p>}
                     {recommendedSize && (
                       <div className="mt-4 p-3 bg-primary/10 border border-primary/30 rounded-lg">
-                        <p className="text-sm text-primary text-center">
+                        <p className="text-body-small text-primary text-center">
                           <strong>Recommended System Size: {recommendedSize} kW</strong>
                           <br />
-                          <span className="text-xs">Based on your usage and {formData.desiredOffset}% offset target</span>
+                          <span className="text-caption">Based on your usage and {formData.desiredOffset}% offset target</span>
                         </p>
                       </div>
                     )}
                   </fieldset>
                   <div className="mt-4">
-                    <label htmlFor="systemSizeOverride" className="block text-subtle text-sm font-semibold mb-2">
+                    <label htmlFor="systemSizeOverride" className="block text-subtle text-label mb-2">
                       Override System Size (Optional)
                       <InfoTooltip text="Specify a custom system size if you have specific requirements or roof limitations." />
                     </label>
@@ -1030,11 +1030,11 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                       className={`form-select w-full ${errors.systemSizeOverride ? 'border-destructive' : ''}`}
                       aria-describedby={errors.systemSizeOverride ? 'system-override-error' : 'system-override-help'}
                     />
-                    {errors.systemSizeOverride && <p id="system-override-error" className="text-destructive text-xs mt-1" role="alert">{errors.systemSizeOverride}</p>}
-                    <p id="system-override-help" className="text-xs text-subtle mt-1">Leave blank to use our recommendation</p>
+                    {errors.systemSizeOverride && <p id="system-override-error" className="text-destructive text-caption mt-1" role="alert">{errors.systemSizeOverride}</p>}
+                    <p id="system-override-help" className="text-caption text-subtle mt-1">Leave blank to use our recommendation</p>
                   </div>
                   <div className="mt-4">
-                    <label htmlFor="desiredOffset" className="block text-subtle text-sm font-semibold mb-2">
+                    <label htmlFor="desiredOffset" className="block text-subtle text-label mb-2">
                       Electricity Bill Offset Target: {formData.desiredOffset}%
                       <InfoTooltip text="How much of your electricity bill do you want to offset with solar? 100% means zero electricity bills." />
                     </label>
@@ -1049,7 +1049,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                         onChange={(e) => handleInputChange('desiredOffset', Number(e.target.value))}
                         className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer"
                       />
-                      <div className="flex justify-between text-xs text-subtle mt-1">
+                      <div className="flex justify-between text-caption text-subtle mt-1">
                         <span>25% (Reduce bills)</span>
                         <span>100% (Zero bills)</span>
                         <span>150% (Export income)</span>
@@ -1060,18 +1060,18 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
               </fieldset>
               {quoteType === 'commercial' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-border">
-                    <div><label className="block text-muted-foreground text-body-small font-semibold mb-2">Peak Demand (kW)</label><input type="number" name="peakDemand" value={formData.peakDemand} onChange={(e) => handleInputChange('peakDemand', e.target.value)} onBlur={handleBlur} placeholder="e.g. 50" className={`${baseInputClasses} ${errors.peakDemand ? 'border-destructive' : ''}`}/>{errors.peakDemand && <p className="text-destructive text-caption mt-1">{errors.peakDemand}</p>}</div>
-                    <div><label className="block text-muted-foreground text-body-small font-semibold mb-2">Project Priority</label><select name="projectPriority" value={formData.projectPriority} onChange={(e) => handleInputChange('projectPriority', e.target.value)} className={baseInputClasses}><option value="reduce_bills">Reduce Energy Bills</option><option value="reduce_demand">Reduce Demand Charges</option><option value="max_roi">Maximize ROI</option></select></div>
-                    <div className="info-section md:col-span-2 flex items-center justify-between"><p className="text-foreground font-semibold">Is it a three-phase power supply?</p><button type="button" onClick={() => handleInputChange('isThreePhase', !formData.isThreePhase)} className={`toggle-switch toggle-switch-md ${formData.isThreePhase ? 'toggle-switch-on' : 'toggle-switch-off'}`}><span className={`toggle-knob toggle-knob-md ${formData.isThreePhase ? 'toggle-knob-on-md' : 'toggle-knob-off-md'}`}/></button></div>
+                    <div><label className="block text-muted-foreground text-body-small mb-2">Peak Demand (kW)</label><input type="number" name="peakDemand" value={formData.peakDemand} onChange={(e) => handleInputChange('peakDemand', e.target.value)} onBlur={handleBlur} placeholder="e.g. 50" className={`${baseInputClasses} ${errors.peakDemand ? 'border-destructive' : ''}`}/>{errors.peakDemand && <p className="text-destructive text-caption mt-1">{errors.peakDemand}</p>}</div>
+                    <div><label className="block text-muted-foreground text-body-small mb-2">Project Priority</label><select name="projectPriority" value={formData.projectPriority} onChange={(e) => handleInputChange('projectPriority', e.target.value)} className={baseInputClasses}><option value="reduce_bills">Reduce Energy Bills</option><option value="reduce_demand">Reduce Demand Charges</option><option value="max_roi">Maximize ROI</option></select></div>
+                    <div className="info-section md:col-span-2 flex items-center justify-between"><p className="text-foreground">Is it a three-phase power supply?</p><button type="button" onClick={() => handleInputChange('isThreePhase', !formData.isThreePhase)} className={`toggle-switch toggle-switch-md ${formData.isThreePhase ? 'toggle-switch-on' : 'toggle-switch-off'}`}><span className={`toggle-knob toggle-knob-md ${formData.isThreePhase ? 'toggle-knob-on-md' : 'toggle-knob-off-md'}`}/></button></div>
                 </div>
               )}
 
               {/* Enhanced Roof Configuration */}
               <fieldset className="pt-6 border-t border-border">
-                <legend className="text-lg font-semibold text-foreground mb-4">🏠 Roof & System Configuration</legend>
+                <legend className="text-heading-4 text-foreground mb-4">🏠 Roof & System Configuration</legend>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="panelOrientation" className="block text-subtle text-sm font-semibold mb-2">
+                    <label htmlFor="panelOrientation" className="block text-subtle text-label mb-2">
                       Panel Orientation *
                       <InfoTooltip text="North-facing panels generate the most electricity in Australia. Other orientations are still viable." />
                     </label>
@@ -1092,10 +1092,10 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                       <option value="southwest">🧭 Southwest (82%)</option>
                       <option value="south">🧭 South (68%)</option>
                     </select>
-                    <p id="orientation-help" className="text-xs text-subtle mt-1">Percentages show relative performance vs. north-facing</p>
+                    <p id="orientation-help" className="text-caption text-subtle mt-1">Percentages show relative performance vs. north-facing</p>
                   </div>
                   <div>
-                    <label htmlFor="roofTilt" className="block text-subtle text-sm font-semibold mb-2">
+                    <label htmlFor="roofTilt" className="block text-subtle text-label mb-2">
                       Roof Tilt *
                       <InfoTooltip text="Optimal tilt is usually 20-35? in Australia. Flat roofs can use tilt frames." />
                     </label>
@@ -1113,7 +1113,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                     </select>
                   </div>
                   <div>
-                    <label htmlFor="shadingLevel" className="block text-subtle text-sm font-semibold mb-2">
+                    <label htmlFor="shadingLevel" className="block text-subtle text-label mb-2">
                       Shading Level *
                       <InfoTooltip text="Even partial shading can significantly impact solar performance. Consider power optimizers for shaded areas." />
                     </label>
@@ -1132,7 +1132,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                     </select>
                   </div>
                   <div>
-                    <label htmlFor="roofType" className="block text-subtle text-sm font-semibold mb-2">
+                    <label htmlFor="roofType" className="block text-subtle text-label mb-2">
                       Roof Material *
                       <InfoTooltip text="Different roof materials affect installation cost and method. Tile roofs typically cost more to install." />
                     </label>
@@ -1153,10 +1153,10 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                       <option value="slate">🏛️ Slate</option>
                       <option value="other">❓ Other</option>
                     </select>
-                    {errors.roofType && <p id="roof-type-error" className="text-destructive text-xs mt-1" role="alert">{errors.roofType}</p>}
+                    {errors.roofType && <p id="roof-type-error" className="text-destructive text-caption mt-1" role="alert">{errors.roofType}</p>}
                   </div>
                   <div>
-                    <label htmlFor="panelBrand" className="block text-subtle text-sm font-semibold mb-2">
+                    <label htmlFor="panelBrand" className="block text-subtle text-label mb-2">
                       Panel Brand Preference (Optional)
                       <InfoTooltip text="Premium brands like Sunpower and LG offer higher efficiency but cost more. Good value brands include Trina and JA Solar." />
                     </label>
@@ -1179,7 +1179,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                   </div>
                   {quoteType === 'residential' && (
                     <div>
-                      <label htmlFor="usagePattern" className="block text-subtle text-sm font-semibold mb-2">
+                      <label htmlFor="usagePattern" className="block text-subtle text-label mb-2">
                         Energy Usage Pattern *
                         <InfoTooltip text="When you use most electricity affects self-consumption and battery sizing recommendations." />
                       </label>
@@ -1200,14 +1200,14 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                 </div>
                 {/* Advanced Options */}
                 <div className="info-section mt-6">
-                  <h4 className="text-sm font-semibold text-foreground mb-3">
+                  <h4 className="text-label text-foreground mb-3">
                     🔧 Advanced System Options
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <label className="text-foreground font-medium">Power Optimizers</label>
-                        <p className="text-xs text-subtle">Maximize output in shading</p>
+                        <label className="text-foreground">Power Optimizers</label>
+                        <p className="text-caption text-subtle">Maximize output in shading</p>
                       </div>
                       <button 
                         type="button"
@@ -1221,7 +1221,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                     
                     <div className="flex items-center justify-between">
                       <div>
-                        <label className="text-foreground font-medium">Microinverters</label>
+                        <label className="text-foreground">Microinverters</label>
                         <p className="text-caption text-muted-foreground">Panel-level monitoring</p>
                       </div>
                       <button 
@@ -1245,7 +1245,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="budgetRange" className="block text-muted-foreground text-body-small font-semibold mb-2">
+                    <label htmlFor="budgetRange" className="block text-muted-foreground text-body-small mb-2">
                       Budget Range *
                       <InfoTooltip text="This helps us recommend appropriate system sizes and component quality levels." />
                     </label>
@@ -1269,7 +1269,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                   </div>
                   
                   <div>
-                    <label htmlFor="tariffPlan" className="block text-muted-foreground text-body-small font-semibold mb-2">
+                    <label htmlFor="tariffPlan" className="block text-muted-foreground text-body-small mb-2">
                       Tariff Plan (Optional)
                       <InfoTooltip text="Your tariff type affects savings calculations. Time-of-use tariffs can benefit from battery storage." />
                     </label>
@@ -1289,7 +1289,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                   </div>
                   
                   <div>
-                    <label htmlFor="customRetailRate" className="block text-muted-foreground text-body-small font-semibold mb-2">
+                    <label htmlFor="customRetailRate" className="block text-muted-foreground text-body-small mb-2">
                       Your Electricity Rate (c/kWh)
                       <InfoTooltip text="Found on your electricity bill. Typical rates: NSW 28-35c, VIC 25-30c, QLD 25-30c, SA 35-45c." />
                     </label>
@@ -1310,7 +1310,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                   </div>
                   
                   <div>
-                    <label htmlFor="customFeedInRate" className="block text-muted-foreground text-body-small font-semibold mb-2">
+                    <label htmlFor="customFeedInRate" className="block text-muted-foreground text-body-small mb-2">
                       Feed-in Tariff (c/kWh)
                       <InfoTooltip text="What you're paid for excess solar exported to the grid. Varies by retailer and state." />
                     </label>
@@ -1334,7 +1334,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
 
               {/* Enhanced Battery Configuration */}
               <fieldset className="pt-6 border-t border-border">
-                <legend className="text-lg font-semibold text-foreground mb-4">
+                <legend className="text-heading-4 text-foreground mb-4">
                   🔋 Battery Storage Options
                 </legend>
                 
@@ -1342,8 +1342,8 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                   <div className="flex items-center space-x-3">
                     <Battery className="h-5 w-5 text-primary" />
                     <div>
-                      <p className="text-foreground font-semibold">Include Battery Storage</p>
-                      <p className="text-subtle text-sm">Up to $3,000 rebate available • Reduce bills by 70-90%</p>
+                      <p className="text-foreground">Include Battery Storage</p>
+                      <p className="text-subtle text-body-small">Up to $3,000 rebate available • Reduce bills by 70-90%</p>
                     </div>
                   </div>
                   <button 
@@ -1361,10 +1361,10 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                   <div className="space-y-6 animate-fade-in">
                     <div className="info-section mb-6">
                       <div className="flex items-start gap-3">
-                        <div className="text-primary text-xl">💡</div>
+                        <div className="text-primary text-heading-3">💡</div>
                         <div>
-                          <h4 className="font-semibold text-foreground mb-1">Battery Sizing Guide</h4>
-                          <p className="text-sm text-subtle">
+                          <h4 className="text-foreground mb-1">Battery Sizing Guide</h4>
+                          <p className="text-body-small text-subtle">
                             A good rule of thumb: battery capacity (kWh) should be 50-80% of your daily usage. 
                             Most Australian homes use 15-25 kWh per day.
                           </p>
@@ -1374,7 +1374,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                     
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       <div>
-                        <label htmlFor="batteryCapacity" className="block text-muted-foreground text-body-small font-semibold mb-2">
+                        <label htmlFor="batteryCapacity" className="block text-muted-foreground text-body-small mb-2">
                           Battery Capacity *
                           <InfoTooltip text="Battery capacity determines how much energy you can store. Larger batteries provide more backup power and energy independence." />
                         </label>
@@ -1409,7 +1409,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                       </div>
                       
                       <div>
-                        <label htmlFor="batteryBrand" className="block text-muted-foreground text-body-small font-semibold mb-2">
+                        <label htmlFor="batteryBrand" className="block text-muted-foreground text-body-small mb-2">
                           Battery Brand Preference
                           <InfoTooltip text="Different brands offer varying warranties, features, and pricing. Tesla and LG are premium options." />
                         </label>
@@ -1433,7 +1433,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                       </div>
                       
                       <div>
-                        <label htmlFor="backupCritical" className="block text-muted-foreground text-body-small font-semibold mb-2">
+                        <label htmlFor="backupCritical" className="block text-muted-foreground text-body-small mb-2">
                           Backup Power Priority
                           <InfoTooltip text="What's most important to keep running during outages? This affects battery and inverter specifications." />
                         </label>
@@ -1452,7 +1452,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                       </div>
                       
                       <div>
-                        <label htmlFor="batteryUsage" className="block text-muted-foreground text-body-small font-semibold mb-2">
+                        <label htmlFor="batteryUsage" className="block text-muted-foreground text-body-small mb-2">
                           Primary Battery Purpose
                           <InfoTooltip text="Different purposes optimize battery sizing and configuration differently." />
                         </label>
@@ -1473,14 +1473,14 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                     
                     {/* Battery Features */}
                     <div className="p-4 bg-background shadow-neu-inset rounded-2xl border border-border">
-                      <h4 className="text-sm font-semibold text-foreground mb-3">
+                      <h4 className="text-label text-foreground mb-3">
                         🔧 Advanced Battery Features
                       </h4>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="flex items-center justify-between">
                           <div>
-                            <label className="text-foreground font-medium">Virtual Power Plant (VPP)</label>
+                            <label className="text-foreground">Virtual Power Plant (VPP)</label>
                             <p className="text-caption text-muted-foreground">Earn money by sharing battery capacity</p>
                           </div>
                           <button 
@@ -1495,7 +1495,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                         
                         <div className="flex items-center justify-between">
                           <div>
-                            <label className="text-foreground font-medium">EV Charging Integration</label>
+                            <label className="text-foreground">EV Charging Integration</label>
                             <p className="text-caption text-muted-foreground">Optimize for electric vehicle charging</p>
                           </div>
                           <button 
@@ -1510,7 +1510,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                         
                         <div className="flex items-center justify-between">
                           <div>
-                            <label className="text-foreground font-medium">Smart Home Integration</label>
+                            <label className="text-foreground">Smart Home Integration</label>
                             <p className="text-caption text-muted-foreground">Connect with smart home systems</p>
                           </div>
                           <button 
@@ -1525,7 +1525,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                         
                         <div className="flex items-center justify-between">
                           <div>
-                            <label className="text-foreground font-medium">Grid Services Revenue</label>
+                            <label className="text-foreground">Grid Services Revenue</label>
                             <p className="text-caption text-muted-foreground">FCAS and grid stabilization earnings</p>
                           </div>
                           <button 
@@ -1544,7 +1544,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
               </fieldset>
             
             {/* Error Message */}
-            {errors.general && (<div className="mt-6 bg-destructive/10 shadow-neu-inset border border-destructive/30 rounded-2xl p-4 flex items-center space-x-3"><AlertCircle className="h-5 w-5" /><p className="text-destructive text-sm">{errors.general}</p></div>)}
+            {errors.general && (<div className="mt-6 bg-destructive/10 shadow-neu-inset border border-destructive/30 rounded-2xl p-4 flex items-center space-x-3"><AlertCircle className="h-5 w-5" /><p className="text-destructive text-body-small">{errors.general}</p></div>)}
             
             {/* Submit Button */}
             <div className="flex justify-end mt-8">
@@ -1573,7 +1573,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
             <div className="icon-container mx-auto mb-4">
               <CheckCircle2 className="h-6 w-6" />
             </div>
-            <h2 className="text-2xl font-bold text-foreground mb-2">
+            <h2 className="text-heading-2 text-foreground mb-2">
               Your Instant {quoteType === 'commercial' ? 'Commercial' : 'Residential'} Solar Quote
             </h2>
             <p className="text-foreground-subtle">An estimate based on your provided details</p>
@@ -1632,7 +1632,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                 {/* Cost Breakdown */}
                 <div className="detail-card">
                   <h3 className="detail-card-header">
-                    <span className="text-2xl">💰</span>
+                    <span className="text-heading-2">💰</span>
                     Detailed Cost Breakdown
                   </h3>
                   <div className="space-y-4">
@@ -1649,7 +1649,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                       <span className="cost-item-value">{formatCurrency(quoteResult.totalCost * 0.1)}</span>
                     </div>
                     <div className="border-t border-border pt-3 mt-3">
-                      <div className="flex justify-between items-center text-lg font-semibold">
+                      <div className="flex justify-between items-center text-heading-4">
                         <span className="cost-item-label">Subtotal</span>
                         <span className="cost-item-value">{formatCurrency(quoteResult.totalCost)}</span>
                       </div>
@@ -1682,7 +1682,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                       )}
                     </div>
                     <div className="summary-box">
-                      <div className="flex justify-between items-center text-xl font-bold">
+                      <div className="flex justify-between items-center text-heading-3">
                         <span className="summary-box-label">Final Price</span>
                         <span className="summary-box-value">{formatCurrency(quoteResult.finalPrice)}</span>
                       </div>
@@ -1693,7 +1693,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                 <div className="space-y-6">
                   <div className="detail-card">
                     <h3 className="detail-card-header">
-                      <span className="text-2xl">⚡</span>
+                      <span className="text-heading-2">⚡</span>
                       System Specifications
                     </h3>
                     <div className="grid grid-cols-2 gap-4 mb-6">
@@ -1706,7 +1706,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                         <p className="spec-card-label">Solar Panels</p>
                       </div>
                     </div>
-                    <div className="space-y-3 text-sm">
+                    <div className="space-y-3 text-body-small">
                       <div className="flex justify-between">
                         <span className="performance-item-label">Panel Wattage</span>
                         <span className="performance-item-value">440W each</span>
@@ -1727,7 +1727,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                   </div>
                   <div className="detail-card">
                     <h3 className="detail-card-header">
-                      <span className="text-2xl">🌞</span>
+                      <span className="text-heading-2">🌞</span>
                       Energy Performance
                     </h3>
                     <div className="space-y-4">
@@ -1761,16 +1761,16 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                 <div className="detail-card">
                   <div className="text-center">
                     <p className="performance-item-label">Estimated Out-of-Pocket Cost</p>
-                    <p className="text-4xl md:text-5xl font-bold text-primary tracking-tight mt-1">{formatCurrency(quoteResult.finalPrice)}</p>
+                    <p className="text-heading-1 md:text-heading-1 text-primary tracking-tight mt-1">{formatCurrency(quoteResult.finalPrice)}</p>
                   </div>
                   <div className="mt-6 pt-6 border-t border-border">
                     <h3 className="detail-card-header justify-center">Cost Breakdown</h3>
                     <div className="space-y-3 max-w-md mx-auto">
-                      <div className="flex justify-between items-center text-sm">
+                      <div className="flex justify-between items-center text-body-small">
                         <span className="cost-item-label">Total System Cost</span>
                         <span className="cost-item-value">{formatCurrency(quoteResult.totalCost)}</span>
                       </div>
-                      <div className="rebate-item text-sm">
+                      <div className="rebate-item text-body-small">
                         <span>Federal Rebate (STCs)</span>
                         <span className="rebate-item-value">-{formatCurrency(quoteResult.federalRebate)}</span>
                       </div>
@@ -1779,7 +1779,7 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                 </div>
                 <div className="detail-card text-center">
                   <h3 className="detail-card-header justify-center">Simple Payback Period</h3>
-                  <p className="text-4xl font-bold text-primary tracking-tight">{quoteResult.simplePaybackYears ?? 'N/A'} Years</p>
+                  <p className="text-heading-1 text-primary tracking-tight">{quoteResult.simplePaybackYears ?? 'N/A'} Years</p>
                 </div>
               </div>
               <div className="space-y-6">
@@ -1799,15 +1799,15 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
                 <div className="detail-card">
                   <h3 className="detail-card-header justify-center">Annual Savings Breakdown</h3>
                   <div className="space-y-3">
-                    <div className="flex justify-between items-center text-sm">
+                    <div className="flex justify-between items-center text-body-small">
                       <span className="performance-item-label">Energy Savings</span>
                       <span className="performance-item-value">{formatCurrency(quoteResult.energySavings)}</span>
                     </div>
-                    <div className="flex justify-between items-center text-sm">
+                    <div className="flex justify-between items-center text-body-small">
                       <span className="performance-item-label">Demand Charge Savings</span>
                       <span className="performance-item-value">{formatCurrency(quoteResult.demandChargeSavings)}</span>
                     </div>
-                    <div className="flex justify-between items-center text-base pt-2 border-t border-border">
+                    <div className="flex justify-between items-center text-body pt-2 border-t border-border">
                       <span className="cost-item-label">Total Annual Savings</span>
                       <span className="cost-item-value">{formatCurrency(quoteResult.annualSavings)}</span>
                     </div>

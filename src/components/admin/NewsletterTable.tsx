@@ -83,18 +83,18 @@ export default function NewsletterTable() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="grid grid-cols-3 gap-4 flex-1">
           <div className="theme-card p-4">
-            <p className="text-sm text-muted-foreground mb-1">Total</p>
-            <p className="text-2xl font-bold text-foreground">{subscribers.length}</p>
+            <p className="text-body-small text-muted-foreground mb-1">Total</p>
+            <p className="text-heading-2 text-foreground">{subscribers.length}</p>
           </div>
           <div className="theme-card p-4">
-            <p className="text-sm text-muted-foreground mb-1">Active</p>
-            <p className="text-2xl font-bold text-success">
+            <p className="text-body-small text-muted-foreground mb-1">Active</p>
+            <p className="text-heading-2 text-success">
               {subscribers.filter(s => s.isActive).length}
             </p>
           </div>
           <div className="theme-card p-4">
-            <p className="text-sm text-muted-foreground mb-1">Unsubscribed</p>
-            <p className="text-2xl font-bold text-error">
+            <p className="text-body-small text-muted-foreground mb-1">Unsubscribed</p>
+            <p className="text-heading-2 text-error">
               {subscribers.filter(s => !s.isActive).length}
             </p>
           </div>
@@ -157,13 +157,13 @@ export default function NewsletterTable() {
               <table className="w-full">
                 <thead className="bg-surface border-b border-border">
                   <tr>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase">
+                    <th className="px-6 py-4 text-left text-caption text-muted-foreground uppercase">
                       Email Address
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase">
+                    <th className="px-6 py-4 text-left text-caption text-muted-foreground uppercase">
                       Subscribed Date
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase">
+                    <th className="px-6 py-4 text-left text-caption text-muted-foreground uppercase">
                       Status
                     </th>
                   </tr>
@@ -176,7 +176,7 @@ export default function NewsletterTable() {
                           <div className="p-2 bg-primary/10 rounded-lg">
                             <MailIcon />
                           </div>
-                          <span className="font-medium text-foreground">
+                          <span className="text-foreground">
                             {subscriber.email}
                           </span>
                         </div>
@@ -186,11 +186,11 @@ export default function NewsletterTable() {
                       </td>
                       <td className="px-6 py-4">
                         {subscriber.isActive ? (
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-success/10 text-success">
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-caption bg-success/10 text-success">
                             ● Active
                           </span>
                         ) : (
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-error/10 text-error">
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-caption bg-error/10 text-error">
                             ● Unsubscribed
                           </span>
                         )}
@@ -210,19 +210,19 @@ export default function NewsletterTable() {
                       <MailIcon />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-foreground truncate">
+                      <p className="text-foreground truncate">
                         {subscriber.email}
                       </p>
-                      <p className="text-sm text-muted-foreground mt-1">
+                      <p className="text-body-small text-muted-foreground mt-1">
                         {formatDate(subscriber.subscribedAt)}
                       </p>
                       <div className="mt-2">
                         {subscriber.isActive ? (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-success/10 text-success">
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-caption bg-success/10 text-success">
                             ● Active
                           </span>
                         ) : (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-error/10 text-error">
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-caption bg-error/10 text-error">
                             ● Unsubscribed
                           </span>
                         )}
@@ -234,7 +234,7 @@ export default function NewsletterTable() {
             </div>
 
             {/* Results Count */}
-            <div className="px-6 py-4 bg-surface border-t border-border text-center text-sm text-muted-foreground">
+            <div className="px-6 py-4 bg-surface border-t border-border text-center text-body-small text-muted-foreground">
               Showing {filteredSubscribers.length} of {subscribers.length} subscribers
             </div>
           </>

@@ -146,13 +146,13 @@ export default function LeadDetailPage({ params }: { params: { id: string } }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 py-8">
+      <div className="min-h-screen bg-slate-50 py-8">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="animate-pulse">
-            <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded w-1/4 mb-6"></div>
+            <div className="h-8 bg-slate-200 rounded w-1/4 mb-6"></div>
             <div className="space-y-4">
-              <div className="h-64 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
-              <div className="h-48 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
+              <div className="h-64 bg-slate-200 rounded-lg"></div>
+              <div className="h-48 bg-slate-200 rounded-lg"></div>
             </div>
           </div>
         </div>
@@ -162,17 +162,17 @@ export default function LeadDetailPage({ params }: { params: { id: string } }) {
 
   if (error || !lead) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 py-8">
+      <div className="min-h-screen bg-slate-50 py-8">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <button
             onClick={handleBack}
-            className="mb-6 flex items-center text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            className="mb-6 flex items-center text-muted hover:text-foreground"
           >
             <ArrowLeftIcon className="h-5 w-5 mr-2" />
             Back to Purchased Leads
           </button>
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
-            <p className="text-red-800 dark:text-red-200">
+          <div className="bg-error/10 border border-error rounded-lg p-6">
+            <p className="text-error">
               {error || 'Lead not found'}
             </p>
           </div>
@@ -182,12 +182,12 @@ export default function LeadDetailPage({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 py-8">
+    <div className="min-h-screen bg-slate-50 py-8">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Back Button */}
         <button
           onClick={handleBack}
-          className="mb-6 flex items-center text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+          className="mb-6 flex items-center text-muted hover:text-foreground transition-colors"
         >
           <ArrowLeftIcon className="h-5 w-5 mr-2" />
           Back to Purchased Leads
@@ -197,14 +197,14 @@ export default function LeadDetailPage({ params }: { params: { id: string } }) {
         <div className="mb-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+              <h1 className="text-heading-1 text-foreground mb-2">
                 Lead Details
               </h1>
               <div className="flex items-center space-x-3">
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-brand-100 dark:bg-brand-900/30 text-brand-800 dark:text-brand-300">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-body-small bg-brand-100 text-brand-800">
                   {lead.quoteType.replace('_', ' ')}
                 </span>
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-body-small bg-success/20 text-success">
                   <CheckCircleIcon className="h-4 w-4 mr-1" />
                   Purchased
                 </span>
@@ -215,21 +215,21 @@ export default function LeadDetailPage({ params }: { params: { id: string } }) {
             <div className="flex space-x-2">
               <button
                 onClick={handleCall}
-                className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                className="flex items-center px-4 py-2 bg-success text-foreground-secondary rounded-lg hover:bg-success transition-colors"
               >
                 <PhoneIcon className="h-5 w-5 mr-2" />
                 Call
               </button>
               <button
                 onClick={handleEmail}
-                className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="flex items-center px-4 py-2 bg-primary text-foreground-secondary rounded-lg hover:bg-primary transition-colors"
               >
                 <EnvelopeIcon className="h-5 w-5 mr-2" />
                 Email
               </button>
               <button
                 onClick={handleMessage}
-                className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                className="flex items-center px-4 py-2 bg-accent text-foreground-secondary rounded-lg hover:bg-purple-700 transition-colors"
               >
                 <ChatBubbleLeftIcon className="h-5 w-5 mr-2" />
                 Message
@@ -242,40 +242,40 @@ export default function LeadDetailPage({ params }: { params: { id: string } }) {
           {/* Left Column - Main Info */}
           <div className="lg:col-span-2 space-y-6">
             {/* Contact Information */}
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-              <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
+            <div className="bg-surface rounded-lg shadow-sm border border-border p-6">
+              <h2 className="text-heading-3 text-foreground mb-4">
                 Contact Information
               </h2>
               <div className="space-y-3">
                 <div className="flex items-center">
-                  <div className="w-32 text-sm font-medium text-slate-600 dark:text-slate-400">
+                  <div className="w-32 text-body-small text-muted">
                     Name:
                   </div>
-                  <div className="flex-1 text-slate-900 dark:text-white">
+                  <div className="flex-1 text-foreground">
                     {lead.homeowner.name}
                   </div>
                 </div>
                 <div className="flex items-center">
-                  <div className="w-32 text-sm font-medium text-slate-600 dark:text-slate-400">
+                  <div className="w-32 text-body-small text-muted">
                     Phone:
                   </div>
                   <div className="flex-1">
                     <a
                       href={`tel:${lead.homeowner.phone}`}
-                      className="text-brand-600 dark:text-brand-400 hover:underline"
+                      className="text-brand-600 hover:underline"
                     >
                       {lead.homeowner.phone}
                     </a>
                   </div>
                 </div>
                 <div className="flex items-center">
-                  <div className="w-32 text-sm font-medium text-slate-600 dark:text-slate-400">
+                  <div className="w-32 text-body-small text-muted">
                     Email:
                   </div>
                   <div className="flex-1">
                     <a
                       href={`mailto:${lead.homeowner.email}`}
-                      className="text-brand-600 dark:text-brand-400 hover:underline"
+                      className="text-brand-600 hover:underline"
                     >
                       {lead.homeowner.email}
                     </a>
@@ -283,13 +283,13 @@ export default function LeadDetailPage({ params }: { params: { id: string } }) {
                 </div>
                 {lead.quoteData?.address && (
                   <div className="flex items-start">
-                    <div className="w-32 text-sm font-medium text-slate-600 dark:text-slate-400">
+                    <div className="w-32 text-body-small text-muted">
                       Address:
                     </div>
-                    <div className="flex-1 text-slate-900 dark:text-white">
+                    <div className="flex-1 text-foreground">
                       {lead.quoteData.address}
                       {lead.quoteData.postcode && (
-                        <div className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                        <div className="text-body-small text-muted mt-1">
                           {lead.quoteData.postcode}
                         </div>
                       )}
@@ -301,68 +301,68 @@ export default function LeadDetailPage({ params }: { params: { id: string } }) {
 
             {/* Property Details */}
             {lead.quoteData && (
-              <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-                <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
+              <div className="bg-surface rounded-lg shadow-sm border border-border p-6">
+                <h2 className="text-heading-3 text-foreground mb-4">
                   Property Details
                 </h2>
                 <div className="grid grid-cols-2 gap-4">
                   {lead.quoteData.propertyType && (
                     <div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                      <div className="text-body-small text-muted mb-1">
                         Property Type
                       </div>
-                      <div className="flex items-center text-slate-900 dark:text-white">
-                        <HomeIcon className="h-5 w-5 mr-2 text-slate-400" />
+                      <div className="flex items-center text-foreground">
+                        <HomeIcon className="h-5 w-5 mr-2 text-muted" />
                         {lead.quoteData.propertyType}
                       </div>
                     </div>
                   )}
                   {lead.quoteData.ownershipStatus && (
                     <div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                      <div className="text-body-small text-muted mb-1">
                         Ownership
                       </div>
-                      <div className="text-slate-900 dark:text-white">
+                      <div className="text-foreground">
                         {lead.quoteData.ownershipStatus}
                       </div>
                     </div>
                   )}
                   {lead.quoteData.roofType && (
                     <div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                      <div className="text-body-small text-muted mb-1">
                         Roof Type
                       </div>
-                      <div className="text-slate-900 dark:text-white">
+                      <div className="text-foreground">
                         {lead.quoteData.roofType}
                       </div>
                     </div>
                   )}
                   {lead.quoteData.roofArea && (
                     <div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                      <div className="text-body-small text-muted mb-1">
                         Roof Area
                       </div>
-                      <div className="text-slate-900 dark:text-white">
+                      <div className="text-foreground">
                         {lead.quoteData.roofArea}m²
                       </div>
                     </div>
                   )}
                   {lead.quoteData.roofOrientation && (
                     <div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                      <div className="text-body-small text-muted mb-1">
                         Roof Orientation
                       </div>
-                      <div className="text-slate-900 dark:text-white">
+                      <div className="text-foreground">
                         {lead.quoteData.roofOrientation}
                       </div>
                     </div>
                   )}
                   {lead.quoteData.shadingLevel && (
                     <div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                      <div className="text-body-small text-muted mb-1">
                         Shading
                       </div>
-                      <div className="text-slate-900 dark:text-white">
+                      <div className="text-foreground">
                         {lead.quoteData.shadingLevel}
                       </div>
                     </div>
@@ -373,49 +373,49 @@ export default function LeadDetailPage({ params }: { params: { id: string } }) {
 
             {/* System Details */}
             {lead.quoteData && (
-              <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-                <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
+              <div className="bg-surface rounded-lg shadow-sm border border-border p-6">
+                <h2 className="text-heading-3 text-foreground mb-4">
                   Solar System Details
                 </h2>
                 <div className="grid grid-cols-2 gap-4">
                   {lead.quoteData.systemSize && (
                     <div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                      <div className="text-body-small text-muted mb-1">
                         System Size
                       </div>
-                      <div className="flex items-center text-slate-900 dark:text-white">
-                        <BoltIcon className="h-5 w-5 mr-2 text-yellow-500" />
-                        <span className="text-2xl font-bold">{lead.quoteData.systemSize}</span>
-                        <span className="ml-1 text-sm">kW</span>
+                      <div className="flex items-center text-foreground">
+                        <BoltIcon className="h-5 w-5 mr-2 text-warning" />
+                        <span className="text-heading-2">{lead.quoteData.systemSize}</span>
+                        <span className="ml-1 text-body-small">kW</span>
                       </div>
                     </div>
                   )}
                   {lead.quoteData.panelCount && (
                     <div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                      <div className="text-body-small text-muted mb-1">
                         Panel Count
                       </div>
-                      <div className="text-2xl font-bold text-slate-900 dark:text-white">
+                      <div className="text-heading-2 text-foreground">
                         {lead.quoteData.panelCount}
                       </div>
                     </div>
                   )}
                   {lead.quoteData.estimatedAnnualGeneration && (
                     <div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                      <div className="text-body-small text-muted mb-1">
                         Annual Generation
                       </div>
-                      <div className="text-slate-900 dark:text-white">
+                      <div className="text-foreground">
                         {lead.quoteData.estimatedAnnualGeneration.toLocaleString()} kWh/year
                       </div>
                     </div>
                   )}
                   {lead.quoteData.electricityBill && (
                     <div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                      <div className="text-body-small text-muted mb-1">
                         Monthly Bill
                       </div>
-                      <div className="text-slate-900 dark:text-white">
+                      <div className="text-foreground">
                         £{lead.quoteData.electricityBill}/month
                       </div>
                     </div>
@@ -424,23 +424,23 @@ export default function LeadDetailPage({ params }: { params: { id: string } }) {
 
                 {/* Add-ons */}
                 {(lead.quoteData.batteryStorage || lead.quoteData.evCharger || lead.quoteData.smartExport) && (
-                  <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
-                    <div className="text-sm text-slate-600 dark:text-slate-400 mb-2">
+                  <div className="mt-4 pt-4 border-t border-border">
+                    <div className="text-body-small text-muted mb-2">
                       Additional Features
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {lead.quoteData.batteryStorage && (
-                        <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full text-sm">
+                        <span className="px-3 py-1 bg-primary/20 text-primary rounded-full text-body-small">
                           Battery Storage
                         </span>
                       )}
                       {lead.quoteData.evCharger && (
-                        <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded-full text-sm">
+                        <span className="px-3 py-1 bg-success/20 text-success rounded-full text-body-small">
                           EV Charger
                         </span>
                       )}
                       {lead.quoteData.smartExport && (
-                        <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 rounded-full text-sm">
+                        <span className="px-3 py-1 bg-accent/20 text-purple-800 rounded-full text-body-small">
                           Smart Export
                         </span>
                       )}
@@ -452,67 +452,67 @@ export default function LeadDetailPage({ params }: { params: { id: string } }) {
 
             {/* Financial Details */}
             {lead.quoteData && (
-              <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-                <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
+              <div className="bg-surface rounded-lg shadow-sm border border-border p-6">
+                <h2 className="text-heading-3 text-foreground mb-4">
                   Financial Information
                 </h2>
                 <div className="grid grid-cols-2 gap-4">
                   {lead.quoteData.upfrontCost && (
                     <div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                      <div className="text-body-small text-muted mb-1">
                         Upfront Cost
                       </div>
-                      <div className="text-2xl font-bold text-slate-900 dark:text-white">
+                      <div className="text-heading-2 text-foreground">
                         £{lead.quoteData.upfrontCost.toLocaleString()}
                       </div>
                     </div>
                   )}
                   {lead.quoteData.finalCost && (
                     <div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                      <div className="text-body-small text-muted mb-1">
                         Final Cost
                       </div>
-                      <div className="text-2xl font-bold text-slate-900 dark:text-white">
+                      <div className="text-heading-2 text-foreground">
                         £{lead.quoteData.finalCost.toLocaleString()}
                       </div>
                     </div>
                   )}
                   {lead.quoteData.monthlyPayment && (
                     <div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                      <div className="text-body-small text-muted mb-1">
                         Monthly Payment
                       </div>
-                      <div className="text-slate-900 dark:text-white">
+                      <div className="text-foreground">
                         £{lead.quoteData.monthlyPayment}/month
                       </div>
                     </div>
                   )}
                   {lead.quoteData.estimatedSavings && (
                     <div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                      <div className="text-body-small text-muted mb-1">
                         Estimated Savings
                       </div>
-                      <div className="text-green-600 dark:text-green-400 font-semibold">
+                      <div className="text-success">
                         £{lead.quoteData.estimatedSavings.toLocaleString()}/year
                       </div>
                     </div>
                   )}
                   {lead.quoteData.paybackPeriod && (
                     <div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                      <div className="text-body-small text-muted mb-1">
                         Payback Period
                       </div>
-                      <div className="text-slate-900 dark:text-white">
+                      <div className="text-foreground">
                         {lead.quoteData.paybackPeriod} years
                       </div>
                     </div>
                   )}
                   {lead.quoteData.roi && (
                     <div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                      <div className="text-body-small text-muted mb-1">
                         ROI
                       </div>
-                      <div className="text-slate-900 dark:text-white">
+                      <div className="text-foreground">
                         {lead.quoteData.roi}%
                       </div>
                     </div>
@@ -523,11 +523,11 @@ export default function LeadDetailPage({ params }: { params: { id: string } }) {
 
             {/* Additional Notes */}
             {lead.quoteData?.additionalNotes && (
-              <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-                <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
+              <div className="bg-surface rounded-lg shadow-sm border border-border p-6">
+                <h2 className="text-heading-3 text-foreground mb-4">
                   Additional Notes
                 </h2>
-                <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
+                <p className="text-foreground whitespace-pre-wrap">
                   {lead.quoteData.additionalNotes}
                 </p>
               </div>
@@ -537,28 +537,28 @@ export default function LeadDetailPage({ params }: { params: { id: string } }) {
           {/* Right Column - Timeline & Purchase Info */}
           <div className="space-y-6">
             {/* Purchase Information */}
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+            <div className="bg-surface rounded-lg shadow-sm border border-border p-6">
+              <h2 className="text-heading-4 text-foreground mb-4">
                 Purchase Info
               </h2>
               <div className="space-y-3">
                 <div>
-                  <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                  <div className="text-body-small text-muted mb-1">
                     Purchase Price
                   </div>
                   <div className="flex items-center">
-                    <CurrencyPoundIcon className="h-6 w-6 text-brand-600 dark:text-brand-400 mr-2" />
-                    <span className="text-3xl font-bold text-slate-900 dark:text-white">
+                    <CurrencyPoundIcon className="h-6 w-6 text-brand-600 mr-2" />
+                    <span className="text-heading-1 text-foreground">
                       {lead.leadPrice || 50}
                     </span>
                   </div>
                 </div>
                 {lead.purchasedAt && (
                   <div>
-                    <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                    <div className="text-body-small text-muted mb-1">
                       Purchased On
                     </div>
-                    <div className="flex items-center text-slate-700 dark:text-slate-300">
+                    <div className="flex items-center text-foreground">
                       <CalendarIcon className="h-4 w-4 mr-2" />
                       {new Date(lead.purchasedAt).toLocaleDateString('en-GB', {
                         day: 'numeric',
@@ -572,31 +572,31 @@ export default function LeadDetailPage({ params }: { params: { id: string } }) {
             </div>
 
             {/* Lead Timeline */}
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+            <div className="bg-surface rounded-lg shadow-sm border border-border p-6">
+              <h2 className="text-heading-4 text-foreground mb-4">
                 Timeline
               </h2>
               <div className="space-y-4">
                 {lead.purchasedAt && (
                   <div className="flex items-start">
-                    <div className="flex-shrink-0 w-2 h-2 mt-2 bg-green-500 rounded-full"></div>
+                    <div className="flex-shrink-0 w-2 h-2 mt-2 bg-success rounded-full"></div>
                     <div className="ml-4 flex-1">
-                      <div className="text-sm font-medium text-slate-900 dark:text-white">
+                      <div className="text-body-small text-foreground">
                         Lead Purchased
                       </div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400">
+                      <div className="text-body-small text-muted">
                         {new Date(lead.purchasedAt).toLocaleDateString()}
                       </div>
                     </div>
                   </div>
                 )}
                 <div className="flex items-start">
-                  <div className="flex-shrink-0 w-2 h-2 mt-2 bg-blue-500 rounded-full"></div>
+                  <div className="flex-shrink-0 w-2 h-2 mt-2 bg-primary rounded-full"></div>
                   <div className="ml-4 flex-1">
-                    <div className="text-sm font-medium text-slate-900 dark:text-white">
+                    <div className="text-body-small text-foreground">
                       Lead Created
                     </div>
-                    <div className="text-sm text-slate-600 dark:text-slate-400">
+                    <div className="text-body-small text-muted">
                       {new Date(lead.createdAt).toLocaleDateString()}
                     </div>
                   </div>
@@ -606,13 +606,13 @@ export default function LeadDetailPage({ params }: { params: { id: string } }) {
 
             {/* Installation Urgency */}
             {lead.quoteData?.installationUrgency && (
-              <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+              <div className="bg-surface rounded-lg shadow-sm border border-border p-6">
+                <h2 className="text-heading-4 text-foreground mb-2">
                   Installation Urgency
                 </h2>
                 <div className="flex items-center">
                   <ClockIcon className="h-5 w-5 text-orange-500 mr-2" />
-                  <span className="text-slate-700 dark:text-slate-300">
+                  <span className="text-foreground">
                     {lead.quoteData.installationUrgency}
                   </span>
                 </div>

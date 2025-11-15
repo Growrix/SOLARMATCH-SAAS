@@ -5,9 +5,9 @@
 // Creates a new homeowner account with email/password authentication
 // ============================================================================
 
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import bcrypt from "bcryptjs";
+import { NextRequest, NextResponse } from"next/server";
+import { prisma } from"@/lib/prisma";
+import bcrypt from"bcryptjs";
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     // Check required fields (email and password are mandatory)
     if (!email || !password) {
       return NextResponse.json(
-        { error: "Email and password are required" },
+        { error:"Email and password are required" },
         { status: 400 }
       );
     }
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return NextResponse.json(
-        { error: "Invalid email format" },
+        { error:"Invalid email format" },
         { status: 400 }
       );
     }
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     // Validate password strength
     if (password.length < 8) {
       return NextResponse.json(
-        { error: "Password must be at least 8 characters long" },
+        { error:"Password must be at least 8 characters long" },
         { status: 400 }
       );
     }
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     if (!hasNumber || !hasLetter) {
       return NextResponse.json(
         { 
-          error: "Password must contain at least one letter and one number" 
+          error:"Password must contain at least one letter and one number" 
         },
         { status: 400 }
       );
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     // 🆕 Validate name (optional but recommended)
     if (name && name.trim().length < 2) {
       return NextResponse.json(
-        { error: "Name must be at least 2 characters long" },
+        { error:"Name must be at least 2 characters long" },
         { status: 400 }
       );
     }
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
       const phoneRegex = /^(\+?61|0)[2-478](?:[ -]?[0-9]){8}$/;
       if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
         return NextResponse.json(
-          { error: "Invalid Australian phone number format. Expected format: 04XX XXX XXX or +61 4XX XXX XXX" },
+          { error:"Invalid Australian phone number format. Expected format: 04XX XXX XXX or +61 4XX XXX XXX" },
           { status: 400 }
         );
       }
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
 
     if (existingUser) {
       return NextResponse.json(
-        { error: "An account with this email already exists" },
+        { error:"An account with this email already exists" },
         { status: 409 } // 409 Conflict
       );
     }
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
       data: {
         email: email.toLowerCase(), // Store emails in lowercase
         password: hashedPassword,
-        role: "HOMEOWNER", // Set role as HOMEOWNER
+        role:"HOMEOWNER", // Set role as HOMEOWNER
         isActive: true,
         name: name?.trim() || null, // 🆕 Store name from HomeownersInfoForm
         phone: phone?.trim() || null, // 🆕 Store phone from HomeownersInfoForm
@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        message: "Account created successfully",
+        message:"Account created successfully",
         user: {
           id: user.id,
           name: user.name,
@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json(
       { 
-        error: "An error occurred during registration. Please try again." 
+        error:"An error occurred during registration. Please try again." 
       },
       { status: 500 }
     );

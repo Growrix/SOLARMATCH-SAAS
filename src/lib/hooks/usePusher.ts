@@ -24,7 +24,7 @@
  * 
  * Environment Variables Required:
  * - NEXT_PUBLIC_PUSHER_KEY: Your Pusher key (must start with NEXT_PUBLIC_ for client-side)
- * - NEXT_PUBLIC_PUSHER_CLUSTER: Your Pusher cluster (e.g., "us2")
+ * - NEXT_PUBLIC_PUSHER_CLUSTER: Your Pusher cluster (e.g.,"us2")
  */
 
 'use client';
@@ -94,8 +94,8 @@ export function usePusher() {
   /**
    * Subscribe to a Pusher channel and event
    * 
-   * @param channelName - The channel name (e.g., "lead-123-chat")
-   * @param eventName - The event name (e.g., "new-message")
+   * @param channelName - The channel name (e.g.,"lead-123-chat")
+   * @param eventName - The event name (e.g.,"new-message")
    * @param callback - Function called when event is received
    * @returns Unsubscribe function to cleanup subscription
    * 

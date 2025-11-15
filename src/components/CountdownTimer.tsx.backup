@@ -82,19 +82,19 @@ export function CountdownTimer({
   // Color mapping for Tailwind classes
   const colorClasses = {
     green: {
-      bg: 'bg-success',
-      text: 'text-success',
-      border: 'border-success',
+      bg: 'bg-green-500 dark:bg-success',
+      text: 'text-green-700 dark:text-green-300',
+      border: 'border-green-200 dark:border-green-800',
     },
     yellow: {
-      bg: 'bg-warning',
-      text: 'text-warning',
-      border: 'border-warning',
+      bg: 'bg-yellow-500 dark:bg-yellow-600',
+      text: 'text-yellow-700 dark:text-yellow-300',
+      border: 'border-yellow-200 dark:border-yellow-800',
     },
     red: {
-      bg: 'bg-destructive',
-      text: 'text-error',
-      border: 'border-error',
+      bg: 'bg-destructive dark:bg-red-600',
+      text: 'text-red-700 dark:text-red-300',
+      border: 'border-red-200 dark:border-red-800',
     },
   };
 
@@ -105,12 +105,12 @@ export function CountdownTimer({
     // Compact mode: Just text with color indicator
     return (
       <div
-        className={`inline-flex items-center gap-1.5 text-body-small ${colors.text}`}
+        className={`inline-flex items-center gap-1.5 text-sm ${colors.text}`}
         role="status"
         aria-label={accessibleText}
       >
         <span className={`h-2 w-2 rounded-full ${colors.bg}`} aria-hidden="true" />
-        <span className="">{countdown.displayText}</span>
+        <span className="font-medium">{countdown.displayText}</span>
       </div>
     );
   }
@@ -118,24 +118,24 @@ export function CountdownTimer({
   // Full mode: Progress bar with text
   return (
     <div
-      className={`rounded-lg border ${colors.border} bg-surface p-3`}
+      className={`rounded-lg border ${colors.border} bg-white dark:bg-gray-800 p-3`}
       role="status"
       aria-label={accessibleText}
     >
       {/* Text display */}
       <div className="flex items-center justify-between mb-2">
-        <span className={`text-label ${colors.text}`}>
+        <span className={`text-sm font-semibold ${colors.text}`}>
           {countdown.displayText}
         </span>
         {countdown.isExpired && (
-          <span className="text-caption text-muted-foreground">
+          <span className="text-xs text-muted-foreground dark:text-gray-400">
             Lead expired
           </span>
         )}
       </div>
 
       {/* Progress bar */}
-      <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
         <div
           className={`h-full ${colors.bg} transition-colors duration-300 ease-in-out`}
           style={{ width: `${countdown.progressPercent}%` }}
@@ -145,7 +145,7 @@ export function CountdownTimer({
 
       {/* Additional info for non-expired countdowns */}
       {!countdown.isExpired && countdown.daysRemaining <= 2 && (
-        <p className="text-caption text-muted-foreground mt-2">
+        <p className="text-xs text-muted-foreground dark:text-gray-400 mt-2">
           {countdown.hoursRemaining > 0 && (
             <>Approximately {countdown.hoursRemaining} hours remaining</>
           )}

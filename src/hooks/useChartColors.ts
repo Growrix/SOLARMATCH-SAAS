@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 
 /**
  * Convert RGB string to hex format
- * @param rgb RGB string (e.g., "255 255 255")
+ * @param rgb RGB string (e.g.,"255 255 255")
  * @returns Hex color string (#RRGGBB)
  */
 function rgbToHex(rgb: string): string {
@@ -28,7 +28,7 @@ function hexToRgba(hex: string, alpha: number): string {
 
 /**
  * Get CSS variable value from root element
- * @param varName CSS variable name (e.g., "--color-primary")
+ * @param varName CSS variable name (e.g.,"--color-primary")
  * @returns RGB string or fallback value
  */
 function getCSSVariable(varName: string, fallback: string = '255 255 255'): string {

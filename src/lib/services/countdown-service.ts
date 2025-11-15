@@ -149,7 +149,7 @@ export function getColorClass(daysRemaining: number): 'green' | 'yellow' | 'red'
  * 
  * @param daysRemaining - Days until expiry
  * @param hoursRemaining - Hours remaining in current day
- * @returns Display text (e.g., "7 days left", "1 day left", "< 1 day left")
+ * @returns Display text (e.g.,"7 days left","1 day left","< 1 day left")
  * 
  * Teaching: User-facing text, not technical timestamps
  */

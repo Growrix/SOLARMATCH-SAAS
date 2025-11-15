@@ -38,17 +38,17 @@ export default function BlogPostPage() {
   const [comments, setComments] = useState<Comment[]>([
     { 
       id: 1, 
-      author: "Alex R.", 
-      avatar: "https://i.pravatar.cc/150?img=1", 
-      text: "Great overview! Really helped clarify the new rebate structure. Thanks for breaking it down so clearly.", 
-      date: "March 15, 2024" 
+      author:"Alex R.", 
+      avatar:"https://i.pravatar.cc/150?img=1", 
+      text:"Great overview! Really helped clarify the new rebate structure. Thanks for breaking it down so clearly.", 
+      date:"March 15, 2024" 
     },
     { 
       id: 2, 
-      author: "Brenda M.", 
-      avatar: "https://i.pravatar.cc/150?img=2", 
-      text: "I was on the fence about getting a battery, but this comparison is exactly what I needed. The VPP section was particularly interesting.", 
-      date: "March 11, 2024" 
+      author:"Brenda M.", 
+      avatar:"https://i.pravatar.cc/150?img=2", 
+      text:"I was on the fence about getting a battery, but this comparison is exactly what I needed. The VPP section was particularly interesting.", 
+      date:"March 11, 2024" 
     }
   ]);
 
@@ -77,8 +77,8 @@ export default function BlogPostPage() {
       // User just signed in and has a pending comment - post it automatically
       const newCommentObject: Comment = {
         id: Date.now(),
-        author: "You",
-        avatar: "https://i.pravatar.cc/150?img=5",
+        author:"You",
+        avatar:"https://i.pravatar.cc/150?img=5",
         text: pendingCommentFromStorage,
         date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
       };
@@ -103,7 +103,7 @@ export default function BlogPostPage() {
   }, [router]);
 
   if (!post) {
-    return <div className="min-h-screen flex items-center justify-center"><div className="text-lg">Loading...</div></div>;
+    return <div className="min-h-screen flex items-center justify-center"><div className="text-heading-4">Loading...</div></div>;
   }
 
   const handlePostComment = () => {
@@ -125,8 +125,8 @@ export default function BlogPostPage() {
     // User is authenticated - post the comment
     const newCommentObject: Comment = {
       id: Date.now(),
-      author: "You",
-      avatar: "https://i.pravatar.cc/150?img=5",
+      author:"You",
+      avatar:"https://i.pravatar.cc/150?img=5",
       text: newComment,
       date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
     };
@@ -198,17 +198,17 @@ export default function BlogPostPage() {
             {/* Back Button */}
             <button 
               onClick={handleBackToBlog} 
-              className="inline-flex items-center text-primary hover:text-primary/80 font-semibold text-sm mb-8"
+              className="inline-flex items-center text-primary hover:text-primary/80 text-body-small mb-8"
             >
               <ArrowLeftIcon />
               Back to All Articles
             </button>
             
             {/* Category */}
-            <span className="text-sm font-semibold text-primary bg-primary/10 px-3 py-1 rounded-full mb-4 inline-block">{post.category}</span>
+            <span className="text-label text-primary bg-primary/10 px-3 py-1 rounded-full mb-4 inline-block">{post.category}</span>
             
             {/* Title */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6 tracking-tight">{post.title}</h1>
+            <h1 className="text-heading-1 sm:text-heading-1 md:text-heading-1 text-foreground mb-6 tracking-tight">{post.title}</h1>
             
             {/* Meta */}
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-muted-foreground mb-8 border-y border-border py-4">
@@ -218,8 +218,8 @@ export default function BlogPostPage() {
             </div>
             
             {/* Body */}
-            <div className="prose prose-lg dark:prose-invert max-w-none space-y-6">
-              <p className="text-xl font-light text-muted-foreground">{post.excerpt}</p>
+            <div className="prose prose-lg max-w-none space-y-6">
+              <p className="text-heading-3 font-light text-muted-foreground">{post.excerpt}</p>
               
               <p className="text-foreground leading-relaxed">
                 As Australia continues its transition towards a renewable energy future, staying updated on government incentives is crucial for homeowners considering a solar investment. The landscape of rebates and tariffs is constantly evolving, with significant changes implemented at the start of 2024. This guide will walk you through the key updates to ensure you can maximize your savings.
@@ -229,12 +229,12 @@ export default function BlogPostPage() {
                 &ldquo;The most significant change is the adjustment to the Small-scale Technology Certificate (STC) calculation, which directly impacts the upfront discount on your system.&rdquo;
               </blockquote>
               
-              <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">Understanding the STC Deeming Period Reduction</h2>
+              <h2 className="text-heading-2 text-foreground mt-8 mb-4">Understanding the STC Deeming Period Reduction</h2>
               <p className="text-foreground leading-relaxed">
                 Small-scale Technology Certificates (STCs) are a federal government incentive that reduces the initial cost of installing a solar system. The number of STCs you receive is based on your system&apos;s size, your location, and the &quot;deeming period&quot; – the number of years until the scheme ends in 2030.
               </p>
               
-              <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">State-Based Rebates and Loans</h2>
+              <h2 className="text-heading-2 text-foreground mt-8 mb-4">State-Based Rebates and Loans</h2>
               <p className="text-foreground leading-relaxed">
                 While the federal STC scheme is national, several states and territories continue to offer their own incentives. It&apos;s vital to check the specific eligibility criteria for your state, as they often include income thresholds, property valuations, and requirements to use accredited installers.
               </p>
@@ -242,7 +242,7 @@ export default function BlogPostPage() {
 
             {/* Share Section */}
             <div className="mt-12 pt-8 border-t border-border">
-              <h3 className="text-lg font-semibold text-foreground mb-4 text-center">Share this article</h3>
+              <h3 className="text-heading-4 text-foreground mb-4 text-center">Share this article</h3>
               <div className="flex items-center justify-center space-x-2">
                 <button className="h-10 w-10 flex items-center justify-center rounded-full border border-border text-muted-foreground hover:bg-surface hover:text-foreground transition-colors"><TwitterIcon /></button>
                 <button className="h-10 w-10 flex items-center justify-center rounded-full border border-border text-muted-foreground hover:bg-surface hover:text-foreground transition-colors"><FacebookIcon /></button>
@@ -255,8 +255,8 @@ export default function BlogPostPage() {
             <div className="theme-card mt-12 p-6 flex flex-col sm:flex-row items-center gap-6">
               <Image src="https://i.pravatar.cc/150?img=3" alt={post.author} width={80} height={80} className="rounded-full flex-shrink-0" />
               <div className="text-center sm:text-left">
-                <p className="text-sm font-semibold text-muted-foreground">Written by</p>
-                <h4 className="text-xl font-bold text-foreground mt-1">{post.author}</h4>
+                <p className="text-label text-muted-foreground">Written by</p>
+                <h4 className="text-heading-3 text-foreground mt-1">{post.author}</h4>
                 <p className="text-muted-foreground mt-2">
                   {post.author} is a senior energy analyst at SolarMatch, with over a decade of experience in renewable energy policy and consumer advocacy.
                 </p>
@@ -265,7 +265,7 @@ export default function BlogPostPage() {
 
             {/* Comments Section */}
             <div className="mt-16 comments-section">
-              <h2 className="text-2xl font-bold text-foreground mb-6">Comments ({comments.length})</h2>
+              <h2 className="text-heading-2 text-foreground mb-6">Comments ({comments.length})</h2>
               
               {/* Comment Form */}
               <div className="theme-card p-6 mb-8">
@@ -281,7 +281,7 @@ export default function BlogPostPage() {
                   <Button 
                     onClick={handlePostComment}
                     variant="primary"
-                    className="px-6 py-2.5 text-sm"
+                    className="px-6 py-2.5 text-body-small"
                   >
                     Post Comment
                   </Button>
@@ -295,8 +295,8 @@ export default function BlogPostPage() {
                     <Image src={comment.avatar} alt={comment.author} width={40} height={40} className="rounded-full flex-shrink-0 mt-1" />
                     <div>
                       <div className="flex items-center gap-3">
-                        <h5 className="font-bold text-foreground">{comment.author}</h5>
-                        <span className="text-xs text-muted-foreground">{comment.date}</span>
+                        <h5 className="text-foreground">{comment.author}</h5>
+                        <span className="text-caption text-muted-foreground">{comment.date}</span>
                       </div>
                       <p className="text-muted-foreground mt-1">{comment.text}</p>
                     </div>

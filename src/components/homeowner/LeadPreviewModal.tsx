@@ -58,11 +58,11 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
   // Helper to format boolean values
   const formatBoolean = (value: boolean) => {
     return value ? (
-      <span className="inline-flex items-center gap-1 text-success dark:text-green-400">
+      <span className="inline-flex items-center gap-1 text-success">
         <CheckIcon /> Yes
       </span>
     ) : (
-      <span className="inline-flex items-center gap-1 text-slate-400">
+      <span className="inline-flex items-center gap-1 text-muted">
         <XCircleIcon /> No
       </span>
     );
@@ -78,18 +78,18 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 px-6 py-4 flex items-center justify-between rounded-t-lg -mx-4 sm:-mx-6 lg:-mx-8 -mt-4 sm:-mt-6 lg:-mt-8 mb-6">
+        <div className="sticky top-0 z-10 bg-surface border-b border-border px-6 py-4 flex items-center justify-between rounded-t-lg -mx-4 sm:-mx-6 lg:-mx-8 -mt-4 sm:-mt-6 lg:-mt-8 mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+            <h2 className="text-heading-2 text-foreground">
               Quote Request Details
             </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+            <p className="text-body-small text-muted mt-1">
               Read-only view • Created {formatDate(lead.createdAt)}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors p-2 rounded-lg"
+            className="text-muted hover:text-foreground transition-colors p-2 rounded-lg"
             aria-label="Close"
           >
             <XIcon />
@@ -98,10 +98,10 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
 
         {/* Status Badge */}
         <div className="mb-6">
-          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-            lead.status === 'APPROVED' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
-            lead.status === 'PURCHASED' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' :
-            'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300'
+          <span className={`inline-flex items-center px-3 py-1 rounded-full text-body-small ${
+            lead.status === 'APPROVED' ? 'bg-success/20 text-success' :
+            lead.status === 'PURCHASED' ? 'bg-primary/20 text-primary' :
+            'bg-slate-100 text-foreground'
           }`}>
             {lead.status.replace('_', ' ')}
           </span>
@@ -110,37 +110,37 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
         {/* Content Sections */}
         <div className="space-y-6">
           {/* Location Details */}
-          <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Location Details</h3>
+          <div className="bg-slate-50 rounded-lg p-4">
+            <h3 className="text-heading-4 text-foreground mb-4">Location Details</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Postcode</p>
-                <p className="text-base font-medium text-slate-900 dark:text-white">{data.postcode || 'N/A'}</p>
+                <p className="text-body-small text-muted">Postcode</p>
+                <p className="text-body text-foreground">{data.postcode || 'N/A'}</p>
               </div>
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Suburb/City</p>
-                <p className="text-base font-medium text-slate-900 dark:text-white">{data.location || 'N/A'}</p>
+                <p className="text-body-small text-muted">Suburb/City</p>
+                <p className="text-body text-foreground">{data.location || 'N/A'}</p>
               </div>
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">State</p>
-                <p className="text-base font-medium text-slate-900 dark:text-white">{data.state || 'N/A'}</p>
+                <p className="text-body-small text-muted">State</p>
+                <p className="text-body text-foreground">{data.state || 'N/A'}</p>
               </div>
             </div>
           </div>
 
           {/* Energy Usage */}
-          <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Energy Usage</h3>
+          <div className="bg-slate-50 rounded-lg p-4">
+            <h3 className="text-heading-4 text-foreground mb-4">Energy Usage</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Bill Type</p>
-                <p className="text-base font-medium text-slate-900 dark:text-white capitalize">
+                <p className="text-body-small text-muted">Bill Type</p>
+                <p className="text-body text-foreground capitalize">
                   {data.electricityUsageType || data.billType || 'N/A'}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Bill Amount</p>
-                <p className="text-base font-medium text-slate-900 dark:text-white">
+                <p className="text-body-small text-muted">Bill Amount</p>
+                <p className="text-body text-foreground">
                   ${data.electricityValue || data.energyBill || 'N/A'}
                 </p>
               </div>
@@ -148,42 +148,42 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
           </div>
 
           {/* Property Details */}
-          <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Property Details</h3>
+          <div className="bg-slate-50 rounded-lg p-4">
+            <h3 className="text-heading-4 text-foreground mb-4">Property Details</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Property Type</p>
-                <p className="text-base font-medium text-slate-900 dark:text-white capitalize">
+                <p className="text-body-small text-muted">Property Type</p>
+                <p className="text-body text-foreground capitalize">
                   {data.propertyType || 'Residential'}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Roof Type</p>
-                <p className="text-base font-medium text-slate-900 dark:text-white capitalize">
+                <p className="text-body-small text-muted">Roof Type</p>
+                <p className="text-body text-foreground capitalize">
                   {data.roofType || 'N/A'}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Roof Orientation</p>
-                <p className="text-base font-medium text-slate-900 dark:text-white capitalize">
+                <p className="text-body-small text-muted">Roof Orientation</p>
+                <p className="text-body text-foreground capitalize">
                   {data.panelOrientation || 'N/A'}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Roof Pitch</p>
-                <p className="text-base font-medium text-slate-900 dark:text-white capitalize">
+                <p className="text-body-small text-muted">Roof Pitch</p>
+                <p className="text-body text-foreground capitalize">
                   {data.roofTilt || 'N/A'}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Shading Level</p>
-                <p className="text-base font-medium text-slate-900 dark:text-white capitalize">
+                <p className="text-body-small text-muted">Shading Level</p>
+                <p className="text-body text-foreground capitalize">
                   {data.shadingLevel || 'N/A'}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Budget Range</p>
-                <p className="text-base font-medium text-slate-900 dark:text-white">
+                <p className="text-body-small text-muted">Budget Range</p>
+                <p className="text-body text-foreground">
                   {data.budgetRange ? data.budgetRange.replace(/_/g, ' ') : 'N/A'}
                 </p>
               </div>
@@ -191,33 +191,33 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
           </div>
 
           {/* System Preferences */}
-          <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">System Preferences</h3>
+          <div className="bg-slate-50 rounded-lg p-4">
+            <h3 className="text-heading-4 text-foreground mb-4">System Preferences</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Desired Offset</p>
-                <p className="text-base font-medium text-slate-900 dark:text-white">
+                <p className="text-body-small text-muted">Desired Offset</p>
+                <p className="text-body text-foreground">
                   {data.desiredOffset || 100}%
                 </p>
               </div>
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Usage Pattern</p>
-                <p className="text-base font-medium text-slate-900 dark:text-white capitalize">
+                <p className="text-body-small text-muted">Usage Pattern</p>
+                <p className="text-body text-foreground capitalize">
                   {data.usagePattern || 'N/A'}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Installation Timeframe</p>
-                <p className="text-base font-medium text-slate-900 dark:text-white capitalize">
+                <p className="text-body-small text-muted">Installation Timeframe</p>
+                <p className="text-body text-foreground capitalize">
                   {data.timeframe || 'N/A'}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Existing Solar System</p>
-                <p className="text-base font-medium text-slate-900 dark:text-white">
+                <p className="text-body-small text-muted">Existing Solar System</p>
+                <p className="text-body text-foreground">
                   {formatBoolean(data.hasExistingSystem || false)}
                   {data.hasExistingSystem && data.existingSystemSize && (
-                    <span className="ml-2 text-slate-600 dark:text-slate-400">
+                    <span className="ml-2 text-muted">
                       ({data.existingSystemSize})
                     </span>
                   )}
@@ -228,44 +228,44 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
 
           {/* Battery Storage */}
           {data.batteryIncluded && (
-            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Battery Storage</h3>
+            <div className="bg-slate-50 rounded-lg p-4">
+              <h3 className="text-heading-4 text-foreground mb-4">Battery Storage</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Battery Included</p>
-                  <p className="text-base font-medium text-slate-900 dark:text-white">
+                  <p className="text-body-small text-muted">Battery Included</p>
+                  <p className="text-body text-foreground">
                     {formatBoolean(true)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Battery Capacity</p>
-                  <p className="text-base font-medium text-slate-900 dark:text-white">
+                  <p className="text-body-small text-muted">Battery Capacity</p>
+                  <p className="text-body text-foreground">
                     {data.batteryCapacity || data.customBatteryCapacity || 'N/A'} kWh
                   </p>
                 </div>
                 {data.batteryBrand && (
                   <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Preferred Brand</p>
-                    <p className="text-base font-medium text-slate-900 dark:text-white">
+                    <p className="text-body-small text-muted">Preferred Brand</p>
+                    <p className="text-body text-foreground">
                       {data.batteryBrand}
                     </p>
                   </div>
                 )}
                 <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Battery Usage</p>
-                  <p className="text-base font-medium text-slate-900 dark:text-white capitalize">
+                  <p className="text-body-small text-muted">Battery Usage</p>
+                  <p className="text-body text-foreground capitalize">
                     {data.batteryUsage?.replace('-', ' ') || 'N/A'}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Backup Priority</p>
-                  <p className="text-base font-medium text-slate-900 dark:text-white capitalize">
+                  <p className="text-body-small text-muted">Backup Priority</p>
+                  <p className="text-body text-foreground capitalize">
                     {data.backupCritical?.replace('-', ' ') || 'N/A'}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">VPP Program</p>
-                  <p className="text-base font-medium text-slate-900 dark:text-white">
+                  <p className="text-body-small text-muted">VPP Program</p>
+                  <p className="text-body text-foreground">
                     {formatBoolean(data.includeVPP || false)}
                   </p>
                 </div>
@@ -275,37 +275,37 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
 
           {/* Additional Features */}
           {(data.includeEVCharging || data.includeSmartHome || data.includeGridServices || data.includeOptimizers || data.includeMicroinverters) && (
-            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Additional Features</h3>
+            <div className="bg-slate-50 rounded-lg p-4">
+              <h3 className="text-heading-4 text-foreground mb-4">Additional Features</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {data.includeEVCharging && (
                   <div className="flex items-center gap-2">
-                    <div className="text-success dark:text-green-400"><CheckIcon /></div>
-                    <span className="text-slate-700 dark:text-slate-300">EV Charging</span>
+                    <div className="text-success"><CheckIcon /></div>
+                    <span className="text-foreground">EV Charging</span>
                   </div>
                 )}
                 {data.includeSmartHome && (
                   <div className="flex items-center gap-2">
-                    <div className="text-success dark:text-green-400"><CheckIcon /></div>
-                    <span className="text-slate-700 dark:text-slate-300">Smart Home Integration</span>
+                    <div className="text-success"><CheckIcon /></div>
+                    <span className="text-foreground">Smart Home Integration</span>
                   </div>
                 )}
                 {data.includeGridServices && (
                   <div className="flex items-center gap-2">
-                    <div className="text-success dark:text-green-400"><CheckIcon /></div>
-                    <span className="text-slate-700 dark:text-slate-300">Grid Services</span>
+                    <div className="text-success"><CheckIcon /></div>
+                    <span className="text-foreground">Grid Services</span>
                   </div>
                 )}
                 {data.includeOptimizers && (
                   <div className="flex items-center gap-2">
-                    <div className="text-success dark:text-green-400"><CheckIcon /></div>
-                    <span className="text-slate-700 dark:text-slate-300">Panel Optimizers</span>
+                    <div className="text-success"><CheckIcon /></div>
+                    <span className="text-foreground">Panel Optimizers</span>
                   </div>
                 )}
                 {data.includeMicroinverters && (
                   <div className="flex items-center gap-2">
-                    <div className="text-success dark:text-green-400"><CheckIcon /></div>
-                    <span className="text-slate-700 dark:text-slate-300">Microinverters</span>
+                    <div className="text-success"><CheckIcon /></div>
+                    <span className="text-foreground">Microinverters</span>
                   </div>
                 )}
               </div>
@@ -314,21 +314,21 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
 
           {/* Equipment Preferences */}
           {(data.panelBrand || data.systemSizeOverride) && (
-            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Equipment Preferences</h3>
+            <div className="bg-slate-50 rounded-lg p-4">
+              <h3 className="text-heading-4 text-foreground mb-4">Equipment Preferences</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {data.panelBrand && (
                   <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Preferred Panel Brand</p>
-                    <p className="text-base font-medium text-slate-900 dark:text-white">
+                    <p className="text-body-small text-muted">Preferred Panel Brand</p>
+                    <p className="text-body text-foreground">
                       {data.panelBrand}
                     </p>
                   </div>
                 )}
                 {data.systemSizeOverride && (
                   <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Specific System Size</p>
-                    <p className="text-base font-medium text-slate-900 dark:text-white">
+                    <p className="text-body-small text-muted">Specific System Size</p>
+                    <p className="text-body text-foreground">
                       {data.systemSizeOverride}
                     </p>
                   </div>
@@ -339,9 +339,9 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
 
           {/* Additional Notes */}
           {data.additionalNotes && (
-            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Additional Notes</h3>
-              <p className="text-base text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
+            <div className="bg-slate-50 rounded-lg p-4">
+              <h3 className="text-heading-4 text-foreground mb-4">Additional Notes</h3>
+              <p className="text-body text-foreground whitespace-pre-wrap">
                 {data.additionalNotes}
               </p>
             </div>
@@ -349,27 +349,27 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
 
           {/* Commercial Details */}
           {data.propertyType === 'commercial' && (
-            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Commercial Details</h3>
+            <div className="bg-slate-50 rounded-lg p-4">
+              <h3 className="text-heading-4 text-foreground mb-4">Commercial Details</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {data.peakDemand && (
                   <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Peak Demand</p>
-                    <p className="text-base font-medium text-slate-900 dark:text-white">
+                    <p className="text-body-small text-muted">Peak Demand</p>
+                    <p className="text-body text-foreground">
                       {data.peakDemand} kW
                     </p>
                   </div>
                 )}
                 <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Three-Phase Connection</p>
-                  <p className="text-base font-medium text-slate-900 dark:text-white">
+                  <p className="text-body-small text-muted">Three-Phase Connection</p>
+                  <p className="text-body text-foreground">
                     {formatBoolean(data.isThreePhase || false)}
                   </p>
                 </div>
                 {data.projectPriority && (
                   <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Project Priority</p>
-                    <p className="text-base font-medium text-slate-900 dark:text-white capitalize">
+                    <p className="text-body-small text-muted">Project Priority</p>
+                    <p className="text-body text-foreground capitalize">
                       {data.projectPriority.replace('_', ' ')}
                     </p>
                   </div>
@@ -379,18 +379,18 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
           )}
 
           {/* Metadata */}
-          <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Request Information</h3>
+          <div className="bg-slate-50 rounded-lg p-4">
+            <h3 className="text-heading-4 text-foreground mb-4">Request Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Quote Type</p>
-                <p className="text-base font-medium text-slate-900 dark:text-white capitalize">
+                <p className="text-body-small text-muted">Quote Type</p>
+                <p className="text-body text-foreground capitalize">
                   {lead.quoteType.replace('_', ' ')}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Last Updated</p>
-                <p className="text-base font-medium text-slate-900 dark:text-white">
+                <p className="text-body-small text-muted">Last Updated</p>
+                <p className="text-body text-foreground">
                   {formatDate(lead.updatedAt)}
                 </p>
               </div>
@@ -402,7 +402,7 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
         <div className="mt-6 flex justify-end">
           <button
             onClick={onClose}
-            className="px-6 py-2.5 rounded-xl font-semibold text-white bg-primary hover:bg-primary/90 transition-colors"
+            className="px-6 py-2.5 rounded-xl text-foreground-secondary bg-primary hover:bg-primary/90 transition-colors"
           >
             Close
           </button>

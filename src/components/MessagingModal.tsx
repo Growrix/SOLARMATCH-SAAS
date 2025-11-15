@@ -5,21 +5,21 @@ import Image from 'next/image';
 import type { Message, Conversation } from '../types';
 
 // --- Icon Components ---
-const XIcon = ({ className = "h-5 w-5" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>;
-const SearchIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>;
-const StarIcon = ({ filled = false, className = "h-4 w-4" }: { filled?: boolean; className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2z"/></svg>;
-const MoreVerticalIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>;
-const SendIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>;
-const SmileIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/></svg>;
-const PaperclipIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>;
-const CheckIcon = ({ className = "h-3 w-3" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="20 6 9 17 4 12"/></svg>;
-const CheckCheckIcon = ({ className = "h-3 w-3" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 6 7 17l-5-5"/><path d="m22 10-7.5 7.5L13 16"/></svg>;
-const CircleIcon = ({ className = "h-2 w-2" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none" className={className}><circle cx="12" cy="12" r="10"/></svg>;
-const PinIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 7.89 17H16.1a2 2 0 0 0 1.78-2.55l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 0-1-1H10a1 1 0 0 0-1 1Z"/></svg>;
-const BlockIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>;
-const FlagIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg>;
-const MenuIcon = ({ className = "h-5 w-5" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="3" x2="21" y1="6" y2="6"/><line x1="3" x2="21" y1="12" y2="12"/><line x1="3" x2="21" y1="18" y2="18"/></svg>;
-const ArrowLeftIcon = ({ className = "h-5 w-5" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>;
+const XIcon = ({ className ="h-5 w-5" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>;
+const SearchIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>;
+const StarIcon = ({ filled = false, className ="h-4 w-4" }: { filled?: boolean; className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill={filled ?"currentColor" :"none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2z"/></svg>;
+const MoreVerticalIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>;
+const SendIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>;
+const SmileIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/></svg>;
+const PaperclipIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>;
+const CheckIcon = ({ className ="h-3 w-3" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="20 6 9 17 4 12"/></svg>;
+const CheckCheckIcon = ({ className ="h-3 w-3" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 6 7 17l-5-5"/><path d="m22 10-7.5 7.5L13 16"/></svg>;
+const CircleIcon = ({ className ="h-2 w-2" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none" className={className}><circle cx="12" cy="12" r="10"/></svg>;
+const PinIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 7.89 17H16.1a2 2 0 0 0 1.78-2.55l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 0-1-1H10a1 1 0 0 0-1 1Z"/></svg>;
+const BlockIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>;
+const FlagIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg>;
+const MenuIcon = ({ className ="h-5 w-5" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="3" x2="21" y1="6" y2="6"/><line x1="3" x2="21" y1="12" y2="12"/><line x1="3" x2="21" y1="18" y2="18"/></svg>;
+const ArrowLeftIcon = ({ className ="h-5 w-5" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>;
 
 interface InstantMessagingModalProps {
   isOpen: boolean;
@@ -303,7 +303,7 @@ const InstantMessagingModal: React.FC<InstantMessagingModalProps> = ({ isOpen, o
       />
       
       {/* Modal */}
-      <div className="relative w-full max-w-6xl h-[90vh] mx-4 bg-white dark:bg-slate-900 rounded-none sm:rounded-2xl shadow-2xl animate-scale-in overflow-hidden flex"
+      <div className="relative w-full max-w-6xl h-[90vh] mx-4 bg-surface rounded-none sm:rounded-2xl shadow-2xl animate-scale-in overflow-hidden flex"
            style={{ maxHeight: 'calc(100vh - 2rem)' }}>
         
         {/* Mobile Back Button */}
@@ -311,7 +311,7 @@ const InstantMessagingModal: React.FC<InstantMessagingModalProps> = ({ isOpen, o
           {!showMobileInbox && (
             <button
               onClick={() => setShowMobileInbox(true)}
-              className="p-2 rounded-lg bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
+              className="p-2 rounded-lg bg-surface hover:bg-gray-200 transition-colors"
             >
               <ArrowLeftIcon />
             </button>
@@ -321,32 +321,32 @@ const InstantMessagingModal: React.FC<InstantMessagingModalProps> = ({ isOpen, o
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+          className="absolute top-4 right-4 z-10 p-2 rounded-lg hover:bg-surface transition-colors"
         >
           <XIcon />
         </button>
 
         {/* Inbox Panel */}
-        <div className={`${showMobileInbox ? 'flex' : 'hidden'} md:flex w-full md:w-80 lg:w-96 flex-col bg-gray-50 dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700`}>
+        <div className={`${showMobileInbox ? 'flex' : 'hidden'} md:flex w-full md:w-80 lg:w-96 flex-col bg-surface border-r border-border`}>
           
           {/* Inbox Header */}
-          <div className="p-6 border-b border-gray-200 dark:border-slate-700">
+          <div className="p-6 border-b border-border">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">Messages</h2>
-              <span className="text-sm text-slate-500 dark:text-slate-400">
+              <h2 className="text-heading-3 text-foreground">Messages</h2>
+              <span className="text-body-small text-muted">
                 {conversations.reduce((sum, conv) => sum + conv.unreadCount, 0)} unread
               </span>
             </div>
             
             {/* Search Bar */}
             <div className="relative">
-              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted" />
               <input
                 type="text"
                 placeholder="Search installers..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full pl-9 pr-4 py-2 bg-surface border border-border rounded-lg text-body-small focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
             
@@ -356,10 +356,10 @@ const InstantMessagingModal: React.FC<InstantMessagingModalProps> = ({ isOpen, o
                 <button
                   key={filterType}
                   onClick={() => setFilter(filterType)}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  className={`px-3 py-1.5 text-caption rounded-md transition-colors ${
                     filter === filterType
-                      ? 'bg-primary text-white'
-                      : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+                      ? 'bg-primary text-foreground-secondary'
+                      : 'text-muted hover:text-foreground'
                   }`}
                 >
                   {filterType.charAt(0).toUpperCase() + filterType.slice(1)}
@@ -377,8 +377,8 @@ const InstantMessagingModal: React.FC<InstantMessagingModalProps> = ({ isOpen, o
                   setActiveConversation(conversation.id);
                   setShowMobileInbox(false);
                 }}
-                className={`p-4 border-b border-gray-200 dark:border-slate-700 cursor-pointer hover:bg-white dark:hover:bg-slate-700 transition-colors ${
-                  activeConversation === conversation.id ? 'bg-white dark:bg-slate-700 border-r-2 border-r-primary' : ''
+                className={`p-4 border-b border-border cursor-pointer hover:bg-surface transition-colors ${
+                  activeConversation === conversation.id ? 'bg-surface border-r-2 border-r-primary' : ''
                 }`}
               >
                 <div className="flex items-start space-x-3">
@@ -392,29 +392,29 @@ const InstantMessagingModal: React.FC<InstantMessagingModalProps> = ({ isOpen, o
                       className="w-10 h-10 rounded-full"
                     />
                     {conversation.installer.online && (
-                      <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 border-2 border-white dark:border-slate-700 rounded-full"></div>
+                      <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-success border-2 border-white rounded-full"></div>
                     )}
                   </div>
                   
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-semibold text-slate-900 dark:text-white truncate">
+                      <h4 className="text-label text-foreground truncate">
                         {conversation.installer.name}
                         {conversation.pinned && (
-                          <PinIcon className="inline ml-1 text-slate-400" />
+                          <PinIcon className="inline ml-1 text-muted" />
                         )}
                         {conversation.starred && (
-                          <StarIcon filled className="inline ml-1 text-yellow-500" />
+                          <StarIcon filled className="inline ml-1 text-warning" />
                         )}
                       </h4>
-                      <span className="text-xs text-slate-500 dark:text-slate-400">
+                      <span className="text-caption text-muted">
                         {formatTime(conversation.lastMessage)}
                       </span>
                     </div>
                     
-                    <p className="text-sm text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                    <p className="text-body-small text-muted truncate mt-0.5">
                       {conversation.isTyping ? (
-                        <span className="text-green-500 italic">Typing...</span>
+                        <span className="text-success italic">Typing...</span>
                       ) : (
                         conversation.messages[conversation.messages.length - 1]?.content || 'No messages'
                       )}
@@ -422,7 +422,7 @@ const InstantMessagingModal: React.FC<InstantMessagingModalProps> = ({ isOpen, o
                     
                     {conversation.unreadCount > 0 && (
                       <div className="flex justify-end mt-1">
-                        <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-primary rounded-full">
+                        <span className="inline-flex items-center justify-center w-5 h-5 text-caption text-foreground-secondary bg-primary rounded-full">
                           {conversation.unreadCount}
                         </span>
                       </div>
@@ -439,7 +439,7 @@ const InstantMessagingModal: React.FC<InstantMessagingModalProps> = ({ isOpen, o
           {activeConv ? (
             <>
               {/* Chat Header */}
-              <div className="p-4 border-b border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+              <div className="p-4 border-b border-border bg-surface">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="relative">
@@ -451,14 +451,14 @@ const InstantMessagingModal: React.FC<InstantMessagingModalProps> = ({ isOpen, o
                         className="w-10 h-10 rounded-full"
                       />
                       {activeConv.installer.online && (
-                        <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 border-2 border-white dark:border-slate-700 rounded-full"></div>
+                        <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-success border-2 border-white rounded-full"></div>
                       )}
                     </div>
                     <div>
-                      <h3 className="font-semibold text-slate-900 dark:text-white">
+                      <h3 className="text-foreground">
                         {activeConv.installer.name}
                       </h3>
-                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                      <p className="text-body-small text-muted">
                         {activeConv.installer.online ? (
                           'Online now'
                         ) : activeConv.installer.lastSeen ? (
@@ -479,8 +479,8 @@ const InstantMessagingModal: React.FC<InstantMessagingModalProps> = ({ isOpen, o
                       }}
                       className={`p-2 rounded-lg transition-colors ${
                         activeConv.starred 
-                          ? 'text-yellow-500 bg-yellow-50 dark:bg-yellow-900/20' 
-                          : 'text-slate-400 hover:text-slate-600 hover:bg-gray-100 dark:hover:bg-slate-700'
+                          ? 'text-warning bg-warning/10' 
+                          : 'text-muted hover:text-muted hover:bg-surface'
                       }`}
                     >
                       <StarIcon filled={activeConv.starred} />
@@ -489,13 +489,13 @@ const InstantMessagingModal: React.FC<InstantMessagingModalProps> = ({ isOpen, o
                     <div className="relative">
                       <button
                         onClick={() => setDropdownOpen(dropdownOpen === activeConv.id ? null : activeConv.id)}
-                        className="p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+                        className="p-2 rounded-lg text-muted hover:text-muted hover:bg-surface transition-colors"
                       >
                         <MoreVerticalIcon />
                       </button>
                       
                       {dropdownOpen === activeConv.id && (
-                        <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-gray-200 dark:border-slate-700 py-2 z-10">
+                        <div className="absolute right-0 top-full mt-2 w-48 bg-surface rounded-lg shadow-lg border border-border py-2 z-10">
                           <button
                             onClick={() => {
                               setConversations(prev => prev.map(conv =>
@@ -503,16 +503,16 @@ const InstantMessagingModal: React.FC<InstantMessagingModalProps> = ({ isOpen, o
                               ));
                               setDropdownOpen(null);
                             }}
-                            className="w-full px-4 py-2 text-left text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center space-x-2"
+                            className="w-full px-4 py-2 text-left text-body-small text-foreground hover:bg-surface flex items-center space-x-2"
                           >
                             <PinIcon />
                             <span>{activeConv.pinned ? 'Unpin' : 'Pin'} Conversation</span>
                           </button>
-                          <button className="w-full px-4 py-2 text-left text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center space-x-2">
+                          <button className="w-full px-4 py-2 text-left text-body-small text-foreground hover:bg-surface flex items-center space-x-2">
                             <BlockIcon />
                             <span>Block Installer</span>
                           </button>
-                          <button className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center space-x-2">
+                          <button className="w-full px-4 py-2 text-left text-body-small text-error hover:bg-error/10 flex items-center space-x-2">
                             <FlagIcon />
                             <span>Report</span>
                           </button>
@@ -526,7 +526,7 @@ const InstantMessagingModal: React.FC<InstantMessagingModalProps> = ({ isOpen, o
               {/* Messages Area */}
               <div 
                 ref={chatAreaRef}
-                className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-slate-800 custom-scrollbar"
+                className="flex-1 overflow-y-auto p-4 space-y-4 bg-surface custom-scrollbar"
               >
                 {activeConv.messages.map((message) => (
                   <div
@@ -537,12 +537,12 @@ const InstantMessagingModal: React.FC<InstantMessagingModalProps> = ({ isOpen, o
                       <div
                         className={`px-4 py-2 rounded-2xl ${
                           message.senderId === 1
-                            ? 'bg-primary text-white rounded-br-md'
-                            : 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-bl-md border border-gray-200 dark:border-slate-600'
+                            ? 'bg-primary text-foreground-secondary rounded-br-md'
+                            : 'bg-surface text-foreground rounded-bl-md border border-border'
                         }`}
                       >
                         {message.type === 'text' && (
-                          <p className="text-sm">{message.content}</p>
+                          <p className="text-body-small">{message.content}</p>
                         )}
                         
                         {message.type === 'image' && (
@@ -554,7 +554,7 @@ const InstantMessagingModal: React.FC<InstantMessagingModalProps> = ({ isOpen, o
                               height={200}
                               className="max-w-full h-auto rounded-lg mb-2"
                             />
-                            <p className="text-xs opacity-75">{message.fileName}</p>
+                            <p className="text-caption opacity-75">{message.fileName}</p>
                           </div>
                         )}
                         
@@ -562,21 +562,21 @@ const InstantMessagingModal: React.FC<InstantMessagingModalProps> = ({ isOpen, o
                           <div className="flex items-center space-x-2">
                             <PaperclipIcon className="h-4 w-4 opacity-75" />
                             <div>
-                              <p className="text-sm font-medium">{message.fileName}</p>
-                              <p className="text-xs opacity-75">Click to download</p>
+                              <p className="text-body-small">{message.fileName}</p>
+                              <p className="text-caption opacity-75">Click to download</p>
                             </div>
                           </div>
                         )}
                       </div>
                       
                       <div className={`flex items-center mt-1 space-x-1 ${message.senderId === 1 ? 'justify-end' : 'justify-start'}`}>
-                        <span className="text-xs text-slate-500 dark:text-slate-400">
+                        <span className="text-caption text-muted">
                           {formatTime(message.timestamp)}
                         </span>
                         {message.senderId === 1 && (
-                          <div className="text-slate-500">
+                          <div className="text-muted">
                             {message.read ? (
-                              <CheckCheckIcon className="text-blue-500" />
+                              <CheckCheckIcon className="text-primary" />
                             ) : message.sent ? (
                               <CheckIcon />
                             ) : (
@@ -591,7 +591,7 @@ const InstantMessagingModal: React.FC<InstantMessagingModalProps> = ({ isOpen, o
                 
                 {activeConv.isTyping && (
                   <div className="flex justify-start">
-                    <div className="bg-white dark:bg-slate-700 px-4 py-3 rounded-2xl rounded-bl-md border border-gray-200 dark:border-slate-600">
+                    <div className="bg-surface px-4 py-3 rounded-2xl rounded-bl-md border border-border">
                       <div className="flex space-x-1">
                         <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div>
                         <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -604,7 +604,7 @@ const InstantMessagingModal: React.FC<InstantMessagingModalProps> = ({ isOpen, o
 
               {/* Message Input */}
               <div 
-                className="p-4 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-700"
+                className="p-4 bg-surface border-t border-border"
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
@@ -614,7 +614,7 @@ const InstantMessagingModal: React.FC<InstantMessagingModalProps> = ({ isOpen, o
                   <div className="absolute inset-0 bg-primary/10 border-2 border-dashed border-primary rounded-lg flex items-center justify-center z-10">
                     <div className="text-center">
                       <PaperclipIcon className="mx-auto mb-2 h-8 w-8 text-primary" />
-                      <p className="text-primary font-semibold">Drop files to send</p>
+                      <p className="text-primary">Drop files to send</p>
                     </div>
                   </div>
                 )}
@@ -628,20 +628,20 @@ const InstantMessagingModal: React.FC<InstantMessagingModalProps> = ({ isOpen, o
                       onKeyDown={handleKeyDown}
                       placeholder="Type your message..."
                       rows={1}
-                      className="w-full px-4 py-3 pr-20 bg-gray-100 dark:bg-slate-700 border-0 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-primary text-sm max-h-32"
+                      className="w-full px-4 py-3 pr-20 bg-surface border-0 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-primary text-body-small max-h-32"
                       style={{ minHeight: '44px' }}
                     />
                     
                     <div className="absolute right-2 bottom-2 flex items-center space-x-1">
                       <button
                         onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
+                        className="p-1.5 rounded-lg text-muted hover:text-muted hover:bg-gray-200 transition-colors"
                       >
                         <SmileIcon />
                       </button>
                       <button 
                         onClick={() => fileInputRef.current?.click()}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
+                        className="p-1.5 rounded-lg text-muted hover:text-muted hover:bg-gray-200 transition-colors"
                       >
                         <PaperclipIcon />
                       </button>
@@ -653,8 +653,8 @@ const InstantMessagingModal: React.FC<InstantMessagingModalProps> = ({ isOpen, o
                     disabled={!newMessage.trim()}
                     className={`p-3 rounded-xl transition-colors ${
                       newMessage.trim()
-                        ? 'bg-primary text-white hover:bg-primary/90 shadow-sm'
-                        : 'bg-gray-200 dark:bg-slate-700 text-slate-400 cursor-not-allowed'
+                        ? 'bg-primary text-foreground-secondary hover:bg-primary/90 shadow-sm'
+                        : 'bg-gray-200 text-muted cursor-not-allowed'
                     }`}
                   >
                     <SendIcon />
@@ -667,7 +667,7 @@ const InstantMessagingModal: React.FC<InstantMessagingModalProps> = ({ isOpen, o
                     <button
                       key={reply}
                       onClick={() => setNewMessage(reply)}
-                      className="px-3 py-1.5 text-sm bg-gray-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
+                      className="px-3 py-1.5 text-body-small bg-surface text-muted rounded-full hover:bg-gray-200 transition-colors"
                     >
                       {reply}
                     </button>
@@ -687,15 +687,15 @@ const InstantMessagingModal: React.FC<InstantMessagingModalProps> = ({ isOpen, o
             </>
           ) : (
             /* No Conversation Selected */
-            <div className="flex-1 flex items-center justify-center bg-gray-50 dark:bg-slate-800">
+            <div className="flex-1 flex items-center justify-center bg-surface">
               <div className="text-center">
-                <div className="w-16 h-16 bg-gray-200 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
                   <MenuIcon />
                 </div>
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+                <h3 className="text-heading-4 text-foreground mb-2">
                   Select a Conversation
                 </h3>
-                <p className="text-slate-500 dark:text-slate-400">
+                <p className="text-muted">
                   Choose an installer from the sidebar to start messaging
                 </p>
               </div>
@@ -707,9 +707,9 @@ const InstantMessagingModal: React.FC<InstantMessagingModalProps> = ({ isOpen, o
       {/* Toast Notification */}
       {showNotification && (
         <div className="fixed top-4 right-4 z-60 animate-slide-up">
-          <div className="bg-primary text-white px-4 py-3 rounded-lg shadow-lg flex items-center space-x-2">
-            <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-            <span className="text-sm font-medium">{notificationMessage}</span>
+          <div className="bg-primary text-foreground-secondary px-4 py-3 rounded-lg shadow-lg flex items-center space-x-2">
+            <div className="w-2 h-2 bg-surface rounded-full animate-pulse"></div>
+            <span className="text-body-small">{notificationMessage}</span>
           </div>
         </div>
       )}

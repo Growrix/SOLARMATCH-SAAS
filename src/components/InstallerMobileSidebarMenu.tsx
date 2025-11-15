@@ -78,7 +78,7 @@ const NavItem: React.FC<{
 }> = ({ icon, title, isActive, onClick, badgeCount }) => (
   <button 
     onClick={onClick} 
-    className={`w-full flex items-center justify-between space-x-3 px-4 py-3 rounded-xl transition-colors text-base font-semibold ${ 
+    className={`w-full flex items-center justify-between space-x-3 px-4 py-3 rounded-xl transition-colors text-body ${ 
       isActive 
         ? 'bg-primary text-primary-foreground' 
         : 'bg-surface text-foreground hover:bg-surface-hover'
@@ -89,7 +89,7 @@ const NavItem: React.FC<{
       <span>{title}</span>
     </div>
     {badgeCount && badgeCount > 0 && (
-      <span className="bg-destructive text-destructive-foreground text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+      <span className="bg-destructive text-destructive-foreground text-caption w-5 h-5 rounded-full flex items-center justify-center">
         {badgeCount}
       </span>
     )}
@@ -144,7 +144,7 @@ const InstallerMobileSidebarMenu: React.FC<InstallerMobileSidebarMenuProps> = ({
         className="relative w-full max-w-xs bg-background rounded-2xl shadow-2xl border border-border flex flex-col p-6 animate-slide-in-up"
       >
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-foreground">Installer Menu</h2>
+          <h2 className="text-heading-3 text-foreground">Installer Menu</h2>
           <button 
             onClick={onClose} 
             className="p-2 -mr-2 rounded-md text-muted-foreground hover:bg-surface"
@@ -186,7 +186,7 @@ const InstallerMobileSidebarMenu: React.FC<InstallerMobileSidebarMenuProps> = ({
         <div className="mt-6 pt-6 border-t border-border">
           <button 
             onClick={handleLogoutClick} 
-            className="w-full flex items-center justify-center space-x-3 px-4 py-3 rounded-xl transition-colors text-base font-semibold bg-destructive/10 text-destructive hover:bg-destructive/20"
+            className="w-full flex items-center justify-center space-x-3 px-4 py-3 rounded-xl transition-colors text-body bg-destructive/10 text-destructive hover:bg-destructive/20"
           >
             <LogOutIcon />
             <span>Logout</span>

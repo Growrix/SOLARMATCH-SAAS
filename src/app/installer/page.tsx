@@ -17,9 +17,9 @@ const InfoCard: React.FC<{
 }> = ({ icon, title, delay, children }) => (
   <div className="animate-fade-in-up h-full" style={{ animationDelay: delay }}>
     <div className="theme-card h-full p-6 text-left">
-      <div className="text-3xl mb-4">{icon}</div>
-      <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{title}</h3>
-      <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">{children}</p>
+      <div className="text-heading-1 mb-4">{icon}</div>
+      <h3 className="text-heading-4 text-foreground mb-2">{title}</h3>
+      <p className="text-muted text-body-small leading-relaxed">{children}</p>
     </div>
   </div>
 );
@@ -93,7 +93,7 @@ export default function InstallerHomePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-black text-slate-900 dark:text-slate-200">
+    <div className="min-h-screen flex flex-col bg-surface text-foreground">
       <div className={`sticky top-0 z-30 transition-transform duration-300 ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
         <Header
           theme={theme}
@@ -112,9 +112,9 @@ export default function InstallerHomePage() {
       </div>
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="hero-section relative dark:bg-black flex items-center justify-center min-h-[70vh] sm:min-h-[calc(100vh-80px)] overflow-hidden pt-8 sm:pt-24 pb-12 sm:pb-0">
+        <section className="hero-section relative flex items-center justify-center min-h-[70vh] sm:min-h-[calc(100vh-80px)] overflow-hidden pt-8 sm:pt-24 pb-12 sm:pb-0">
           {/* Gradient Overlay */}
-          <div className="gradient-overlay absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent dark:from-slate-900 dark:via-black dark:to-black"></div>
+          <div className="gradient-overlay absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent"></div>
           
           {/* Animated Background Elements */}
           <div className="absolute inset-0 hidden md:block">
@@ -123,7 +123,7 @@ export default function InstallerHomePage() {
             <div className="absolute top-40 right-20 w-8 h-8 bg-primary/10 rounded-full" style={{ animation: 'float-medium 6s ease-in-out infinite' }}></div>
             <div className="absolute bottom-40 left-20 w-12 h-12 border-2 border-slate-500/20 rounded-full" style={{ animation: 'float-fast 4s ease-in-out infinite' }}></div>
             <div className="absolute top-60 left-1/3 w-6 h-6 bg-primary/15 transform rotate-45" style={{ animation: 'float-slow 8s ease-in-out infinite 1s' }}></div>
-            <div className="absolute bottom-60 right-1/3 w-10 h-10 border border-slate-300 dark:border-slate-700" style={{ animation: 'float-medium 6s ease-in-out infinite 1s' }}></div>
+            <div className="absolute bottom-60 right-1/3 w-10 h-10 border border-border" style={{ animation: 'float-medium 6s ease-in-out infinite 1s' }}></div>
             
             {/* Pulsating Sun Element */}
             <div className="absolute top-32 right-32">
@@ -152,7 +152,7 @@ export default function InstallerHomePage() {
             <div className="absolute bottom-20 left-20">
               {[...Array(3)].map((_, i) => (
                 <div key={i} className="relative w-16 h-10 m-1 inline-block" style={{ animation: `panel-track 6s ease-in-out infinite ${i * 0.5}s` }}>
-                  <div className="panel-surface w-full h-full bg-slate-200 dark:bg-slate-800 border border-primary/20 rounded relative">
+                  <div className="panel-surface w-full h-full bg-slate-200 border border-primary/20 rounded relative">
                     <div className="panel-glow" style={{ animation: `panel-glow-anim 4s ease-in-out infinite ${i * 0.3}s` }}></div>
                   </div>
                 </div>
@@ -163,21 +163,21 @@ export default function InstallerHomePage() {
           {/* Main Content */}
           <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto text-center animate-fade-in-up">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4 text-slate-900 dark:text-white">
+              <h1 className="text-heading-1 md:text-heading-1 lg:text-6xl leading-tight mb-4 text-foreground">
                 Grow Smarter.
                 <span className="text-primary"> Not Harder.</span>
               </h1>
-              <p className="text-lg md:text-xl text-slate-600 dark:text-slate-300 mb-10 max-w-2xl mx-auto">
+              <p className="text-heading-4 md:text-heading-3 text-muted mb-10 max-w-2xl mx-auto">
                 From lead capture to compliance, future-proof your solar business with tools built for Australian installers.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button 
                   onClick={handleDashboardClick}
-                  className="bg-primary text-white px-8 py-3 rounded-xl text-lg font-semibold hover:bg-primary/90 transition-all transform hover:scale-105 shadow-lg"
+                  className="bg-primary text-foreground-secondary px-8 py-3 rounded-xl text-heading-4 hover:bg-primary/90 transition-colors transform hover:scale-105 shadow-lg"
                 >
                   Try It Free
                 </button>
-                <button className="bg-transparent border-2 border-slate-800 dark:border-white text-slate-800 dark:text-white px-8 py-3 rounded-xl text-lg font-semibold hover:bg-slate-800 dark:hover:bg-white hover:text-white dark:hover:text-black transition-all shadow-lg">
+                <button className="bg-transparent border-2 border-slate-800 text-foreground px-8 py-3 rounded-xl text-heading-4 hover:bg-surface hover:text-foreground-secondary transition-colors shadow-lg">
                   Watch Installer Stories
                 </button>
               </div>
@@ -190,10 +190,10 @@ export default function InstallerHomePage() {
           <div className="animated-grid-background"></div>
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="max-w-3xl mx-auto text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">
+              <h2 className="text-heading-1 md:text-heading-1 text-foreground mb-4">
                 How SolarMatch Works for You
               </h2>
-              <p className="text-lg text-slate-600 dark:text-slate-400">
+              <p className="text-heading-4 text-muted">
                 A simple, powerful platform designed to connect you with quality leads and streamline your workflow.
               </p>
             </div>

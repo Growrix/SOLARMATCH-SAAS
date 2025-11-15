@@ -100,9 +100,9 @@ export default function InstallerPurchasedLeads() {
   if (loading) {
     return (
       <div className="animate-pulse space-y-4">
-        <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded w-1/3 mb-6"></div>
+        <div className="h-8 bg-slate-200 rounded w-1/3 mb-6"></div>
         {[1, 2, 3].map(i => (
-          <div key={i} className="h-48 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
+          <div key={i} className="h-48 bg-slate-200 rounded-lg"></div>
         ))}
       </div>
     );
@@ -110,8 +110,8 @@ export default function InstallerPurchasedLeads() {
 
   if (error) {
     return (
-      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
-        <p className="text-red-800 dark:text-red-200">Error: {error}</p>
+      <div className="bg-error/10 border border-error rounded-lg p-6">
+        <p className="text-error">Error: {error}</p>
       </div>
     );
   }
@@ -120,55 +120,55 @@ export default function InstallerPurchasedLeads() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+        <h1 className="text-heading-2 text-foreground mb-2">
           Purchased Leads
         </h1>
-        <p className="text-slate-600 dark:text-slate-400">
+        <p className="text-muted">
           View and manage leads you&apos;ve purchased
         </p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700">
+        <div className="bg-surface rounded-lg p-6 border border-border">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Total Purchased</p>
-              <p className="text-3xl font-bold text-slate-900 dark:text-white mt-2">{totalPurchased}</p>
+              <p className="text-body-small text-muted">Total Purchased</p>
+              <p className="text-heading-1 text-foreground mt-2">{totalPurchased}</p>
             </div>
-            <CheckCircleIcon className="h-12 w-12 text-success dark:text-green-400" />
+            <CheckCircleIcon className="h-12 w-12 text-success" />
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700">
+        <div className="bg-surface rounded-lg p-6 border border-border">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Total Spent</p>
-              <p className="text-3xl font-bold text-slate-900 dark:text-white mt-2">£{totalSpent}</p>
+              <p className="text-body-small text-muted">Total Spent</p>
+              <p className="text-heading-1 text-foreground mt-2">£{totalSpent}</p>
             </div>
-            <CurrencyPoundIcon className="h-12 w-12 text-info dark:text-blue-400" />
+            <CurrencyPoundIcon className="h-12 w-12 text-info" />
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700">
+        <div className="bg-surface rounded-lg p-6 border border-border">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-600 dark:text-slate-400">This Month</p>
-              <p className="text-3xl font-bold text-slate-900 dark:text-white mt-2">{thisMonth}</p>
+              <p className="text-body-small text-muted">This Month</p>
+              <p className="text-heading-1 text-foreground mt-2">{thisMonth}</p>
             </div>
-            <CalendarIcon className="h-12 w-12 text-purple-600 dark:text-purple-400" />
+            <CalendarIcon className="h-12 w-12 text-accent" />
           </div>
         </div>
       </div>
 
       {/* Leads List */}
       {leads.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
-          <CheckCircleIcon className="h-12 w-12 text-slate-400 mx-auto mb-3" />
-          <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-1">
+        <div className="text-center py-12 bg-surface rounded-lg border border-border">
+          <CheckCircleIcon className="h-12 w-12 text-muted mx-auto mb-3" />
+          <h3 className="text-heading-4 text-foreground mb-1">
             No purchased leads yet
           </h3>
-          <p className="text-slate-500 dark:text-slate-400 mb-4">
+          <p className="text-muted mb-4">
             Browse the marketplace to find your first lead
           </p>
         </div>
@@ -177,33 +177,33 @@ export default function InstallerPurchasedLeads() {
           {leads.map((lead) => (
             <div
               key={lead.id}
-              className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6 hover:shadow-lg transition-shadow"
+              className="bg-surface rounded-lg border border-border p-6 hover:shadow-lg transition-shadow"
             >
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                 {/* Lead Info */}
                 <div className="flex-1 space-y-4">
                   {/* Header */}
                   <div className="flex items-center justify-between">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-caption bg-success/20 text-success">
                       <CheckCircleIcon className="h-4 w-4 mr-1" />
                       Purchased
                     </span>
-                    <span className="text-sm text-slate-500 dark:text-slate-400">
+                    <span className="text-body-small text-muted">
                       {new Date(lead.purchasedAt).toLocaleDateString()}
                     </span>
                   </div>
 
                   {/* Contact Details */}
                   <div className="space-y-2">
-                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                    <h3 className="text-heading-4 text-foreground">
                       {lead.homeowner.name}
                     </h3>
-                    <div className="flex flex-wrap gap-4 text-sm text-slate-600 dark:text-slate-400">
-                      <a href={`tel:${lead.homeowner.phone}`} className="flex items-center space-x-2 hover:text-info dark:hover:text-blue-400">
+                    <div className="flex flex-wrap gap-4 text-body-small text-muted">
+                      <a href={`tel:${lead.homeowner.phone}`} className="flex items-center space-x-2 hover:text-info">
                         <PhoneIcon className="h-4 w-4" />
                         <span>{lead.homeowner.phone}</span>
                       </a>
-                      <a href={`mailto:${lead.homeowner.email}`} className="flex items-center space-x-2 hover:text-info dark:hover:text-blue-400">
+                      <a href={`mailto:${lead.homeowner.email}`} className="flex items-center space-x-2 hover:text-info">
                         <EnvelopeIcon className="h-4 w-4" />
                         <span>{lead.homeowner.email}</span>
                       </a>
@@ -217,29 +217,29 @@ export default function InstallerPurchasedLeads() {
                   </div>
 
                   {/* Lead Details */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-body-small">
                     {lead.propertyType && (
                       <div>
-                        <p className="text-slate-500 dark:text-slate-400">Property</p>
-                        <p className="font-medium text-slate-900 dark:text-white capitalize">{lead.propertyType}</p>
+                        <p className="text-muted">Property</p>
+                        <p className="text-foreground capitalize">{lead.propertyType}</p>
                       </div>
                     )}
                     {lead.roofType && (
                       <div>
-                        <p className="text-slate-500 dark:text-slate-400">Roof</p>
-                        <p className="font-medium text-slate-900 dark:text-white capitalize">{lead.roofType}</p>
+                        <p className="text-muted">Roof</p>
+                        <p className="text-foreground capitalize">{lead.roofType}</p>
                       </div>
                     )}
                     {lead.estimatedBudget && (
                       <div>
-                        <p className="text-slate-500 dark:text-slate-400">Budget</p>
-                        <p className="font-medium text-slate-900 dark:text-white">£{lead.estimatedBudget.toLocaleString()}</p>
+                        <p className="text-muted">Budget</p>
+                        <p className="text-foreground">£{lead.estimatedBudget.toLocaleString()}</p>
                       </div>
                     )}
                     {lead.electricityBill && (
                       <div>
-                        <p className="text-slate-500 dark:text-slate-400">Bill</p>
-                        <p className="font-medium text-slate-900 dark:text-white">£{lead.electricityBill}/mo</p>
+                        <p className="text-muted">Bill</p>
+                        <p className="text-foreground">£{lead.electricityBill}/mo</p>
                       </div>
                     )}
                   </div>
@@ -249,21 +249,21 @@ export default function InstallerPurchasedLeads() {
                 <div className="flex flex-row lg:flex-col gap-2 lg:min-w-[160px]">
                   <button
                     onClick={() => handleCall(lead.homeowner.phone)}
-                    className="flex-1 lg:flex-none flex items-center justify-center space-x-2 px-4 py-2 bg-success hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+                    className="flex-1 lg:flex-none flex items-center justify-center space-x-2 px-4 py-2 bg-success hover:bg-success text-foreground-secondary rounded-lg transition-colors"
                   >
                     <PhoneIcon className="h-5 w-5" />
                     <span>Call Now</span>
                   </button>
                   <button
                     onClick={() => handleEmail(lead.homeowner.email)}
-                    className="flex-1 lg:flex-none flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                    className="flex-1 lg:flex-none flex items-center justify-center space-x-2 px-4 py-2 bg-primary hover:bg-primary text-foreground-secondary rounded-lg transition-colors"
                   >
                     <EnvelopeIcon className="h-5 w-5" />
                     <span>Send Email</span>
                   </button>
                   <button
                     onClick={() => handleViewDetails(lead.id)}
-                    className="flex-1 lg:flex-none flex items-center justify-center space-x-2 px-4 py-2 bg-slate-600 hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 text-white rounded-lg font-medium transition-colors"
+                    className="flex-1 lg:flex-none flex items-center justify-center space-x-2 px-4 py-2 bg-slate-600 hover:bg-surface text-foreground-secondary rounded-lg transition-colors"
                   >
                     <EyeIcon className="h-5 w-5" />
                     <span>View Details</span>
@@ -272,9 +272,9 @@ export default function InstallerPurchasedLeads() {
               </div>
 
               {/* Purchase Info */}
-              <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between text-sm">
-                <span className="text-slate-600 dark:text-slate-400">Purchase Price:</span>
-                <span className="font-semibold text-slate-900 dark:text-white">£{lead.leadPrice}</span>
+              <div className="mt-4 pt-4 border-t border-border flex items-center justify-between text-body-small">
+                <span className="text-muted">Purchase Price:</span>
+                <span className="text-foreground">£{lead.leadPrice}</span>
               </div>
             </div>
           ))}

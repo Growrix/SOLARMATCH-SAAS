@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
-import Image from "next/image";
-import { ThemeSwitcher } from "@/components/ThemeSwitcher";
-import { Search as SearchIcon, HelpCircle as HelpCircleIcon, Bell as BellIcon } from "lucide-react";
+import React, { useState } from"react";
+import Image from"next/image";
+import { ThemeSwitcher } from"@/components/ThemeSwitcher";
+import { Search as SearchIcon, HelpCircle as HelpCircleIcon, Bell as BellIcon } from"lucide-react";
 
 interface HomeownerDashboardHeaderProps {
   pageTitle: string;
@@ -19,11 +19,11 @@ export const HomeownerDashboardHeader: React.FC<HomeownerDashboardHeaderProps> =
       </div>
       <div className="dashboard-header__right">
         {/* Search Input */}
-        <div className={`dashboard-header__search ${isSearchOpen ? "dashboard-header__search--active" : ""}`}>
+        <div className={`dashboard-header__search ${isSearchOpen ?"dashboard-header__search--active" :""}`}>
           <input 
             type="text" 
             placeholder="Search..." 
-            className={`dashboard-header__search-input ${isSearchOpen ? "dashboard-header__search-input--expanded" : "dashboard-header__search-input--collapsed"}`}
+            className={`dashboard-header__search-input ${isSearchOpen ?"dashboard-header__search-input--expanded" :"dashboard-header__search-input--collapsed"}`}
           />
           <button 
             onClick={() => setIsSearchOpen(!isSearchOpen)} 

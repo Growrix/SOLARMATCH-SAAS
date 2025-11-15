@@ -222,7 +222,7 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
   
   if (!isOpen) return null;
 
-  const baseInputClasses = "form-input w-full px-4 py-3";
+  const baseInputClasses ="form-input w-full px-4 py-3";
 
   return (
     <div
@@ -247,7 +247,7 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
           <div className="w-16 h-16 bg-surface shadow-neu-outset rounded-2xl mx-auto mb-6 flex items-center justify-center">
             <UserIcon />
           </div>
-          <h2 className="text-2xl font-bold text-foreground mb-2">
+          <h2 className="text-heading-2 text-foreground mb-2">
             Create Installer Account
           </h2>
           <p className="text-muted-foreground text-body-small">
@@ -260,7 +260,7 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
             <div className="flex items-start space-x-3">
               <AlertTriangleIcon />
               <div>
-                <p className="text-destructive text-body-small font-medium mb-1">Sign Up Error</p>
+                <p className="text-destructive text-body-small mb-1">Sign Up Error</p>
                 <p className="text-destructive text-body-small">{error}</p>
               </div>
             </div>
@@ -279,20 +279,20 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
             type="button"
             onClick={handleGoogleSignup}
             disabled={loading}
-            className="w-full bg-surface shadow-neu-outset hover:shadow-neu-inset border border-border rounded-xl px-4 py-3 flex items-center justify-center text-foreground transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-surface shadow-neu-outset hover:shadow-neu-inset border border-border rounded-xl px-4 py-3 flex items-center justify-center text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <GoogleIcon />
-            <span className="font-medium">Continue with Google</span>
+            <span className="">Continue with Google</span>
           </button>
 
           <button
             type="button"
             onClick={handleAppleSignup}
             disabled={loading}
-            className="w-full bg-surface shadow-neu-outset hover:shadow-neu-inset border border-border rounded-xl px-4 py-3 flex items-center justify-center text-foreground transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-surface shadow-neu-outset hover:shadow-neu-inset border border-border rounded-xl px-4 py-3 flex items-center justify-center text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <AppleIcon />
-            <span className="font-medium">Continue with Apple</span>
+            <span className="">Continue with Apple</span>
           </button>
         </div>
 
@@ -332,7 +332,7 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
               </svg>
             </div>
             <input
-              type={showPassword ? "text" : "password"}
+              type={showPassword ?"text" :"password"}
               name="password"
               value={formData.password}
               onChange={handleInputChange}
@@ -358,7 +358,7 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
               </svg>
             </div>
             <input
-              type={showConfirmPassword ? "text" : "password"}
+              type={showConfirmPassword ?"text" :"password"}
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleInputChange}
@@ -399,7 +399,7 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
             <button
               type="button"
               onClick={onSwitchToSignIn}
-              className="text-foreground hover:text-primary transition-colors font-medium"
+              className="text-foreground hover:text-primary transition-colors"
             >
               Sign in
             </button>

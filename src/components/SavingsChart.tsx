@@ -40,7 +40,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
       <div className="detail-card">
         <p className="cost-item-label mb-2">{label}</p>
         {payload.map((pld: any, index: number) => (
-          <p key={index} style={{ color: pld.color }} className="text-sm performance-item-value">
+          <p key={index} style={{ color: pld.color }} className="text-body-small performance-item-value">
             {`${pld.name}: ${formatCurrency(pld.value)}`}
           </p>
         ))}
@@ -93,7 +93,7 @@ const SavingsChart: React.FC<SavingsChartProps> = ({ finalPrice, annualSavings, 
         <div className="bg-surface p-1 rounded-lg flex space-x-1 w-full sm:w-auto border border-border">
           <button 
             onClick={() => setActiveTab('roi')} 
-            className={`w-full sm:w-auto px-3 py-1 rounded-md text-sm font-semibold transition-all flex items-center justify-center ${
+            className={`w-full sm:w-auto px-3 py-1 rounded-md text-label transition-colors flex items-center justify-center ${
               activeTab === 'roi' 
                 ? 'bg-primary/10 text-primary' 
                 : 'text-foreground-subtle hover:bg-surface-hover'
@@ -103,7 +103,7 @@ const SavingsChart: React.FC<SavingsChartProps> = ({ finalPrice, annualSavings, 
           </button>
           <button 
             onClick={() => setActiveTab('annual')} 
-            className={`w-full sm:w-auto px-3 py-1 rounded-md text-sm font-semibold transition-all flex items-center justify-center ${
+            className={`w-full sm:w-auto px-3 py-1 rounded-md text-label transition-colors flex items-center justify-center ${
               activeTab === 'annual' 
                 ? 'bg-primary/10 text-primary' 
                 : 'text-foreground-subtle hover:bg-surface-hover'
@@ -116,10 +116,10 @@ const SavingsChart: React.FC<SavingsChartProps> = ({ finalPrice, annualSavings, 
 
       {activeTab === 'roi' && (
         <div className="animate-fade-in">
-          <p className="text-sm performance-item-label mb-4">
+          <p className="text-body-small performance-item-label mb-4">
             This chart projects your net savings over 25 years. You&apos;re estimated to break even in
-            <span className="font-bold text-primary"> {breakEvenYear !== null ? `Year ${breakEvenYear}` : 'N/A'}</span> and save approximately
-            <span className="font-bold text-primary"> {formatCurrency(annualSavings * 25 - finalPrice)}</span> over the system&apos;s lifetime.
+            <span className="text-primary"> {breakEvenYear !== null ? `Year ${breakEvenYear}` : 'N/A'}</span> and save approximately
+            <span className="text-primary"> {formatCurrency(annualSavings * 25 - finalPrice)}</span> over the system&apos;s lifetime.
           </p>
           <div style={{ width: '100%', height: 300 }}>
             <ResponsiveContainer>
@@ -146,9 +146,9 @@ const SavingsChart: React.FC<SavingsChartProps> = ({ finalPrice, annualSavings, 
 
       {activeTab === 'annual' && (
         <div className="animate-fade-in">
-          <p className="text-sm performance-item-label mb-4">
+          <p className="text-body-small performance-item-label mb-4">
             Comparison of your estimated annual electricity costs before and after installing solar panels.
-            Your estimated annual savings are <span className="font-bold text-primary">{formatCurrency(annualSavings)}</span>.
+            Your estimated annual savings are <span className="text-primary">{formatCurrency(annualSavings)}</span>.
           </p>
           <div style={{ width: '100%', height: 300 }}>
             <ResponsiveContainer>

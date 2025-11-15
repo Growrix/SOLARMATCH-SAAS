@@ -110,10 +110,10 @@ export default function QuoteTypeDistributionModal({
         {/* Header */}
         <div className="sticky top-0 bg-surface border-b border-border px-6 py-4 flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-foreground">
+            <h2 className="text-heading-2 text-foreground">
               Select Quote Distribution
             </h2>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-body-small text-muted-foreground mt-1">
               Choose how many quotes of each type you want to request
             </p>
           </div>
@@ -130,10 +130,10 @@ export default function QuoteTypeDistributionModal({
           {/* Remaining Quota Display */}
           <div className="bg-success/10 border border-success rounded-lg p-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-success">
+              <span className="text-body-small text-success">
                 Remaining Quote Allowance
               </span>
-              <span className="text-2xl font-bold text-success">
+              <span className="text-heading-2 text-success">
                 {remainingQuota}
               </span>
             </div>
@@ -143,10 +143,10 @@ export default function QuoteTypeDistributionModal({
           <div className="theme-card p-6 space-y-4">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                <h3 className="text-heading-4 text-foreground flex items-center gap-2">
                   <PhoneIcon /> Call or Site Visit Quotes
                 </h3>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-body-small text-muted-foreground mt-1">
                   Installers will contact you to schedule a site visit and provide a personalized quote
                 </p>
               </div>
@@ -154,7 +154,7 @@ export default function QuoteTypeDistributionModal({
 
             {/* Count Selector */}
             <div className="flex items-center gap-3">
-              <label className="text-sm font-medium text-foreground">
+              <label className="text-body-small text-foreground">
                 Count:
               </label>
               <div className="flex gap-2">
@@ -162,9 +162,9 @@ export default function QuoteTypeDistributionModal({
                   <button
                     key={num}
                     onClick={() => handleCallVisitChange(num)}
-                    className={`w-12 h-12 rounded-lg font-semibold transition-all ${
+                    className={`w-12 h-12 rounded-lg transition-colors ${
                       callVisitCount === num
-                        ? 'bg-primary text-white shadow-md scale-105'
+                        ? 'bg-primary text-foreground-secondary shadow-md scale-105'
                         : 'bg-surface shadow-neu-inset text-foreground hover:shadow-neu-outset'
                     }`}
                   >
@@ -179,10 +179,10 @@ export default function QuoteTypeDistributionModal({
           <div className="theme-card p-6 space-y-4">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                <h3 className="text-heading-4 text-foreground flex items-center gap-2">
                   <FileTextIcon /> Written Quotes
                 </h3>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-body-small text-muted-foreground mt-1">
                   Receive detailed written proposals from installers with pricing and system specifications
                 </p>
               </div>
@@ -190,7 +190,7 @@ export default function QuoteTypeDistributionModal({
 
             {/* Count Selector */}
             <div className="flex items-center gap-3">
-              <label className="text-sm font-medium text-foreground">
+              <label className="text-body-small text-foreground">
                 Count:
               </label>
               <div className="flex gap-2">
@@ -198,9 +198,9 @@ export default function QuoteTypeDistributionModal({
                   <button
                     key={num}
                     onClick={() => handleWrittenQuoteChange(num)}
-                    className={`w-12 h-12 rounded-lg font-semibold transition-all ${
+                    className={`w-12 h-12 rounded-lg transition-colors ${
                       writtenQuoteCount === num
-                        ? 'bg-primary text-white shadow-md scale-105'
+                        ? 'bg-primary text-foreground-secondary shadow-md scale-105'
                         : 'bg-surface shadow-neu-inset text-foreground hover:shadow-neu-outset'
                     }`}
                   >
@@ -215,13 +215,13 @@ export default function QuoteTypeDistributionModal({
           <div className="theme-card p-6 space-y-4 border-2 border-warning">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                <h3 className="text-heading-4 text-foreground flex items-center gap-2">
                   <TrophyIcon /> Competitive Bidding
                 </h3>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-body-small text-muted-foreground mt-1">
                   Open competitive bidding - multiple installers submit proposals to compete for your project
                 </p>
-                <p className="text-xs text-warning mt-2 font-medium">
+                <p className="text-caption text-warning mt-2">
                   ⚠️ Limited to 1 bidding request per homeowner (one-time only)
                 </p>
               </div>
@@ -229,7 +229,7 @@ export default function QuoteTypeDistributionModal({
 
             {/* Count Selector - Only 0 or 1 */}
             <div className="flex items-center gap-3">
-              <label className="text-sm font-medium text-foreground">
+              <label className="text-body-small text-foreground">
                 Count:
               </label>
               <div className="flex gap-2">
@@ -238,9 +238,9 @@ export default function QuoteTypeDistributionModal({
                     key={num}
                     onClick={() => handleBiddingChange(num)}
                     disabled={userAlreadyHasBiddingLead && num === 1}
-                    className={`w-12 h-12 rounded-lg font-semibold transition-all ${
+                    className={`w-12 h-12 rounded-lg transition-colors ${
                       biddingCount === num
-                        ? 'bg-warning text-white shadow-md scale-105'
+                        ? 'bg-warning text-foreground-secondary shadow-md scale-105'
                         : userAlreadyHasBiddingLead && num === 1
                         ? 'bg-muted text-muted-foreground cursor-not-allowed opacity-50'
                         : 'bg-surface shadow-neu-inset text-foreground hover:shadow-neu-outset'
@@ -251,7 +251,7 @@ export default function QuoteTypeDistributionModal({
                 ))}
               </div>
               {userAlreadyHasBiddingLead && (
-                <p className="text-xs text-error ml-2">
+                <p className="text-caption text-error ml-2">
                   You have already used your one-time bidding request
                 </p>
               )}
@@ -267,7 +267,7 @@ export default function QuoteTypeDistributionModal({
               : 'bg-info/10 border border-info'
           }`}>
             <div className="flex items-center justify-between">
-              <span className={`text-sm font-medium ${
+              <span className={`text-body-small ${
                 exceedsQuota
                   ? 'text-error'
                   : totalSelected === 0
@@ -276,7 +276,7 @@ export default function QuoteTypeDistributionModal({
               }`}>
                 Total Selected
               </span>
-              <span className={`text-2xl font-bold ${
+              <span className={`text-heading-2 ${
                 exceedsQuota
                   ? 'text-error'
                   : totalSelected === 0
@@ -289,17 +289,17 @@ export default function QuoteTypeDistributionModal({
 
             {/* Validation Messages */}
             {exceedsQuota && (
-              <p className="text-sm text-error mt-2">
+              <p className="text-body-small text-error mt-2">
                 ⚠️ Total count exceeds your remaining quota. Please reduce your selection.
               </p>
             )}
             {totalSelected === 0 && (
-              <p className="text-sm text-muted-foreground mt-2">
+              <p className="text-body-small text-muted-foreground mt-2">
                 Please select at least one quote to continue.
               </p>
             )}
             {isValid && (
-              <p className="text-sm text-info mt-2">
+              <p className="text-body-small text-info mt-2">
                 ✓ Valid selection! Click confirm to proceed.
               </p>
             )}
@@ -310,16 +310,16 @@ export default function QuoteTypeDistributionModal({
         <div className="sticky bottom-0 bg-surface border-t border-border px-6 py-4 flex gap-3 justify-end">
           <button
             onClick={onClose}
-            className="px-6 py-2.5 rounded-lg font-medium text-foreground bg-surface shadow-neu-inset hover:shadow-neu-outset transition-all"
+            className="px-6 py-2.5 rounded-lg text-foreground bg-surface shadow-neu-inset hover:shadow-neu-outset transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={!isValid}
-            className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
+            className={`px-6 py-2.5 rounded-lg transition-colors ${
               isValid
-                ? 'bg-primary hover:bg-primary/90 text-white shadow-md hover:shadow-lg'
+                ? 'bg-primary hover:bg-primary/90 text-foreground-secondary shadow-md hover:shadow-lg'
                 : 'bg-muted text-muted-foreground cursor-not-allowed opacity-50'
             }`}
           >

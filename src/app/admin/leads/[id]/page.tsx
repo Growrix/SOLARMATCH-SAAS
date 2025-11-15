@@ -580,7 +580,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
         <p className="text-red-500 mb-4">{error || 'Lead not found'}</p>
         <button
           onClick={() => router.push('/admin/leads')}
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+          className="px-4 py-2 bg-primary text-foreground-secondary rounded-lg hover:bg-primary"
         >
           Back to Leads
         </button>
@@ -602,26 +602,26 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
 
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold mb-2 text-foreground">
+            <h1 className="text-heading-1 mb-2 text-foreground">
               Lead Details
             </h1>
             <div className="flex items-center gap-4">
-              <p className="font-mono text-sm text-muted-foreground">
-                Quote ID: <span className="font-semibold">Q-{lead.id.slice(-8).toUpperCase()}</span>
+              <p className="font-mono text-body-small text-muted-foreground">
+                Quote ID: <span className="">Q-{lead.id.slice(-8).toUpperCase()}</span>
               </p>
-              <span className="text-sm text-muted-foreground">•</span>
-              <p className="text-sm text-muted-foreground">
+              <span className="text-body-small text-muted-foreground">•</span>
+              <p className="text-body-small text-muted-foreground">
                 Created: {formatDate(lead.createdAt)}
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className={`px-4 py-2 rounded-full text-sm font-medium ${getStatusColor(lead.status)}`}>
+            <span className={`px-4 py-2 rounded-full text-body-small ${getStatusColor(lead.status)}`}>
               {lead.status}
             </span>
             {lead.phoneVerified && (
-              <span className="px-3 py-1 bg-success text-success-foreground rounded-full text-xs font-medium">
+              <span className="px-3 py-1 bg-success text-success-foreground rounded-full text-caption">
                 ✓ Verified
               </span>
             )}
@@ -635,40 +635,40 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
         <div className="lg:col-span-2 space-y-6">
           {/* HOMEOWNER INFO */}
           <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
-            <h2 className="text-xl font-semibold mb-4 text-foreground">
+            <h2 className="text-heading-3 mb-4 text-foreground">
               Homeowner Information
             </h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-muted-foreground">Name</p>
-                <p className="font-medium text-foreground">
+                <p className="text-body-small text-muted-foreground">Name</p>
+                <p className="text-foreground">
                   {lead.homeowner?.name || 'N/A'}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Email</p>
-                <p className="font-medium text-foreground">
+                <p className="text-body-small text-muted-foreground">Email</p>
+                <p className="text-foreground">
                   {lead.homeowner?.email || 'N/A'}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Contact Number</p>
-                <p className="font-medium text-foreground">
+                <p className="text-body-small text-muted-foreground">Contact Number</p>
+                <p className="text-foreground">
                   {lead.phoneNumber || 'Not provided'}
                   {lead.phoneNumber && (
                     <span className="ml-2">
                       {lead.phoneVerified ? (
-                        <span className="text-success text-xs">✓ Verified</span>
+                        <span className="text-success text-caption">✓ Verified</span>
                       ) : (
-                        <span className="text-error text-xs">✗ Not verified</span>
+                        <span className="text-error text-caption">✗ Not verified</span>
                       )}
                     </span>
                   )}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Quote Type</p>
-                <p className="font-medium text-foreground">
+                <p className="text-body-small text-muted-foreground">Quote Type</p>
+                <p className="text-foreground">
                   <span className="mr-2">{getQuoteTypeIcon(lead.quoteType)}</span>
                   {getQuoteTypeLabel(lead.quoteType)}
                 </p>
@@ -679,26 +679,26 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
           {/* HOMEOWNER QUOTE QUOTA */}
           {lead.homeowner && (
             <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
-              <h2 className="text-xl font-semibold mb-4 text-foreground">
+              <h2 className="text-heading-3 mb-4 text-foreground">
                 📊 Quote Request Quota
               </h2>
               <div className="space-y-4">
                 <div className="grid grid-cols-3 gap-4">
                   <div className="text-center">
-                    <p className="text-sm text-muted-foreground">Total Limit</p>
-                    <p className="text-2xl font-bold text-info">
+                    <p className="text-body-small text-muted-foreground">Total Limit</p>
+                    <p className="text-heading-2 text-info">
                       {lead.homeowner.leadSubmissionLimit}
                     </p>
                   </div>
                   <div className="text-center">
-                    <p className="text-sm text-muted-foreground">Submitted</p>
-                    <p className="text-2xl font-bold text-warning">
+                    <p className="text-body-small text-muted-foreground">Submitted</p>
+                    <p className="text-heading-2 text-warning">
                       {lead.homeowner.leadSubmissionCount}
                     </p>
                   </div>
                   <div className="text-center">
-                    <p className="text-sm text-muted-foreground">Remaining</p>
-                    <p className={`text-2xl font-bold ${
+                    <p className="text-body-small text-muted-foreground">Remaining</p>
+                    <p className={`text-heading-2 ${
                       lead.homeowner.leadSubmissionLimit - lead.homeowner.leadSubmissionCount > 0
                         ? 'text-success'
                         : 'text-error'
@@ -711,7 +711,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
                 {/* Progress Bar */}
                 <div className="w-full bg-muted rounded-full h-3">
                   <div
-                    className={`h-3 rounded-full transition-all ${
+                    className={`h-3 rounded-full transition-colors ${
                       lead.homeowner.leadSubmissionCount >= lead.homeowner.leadSubmissionLimit
                         ? 'bg-error'
                         : lead.homeowner.leadSubmissionCount / lead.homeowner.leadSubmissionLimit > 0.8
@@ -727,7 +727,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
                 {/* Status Message */}
                 {lead.homeowner.leadSubmissionCount >= lead.homeowner.leadSubmissionLimit && (
                   <div className="p-3 rounded-lg bg-error text-error-foreground">
-                    <p className="text-sm font-medium">⚠️ Quota limit reached</p>
+                    <p className="text-body-small">⚠️ Quota limit reached</p>
                   </div>
                 )}
               </div>
@@ -736,43 +736,43 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
 
           {/* PROJECT DETAILS */}
           <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
-            <h2 className="text-xl font-semibold mb-4 text-foreground">
+            <h2 className="text-heading-3 mb-4 text-foreground">
               Project Details
             </h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-muted-foreground">Project Type</p>
-                <p className="font-medium text-foreground">
+                <p className="text-body-small text-muted-foreground">Project Type</p>
+                <p className="text-foreground">
                   {lead.projectType}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Property Type</p>
-                <p className="font-medium text-foreground">
+                <p className="text-body-small text-muted-foreground">Property Type</p>
+                <p className="text-foreground">
                   {lead.propertyType}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Location</p>
-                <p className="font-medium text-foreground">
+                <p className="text-body-small text-muted-foreground">Location</p>
+                <p className="text-foreground">
                   {lead.location}, {lead.state}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Postcode</p>
-                <p className="font-medium text-foreground">
+                <p className="text-body-small text-muted-foreground">Postcode</p>
+                <p className="text-foreground">
                   {lead.postcode}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Roof Type</p>
-                <p className="font-medium text-foreground">
+                <p className="text-body-small text-muted-foreground">Roof Type</p>
+                <p className="text-foreground">
                   {lead.roofType}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Budget Range</p>
-                <p className="font-medium text-foreground">
+                <p className="text-body-small text-muted-foreground">Budget Range</p>
+                <p className="text-foreground">
                   {lead.budgetRange}
                 </p>
               </div>
@@ -781,31 +781,31 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
 
           {/* ENERGY DETAILS */}
           <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
-            <h2 className="text-xl font-semibold mb-4 text-foreground">
+            <h2 className="text-heading-3 mb-4 text-foreground">
               Energy Details
             </h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-muted-foreground">Energy Bill</p>
-                <p className="font-medium text-foreground">
+                <p className="text-body-small text-muted-foreground">Energy Bill</p>
+                <p className="text-foreground">
                   £{lead.energyBill.toFixed(2)} / {lead.billType}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Desired Offset</p>
-                <p className="font-medium text-foreground">
+                <p className="text-body-small text-muted-foreground">Desired Offset</p>
+                <p className="text-foreground">
                   {lead.desiredOffset}%
                 </p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Battery Required</p>
-                <p className="font-medium text-foreground">
+                <p className="text-body-small text-muted-foreground">Battery Required</p>
+                <p className="text-foreground">
                   {lead.batteryRequired ? `Yes (${lead.batteryCapacity})` : 'No'}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Timeframe</p>
-                <p className="font-medium text-foreground">
+                <p className="text-body-small text-muted-foreground">Timeframe</p>
+                <p className="text-foreground">
                   {lead.timeframe || 'N/A'}
                 </p>
               </div>
@@ -813,8 +813,8 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
 
             {lead.additionalNotes && (
               <div className="mt-4">
-                <p className="text-sm text-muted-foreground">Additional Notes</p>
-                <p className="font-medium text-foreground mt-1">
+                <p className="text-body-small text-muted-foreground">Additional Notes</p>
+                <p className="text-foreground mt-1">
                   {lead.additionalNotes}
                 </p>
               </div>
@@ -824,7 +824,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
           {/* QUOTE DATA (Phase 4.5) */}
           {lead.quoteData && (
             <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
-              <h2 className="text-xl font-semibold mb-4 text-foreground">
+              <h2 className="text-heading-3 mb-4 text-foreground">
                 📊 Instant Quote Calculation
               </h2>
               <QuoteDataDisplay quoteData={lead.quoteData} />
@@ -834,14 +834,14 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
           {/* ASSIGNMENT HISTORY (Phase 7) */}
           <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-foreground">
+              <h2 className="text-heading-3 text-foreground">
                 📋 Assignment History
               </h2>
               {!lead.archivedAt && (
                 <Button
                   onClick={() => setShowAssignModal(true)}
                   variant="secondary"
-                  className="bg-info text-info-foreground text-sm"
+                  className="bg-info text-info-foreground text-body-small"
                 >
                   + Assign to Installer
                 </Button>
@@ -856,20 +856,20 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
 
           {/* TIMESTAMPS */}
           <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
-            <h2 className="text-xl font-semibold mb-4 text-foreground">
+            <h2 className="text-heading-3 mb-4 text-foreground">
               Timeline
             </h2>
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Created</span>
-                <span className="font-medium text-foreground">
+                <span className="text-foreground">
                   {formatDate(lead.createdAt)}
                 </span>
               </div>
               {lead.approvedAt && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Approved</span>
-                  <span className="font-medium text-foreground">
+                  <span className="text-foreground">
                     {formatDate(lead.approvedAt)}
                   </span>
                 </div>
@@ -877,7 +877,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
               {lead.purchasedAt && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Purchased</span>
-                  <span className="font-medium text-foreground">
+                  <span className="text-foreground">
                     {formatDate(lead.purchasedAt)}
                   </span>
                 </div>
@@ -885,7 +885,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
               {lead.expiresAt && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Expires</span>
-                  <span className="font-medium text-foreground">
+                  <span className="text-foreground">
                     {formatDate(lead.expiresAt)}
                   </span>
                 </div>
@@ -899,7 +899,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
           {/* ACTION BUTTONS - Show for DRAFT, PENDING_APPROVAL, and PENDING_PHONE statuses */}
           {(['DRAFT', 'PENDING_APPROVAL', 'PENDING_PHONE'].includes(lead.status)) && (
             <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
-              <h2 className="text-xl font-semibold mb-4 text-foreground">
+              <h2 className="text-heading-3 mb-4 text-foreground">
                 Actions
               </h2>
               <div className="space-y-3">
@@ -925,12 +925,12 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
 
           {/* PRICING */}
           <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
-            <h2 className="text-xl font-semibold mb-4 text-foreground">
+            <h2 className="text-heading-3 mb-4 text-foreground">
               Lead Pricing
             </h2>
             <div className="space-y-3">
               <div>
-                <label className="block text-sm mb-2 text-muted-foreground">
+                <label className="block text-body-small mb-2 text-muted-foreground">
                   Price (£)
                 </label>
                 <input
@@ -955,7 +955,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
 
           {/* ADMIN NOTES */}
           <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
-            <h2 className="text-xl font-semibold mb-4 text-foreground">
+            <h2 className="text-heading-3 mb-4 text-foreground">
               Admin Notes
             </h2>
             <div className="space-y-3">
@@ -981,19 +981,19 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
           {/* PURCHASE STATUS */}
           {lead.installerId && (
             <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
-              <h2 className="text-xl font-semibold mb-4 text-foreground">
+              <h2 className="text-heading-3 mb-4 text-foreground">
                 Purchase Info
               </h2>
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm text-muted-foreground">Installer</p>
-                  <p className="font-medium text-foreground">
+                  <p className="text-body-small text-muted-foreground">Installer</p>
+                  <p className="text-foreground">
                     {lead.installer?.name || 'N/A'}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Status</p>
-                  <p className="font-medium text-foreground">
+                  <p className="text-body-small text-muted-foreground">Status</p>
+                  <p className="text-foreground">
                     {lead.purchaseStatus || 'Not Purchased'}
                   </p>
                 </div>
@@ -1004,7 +1004,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
           {/* LIFECYCLE ACTIONS (Phase 7) */}
           {!lead.archivedAt && (
             <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
-              <h2 className="text-xl font-semibold mb-4 text-foreground">
+              <h2 className="text-heading-3 mb-4 text-foreground">
                 Lead Lifecycle
               </h2>
               <div className="space-y-3">
@@ -1014,7 +1014,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
                     onClick={handleResell}
                     disabled={reselling}
                     variant="secondary"
-                    className="w-full text-sm"
+                    className="w-full text-body-small"
                   >
                     {reselling ? <LoadingIcon /> : '🔄'}
                     Resell Lead
@@ -1031,13 +1031,13 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
                       min="1"
                       max="365"
                       placeholder="Days to extend"
-                      className="form-input w-full rounded-xl bg-surface text-foreground shadow-neu-inset border border-border px-4 py-3 text-sm placeholder:text-muted-foreground"
+                      className="form-input w-full rounded-xl bg-surface text-foreground shadow-neu-inset border border-border px-4 py-3 text-body-small placeholder:text-muted-foreground"
                     />
                     <Button
                       onClick={handleResetTimer}
                       disabled={resettingTimer}
                       variant="secondary"
-                      className="w-full text-sm"
+                      className="w-full text-body-small"
                     >
                       {resettingTimer ? <LoadingIcon /> : '⏰'}
                       Extend Timer (+{resetDays}d)
@@ -1050,7 +1050,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
                   onClick={handleArchive}
                   disabled={archiving}
                   variant="secondary"
-                  className="w-full text-sm"
+                  className="w-full text-body-small"
                 >
                   {archiving ? <LoadingIcon /> : '🗄️'}
                   Archive Lead
@@ -1062,20 +1062,20 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
           {/* UNARCHIVE SECTION */}
           {lead.archivedAt && (
             <div className="p-6 rounded-lg bg-warning/10 border-2 border-warning">
-              <h2 className="text-xl font-semibold mb-2 text-warning">
+              <h2 className="text-heading-3 mb-2 text-warning">
                 🗄️ Archived
               </h2>
-              <p className="text-sm mb-4 text-warning">
+              <p className="text-body-small mb-4 text-warning">
                 This lead is archived and hidden from all views.
               </p>
-              <p className="text-xs mb-4 text-muted-foreground">
+              <p className="text-caption mb-4 text-muted-foreground">
                 Archived: {formatDate(lead.archivedAt)}
               </p>
               <Button
                 onClick={handleUnarchive}
                 disabled={unarchiving}
                 variant="secondary"
-                className="w-full bg-success text-success-foreground text-sm"
+                className="w-full bg-success text-success-foreground text-body-small"
               >
                 {unarchiving ? <LoadingIcon /> : '📤'}
                 Restore Lead
@@ -1089,7 +1089,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
       {showApproveModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="max-w-md w-full mx-4 p-6 rounded-lg bg-surface shadow-neu-outset">
-            <h2 className="text-2xl font-bold mb-4 text-foreground">
+            <h2 className="text-heading-2 mb-4 text-foreground">
               Approve Lead
             </h2>
             <p className="mb-6 text-muted-foreground">
@@ -1109,14 +1109,14 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
                 />
                 <label 
                   htmlFor="enableCountdown" 
-                  className="font-medium text-foreground"
+                  className="text-foreground"
                 >
                   Enable countdown timer
                 </label>
               </div>
               {enableCountdown && (
                 <div>
-                  <label className="block text-sm mb-2 text-muted-foreground">
+                  <label className="block text-body-small mb-2 text-muted-foreground">
                     Days until expiry
                   </label>
                   <input
@@ -1127,7 +1127,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
                     onChange={(e) => setCountdownDays(parseInt(e.target.value) || 7)}
                     className="form-input w-full placeholder:text-muted-foreground"
                   />
-                  <p className="text-xs mt-1 text-muted-foreground">
+                  <p className="text-caption mt-1 text-muted-foreground">
                     Lead will expire in {countdownDays} day{countdownDays !== 1 ? 's' : ''} (1-90 days range)
                   </p>
                 </div>
@@ -1160,7 +1160,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
       {showRejectModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="max-w-md w-full mx-4 p-6 rounded-lg bg-surface shadow-neu-outset">
-            <h2 className="text-2xl font-bold mb-4 text-foreground">
+            <h2 className="text-heading-2 mb-4 text-foreground">
               Reject Lead
             </h2>
             <p className="mb-4 text-muted-foreground">

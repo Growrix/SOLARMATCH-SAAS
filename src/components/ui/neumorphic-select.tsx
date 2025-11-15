@@ -1,4 +1,4 @@
-import * as React from "react"
+import * as React from"react"
 
 export interface NeumorphicSelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
@@ -10,7 +10,7 @@ const NeumorphicSelect = React.forwardRef<HTMLSelectElement, NeumorphicSelectPro
     return (
       <div className="space-y-2">
         {label && (
-          <label className="block text-sm font-medium text-foreground">
+          <label className="block text-body-small text-foreground">
             {label}
           </label>
         )}
@@ -24,7 +24,7 @@ const NeumorphicSelect = React.forwardRef<HTMLSelectElement, NeumorphicSelectPro
               border border-border/50
               text-foreground placeholder:text-muted-foreground
               focus:outline-none focus:shadow-neu-inset-sm focus:border-primary/50
-              transition-all duration-200
+              transition-colors duration-200
               appearance-none
               ${error ? 'border-destructive/50 shadow-neu-inset' : ''}
               ${className || ''}
@@ -40,12 +40,12 @@ const NeumorphicSelect = React.forwardRef<HTMLSelectElement, NeumorphicSelectPro
           </div>
         </div>
         {error && (
-          <p className="text-sm text-destructive">{error}</p>
+          <p className="text-body-small text-destructive">{error}</p>
         )}
       </div>
     )
   }
 )
-NeumorphicSelect.displayName = "NeumorphicSelect"
+NeumorphicSelect.displayName ="NeumorphicSelect"
 
 export { NeumorphicSelect }

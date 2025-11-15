@@ -15,18 +15,18 @@ const TopBar: React.FC<TopBarProps> = ({ onBecomePartnerClick, onPartnerSignInCl
   return (
     <div id="top-bar" className="py-2 transition-colors duration-300">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between text-xs">
+        <div className="flex items-center justify-between text-caption">
           {/* Left Side - Neumorphic Label Badge */}
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background shadow-neu-inset text-muted-foreground">
             <BuildingIcon />
-            <span className="hidden sm:inline font-medium">For Solar Installers:</span>
+            <span className="hidden sm:inline">For Solar Installers:</span>
           </div>
           
           {/* Right Side - Neumorphic Action Buttons */}
           <div className="flex items-center gap-2">
             <button
               onClick={onBecomePartnerClick}
-              className="px-3 py-1.5 rounded-full bg-background shadow-neu-outset hover:shadow-neu-outset-lg active:shadow-neu-inset transition-all duration-200 flex items-center gap-1.5 font-medium text-muted-foreground hover:text-foreground"
+              className="px-3 py-1.5 rounded-full bg-background shadow-neu-outset hover:shadow-neu-outset-lg active:shadow-neu-inset transition-colors duration-200 flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
             >
               <BuildingIcon />
               <span className="hidden md:inline">Become a Partner</span>
@@ -34,7 +34,7 @@ const TopBar: React.FC<TopBarProps> = ({ onBecomePartnerClick, onPartnerSignInCl
             
             <button
               onClick={onPartnerSignInClick}
-              className="px-3 py-1.5 rounded-full bg-background shadow-neu-outset hover:shadow-neu-outset-lg active:shadow-neu-inset transition-all duration-200 flex items-center gap-1.5 font-medium text-primary hover:text-primary/90"
+              className="px-3 py-1.5 rounded-full bg-background shadow-neu-outset hover:shadow-neu-outset-lg active:shadow-neu-inset transition-colors duration-200 flex items-center gap-1.5 text-primary hover:text-primary/90"
             >
               <LogInIcon />
               <span className="hidden md:inline">Partner Sign In</span>

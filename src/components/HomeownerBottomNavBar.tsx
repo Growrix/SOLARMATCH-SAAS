@@ -25,11 +25,11 @@ interface HomeownerBottomNavBarProps {
 }
 
 const NavItem: React.FC<{ icon: React.ReactNode; label: string; isActive: boolean; onClick: () => void; badgeCount?: number; }> = ({ icon, label, isActive, onClick, badgeCount }) => (
-  <button onClick={onClick} className={`relative flex flex-col items-center justify-center space-y-1 w-full pt-2 pb-1 transition-colors duration-200 ${isActive ? 'text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-primary/80'}`}>
+  <button onClick={onClick} className={`relative flex flex-col items-center justify-center space-y-1 w-full pt-2 pb-1 transition-colors duration-200 ${isActive ? 'text-primary' : 'text-muted hover:text-primary/80'}`}>
     {icon}
-    <span className="text-xs font-medium">{label}</span>
+    <span className="text-caption">{label}</span>
     {badgeCount && badgeCount > 0 && (
-      <span className="absolute top-1 right-[calc(50%-22px)] bg-destructive text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center ring-2 ring-white dark:ring-black">
+      <span className="absolute top-1 right-[calc(50%-22px)] bg-destructive text-foreground-secondary text-[10px] w-4 h-4 rounded-full flex items-center justify-center ring-2 ring-white">
         {badgeCount}
       </span>
     )}
@@ -46,7 +46,7 @@ const HomeownerBottomNavBar: React.FC<HomeownerBottomNavBarProps> = ({ activePag
   };
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white dark:bg-black border-t border-gray-200 dark:border-slate-800 shadow-[0_-2px_10px_rgba(0,0,0,0.1)] z-40">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-surface border-t border-border shadow-[0_-2px_10px_rgba(0,0,0,0.1)] z-40">
       <div className="flex items-center justify-around h-full max-w-md mx-auto">
         {currentPage === 'dashboard' ? (
           <NavItem icon={<HomeIcon />} label="Home" isActive={false} onClick={onHomeClick} />
@@ -56,7 +56,7 @@ const HomeownerBottomNavBar: React.FC<HomeownerBottomNavBarProps> = ({ activePag
         <NavItem icon={<FileTextIcon />} label="Quotes" isActive={activePage === 'Call/Visit Quotes' || activePage === 'Written Quotes'} onClick={() => navigateToDashboardPage('Call/Visit Quotes')} />
         
         <div className="w-16 h-16 flex items-center justify-center">
-            <button onClick={onNewQuoteClick} className="w-14 h-14 bg-primary rounded-full flex items-center justify-center text-white shadow-lg transform -translate-y-4 hover:bg-primary/90 active:scale-95 transition-all" aria-label="Request New Quote">
+            <button onClick={onNewQuoteClick} className="w-14 h-14 bg-primary rounded-full flex items-center justify-center text-foreground-secondary shadow-lg transform -translate-y-4 hover:bg-primary/90 active:scale-95 transition-colors" aria-label="Request New Quote">
                 <PlusIcon />
             </button>
         </div>

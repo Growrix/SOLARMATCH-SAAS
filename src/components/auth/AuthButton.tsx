@@ -40,8 +40,8 @@ export const AuthButton: React.FC<AuthButtonProps> = ({
     fullWidth ? 'w-full' : '',
     'py-3 px-6',
     'rounded-xl',
-    'font-medium',
-    'transition-all duration-200',
+    '',
+    'transition-colors duration-200',
     'disabled:opacity-50 disabled:cursor-not-allowed',
     className,
   ].filter(Boolean).join(' ');

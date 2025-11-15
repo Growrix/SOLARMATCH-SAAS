@@ -8,12 +8,12 @@
  * - Attempt tracking (max 3 attempts)
  */
 
-import { prisma } from "@/lib/prisma";
-import twilio from "twilio";
+import { prisma } from"@/lib/prisma";
+import twilio from"twilio";
 
 // TODO: Fix crypto import - TypeScript cannot resolve 'crypto' module with current tsconfig
 // Temporary workaround: Use Math.random for OTP generation until crypto types are fixed
-// import { randomInt, createHash } from "crypto";
+// import { randomInt, createHash } from"crypto";
 
 // Temporary replacements for crypto functions
 const randomInt = (min: number, max: number): number => {

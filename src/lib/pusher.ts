@@ -23,7 +23,7 @@
  * - PUSHER_APP_ID: Your Pusher app ID
  * - PUSHER_KEY: Your Pusher key  
  * - PUSHER_SECRET: Your Pusher secret
- * - PUSHER_CLUSTER: Your Pusher cluster (e.g., "us2")
+ * - PUSHER_CLUSTER: Your Pusher cluster (e.g.,"us2")
  */
 
 import Pusher from 'pusher';

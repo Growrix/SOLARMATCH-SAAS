@@ -37,8 +37,8 @@ export default function ComponentLibrary() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-2xl font-bold">Component Library</h1>
-              <p className="text-sm text-muted-foreground">Single Source of Truth (SOT) for all UI components</p>
+              <h1 className="text-heading-2">Component Library</h1>
+              <p className="text-body-small text-muted-foreground">Single Source of Truth (SOT) for all UI components</p>
             </div>
             <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
               Dark Theme Locked
@@ -52,9 +52,9 @@ export default function ComponentLibrary() {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 variant="secondary"
-                className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium text-sm whitespace-nowrap ${
+                className={`flex items-center gap-2 px-6 py-3 rounded-lg text-body-small whitespace-nowrap ${
                   activeTab === tab.id
-                    ? '!text-white !shadow-neu-inset-sm'
+                    ? '!text-foreground-secondary !shadow-neu-inset-sm'
                     : ''
                 }`}
               >
@@ -90,14 +90,14 @@ function SemanticClassesTab() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-xl font-bold mb-2">Semantic Classes Overview</h2>
-        <p className="text-sm text-muted-foreground">All components use semantic classes from globals.css - NO hardcoded colors or typography</p>
+        <h2 className="text-heading-3 mb-2">Semantic Classes Overview</h2>
+        <p className="text-body-small text-muted-foreground">All components use semantic classes from globals.css - NO hardcoded colors or typography</p>
       </div>
 
       {/* Quick Reference */}
       <Card className="border-primary/20 bg-primary/5">
         <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
+          <CardTitle className="text-heading-4 flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-primary" />
             Design System Rules
           </CardTitle>
@@ -105,20 +105,20 @@ function SemanticClassesTab() {
         <CardContent className="space-y-3">
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <div className="text-sm font-semibold text-primary">✅ ALWAYS Use:</div>
-              <ul className="text-sm space-y-1 text-muted-foreground">
-                <li>• Semantic classes: <code className="text-xs px-1 py-0.5 bg-background rounded">.theme-card</code>, <code className="text-xs px-1 py-0.5 bg-background rounded">.detail-card</code>, <code className="text-xs px-1 py-0.5 bg-background rounded">.cost-item</code></li>
-                <li>• CSS variables: <code className="text-xs px-1 py-0.5 bg-background rounded">bg-primary</code>, <code className="text-xs px-1 py-0.5 bg-background rounded">text-foreground</code></li>
-                <li>• Button component: <code className="text-xs px-1 py-0.5 bg-background rounded">&lt;Button variant=&quot;primary&quot;&gt;</code></li>
-                <li>• Form classes: <code className="text-xs px-1 py-0.5 bg-background rounded">.form-input</code>, <code className="text-xs px-1 py-0.5 bg-background rounded">.form-select</code></li>
+              <div className="text-label text-primary">✅ ALWAYS Use:</div>
+              <ul className="text-body-small space-y-1 text-muted-foreground">
+                <li>• Semantic classes: <code className="text-caption px-1 py-0.5 bg-background rounded">.theme-card</code>, <code className="text-caption px-1 py-0.5 bg-background rounded">.detail-card</code>, <code className="text-caption px-1 py-0.5 bg-background rounded">.cost-item</code></li>
+                <li>• CSS variables: <code className="text-caption px-1 py-0.5 bg-background rounded">bg-primary</code>, <code className="text-caption px-1 py-0.5 bg-background rounded">text-foreground</code></li>
+                <li>• Button component: <code className="text-caption px-1 py-0.5 bg-background rounded">&lt;Button variant=&quot;primary&quot;&gt;</code></li>
+                <li>• Form classes: <code className="text-caption px-1 py-0.5 bg-background rounded">.form-input</code>, <code className="text-caption px-1 py-0.5 bg-background rounded">.form-select</code></li>
               </ul>
             </div>
             <div className="space-y-2">
-              <div className="text-sm font-semibold text-destructive">❌ NEVER Use:</div>
-              <ul className="text-sm space-y-1 text-muted-foreground">
-                <li>• Hardcoded colors: <code className="text-xs px-1 py-0.5 bg-background rounded line-through">bg-blue-600</code>, <code className="text-xs px-1 py-0.5 bg-background rounded line-through">text-red-500</code></li>
-                <li>• Raw typography: <code className="text-xs px-1 py-0.5 bg-background rounded line-through">text-2xl</code>, <code className="text-xs px-1 py-0.5 bg-background rounded line-through">font-bold</code></li>
-                <li>• Inline styles: <code className="text-xs px-1 py-0.5 bg-background rounded line-through">style=&#123;&#123;color: &#39;#fff&#39;&#125;&#125;</code></li>
+              <div className="text-label text-destructive">❌ NEVER Use:</div>
+              <ul className="text-body-small space-y-1 text-muted-foreground">
+                <li>• Hardcoded colors: <code className="text-caption px-1 py-0.5 bg-background rounded line-through">bg-primary</code>, <code className="text-caption px-1 py-0.5 bg-background rounded line-through">text-red-500</code></li>
+                <li>• Raw typography: <code className="text-caption px-1 py-0.5 bg-background rounded line-through">text-heading-2</code>, <code className="text-caption px-1 py-0.5 bg-background rounded line-through"></code></li>
+                <li>• Inline styles: <code className="text-caption px-1 py-0.5 bg-background rounded line-through">style=&#123;&#123;color: &#39;#fff&#39;&#125;&#125;</code></li>
                 <li>• form-select on inputs (shows arrow!)</li>
               </ul>
             </div>
@@ -130,11 +130,11 @@ function SemanticClassesTab() {
       <div className="grid md:grid-cols-3 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Container Classes</CardTitle>
+            <CardTitle className="text-heading-4">Container Classes</CardTitle>
             <CardDescription>8 semantic container classes</CardDescription>
           </CardHeader>
           <CardContent>
-            <ul className="text-sm space-y-2">
+            <ul className="text-body-small space-y-2">
               <li className="flex items-center gap-2">
                 <Circle className="h-2 w-2 fill-primary text-primary" />
                 <code>.theme-card</code> - Modals, dialogs
@@ -157,11 +157,11 @@ function SemanticClassesTab() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Form Classes</CardTitle>
+            <CardTitle className="text-heading-4">Form Classes</CardTitle>
             <CardDescription>Semantic form elements</CardDescription>
           </CardHeader>
           <CardContent>
-            <ul className="text-sm space-y-2">
+            <ul className="text-body-small space-y-2">
               <li className="flex items-center gap-2">
                 <Circle className="h-2 w-2 fill-primary text-primary" />
                 <code>.form-input</code> - Text inputs
@@ -184,11 +184,11 @@ function SemanticClassesTab() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Data Display Classes</CardTitle>
+            <CardTitle className="text-heading-4">Data Display Classes</CardTitle>
             <CardDescription>18+ display components</CardDescription>
           </CardHeader>
           <CardContent>
-            <ul className="text-sm space-y-2">
+            <ul className="text-body-small space-y-2">
               <li className="flex items-center gap-2">
                 <Circle className="h-2 w-2 fill-primary text-primary" />
                 <code>.cost-item</code> - Financial data
@@ -214,9 +214,9 @@ function SemanticClassesTab() {
       <Card className="border-primary/20">
         <CardContent className="p-6">
           <div className="text-center">
-            <div className="text-4xl font-bold text-primary mb-2">65+</div>
-            <div className="text-sm text-muted-foreground">Total Semantic Classes Available</div>
-            <div className="text-xs text-muted-foreground mt-2">See SEMANTIC-CLASSES-REGISTRY.md for full reference</div>
+            <div className="text-heading-1 text-primary mb-2">65+</div>
+            <div className="text-body-small text-muted-foreground">Total Semantic Classes Available</div>
+            <div className="text-caption text-muted-foreground mt-2">See SEMANTIC-CLASSES-REGISTRY.md for full reference</div>
           </div>
         </CardContent>
       </Card>
@@ -231,8 +231,8 @@ function ContainersTab() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-xl font-bold mb-2">Container Components</h2>
-        <p className="text-sm text-muted-foreground">Semantic container classes for modals, cards, and sections</p>
+        <h2 className="text-heading-3 mb-2">Container Components</h2>
+        <p className="text-body-small text-muted-foreground">Semantic container classes for modals, cards, and sections</p>
       </div>
 
       {/* Theme Card */}
@@ -240,7 +240,7 @@ function ContainersTab() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-lg">.theme-card</CardTitle>
+              <CardTitle className="text-heading-4">.theme-card</CardTitle>
               <CardDescription>Modal/Dialog Container - Strong Shadow</CardDescription>
             </div>
             <Badge variant="outline">Elevated</Badge>
@@ -257,10 +257,10 @@ function ContainersTab() {
               </div>
             </div>
           </div>
-          <div className="text-xs text-muted-foreground font-mono bg-muted/50 p-3 rounded">
+          <div className="text-caption text-muted-foreground font-mono bg-muted/50 p-3 rounded">
             &lt;div className=&quot;theme-card p-8&quot;&gt;...&lt;/div&gt;
           </div>
-          <div className="text-xs">
+          <div className="text-caption">
             <strong>Properties:</strong> bg-surface, rounded-xl, shadow-outset-xl, border<br />
             <strong>Use for:</strong> Modals, dialogs, elevated overlays
           </div>
@@ -272,7 +272,7 @@ function ContainersTab() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-lg">.detail-card</CardTitle>
+              <CardTitle className="text-heading-4">.detail-card</CardTitle>
               <CardDescription>Content Card - Medium Shadow</CardDescription>
             </div>
             <Badge variant="outline">Inline</Badge>
@@ -296,10 +296,10 @@ function ContainersTab() {
               </div>
             </div>
           </div>
-          <div className="text-xs text-muted-foreground font-mono bg-muted/50 p-3 rounded">
+          <div className="text-caption text-muted-foreground font-mono bg-muted/50 p-3 rounded">
             &lt;div className=&quot;detail-card&quot;&gt;...&lt;/div&gt;
           </div>
-          <div className="text-xs">
+          <div className="text-caption">
             <strong>Properties:</strong> bg-surface, rounded-lg, shadow-outset-md, p-6, border<br />
             <strong>Use for:</strong> Result cards, data displays, info boxes
           </div>
@@ -311,7 +311,7 @@ function ContainersTab() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-lg">.neu-card</CardTitle>
+              <CardTitle className="text-heading-4">.neu-card</CardTitle>
               <CardDescription>Neumorphic Card - 3D Effect</CardDescription>
             </div>
             <Badge variant="outline">3D</Badge>
@@ -320,25 +320,25 @@ function ContainersTab() {
         <CardContent className="space-y-4">
           <div className="grid md:grid-cols-3 gap-4">
             <div className="neu-card p-6 text-center">
-              <div className="text-xs text-muted-foreground mb-2">Default</div>
-              <div className="text-2xl font-bold mb-1">$45,600</div>
-              <div className="text-xs text-muted-foreground">Total Savings</div>
+              <div className="text-caption text-muted-foreground mb-2">Default</div>
+              <div className="text-heading-2 mb-1">$45,600</div>
+              <div className="text-caption text-muted-foreground">Total Savings</div>
             </div>
             <div className="neu-card-compact p-4 text-center">
-              <div className="text-xs text-muted-foreground mb-2">Compact</div>
-              <div className="text-xl font-bold mb-1">8.5 years</div>
-              <div className="text-xs text-muted-foreground">ROI Period</div>
+              <div className="text-caption text-muted-foreground mb-2">Compact</div>
+              <div className="text-heading-3 mb-1">8.5 years</div>
+              <div className="text-caption text-muted-foreground">ROI Period</div>
             </div>
             <div className="neu-card-elevated p-6 text-center">
-              <div className="text-xs text-muted-foreground mb-2">Elevated</div>
-              <div className="text-2xl font-bold mb-1">24</div>
-              <div className="text-xs text-muted-foreground">Panel Count</div>
+              <div className="text-caption text-muted-foreground mb-2">Elevated</div>
+              <div className="text-heading-2 mb-1">24</div>
+              <div className="text-caption text-muted-foreground">Panel Count</div>
             </div>
           </div>
-          <div className="text-xs text-muted-foreground font-mono bg-muted/50 p-3 rounded">
+          <div className="text-caption text-muted-foreground font-mono bg-muted/50 p-3 rounded">
             .neu-card | .neu-card-compact | .neu-card-elevated
           </div>
-          <div className="text-xs">
+          <div className="text-caption">
             <strong>Properties:</strong> Outset shadow, 3D appearance, theme-adaptive<br />
             <strong>Use for:</strong> Enhanced metric displays, feature highlights
           </div>
@@ -350,7 +350,7 @@ function ContainersTab() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-lg">.info-section</CardTitle>
+              <CardTitle className="text-heading-4">.info-section</CardTitle>
               <CardDescription>Content Section Container</CardDescription>
             </div>
             <Badge variant="outline">Layout</Badge>
@@ -361,7 +361,7 @@ function ContainersTab() {
             <h3 className="text-heading-3 mb-4">Section Title</h3>
             <p className="text-body">This is a content section with standard padding and spacing for consistent layouts.</p>
           </div>
-          <div className="text-xs text-muted-foreground font-mono bg-muted/50 p-3 rounded">
+          <div className="text-caption text-muted-foreground font-mono bg-muted/50 p-3 rounded">
             &lt;section className=&quot;info-section&quot;&gt;...&lt;/section&gt;
           </div>
         </CardContent>
@@ -377,8 +377,8 @@ function DataDisplayTab() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-xl font-bold mb-2">Data Display Components</h2>
-        <p className="text-sm text-muted-foreground">Semantic classes for displaying financial data, metrics, and specifications</p>
+        <h2 className="text-heading-3 mb-2">Data Display Components</h2>
+        <p className="text-body-small text-muted-foreground">Semantic classes for displaying financial data, metrics, and specifications</p>
       </div>
 
       {/* Cost Item */}
@@ -386,7 +386,7 @@ function DataDisplayTab() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-lg">Cost Item Pattern</CardTitle>
+              <CardTitle className="text-heading-4">Cost Item Pattern</CardTitle>
               <CardDescription>.cost-item, .cost-item-label, .cost-item-value</CardDescription>
             </div>
             <Badge variant="outline">Financial</Badge>
@@ -409,18 +409,18 @@ function DataDisplayTab() {
                 <span className="cost-item-value text-success">-$2,500</span>
               </div>
               <div className="cost-item border-t border-border pt-3 mt-3">
-                <span className="cost-item-label font-semibold">Total</span>
+                <span className="cost-item-label">Total</span>
                 <span className="cost-item-value">$16,000</span>
               </div>
             </div>
           </div>
-          <div className="text-xs text-muted-foreground font-mono bg-muted/50 p-3 rounded">
+          <div className="text-caption text-muted-foreground font-mono bg-muted/50 p-3 rounded">
 {`<div className="cost-item">
   <span className="cost-item-label">System Cost</span>
   <span className="cost-item-value">$15,000</span>
 </div>`}
           </div>
-          <div className="text-xs">
+          <div className="text-caption">
             <strong>Use for:</strong> Cost breakdowns, pricing tables, financial summaries
           </div>
         </CardContent>
@@ -431,7 +431,7 @@ function DataDisplayTab() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-lg">Metric Card Pattern</CardTitle>
+              <CardTitle className="text-heading-4">Metric Card Pattern</CardTitle>
               <CardDescription>.metric-card, .metric-card-label, .metric-card-value</CardDescription>
             </div>
             <Badge variant="outline">KPI</Badge>
@@ -455,14 +455,14 @@ function DataDisplayTab() {
               <div className="metric-card-description">25 year lifetime</div>
             </div>
           </div>
-          <div className="text-xs text-muted-foreground font-mono bg-muted/50 p-3 rounded">
+          <div className="text-caption text-muted-foreground font-mono bg-muted/50 p-3 rounded">
 {`<div className="metric-card">
   <div className="metric-card-label">Annual Savings</div>
   <div className="metric-card-value">$2,400</div>
   <div className="metric-card-description">Per year</div>
 </div>`}
           </div>
-          <div className="text-xs">
+          <div className="text-caption">
             <strong>Use for:</strong> Dashboard KPIs, key metrics, statistics
           </div>
         </CardContent>
@@ -473,7 +473,7 @@ function DataDisplayTab() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-lg">Spec Card Pattern</CardTitle>
+              <CardTitle className="text-heading-4">Spec Card Pattern</CardTitle>
               <CardDescription>.spec-card, .spec-card-label, .spec-card-value</CardDescription>
             </div>
             <Badge variant="outline">Technical</Badge>
@@ -498,13 +498,13 @@ function DataDisplayTab() {
               <div className="spec-card-value">WiFi</div>
             </div>
           </div>
-          <div className="text-xs text-muted-foreground font-mono bg-muted/50 p-3 rounded">
+          <div className="text-caption text-muted-foreground font-mono bg-muted/50 p-3 rounded">
 {`<div className="spec-card">
   <div className="spec-card-label">Panel Type</div>
   <div className="spec-card-value">Monocrystalline</div>
 </div>`}
           </div>
-          <div className="text-xs">
+          <div className="text-caption">
             <strong>Use for:</strong> Technical specifications, system details, product features
           </div>
         </CardContent>
@@ -515,7 +515,7 @@ function DataDisplayTab() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-lg">Performance Item Pattern</CardTitle>
+              <CardTitle className="text-heading-4">Performance Item Pattern</CardTitle>
               <CardDescription>.performance-item, .performance-item-label, .performance-item-value</CardDescription>
             </div>
             <Badge variant="outline">Performance</Badge>
@@ -539,7 +539,7 @@ function DataDisplayTab() {
               </div>
             </div>
           </div>
-          <div className="text-xs">
+          <div className="text-caption">
             <strong>Use for:</strong> System performance metrics, efficiency data
           </div>
         </CardContent>
@@ -550,7 +550,7 @@ function DataDisplayTab() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-lg">Summary Box Pattern</CardTitle>
+              <CardTitle className="text-heading-4">Summary Box Pattern</CardTitle>
               <CardDescription>.summary-box, .summary-box-label, .summary-box-value</CardDescription>
             </div>
             <Badge variant="outline">Highlight</Badge>
@@ -561,7 +561,7 @@ function DataDisplayTab() {
             <div className="summary-box-label">Your Estimated Quote</div>
             <div className="summary-box-value">$16,000</div>
           </div>
-          <div className="text-xs">
+          <div className="text-caption">
             <strong>Use for:</strong> Important summaries, final totals, highlighted values
           </div>
         </CardContent>
@@ -572,7 +572,7 @@ function DataDisplayTab() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-lg">Rebate Item Pattern</CardTitle>
+              <CardTitle className="text-heading-4">Rebate Item Pattern</CardTitle>
               <CardDescription>.rebate-item, .rebate-item-label, .rebate-item-value</CardDescription>
             </div>
             <Badge variant="outline">Incentives</Badge>
@@ -596,7 +596,7 @@ function DataDisplayTab() {
               </div>
             </div>
           </div>
-          <div className="text-xs">
+          <div className="text-caption">
             <strong>Use for:</strong> Rebate information, incentives, discounts
           </div>
         </CardContent>
@@ -612,8 +612,8 @@ function ButtonsTab() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-xl font-bold mb-2">Neumorphic Button System</h2>
-        <p className="text-sm text-muted-foreground">Centralized button component with dark theme neumorphism</p>
+        <h2 className="text-heading-3 mb-2">Neumorphic Button System</h2>
+        <p className="text-body-small text-muted-foreground">Centralized button component with dark theme neumorphism</p>
       </div>
 
       <div className="grid gap-6">
@@ -621,7 +621,7 @@ function ButtonsTab() {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">primary</CardTitle>
+              <CardTitle className="text-heading-4">primary</CardTitle>
               <Badge>White Border + Transparent</Badge>
             </div>
           </CardHeader>
@@ -630,13 +630,13 @@ function ButtonsTab() {
               <Button variant="primary">Instant Quote</Button>
               <Button variant="primary" disabled>Disabled</Button>
             </div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-caption text-muted-foreground">
               <div className="font-mono bg-muted/50 p-2 rounded">
                 <div>variant=&quot;primary&quot;</div>
-                <div className="text-[10px] mt-1">border border-white bg-transparent text-white shadow-neu-outset-sm hover:shadow-neu-inset-sm</div>
+                <div className="text-[10px] mt-1">border border-white bg-transparent text-foreground-secondary shadow-neu-outset-sm hover:shadow-neu-inset-sm</div>
               </div>
             </div>
-            <div className="text-xs">
+            <div className="text-caption">
               <strong>Used in:</strong> Hero (Instant Quote), Instant Quote Form (main CTAs)
             </div>
           </CardContent>
@@ -646,7 +646,7 @@ function ButtonsTab() {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">secondary</CardTitle>
+              <CardTitle className="text-heading-4">secondary</CardTitle>
               <Badge variant="outline">Filled Neumorphic</Badge>
             </div>
           </CardHeader>
@@ -655,13 +655,13 @@ function ButtonsTab() {
               <Button variant="secondary">Rebates</Button>
               <Button variant="secondary" disabled>Disabled</Button>
             </div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-caption text-muted-foreground">
               <div className="font-mono bg-muted/50 p-2 rounded">
                 <div>variant=&quot;secondary&quot;</div>
                 <div className="text-[10px] mt-1">bg-neumorphic-background text-muted-foreground shadow-neu-outset-sm hover:shadow-neu-inset-sm</div>
               </div>
             </div>
-            <div className="text-xs">
+            <div className="text-caption">
               <strong>Used in:</strong> Hero (Rebates), Instant Quote Form (Back, Next Step)
             </div>
           </CardContent>
@@ -671,7 +671,7 @@ function ButtonsTab() {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">ghost</CardTitle>
+              <CardTitle className="text-heading-4">ghost</CardTitle>
               <Badge variant="outline">Subtle</Badge>
             </div>
           </CardHeader>
@@ -680,13 +680,13 @@ function ButtonsTab() {
               <Button variant="ghost">Dashboard</Button>
               <Button variant="ghost" disabled>Disabled</Button>
             </div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-caption text-muted-foreground">
               <div className="font-mono bg-muted/50 p-2 rounded">
                 <div>variant=&quot;ghost&quot;</div>
-                <div className="text-[10px] mt-1">bg-transparent hover:bg-white/10</div>
+                <div className="text-[10px] mt-1">bg-transparent hover:bg-surface/10</div>
               </div>
             </div>
-            <div className="text-xs">
+            <div className="text-caption">
               <strong>Used in:</strong> HeaderMenu (Dashboard), QuoteOptionsModal
             </div>
           </CardContent>
@@ -696,7 +696,7 @@ function ButtonsTab() {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">outline</CardTitle>
+              <CardTitle className="text-heading-4">outline</CardTitle>
               <Badge variant="outline">Bordered</Badge>
             </div>
           </CardHeader>
@@ -705,13 +705,13 @@ function ButtonsTab() {
               <Button variant="outline">Login</Button>
               <Button variant="outline" disabled>Disabled</Button>
             </div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-caption text-muted-foreground">
               <div className="font-mono bg-muted/50 p-2 rounded">
                 <div>variant=&quot;outline&quot;</div>
                 <div className="text-[10px] mt-1">border-2 border-border bg-transparent shadow-neu-outset-sm</div>
               </div>
             </div>
-            <div className="text-xs">
+            <div className="text-caption">
               <strong>Used in:</strong> HeaderMenu (Login), ProfileManagement
             </div>
           </CardContent>
@@ -721,7 +721,7 @@ function ButtonsTab() {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">minimal</CardTitle>
+              <CardTitle className="text-heading-4">minimal</CardTitle>
               <Badge variant="outline">Text-like</Badge>
             </div>
           </CardHeader>
@@ -730,13 +730,13 @@ function ButtonsTab() {
               <Button variant="minimal">Edit Profile</Button>
               <Button variant="minimal" disabled>Disabled</Button>
             </div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-caption text-muted-foreground">
               <div className="font-mono bg-muted/50 p-2 rounded">
                 <div>variant=&quot;minimal&quot;</div>
                 <div className="text-[10px] mt-1">bg-transparent hover:text-primary shadow-none border-none</div>
               </div>
             </div>
-            <div className="text-xs">
+            <div className="text-caption">
               <strong>Used in:</strong> QuoteBuilderModal (7x), ProfileManagement (10x)
             </div>
           </CardContent>
@@ -746,7 +746,7 @@ function ButtonsTab() {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">destructive</CardTitle>
+              <CardTitle className="text-heading-4">destructive</CardTitle>
               <Badge variant="destructive">Danger</Badge>
             </div>
           </CardHeader>
@@ -755,13 +755,13 @@ function ButtonsTab() {
               <Button variant="destructive">Delete</Button>
               <Button variant="destructive" disabled>Disabled</Button>
             </div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-caption text-muted-foreground">
               <div className="font-mono bg-muted/50 p-2 rounded">
                 <div>variant=&quot;destructive&quot;</div>
                 <div className="text-[10px] mt-1">bg-destructive text-destructive-foreground shadow-lg</div>
               </div>
             </div>
-            <div className="text-xs">
+            <div className="text-caption">
               <strong>Used in:</strong> ProfileManagement (Delete actions 2x)
             </div>
           </CardContent>
@@ -789,8 +789,8 @@ function ColorsTab() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-xl font-bold mb-2">Color System</h2>
-        <p className="text-sm text-muted-foreground">All colors use CSS variables from globals.css. NEVER use hardcoded colors.</p>
+        <h2 className="text-heading-3 mb-2">Color System</h2>
+        <p className="text-body-small text-muted-foreground">All colors use CSS variables from globals.css. NEVER use hardcoded colors.</p>
       </div>
 
       <div className="grid gap-4">
@@ -800,13 +800,13 @@ function ColorsTab() {
               <div className="flex items-center gap-4">
                 <div className={`w-16 h-16 rounded-lg border ${color.class}`}></div>
                 <div className="flex-1">
-                  <div className="font-semibold">{color.name}</div>
-                  <div className="text-xs text-muted-foreground font-mono">{color.var}</div>
-                  <div className="text-xs text-muted-foreground mt-1">{color.usage}</div>
+                  <div className="">{color.name}</div>
+                  <div className="text-caption text-muted-foreground font-mono">{color.var}</div>
+                  <div className="text-caption text-muted-foreground mt-1">{color.usage}</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-xs font-mono bg-muted px-2 py-1 rounded">{color.class}</div>
-                  <div className="text-xs font-mono bg-muted px-2 py-1 rounded mt-1">text-{color.class.replace('bg-', '')}</div>
+                  <div className="text-caption font-mono bg-muted px-2 py-1 rounded">{color.class}</div>
+                  <div className="text-caption font-mono bg-muted px-2 py-1 rounded mt-1">text-{color.class.replace('bg-', '')}</div>
                 </div>
               </div>
             </CardContent>
@@ -818,8 +818,8 @@ function ColorsTab() {
         <CardContent className="p-4">
           <div className="flex items-start gap-2">
             <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
-            <div className="text-sm">
-              <strong>❌ NEVER use:</strong> bg-teal-600, bg-slate-700, text-blue-500, border-gray-300, etc.
+            <div className="text-body-small">
+              <strong>❌ NEVER use:</strong> bg-teal-600, bg-surface, text-primary, border-border, etc.
               <br />
               <strong>✅ ALWAYS use:</strong> bg-primary, bg-muted, text-foreground, border-border
             </div>
@@ -837,32 +837,32 @@ function TypographyTab() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-xl font-bold mb-2">Typography Tokens</h2>
-        <p className="text-sm text-muted-foreground">Use semantic tokens instead of raw Tailwind classes</p>
+        <h2 className="text-heading-3 mb-2">Typography Tokens</h2>
+        <p className="text-body-small text-muted-foreground">Use semantic tokens instead of raw Tailwind classes</p>
       </div>
 
       <div className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Headings</CardTitle>
+            <CardTitle className="text-heading-4">Headings</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
               <div className="border-l-4 border-primary pl-4">
-                <h1 className="text-4xl font-bold">Heading 1</h1>
-                <div className="text-xs text-muted-foreground font-mono mt-1">text-heading-1 (text-4xl font-bold)</div>
+                <h1 className="text-heading-1">Heading 1</h1>
+                <div className="text-caption text-muted-foreground font-mono mt-1">text-heading-1 (text-heading-1)</div>
               </div>
               <div className="border-l-4 border-primary pl-4">
-                <h2 className="text-3xl font-bold">Heading 2</h2>
-                <div className="text-xs text-muted-foreground font-mono mt-1">text-heading-2 (text-3xl font-bold)</div>
+                <h2 className="text-heading-1">Heading 2</h2>
+                <div className="text-caption text-muted-foreground font-mono mt-1">text-heading-2 (text-heading-1)</div>
               </div>
               <div className="border-l-4 border-primary pl-4">
-                <h3 className="text-2xl font-semibold">Heading 3</h3>
-                <div className="text-xs text-muted-foreground font-mono mt-1">text-heading-3 (text-2xl font-semibold)</div>
+                <h3 className="text-heading-2">Heading 3</h3>
+                <div className="text-caption text-muted-foreground font-mono mt-1">text-heading-3 (text-heading-2)</div>
               </div>
               <div className="border-l-4 border-primary pl-4">
-                <h4 className="text-xl font-semibold">Heading 4</h4>
-                <div className="text-xs text-muted-foreground font-mono mt-1">text-heading-4 (text-xl font-semibold)</div>
+                <h4 className="text-heading-3">Heading 4</h4>
+                <div className="text-caption text-muted-foreground font-mono mt-1">text-heading-4 (text-heading-3)</div>
               </div>
             </div>
           </CardContent>
@@ -870,21 +870,21 @@ function TypographyTab() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Body Text</CardTitle>
+            <CardTitle className="text-heading-4">Body Text</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
               <div className="border-l-4 border-muted pl-4">
-                <p className="text-base">Body text - Default size for paragraphs and content</p>
-                <div className="text-xs text-muted-foreground font-mono mt-1">text-body (text-base)</div>
+                <p className="text-body">Body text - Default size for paragraphs and content</p>
+                <div className="text-caption text-muted-foreground font-mono mt-1">text-body (text-body)</div>
               </div>
               <div className="border-l-4 border-muted pl-4">
-                <p className="text-sm">Small body text - For secondary content</p>
-                <div className="text-xs text-muted-foreground font-mono mt-1">text-body-small (text-sm)</div>
+                <p className="text-body-small">Small body text - For secondary content</p>
+                <div className="text-caption text-muted-foreground font-mono mt-1">text-body-small (text-body-small)</div>
               </div>
               <div className="border-l-4 border-muted pl-4">
-                <p className="text-xs">Caption text - For hints and metadata</p>
-                <div className="text-xs text-muted-foreground font-mono mt-1">text-caption (text-xs)</div>
+                <p className="text-caption">Caption text - For hints and metadata</p>
+                <div className="text-caption text-muted-foreground font-mono mt-1">text-caption (text-caption)</div>
               </div>
             </div>
           </CardContent>
@@ -894,8 +894,8 @@ function TypographyTab() {
           <CardContent className="p-4">
             <div className="flex items-start gap-2">
               <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
-              <div className="text-sm">
-                <strong>❌ NEVER use:</strong> text-xs, text-sm, text-2xl, text-4xl, font-bold, font-semibold directly
+              <div className="text-body-small">
+                <strong>❌ NEVER use:</strong> text-caption, text-body-small, text-heading-2, text-heading-1,, directly
                 <br />
                 <strong>✅ ALWAYS use:</strong> text-heading-*, text-body, text-caption (tokens to be defined in Tailwind config)
               </div>
@@ -940,24 +940,24 @@ function IconsTab() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-xl font-bold mb-2">Icon System</h2>
-        <p className="text-sm text-muted-foreground">All icons use lucide-react. NO inline SVGs allowed.</p>
+        <h2 className="text-heading-3 mb-2">Icon System</h2>
+        <p className="text-body-small text-muted-foreground">All icons use lucide-react. NO inline SVGs allowed.</p>
       </div>
 
       {/* Icon Sizes */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Icon Sizes</CardTitle>
+          <CardTitle className="text-heading-4">Icon Sizes</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4">
             {iconSizes.map((size) => (
               <div key={size.name} className="flex items-center gap-4 p-3 border rounded-lg">
-                <div className="w-20 font-mono text-sm font-semibold">{size.name}</div>
+                <div className="w-20 font-mono text-label">{size.name}</div>
                 <Sun className={size.class} />
                 <div className="flex-1">
-                  <div className="text-sm font-mono">{size.class}</div>
-                  <div className="text-xs text-muted-foreground">{size.px} - {size.usage}</div>
+                  <div className="text-body-small font-mono">{size.class}</div>
+                  <div className="text-caption text-muted-foreground">{size.px} - {size.usage}</div>
                 </div>
               </div>
             ))}
@@ -968,14 +968,14 @@ function IconsTab() {
       {/* Common Icons */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Common Icons (lucide-react)</CardTitle>
+          <CardTitle className="text-heading-4">Common Icons (lucide-react)</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
             {commonIcons.map(({ Icon, name }) => (
               <div key={name} className="flex flex-col items-center gap-2 p-3 border rounded-lg hover:bg-muted/50 transition-colors">
                 <Icon className="h-6 w-6" />
-                <div className="text-xs text-center font-mono">{name}</div>
+                <div className="text-caption text-center font-mono">{name}</div>
               </div>
             ))}
           </div>
@@ -986,7 +986,7 @@ function IconsTab() {
         <CardContent className="p-4">
           <div className="flex items-start gap-2">
             <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
-            <div className="text-sm">
+            <div className="text-body-small">
               <strong>❌ NEVER use:</strong> Inline &lt;svg&gt; tags
               <br />
               <strong>✅ ALWAYS use:</strong> import {'{IconName}'} from &apos;lucide-react&apos;
@@ -1011,15 +1011,15 @@ function FormsTab() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-xl font-bold mb-2">Neumorphic Form Components</h2>
-        <p className="text-sm text-muted-foreground">Centralized form components with inset shadows and consistent styling</p>
+        <h2 className="text-heading-3 mb-2">Neumorphic Form Components</h2>
+        <p className="text-body-small text-muted-foreground">Centralized form components with inset shadows and consistent styling</p>
       </div>
 
       {/* Neumorphic Input */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">Neumorphic Input</CardTitle>
+            <CardTitle className="text-heading-4">Neumorphic Input</CardTitle>
             <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">shadow-neu-inset</Badge>
           </div>
         </CardHeader>
@@ -1027,7 +1027,7 @@ function FormsTab() {
           <div className="grid md:grid-cols-2 gap-6">
             {/* Normal State */}
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-foreground">Normal Input</Label>
+              <Label className="text-body-small text-foreground">Normal Input</Label>
               <Input 
                 type="text" 
                 placeholder="Enter your email..." 
@@ -1039,7 +1039,7 @@ function FormsTab() {
 
             {/* With Label & Value */}
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-foreground">Filled Input</Label>
+              <Label className="text-body-small text-foreground">Filled Input</Label>
               <Input 
                 type="text" 
                 placeholder="Enter your name..." 
@@ -1051,18 +1051,18 @@ function FormsTab() {
 
             {/* Error State */}
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-foreground">Error State</Label>
+              <Label className="text-body-small text-foreground">Error State</Label>
               <Input 
                 type="email" 
                 placeholder="email@example.com" 
                 className="bg-background shadow-neu-inset border border-destructive/50 focus:shadow-neu-inset-sm"
               />
-              <p className="text-sm text-destructive">Please enter a valid email</p>
+              <p className="text-body-small text-destructive">Please enter a valid email</p>
             </div>
 
             {/* Disabled State */}
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-muted-foreground">Disabled Input</Label>
+              <Label className="text-body-small text-muted-foreground">Disabled Input</Label>
               <Input 
                 type="text" 
                 placeholder="Disabled..." 
@@ -1074,8 +1074,8 @@ function FormsTab() {
 
           {/* Code Example */}
           <div className="bg-background/50 p-4 rounded-xl border border-border/30">
-            <p className="text-xs text-muted-foreground font-mono mb-2">Usage:</p>
-            <pre className="text-xs text-foreground font-mono overflow-x-auto">
+            <p className="text-caption text-muted-foreground font-mono mb-2">Usage:</p>
+            <pre className="text-caption text-foreground font-mono overflow-x-auto">
 {`<Input 
   type="text" 
   placeholder="Enter text..." 
@@ -1090,7 +1090,7 @@ function FormsTab() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">Neumorphic Select</CardTitle>
+            <CardTitle className="text-heading-4">Neumorphic Select</CardTitle>
             <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">shadow-neu-inset</Badge>
           </div>
         </CardHeader>
@@ -1098,7 +1098,7 @@ function FormsTab() {
           <div className="grid md:grid-cols-2 gap-6">
             {/* Normal Select */}
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-foreground">Select Option</Label>
+              <Label className="text-body-small text-foreground">Select Option</Label>
               <div className="relative">
                 <select 
                   className="w-full px-4 py-3 bg-background rounded-xl shadow-neu-inset border border-border/50 text-foreground focus:outline-none focus:shadow-neu-inset-sm appearance-none"
@@ -1120,7 +1120,7 @@ function FormsTab() {
 
             {/* With Selection */}
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-foreground">Selected State</Label>
+              <Label className="text-body-small text-foreground">Selected State</Label>
               <div className="relative">
                 <select 
                   className="w-full px-4 py-3 bg-background rounded-xl shadow-neu-inset border border-border/50 text-foreground focus:outline-none focus:shadow-neu-inset-sm appearance-none"
@@ -1140,8 +1140,8 @@ function FormsTab() {
 
           {/* Code Example */}
           <div className="bg-background/50 p-4 rounded-xl border border-border/30">
-            <p className="text-xs text-muted-foreground font-mono mb-2">Usage:</p>
-            <pre className="text-xs text-foreground font-mono overflow-x-auto">
+            <p className="text-caption text-muted-foreground font-mono mb-2">Usage:</p>
+            <pre className="text-caption text-foreground font-mono overflow-x-auto">
 {`<select className="w-full px-4 py-3 bg-background rounded-xl shadow-neu-inset border border-border/50 text-foreground focus:outline-none focus:shadow-neu-inset-sm appearance-none">
   <option>Choose option</option>
 </select>`}
@@ -1154,7 +1154,7 @@ function FormsTab() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">Neumorphic Checkbox</CardTitle>
+            <CardTitle className="text-heading-4">Neumorphic Checkbox</CardTitle>
             <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">Interactive</Badge>
           </div>
         </CardHeader>
@@ -1164,26 +1164,26 @@ function FormsTab() {
             <div className="flex items-center gap-3">
               <div className="relative">
                 <input type="checkbox" className="peer sr-only" id="check1" />
-                <div className="w-5 h-5 bg-background rounded-md shadow-neu-inset border border-border/50 peer-checked:shadow-neu-outset peer-checked:border-primary/50 transition-all cursor-pointer flex items-center justify-center">
+                <div className="w-5 h-5 bg-background rounded-md shadow-neu-inset border border-border/50 peer-checked:shadow-neu-outset peer-checked:border-primary/50 transition-colors cursor-pointer flex items-center justify-center">
                   <svg className="w-3 h-3 text-primary opacity-0 peer-checked:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
               </div>
-              <label htmlFor="check1" className="text-sm font-medium text-foreground cursor-pointer">Unchecked State</label>
+              <label htmlFor="check1" className="text-body-small text-foreground cursor-pointer">Unchecked State</label>
             </div>
 
             {/* Checked */}
             <div className="flex items-center gap-3">
               <div className="relative">
                 <input type="checkbox" className="peer sr-only" id="check2" checked readOnly />
-                <div className="w-5 h-5 bg-background rounded-md shadow-neu-outset border border-primary/50 transition-all cursor-pointer flex items-center justify-center">
+                <div className="w-5 h-5 bg-background rounded-md shadow-neu-outset border border-primary/50 transition-colors cursor-pointer flex items-center justify-center">
                   <svg className="w-3 h-3 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
               </div>
-              <label htmlFor="check2" className="text-sm font-medium text-foreground cursor-pointer">Checked State</label>
+              <label htmlFor="check2" className="text-body-small text-foreground cursor-pointer">Checked State</label>
             </div>
           </div>
 
@@ -1199,7 +1199,7 @@ function FormsTab() {
                   onChange={(e) => setCheckboxChecked(e.target.checked)}
                 />
                 <label htmlFor="checkDemo" className={`
-                  w-5 h-5 bg-background rounded-md border transition-all cursor-pointer flex items-center justify-center
+                  w-5 h-5 bg-background rounded-md border transition-colors cursor-pointer flex items-center justify-center
                   ${checkboxChecked ? 'shadow-neu-outset border-primary/50' : 'shadow-neu-inset border-border/50'}
                 `}>
                   <svg className={`w-3 h-3 text-primary transition-opacity ${checkboxChecked ? 'opacity-100' : 'opacity-0'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1207,7 +1207,7 @@ function FormsTab() {
                   </svg>
                 </label>
               </div>
-              <label htmlFor="checkDemo" className="text-sm font-medium text-foreground cursor-pointer">
+              <label htmlFor="checkDemo" className="text-body-small text-foreground cursor-pointer">
                 Click to toggle (Interactive Demo)
               </label>
             </div>
@@ -1215,8 +1215,8 @@ function FormsTab() {
 
           {/* Code Example */}
           <div className="bg-background/50 p-4 rounded-xl border border-border/30">
-            <p className="text-xs text-muted-foreground font-mono mb-2">Usage:</p>
-            <pre className="text-xs text-foreground font-mono overflow-x-auto">
+            <p className="text-caption text-muted-foreground font-mono mb-2">Usage:</p>
+            <pre className="text-caption text-foreground font-mono overflow-x-auto">
 {`<div className="flex items-center gap-3">
   <input type="checkbox" className="peer sr-only" id="check" />
   <div className="w-5 h-5 bg-background rounded-md shadow-neu-inset border border-border/50 peer-checked:shadow-neu-outset peer-checked:border-primary/50">
@@ -1236,14 +1236,14 @@ function FormsTab() {
         <CardContent className="p-4">
           <div className="flex items-start gap-2">
             <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-            <div className="text-sm">
+            <div className="text-body-small">
               <strong className="text-primary">Neumorphic Form Best Practices:</strong>
               <ul className="mt-2 space-y-1 text-muted-foreground">
-                <li>• Always use <code className="text-xs px-1 py-0.5 bg-background rounded">shadow-neu-inset</code> for input fields</li>
-                <li>• Use <code className="text-xs px-1 py-0.5 bg-background rounded">focus:shadow-neu-inset-sm</code> for focus states</li>
+                <li>• Always use <code className="text-caption px-1 py-0.5 bg-background rounded">shadow-neu-inset</code> for input fields</li>
+                <li>• Use <code className="text-caption px-1 py-0.5 bg-background rounded">focus:shadow-neu-inset-sm</code> for focus states</li>
                 <li>• Checkbox: unchecked = inset, checked = outset</li>
-                <li>• Use centralized colors: <code className="text-xs px-1 py-0.5 bg-background rounded">bg-background</code>, <code className="text-xs px-1 py-0.5 bg-background rounded">border-border</code>, <code className="text-xs px-1 py-0.5 bg-background rounded">text-foreground</code></li>
-                <li>• Error states: <code className="text-xs px-1 py-0.5 bg-background rounded">border-destructive/50</code> + error message with <code className="text-xs px-1 py-0.5 bg-background rounded">text-destructive</code></li>
+                <li>• Use centralized colors: <code className="text-caption px-1 py-0.5 bg-background rounded">bg-background</code>, <code className="text-caption px-1 py-0.5 bg-background rounded">border-border</code>, <code className="text-caption px-1 py-0.5 bg-background rounded">text-foreground</code></li>
+                <li>• Error states: <code className="text-caption px-1 py-0.5 bg-background rounded">border-destructive/50</code> + error message with <code className="text-caption px-1 py-0.5 bg-background rounded">text-destructive</code></li>
               </ul>
             </div>
           </div>
@@ -1264,8 +1264,8 @@ function CardsTab() {
           <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
         </svg>
       ),
-      title: "Web Development",
-      description: "Crafting high-performance websites and applications with modern, scalable technologies."
+      title:"Web Development",
+      description:"Crafting high-performance websites and applications with modern, scalable technologies."
     },
     {
       icon: (
@@ -1273,8 +1273,8 @@ function CardsTab() {
           <path strokeLinecap="round" strokeLinejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.998 15.998 0 011.622-3.385m5.043.025a2.25 2.25 0 012.4-2.245 4.5 4.5 0 00-8.4 2.245c0 .399.078.78.22 1.128zm0 0a15.998 15.998 0 00-3.388 1.62m5.043-.025a15.998 15.998 0 01-1.622 3.385m1.622-3.385a2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.998 15.998 0 011.622-3.385" />
         </svg>
       ),
-      title: "UI/UX Design",
-      description: "Designing intuitive and engaging user interfaces that provide a seamless user experience."
+      title:"UI/UX Design",
+      description:"Designing intuitive and engaging user interfaces that provide a seamless user experience."
     },
     {
       icon: (
@@ -1282,24 +1282,24 @@ function CardsTab() {
           <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
         </svg>
       ),
-      title: "SEO & Marketing",
-      description: "Boosting your online presence and driving organic traffic through proven SEO strategies."
+      title:"SEO & Marketing",
+      description:"Boosting your online presence and driving organic traffic through proven SEO strategies."
     }
   ];
 
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-xl font-bold mb-2">Neumorphic Card System</h2>
-        <p className="text-sm text-muted-foreground">Centralized shadcn/ui Card with dark theme and neumorphic shadows</p>
+        <h2 className="text-heading-3 mb-2">Neumorphic Card System</h2>
+        <p className="text-body-small text-muted-foreground">Centralized shadcn/ui Card with dark theme and neumorphic shadows</p>
       </div>
 
       {/* Icon Card Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-bold">Icon Card</h3>
-            <p className="text-sm text-muted-foreground">Service cards with neumorphic icons</p>
+            <h3 className="text-heading-4">Icon Card</h3>
+            <p className="text-body-small text-muted-foreground">Service cards with neumorphic icons</p>
           </div>
           <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
             Pixel Perfect
@@ -1311,13 +1311,13 @@ function CardsTab() {
           {iconCards.map((card, index) => (
             <div 
               key={index} 
-              className="bg-background p-8 rounded-2xl shadow-neu-outset text-center transition-all duration-300 hover:shadow-neu-outset-lg"
+              className="bg-background p-8 rounded-2xl shadow-neu-outset text-center transition-colors duration-300 hover:shadow-neu-outset-lg"
             >
               <div className="w-20 h-20 rounded-full bg-background shadow-neu-inset flex items-center justify-center mx-auto mb-6 text-primary">
                 {card.icon}
               </div>
-              <h3 className="text-xl font-bold text-foreground mb-2">{card.title}</h3>
-              <p className="text-muted-foreground text-sm leading-relaxed">{card.description}</p>
+              <h3 className="text-heading-3 text-foreground mb-2">{card.title}</h3>
+              <p className="text-muted-foreground text-body-small leading-relaxed">{card.description}</p>
             </div>
           ))}
         </div>
@@ -1325,20 +1325,20 @@ function CardsTab() {
         {/* Code Usage */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Usage & Implementation</CardTitle>
+            <CardTitle className="text-heading-4">Usage & Implementation</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="text-sm font-mono bg-muted p-4 rounded-lg overflow-x-auto">
+            <div className="text-body-small font-mono bg-muted p-4 rounded-lg overflow-x-auto">
               <div className="text-primary">{`// Icon Card Structure`}</div>
               <div>&lt;div className=&quot;bg-background p-8 rounded-2xl shadow-neu-outset text-center&quot;&gt;</div>
               <div className="ml-4">&lt;div className=&quot;w-20 h-20 rounded-full bg-background shadow-neu-inset flex items-center justify-center mx-auto mb-6&quot;&gt;</div>
               <div className="ml-8">&lt;Icon className=&quot;w-8 h-8 text-primary&quot; /&gt;</div>
               <div className="ml-4">&lt;/div&gt;</div>
-              <div className="ml-4">&lt;h3 className=&quot;text-xl font-bold text-foreground mb-2&quot;&gt;Title&lt;/h3&gt;</div>
-              <div className="ml-4">&lt;p className=&quot;text-muted-foreground text-sm&quot;&gt;Description&lt;/p&gt;</div>
+              <div className="ml-4">&lt;h3 className=&quot;text-heading-3 text-foreground mb-2&quot;&gt;Title&lt;/h3&gt;</div>
+              <div className="ml-4">&lt;p className=&quot;text-muted-foreground text-body-small&quot;&gt;Description&lt;/p&gt;</div>
               <div>&lt;/div&gt;</div>
             </div>
-            <div className="text-xs space-y-2">
+            <div className="text-caption space-y-2">
               <div><strong>Used in:</strong> Services Section, Feature Cards</div>
               <div><strong>Key Classes:</strong></div>
               <ul className="list-disc list-inside ml-4 space-y-1 text-muted-foreground">
@@ -1364,7 +1364,7 @@ function CardsTab() {
 
       {/* Standard Cards */}
       <div className="space-y-4">
-        <h3 className="text-lg font-bold">Standard Cards</h3>
+        <h3 className="text-heading-4">Standard Cards</h3>
         <div className="grid md:grid-cols-2 gap-6">
           {/* Standard Card */}
           <Card>
@@ -1373,7 +1373,7 @@ function CardsTab() {
               <CardDescription>Default card with border</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">Uses border-border, bg-card, rounded-xl</p>
+              <p className="text-body-small text-muted-foreground">Uses border-border, bg-card, rounded-xl</p>
             </CardContent>
           </Card>
 
@@ -1384,7 +1384,7 @@ function CardsTab() {
               <CardDescription>With shadow-neu-outset</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">Add shadow-neu-outset class for depth</p>
+              <p className="text-body-small text-muted-foreground">Add shadow-neu-outset class for depth</p>
             </CardContent>
           </Card>
         </div>
@@ -1392,16 +1392,16 @@ function CardsTab() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Usage Guidelines</CardTitle>
+          <CardTitle className="text-heading-4">Usage Guidelines</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="text-sm font-mono bg-muted p-3 rounded-lg">
+          <div className="text-body-small font-mono bg-muted p-3 rounded-lg">
             <div>&lt;Card&gt; or &lt;Card className=&quot;shadow-neu-outset&quot;&gt;</div>
             <div className="ml-4">&lt;CardHeader&gt;&lt;CardTitle&gt;...&lt;/CardTitle&gt;&lt;/CardHeader&gt;</div>
             <div className="ml-4">&lt;CardContent&gt;...&lt;/CardContent&gt;</div>
             <div>&lt;/Card&gt;</div>
           </div>
-          <div className="text-xs space-y-1">
+          <div className="text-caption space-y-1">
             <div><strong>Used in:</strong> Instant Quote Form, Admin Dashboard, Profile Management</div>
             <div><strong>Classes:</strong> bg-card, border-border, rounded-xl</div>
           </div>
@@ -1411,8 +1411,8 @@ function CardsTab() {
       {/* Neumorphic Alerts */}
       <div className="space-y-4">
         <div>
-          <h3 className="text-lg font-bold">Neumorphic Alerts</h3>
-          <p className="text-sm text-muted-foreground">Status messages with neumorphic inset style</p>
+          <h3 className="text-heading-4">Neumorphic Alerts</h3>
+          <p className="text-body-small text-muted-foreground">Status messages with neumorphic inset style</p>
         </div>
 
         <div className="space-y-4">
@@ -1421,8 +1421,8 @@ function CardsTab() {
             <div className="flex items-start gap-3">
               <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5 text-destructive" />
               <div className="flex-1">
-                <h4 className="font-semibold mb-1 text-destructive">Error</h4>
-                <div className="text-sm text-destructive/90">
+                <h4 className="mb-1 text-destructive">Error</h4>
+                <div className="text-body-small text-destructive/90">
                   Something went wrong. Please try again later.
                 </div>
               </div>
@@ -1434,8 +1434,8 @@ function CardsTab() {
             <div className="flex items-start gap-3">
               <CheckCircle2 className="h-5 w-5 flex-shrink-0 mt-0.5 text-success" />
               <div className="flex-1">
-                <h4 className="font-semibold mb-1 text-success">Success</h4>
-                <div className="text-sm text-success/90">
+                <h4 className="mb-1 text-success">Success</h4>
+                <div className="text-body-small text-success/90">
                   Your changes have been saved successfully.
                 </div>
               </div>
@@ -1447,8 +1447,8 @@ function CardsTab() {
             <div className="flex items-start gap-3">
               <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5 text-warning" />
               <div className="flex-1">
-                <h4 className="font-semibold mb-1 text-warning">Warning</h4>
-                <div className="text-sm text-warning/90">
+                <h4 className="mb-1 text-warning">Warning</h4>
+                <div className="text-body-small text-warning/90">
                   This action cannot be undone. Please proceed with caution.
                 </div>
               </div>
@@ -1460,8 +1460,8 @@ function CardsTab() {
             <div className="flex items-start gap-3">
               <Circle className="h-5 w-5 flex-shrink-0 mt-0.5 text-info" />
               <div className="flex-1">
-                <h4 className="font-semibold mb-1 text-info">Information</h4>
-                <div className="text-sm text-info/90">
+                <h4 className="mb-1 text-info">Information</h4>
+                <div className="text-body-small text-info/90">
                   New features are now available. Check out the latest updates.
                 </div>
               </div>
@@ -1471,14 +1471,14 @@ function CardsTab() {
 
         {/* Alert Code Example */}
         <div className="bg-background/50 p-4 rounded-xl border border-border/30">
-          <p className="text-xs text-muted-foreground font-mono mb-2">Usage:</p>
-          <pre className="text-xs text-foreground font-mono overflow-x-auto">
+          <p className="text-caption text-muted-foreground font-mono mb-2">Usage:</p>
+          <pre className="text-caption text-foreground font-mono overflow-x-auto">
 {`<div className="rounded-xl p-4 border bg-background shadow-neu-inset bg-destructive/10 border-destructive/30">
   <div className="flex items-start gap-3">
     <AlertCircle className="h-5 w-5 text-destructive" />
     <div>
-      <h4 className="font-semibold text-destructive">Error</h4>
-      <p className="text-sm text-destructive/90">Error message</p>
+      <h4 className="text-destructive">Error</h4>
+      <p className="text-body-small text-destructive/90">Error message</p>
     </div>
   </div>
 </div>`}
@@ -1489,10 +1489,10 @@ function CardsTab() {
       {/* Reserved Space */}
       <Card className="border-dashed">
         <CardHeader>
-          <CardTitle className="text-lg text-muted-foreground">More Card Styles (Reserved)</CardTitle>
+          <CardTitle className="text-heading-4 text-muted-foreground">More Card Styles (Reserved)</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">Space reserved for hover effects, interactive cards, and custom variants.</p>
+          <p className="text-body-small text-muted-foreground">Space reserved for hover effects, interactive cards, and custom variants.</p>
         </CardContent>
       </Card>
     </div>
@@ -1516,23 +1516,23 @@ function SpacingTab() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-xl font-bold mb-2">Spacing Scale</h2>
-        <p className="text-sm text-muted-foreground">Consistent spacing using Tailwind default scale</p>
+        <h2 className="text-heading-3 mb-2">Spacing Scale</h2>
+        <p className="text-body-small text-muted-foreground">Consistent spacing using Tailwind default scale</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Spacing Values</CardTitle>
+          <CardTitle className="text-heading-4">Spacing Values</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             {spacing.map((s) => (
               <div key={s.name} className="flex items-center gap-4 p-3 border rounded-lg">
-                <div className="w-24 font-mono text-sm font-semibold">{s.name}</div>
+                <div className="w-24 font-mono text-label">{s.name}</div>
                 <div className="bg-primary rounded" style={{ width: s.value, height: '24px' }}></div>
                 <div className="flex-1">
-                  <div className="text-sm font-mono">{s.value}</div>
-                  <div className="text-xs text-muted-foreground">{s.usage}</div>
+                  <div className="text-body-small font-mono">{s.value}</div>
+                  <div className="text-caption text-muted-foreground">{s.usage}</div>
                 </div>
               </div>
             ))}
@@ -1542,20 +1542,20 @@ function SpacingTab() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Common Patterns</CardTitle>
+          <CardTitle className="text-heading-4">Common Patterns</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="border rounded-lg p-4 space-y-2">
-            <div className="font-semibold text-sm">Card Padding</div>
-            <div className="text-xs text-muted-foreground font-mono">p-4 or p-6 (CardContent default)</div>
+            <div className="text-body-small">Card Padding</div>
+            <div className="text-caption text-muted-foreground font-mono">p-4 or p-6 (CardContent default)</div>
           </div>
           <div className="border rounded-lg p-4 space-y-2">
-            <div className="font-semibold text-sm">Section Spacing</div>
-            <div className="text-xs text-muted-foreground font-mono">py-12 or py-16 for major sections</div>
+            <div className="text-body-small">Section Spacing</div>
+            <div className="text-caption text-muted-foreground font-mono">py-12 or py-16 for major sections</div>
           </div>
           <div className="border rounded-lg p-4 space-y-2">
-            <div className="font-semibold text-sm">Button Spacing</div>
-            <div className="text-xs text-muted-foreground font-mono">gap-2 or gap-4 between buttons</div>
+            <div className="text-body-small">Button Spacing</div>
+            <div className="text-caption text-muted-foreground font-mono">gap-2 or gap-4 between buttons</div>
           </div>
         </CardContent>
       </Card>

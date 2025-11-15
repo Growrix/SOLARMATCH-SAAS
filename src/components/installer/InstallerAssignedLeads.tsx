@@ -6,7 +6,7 @@
  * Purpose: Display leads assigned to installer by admin
  * Features:
  * - Fetch assigned leads from GET /api/leads?assigned=true
- * - Show "Admin Assigned" badge
+ * - Show"Admin Assigned" badge
  * - Display assignment metadata (date, notes)
  * - Accept assignment button (bypasses payment)
  * - View lead details
@@ -99,23 +99,23 @@ export default function InstallerAssignedLeads() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <svg className="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <svg className="animate-spin h-8 w-8 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
-        <span className="ml-3 text-muted-foreground dark:text-gray-400">Loading assigned leads...</span>
+        <span className="ml-3 text-muted-foreground">Loading assigned leads...</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="rounded-lg bg-red-50 dark:bg-red-900/20 p-6 border border-red-200 dark:border-red-800">
-        <p className="text-red-800 dark:text-red-300 font-medium">Error loading assigned leads</p>
-        <p className="text-red-600 dark:text-red-400 text-sm mt-1">{error}</p>
+      <div className="rounded-lg bg-error/10 p-6 border border-error">
+        <p className="text-error">Error loading assigned leads</p>
+        <p className="text-error text-body-small mt-1">{error}</p>
         <button
           onClick={fetchAssignedLeads}
-          className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm"
+          className="mt-4 px-4 py-2 bg-error text-foreground-secondary rounded-lg hover:bg-error text-body-small"
         >
           Retry
         </button>
@@ -125,9 +125,9 @@ export default function InstallerAssignedLeads() {
 
   if (leads.length === 0) {
     return (
-      <div className="text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+      <div className="text-center py-12 bg-surface rounded-lg border border-border">
         <svg
-          className="mx-auto h-16 w-16 text-gray-400 dark:text-muted-foreground"
+          className="mx-auto h-16 w-16 text-gray-400"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -139,8 +139,8 @@ export default function InstallerAssignedLeads() {
             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
           />
         </svg>
-        <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">No Assigned Leads</h3>
-        <p className="mt-2 text-sm text-muted-foreground dark:text-gray-400">
+        <h3 className="mt-4 text-heading-4 text-foreground">No Assigned Leads</h3>
+        <p className="mt-2 text-body-small text-muted-foreground">
           You don&apos;t have any leads assigned by admin at the moment.
         </p>
       </div>
@@ -152,14 +152,14 @@ export default function InstallerAssignedLeads() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <h2 className="text-heading-2 text-foreground">
             Assigned Leads
           </h2>
-          <p className="text-sm text-muted-foreground dark:text-gray-400 mt-1">
+          <p className="text-body-small text-muted-foreground mt-1">
             Leads assigned to you by the admin team
           </p>
         </div>
-        <span className="px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full text-sm font-medium">
+        <span className="px-4 py-2 bg-primary/20 text-primary rounded-full text-body-small">
           {leads.length} Lead{leads.length !== 1 ? 's' : ''}
         </span>
       </div>
@@ -169,25 +169,25 @@ export default function InstallerAssignedLeads() {
         {leads.map((lead) => (
           <div
             key={lead.id}
-            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow"
+            className="bg-surface rounded-lg border border-border overflow-hidden hover:shadow-lg transition-shadow"
           >
             {/* Header with badges */}
-            <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-b border-gray-200 dark:border-gray-700">
+            <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-border">
               <div className="flex items-center justify-between mb-2">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-600 text-white">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-caption bg-primary text-foreground-secondary">
                   🎯 Admin Assigned
                 </span>
                 {lead.assignmentMode === 'exclusive' ? (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-caption bg-emerald-100 text-emerald-800">
                     Exclusive
                   </span>
                 ) : (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-caption bg-orange-100 text-orange-800">
                     Competitive {lead.competitorCount && `(${lead.competitorCount})`}
                   </span>
                 )}
               </div>
-              <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">
+              <p className="text-body-small text-gray-700">
                 {lead.projectType} - {lead.propertyType}
               </p>
             </div>
@@ -200,8 +200,8 @@ export default function InstallerAssignedLeads() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
                 <div className="flex-1">
-                  <p className="text-sm text-muted-foreground dark:text-gray-400">Location</p>
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  <p className="text-body-small text-muted-foreground">Location</p>
+                  <p className="text-body-small text-foreground">
                     {lead.location}, {lead.state} - {lead.postcode}
                   </p>
                 </div>
@@ -212,8 +212,8 @@ export default function InstallerAssignedLeads() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <div className="flex-1">
-                  <p className="text-sm text-muted-foreground dark:text-gray-400">Budget</p>
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  <p className="text-body-small text-muted-foreground">Budget</p>
+                  <p className="text-body-small text-foreground">
                     {lead.budgetRange}
                   </p>
                 </div>
@@ -224,30 +224,30 @@ export default function InstallerAssignedLeads() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
                 <div className="flex-1">
-                  <p className="text-sm text-muted-foreground dark:text-gray-400">Energy Bill</p>
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  <p className="text-body-small text-muted-foreground">Energy Bill</p>
+                  <p className="text-body-small text-foreground">
                     £{lead.energyBill.toFixed(2)}
                   </p>
                 </div>
               </div>
 
               {lead.batteryRequired && (
-                <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">
+                <span className="inline-flex items-center px-2 py-1 rounded-md text-caption bg-accent/20 text-purple-800">
                   🔋 Battery Required
                 </span>
               )}
 
               {/* Assignment Info */}
-              <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
-                <p className="text-xs text-muted-foreground dark:text-gray-400">
-                  Assigned by <span className="font-medium">{lead.assignedByName}</span>
+              <div className="pt-3 border-t border-border">
+                <p className="text-caption text-muted-foreground">
+                  Assigned by <span className="">{lead.assignedByName}</span>
                 </p>
-                <p className="text-xs text-muted-foreground dark:text-muted-foreground">
+                <p className="text-caption text-muted-foreground">
                   {format(new Date(lead.assignedAt), 'MMM d, yyyy h:mm a')}
                 </p>
                 {lead.assignmentNotes && (
-                  <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-900 rounded text-xs text-gray-700 dark:text-gray-300">
-                    <p className="font-medium mb-1">Admin Notes:</p>
+                  <div className="mt-2 p-2 bg-surface rounded text-caption text-gray-700">
+                    <p className="mb-1">Admin Notes:</p>
                     <p>{lead.assignmentNotes}</p>
                   </div>
                 )}
@@ -255,7 +255,7 @@ export default function InstallerAssignedLeads() {
 
               {/* Expiry Warning */}
               {lead.expiresAt && (
-                <div className="flex items-center gap-2 text-xs text-orange-600 dark:text-orange-400">
+                <div className="flex items-center gap-2 text-caption text-warning">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -265,12 +265,12 @@ export default function InstallerAssignedLeads() {
             </div>
 
             {/* Actions */}
-            <div className="p-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 space-y-2">
+            <div className="p-4 bg-surface border-t border-border space-y-2">
               {lead.assignmentStatus === 'pending' ? (
                 <button
                   onClick={() => handleAcceptAssignment(lead.id)}
                   disabled={acceptingId === lead.id}
-                  className="w-full px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm flex items-center justify-center gap-2"
+                  className="w-full px-4 py-2 bg-emerald-500 text-foreground-secondary rounded-lg hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed text-body-small flex items-center justify-center gap-2"
                 >
                   {acceptingId === lead.id ? (
                     <>
@@ -289,7 +289,7 @@ export default function InstallerAssignedLeads() {
               ) : (
                 <button
                   onClick={() => handleViewDetails(lead.id)}
-                  className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-medium text-sm"
+                  className="w-full px-4 py-2 bg-primary text-foreground-secondary rounded-lg hover:bg-primary text-body-small"
                 >
                   View Details
                 </button>

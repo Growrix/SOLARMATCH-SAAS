@@ -7,13 +7,13 @@
  * - Updates user.phoneVerified on success
  */
 
-import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { phoneVerificationService } from "@/lib/services/phone-verification-service";
-import { createAuditLog } from "@/lib/services/audit-logger";
-import { createNotification } from "@/lib/services/notification-service";
-import { prisma } from "@/lib/prisma";
+import { NextRequest, NextResponse } from"next/server";
+import { getServerSession } from"next-auth";
+import { authOptions } from"@/lib/auth";
+import { phoneVerificationService } from"@/lib/services/phone-verification-service";
+import { createAuditLog } from"@/lib/services/audit-logger";
+import { createNotification } from"@/lib/services/notification-service";
+import { prisma } from"@/lib/prisma";
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { error:"Unauthorized" },
         { status: 401 }
       );
     }
@@ -33,14 +33,14 @@ export async function POST(request: NextRequest) {
     // Validate input
     if (!verificationId || typeof verificationId !== 'string') {
       return NextResponse.json(
-        { error: "Verification ID is required" },
+        { error:"Verification ID is required" },
         { status: 400 }
       );
     }
 
     if (!code || typeof code !== 'string' || !/^\d{6}$/.test(code)) {
       return NextResponse.json(
-        { error: "Invalid code format. Must be 6 digits." },
+        { error:"Invalid code format. Must be 6 digits." },
         { status: 400 }
       );
     }
@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "Phone number verified successfully",
+      message:"Phone number verified successfully",
       phoneNumber: result.phoneNumber,
       leadsUpdated: updatedLeads.count // Phase 4.13: Return count of updated leads
     });
@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { 
         success: false,
-        error: "Failed to verify OTP. Please try again." 
+        error:"Failed to verify OTP. Please try again." 
       },
       { status: 500 }
     );

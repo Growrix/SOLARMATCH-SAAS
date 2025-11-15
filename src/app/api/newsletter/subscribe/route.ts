@@ -7,9 +7,9 @@
 // - Next.js uses file-based routing for APIs
 // - This file: src/app/api/newsletter/subscribe/route.ts
 // - Creates endpoint: http://localhost:3000/api/newsletter/subscribe
-// - The file MUST be named "route.ts" (Next.js convention)
+// - The file MUST be named"route.ts" (Next.js convention)
 //
-// TEACHING NOTE: API routes are "server-side" code. They run on the server,
+// TEACHING NOTE: API routes are"server-side" code. They run on the server,
 // not in the browser. This means they can safely access databases and secrets.
 // ============================================================================
 
@@ -36,21 +36,21 @@ import { prisma } from '@/lib/prisma';
 // ============================================================================
 
 export async function POST(request: Request) {
-  // TEACHING NOTE: "async" means this function can "await" promises
+  // TEACHING NOTE:"async" means this function can"await" promises
   // Database operations take time, so we use await to wait for them
   
   try {
     // TRY-CATCH BLOCK
     // TEACHING NOTE: Wraps risky code (database calls, network requests)
-    // If anything fails, the "catch" block handles the error gracefully
+    // If anything fails, the"catch" block handles the error gracefully
     
     // --------------------------------------------------------------------------
     // STEP 1: EXTRACT EMAIL FROM REQUEST BODY
     // --------------------------------------------------------------------------
     const body = await request.json();
     // TEACHING NOTE: request.json() converts the HTTP body into a JavaScript object
-    // If the frontend sends: { "email": "user@example.com" }
-    // This becomes: body = { email: "user@example.com" }
+    // If the frontend sends: {"email":"user@example.com" }
+    // This becomes: body = { email:"user@example.com" }
     
     const { email } = body;
     // TEACHING NOTE: Destructuring - extracts email from body object
@@ -67,7 +67,7 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-    // TEACHING NOTE: 400 = "Bad Request" (client sent invalid data)
+    // TEACHING NOTE: 400 ="Bad Request" (client sent invalid data)
     // The function stops here and sends this response immediately
     
     // Check email format with comprehensive regex
@@ -109,7 +109,7 @@ export async function POST(request: Request) {
       where: { email },
     });
     // TEACHING NOTE: findUnique() searches for ONE record by a unique field
-    // "where: { email }" is shorthand for "where: { email: email }"
+    //"where: { email }" is shorthand for"where: { email: email }"
     // Returns the subscriber if found, or null if not found
     
     if (existing) {
@@ -126,7 +126,7 @@ export async function POST(request: Request) {
           },
         });
         // TEACHING NOTE: update() changes existing data
-        // "data" is what we want to change
+        //"data" is what we want to change
         // new Date() creates a timestamp of right now
         
         return NextResponse.json({
@@ -141,7 +141,7 @@ export async function POST(request: Request) {
         { error: 'This email is already subscribed' },
         { status: 409 }
       );
-      // TEACHING NOTE: 409 = "Conflict" (resource already exists)
+      // TEACHING NOTE: 409 ="Conflict" (resource already exists)
     }
     
     // --------------------------------------------------------------------------
@@ -151,13 +151,13 @@ export async function POST(request: Request) {
       data: { email },
     });
     // TEACHING NOTE: create() adds a new record to the database
-    // We only need to provide "email" because:
+    // We only need to provide"email" because:
     // - id is auto-generated (@default(cuid()))
     // - subscribedAt is auto-set (@default(now()))
     // - isActive is auto-set to true (@default(true))
     // - unsubscribedAt is optional (null by default)
     
-    // The returned "subscriber" object contains all fields including generated ones
+    // The returned"subscriber" object contains all fields including generated ones
     
     // --------------------------------------------------------------------------
     // STEP 5: SEND SUCCESS RESPONSE
@@ -186,7 +186,7 @@ export async function POST(request: Request) {
       { error: 'Something went wrong. Please try again.' },
       { status: 500 }
     );
-    // TEACHING NOTE: 500 = "Internal Server Error" (something broke on our end)
+    // TEACHING NOTE: 500 ="Internal Server Error" (something broke on our end)
     // Never expose the actual error details to users (security risk!)
   }
 }
@@ -273,13 +273,13 @@ export async function GET() {
 //
 // Option 3: Use curl (command line)
 // curl -X POST http://localhost:3000/api/newsletter/subscribe \
-//   -H "Content-Type: application/json" \
+//   -H"Content-Type: application/json" \
 //   -d '{"email":"test@example.com"}'
 //
 // Option 4: Use Postman or Thunder Client (VS Code extension)
 // - Create new POST request
 // - URL: http://localhost:3000/api/newsletter/subscribe
-// - Body: { "email": "test@example.com" }
+// - Body: {"email":"test@example.com" }
 // - Send!
 // ============================================================================
 

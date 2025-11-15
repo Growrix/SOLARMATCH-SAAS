@@ -123,7 +123,7 @@ export default function InstallerMarketplace() {
           throw new Error(errorData.error || 'Failed to confirm purchase');
         }
 
-        alert(`✅ Lead purchased successfully! (Dev mode - no payment required)\n\nYou can now view the full contact details in "My Purchased Leads".`);
+        alert(`✅ Lead purchased successfully! (Dev mode - no payment required)\n\nYou can now view the full contact details in"My Purchased Leads".`);
         
         // Refresh leads list
         fetchMarketplaceLeads();
@@ -149,10 +149,10 @@ export default function InstallerMarketplace() {
   if (loading) {
     return (
       <div className="animate-pulse">
-        <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded w-1/3 mb-6"></div>
+        <div className="h-8 bg-slate-200 rounded w-1/3 mb-6"></div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map(i => (
-            <div key={i} className="h-64 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
+            <div key={i} className="h-64 bg-slate-200 rounded-lg"></div>
           ))}
         </div>
       </div>
@@ -161,8 +161,8 @@ export default function InstallerMarketplace() {
 
   if (error) {
     return (
-      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
-        <p className="text-red-800 dark:text-red-200">Error: {error}</p>
+      <div className="bg-error/10 border border-error rounded-lg p-6">
+        <p className="text-error">Error: {error}</p>
       </div>
     );
   }
@@ -171,23 +171,23 @@ export default function InstallerMarketplace() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+        <h1 className="text-heading-2 text-foreground mb-2">
           Lead Marketplace
         </h1>
-        <p className="text-slate-600 dark:text-slate-400">
+        <p className="text-muted">
           Browse and purchase available solar installation leads
         </p>
       </div>
 
       {/* Verification Warning */}
       {!session?.user?.installerVerified && (
-        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 flex items-start space-x-3">
-          <ShieldCheckIcon className="h-6 w-6 text-yellow-600 dark:text-yellow-400 flex-shrink-0" />
+        <div className="bg-warning/10 border border-warning rounded-lg p-4 flex items-start space-x-3">
+          <ShieldCheckIcon className="h-6 w-6 text-warning flex-shrink-0" />
           <div>
-            <h3 className="text-sm font-semibold text-yellow-900 dark:text-yellow-100">
+            <h3 className="text-label text-warning">
               Verification Required
             </h3>
-            <p className="text-sm text-yellow-800 dark:text-yellow-200 mt-1">
+            <p className="text-body-small text-warning mt-1">
               You must complete installer verification before purchasing leads.
             </p>
           </div>
@@ -200,10 +200,10 @@ export default function InstallerMarketplace() {
           <button
             key={filterType}
             onClick={() => setFilter(filterType)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            className={`px-4 py-2 rounded-lg text-body-small transition-colors ${
               filter === filterType
-                ? 'bg-blue-600 text-white'
-                : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700'
+                ? 'bg-primary text-foreground-secondary'
+                : 'bg-surface text-foreground border border-border hover:bg-slate-50'
             }`}
           >
             {filterType.replace('_', ' ')}
@@ -213,12 +213,12 @@ export default function InstallerMarketplace() {
 
       {/* Leads Grid */}
       {filteredLeads.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
-          <SparklesIcon className="h-12 w-12 text-slate-400 mx-auto mb-3" />
-          <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-1">
+        <div className="text-center py-12 bg-surface rounded-lg border border-border">
+          <SparklesIcon className="h-12 w-12 text-muted mx-auto mb-3" />
+          <h3 className="text-heading-4 text-foreground mb-1">
             No leads available
           </h3>
-          <p className="text-slate-500 dark:text-slate-400">
+          <p className="text-muted">
             Check back soon for new leads
           </p>
         </div>
@@ -227,7 +227,7 @@ export default function InstallerMarketplace() {
           {filteredLeads.map((lead) => (
             <div
               key={lead.id}
-              className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden hover:shadow-lg transition-shadow"
+              className="bg-surface rounded-lg border border-border overflow-hidden hover:shadow-lg transition-shadow"
             >
               {/* Countdown Bar */}
               {lead.expiresAt && (
@@ -241,35 +241,35 @@ export default function InstallerMarketplace() {
               <div className="p-6 space-y-4">
                 {/* Quote Type Badge */}
                 <div className="flex items-center justify-between">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-caption bg-primary/20 text-primary">
                     {lead.quoteType.replace('_', ' ')}
                   </span>
                 </div>
 
                 {/* Contact Info (Masked) */}
-                <div className="flex items-center space-x-2 text-slate-600 dark:text-slate-400">
+                <div className="flex items-center space-x-2 text-muted">
                   <EyeSlashIcon className="h-5 w-5 flex-shrink-0" />
-                  <span className="text-sm">
+                  <span className="text-body-small">
                     Homeowner: {lead.homeowner.name.split(' ')[0]}***
                   </span>
                 </div>
 
                 {/* Location */}
                 {lead.location && (
-                  <div className="flex items-center space-x-2 text-slate-600 dark:text-slate-400">
+                  <div className="flex items-center space-x-2 text-muted">
                     <MapPinIcon className="h-5 w-5 flex-shrink-0" />
-                    <span className="text-sm">{lead.location}</span>
+                    <span className="text-body-small">{lead.location}</span>
                   </div>
                 )}
 
                 {/* Price */}
-                <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700">
+                <div className="flex items-center justify-between pt-4 border-t border-border">
                   <div className="flex items-center space-x-2">
-                    <CurrencyPoundIcon className="h-6 w-6 text-success dark:text-green-400" />
-                    <span className="text-2xl font-bold text-slate-900 dark:text-white">
+                    <CurrencyPoundIcon className="h-6 w-6 text-success" />
+                    <span className="text-heading-2 text-foreground">
                       {lead.leadPrice || 25}
                     </span>
-                    <span className="text-sm text-slate-500 dark:text-slate-400">per lead</span>
+                    <span className="text-body-small text-muted">per lead</span>
                   </div>
                 </div>
 
@@ -277,12 +277,12 @@ export default function InstallerMarketplace() {
                 <button
                   onClick={() => handlePurchase(lead.id)}
                   disabled={purchasing === lead.id || !session?.user?.installerVerified}
-                  className={`w-full py-3 px-4 rounded-lg font-semibold transition-colors ${
+                  className={`w-full py-3 px-4 rounded-lg transition-colors ${
                     !session?.user?.installerVerified
-                      ? 'bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed'
+                      ? 'bg-slate-300 text-muted cursor-not-allowed'
                       : purchasing === lead.id
-                      ? 'bg-blue-400 text-white cursor-wait'
-                      : 'bg-blue-600 hover:bg-blue-700 text-white'
+                      ? 'bg-blue-400 text-foreground-secondary cursor-wait'
+                      : 'bg-primary hover:bg-primary text-foreground-secondary'
                   }`}
                 >
                   {purchasing === lead.id ? 'Processing...' : 'Purchase Lead'}
@@ -295,8 +295,8 @@ export default function InstallerMarketplace() {
 
       {/* Dev Mode Notice */}
       {process.env.NEXT_PUBLIC_STRIPE_BYPASS === 'true' && (
-        <div className="text-center py-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-          <p className="text-sm text-blue-800 dark:text-blue-200">
+        <div className="text-center py-3 bg-primary/10 border border-primary rounded-lg">
+          <p className="text-body-small text-primary">
             🔧 <strong>Dev Mode:</strong> Purchases are simulated without payment
           </p>
         </div>

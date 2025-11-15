@@ -5,9 +5,9 @@
 // Creates a new installer account with business details
 // ============================================================================
 
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import bcrypt from "bcryptjs";
+import { NextRequest, NextResponse } from"next/server";
+import { prisma } from"@/lib/prisma";
+import bcrypt from"bcryptjs";
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     // Check required fields (minimal signup per Part A spec)
     if (!email || !password) {
       return NextResponse.json(
-        { error: "Email and password are required" },
+        { error:"Email and password are required" },
         { status: 400 }
       );
     }
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return NextResponse.json(
-        { error: "Invalid email format" },
+        { error:"Invalid email format" },
         { status: 400 }
       );
     }
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     // Validate password strength
     if (password.length < 8) {
       return NextResponse.json(
-        { error: "Password must be at least 8 characters long" },
+        { error:"Password must be at least 8 characters long" },
         { status: 400 }
       );
     }
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     if (!hasNumber || !hasLetter) {
       return NextResponse.json(
         { 
-          error: "Password must contain at least one letter and one number" 
+          error:"Password must contain at least one letter and one number" 
         },
         { status: 400 }
       );
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
 
     if (existingUser) {
       return NextResponse.json(
-        { error: "An account with this email already exists" },
+        { error:"An account with this email already exists" },
         { status: 409 } // 409 Conflict
       );
     }
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
       data: {
         email: email.toLowerCase(),
         password: hashedPassword,
-        role: "INSTALLER", // Set role as INSTALLER
+        role:"INSTALLER", // Set role as INSTALLER
         isActive: true,
         // name, companyName, phone, businessAddress, postcode → deferred to onboarding
       },
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        message: "Installer account created successfully",
+        message:"Installer account created successfully",
         user: {
           id: user.id,
           email: user.email,
@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json(
       { 
-        error: "An error occurred during registration. Please try again." 
+        error:"An error occurred during registration. Please try again." 
       },
       { status: 500 }
     );

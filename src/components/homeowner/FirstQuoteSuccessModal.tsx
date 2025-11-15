@@ -24,7 +24,7 @@ const ShieldCheckIcon = () => (
 );
 
 const InfoIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-blue-500">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-primary">
     <circle cx="12" cy="12" r="10" />
     <path d="M12 16v-4" />
     <path d="M12 8h.01" />
@@ -68,7 +68,7 @@ const FirstQuoteSuccessModal: React.FC<FirstQuoteSuccessModalProps> = ({
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors z-10"
+          className="absolute top-4 right-4 text-muted hover:text-muted transition-colors z-10"
           aria-label="Close"
         >
           <XIcon />
@@ -77,30 +77,30 @@ const FirstQuoteSuccessModal: React.FC<FirstQuoteSuccessModalProps> = ({
         {/* Success Icon */}
         <div className="flex flex-col items-center justify-center pt-8 pb-6">
           <CheckCircleIcon />
-          <h2 className="text-3xl font-bold text-slate-900 dark:text-white mt-4 mb-2">
+          <h2 className="text-heading-1 text-foreground mt-4 mb-2">
             Quote Request Submitted Successfully!
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 text-center max-w-lg">
+          <p className="text-muted text-center max-w-lg">
             We&apos;re matching you with verified solar installers in your area. You&apos;ll receive quotes soon.
           </p>
         </div>
 
         {/* Remaining Balance Card */}
-        <div className="mx-6 mb-6 p-6 bg-gradient-to-br from-blue-50 to-teal-50 dark:from-blue-900/20 dark:to-teal-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+        <div className="mx-6 mb-6 p-6 bg-gradient-to-br from-blue-50 to-teal-50 rounded-xl border border-primary">
           <div className="flex items-start justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">
+              <h3 className="text-heading-4 text-foreground mb-1">
                 Remaining Quote Balance
               </h3>
-              <p className="text-slate-600 dark:text-slate-400 text-sm">
+              <p className="text-muted text-body-small">
                 You can submit more free quote requests
               </p>
             </div>
             <div className="text-right">
-              <div className="text-4xl font-bold text-primary">
+              <div className="text-heading-1 text-primary">
                 {remainingQuotes}
               </div>
-              <div className="text-sm text-slate-500 dark:text-slate-400">
+              <div className="text-body-small text-muted">
                 of {totalQuoteLimit} total
               </div>
             </div>
@@ -110,21 +110,21 @@ const FirstQuoteSuccessModal: React.FC<FirstQuoteSuccessModalProps> = ({
         {/* Information Cards */}
         <div className="mx-6 mb-6 space-y-4">
           {/* Verification Benefits */}
-          <div className="p-5 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-200 dark:border-emerald-800">
+          <div className="p-5 bg-emerald-50 rounded-xl border border-emerald-200">
             <div className="flex items-start space-x-3">
               <div className="mt-0.5">
                 <ShieldCheckIcon />
               </div>
               <div className="flex-1">
-                <h4 className="font-semibold text-slate-900 dark:text-white mb-2">
+                <h4 className="text-foreground mb-2">
                   Verify Your Contact Number for More Free Quotes
                 </h4>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+                <p className="text-body-small text-muted mb-3">
                   Verify your phone number to unlock additional free quote requests and get priority matching with installers.
                 </p>
                 <button
                   onClick={onVerifyContact}
-                  className="inline-flex items-center space-x-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg font-medium transition-all"
+                  className="inline-flex items-center space-x-2 bg-emerald-500 hover:bg-emerald-600 text-foreground-secondary px-4 py-2 rounded-lg transition-colors"
                 >
                   <ShieldCheckIcon />
                   <span>Verify Contact Number</span>
@@ -135,16 +135,16 @@ const FirstQuoteSuccessModal: React.FC<FirstQuoteSuccessModalProps> = ({
 
           {/* Bidding Info (only for Written Quotes) */}
           {quoteType === 'WRITTEN_QUOTE' && (
-            <div className="p-5 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+            <div className="p-5 bg-primary/10 rounded-xl border border-primary">
               <div className="flex items-start space-x-3">
                 <div className="mt-0.5">
                   <InfoIcon />
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold text-slate-900 dark:text-white mb-2">
+                  <h4 className="text-foreground mb-2">
                     Bidding Available for Written Quotes
                   </h4>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                  <p className="text-body-small text-muted">
                     Since you selected a <strong>Written Quote</strong>, you&apos;ll have the option to open bidding and negotiate with installers to get the best price for your solar installation.
                   </p>
                 </div>
@@ -157,7 +157,7 @@ const FirstQuoteSuccessModal: React.FC<FirstQuoteSuccessModalProps> = ({
         <div className="flex items-center justify-end space-x-3 px-6 pb-6">
           <button
             onClick={onClose}
-            className="px-6 py-3 bg-primary hover:bg-primary/90 text-white font-semibold rounded-xl transition-all"
+            className="px-6 py-3 bg-primary hover:bg-primary/90 text-foreground-secondary rounded-xl transition-colors"
           >
             Go to Dashboard
           </button>

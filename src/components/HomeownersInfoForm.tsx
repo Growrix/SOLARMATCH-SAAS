@@ -138,7 +138,7 @@ const HomeownersInfoForm: React.FC<HomeownersInfoFormProps> = ({
           <div className="w-16 h-16 bg-surface shadow-neu-outset rounded-2xl mx-auto mb-6 flex items-center justify-center">
             <UserIcon />
           </div>
-          <h2 className="text-2xl font-bold text-foreground mb-2">
+          <h2 className="text-heading-2 text-foreground mb-2">
             Your Contact Information
           </h2>
           <p className="text-muted-foreground text-body-small">
@@ -151,7 +151,7 @@ const HomeownersInfoForm: React.FC<HomeownersInfoFormProps> = ({
             <div className="flex items-start space-x-3">
               <AlertTriangleIcon />
               <div>
-                <p className="text-destructive text-body-small font-medium mb-1">Validation Error</p>
+                <p className="text-destructive text-body-small mb-1">Validation Error</p>
                 <p className="text-destructive text-body-small">{error}</p>
               </div>
             </div>
@@ -163,7 +163,7 @@ const HomeownersInfoForm: React.FC<HomeownersInfoFormProps> = ({
           <div>
             <label 
               htmlFor="name" 
-              className="block text-foreground text-body-small font-semibold mb-2"
+              className="block text-foreground text-body-small mb-2"
             >
               Full Name *
             </label>
@@ -173,7 +173,7 @@ const HomeownersInfoForm: React.FC<HomeownersInfoFormProps> = ({
               name="name"
               value={formData.name}
               onChange={handleInputChange}
-              className="w-full bg-surface shadow-neu-inset border border-border rounded-2xl px-4 py-3 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+              className="w-full bg-surface shadow-neu-inset border border-border rounded-2xl px-4 py-3 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors"
               placeholder="John Smith"
               required
               disabled={loading}
@@ -184,7 +184,7 @@ const HomeownersInfoForm: React.FC<HomeownersInfoFormProps> = ({
           <div>
             <label 
               htmlFor="phone" 
-              className="block text-foreground text-body-small font-semibold mb-2"
+              className="block text-foreground text-body-small mb-2"
             >
               Contact Number *
             </label>
@@ -194,7 +194,7 @@ const HomeownersInfoForm: React.FC<HomeownersInfoFormProps> = ({
               name="phone"
               value={formData.phone}
               onChange={handleInputChange}
-              className="w-full bg-surface shadow-neu-inset border border-border rounded-2xl px-4 py-3 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+              className="w-full bg-surface shadow-neu-inset border border-border rounded-2xl px-4 py-3 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors"
               placeholder="0412 345 678"
               required
               disabled={loading}
@@ -208,7 +208,7 @@ const HomeownersInfoForm: React.FC<HomeownersInfoFormProps> = ({
           <div>
             <label 
               htmlFor="address" 
-              className="block text-foreground text-body-small font-semibold mb-2"
+              className="block text-foreground text-body-small mb-2"
             >
               Property Address *
             </label>
@@ -218,7 +218,7 @@ const HomeownersInfoForm: React.FC<HomeownersInfoFormProps> = ({
               name="address"
               value={formData.address}
               onChange={handleInputChange}
-              className="w-full bg-surface shadow-neu-inset border border-border rounded-2xl px-4 py-3 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+              className="w-full bg-surface shadow-neu-inset border border-border rounded-2xl px-4 py-3 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors"
               placeholder="123 Main Street, Sydney NSW 2000"
               required
               disabled={loading}

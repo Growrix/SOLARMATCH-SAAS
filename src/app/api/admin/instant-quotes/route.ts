@@ -26,12 +26,12 @@ import { prisma } from '@/lib/prisma';
 // Returns quote statistics and list with flexible filtering.
 //
 // QUERY PARAMETERS:
-// - mode: "metrics" | "list" | "both" (default: "both")
+// - mode:"metrics" |"list" |"both" (default:"both")
 // - limit: number of quotes to return (default: 20, max: 100)
 // - offset: pagination offset (default: 0)
-// - state: filter by state (e.g., "NSW")
-// - quoteType: filter by type ("residential" | "commercial")
-// - dateFrom: ISO date string (e.g., "2025-10-01T00:00:00Z")
+// - state: filter by state (e.g.,"NSW")
+// - quoteType: filter by type ("residential" |"commercial")
+// - dateFrom: ISO date string (e.g.,"2025-10-01T00:00:00Z")
 // - dateTo: ISO date string
 // - search: search in location/postcode
 // ============================================================================
@@ -43,7 +43,7 @@ export async function GET(request: Request) {
     // --------------------------------------------------------------------------
     const { searchParams } = new URL(request.url);
     
-    const mode = searchParams.get('mode') || 'both'; // "metrics", "list", "both"
+    const mode = searchParams.get('mode') || 'both'; //"metrics","list","both"
     const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100);
     const offset = parseInt(searchParams.get('offset') || '0');
     
@@ -462,11 +462,11 @@ export async function DELETE(request: Request) {
 // Mark quote as converted
 // -----------------------
 // PATCH /api/admin/instant-quotes
-// Body: { "quoteId": "abc123", "isConverted": true }
+// Body: {"quoteId":"abc123","isConverted": true }
 //
 // Add admin notes
 // ---------------
 // PATCH /api/admin/instant-quotes
-// Body: { "quoteId": "abc123", "adminNotes": "Follow up with customer" }
+// Body: {"quoteId":"abc123","adminNotes":"Follow up with customer" }
 //
 // ============================================================================

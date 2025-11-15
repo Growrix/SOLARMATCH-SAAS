@@ -16,8 +16,8 @@ export default function AdminInstallersPage() {
     <div className="p-4 sm:p-6 lg:p-8">
       {/* Page Title & Subtitle */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">Installers Management</h1>
-        <p className="text-lg text-muted-foreground">View, add, and manage solar installers in the system.</p>
+        <h1 className="text-heading-1 text-foreground mb-2">Installers Management</h1>
+        <p className="text-heading-4 text-muted-foreground">View, add, and manage solar installers in the system.</p>
       </div>
       <InstallersTable />
     </div>

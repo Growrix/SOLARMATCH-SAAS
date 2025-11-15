@@ -194,7 +194,7 @@ const ContactVerificationModal: React.FC<ContactVerificationModalProps> = ({
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-4 top-4 rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+          className="absolute right-4 top-4 rounded-full p-2 text-muted transition-colors hover:bg-slate-100 hover:text-foreground"
           aria-label="Close"
         >
           <CloseIcon />
@@ -207,17 +207,17 @@ const ContactVerificationModal: React.FC<ContactVerificationModalProps> = ({
         </div>
 
         <header className="text-center">
-          <h2 id="contact-verification-title" className="text-2xl font-semibold text-slate-900 dark:text-white">
+          <h2 id="contact-verification-title" className="text-heading-2 text-foreground">
             Verify your phone number
           </h2>
-          <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+          <p className="mt-2 text-body-small text-muted">
             Confirming your contact details keeps the marketplace safe and lets installers reach you quickly. We will send a one-time passcode to the number you provide.
           </p>
         </header>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-5">
           <div>
-            <label htmlFor="phoneNumber" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+            <label htmlFor="phoneNumber" className="block text-body-small text-foreground">
               Mobile number
             </label>
             <input
@@ -227,30 +227,30 @@ const ContactVerificationModal: React.FC<ContactVerificationModalProps> = ({
               autoComplete="tel"
               value={phoneNumber}
               onChange={(event) => setPhoneNumber(event.target.value)}
-              className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-base text-slate-900 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+              className="mt-2 w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-body text-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               placeholder="+61412345678"
               disabled={isSubmitting || retrySeconds > 0}
               aria-describedby="phoneNumber-helper"
             />
-            <p id="phoneNumber-helper" className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            <p id="phoneNumber-helper" className="mt-1 text-caption text-muted">
               Use E.164 format with country code. Example: +61 for Australia, +1 for the United States.
             </p>
           </div>
 
           {error && (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+            <div className="rounded-lg border border-error bg-error/10 p-3 text-body-small text-error">
               {error}
             </div>
           )}
 
           {statusMessage && !error && (
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300">
+            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-body-small text-emerald-700">
               {statusMessage}
             </div>
           )}
 
           {retrySeconds > 0 && (
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-caption text-muted">
               Please wait {retrySeconds} seconds before requesting another code.
             </p>
           )}
@@ -258,7 +258,7 @@ const ContactVerificationModal: React.FC<ContactVerificationModalProps> = ({
           <button
             type="submit"
             disabled={isSubmitting || retrySeconds > 0}
-            className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-xl bg-primary px-4 py-3 text-label text-foreground-secondary shadow-sm transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSubmitting ? 'Sending code…' : 'Send verification code'}
           </button>

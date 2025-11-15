@@ -93,10 +93,10 @@ function getColorClass(
  * Get human-readable display text
  * 
  * Display formats:
- * - "7 days left" (plural for 2+ days)
- * - "1 day left" (singular)
- * - "< 1 day left" (less than 24 hours)
- * - "Expired" (countdown reached zero)
+ * -"7 days left" (plural for 2+ days)
+ * -"1 day left" (singular)
+ * -"< 1 day left" (less than 24 hours)
+ * -"Expired" (countdown reached zero)
  * 
  * @param daysRemaining - Number of days until expiry
  * @param hoursRemaining - Number of hours in current day
@@ -213,7 +213,7 @@ export function calculateLiveCountdown(
   // Get color class based on days remaining
   const colorClass = getColorClass(days, false);
   
-  // Format display text: "Xd Yh Zm Ws remaining"
+  // Format display text:"Xd Yh Zm Ws remaining"
   const displayText = formatLiveCountdown(days, hours, minutes, seconds);
   
   return {
@@ -231,13 +231,13 @@ export function calculateLiveCountdown(
 
 /**
  * Format live countdown display text
- * Format: "Xd Yh Zm Ws remaining"
+ * Format:"Xd Yh Zm Ws remaining"
  * 
  * Formatting rules:
- * - >= 1 day: "Xd Yh Zm Ws remaining"
- * - < 1 day, >= 1 hour: "Xh Ym Zs remaining"
- * - < 1 hour: "Xm Ys remaining"
- * - < 1 minute: "Xs remaining"
+ * - >= 1 day:"Xd Yh Zm Ws remaining"
+ * - < 1 day, >= 1 hour:"Xh Ym Zs remaining"
+ * - < 1 hour:"Xm Ys remaining"
+ * - < 1 minute:"Xs remaining"
  * 
  * @param days - Days remaining
  * @param hours - Hours remaining in current day

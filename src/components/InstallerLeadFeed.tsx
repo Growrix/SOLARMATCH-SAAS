@@ -6,23 +6,23 @@ import { LiveCountdownBar } from '@/components/LiveCountdownBar';
 import Button from '@/components/ui/button';
 
 // --- Icon Components ---
-const FilterIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3z"/></svg>;
-const SearchIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>;
-const RefreshIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>;
-const MapPinIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
-const CalendarIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>;
-const BoltIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2z"/></svg>;
-const DollarSignIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>;
-const LockIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>;
-const UnlockIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>;
-const PhoneIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>;
-const FileTextIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/></svg>;
-const CreditCardIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>;
-const CheckCircleIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>;
-const ClockIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
-const AlertCircleIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>;
-const XIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>;
-const SendIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>;
+const FilterIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3z"/></svg>;
+const SearchIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>;
+const RefreshIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>;
+const MapPinIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
+const CalendarIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>;
+const BoltIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2z"/></svg>;
+const DollarSignIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>;
+const LockIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>;
+const UnlockIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>;
+const PhoneIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>;
+const FileTextIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/></svg>;
+const CreditCardIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>;
+const CheckCircleIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>;
+const ClockIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
+const AlertCircleIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>;
+const XIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>;
+const SendIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>;
 
 // --- Types ---
 export type LeadType = 'call_visit' | 'written';
@@ -140,7 +140,7 @@ const StripeUnlockModal: React.FC<{
             <CreditCardIcon className="h-8 w-8 text-primary" />
           </div>
           
-          <h3 className="text-xl font-bold text-foreground mb-2">
+          <h3 className="text-heading-3 text-foreground mb-2">
             Unlock Lead Contact
           </h3>
           
@@ -151,25 +151,25 @@ const StripeUnlockModal: React.FC<{
           {/* Lead Summary */}
           <div className="bg-surface/50 shadow-neu-inset rounded-lg p-4 mb-6 text-left border border-border">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-muted-foreground">Location:</span>
-              <span className="text-sm text-foreground">
+              <span className="text-body-small text-muted-foreground">Location:</span>
+              <span className="text-body-small text-foreground">
                 {lead.location.suburb}, {lead.location.postcode}
               </span>
             </div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-muted-foreground">System Size:</span>
-              <span className="text-sm text-foreground">{lead.systemDetails.estimatedSize}</span>
+              <span className="text-body-small text-muted-foreground">System Size:</span>
+              <span className="text-body-small text-foreground">{lead.systemDetails.estimatedSize}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-muted-foreground">Unlock Price:</span>
-              <span className="text-lg font-bold text-primary">${lead.unlockPrice}</span>
+              <span className="text-body-small text-muted-foreground">Unlock Price:</span>
+              <span className="text-heading-4 text-primary">${lead.unlockPrice}</span>
             </div>
           </div>
 
           {paymentStatus === 'idle' && (
             <div className="space-y-4">
-              <div className="text-sm text-muted-foreground">
-                Credit Balance: <span className="font-semibold text-foreground">
+              <div className="text-body-small text-muted-foreground">
+                Credit Balance: <span className="text-foreground">
                   ${installer.creditBalance}
                 </span>
               </div>
@@ -185,7 +185,7 @@ const StripeUnlockModal: React.FC<{
                 </Button>
               ) : (
                 <div className="space-y-3">
-                  <div className="text-sm text-destructive">
+                  <div className="text-body-small text-destructive">
                     Insufficient credit balance. Please top up your account.
                   </div>
                   <Button 
@@ -210,8 +210,8 @@ const StripeUnlockModal: React.FC<{
           {paymentStatus === 'success' && (
             <div className="text-center">
               <CheckCircleIcon className="h-12 w-12 text-success mx-auto mb-4" />
-              <p className="text-success font-semibold">Payment successful!</p>
-              <p className="text-sm text-muted-foreground mt-2">
+              <p className="text-success">Payment successful!</p>
+              <p className="text-body-small text-muted-foreground mt-2">
                 Contact details are now unlocked
               </p>
             </div>
@@ -220,8 +220,8 @@ const StripeUnlockModal: React.FC<{
           {paymentStatus === 'error' && (
             <div className="text-center">
               <AlertCircleIcon className="h-12 w-12 text-destructive mx-auto mb-4" />
-              <p className="text-destructive font-semibold">Payment failed</p>
-              <p className="text-sm text-muted-foreground mt-2">
+              <p className="text-destructive">Payment failed</p>
+              <p className="text-body-small text-muted-foreground mt-2">
                 Please try again or contact support
               </p>
             </div>
@@ -247,7 +247,7 @@ const LeadCard: React.FC<{
   const canQuote = lead.type === 'written' || isUnlockedByInstaller;
 
   const getStatusBadge = () => {
-    const baseClasses = "px-2 py-1 text-xs font-semibold rounded-full";
+    const baseClasses ="px-2 py-1 text-caption rounded-full";
     
     switch (lead.status) {
       case 'new':
@@ -296,7 +296,7 @@ const LeadCard: React.FC<{
             ) : (
               <FileTextIcon className="h-5 w-5 text-primary" />
             )}
-            <span className="font-semibold text-foreground">
+            <span className="text-foreground">
               {lead.type === 'call_visit' ? 'Call/Visit Lead' : 'Written Quote Lead'}
             </span>
           </div>
@@ -304,7 +304,7 @@ const LeadCard: React.FC<{
           {canUnlock && (
             <div className="flex items-center space-x-1 text-warning">
               <LockIcon className="h-4 w-4" />
-              <span className="text-xs font-medium">Unlock Required</span>
+              <span className="text-caption">Unlock Required</span>
             </div>
           )}
         </div>
@@ -313,7 +313,7 @@ const LeadCard: React.FC<{
           <span className={getStatusBadge()}>
             {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
           </span>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-caption text-muted-foreground">
             {formatTimeAgo(lead.dateSubmitted)}
           </span>
         </div>
@@ -322,21 +322,21 @@ const LeadCard: React.FC<{
       {/* Lead Details */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div className="space-y-2">
-          <div className="flex items-center space-x-2 text-sm">
+          <div className="flex items-center space-x-2 text-body-small">
             <MapPinIcon className="h-4 w-4 text-muted-foreground" />
             <span className="text-foreground">
               {lead.location.suburb}, {lead.location.postcode}, {lead.location.state}
             </span>
           </div>
           
-          <div className="flex items-center space-x-2 text-sm">
+          <div className="flex items-center space-x-2 text-body-small">
             <BoltIcon className="h-4 w-4 text-muted-foreground" />
             <span className="text-foreground">
               {lead.systemDetails.estimatedSize} • {lead.systemDetails.roofType} Roof
             </span>
           </div>
           
-          <div className="flex items-center space-x-2 text-sm">
+          <div className="flex items-center space-x-2 text-body-small">
             <DollarSignIcon className="h-4 w-4 text-muted-foreground" />
             <span className="text-foreground">
               Budget: {lead.systemDetails.budget}
@@ -347,7 +347,7 @@ const LeadCard: React.FC<{
         <div className="space-y-2">
           {/* Countdown timer - Show for active marketplace leads (mock data uses 'new' for approved leads) */}
           {lead.status === 'new' && (
-            <div className="flex items-center space-x-2 text-sm">
+            <div className="flex items-center space-x-2 text-body-small">
               <CalendarIcon className="h-4 w-4 text-muted-foreground" />
               <LiveCountdownBar
                 expiresAt={lead.expiresAt.toISOString()}
@@ -359,7 +359,7 @@ const LeadCard: React.FC<{
             </div>
           )}
           
-          <div className="flex items-center space-x-2 text-sm">
+          <div className="flex items-center space-x-2 text-body-small">
             <FileTextIcon className="h-4 w-4 text-muted-foreground" />
             <span className="text-foreground">
               {lead.quotesReceived} quotes received
@@ -367,7 +367,7 @@ const LeadCard: React.FC<{
           </div>
           
           {lead.type === 'call_visit' && (
-            <div className="flex items-center space-x-2 text-sm">
+            <div className="flex items-center space-x-2 text-body-small">
               <CreditCardIcon className="h-4 w-4 text-muted-foreground" />
               <span className="text-foreground">
                 Unlock: ${lead.unlockPrice}
@@ -382,21 +382,21 @@ const LeadCard: React.FC<{
         <div className="bg-success/10 border border-success/20 rounded-lg p-4 mb-4 shadow-neu-inset">
           <div className="flex items-center space-x-2 mb-2">
             <UnlockIcon className="h-4 w-4 text-success" />
-            <span className="text-sm font-semibold text-success">
+            <span className="text-label text-success">
               Contact Details Unlocked
             </span>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-body-small">
             <div>
-              <span className="font-medium text-muted-foreground">Name:</span>
+              <span className="text-muted-foreground">Name:</span>
               <span className="ml-2 text-foreground">{lead.contact.name}</span>
             </div>
             <div>
-              <span className="font-medium text-muted-foreground">Phone:</span>
+              <span className="text-muted-foreground">Phone:</span>
               <span className="ml-2 text-foreground">{lead.contact.phone}</span>
             </div>
             <div className="md:col-span-2">
-              <span className="font-medium text-muted-foreground">Email:</span>
+              <span className="text-muted-foreground">Email:</span>
               <span className="ml-2 text-foreground">{lead.contact.email}</span>
             </div>
           </div>
@@ -439,7 +439,7 @@ const LeadCard: React.FC<{
         )}
 
         {lead.type === 'written' && !canQuote && (
-          <div className="text-sm text-muted-foreground italic">
+          <div className="text-body-small text-muted-foreground italic">
             Available for written quotes only
           </div>
         )}
@@ -648,7 +648,7 @@ const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Lead Feed</h1>
+          <h1 className="text-heading-2 text-foreground">Lead Feed</h1>
           <p className="text-muted-foreground">
             Available leads for {installer.companyName}
           </p>
@@ -664,7 +664,7 @@ const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({
             <span>Refresh</span>
           </Button>
           
-          <div className="text-sm text-muted-foreground">
+          <div className="text-body-small text-muted-foreground">
             Updated: {lastUpdated ? lastUpdated.toLocaleTimeString() : ''}
           </div>
         </div>
@@ -675,8 +675,8 @@ const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({
         <div className="theme-card p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Available Leads</p>
-              <p className="text-2xl font-bold text-foreground">{filteredLeads.length}</p>
+              <p className="text-body-small text-muted-foreground">Available Leads</p>
+              <p className="text-heading-2 text-foreground">{filteredLeads.length}</p>
             </div>
             <div className="w-10 h-10 bg-info/10 rounded-lg flex items-center justify-center">
               <FileTextIcon className="h-5 w-5 text-info" />
@@ -687,8 +687,8 @@ const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({
         <div className="theme-card p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Unlocked Today</p>
-              <p className="text-2xl font-bold text-foreground">3</p>
+              <p className="text-body-small text-muted-foreground">Unlocked Today</p>
+              <p className="text-heading-2 text-foreground">3</p>
             </div>
             <div className="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center">
               <UnlockIcon className="h-5 w-5 text-success" />
@@ -699,8 +699,8 @@ const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({
         <div className="theme-card p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Credit Balance</p>
-              <p className="text-2xl font-bold text-foreground">${installer.creditBalance}</p>
+              <p className="text-body-small text-muted-foreground">Credit Balance</p>
+              <p className="text-heading-2 text-foreground">${installer.creditBalance}</p>
             </div>
             <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
               <CreditCardIcon className="h-5 w-5 text-primary" />
@@ -711,8 +711,8 @@ const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({
         <div className="theme-card p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Success Rate</p>
-              <p className="text-2xl font-bold text-foreground">{installer.successRate}%</p>
+              <p className="text-body-small text-muted-foreground">Success Rate</p>
+              <p className="text-heading-2 text-foreground">{installer.successRate}%</p>
             </div>
             <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
               <CheckCircleIcon className="h-5 w-5 text-primary" />
@@ -790,7 +790,7 @@ const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({
         ) : filteredLeads.length === 0 ? (
           <div className="theme-card text-center py-12">
             <AlertCircleIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-foreground mb-2">
+            <h3 className="text-heading-4 text-foreground mb-2">
               No leads found
             </h3>
             <p className="text-muted-foreground">

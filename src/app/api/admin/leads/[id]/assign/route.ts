@@ -56,7 +56,7 @@ export async function POST(
 
     if (!mode || !['exclusive', 'competitive'].includes(mode)) {
       return NextResponse.json(
-        { error: 'mode must be either "exclusive" or "competitive"' },
+        { error: 'mode must be either"exclusive" or"competitive"' },
         { status: 400 }
       );
     }

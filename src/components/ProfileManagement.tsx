@@ -178,7 +178,7 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
       <div className="bg-error/10 border border-error/30 rounded-lg p-6">
         <div className="flex items-center">
           <AlertTriangleIcon />
-          <h3 className="text-error font-semibold">Error Loading Profile</h3>
+          <h3 className="text-error">Error Loading Profile</h3>
         </div>
         <p className="text-error/80 mt-2">{error}</p>
         {/* Migrated: button → shadcn Button - preserved onClick, error handling */}
@@ -199,7 +199,7 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
       {/* Success Message */}
       {successMessage && (
         <div className="bg-success/10 border border-success/30 rounded-lg p-4">
-          <p className="text-success font-medium">{successMessage}</p>
+          <p className="text-success">{successMessage}</p>
         </div>
       )}
 
@@ -208,14 +208,14 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
         <div className="bg-error/10 border border-error/30 rounded-lg p-4">
           <div className="flex items-center">
             <AlertTriangleIcon />
-            <p className="text-error font-medium">{error}</p>
+            <p className="text-error">{error}</p>
           </div>
         </div>
       )}
 
       {/* Profile Picture Section */}
       <div className="theme-card p-6">
-        <h2 className="text-xl font-semibold text-foreground mb-4">Profile Picture</h2>
+        <h2 className="text-heading-3 text-foreground mb-4">Profile Picture</h2>
         <div className="flex items-center space-x-6">
           <div className="relative">
             <Image 
@@ -227,13 +227,13 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
             />
             {isEditing && (
               <div className="absolute inset-0 bg-black bg-opacity-40 rounded-full flex items-center justify-center">
-                <span className="text-white text-xs font-medium">Edit</span>
+                <span className="text-foreground-secondary text-caption">Edit</span>
               </div>
             )}
           </div>
           <div className="flex-1">
-            <h3 className="text-lg font-medium text-foreground">{formData.name || 'No name set'}</h3>
-            <p className="text-sm text-muted-foreground">{displayEmail}</p>
+            <h3 className="text-heading-4 text-foreground">{formData.name || 'No name set'}</h3>
+            <p className="text-body-small text-muted-foreground">{displayEmail}</p>
             {isEditing && (
               <div className="mt-3 flex space-x-2">
                 <input 
@@ -263,7 +263,7 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
               </div>
             )}
             {fieldErrors.image && (
-              <p className="text-error text-sm mt-2">{fieldErrors.image}</p>
+              <p className="text-error text-body-small mt-2">{fieldErrors.image}</p>
             )}
           </div>
         </div>
@@ -272,7 +272,7 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
       {/* Personal Information Section */}
       <div className="theme-card p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-foreground">Personal Information</h2>
+          <h2 className="text-heading-3 text-foreground">Personal Information</h2>
           {/* Migrated: button → shadcn Button - preserved onClick, edit mode toggle */}
           {!isEditing && (
             <Button
@@ -286,7 +286,7 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
         <div className="space-y-4">
           {/* Full Name */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">
+            <label className="block text-body-small text-foreground mb-2">
               Full Name <span className="text-error">*</span>
             </label>
             <div className="relative">
@@ -310,13 +310,13 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
               />
             </div>
             {fieldErrors.name && (
-              <p className="text-error text-sm mt-1">{fieldErrors.name}</p>
+              <p className="text-error text-body-small mt-1">{fieldErrors.name}</p>
             )}
           </div>
 
           {/* Email Address */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Email Address</label>
+            <label className="block text-body-small text-foreground mb-2">Email Address</label>
             <div className="relative">
               <MailIcon />
               <input 
@@ -327,12 +327,12 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
                 placeholder="john@example.com" 
               />
             </div>
-            <p className="text-xs text-muted-foreground mt-1">Email cannot be changed</p>
+            <p className="text-caption text-muted-foreground mt-1">Email cannot be changed</p>
           </div>
 
           {/* Phone Number */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Phone Number</label>
+            <label className="block text-body-small text-foreground mb-2">Phone Number</label>
             <div className="relative">
               <PhoneIcon />
               <input 
@@ -354,13 +354,13 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
               />
             </div>
             {fieldErrors.phone && (
-              <p className="text-error text-sm mt-1">{fieldErrors.phone}</p>
+              <p className="text-error text-body-small mt-1">{fieldErrors.phone}</p>
             )}
           </div>
 
           {/* Postcode */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Postcode</label>
+            <label className="block text-body-small text-foreground mb-2">Postcode</label>
             <div className="relative">
               <MapPinIcon />
               <input 
@@ -382,7 +382,7 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
               />
             </div>
             {fieldErrors.postcode && (
-              <p className="text-error text-sm mt-1">{fieldErrors.postcode}</p>
+              <p className="text-error text-body-small mt-1">{fieldErrors.postcode}</p>
             )}
           </div>
 
@@ -417,10 +417,10 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
 
       {/* Security Section */}
       <div className="theme-card p-6">
-        <h2 className="text-xl font-semibold text-foreground mb-4">Security</h2>
+        <h2 className="text-heading-3 text-foreground mb-4">Security</h2>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Current Password</label>
+            <label className="block text-body-small text-foreground mb-2">Current Password</label>
             <div className="relative">
               <LockIcon />
               <input 
@@ -432,7 +432,7 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">New Password</label>
+            <label className="block text-body-small text-foreground mb-2">New Password</label>
             <div className="relative">
               <LockIcon />
               <input 
@@ -444,7 +444,7 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Confirm New Password</label>
+            <label className="block text-body-small text-foreground mb-2">Confirm New Password</label>
             <div className="relative">
               <LockIcon />
               <input 
@@ -469,8 +469,8 @@ export default function ProfileManagement({ onDeleteClick }: ProfileManagementPr
       {/* Danger Zone */}
       {onDeleteClick && (
         <div className="bg-error/10 border border-error/30 p-6 rounded-lg">
-          <h2 className="text-xl font-semibold text-error mb-2">Danger Zone</h2>
-          <p className="text-sm text-error/80 mb-4">
+          <h2 className="text-heading-3 text-error mb-2">Danger Zone</h2>
+          <p className="text-body-small text-error/80 mb-4">
             Once you delete your account, there is no going back. Please be certain.
           </p>
           {/* Migrated: button → shadcn Button - preserved onClick, delete action */}

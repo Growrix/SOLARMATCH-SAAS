@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from"react";
 
 export interface NeumorphicInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -10,7 +10,7 @@ const NeumorphicInput = React.forwardRef<HTMLInputElement, NeumorphicInputProps>
     return (
       <div className="space-y-2">
         {label && (
-          <label className="block text-sm font-medium text-foreground">
+          <label className="block text-body-small text-foreground">
             {label}
           </label>
         )}
@@ -24,7 +24,7 @@ const NeumorphicInput = React.forwardRef<HTMLInputElement, NeumorphicInputProps>
             border border-border/50
             text-foreground placeholder:text-muted-foreground
             focus:outline-none focus:shadow-neu-inset-sm focus:border-primary/50
-            transition-all duration-200
+            transition-colors duration-200
             disabled:cursor-not-allowed disabled:opacity-50
             ${error ? 'border-destructive/50' : ''}
             ${className || ''}
@@ -32,13 +32,13 @@ const NeumorphicInput = React.forwardRef<HTMLInputElement, NeumorphicInputProps>
           {...props}
         />
         {error && (
-          <p className="text-sm text-destructive">{error}</p>
+          <p className="text-body-small text-destructive">{error}</p>
         )}
       </div>
     );
   }
 );
 
-NeumorphicInput.displayName = "NeumorphicInput";
+NeumorphicInput.displayName ="NeumorphicInput";
 
 export { NeumorphicInput };

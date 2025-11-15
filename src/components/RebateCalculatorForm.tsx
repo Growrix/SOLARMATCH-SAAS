@@ -253,10 +253,10 @@ const RebateCalculatorForm: React.FC<Props> = ({ onGetQuotesClick }) => {
       <div className="theme-card p-6 sm:p-8 shadow-xl">
         <div className="space-y-10">
             <fieldset>
-            <legend className="text-xl font-bold text-foreground mb-6">Location & System</legend>
+            <legend className="text-heading-3 text-foreground mb-6">Location & System</legend>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8">
                 <div>
-                <label htmlFor="postcode" className="flex items-center text-muted-foreground text-sm font-semibold mb-2">
+                <label htmlFor="postcode" className="flex items-center text-muted-foreground text-label mb-2">
                     <MapPin />
                     <span>Postcode *</span>
                 </label>
@@ -273,15 +273,15 @@ const RebateCalculatorForm: React.FC<Props> = ({ onGetQuotesClick }) => {
                     aria-describedby={errors.postcode ? 'postcode-error' : 'postcode-help'}
                 />
                 {!errors.postcode && (
-                    <p id="postcode-help" className="text-xs text-muted-foreground mt-1.5">
+                    <p id="postcode-help" className="text-caption text-muted-foreground mt-1.5">
                     {inputs.postcode && inputs.postcode.length === 4 ? `?? ${postcodeToState(inputs.postcode)} - STC Zone ${getZoneByPostcode(inputs.postcode)}` : 'Determines STC zone and state rebates'}
                     </p>
                 )}
-                {errors.postcode && <p id="postcode-error" className="text-destructive text-xs mt-1.5" role="alert">{errors.postcode}</p>}
+                {errors.postcode && <p id="postcode-error" className="text-destructive text-caption mt-1.5" role="alert">{errors.postcode}</p>}
                 </div>
 
         <div className="flex flex-col justify-end h-full">
-          <label htmlFor="battery-toggle" className="text-muted-foreground text-sm font-semibold mb-2">
+          <label htmlFor="battery-toggle" className="text-muted-foreground text-label mb-2">
             Include Battery Storage
           </label>
           <div className={`info-section flex items-center w-full ${inputs.includeBattery ? 'border-primary/50' : ''}`} style={{ minHeight: '48px' }}>
@@ -289,7 +289,7 @@ const RebateCalculatorForm: React.FC<Props> = ({ onGetQuotesClick }) => {
               type="text"
               tabIndex={-1}
               readOnly
-              className="form-input w-full px-4 py-3 pointer-events-none bg-transparent border-none shadow-none text-foreground font-medium text-sm placeholder:text-foreground/70 focus:ring-0 focus:outline-none"
+              className="form-input w-full px-4 py-3 pointer-events-none bg-transparent border-none shadow-none text-foreground text-body-small placeholder:text-foreground/70 focus:ring-0 focus:outline-none"
               value={inputs.includeBattery ? 'Battery Included' : 'Solar Only'}
               aria-label="Battery status"
               style={{marginBottom: 0}}
@@ -309,19 +309,19 @@ const RebateCalculatorForm: React.FC<Props> = ({ onGetQuotesClick }) => {
             </div>
             
       <div className="info-section info-section-lg mt-8">
-        <h4 className="text-sm font-semibold text-foreground mb-4 flex items-center">
-          System Configuration <span className="ml-2 text-lg">?</span>
+        <h4 className="text-label text-foreground mb-4 flex items-center">
+          System Configuration <span className="ml-2 text-heading-4">?</span>
         </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8">
                     <div>
-                    <label htmlFor="systemSize" className="block text-muted-foreground text-sm font-semibold mb-2">
+                    <label htmlFor="systemSize" className="block text-muted-foreground text-label mb-2">
                         System Size (kW) *
                     </label>
                     <select 
                         id="systemSize"
                         value={inputs.systemSizeKw} 
                         onChange={(e) => handleInput('systemSizeKw', parseFloat(e.target.value))} 
-                        className="form-select w-full font-medium"
+                        className="form-select w-full"
                     >
                         {[3, 4, 5, 6, 6.6, 7, 8, 9, 10, 11, 12, 13.2, 15, 20].map(s => (
                         <option key={s} value={s}>
@@ -332,7 +332,7 @@ const RebateCalculatorForm: React.FC<Props> = ({ onGetQuotesClick }) => {
                     </div>
 
                     <div>
-                    <label htmlFor="batterySize" className="block text-muted-foreground text-sm font-semibold mb-2">
+                    <label htmlFor="batterySize" className="block text-muted-foreground text-label mb-2">
                         Battery Size (kWh)
                     </label>
                     <input 
@@ -351,15 +351,15 @@ const RebateCalculatorForm: React.FC<Props> = ({ onGetQuotesClick }) => {
             </fieldset>
 
             <fieldset className="pt-6">
-            <legend className="text-xl font-bold text-foreground mb-6">Eligibility Details</legend>
+            <legend className="text-heading-3 text-foreground mb-6">Eligibility Details</legend>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8">
                 <div>
-                <label htmlFor="installationYear" className="block text-muted-foreground text-sm font-semibold mb-2">
+                <label htmlFor="installationYear" className="block text-muted-foreground text-label mb-2">
                     Planned Installation Year *
                 </label>
                 <select 
                     id="installationYear"
-                    className="form-select w-full font-medium"
+                    className="form-select w-full"
                     value={inputs.installationYear} 
                     onChange={(e) => handleInput('installationYear', parseInt(e.target.value || `${currentYear}`))}
                 >
@@ -372,12 +372,12 @@ const RebateCalculatorForm: React.FC<Props> = ({ onGetQuotesClick }) => {
                 </div>
 
                 <div>
-                <label htmlFor="propertyStatus" className="block text-muted-foreground text-sm font-semibold mb-2">
+                <label htmlFor="propertyStatus" className="block text-muted-foreground text-label mb-2">
                     Property Status *
                 </label>
                 <select 
                     id="propertyStatus"
-                    className="form-select w-full font-medium"
+                    className="form-select w-full"
                     value={inputs.ownerOccupier ? 'owner' : 'renter'} 
                     onChange={(e) => handleInput('ownerOccupier', e.target.value === 'owner')}
                 >
@@ -387,12 +387,12 @@ const RebateCalculatorForm: React.FC<Props> = ({ onGetQuotesClick }) => {
                 </div>
 
                 <div>
-                <label htmlFor="householdIncome" className="block text-muted-foreground text-sm font-semibold mb-2">
+                <label htmlFor="householdIncome" className="block text-muted-foreground text-label mb-2">
                     Combined Household Income *
                 </label>
                 <select 
                     id="householdIncome"
-                    className="form-select w-full font-medium"
+                    className="form-select w-full"
                     value={inputs.householdIncome} 
                     onChange={(e) => handleInput('householdIncome', parseInt(e.target.value || '0'))}
                 >
@@ -403,12 +403,12 @@ const RebateCalculatorForm: React.FC<Props> = ({ onGetQuotesClick }) => {
                 </div>
 
                 <div>
-                <label htmlFor="propertyValue" className="block text-muted-foreground text-sm font-semibold mb-2">
+                <label htmlFor="propertyValue" className="block text-muted-foreground text-label mb-2">
                     Property Value (Victoria only) *
                 </label>
                 <select 
                     id="propertyValue"
-                    className="form-select w-full font-medium"
+                    className="form-select w-full"
                     value={inputs.propertyValue} 
                     onChange={(e) => handleInput('propertyValue', parseInt(e.target.value || '0'))}
                 >
@@ -422,7 +422,7 @@ const RebateCalculatorForm: React.FC<Props> = ({ onGetQuotesClick }) => {
 
         {errors.general && (
           <div className="mt-6 bg-destructive/10 border border-destructive rounded-xl p-4 flex items-center gap-3">
-            <p className="text-destructive text-sm">{errors.general}</p>
+            <p className="text-destructive text-body-small">{errors.general}</p>
           </div>
         )}
 
@@ -449,7 +449,7 @@ const RebateCalculatorForm: React.FC<Props> = ({ onGetQuotesClick }) => {
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center px-4 py-8 animate-fade-in" onClick={() => setShowModal(false)}>
                 <div className="theme-card relative w-full max-w-2xl p-6 sm:p-8 animate-slide-in-up max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
                     <div className="flex justify-between items-center mb-6">
-                      <h2 className="text-2xl font-bold text-foreground">Your Rebate Estimate</h2>
+                      <h2 className="text-heading-2 text-foreground">Your Rebate Estimate</h2>
                       <Button 
                         onClick={() => setShowModal(false)} 
                         variant="ghost"
@@ -463,16 +463,16 @@ const RebateCalculatorForm: React.FC<Props> = ({ onGetQuotesClick }) => {
                     <div className="space-y-6">
                         {/* Stat Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="theme-card rounded-2xl p-6 border border-border text-center"><h3 className="text-sm font-medium text-muted-foreground">Total Rebate</h3><p className="text-3xl font-bold text-accent mt-1">{formatCurrency(result.totalRebate)}</p></div>
-              <div className="theme-card rounded-2xl p-6 border border-border text-center"><h3 className="text-sm font-medium text-muted-foreground">Federal Rebate (STC)</h3><p className="text-3xl font-bold text-success mt-1">{formatCurrency(result.federalSTCValue)}</p></div>
-              <div className="theme-card rounded-2xl p-6 border border-border text-center"><h3 className="text-sm font-medium text-muted-foreground">State & Battery</h3><p className="text-3xl font-bold text-info mt-1">{formatCurrency(result.stateSolar + result.batteryTotal)}</p></div>
+              <div className="theme-card rounded-2xl p-6 border border-border text-center"><h3 className="text-body-small text-muted-foreground">Total Rebate</h3><p className="text-heading-1 text-accent mt-1">{formatCurrency(result.totalRebate)}</p></div>
+              <div className="theme-card rounded-2xl p-6 border border-border text-center"><h3 className="text-body-small text-muted-foreground">Federal Rebate (STC)</h3><p className="text-heading-1 text-success mt-1">{formatCurrency(result.federalSTCValue)}</p></div>
+              <div className="theme-card rounded-2xl p-6 border border-border text-center"><h3 className="text-body-small text-muted-foreground">State & Battery</h3><p className="text-heading-1 text-info mt-1">{formatCurrency(result.stateSolar + result.batteryTotal)}</p></div>
             </div>
 
                         {/* Eligibility Notes */}
-                        <div className="info-section info-section-lg rounded-xl p-6 border border-border"><h5 className="font-semibold text-foreground mb-3">Eligibility Summary</h5><div className="space-y-2 text-sm"><p className="text-muted-foreground"><strong>Solar Rebate:</strong> {result.eligibilityNotes.stateSolar}</p>{inputs.includeBattery && <p className="text-muted-foreground"><strong>Battery Rebate:</strong> {result.eligibilityNotes.stateBattery}</p>}</div></div>
+                        <div className="info-section info-section-lg rounded-xl p-6 border border-border"><h5 className="text-foreground mb-3">Eligibility Summary</h5><div className="space-y-2 text-body-small"><p className="text-muted-foreground"><strong>Solar Rebate:</strong> {result.eligibilityNotes.stateSolar}</p>{inputs.includeBattery && <p className="text-muted-foreground"><strong>Battery Rebate:</strong> {result.eligibilityNotes.stateBattery}</p>}</div></div>
 
                         {/* Disclaimers */}
-                        <div className="info-section info-section-warning rounded-xl p-6 border border-warning"><h5 className="text-warning font-semibold mb-3">Important Information</h5><ul className="space-y-2 list-disc list-inside text-sm text-warning">{result.disclaimers.map((d: string, i: number) => (<li key={i}>{d}</li>))}</ul></div>
+                        <div className="info-section info-section-warning rounded-xl p-6 border border-warning"><h5 className="text-warning mb-3">Important Information</h5><ul className="space-y-2 list-disc list-inside text-body-small text-warning">{result.disclaimers.map((d: string, i: number) => (<li key={i}>{d}</li>))}</ul></div>
 
                         {/* Action Buttons */}
                         <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">

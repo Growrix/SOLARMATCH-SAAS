@@ -97,11 +97,11 @@ const NewsletterSignup = () => {
             const data = await response.json();
             if (response.ok) {
                 setStatus('success');
-                setMessage(data.message || "Thanks for subscribing! Check your inbox for the latest solar news.");
+                setMessage(data.message ||"Thanks for subscribing! Check your inbox for the latest solar news.");
                 setEmail('');
             } else {
                 setStatus('error');
-                setMessage(data.error || "Oops! Something went wrong. Please try again.");
+                setMessage(data.error ||"Oops! Something went wrong. Please try again.");
             }
         } catch (error) {
             setStatus('error');
@@ -122,7 +122,7 @@ const NewsletterSignup = () => {
                             <div className="w-20 h-20 bg-background shadow-neu-inset rounded-2xl flex items-center justify-center mx-auto mb-6">
                                 <PaperPlaneIcon />
                             </div>
-                            <h2 className="text-heading-2 lg:text-heading-1 font-bold text-foreground mb-4">
+                            <h2 className="text-heading-2 lg:text-heading-1 text-foreground mb-4">
                                 Go Solar, Smarter.
                             </h2>
                             <p className="text-body-large text-muted-foreground max-w-2xl mx-auto">
@@ -145,7 +145,7 @@ const NewsletterSignup = () => {
                                                     onChange={handleEmailChange}
                                                     placeholder="Enter your email address"
                                                     aria-label="Email address for newsletter"
-                                                    className={`w-full pl-12 pr-4 py-3 bg-background shadow-neu-inset border ${inputError ? 'border-destructive' : 'border-border'} rounded-2xl focus:ring-2 focus:ring-primary focus:border-primary/50 focus:shadow-neu-inset-sm transition-all duration-300 text-foreground placeholder:text-muted-foreground`}
+                                                    className={`w-full pl-12 pr-4 py-3 bg-background shadow-neu-inset border ${inputError ? 'border-destructive' : 'border-border'} rounded-2xl focus:ring-2 focus:ring-primary focus:border-primary/50 focus:shadow-neu-inset-sm transition-colors duration-300 text-foreground placeholder:text-muted-foreground`}
                                                     disabled={status === 'loading'}
                                                     autoComplete="email"
                                                 />
@@ -170,7 +170,7 @@ const NewsletterSignup = () => {
                                             </Button>
                                         </div>
                                         {(inputError || (status === 'error' && message)) && (
-                                            <p role="alert" className="mt-3 text-sm text-destructive flex items-center justify-center gap-2 animate-fade-in">
+                                            <p role="alert" className="mt-3 text-body-small text-destructive flex items-center justify-center gap-2 animate-fade-in">
                                                 <AlertCircleIcon /> {inputError || message}
                                             </p>
                                         )}
@@ -178,7 +178,7 @@ const NewsletterSignup = () => {
                                 ) : (
                                     <div role="status" className="p-4 bg-success/10 shadow-neu-inset border border-success/30 rounded-2xl flex flex-col items-center justify-center gap-3 animate-fade-in h-full">
                                        <CheckCircleIcon />
-                                       <p className="font-semibold text-success text-center">
+                                       <p className="text-success text-center">
                                            {message}
                                        </p>
                                     </div>
@@ -187,7 +187,7 @@ const NewsletterSignup = () => {
                         </form>
                         
                         {status !== 'success' && (
-                             <p className="text-xs text-muted-foreground mt-6 animate-fade-in" style={{animationDelay: '0.4s'}}>
+                             <p className="text-caption text-muted-foreground mt-6 animate-fade-in" style={{animationDelay: '0.4s'}}>
                                 We respect your privacy. Unsubscribe at any time.
                             </p>
                         )}

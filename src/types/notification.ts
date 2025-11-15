@@ -32,7 +32,7 @@ export interface CreateNotificationInput {
  * Used when displaying in notification center
  */
 export interface NotificationWithFormatting extends Notification {
-  timeAgo: string; // "5 minutes ago", "2 hours ago", etc.
+  timeAgo: string; //"5 minutes ago","2 hours ago", etc.
   icon: string; // Icon name for UI
   color: string; // Color for UI (success, warning, error, info)
 }

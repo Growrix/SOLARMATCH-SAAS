@@ -94,7 +94,7 @@ const DEFAULT_SETTINGS: Record<string, string> = {
  * 
  * Example:
  *   const leadPrice = await getSetting(SETTING_KEYS.LEAD_PRICE_DEFAULT);
- *   // Returns: "50.00"
+ *   // Returns:"50.00"
  */
 export async function getSetting(key: string): Promise<string> {
   const setting = await prisma.settings.findUnique({
@@ -227,7 +227,7 @@ export async function setSetting(
  *     SETTING_KEYS.LEAD_PRICE_DEFAULT,
  *     SETTING_KEYS.LEAD_EXPIRY_DAYS,
  *   ]);
- *   // Returns: { lead_price_default: "50.00", lead_expiry_days: "30" }
+ *   // Returns: { lead_price_default:"50.00", lead_expiry_days:"30" }
  */
 export async function getSettings(keys: string[]): Promise<Record<string, string>> {
   const settings = await prisma.settings.findMany({

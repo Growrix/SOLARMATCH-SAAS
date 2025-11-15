@@ -1,26 +1,26 @@
-import * as React from "react"
+import * as React from"react"
 
-import { cn } from "@/lib/utils"
+import { cn } from"@/lib/utils"
 
 const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & { variant?: 'flat' | 'pressed' | 'floating' | 'compact' }
 >(({ className, variant = 'flat', ...props }, ref) => {
   const variantClasses = {
-    flat: "dark:neu-card",
-    pressed: "dark:neu-card-pressed",
-    floating: "dark:neu-card-floating",
-    compact: "dark:neu-card-compact"
+    flat:"",
+    pressed:"",
+    floating:"",
+    compact:""
   };
   
   return (
     <div
       ref={ref}
       className={cn(
-        "rounded-xl bg-card text-card-foreground transition-all duration-300",
-        "dark:shadow-[10px_10px_20px_var(--neu-shadow-dark),-10px_-10px_20px_var(--neu-shadow-light)]",
-        "hover:-translate-y-1 hover:shadow-lg dark:hover:shadow-[16px_16px_32px_var(--neu-shadow-dark),-16px_-16px_32px_var(--neu-shadow-light)]",
-        "border-none dark:bg-[var(--bg-primary)]",
+      "rounded-xl bg-card text-card-foreground transition-colors duration-300",
+      "",
+      "hover:-translate-y-1 hover:shadow-lg",
+      "border-none",
         variantClasses[variant],
         className
       )}
@@ -28,7 +28,7 @@ const Card = React.forwardRef<
     />
   );
 })
-Card.displayName = "Card"
+Card.displayName ="Card"
 
 const CardHeader = React.forwardRef<
   HTMLDivElement,
@@ -40,7 +40,7 @@ const CardHeader = React.forwardRef<
     {...props}
   />
 ))
-CardHeader.displayName = "CardHeader"
+CardHeader.displayName ="CardHeader"
 
 const CardTitle = React.forwardRef<
   HTMLDivElement,
@@ -48,11 +48,11 @@ const CardTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("font-semibold leading-none tracking-tight", className)}
+    className={cn(" leading-none tracking-tight", className)}
     {...props}
   />
 ))
-CardTitle.displayName = "CardTitle"
+CardTitle.displayName ="CardTitle"
 
 const CardDescription = React.forwardRef<
   HTMLDivElement,
@@ -60,11 +60,11 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("text-muted-foreground text-sm", className)}
+    className={cn("text-muted-foreground text-body-small", className)}
     {...props}
   />
 ))
-CardDescription.displayName = "CardDescription"
+CardDescription.displayName ="CardDescription"
 
 const CardContent = React.forwardRef<
   HTMLDivElement,
@@ -72,7 +72,7 @@ const CardContent = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
 ))
-CardContent.displayName = "CardContent"
+CardContent.displayName ="CardContent"
 
 const CardFooter = React.forwardRef<
   HTMLDivElement,
@@ -84,6 +84,6 @@ const CardFooter = React.forwardRef<
     {...props}
   />
 ))
-CardFooter.displayName = "CardFooter"
+CardFooter.displayName ="CardFooter"
 
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }

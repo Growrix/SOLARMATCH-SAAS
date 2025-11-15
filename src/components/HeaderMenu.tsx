@@ -37,18 +37,18 @@ const HeaderMenu = ({
     <header className="py-3 sm:py-4">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Neumorphic Rounded Bar */}
-        <div className="bg-background rounded-full shadow-neu-outset px-4 sm:px-6 py-2.5 sm:py-3 transition-all duration-300 hover:shadow-neu-outset-lg">
+        <div className="bg-background rounded-full shadow-neu-outset px-4 sm:px-6 py-2.5 sm:py-3 transition-colors duration-300 hover:shadow-neu-outset-lg">
           <div className="flex items-center justify-between">
             {/* Logo + Dev Link */}
             <div className="flex items-center gap-4">
               <Link href="/" className="flex items-center space-x-3 cursor-pointer hover:opacity-90 transition-opacity">
                 <SunIcon />
-                <span className="text-xl sm:text-2xl font-bold text-primary">SolarMatch</span>
+                <span className="text-heading-3 sm:text-heading-2 text-primary">SolarMatch</span>
               </Link>
               {/* Development Link - Component Library */}
               <Link 
                 href="/component-library" 
-                className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-background shadow-neu-inset text-primary hover:shadow-neu-inset-sm transition-all text-xs font-semibold"
+                className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-background shadow-neu-inset text-primary hover:shadow-neu-inset-sm transition-colors text-caption"
               >
                 <span>Component Library</span>
                 <span className="px-1.5 py-0.5 rounded-full bg-primary text-background text-[10px]">DEV</span>

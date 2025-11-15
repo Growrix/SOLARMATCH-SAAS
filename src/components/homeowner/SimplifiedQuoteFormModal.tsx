@@ -20,7 +20,7 @@ interface SimplifiedQuoteFormModalProps {
  * multi-step InstantQuoteForm.
  * 
  * Flow:
- * - User with 1+ existing quotes clicks "Request more quotes"
+ * - User with 1+ existing quotes clicks"Request more quotes"
  * - This modal opens with their most recent quote data pre-filled
  * - User can edit any fields and recalculate
  * - On submit, opens QuoteTypeDistributionModal for lead submission

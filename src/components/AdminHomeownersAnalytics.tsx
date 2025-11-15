@@ -76,22 +76,22 @@ export default function AdminHomeownersAnalytics() {
       {/* Header with Time Window Selector */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Homeowner Analytics</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          <h1 className="text-heading-2 text-foreground">Homeowner Analytics</h1>
+          <p className="text-body-small text-muted mt-1">
             Overview of homeowner distribution and statistics
           </p>
         </div>
 
         {/* Time Window Tabs */}
-        <div className="inline-flex bg-slate-100 dark:bg-slate-900 rounded-lg p-1">
+        <div className="inline-flex bg-slate-100 rounded-lg p-1">
           {(['all', '30d', '90d'] as TimeWindow[]).map((window) => (
             <button
               key={window}
               onClick={() => setTimeWindow(window)}
-              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              className={`px-4 py-2 text-body-small rounded-md transition-colors ${
                 timeWindow === window
-                  ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  ? 'bg-surface text-foreground shadow-sm'
+                  : 'text-muted hover:text-foreground'
               }`}
             >
               {getTimeWindowLabel(window)}
@@ -102,8 +102,8 @@ export default function AdminHomeownersAnalytics() {
 
       {/* Error State */}
       {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-          <p className="text-red-800 dark:text-red-200 font-medium">{error}</p>
+        <div className="bg-error/10 border border-error rounded-lg p-4">
+          <p className="text-error">{error}</p>
         </div>
       )}
 
@@ -111,7 +111,7 @@ export default function AdminHomeownersAnalytics() {
       {isLoading && (
         <div className="flex items-center justify-center py-12">
           <LoaderIcon />
-          <span className="ml-3 text-slate-600 dark:text-slate-400">Loading analytics...</span>
+          <span className="ml-3 text-muted">Loading analytics...</span>
         </div>
       )}
 
@@ -119,14 +119,14 @@ export default function AdminHomeownersAnalytics() {
       {!isLoading && analytics && (
         <>
           {/* Total Homeowners Card */}
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-6 text-white">
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-6 text-foreground-secondary">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-blue-100 text-sm font-medium mb-1">Total Homeowners</p>
-                <p className="text-4xl font-bold">{analytics.totals.homeowners.toLocaleString()}</p>
-                <p className="text-blue-100 text-xs mt-2">{getTimeWindowLabel(timeWindow)}</p>
+                <p className="text-blue-100 text-body-small mb-1">Total Homeowners</p>
+                <p className="text-heading-1">{analytics.totals.homeowners.toLocaleString()}</p>
+                <p className="text-blue-100 text-caption mt-2">{getTimeWindowLabel(timeWindow)}</p>
               </div>
-              <div className="bg-white/20 p-4 rounded-lg">
+              <div className="bg-surface/20 p-4 rounded-lg">
                 <UsersIcon />
               </div>
             </div>
@@ -134,26 +134,26 @@ export default function AdminHomeownersAnalytics() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* By Postcode */}
-            <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
-              <h2 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">By Postcode</h2>
+            <div className="bg-surface rounded-lg border border-border p-6">
+              <h2 className="text-heading-4 text-foreground mb-4">By Postcode</h2>
               
               {analytics.byPostcode.length === 0 ? (
-                <p className="text-slate-500 dark:text-slate-400 text-center py-8">No data available</p>
+                <p className="text-muted text-center py-8">No data available</p>
               ) : (
                 <div className="space-y-3">
                   {analytics.byPostcode.slice(0, 10).map((item, index) => (
                     <div key={index} className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="font-medium text-slate-700 dark:text-slate-300">
+                      <div className="flex items-center justify-between text-body-small">
+                        <span className="text-foreground">
                           {item.postcode || 'Not set'}
                         </span>
-                        <span className="text-slate-500 dark:text-slate-400">
+                        <span className="text-muted">
                           {item.count} ({item.percentage?.toFixed(1) || '0.0'}%)
                         </span>
                       </div>
-                      <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+                      <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
                         <div
-                          className="bg-blue-600 dark:bg-blue-500 h-full rounded-full transition-colors duration-500"
+                          className="bg-primary h-full rounded-full transition-colors duration-500"
                           style={{ width: `${item.percentage || 0}%` }}
                         />
                       </div>
@@ -163,33 +163,33 @@ export default function AdminHomeownersAnalytics() {
               )}
 
               {analytics.byPostcode.length > 10 && (
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-4 text-center">
+                <p className="text-caption text-muted mt-4 text-center">
                   Showing top 10 of {analytics.byPostcode.length} postcodes
                 </p>
               )}
             </div>
 
             {/* By Location */}
-            <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
-              <h2 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">By Location</h2>
+            <div className="bg-surface rounded-lg border border-border p-6">
+              <h2 className="text-heading-4 text-foreground mb-4">By Location</h2>
               
               {analytics.byLocation.length === 0 ? (
-                <p className="text-slate-500 dark:text-slate-400 text-center py-8">No data available</p>
+                <p className="text-muted text-center py-8">No data available</p>
               ) : (
                 <div className="space-y-3">
                   {analytics.byLocation.slice(0, 10).map((item, index) => (
                     <div key={index} className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="font-medium text-slate-700 dark:text-slate-300">
+                      <div className="flex items-center justify-between text-body-small">
+                        <span className="text-foreground">
                           {item.location}
                         </span>
-                        <span className="text-slate-500 dark:text-slate-400">
+                        <span className="text-muted">
                           {item.count} ({item.percentage?.toFixed(1) || '0.0'}%)
                         </span>
                       </div>
-                      <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+                      <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
                         <div
-                          className="bg-success dark:bg-green-500 h-full rounded-full transition-colors duration-500"
+                          className="bg-success h-full rounded-full transition-colors duration-500"
                           style={{ width: `${item.percentage || 0}%` }}
                         />
                       </div>
@@ -199,7 +199,7 @@ export default function AdminHomeownersAnalytics() {
               )}
 
               {analytics.byLocation.length > 10 && (
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-4 text-center">
+                <p className="text-caption text-muted mt-4 text-center">
                   Showing top 10 of {analytics.byLocation.length} locations
                 </p>
               )}
@@ -209,35 +209,35 @@ export default function AdminHomeownersAnalytics() {
           {/* Detailed Tables */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Postcode Table */}
-            <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
-              <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
-                <h3 className="text-sm font-semibold text-slate-800 dark:text-white">All Postcodes</h3>
+            <div className="bg-surface rounded-lg border border-border overflow-hidden">
+              <div className="px-6 py-4 border-b border-border">
+                <h3 className="text-label text-foreground">All Postcodes</h3>
               </div>
               <div className="overflow-x-auto max-h-96">
                 <table className="w-full">
-                  <thead className="bg-slate-50 dark:bg-slate-900 sticky top-0">
+                  <thead className="bg-slate-50 sticky top-0">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                      <th className="px-6 py-3 text-left text-caption text-muted uppercase">
                         Postcode
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                      <th className="px-6 py-3 text-right text-caption text-muted uppercase">
                         Count
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                      <th className="px-6 py-3 text-right text-caption text-muted uppercase">
                         %
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                  <tbody className="divide-y divide-slate-200">
                     {analytics.byPostcode.map((item, index) => (
-                      <tr key={index} className="hover:bg-slate-50 dark:hover:bg-slate-900/50">
-                        <td className="px-6 py-3 text-sm text-slate-900 dark:text-white">
+                      <tr key={index} className="hover:bg-slate-50">
+                        <td className="px-6 py-3 text-body-small text-foreground">
                           {item.postcode || 'Not set'}
                         </td>
-                        <td className="px-6 py-3 text-sm text-slate-900 dark:text-white text-right">
+                        <td className="px-6 py-3 text-body-small text-foreground text-right">
                           {item.count}
                         </td>
-                        <td className="px-6 py-3 text-sm text-slate-500 dark:text-slate-400 text-right">
+                        <td className="px-6 py-3 text-body-small text-muted text-right">
                           {item.percentage?.toFixed(1) || '0.0'}%
                         </td>
                       </tr>
@@ -248,35 +248,35 @@ export default function AdminHomeownersAnalytics() {
             </div>
 
             {/* Location Table */}
-            <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
-              <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
-                <h3 className="text-sm font-semibold text-slate-800 dark:text-white">All Locations</h3>
+            <div className="bg-surface rounded-lg border border-border overflow-hidden">
+              <div className="px-6 py-4 border-b border-border">
+                <h3 className="text-label text-foreground">All Locations</h3>
               </div>
               <div className="overflow-x-auto max-h-96">
                 <table className="w-full">
-                  <thead className="bg-slate-50 dark:bg-slate-900 sticky top-0">
+                  <thead className="bg-slate-50 sticky top-0">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                      <th className="px-6 py-3 text-left text-caption text-muted uppercase">
                         Location
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                      <th className="px-6 py-3 text-right text-caption text-muted uppercase">
                         Count
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                      <th className="px-6 py-3 text-right text-caption text-muted uppercase">
                         %
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                  <tbody className="divide-y divide-slate-200">
                     {analytics.byLocation.map((item, index) => (
-                      <tr key={index} className="hover:bg-slate-50 dark:hover:bg-slate-900/50">
-                        <td className="px-6 py-3 text-sm text-slate-900 dark:text-white">
+                      <tr key={index} className="hover:bg-slate-50">
+                        <td className="px-6 py-3 text-body-small text-foreground">
                           {item.location}
                         </td>
-                        <td className="px-6 py-3 text-sm text-slate-900 dark:text-white text-right">
+                        <td className="px-6 py-3 text-body-small text-foreground text-right">
                           {item.count}
                         </td>
-                        <td className="px-6 py-3 text-sm text-slate-500 dark:text-slate-400 text-right">
+                        <td className="px-6 py-3 text-body-small text-muted text-right">
                           {item.percentage?.toFixed(1) || '0.0'}%
                         </td>
                       </tr>

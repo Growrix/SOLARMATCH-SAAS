@@ -287,7 +287,7 @@ export default function Home() {
         {/* Removed all gradient overlays for a flat cream look in light mode */}
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-heading-2 lg:text-heading-1 font-bold text-foreground mb-4">
+            <h2 className="text-heading-2 lg:text-heading-1 text-foreground mb-4">
               How Much Could You Save?
             </h2>
             <p className="text-body-large text-muted-foreground max-w-3xl mx-auto">
@@ -304,7 +304,7 @@ export default function Home() {
 
               <button
                 onClick={() => setActiveCalculator('quote')}
-                className={`relative z-10 w-1/2 py-3 text-sm font-semibold flex items-center justify-center gap-2 transition-colors duration-300 rounded-full ${
+                className={`relative z-10 w-1/2 py-3 text-label flex items-center justify-center gap-2 transition-colors duration-300 rounded-full ${
                   activeCalculator === 'quote' ? 'text-primary' : 'text-muted-foreground'
                 }`}
                 aria-pressed={activeCalculator === 'quote'}
@@ -314,7 +314,7 @@ export default function Home() {
               </button>
               <button
                 onClick={() => setActiveCalculator('rebate')}
-                className={`relative z-10 w-1/2 py-3 text-sm font-semibold flex items-center justify-center gap-2 transition-colors duration-300 rounded-full ${
+                className={`relative z-10 w-1/2 py-3 text-label flex items-center justify-center gap-2 transition-colors duration-300 rounded-full ${
                   activeCalculator === 'rebate' ? 'text-primary' : 'text-muted-foreground'
                 }`}
                 aria-pressed={activeCalculator === 'rebate'}

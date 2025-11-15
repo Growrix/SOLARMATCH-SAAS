@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React from"react";
 
 // Icon components (copy from dashboard page)
 const SunIcon = () => (
@@ -101,10 +101,10 @@ const LogOutIcon = () => (
   </svg>
 );
 
-import { useState } from "react";
+import { useState } from"react";
 
 const ChevronDownIcon = ({ open }: { open: boolean }) => (
-  <svg className={`h-4 w-4 ml-2 transition-transform duration-300 ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+  <svg className={`h-4 w-4 ml-2 transition-transform duration-300 ${open ?"rotate-180" :""}`} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
     <path d="m6 9 6 6 6-6" />
   </svg>
 );

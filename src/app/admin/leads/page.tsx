@@ -156,8 +156,8 @@ export default function AdminLeadsPage() {
     <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 md:p-8">
       {/* Page Title & Subtitle */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">Leads Management</h1>
-        <p className="text-lg text-muted-foreground">View, filter, and manage all homeowner leads in the system.</p>
+        <h1 className="text-heading-1 text-foreground mb-2">Leads Management</h1>
+        <p className="text-heading-4 text-muted-foreground">View, filter, and manage all homeowner leads in the system.</p>
       </div>
       {/* Loading State */}
       {loading && (
@@ -186,14 +186,14 @@ export default function AdminLeadsPage() {
       <div className="bg-surface rounded-2xl shadow-neu-outset p-6 mb-6">
         <form className="flex flex-col gap-4 md:flex-row md:items-end md:gap-6">
           <div className="flex-1 flex flex-col gap-2 min-w-[220px]">
-            <label className="block text-sm font-medium text-foreground">Search Leads</label>
+            <label className="block text-body-small text-foreground">Search Leads</label>
             <div className="relative">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by homeowner name, email, or quote ID..."
-                className="form-input w-full h-12 pl-10 pr-10 rounded-2xl shadow-neu-inset text-base"
+                className="form-input w-full h-12 pl-10 pr-10 rounded-2xl shadow-neu-inset text-body"
               />
               <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -213,11 +213,11 @@ export default function AdminLeadsPage() {
           </div>
 
           <div className="flex-1 flex flex-col gap-2 min-w-[180px]">
-            <label className="block text-sm font-medium text-foreground">Status</label>
+            <label className="block text-body-small text-foreground">Status</label>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="form-select w-full h-12 rounded-2xl shadow-neu-inset text-base"
+              className="form-select w-full h-12 rounded-2xl shadow-neu-inset text-body"
             >
               <option value="ALL">All Statuses</option>
               <option value="DRAFT">Draft</option>
@@ -231,11 +231,11 @@ export default function AdminLeadsPage() {
           </div>
 
           <div className="flex-1 flex flex-col gap-2 min-w-[180px]">
-            <label className="block text-sm font-medium text-foreground">Verification</label>
+            <label className="block text-body-small text-foreground">Verification</label>
             <select
               value={verificationFilter}
               onChange={(e) => setVerificationFilter(e.target.value)}
-              className="form-select w-full h-12 rounded-2xl shadow-neu-inset text-base"
+              className="form-select w-full h-12 rounded-2xl shadow-neu-inset text-body"
             >
               <option value="ALL">All</option>
               <option value="VERIFIED">Verified Only</option>
@@ -244,13 +244,13 @@ export default function AdminLeadsPage() {
           </div>
 
           <div className="flex-1 flex flex-col gap-2 min-w-[180px]">
-            <label className="block text-sm font-medium text-foreground">Postcode</label>
+            <label className="block text-body-small text-foreground">Postcode</label>
             <input
               type="text"
               value={postcodeFilter}
               onChange={(e) => setPostcodeFilter(e.target.value)}
               placeholder="e.g., SW1A"
-              className="form-input w-full h-12 rounded-2xl shadow-neu-inset text-base pl-4 placeholder:text-left placeholder:text-muted-foreground"
+              className="form-input w-full h-12 rounded-2xl shadow-neu-inset text-body pl-4 placeholder:text-left placeholder:text-muted-foreground"
             />
           </div>
 
@@ -289,16 +289,16 @@ export default function AdminLeadsPage() {
             <table className="w-full">
               <thead className="bg-surface shadow-neu-inset">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Homeowner</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Location</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Quote Type</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Countdown</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Verified</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Energy Bill</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Price</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Created</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">Homeowner</th>
+                  <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">Location</th>
+                  <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">Quote Type</th>
+                  <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">Countdown</th>
+                  <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">Verified</th>
+                  <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">Energy Bill</th>
+                  <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">Price</th>
+                  <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">Created</th>
+                  <th className="px-6 py-3 text-right text-caption text-muted-foreground uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -310,22 +310,22 @@ export default function AdminLeadsPage() {
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
-                        <div className="text-sm font-medium text-foreground">{lead.homeowner.name}</div>
-                        <div className="text-sm text-muted-foreground">{lead.homeowner.email}</div>
+                        <div className="text-body-small text-foreground">{lead.homeowner.name}</div>
+                        <div className="text-body-small text-muted-foreground">{lead.homeowner.email}</div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-foreground">{lead.location}</div>
-                      <div className="text-sm text-muted-foreground">{lead.postcode}</div>
+                      <div className="text-body-small text-foreground">{lead.location}</div>
+                      <div className="text-body-small text-muted-foreground">{lead.postcode}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2 text-sm">
-                        <span className="text-lg">{getQuoteTypeIcon(lead.quoteType)}</span>
+                      <div className="flex items-center gap-2 text-body-small">
+                        <span className="text-heading-4">{getQuoteTypeIcon(lead.quoteType)}</span>
                         <span>{getQuoteTypeLabel(lead.quoteType)}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      <span className={`inline-flex px-2 py-1 text-caption rounded-full ${
                         lead.status === 'APPROVED'
                           ? 'bg-success/10 text-success border border-success/20'
                           : lead.status === 'REJECTED' || lead.status === 'CANCELLED'
@@ -365,22 +365,22 @@ export default function AdminLeadsPage() {
                         </div>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                    <td className="px-6 py-4 whitespace-nowrap text-body-small text-foreground">
                       £{lead.energyBill.toFixed(2)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                    <td className="px-6 py-4 whitespace-nowrap text-body-small text-foreground">
                       {lead.leadPrice ? `£${lead.leadPrice.toFixed(2)}` : '—'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                    <td className="px-6 py-4 whitespace-nowrap text-body-small text-foreground">
                       {formatDate(lead.createdAt)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-body-small">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           router.push(`/admin/leads/${lead.id}`);
                         }}
-                        className="text-primary hover:text-primary/80 font-medium"
+                        className="text-primary hover:text-primary/80"
                       >
                         View →
                       </button>
@@ -394,21 +394,21 @@ export default function AdminLeadsPage() {
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="px-6 py-4 border-t border-border flex justify-between items-center">
-              <div className="text-sm text-muted-foreground">
+              <div className="text-body-small text-muted-foreground">
                 Page {page} of {totalPages}
               </div>
               <div className="flex gap-2">
                 <button
                   onClick={() => setPage(p => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="px-4 py-2 border border-border rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-hover"
+                  className="px-4 py-2 border border-border rounded-lg text-body-small transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-hover"
                 >
                   Previous
                 </button>
                 <button
                   onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
-                  className="px-4 py-2 border border-border rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-hover"
+                  className="px-4 py-2 border border-border rounded-lg text-body-small transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-hover"
                 >
                   Next
                 </button>
@@ -434,7 +434,7 @@ export default function AdminLeadsPage() {
               d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
             />
           </svg>
-          <h3 className="text-lg font-medium text-foreground mb-2">No leads found</h3>
+          <h3 className="text-heading-4 text-foreground mb-2">No leads found</h3>
           <p className="text-muted-foreground">
             {searchQuery
               ? 'No leads match your search query. Try different keywords.'

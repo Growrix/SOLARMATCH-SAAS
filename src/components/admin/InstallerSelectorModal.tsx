@@ -9,7 +9,7 @@
  * - Verification status badges
  * - Exclusive vs Competitive mode selection
  * - Assignment notes
- * - "All Verified Installers" quick select
+ * -"All Verified Installers" quick select
  */
 
 import { useState, useEffect } from 'react';
@@ -151,15 +151,15 @@ export default function InstallerSelectorModal({
         />
 
         {/* Modal */}
-        <div className="relative w-full max-w-3xl rounded-lg bg-white dark:bg-gray-800 shadow-xl">
+        <div className="relative w-full max-w-3xl rounded-lg bg-surface shadow-xl">
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+          <div className="flex items-center justify-between border-b border-border px-6 py-4">
+            <h2 className="text-heading-3 text-foreground">
               Assign Lead to Installer(s)
             </h2>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-muted-foreground dark:hover:text-gray-300"
+              className="text-gray-400 hover:text-muted-foreground"
             >
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -171,8 +171,8 @@ export default function InstallerSelectorModal({
           <div className="px-6 py-4 space-y-4 max-h-[70vh] overflow-y-auto">
             {/* Error Alert */}
             {error && (
-              <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4">
-                <p className="text-sm text-red-800 dark:text-red-300">{error}</p>
+              <div className="rounded-md bg-error/10 p-4">
+                <p className="text-body-small text-error">{error}</p>
               </div>
             )}
 
@@ -183,7 +183,7 @@ export default function InstallerSelectorModal({
                 placeholder="Search by name, email, company, or postcode..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-md border border-border dark:border-gray-600 px-4 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500"
+                className="w-full rounded-md border border-border px-4 py-2 bg-surface text-foreground focus:ring-2 focus:ring-emerald-500"
               />
 
               <div className="flex items-center justify-between">
@@ -194,14 +194,14 @@ export default function InstallerSelectorModal({
                     onChange={(e) => setIncludeUnverified(e.target.checked)}
                     className="rounded border-border text-emerald-600 focus:ring-emerald-500"
                   />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                  <span className="text-body-small text-gray-700">
                     Include Unverified Installers
                   </span>
                 </label>
 
                 <button
                   onClick={selectAllVerified}
-                  className="text-sm text-emerald-600 dark:text-emerald-400 hover:underline"
+                  className="text-body-small text-emerald-600 hover:underline"
                 >
                   Select All Verified ({installers.filter(i => i.installerVerified).length})
                 </button>
@@ -210,58 +210,58 @@ export default function InstallerSelectorModal({
 
             {/* Assignment Mode */}
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label className="block text-body-small text-gray-700">
                 Assignment Mode
               </label>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => setMode('exclusive')}
-                  className={`px-4 py-3 rounded-md border-2 text-sm font-medium transition-colors ${
+                  className={`px-4 py-3 rounded-md border-2 text-body-small transition-colors ${
                     mode === 'exclusive'
-                      ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300'
-                      : 'border-border dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-400'
+                      ? 'border-emerald-600 bg-emerald-50 text-emerald-700'
+                      : 'border-border bg-surface text-gray-700 hover:border-gray-400'
                   }`}
                 >
-                  <div className="font-semibold">Exclusive</div>
-                  <div className="text-xs mt-1">Only one installer can accept</div>
+                  <div className="">Exclusive</div>
+                  <div className="text-caption mt-1">Only one installer can accept</div>
                 </button>
                 <button
                   onClick={() => setMode('competitive')}
-                  className={`px-4 py-3 rounded-md border-2 text-sm font-medium transition-colors ${
+                  className={`px-4 py-3 rounded-md border-2 text-body-small transition-colors ${
                     mode === 'competitive'
-                      ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300'
-                      : 'border-border dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-400'
+                      ? 'border-emerald-600 bg-emerald-50 text-emerald-700'
+                      : 'border-border bg-surface text-gray-700 hover:border-gray-400'
                   }`}
                 >
-                  <div className="font-semibold">Competitive</div>
-                  <div className="text-xs mt-1">First to accept wins</div>
+                  <div className="">Competitive</div>
+                  <div className="text-caption mt-1">First to accept wins</div>
                 </button>
               </div>
             </div>
 
             {/* Installer List */}
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label className="block text-body-small text-gray-700">
                 Select Installers ({selectedIds.length} selected)
               </label>
 
               {loading ? (
-                <div className="text-center py-8 text-muted-foreground dark:text-gray-400">
+                <div className="text-center py-8 text-muted-foreground">
                   Loading installers...
                 </div>
               ) : filteredInstallers.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground dark:text-gray-400">
+                <div className="text-center py-8 text-muted-foreground">
                   No installers found
                 </div>
               ) : (
-                <div className="space-y-2 max-h-60 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-md p-2">
+                <div className="space-y-2 max-h-60 overflow-y-auto border border-border rounded-md p-2">
                   {filteredInstallers.map((installer) => (
                     <label
                       key={installer.id}
                       className={`flex items-center gap-3 p-3 rounded-md cursor-pointer transition-colors ${
                         selectedIds.includes(installer.id)
-                          ? 'bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-300 dark:border-emerald-700'
-                          : 'bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 border border-transparent'
+                          ? 'bg-emerald-50 border border-emerald-300'
+                          : 'bg-surface hover:bg-surface border border-transparent'
                       }`}
                     >
                       <input
@@ -272,16 +272,16 @@ export default function InstallerSelectorModal({
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="font-medium text-gray-900 dark:text-white truncate">
+                          <span className="text-foreground truncate">
                             {installer.name || 'No Name'}
                           </span>
                           {installer.installerVerified && (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-caption bg-emerald-100 text-emerald-800">
                               Verified
                             </span>
                           )}
                         </div>
-                        <div className="text-sm text-muted-foreground dark:text-gray-400">
+                        <div className="text-body-small text-muted-foreground">
                           {installer.companyName && <span>{installer.companyName} • </span>}
                           <span>{installer.email}</span>
                           {installer.postcode && <span> • {installer.postcode}</span>}
@@ -295,7 +295,7 @@ export default function InstallerSelectorModal({
 
             {/* Assignment Notes */}
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label className="block text-body-small text-gray-700">
                 Assignment Notes (Optional)
               </label>
               <textarea
@@ -303,7 +303,7 @@ export default function InstallerSelectorModal({
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Add any notes or context for the installer(s)..."
                 rows={3}
-                className="w-full rounded-md border border-border dark:border-gray-600 px-4 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500"
+                className="w-full rounded-md border border-border px-4 py-2 bg-surface text-foreground focus:ring-2 focus:ring-emerald-500"
               />
             </div>
 
@@ -315,25 +315,25 @@ export default function InstallerSelectorModal({
                 onChange={(e) => setNotifyInstallers(e.target.checked)}
                 className="rounded border-border text-emerald-600 focus:ring-emerald-500"
               />
-              <span className="text-sm text-gray-700 dark:text-gray-300">
+              <span className="text-body-small text-gray-700">
                 Send notifications to assigned installers
               </span>
             </label>
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-end gap-3 border-t border-gray-200 dark:border-gray-700 px-6 py-4">
+          <div className="flex items-center justify-end gap-3 border-t border-border px-6 py-4">
             <button
               onClick={onClose}
               disabled={submitting}
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors disabled:opacity-50"
+              className="px-4 py-2 text-body-small text-gray-700 hover:bg-surface rounded-md transition-colors disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               onClick={handleSubmit}
               disabled={submitting || selectedIds.length === 0}
-              className="px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-body-small text-foreground-secondary bg-emerald-600 hover:bg-emerald-700 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submitting ? 'Assigning...' : `Assign to ${selectedIds.length} Installer${selectedIds.length !== 1 ? 's' : ''}`}
             </button>

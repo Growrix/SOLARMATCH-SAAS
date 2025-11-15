@@ -69,7 +69,7 @@ const NavItem: React.FC<{
     }`}
   >
     {icon}
-    <span className="text-xs font-medium">{label}</span>
+    <span className="text-caption">{label}</span>
   </button>
 );
 

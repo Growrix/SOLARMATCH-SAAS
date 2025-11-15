@@ -29,7 +29,7 @@ const RequestMoreQuotesCTA: React.FC<RequestMoreQuotesCTAProps> = ({
 
   return (
   <section
-    className={`bg-background rounded-card p-5 sm:p-6 shadow-neu-outset transition-all duration-200 hover:shadow-neu-inset focus-within:shadow-neu-inset ${className}`}
+    className={`bg-background rounded-card p-5 sm:p-6 shadow-neu-outset transition-colors duration-200 hover:shadow-neu-inset focus-within:shadow-neu-inset ${className}`}
     tabIndex={-1}
   >
   <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 shadow-neu-inset rounded-lg p-3 bg-background/80">
@@ -60,7 +60,7 @@ const RequestMoreQuotesCTA: React.FC<RequestMoreQuotesCTAProps> = ({
         <div className="mb-4">
           <div className="h-2 rounded-full bg-muted overflow-hidden">
             <div
-              className="h-full bg-primary transition-all"
+              className="h-full bg-primary transition-colors"
               style={{ width: `${progress}%` }}
               aria-hidden="true"
             />

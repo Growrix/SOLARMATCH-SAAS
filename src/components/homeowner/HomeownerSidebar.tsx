@@ -129,7 +129,7 @@ const HomeownerSidebar: React.FC<HomeownerSidebarProps> = ({
         <button
           onClick={onLogoutClick}
           className={`dashboard-nav-item ${isCollapsed ? 'dashboard-nav-item--collapsed' : 'dashboard-nav-item--expanded'}`}
-          title={isCollapsed ? "Logout" : undefined}
+          title={isCollapsed ?"Logout" : undefined}
         >
           <div className={`flex items-center ${isCollapsed ? '' : 'space-x-3'}`}>
             <span className="dashboard-nav-item__icon"><LogOutIcon /></span>

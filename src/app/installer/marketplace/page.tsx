@@ -137,7 +137,7 @@ export default function InstallerMarketplacePage() {
 
         const confirmData = await confirmResponse.json();
         
-        alert(`✅ Lead purchased successfully! (Dev mode - no payment required)\n\nYou can now view the full contact details in "Purchased Leads".`);
+        alert(`✅ Lead purchased successfully! (Dev mode - no payment required)\n\nYou can now view the full contact details in"Purchased Leads".`);
         
         // Refresh leads list
         fetchMarketplaceLeads();
@@ -166,13 +166,13 @@ export default function InstallerMarketplacePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 py-8">
+      <div className="min-h-screen bg-slate-50 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="animate-pulse">
-            <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded w-1/3 mb-6"></div>
+            <div className="h-8 bg-slate-200 rounded w-1/3 mb-6"></div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3, 4, 5, 6].map(i => (
-                <div key={i} className="h-64 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
+                <div key={i} className="h-64 bg-slate-200 rounded-lg"></div>
               ))}
             </div>
           </div>
@@ -183,10 +183,10 @@ export default function InstallerMarketplacePage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 py-8">
+      <div className="min-h-screen bg-slate-50 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
-            <p className="text-red-800 dark:text-red-200">Error: {error}</p>
+          <div className="bg-error/10 border border-error rounded-lg p-6">
+            <p className="text-error">Error: {error}</p>
           </div>
         </div>
       </div>
@@ -194,28 +194,28 @@ export default function InstallerMarketplacePage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 py-8">
+    <div className="min-h-screen bg-slate-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+          <h1 className="text-heading-1 text-foreground mb-2">
             Lead Marketplace
           </h1>
-          <p className="text-slate-600 dark:text-slate-400">
+          <p className="text-muted">
             Browse and purchase available solar installation leads
           </p>
         </div>
 
         {/* Verification Warning */}
         {!session?.user?.installerVerified && (
-          <div className="mb-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+          <div className="mb-6 bg-warning/10 border border-warning rounded-lg p-4">
             <div className="flex items-center">
-              <ShieldCheckIcon className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mr-2" />
-              <p className="text-yellow-800 dark:text-yellow-200 font-medium">
+              <ShieldCheckIcon className="h-5 w-5 text-warning mr-2" />
+              <p className="text-warning">
                 Verification Required
               </p>
             </div>
-            <p className="text-yellow-700 dark:text-yellow-300 text-sm mt-1">
+            <p className="text-warning text-body-small mt-1">
               You must complete installer verification before purchasing leads.
             </p>
           </div>
@@ -227,10 +227,10 @@ export default function InstallerMarketplacePage() {
             <button
               key={type}
               onClick={() => setFilter(type)}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-4 py-2 rounded-lg transition-colors ${
                 filter === type
-                  ? 'bg-brand-600 text-white'
-                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700'
+                  ? 'bg-brand-600 text-foreground-secondary'
+                  : 'bg-surface text-foreground border border-border hover:bg-slate-50'
               }`}
             >
               {type === 'ALL' ? 'All Leads' : type.replace('_', ' ')}
@@ -240,9 +240,9 @@ export default function InstallerMarketplacePage() {
 
         {/* Leads Grid */}
         {filteredLeads.length === 0 ? (
-          <div className="bg-white dark:bg-slate-800 rounded-lg p-12 text-center">
-            <SparklesIcon className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-            <p className="text-slate-600 dark:text-slate-400">
+          <div className="bg-surface rounded-lg p-12 text-center">
+            <SparklesIcon className="h-12 w-12 text-muted mx-auto mb-4" />
+            <p className="text-muted">
               No leads available at the moment. Check back soon!
             </p>
           </div>
@@ -251,7 +251,7 @@ export default function InstallerMarketplacePage() {
             {filteredLeads.map(lead => (
               <div
                 key={lead.id}
-                className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6 hover:shadow-md transition-shadow"
+                className="bg-surface rounded-lg shadow-sm border border-border p-6 hover:shadow-md transition-shadow"
               >
                 {/* Countdown Timer */}
                 {lead.expiresAt && (
@@ -268,7 +268,7 @@ export default function InstallerMarketplacePage() {
 
                 {/* Quote Type Badge */}
                 <div className="mb-4">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-brand-100 dark:bg-brand-900/30 text-brand-800 dark:text-brand-300">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-caption bg-brand-100 text-brand-800">
                     {lead.quoteType.replace('_', ' ')}
                   </span>
                 </div>
@@ -276,65 +276,65 @@ export default function InstallerMarketplacePage() {
                 {/* Lead Info */}
                 <div className="space-y-3 mb-4">
                   {/* Masked Homeowner Name */}
-                  <div className="flex items-center text-sm">
-                    <EyeSlashIcon className="h-4 w-4 text-slate-400 mr-2" />
-                    <span className="text-slate-600 dark:text-slate-400">
+                  <div className="flex items-center text-body-small">
+                    <EyeSlashIcon className="h-4 w-4 text-muted mr-2" />
+                    <span className="text-muted">
                       Homeowner: {lead.homeowner.name.split(' ')[0]}*** {/* Mask last name */}
                     </span>
                   </div>
 
                   {/* Location (if available) */}
                   {lead.location && (
-                    <div className="flex items-center text-sm">
-                      <MapPinIcon className="h-4 w-4 text-slate-400 mr-2" />
-                      <span className="text-slate-600 dark:text-slate-400">{lead.location}</span>
+                    <div className="flex items-center text-body-small">
+                      <MapPinIcon className="h-4 w-4 text-muted mr-2" />
+                      <span className="text-muted">{lead.location}</span>
                     </div>
                   )}
 
                   {/* Property Type */}
                   {lead.propertyType && (
-                    <div className="text-sm text-slate-600 dark:text-slate-400">
+                    <div className="text-body-small text-muted">
                       Property: {lead.propertyType}
                     </div>
                   )}
 
                   {/* Estimated Budget */}
                   {lead.estimatedBudget && (
-                    <div className="text-sm text-slate-600 dark:text-slate-400">
+                    <div className="text-body-small text-muted">
                       Budget: £{lead.estimatedBudget.toLocaleString()}
                     </div>
                   )}
 
                   {/* Created Date */}
-                  <div className="flex items-center text-sm">
-                    <ClockIcon className="h-4 w-4 text-slate-400 mr-2" />
-                    <span className="text-slate-600 dark:text-slate-400">
+                  <div className="flex items-center text-body-small">
+                    <ClockIcon className="h-4 w-4 text-muted mr-2" />
+                    <span className="text-muted">
                       {new Date(lead.createdAt).toLocaleDateString()}
                     </span>
                   </div>
                 </div>
 
                 {/* Price & Purchase Button */}
-                <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+                <div className="border-t border-border pt-4">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center">
-                      <CurrencyPoundIcon className="h-5 w-5 text-brand-600 dark:text-brand-400 mr-1" />
-                      <span className="text-2xl font-bold text-slate-900 dark:text-white">
+                      <CurrencyPoundIcon className="h-5 w-5 text-brand-600 mr-1" />
+                      <span className="text-heading-2 text-foreground">
                         {lead.leadPrice || 50}
                       </span>
                     </div>
-                    <span className="text-xs text-slate-500 dark:text-slate-400">per lead</span>
+                    <span className="text-caption text-muted">per lead</span>
                   </div>
 
                   <button
                     onClick={() => handlePurchase(lead.id)}
                     disabled={!session?.user?.installerVerified || purchasing === lead.id}
-                    className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
+                    className={`w-full py-3 px-4 rounded-lg transition-colors ${
                       !session?.user?.installerVerified
-                        ? 'bg-slate-300 dark:bg-slate-600 text-slate-500 dark:text-slate-400 cursor-not-allowed'
+                        ? 'bg-slate-300 text-muted cursor-not-allowed'
                         : purchasing === lead.id
-                        ? 'bg-brand-400 text-white cursor-wait'
-                        : 'bg-brand-600 text-white hover:bg-brand-700'
+                        ? 'bg-brand-400 text-foreground-secondary cursor-wait'
+                        : 'bg-brand-600 text-foreground-secondary hover:bg-brand-700'
                     }`}
                   >
                     {purchasing === lead.id ? 'Processing...' : 'Purchase Lead'}
@@ -347,8 +347,8 @@ export default function InstallerMarketplacePage() {
 
         {/* Dev Mode Notice */}
         {process.env.NEXT_PUBLIC_STRIPE_BYPASS_MODE === 'true' && (
-          <div className="mt-8 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-            <p className="text-blue-800 dark:text-blue-200 text-sm">
+          <div className="mt-8 bg-primary/10 border border-primary rounded-lg p-4">
+            <p className="text-primary text-body-small">
               🔧 <strong>Development Mode:</strong> Purchases are simulated without payment processing.
             </p>
           </div>

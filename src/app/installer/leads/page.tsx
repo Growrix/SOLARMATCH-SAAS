@@ -10,10 +10,10 @@ export default function InstallerLeadsPage() {
   // Mock installer data
   const mockInstaller = {
     id: 1,
-    companyName: "Solar Experts Inc.",
-    email: "contact@solarexperts.com",
-    phone: "+1 (555) 123-4567",
-    serviceAreas: ["Sydney", "Melbourne", "Brisbane"],
+    companyName:"Solar Experts Inc.",
+    email:"contact@solarexperts.com",
+    phone:"+1 (555) 123-4567",
+    serviceAreas: ["Sydney","Melbourne","Brisbane"],
     isApproved: true,
     creditBalance: 150,
     totalUnlocks: 42,

@@ -170,19 +170,19 @@ export default function LeadEditModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 px-6 py-4 flex items-center justify-between rounded-t-lg -mx-4 sm:-mx-6 lg:-mx-8 -mt-4 sm:-mt-6 lg:-mt-8 mb-6">
+        <div className="sticky top-0 z-10 bg-surface border-b border-border px-6 py-4 flex items-center justify-between rounded-t-lg -mx-4 sm:-mx-6 lg:-mx-8 -mt-4 sm:-mt-6 lg:-mt-8 mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+            <h2 className="text-heading-2 text-foreground">
               Edit Quote Request
             </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+            <p className="text-body-small text-muted mt-1">
               Update your quote details before installer assignment
             </p>
           </div>
           <button
             onClick={handleCancel}
             disabled={isLoading}
-            className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors p-2 rounded-lg disabled:opacity-50"
+            className="text-muted hover:text-foreground transition-colors p-2 rounded-lg disabled:opacity-50"
             aria-label="Close"
           >
             <XIcon />
@@ -191,40 +191,40 @@ export default function LeadEditModal({
 
         {/* Success Message */}
         {success && (
-          <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-center gap-2 text-green-700 dark:text-green-400">
+          <div className="mb-4 p-4 bg-success/10 border border-success rounded-lg flex items-center gap-2 text-success">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
               <polyline points="22 4 12 14.01 9 11.01"/>
             </svg>
-            <span className="font-medium">Lead updated successfully!</span>
+            <span className="">Lead updated successfully!</span>
           </div>
         )}
 
         {/* Error Message */}
         {error && (
-          <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-2 text-red-700 dark:text-red-400">
+          <div className="mb-4 p-4 bg-error/10 border border-error rounded-lg flex items-start gap-2 text-error">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 mt-0.5">
               <circle cx="12" cy="12" r="10"/>
               <line x1="12" y1="8" x2="12" y2="12"/>
               <line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
             <div>
-              <p className="font-medium">Failed to update lead</p>
-              <p className="text-sm mt-1">{error}</p>
+              <p className="">Failed to update lead</p>
+              <p className="text-body-small mt-1">{error}</p>
             </div>
           </div>
         )}
 
         {/* Info Banner */}
-        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-          <div className="flex items-start gap-2 text-blue-700 dark:text-blue-400">
+        <div className="mb-6 p-4 bg-primary/10 border border-primary rounded-lg">
+          <div className="flex items-start gap-2 text-primary">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 mt-0.5">
               <circle cx="12" cy="12" r="10"/>
               <line x1="12" y1="16" x2="12" y2="12"/>
               <line x1="12" y1="8" x2="12.01" y2="8"/>
             </svg>
-            <div className="text-sm">
-              <p className="font-medium">You can edit this quote because it hasn&apos;t been approved yet.</p>
+            <div className="text-body-small">
+              <p className="">You can edit this quote because it hasn&apos;t been approved yet.</p>
               <p className="mt-1">Once an admin approves your request, you won&apos;t be able to make changes.</p>
             </div>
           </div>

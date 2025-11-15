@@ -21,7 +21,7 @@ export function ThemeSwitcher() {
           title={themeOption.label}
           className={`
             w-9 h-9 rounded-full flex items-center justify-center
-            transition-all duration-200
+            transition-colors duration-200
             ${
               theme === themeOption.value
                 ? 'bg-surface shadow-neu-outset scale-100'
@@ -29,7 +29,7 @@ export function ThemeSwitcher() {
             }
           `}
         >
-          <span className="text-lg">{themeOption.icon}</span>
+          <span className="text-heading-4">{themeOption.icon}</span>
         </button>
       ))}
     </div>

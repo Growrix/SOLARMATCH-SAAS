@@ -49,7 +49,7 @@ const QuoteSuccessModal: React.FC<QuoteSuccessModalProps> = ({ isOpen, onClose, 
           <CheckCircleIcon />
         </div>
         
-        <h2 className="text-2xl font-bold text-foreground mb-4">
+        <h2 className="text-heading-2 text-foreground mb-4">
           Success! Your Quote Request is Submitted.
         </h2>
         
@@ -58,7 +58,7 @@ const QuoteSuccessModal: React.FC<QuoteSuccessModalProps> = ({ isOpen, onClose, 
         </p>
 
         <div className="mt-8 mb-6 p-4 bg-muted/50 rounded-xl text-left">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-body-small text-muted-foreground">
                 <strong>Explore your dashboard to unlock exclusive features:</strong>
                 <ul className="list-disc list-inside mt-2 space-y-1">
                     <li>Live bidding from installers</li>

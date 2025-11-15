@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
-import { ThemeSwitcher } from "@/components/ThemeSwitcher";
-import { Search as SearchIcon, HelpCircle as HelpCircleIcon, Bell as BellIcon } from "lucide-react";
+import React, { useState } from"react";
+import { ThemeSwitcher } from"@/components/ThemeSwitcher";
+import { Search as SearchIcon, HelpCircle as HelpCircleIcon, Bell as BellIcon } from"lucide-react";
 
 interface InstallerDashboardHeaderProps {
   // No pageTitle prop
@@ -18,11 +18,11 @@ export const InstallerDashboardHeader: React.FC<InstallerDashboardHeaderProps> =
       </div>
       <div className="dashboard-header__right">
         {/* Search Input */}
-        <div className={`dashboard-header__search ${isSearchOpen ? "dashboard-header__search--active" : ""}`}>
+        <div className={`dashboard-header__search ${isSearchOpen ?"dashboard-header__search--active" :""}`}>
           <input 
             type="text" 
             placeholder="Search leads..." 
-            className={`dashboard-header__search-input ${isSearchOpen ? "dashboard-header__search-input--expanded" : "dashboard-header__search-input--collapsed"}`}
+            className={`dashboard-header__search-input ${isSearchOpen ?"dashboard-header__search-input--expanded" :"dashboard-header__search-input--collapsed"}`}
           />
           <button 
             onClick={() => setIsSearchOpen(!isSearchOpen)} 

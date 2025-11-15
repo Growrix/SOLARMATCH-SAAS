@@ -30,12 +30,12 @@ const Header: React.FC<HeaderProps> = ({ theme, setTheme, isLoggedIn, onLoginCli
     <header className="py-4 sm:py-6">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Neumorphic Rounded Bar */}
-        <div className="bg-background rounded-full shadow-neu-outset px-6 py-3 transition-all duration-300 hover:shadow-neu-outset-lg">
+        <div className="bg-background rounded-full shadow-neu-outset px-6 py-3 transition-colors duration-300 hover:shadow-neu-outset-lg">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <button onClick={onHomeClick} className="flex items-center space-x-3 cursor-pointer hover:opacity-90 transition-opacity">
               <SunIcon />
-              <span className="text-xl sm:text-2xl font-bold text-primary">SolarMatch</span>
+              <span className="text-heading-3 sm:text-heading-2 text-primary">SolarMatch</span>
             </button>
             
             {/* Right Side: Theme Switcher + Navigation */}
@@ -49,13 +49,13 @@ const Header: React.FC<HeaderProps> = ({ theme, setTheme, isLoggedIn, onLoginCli
                   <>
                     <button 
                       onClick={onDashboardClick}
-                      className="px-5 py-2 text-sm font-bold tracking-wider text-foreground hover:text-primary transition-colors rounded-full bg-background shadow-neu-outset-sm hover:shadow-neu-inset-sm active:shadow-neu-inset-sm active:scale-[0.98]"
+                      className="px-5 py-2 text-body-small tracking-wider text-foreground hover:text-primary transition-colors rounded-full bg-background shadow-neu-outset-sm hover:shadow-neu-inset-sm active:shadow-neu-inset-sm active:scale-[0.98]"
                     >
                       Dashboard
                     </button>
                     <button 
                       onClick={onLogoutClick}
-                      className="px-5 py-2 text-sm font-bold tracking-wider text-foreground hover:text-primary transition-colors rounded-full bg-background shadow-neu-outset-sm hover:shadow-neu-inset-sm active:shadow-neu-inset-sm active:scale-[0.98]"
+                      className="px-5 py-2 text-body-small tracking-wider text-foreground hover:text-primary transition-colors rounded-full bg-background shadow-neu-outset-sm hover:shadow-neu-inset-sm active:shadow-neu-inset-sm active:scale-[0.98]"
                     >
                       Logout
                     </button>
@@ -64,13 +64,13 @@ const Header: React.FC<HeaderProps> = ({ theme, setTheme, isLoggedIn, onLoginCli
                   <>
                     <button 
                       onClick={onLoginClick}
-                      className="px-5 py-2 text-sm font-bold tracking-wider text-foreground hover:text-primary transition-colors rounded-full bg-background shadow-neu-outset-sm hover:shadow-neu-inset-sm active:shadow-neu-inset-sm active:scale-[0.98]"
+                      className="px-5 py-2 text-body-small tracking-wider text-foreground hover:text-primary transition-colors rounded-full bg-background shadow-neu-outset-sm hover:shadow-neu-inset-sm active:shadow-neu-inset-sm active:scale-[0.98]"
                     >
                       Login
                     </button>
                     <button 
                       onClick={onSignupClick}
-                      className="px-5 py-2 text-sm font-bold tracking-wider border border-primary text-primary rounded-full bg-transparent shadow-neu-outset-sm hover:shadow-neu-inset-sm active:shadow-neu-inset-sm active:scale-[0.98]"
+                      className="px-5 py-2 text-body-small tracking-wider border border-primary text-primary rounded-full bg-transparent shadow-neu-outset-sm hover:shadow-neu-inset-sm active:shadow-neu-inset-sm active:scale-[0.98]"
                     >
                       Sign Up
                     </button>

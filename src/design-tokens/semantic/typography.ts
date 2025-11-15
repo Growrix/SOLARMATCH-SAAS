@@ -16,8 +16,8 @@ import type { TextStyle, ResponsiveFontSize } from '../types';
 export const typography = {
   // Font families
   fontFamily: {
-    sans: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-    mono: '"Fira Code", "Courier New", Consolas, Monaco, monospace',
+    sans: 'Inter, system-ui, -apple-system, BlinkMacSystemFont,"Segoe UI", Roboto,"Helvetica Neue", Arial, sans-serif',
+    mono: '"Fira Code","Courier New", Consolas, Monaco, monospace',
   },
   
   // Semantic text styles (mobile-first)

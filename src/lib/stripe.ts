@@ -169,11 +169,11 @@ export async function refundPayment(
  * Converts pence to pounds with proper formatting
  * 
  * @param amountInPence - Amount in pence (e.g., 5000)
- * @returns Formatted string (e.g., "£50.00")
+ * @returns Formatted string (e.g.,"£50.00")
  * 
  * Example:
- *   formatCurrency(5000) // "£50.00"
- *   formatCurrency(12345) // "£123.45"
+ *   formatCurrency(5000) //"£50.00"
+ *   formatCurrency(12345) //"£123.45"
  */
 export function formatCurrency(amountInPence: number): string {
   const pounds = amountInPence / 100;

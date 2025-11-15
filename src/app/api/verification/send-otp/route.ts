@@ -7,11 +7,11 @@
  * - Sends SMS with 6-digit code
  */
 
-import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { phoneVerificationService } from "@/lib/services/phone-verification-service";
-import { createAuditLog } from "@/lib/services/audit-logger";
+import { NextRequest, NextResponse } from"next/server";
+import { getServerSession } from"next-auth";
+import { authOptions } from"@/lib/auth";
+import { phoneVerificationService } from"@/lib/services/phone-verification-service";
+import { createAuditLog } from"@/lib/services/audit-logger";
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { error:"Unauthorized" },
         { status: 401 }
       );
     }
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     // Validate phone number format
     if (!phoneNumber || typeof phoneNumber !== 'string') {
       return NextResponse.json(
-        { error: "Phone number is required" },
+        { error:"Phone number is required" },
         { status: 400 }
       );
     }
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     const phoneRegex = /^\+[1-9]\d{1,14}$/;
     if (!phoneRegex.test(phoneNumber)) {
       return NextResponse.json(
-        { error: "Invalid phone number format. Use E.164 format (e.g., +447123456789)" },
+        { error:"Invalid phone number format. Use E.164 format (e.g., +447123456789)" },
         { status: 400 }
       );
     }
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "OTP sent successfully",
+      message:"OTP sent successfully",
       verificationId: result.verificationId,
       expiresAt: result.expiresAt,
       remainingAttempts: result.remainingAttempts
@@ -94,14 +94,14 @@ export async function POST(request: NextRequest) {
     // Handle Twilio errors
     if (error.message?.includes('Twilio')) {
       return NextResponse.json(
-        { error: "Failed to send SMS. Please check your phone number." },
+        { error:"Failed to send SMS. Please check your phone number." },
         { status: 503 }
       );
     }
 
     // Generic error
     return NextResponse.json(
-      { error: "Failed to send OTP. Please try again." },
+      { error:"Failed to send OTP. Please try again." },
       { status: 500 }
     );
   }

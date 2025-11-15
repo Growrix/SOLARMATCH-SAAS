@@ -36,11 +36,11 @@ export default function HomeownerHomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-teal-50/30 to-white dark:from-black dark:via-teal-950/20 dark:to-black">
+    <div className="min-h-screen bg-gradient-to-b from-white via-teal-50/30 to-white">
       {/* Hero Section */}
-      <section className="hero-section relative dark:bg-black flex items-center justify-center min-h-[70vh] sm:min-h-[calc(100vh-80px)] overflow-hidden pt-8 sm:pt-24 pb-12 sm:pb-0">
+      <section className="hero-section relative flex items-center justify-center min-h-[70vh] sm:min-h-[calc(100vh-80px)] overflow-hidden pt-8 sm:pt-24 pb-12 sm:pb-0">
         {/* Gradient Overlay */}
-        <div className="gradient-overlay absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent dark:from-slate-900 dark:via-black dark:to-black"></div>
+        <div className="gradient-overlay absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent"></div>
         
         {/* Animated Background Elements */}
         <div className="absolute inset-0 hidden md:block">
@@ -70,20 +70,20 @@ export default function HomeownerHomePage() {
               <SunIcon />
             </div>
             
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-slate-900 dark:text-white mb-4 tracking-tight" style={{ animation: 'fade-in-up 0.8s ease-out' }}>
+            <h1 className="text-heading-1 sm:text-heading-1 md:text-6xl text-foreground mb-4 tracking-tight" style={{ animation: 'fade-in-up 0.8s ease-out' }}>
               Welcome to Your
               <br />
               <span className="text-primary">Solar Journey</span>
             </h1>
             
-            <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 mb-8 leading-relaxed max-w-3xl mx-auto" style={{ animation: 'fade-in-up 0.8s ease-out 0.2s both' }}>
+            <p className="text-heading-4 sm:text-heading-3 text-muted mb-8 leading-relaxed max-w-3xl mx-auto" style={{ animation: 'fade-in-up 0.8s ease-out 0.2s both' }}>
               You&apos;re one step closer to clean, affordable energy. Let&apos;s find the perfect solar solution for your home.
             </p>
 
             <div className="flex justify-center mb-12" style={{ animation: 'fade-in-up 0.8s ease-out 0.4s both' }}>
               <button 
                 onClick={() => router.push('/homeowner/dashboard')}
-                className="bg-primary text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-primary/90 transition-all transform active:scale-95 flex items-center justify-center space-x-2 shadow-xl"
+                className="bg-primary text-foreground-secondary px-8 py-4 rounded-xl text-heading-4 hover:bg-primary/90 transition-colors transform active:scale-95 flex items-center justify-center space-x-2 shadow-xl"
               >
                 <span>Go to Dashboard</span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><line x1="5" x2="19" y1="12" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
@@ -96,42 +96,42 @@ export default function HomeownerHomePage() {
       {/* Info Cards Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-2xl p-6 border border-gray-200 dark:border-slate-700 hover:shadow-lg transition-all">
+          <div className="bg-surface/70 backdrop-blur-sm rounded-2xl p-6 border border-border hover:shadow-lg transition-colors">
             <div className="flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4 mx-auto">
               <CheckCircleIcon />
             </div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2 text-center">Track Your Quotes</h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400 text-center">
+            <h3 className="text-heading-4 text-foreground mb-2 text-center">Track Your Quotes</h3>
+            <p className="text-body-small text-muted text-center">
               Monitor all your quote requests and compare installer offers in one place.
             </p>
           </div>
 
-          <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-2xl p-6 border border-gray-200 dark:border-slate-700 hover:shadow-lg transition-all">
+          <div className="bg-surface/70 backdrop-blur-sm rounded-2xl p-6 border border-border hover:shadow-lg transition-colors">
             <div className="flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4 mx-auto">
               <ZapIcon />
             </div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2 text-center">Bidding Room</h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400 text-center">
+            <h3 className="text-heading-4 text-foreground mb-2 text-center">Bidding Room</h3>
+            <p className="text-body-small text-muted text-center">
               Watch installers compete for your business with transparent pricing.
             </p>
           </div>
 
-          <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-2xl p-6 border border-gray-200 dark:border-slate-700 hover:shadow-lg transition-all">
+          <div className="bg-surface/70 backdrop-blur-sm rounded-2xl p-6 border border-border hover:shadow-lg transition-colors">
             <div className="flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4 mx-auto">
               <MessageSquareIcon />
             </div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2 text-center">Direct Messaging</h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400 text-center">
+            <h3 className="text-heading-4 text-foreground mb-2 text-center">Direct Messaging</h3>
+            <p className="text-body-small text-muted text-center">
               Chat directly with CEC-accredited installers about your solar needs.
             </p>
           </div>
 
-          <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-2xl p-6 border border-gray-200 dark:border-slate-700 hover:shadow-lg transition-all">
+          <div className="bg-surface/70 backdrop-blur-sm rounded-2xl p-6 border border-border hover:shadow-lg transition-colors">
             <div className="flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4 mx-auto">
               <ShieldCheckIcon />
             </div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2 text-center">Verified Installers</h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400 text-center">
+            <h3 className="text-heading-4 text-foreground mb-2 text-center">Verified Installers</h3>
+            <p className="text-body-small text-muted text-center">
               All installers are pre-vetted and CEC-accredited for your peace of mind.
             </p>
           </div>

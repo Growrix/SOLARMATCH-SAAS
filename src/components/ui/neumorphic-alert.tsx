@@ -1,37 +1,37 @@
-import * as React from "react"
-import { AlertCircle, CheckCircle2, Info, AlertTriangle } from "lucide-react"
+import * as React from"react"
+import { AlertCircle, CheckCircle2, Info, AlertTriangle } from"lucide-react"
 
 export interface NeumorphicAlertProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: "error" | "success" | "warning" | "info";
+  variant?:"error" |"success" |"warning" |"info";
   title?: string;
 }
 
 const NeumorphicAlert = React.forwardRef<HTMLDivElement, NeumorphicAlertProps>(
-  ({ className, variant = "info", title, children, ...props }, ref) => {
+  ({ className, variant ="info", title, children, ...props }, ref) => {
     const variantStyles = {
       error: {
-        container: "bg-destructive/10 border-destructive/30",
-        icon: "text-destructive",
-        title: "text-destructive",
-        text: "text-destructive/90"
+        container:"bg-destructive/10 border-destructive/30",
+        icon:"text-destructive",
+        title:"text-destructive",
+        text:"text-destructive/90"
       },
       success: {
-        container: "bg-success/10 border-success/30",
-        icon: "text-success",
-        title: "text-success",
-        text: "text-success/90"
+        container:"bg-success/10 border-success/30",
+        icon:"text-success",
+        title:"text-success",
+        text:"text-success/90"
       },
       warning: {
-        container: "bg-warning/10 border-warning/30",
-        icon: "text-warning",
-        title: "text-warning",
-        text: "text-warning/90"
+        container:"bg-warning/10 border-warning/30",
+        icon:"text-warning",
+        title:"text-warning",
+        text:"text-warning/90"
       },
       info: {
-        container: "bg-info/10 border-info/30",
-        icon: "text-info",
-        title: "text-info",
-        text: "text-info/90"
+        container:"bg-info/10 border-info/30",
+        icon:"text-info",
+        title:"text-info",
+        text:"text-info/90"
       }
     };
 
@@ -60,9 +60,9 @@ const NeumorphicAlert = React.forwardRef<HTMLDivElement, NeumorphicAlertProps>(
           <Icon className={`h-5 w-5 flex-shrink-0 mt-0.5 ${styles.icon}`} />
           <div className="flex-1">
             {title && (
-              <h4 className={`font-semibold mb-1 ${styles.title}`}>{title}</h4>
+              <h4 className={` mb-1 ${styles.title}`}>{title}</h4>
             )}
-            <div className={`text-sm ${styles.text}`}>
+            <div className={`text-body-small ${styles.text}`}>
               {children}
             </div>
           </div>
@@ -71,6 +71,6 @@ const NeumorphicAlert = React.forwardRef<HTMLDivElement, NeumorphicAlertProps>(
     )
   }
 )
-NeumorphicAlert.displayName = "NeumorphicAlert"
+NeumorphicAlert.displayName ="NeumorphicAlert"
 
 export { NeumorphicAlert }

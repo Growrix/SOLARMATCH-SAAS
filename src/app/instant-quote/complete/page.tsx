@@ -192,7 +192,7 @@ export default function InstantQuoteCompletePage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </div>
-          <h2 className="text-xl font-bold text-foreground mb-2">Something Went Wrong</h2>
+          <h2 className="text-heading-3 text-foreground mb-2">Something Went Wrong</h2>
           <p className="text-muted-foreground mb-6">{error}</p>
           <button
             onClick={() => router.push('/homeowner/dashboard')}

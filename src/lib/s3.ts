@@ -20,7 +20,7 @@
  *   const url = await getPresignedUrl(key);
  * 
  * Environment Variables Required:
- * - AWS_REGION: Your AWS region (e.g., "us-east-1")
+ * - AWS_REGION: Your AWS region (e.g.,"us-east-1")
  * - AWS_ACCESS_KEY_ID: Your AWS access key ID
  * - AWS_SECRET_ACCESS_KEY: Your AWS secret access key
  * - AWS_S3_BUCKET: Your S3 bucket name
@@ -65,8 +65,8 @@ const BUCKET_NAME = process.env.AWS_S3_BUCKET || '';
  * Upload a file to S3
  * 
  * @param fileBuffer - File content as Buffer
- * @param key - S3 object key (file path in bucket, e.g., "documents/cert.pdf")
- * @param contentType - MIME type (e.g., "application/pdf", "image/jpeg")
+ * @param key - S3 object key (file path in bucket, e.g.,"documents/cert.pdf")
+ * @param contentType - MIME type (e.g.,"application/pdf","image/jpeg")
  * @returns The S3 key of the uploaded file
  * 
  * File Organization:
@@ -255,12 +255,12 @@ export async function deleteFile(key: string): Promise<void> {
  * 
  * @param userId - User ID
  * @param filename - Original filename
- * @param prefix - Folder prefix (e.g., "documents", "quotes")
+ * @param prefix - Folder prefix (e.g.,"documents","quotes")
  * @returns Unique S3 key
  * 
  * Example:
  *   generateFileKey('user-123', 'certificate.pdf', 'documents')
- *   // Returns: "documents/user-123/1705310400000-certificate.pdf"
+ *   // Returns:"documents/user-123/1705310400000-certificate.pdf"
  */
 export function generateFileKey(
   userId: string,

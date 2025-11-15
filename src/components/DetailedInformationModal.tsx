@@ -189,7 +189,7 @@ const DetailedInformationModal: React.FC<DetailedInformationModalProps> = ({
         </Button>
 
         <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold text-foreground mb-2">
+          <h2 className="text-heading-2 text-foreground mb-2">
             Complete Your Profile
           </h2>
           <p className="text-muted-foreground">
@@ -200,7 +200,7 @@ const DetailedInformationModal: React.FC<DetailedInformationModalProps> = ({
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Name Input */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
+            <label htmlFor="name" className="block text-body-small text-foreground mb-2">
               Full Name <span className="text-destructive">*</span>
             </label>
             <div className="relative">
@@ -219,13 +219,13 @@ const DetailedInformationModal: React.FC<DetailedInformationModalProps> = ({
               />
             </div>
             {errors.name && (
-              <p className="mt-1 text-sm text-destructive">{errors.name}</p>
+              <p className="mt-1 text-body-small text-destructive">{errors.name}</p>
             )}
           </div>
 
           {/* Phone Input */}
           <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-foreground mb-2">
+            <label htmlFor="phone" className="block text-body-small text-foreground mb-2">
               Phone Number <span className="text-destructive">*</span>
             </label>
             <div className="relative">
@@ -241,16 +241,16 @@ const DetailedInformationModal: React.FC<DetailedInformationModalProps> = ({
               />
             </div>
             {errors.phone && (
-              <p className="mt-1 text-sm text-destructive">{errors.phone}</p>
+              <p className="mt-1 text-body-small text-destructive">{errors.phone}</p>
             )}
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className="mt-1 text-caption text-muted-foreground">
               Australian mobile number (e.g., 0412 345 678 or +61 412 345 678)
             </p>
           </div>
 
           {/* Address Input */}
           <div>
-            <label htmlFor="address" className="block text-sm font-medium text-foreground mb-2">
+            <label htmlFor="address" className="block text-body-small text-foreground mb-2">
               Property Address <span className="text-destructive">*</span>
             </label>
             <div className="relative">
@@ -269,9 +269,9 @@ const DetailedInformationModal: React.FC<DetailedInformationModalProps> = ({
               />
             </div>
             {errors.address && (
-              <p className="mt-1 text-sm text-destructive">{errors.address}</p>
+              <p className="mt-1 text-body-small text-destructive">{errors.address}</p>
             )}
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className="mt-1 text-caption text-muted-foreground">
               Enter the address where you want solar installed
             </p>
           </div>
@@ -279,7 +279,7 @@ const DetailedInformationModal: React.FC<DetailedInformationModalProps> = ({
           {/* API Error */}
           {apiError && (
             <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
-              <p className="text-sm text-destructive">{apiError}</p>
+              <p className="text-body-small text-destructive">{apiError}</p>
             </div>
           )}
 
@@ -301,7 +301,7 @@ const DetailedInformationModal: React.FC<DetailedInformationModalProps> = ({
           </Button>
         </form>
 
-        <p className="mt-4 text-xs text-center text-muted-foreground">
+        <p className="mt-4 text-caption text-center text-muted-foreground">
           Your information is secure and will only be shared with verified installers
         </p>
       </div>

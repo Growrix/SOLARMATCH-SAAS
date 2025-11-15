@@ -208,7 +208,7 @@ export default function AdminHomeownersList() {
           <FilterIcon />
           <span className="ml-2">Filters</span>
           {hasActiveFilters && (
-            <span className="ml-1 px-2 py-0.5 bg-info text-info-foreground text-xs rounded-full">
+            <span className="ml-1 px-2 py-0.5 bg-info text-info-foreground text-caption rounded-full">
               Active
             </span>
           )}
@@ -231,7 +231,7 @@ export default function AdminHomeownersList() {
 
       {/* Quota Filter Chips */}
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm font-medium text-muted-foreground">Quota:</span>
+        <span className="text-body-small text-muted-foreground">Quota:</span>
         {quotaChipOptions.map((option) => {
           const isActive = filters.quota === option.value;
           return (
@@ -239,9 +239,9 @@ export default function AdminHomeownersList() {
               key={option.value}
               type="button"
               onClick={() => toggleQuotaFilter(option.value)}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors border ${
+              className={`px-3 py-1.5 rounded-full text-body-small transition-colors border ${
                 isActive
-                  ? 'bg-primary text-white border-primary shadow-sm'
+                  ? 'bg-primary text-foreground-secondary border-primary shadow-sm'
                   : 'bg-surface border-border text-muted-foreground hover:bg-surface/50'
               }`}
             >
@@ -253,7 +253,7 @@ export default function AdminHomeownersList() {
           <button
             type="button"
             onClick={() => toggleQuotaFilter(filters.quota)}
-            className="text-xs text-muted-foreground hover:text-foreground"
+            className="text-caption text-muted-foreground hover:text-foreground"
           >
             Clear
           </button>
@@ -266,7 +266,7 @@ export default function AdminHomeownersList() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Postcode Filter */}
             <div>
-              <label className="block text-sm font-medium text-muted-foreground mb-2">
+              <label className="block text-body-small text-muted-foreground mb-2">
                 Postcode
               </label>
               <input
@@ -280,7 +280,7 @@ export default function AdminHomeownersList() {
 
             {/* Status Filter */}
             <div>
-              <label className="block text-sm font-medium text-muted-foreground mb-2">
+              <label className="block text-body-small text-muted-foreground mb-2">
                 Status
               </label>
               <select
@@ -296,7 +296,7 @@ export default function AdminHomeownersList() {
 
             {/* Date From */}
             <div>
-              <label className="block text-sm font-medium text-muted-foreground mb-2">
+              <label className="block text-body-small text-muted-foreground mb-2">
                 Registered From
               </label>
               <input
@@ -309,7 +309,7 @@ export default function AdminHomeownersList() {
 
             {/* Date To */}
             <div>
-              <label className="block text-sm font-medium text-muted-foreground mb-2">
+              <label className="block text-body-small text-muted-foreground mb-2">
                 Registered To
               </label>
               <input
@@ -326,7 +326,7 @@ export default function AdminHomeownersList() {
             <div className="mt-4 pt-4 border-t border-border">
               <button
                 onClick={clearFilters}
-                className="flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="flex items-center gap-2 px-3 py-1.5 text-body-small text-muted-foreground hover:text-foreground transition-colors"
               >
                 <XIcon />
                 Clear all filters
@@ -339,7 +339,7 @@ export default function AdminHomeownersList() {
       {/* Error State */}
       {error && (
         <div className="bg-surface shadow-neu-outset border border-error rounded-lg p-4">
-          <p className="text-error font-medium">{error}</p>
+          <p className="text-error">{error}</p>
         </div>
       )}
 
@@ -359,7 +359,7 @@ export default function AdminHomeownersList() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-foreground mb-2">No homeowners found</h3>
+          <h3 className="text-heading-4 text-foreground mb-2">No homeowners found</h3>
           <p className="text-muted-foreground">
             {hasActiveFilters ? 'Try adjusting your search or filters' : 'No homeowners have registered yet'}
           </p>
@@ -374,25 +374,25 @@ export default function AdminHomeownersList() {
             <table className="w-full">
               <thead className="bg-surface border-b border-border">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
                     Homeowner
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
                     Contact
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
                     Postcode
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
                     Lead Usage
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
                     Remaining
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
                     Registered
                   </th>
                 </tr>
@@ -412,10 +412,10 @@ export default function AdminHomeownersList() {
                           />
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-foreground">
+                          <div className="text-body-small text-foreground">
                             {homeowner.name || 'No name'}
                           </div>
-                          <div className="text-sm text-muted-foreground">
+                          <div className="text-body-small text-muted-foreground">
                             {homeowner.email}
                           </div>
                         </div>
@@ -423,11 +423,11 @@ export default function AdminHomeownersList() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex flex-col">
-                        <span className="text-sm text-foreground">
+                        <span className="text-body-small text-foreground">
                           {homeowner.phone || 'No phone'}
                         </span>
                         {homeowner.phone && (
-                          <span className={`mt-1 inline-flex items-center gap-1 text-xs font-medium ${
+                          <span className={`mt-1 inline-flex items-center gap-1 text-caption ${
                             homeowner.phoneVerified
                               ? 'text-success'
                               : 'text-muted-foreground'
@@ -441,12 +441,12 @@ export default function AdminHomeownersList() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-foreground">
+                      <div className="text-body-small text-foreground">
                         {homeowner.postcode || 'Not set'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      <span className={`inline-flex px-2 py-1 text-caption rounded-full ${
                         homeowner.isActive
                           ? 'bg-success/10 text-success border border-success/20'
                           : 'bg-error/10 text-error border border-error/20'
@@ -456,7 +456,7 @@ export default function AdminHomeownersList() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-foreground">
+                        <span className="text-body-small text-foreground">
                           {homeowner.leadSubmissionCount}/
                           {editingId === homeowner.id ? (
                             <input
@@ -464,7 +464,7 @@ export default function AdminHomeownersList() {
                               min="1"
                               value={editValue}
                               onChange={(e) => setEditValue(Number(e.target.value))}
-                              className="w-16 px-2 py-1 text-sm border border-info rounded focus:ring-2 focus:ring-info bg-surface"
+                              className="w-16 px-2 py-1 text-body-small border border-info rounded focus:ring-2 focus:ring-info bg-surface"
                               disabled={updating}
                             />
                           ) : (
@@ -476,14 +476,14 @@ export default function AdminHomeownersList() {
                             <button
                               onClick={() => handleSaveEdit(homeowner.id)}
                               disabled={updating}
-                              className="px-2 py-1 text-xs bg-success text-success-foreground rounded hover:bg-success/90 disabled:opacity-50"
+                              className="px-2 py-1 text-caption bg-success text-success-foreground rounded hover:bg-success/90 disabled:opacity-50"
                             >
                               {updating ? '...' : '✓'}
                             </button>
                             <button
                               onClick={handleCancelEdit}
                               disabled={updating}
-                              className="px-2 py-1 text-xs bg-muted-foreground text-white rounded hover:bg-muted-foreground/80 disabled:opacity-50"
+                              className="px-2 py-1 text-caption bg-muted-foreground text-foreground-secondary rounded hover:bg-muted-foreground/80 disabled:opacity-50"
                             >
                               ✕
                             </button>
@@ -491,7 +491,7 @@ export default function AdminHomeownersList() {
                         ) : (
                           <button
                             onClick={() => handleEditClick(homeowner)}
-                            className="px-2 py-1 text-xs bg-info text-info-foreground rounded hover:bg-info/90"
+                            className="px-2 py-1 text-caption bg-info text-info-foreground rounded hover:bg-info/90"
                           >
                             Edit
                           </button>
@@ -499,7 +499,7 @@ export default function AdminHomeownersList() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      <span className={`inline-flex px-2 py-1 text-caption rounded-full ${
                         homeowner.remainingLeadAllowance > 0
                           ? 'bg-success text-success-foreground'
                           : 'bg-surface/50 text-muted-foreground'
@@ -507,7 +507,7 @@ export default function AdminHomeownersList() {
                         {homeowner.remainingLeadAllowance}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                    <td className="px-6 py-4 whitespace-nowrap text-body-small text-muted-foreground">
                       {formatDate(homeowner.createdAt)}
                     </td>
                   </tr>
@@ -529,14 +529,14 @@ export default function AdminHomeownersList() {
                     className="h-12 w-12 rounded-full object-cover"
                   />
                   <div className="ml-3 flex-1">
-                    <div className="text-sm font-medium text-foreground">
+                    <div className="text-body-small text-foreground">
                       {homeowner.name || 'No name'}
                     </div>
-                    <div className="text-xs text-muted-foreground">
+                    <div className="text-caption text-muted-foreground">
                       {homeowner.email}
                     </div>
                   </div>
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                  <span className={`inline-flex px-2 py-1 text-caption rounded-full ${
                     homeowner.isActive
                       ? 'bg-success text-success-foreground'
                       : 'bg-error text-error-foreground'
@@ -544,12 +544,12 @@ export default function AdminHomeownersList() {
                     {homeowner.isActive ? 'Active' : 'Inactive'}
                   </span>
                 </div>
-                <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="grid grid-cols-2 gap-2 text-body-small">
                   <div>
                     <span className="text-muted-foreground">Phone:</span>
                     <div className="text-foreground">{homeowner.phone || 'No phone'}</div>
                     {homeowner.phone && (
-                      <div className={`text-xs font-medium ${
+                      <div className={`text-caption ${
                         homeowner.phoneVerified
                           ? 'text-success'
                           : 'text-muted-foreground'
@@ -589,25 +589,25 @@ export default function AdminHomeownersList() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             {/* Page Size Selector */}
             <div className="flex items-center gap-2">
-              <label className="text-sm text-muted-foreground">Show:</label>
+              <label className="text-body-small text-muted-foreground">Show:</label>
               <select
                 value={pageSize}
                 onChange={(e) => {
                   setPageSize(Number(e.target.value));
                   setPage(1);
                 }}
-                className="px-3 py-1.5 bg-surface shadow-neu-inset border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground"
+                className="px-3 py-1.5 bg-surface shadow-neu-inset border border-border rounded-lg text-body-small focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground"
               >
                 <option value="10">10</option>
                 <option value="25">25</option>
                 <option value="50">50</option>
                 <option value="100">100</option>
               </select>
-              <span className="text-sm text-muted-foreground">per page</span>
+              <span className="text-body-small text-muted-foreground">per page</span>
             </div>
 
             {/* Page Info */}
-            <div className="text-sm text-muted-foreground">
+            <div className="text-body-small text-muted-foreground">
               Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, total)} of {total}
             </div>
 
@@ -638,9 +638,9 @@ export default function AdminHomeownersList() {
                     <button
                       key={pageNumber}
                       onClick={() => setPage(pageNumber)}
-                      className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                      className={`px-3 py-1.5 text-body-small rounded-lg transition-colors ${
                         page === pageNumber
-                          ? 'bg-primary text-white'
+                          ? 'bg-primary text-foreground-secondary'
                           : 'border border-border hover:bg-surface/50 text-muted-foreground'
                       }`}
                     >

@@ -149,7 +149,7 @@ const InstallerSidebar: React.FC<InstallerSidebarProps> = ({
           style={{ width: isCollapsed ? '100%' : undefined, justifyContent: 'center' }}
         >
           <SunIcon />
-          {!isCollapsed && <span className="text-2xl font-bold text-primary">SolarMatch</span>}
+          {!isCollapsed && <span className="text-heading-2 text-primary">SolarMatch</span>}
         </button>
         {/* Collapse Toggle Button */}
         {isCollapsed ? (

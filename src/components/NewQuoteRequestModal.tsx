@@ -59,8 +59,8 @@ const NewQuoteRequestModal: React.FC<NewQuoteRequestModalProps> = ({
           <XIcon />
         </button>
         <div className="text-center mb-6 sm:mb-8">
-          <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Request a New Quote</h2>
-          <p className="text-muted-foreground text-sm">Fill out the form below to get a personalized solar quote from verified installers.</p>
+          <h2 className="text-heading-3 sm:text-heading-2 text-foreground mb-2">Request a New Quote</h2>
+          <p className="text-muted-foreground text-body-small">Fill out the form below to get a personalized solar quote from verified installers.</p>
         </div>
         <InstantQuoteForm
           onQuoteCalculated={onQuoteCalculated}

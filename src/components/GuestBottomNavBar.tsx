@@ -50,10 +50,10 @@ const NavItem: React.FC<{
 }> = ({ icon, label, onClick }) => (
   <button 
     onClick={onClick} 
-    className="flex flex-col items-center justify-center space-y-1 w-full pt-2 pb-1 transition-colors duration-200 text-slate-500 dark:text-slate-400 hover:text-primary/80"
+    className="flex flex-col items-center justify-center space-y-1 w-full pt-2 pb-1 transition-colors duration-200 text-muted hover:text-primary/80"
   >
     {icon}
-    <span className="text-xs font-medium">{label}</span>
+    <span className="text-caption">{label}</span>
   </button>
 );
 
@@ -73,7 +73,7 @@ const GuestBottomNavBar: React.FC<GuestBottomNavBarProps> = ({
   };
   
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white dark:bg-black border-t border-gray-200 dark:border-slate-800 shadow-[0_-2px_10px_rgba(0,0,0,0.1)] z-40">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-surface border-t border-border shadow-[0_-2px_10px_rgba(0,0,0,0.1)] z-40">
       <div className="flex items-center justify-around h-full max-w-md mx-auto">
         <NavItem icon={<HomeIcon />} label="Home" onClick={handleHomeClick} />
         <NavItem icon={<ArticlesIcon />} label="Articles" onClick={onArticlesClick} />

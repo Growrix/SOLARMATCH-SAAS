@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
     // ========================================================================
     // AGGREGATE BY LOCATION (simplified: use businessAddress or postcode prefix)
     // ========================================================================
-    // Since User model doesn't have a dedicated "city" field, we'll use businessAddress
+    // Since User model doesn't have a dedicated"city" field, we'll use businessAddress
     // For homeowners, businessAddress might be null, so we group by postcode prefix or mark as Unspecified
     
     // Fetch all homeowners with their addresses

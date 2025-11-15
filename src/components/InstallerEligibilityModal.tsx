@@ -88,7 +88,7 @@ const InstallerEligibilityModal: React.FC<EligibilityFormProps> = ({ isOpen, onC
       >
         <div className="flex items-center justify-between p-6 border-b border-border">
           <div>
-            <h2 className="text-2xl font-bold text-foreground">Become a Partner</h2>
+            <h2 className="text-heading-2 text-foreground">Become a Partner</h2>
             <p className="text-muted-foreground">Step 1: Check your eligibility</p>
           </div>
           <button onClick={handleClose} className="text-subtle hover:text-foreground transition-colors p-2 rounded-lg -mr-2"><XCircle /></button>
@@ -97,7 +97,7 @@ const InstallerEligibilityModal: React.FC<EligibilityFormProps> = ({ isOpen, onC
         <div className="p-6">
           {eligibilityStatus === 'idle' && (
             <div className="animate-fade-in">
-              <h3 className="text-xl font-bold text-foreground mb-6">Eligibility Requirements</h3>
+              <h3 className="text-heading-3 text-foreground mb-6">Eligibility Requirements</h3>
               <div className="space-y-6">
                 {[
                   { id: 'cecAccredited', label: 'Are you a CEC-accredited installer? *', icon: <FileText /> },
@@ -105,13 +105,13 @@ const InstallerEligibilityModal: React.FC<EligibilityFormProps> = ({ isOpen, onC
                   { id: 'providesInstallation', label: 'Do you provide installation services in Australia? *', icon: <MapPin /> }
                 ].map(q => (
                   <div key={q.id}>
-                    <label className="block text-muted-foreground text-sm font-semibold mb-3">{q.icon}{q.label}</label>
+                    <label className="block text-muted-foreground text-label mb-3">{q.icon}{q.label}</label>
                     <div className="grid grid-cols-2 gap-3">
-                      <button onClick={() => handleInputChange(q.id as keyof FormData, 'yes')} className={`eligibility-button p-3 rounded-xl transition-all flex items-center justify-center space-x-2 shadow-neu-inset ${formData[q.id as keyof FormData] === 'yes' ? 'selected-yes border-2 border-emerald-500 bg-emerald-500/10 text-emerald-500' : 'bg-surface/50 text-muted-foreground hover:bg-surface'}`}>
-                        <CheckCircle /> <span className="text-sm font-semibold">Yes</span>
+                      <button onClick={() => handleInputChange(q.id as keyof FormData, 'yes')} className={`eligibility-button p-3 rounded-xl transition-colors flex items-center justify-center space-x-2 shadow-neu-inset ${formData[q.id as keyof FormData] === 'yes' ? 'selected-yes border-2 border-emerald-500 bg-emerald-500/10 text-emerald-500' : 'bg-surface/50 text-muted-foreground hover:bg-surface'}`}>
+                        <CheckCircle /> <span className="text-label">Yes</span>
                       </button>
-                      <button onClick={() => handleInputChange(q.id as keyof FormData, 'no')} className={`eligibility-button p-3 rounded-xl transition-all flex items-center justify-center space-x-2 shadow-neu-inset ${formData[q.id as keyof FormData] === 'no' ? 'selected-no border-2 border-destructive bg-red-500/10 text-destructive' : 'bg-surface/50 text-muted-foreground hover:bg-surface'}`}>
-                        <XCircle /> <span className="text-sm font-semibold">No</span>
+                      <button onClick={() => handleInputChange(q.id as keyof FormData, 'no')} className={`eligibility-button p-3 rounded-xl transition-colors flex items-center justify-center space-x-2 shadow-neu-inset ${formData[q.id as keyof FormData] === 'no' ? 'selected-no border-2 border-destructive bg-error/10 text-destructive' : 'bg-surface/50 text-muted-foreground hover:bg-surface'}`}>
+                        <XCircle /> <span className="text-label">No</span>
                       </button>
                     </div>
                   </div>
@@ -132,19 +132,19 @@ const InstallerEligibilityModal: React.FC<EligibilityFormProps> = ({ isOpen, onC
 
           {eligibilityStatus === 'ineligible' && (
             <div className="text-center animate-fade-in">
-              <div className="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6"><XCircle /></div>
-              <h3 className="text-2xl font-bold text-foreground mb-4">Not Eligible</h3>
+              <div className="w-20 h-20 bg-error/20 rounded-full flex items-center justify-center mx-auto mb-6"><XCircle /></div>
+              <h3 className="text-heading-2 text-foreground mb-4">Not Eligible</h3>
               <p className="text-muted-foreground mb-8 leading-relaxed">Unfortunately, your company doesn&apos;t meet our current eligibility requirements. To join our partner network, you must be a CEC-accredited installer with an ABN providing services in Australia.</p>
-              <div className="bg-red-500/10 shadow-neu-inset border border-destructive/30 rounded-xl p-6 mb-8">
-                <h4 className="text-destructive font-semibold mb-3 flex items-center justify-center space-x-2"><AlertCircle /><span>Requirements Not Met</span></h4>
-                <ul className="text-destructive text-sm space-y-2 text-left">
+              <div className="bg-error/10 shadow-neu-inset border border-destructive/30 rounded-xl p-6 mb-8">
+                <h4 className="text-destructive mb-3 flex items-center justify-center space-x-2"><AlertCircle /><span>Requirements Not Met</span></h4>
+                <ul className="text-destructive text-body-small space-y-2 text-left">
                   {formData.cecAccredited !== 'yes' && <li>• CEC accreditation required</li>}
                   {formData.hasABN !== 'yes' && <li>• Valid ABN required</li>}
                   {formData.providesInstallation !== 'yes' && <li>• Must provide installation services in Australia</li>}
                 </ul>
               </div>
               <div className="space-y-4">
-                <button onClick={resetForm} className="bg-surface hover:bg-surface-hover text-foreground px-6 py-3 rounded-xl font-semibold shadow-neu-outset transition-all">Try Again</button>
+                <button onClick={resetForm} className="bg-surface hover:bg-surface-hover text-foreground px-6 py-3 rounded-xl shadow-neu-outset transition-colors">Try Again</button>
               </div>
             </div>
           )}

@@ -4,7 +4,7 @@
  * LiveCountdownBar Component - Phase 4.5
  * 
  * Enhanced countdown timer with live updates every second.
- * Displays "Xd Yh Zm Ws remaining" format with full-width progress bar.
+ * Displays"Xd Yh Zm Ws remaining" format with full-width progress bar.
  * 
  * Features:
  * - Live updates every 1 second (not 10 seconds)
@@ -43,7 +43,7 @@ interface LiveCountdownBarProps {
  * LiveCountdownBar Component
  * 
  * Renders a live countdown timer that updates every second.
- * Shows "Xd Yh Zm Ws remaining" format with progress bar.
+ * Shows"Xd Yh Zm Ws remaining" format with progress bar.
  */
 export function LiveCountdownBar({
   expiresAt,
@@ -159,7 +159,7 @@ export function LiveCountdownBar({
           
           {/* Text overlay (always visible) */}
           <div className={`relative z-10 h-full flex items-center justify-center px-4 ${colors.text}`}>
-            <span className="text-sm font-semibold tracking-wide">
+            <span className="text-label tracking-wide">
               {countdown.displayText}
             </span>
           </div>
@@ -184,7 +184,7 @@ export function LiveCountdownBar({
       />
       
       {/* Countdown text */}
-      <span className={`text-sm font-medium ${colors.text}`}>
+      <span className={`text-body-small ${colors.text}`}>
         {countdown.displayText}
       </span>
       

@@ -117,14 +117,14 @@ export async function PUT(request: NextRequest) {
         fieldErrors.image = 'Image must have an action (set or remove)';
       } else if (image.action === 'set') {
         if (!image.url || typeof image.url !== 'string') {
-          fieldErrors.image = 'Image URL is required when action is "set"';
+          fieldErrors.image = 'Image URL is required when action is"set"';
         } else {
           imageUrl = image.url;
         }
       } else if (image.action === 'remove') {
         imageUrl = null;
       } else {
-        fieldErrors.image = 'Invalid image action (must be "set" or "remove")';
+        fieldErrors.image = 'Invalid image action (must be"set" or"remove")';
       }
     }
 

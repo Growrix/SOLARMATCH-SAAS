@@ -61,7 +61,7 @@ const VERIFY_SERVICE_SID = process.env.TWILIO_VERIFY_SERVICE_SID || '';
  * 
  * Example:
  *   await sendOTP('+447700900123');
- *   // User receives SMS: "Your SolarMatch verification code is: 123456"
+ *   // User receives SMS:"Your SolarMatch verification code is: 123456"
  */
 export async function sendOTP(phoneNumber: string): Promise<void> {
   if (!twilioClient || !VERIFY_SERVICE_SID) {
@@ -184,13 +184,13 @@ export function isValidE164PhoneNumber(phoneNumber: string): boolean {
  * This is a simple helper for UK numbers only.
  * For production, use a library like libphonenumber-js for comprehensive formatting.
  * 
- * @param phoneNumber - Phone number (e.g., "07700900123")
- * @param countryCode - Country code (default: "44" for UK)
- * @returns E.164 formatted number (e.g., "+447700900123")
+ * @param phoneNumber - Phone number (e.g.,"07700900123")
+ * @param countryCode - Country code (default:"44" for UK)
+ * @returns E.164 formatted number (e.g.,"+447700900123")
  * 
  * Example:
- *   formatToE164("07700900123") // "+447700900123"
- *   formatToE164("7700900123") // "+447700900123"
+ *   formatToE164("07700900123") //"+447700900123"
+ *   formatToE164("7700900123") //"+447700900123"
  */
 export function formatToE164(phoneNumber: string, countryCode: string = '44'): string {
   // Remove all non-digit characters
@@ -216,7 +216,7 @@ export function formatToE164(phoneNumber: string, countryCode: string = '44'): s
  * @returns Verification status object
  * 
  * Teaching Note:
- * Twilio Verify doesn't provide a simple way to "list all verifications for a phone number"
+ * Twilio Verify doesn't provide a simple way to"list all verifications for a phone number"
  * Instead, we should track verification status in our database (PhoneVerification table)
  * This function is kept simple and only useful with a specific verificationSid
  */

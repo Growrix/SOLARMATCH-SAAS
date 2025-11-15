@@ -77,17 +77,17 @@ const VerifiedBadge: React.FC<VerifiedBadgeProps> = ({
   // Size classes
   const sizeClasses = {
     sm: {
-      text: 'text-xs',
+      text: 'text-caption',
       padding: 'px-2 py-0.5',
       icon: 'w-3 h-3'
     },
     md: {
-      text: 'text-sm',
+      text: 'text-body-small',
       padding: 'px-2.5 py-1',
       icon: 'w-4 h-4'
     },
     lg: {
-      text: 'text-base',
+      text: 'text-body',
       padding: 'px-3 py-1.5',
       icon: 'w-5 h-5'
     }
@@ -97,8 +97,8 @@ const VerifiedBadge: React.FC<VerifiedBadgeProps> = ({
 
   // Color classes based on verification status
   const colorClasses = verified
-    ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800'
-    : 'text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700';
+    ? 'text-emerald-600 bg-emerald-50 border-emerald-200'
+    : 'text-muted bg-slate-100 border-border';
 
   // Tooltip text
   const tooltipText = verified
@@ -112,7 +112,7 @@ const VerifiedBadge: React.FC<VerifiedBadgeProps> = ({
   if (variant === 'icon-only') {
     return (
       <span 
-        className={`inline-flex items-center ${verified ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`}
+        className={`inline-flex items-center ${verified ? 'text-emerald-600' : 'text-muted'}`}
         title={showTooltip ? tooltipText : undefined}
       >
         <span className={sizeClass.icon}>
@@ -125,13 +125,13 @@ const VerifiedBadge: React.FC<VerifiedBadgeProps> = ({
   if (variant === 'inline') {
     return (
       <span 
-        className={`inline-flex items-center gap-1 ${sizeClass.text} ${verified ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'}`}
+        className={`inline-flex items-center gap-1 ${sizeClass.text} ${verified ? 'text-emerald-600' : 'text-muted'}`}
         title={showTooltip ? tooltipText : undefined}
       >
         <span className={sizeClass.icon}>
           <Icon />
         </span>
-        <span className="font-medium">
+        <span className="">
           {verified ? verifiedText : unverifiedText}
         </span>
       </span>
@@ -141,7 +141,7 @@ const VerifiedBadge: React.FC<VerifiedBadgeProps> = ({
   // variant === 'badge'
   return (
     <span 
-      className={`inline-flex items-center gap-1.5 ${sizeClass.text} ${sizeClass.padding} ${colorClasses} border rounded-full font-semibold transition-colors`}
+      className={`inline-flex items-center gap-1.5 ${sizeClass.text} ${sizeClass.padding} ${colorClasses} border rounded-full transition-colors`}
       title={showTooltip ? tooltipText : undefined}
     >
       <span className={sizeClass.icon}>

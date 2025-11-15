@@ -29,7 +29,7 @@ export interface CountdownTimer {
   millisecondsRemaining: number;
   
   /** Human-readable display text */
-  displayText: string; // "7 days left", "1 day left", "< 1 day left"
+  displayText: string; //"7 days left","1 day left","< 1 day left"
   
   /** Color class for visual feedback */
   colorClass: 'green' | 'yellow' | 'red';

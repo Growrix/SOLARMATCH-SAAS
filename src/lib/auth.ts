@@ -1,13 +1,13 @@
-import { NextAuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
-import { prisma } from "@/lib/prisma";
-import { getSettingAsNumber } from "@/lib/services/settings-service";
+import { NextAuthOptions } from"next-auth";
+import CredentialsProvider from"next-auth/providers/credentials";
+import bcrypt from"bcryptjs";
+import { prisma } from"@/lib/prisma";
+import { getSettingAsNumber } from"@/lib/services/settings-service";
 
 export const authOptions: NextAuthOptions = {
   providers: [CredentialsProvider({
-    name: "credentials",
-    credentials: { email: { label: "Email", type: "email" }, password: { label: "Password", type: "password" } },
+    name:"credentials",
+    credentials: { email: { label:"Email", type:"email" }, password: { label:"Password", type:"password" } },
     async authorize(credentials) {
       if (!credentials?.email || !credentials?.password) throw new Error("Invalid credentials");
       
@@ -67,12 +67,12 @@ export const authOptions: NextAuthOptions = {
     },
   })],
   session: { 
-    strategy: "jwt", 
+    strategy:"jwt", 
     maxAge: 30 * 24 * 60 * 60,
   },
   pages: { 
-    signIn: "/",
-    error: "/admin",
+    signIn:"/",
+    error:"/admin",
   },
   callbacks: {
     async jwt({ token, user, trigger, session }) {
@@ -118,7 +118,7 @@ export const authOptions: NextAuthOptions = {
       }
 
       // Handle session updates (for phone number changes, verification status, etc.)
-      if (trigger === "update" && session) {
+      if (trigger ==="update" && session) {
         if (session.phone !== undefined) {
           token.phone = session.phone;
         }

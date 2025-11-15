@@ -56,9 +56,9 @@ export default function AssignmentHistoryTable({
 
   if (assignments.length === 0) {
     return (
-      <div className="text-center py-8 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+      <div className="text-center py-8 bg-surface rounded-lg border border-border">
         <svg
-          className="mx-auto h-12 w-12 text-gray-400 dark:text-muted-foreground"
+          className="mx-auto h-12 w-12 text-gray-400"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -70,10 +70,10 @@ export default function AssignmentHistoryTable({
             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
           />
         </svg>
-        <p className="mt-2 text-sm text-muted-foreground dark:text-gray-400">
+        <p className="mt-2 text-body-small text-muted-foreground">
           No assignments yet
         </p>
-        <p className="text-xs text-muted-foreground dark:text-muted-foreground">
+        <p className="text-caption text-muted-foreground">
           Click &ldquo;Assign to Installer&rdquo; to assign this lead
         </p>
       </div>
@@ -84,96 +84,96 @@ export default function AssignmentHistoryTable({
     <div className="space-y-4">
       {/* Error Alert */}
       {error && (
-        <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4">
-          <p className="text-sm text-red-800 dark:text-red-300">{error}</p>
+        <div className="rounded-md bg-error/10 p-4">
+          <p className="text-body-small text-error">{error}</p>
         </div>
       )}
 
       {/* Table */}
-      <div className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead className="bg-gray-50 dark:bg-gray-800">
+      <div className="overflow-hidden rounded-lg border border-border">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-surface">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-gray-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
                 Installer
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-gray-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
                 Assigned Date
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-gray-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
                 Assigned By
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-gray-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-gray-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
                 Notes
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground dark:text-gray-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-right text-caption text-muted-foreground uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody className="bg-surface divide-y divide-gray-200">
             {assignments.map((assignment) => (
-              <tr key={assignment.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+              <tr key={assignment.id} className="hover:bg-surface">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div>
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">
+                    <div className="text-body-small text-foreground">
                       {assignment.installerName}
                     </div>
-                    <div className="text-sm text-muted-foreground dark:text-gray-400">
+                    <div className="text-body-small text-muted-foreground">
                       {assignment.installerEmail}
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
+                <td className="px-6 py-4 whitespace-nowrap text-body-small text-gray-700">
                   {format(new Date(assignment.assignedAt), 'MMM d, yyyy')}
-                  <div className="text-xs text-muted-foreground dark:text-gray-400">
+                  <div className="text-caption text-muted-foreground">
                     {format(new Date(assignment.assignedAt), 'h:mm a')}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
+                <td className="px-6 py-4 whitespace-nowrap text-body-small text-gray-700">
                   {assignment.assignedByName}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   {assignment.status === 'pending' && (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-caption bg-warning/20 text-warning">
                       Pending
                     </span>
                   )}
                   {assignment.status === 'accepted' && (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-caption bg-emerald-100 text-emerald-800">
                       Accepted
                     </span>
                   )}
                   {assignment.status === 'removed' && (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-caption bg-surface text-foreground">
                       Removed
                     </span>
                   )}
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                <td className="px-6 py-4 text-body-small text-gray-700">
                   {assignment.notes ? (
                     <div className="max-w-xs truncate" title={assignment.notes}>
                       {assignment.notes}
                     </div>
                   ) : (
-                    <span className="text-gray-400 dark:text-muted-foreground">—</span>
+                    <span className="text-gray-400">—</span>
                   )}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                <td className="px-6 py-4 whitespace-nowrap text-right text-body-small">
                   {assignment.status === 'pending' && (
                     <button
                       onClick={() => handleRemove(assignment.installerId, assignment.installerName)}
                       disabled={removingId === assignment.installerId}
-                      className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="text-error hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {removingId === assignment.installerId ? 'Removing...' : 'Remove'}
                     </button>
                   )}
                   {assignment.status !== 'pending' && (
-                    <span className="text-gray-400 dark:text-muted-foreground">—</span>
+                    <span className="text-gray-400">—</span>
                   )}
                 </td>
               </tr>
@@ -183,7 +183,7 @@ export default function AssignmentHistoryTable({
       </div>
 
       {/* Summary */}
-      <div className="flex items-center justify-between text-sm text-muted-foreground dark:text-gray-400">
+      <div className="flex items-center justify-between text-body-small text-muted-foreground">
         <span>
           Total Assignments: {assignments.length}
         </span>

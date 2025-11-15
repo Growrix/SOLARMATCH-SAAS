@@ -16,31 +16,31 @@ interface BlogSectionProps {
 const BlogSection: React.FC<BlogSectionProps> = ({ onSeeAllPostsClick, onNavigateToPost }) => {
   const articles: Post[] = [
     {
-      title: "2024 Solar Rebate Changes: What Australian Homeowners Need to Know",
-      excerpt: "Understanding the latest updates to government solar incentives and how they affect your savings potential.",
-      author: "Sarah Johnson",
-      date: "March 15, 2024",
-      readTime: "6 min read",
-      category: "Policy Updates",
-      image: "https://images.unsplash.com/photo-1509390636472-a0b5a1985799?q=80&w=800"
+      title:"2024 Solar Rebate Changes: What Australian Homeowners Need to Know",
+      excerpt:"Understanding the latest updates to government solar incentives and how they affect your savings potential.",
+      author:"Sarah Johnson",
+      date:"March 15, 2024",
+      readTime:"6 min read",
+      category:"Policy Updates",
+      image:"https://images.unsplash.com/photo-1509390636472-a0b5a1985799?q=80&w=800"
     },
     {
-      title: "Tesla Powerwall vs Competitors: Battery Storage Comparison",
-      excerpt: "An in-depth analysis of the top battery storage systems available in Australia, including costs and performance.",
-      author: "Michael Chen",
-      date: "March 10, 2024",
-      readTime: "8 min read",
-      category: "Technology",
-      image: "https://images.unsplash.com/photo-1629231249110-a1a1c63740e2?q=80&w=800"
+      title:"Tesla Powerwall vs Competitors: Battery Storage Comparison",
+      excerpt:"An in-depth analysis of the top battery storage systems available in Australia, including costs and performance.",
+      author:"Michael Chen",
+      date:"March 10, 2024",
+      readTime:"8 min read",
+      category:"Technology",
+      image:"https://images.unsplash.com/photo-1629231249110-a1a1c63740e2?q=80&w=800"
     },
     {
-      title: "Summer Solar Tips: Maximizing Your System's Performance",
-      excerpt: "How to get the most out of your solar panels during Australia's peak sunshine months.",
-      author: "Emma Thompson",
-      date: "March 5, 2024",
-      readTime: "4 min read",
-      category: "Maintenance",
-      image: "https://images.unsplash.com/photo-1545284884-f3c914a2b9ae?q=80&w=800"
+      title:"Summer Solar Tips: Maximizing Your System's Performance",
+      excerpt:"How to get the most out of your solar panels during Australia's peak sunshine months.",
+      author:"Emma Thompson",
+      date:"March 5, 2024",
+      readTime:"4 min read",
+      category:"Maintenance",
+      image:"https://images.unsplash.com/photo-1545284884-f3c914a2b9ae?q=80&w=800"
     }
   ];
 
@@ -48,7 +48,7 @@ const BlogSection: React.FC<BlogSectionProps> = ({ onSeeAllPostsClick, onNavigat
     <section className="blog-section">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12 sm:mb-16">
-          <h2 className="text-heading-2 lg:text-heading-1 font-bold text-foreground mb-4">
+          <h2 className="text-heading-2 lg:text-heading-1 text-foreground mb-4">
             Latest Solar News & Insights
           </h2>
           <p className="text-body-large text-muted-foreground max-w-3xl mx-auto">
@@ -61,7 +61,7 @@ const BlogSection: React.FC<BlogSectionProps> = ({ onSeeAllPostsClick, onNavigat
             <article 
               key={index} 
               onClick={() => onNavigateToPost(article)}
-              className="bg-background rounded-2xl shadow-neu-outset hover:shadow-neu-outset-lg overflow-hidden group cursor-pointer transition-all duration-300"
+              className="bg-background rounded-2xl shadow-neu-outset hover:shadow-neu-outset-lg overflow-hidden group cursor-pointer transition-colors duration-300"
               role="button"
               tabIndex={0}
               aria-label={`Read article: ${article.title}`}
@@ -71,23 +71,23 @@ const BlogSection: React.FC<BlogSectionProps> = ({ onSeeAllPostsClick, onNavigat
                 <div className="flex items-center justify-between mb-4">
                   <div className="inline-flex items-center gap-2 bg-background shadow-neu-inset px-3 py-1.5 rounded-xl">
                     <div className="w-2 h-2 rounded-full bg-primary shadow-neu-inset-sm"></div>
-                    <span className="text-xs font-semibold text-foreground">
+                    <span className="text-caption text-foreground">
                       {article.category}
                     </span>
                   </div>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-caption text-muted-foreground">
                     {article.readTime}
                   </span>
                 </div>
                 
-                <h3 className="text-heading-4 font-bold text-foreground mb-4 leading-snug group-hover:text-primary transition-colors">
+                <h3 className="text-heading-4 text-foreground mb-4 leading-snug group-hover:text-primary transition-colors">
                   {article.title}
                 </h3>
                 <p className="text-body text-muted-foreground mb-6 leading-relaxed">
                   {article.excerpt}
                 </p>
                 
-                <div className="flex items-center justify-between text-sm text-muted-foreground mb-6 border-t border-border pt-4">
+                <div className="flex items-center justify-between text-body-small text-muted-foreground mb-6 border-t border-border pt-4">
                   <div className="flex items-center space-x-4">
                     <div className="flex items-center space-x-2">
                       <UserIcon />

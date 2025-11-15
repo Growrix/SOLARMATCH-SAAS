@@ -63,7 +63,7 @@ const NavItem: React.FC<{
 }> = ({ icon, title, isActive, onClick, badgeCount, isCollapsed = false }) => (
   <button 
     onClick={onClick} 
-    className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-3 py-2.5 rounded-lg transition-all duration-300 text-body-small font-medium group relative ${
+    className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-3 py-2.5 rounded-lg transition-colors duration-300 text-body-small group relative ${
     isActive 
       ? 'bg-primary/10 text-primary shadow-neu-inset' 
       : 'text-muted-foreground hover:bg-surface hover:text-primary hover:shadow-neu-outset-sm'
@@ -76,7 +76,7 @@ const NavItem: React.FC<{
     </div>
     {!isCollapsed && badgeCount && badgeCount > 0 && (
       <span
-        className="bg-error text-error-foreground text-caption font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-neu-outset-sm"
+        className="bg-error text-error-foreground text-caption w-5 h-5 rounded-full flex items-center justify-center shadow-neu-outset-sm"
       >
         {badgeCount}
       </span>
@@ -278,7 +278,7 @@ const ExpandIcon = () => (
 const PlaceholderContent: React.FC<{ title: string }> = ({ title }) => (
     <div className="flex items-center justify-center h-full min-h-[400px] rounded-2xl border-2 border-dashed border-border animate-fade-in">
       <div className="text-center">
-        <h2 className="text-heading-3 font-bold text-muted-foreground">{title}</h2>
+        <h2 className="text-heading-3 text-muted-foreground">{title}</h2>
         <p className="text-muted-foreground mt-2">This feature is under construction. Check back soon!</p>
       </div>
     </div>
@@ -315,23 +315,23 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
     onClick?: () => void;
   }> = ({ icon, title, value, change, actionText, onClick }) => (
   <div
-    className="bg-background rounded-card p-4 flex flex-col shadow-neu-outset transition-all duration-200 hover:shadow-neu-inset focus-within:shadow-neu-inset"
+    className="bg-background rounded-card p-4 flex flex-col shadow-neu-outset transition-colors duration-200 hover:shadow-neu-inset focus-within:shadow-neu-inset"
     tabIndex={-1}
   >
     <div className="flex justify-between items-start mb-3">
-      <p className="text-body-small font-medium text-muted-foreground">{title}</p>
-      <div className="p-2.5 bg-background rounded-lg shadow-neu-inset transition-all duration-200">
+      <p className="text-body-small text-muted-foreground">{title}</p>
+      <div className="p-2.5 bg-background rounded-lg shadow-neu-inset transition-colors duration-200">
         {icon}
       </div>
     </div>
-    <p className="text-2xl sm:text-3xl font-bold text-foreground mb-1">{value}</p>
+    <p className="text-heading-2 sm:text-heading-1 text-foreground mb-1">{value}</p>
     <p className="text-caption text-muted-foreground mb-4">{change}</p>
     <div className="flex-grow" />
     <div className="flex w-full justify-start">
       <Button
         onClick={onClick}
         variant="ghost"
-        className="w-auto px-0 py-0 text-xs text-primary text-left"
+        className="w-auto px-0 py-0 text-caption text-primary text-left"
         style={{boxShadow: 'none', background: 'none'}}>
         {actionText} →
       </Button>
@@ -371,7 +371,7 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 15.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
-          <h3 className="text-heading-4 font-bold text-foreground mb-2">Failed to load dashboard</h3>
+          <h3 className="text-heading-4 text-foreground mb-2">Failed to load dashboard</h3>
           <p className="text-muted-foreground mb-6">{error}</p>
           <Button 
             onClick={() => window.location.reload()}
@@ -408,7 +408,7 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
     <div className="animate-fade-in space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-body-large sm:text-heading-4 font-semibold text-foreground">
+          <h2 className="text-body-large sm:text-heading-4 text-foreground">
             Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'}!
           </h2>
           <div className="flex items-center gap-2 mt-1">
@@ -448,7 +448,7 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
               <TrophyIcon />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-foreground">
+              <h3 className="text-heading-4 text-foreground">
                 Competitive Bidding Quota
               </h3>
               <p className="text-caption text-muted-foreground mt-0.5">
@@ -457,7 +457,7 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
             </div>
           </div>
           <div className="text-right">
-            <div className="text-3xl font-bold text-warning">
+            <div className="text-heading-1 text-warning">
               {summary.biddingQuotaRemaining ?? 0} / 1
             </div>
             <div className="text-caption text-muted-foreground mt-1">
@@ -505,7 +505,7 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
   <div className="bg-background rounded-card p-5 sm:p-6" style={{
         boxShadow: '8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light)'
       }}>
-        <h3 className="text-body-large sm:text-heading-4 font-bold text-foreground mb-5" style={{
+        <h3 className="text-body-large sm:text-heading-4 text-foreground mb-5" style={{
           textShadow: '2px 2px 4px var(--shadow-dark), -1px -1px 2px var(--shadow-light)'
         }}>Recent Quote Requests</h3>
         {summary.recentLeads.length === 0 ? (
@@ -530,12 +530,12 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
               return (
                     <div
                       key={lead.id}
-                      className="flex items-center gap-3 p-3 rounded-full bg-background shadow-neu-outset transition-all duration-normal min-h-[80px]"
+                      className="flex items-center gap-3 p-3 rounded-full bg-background shadow-neu-outset transition-colors duration-normal min-h-[80px]"
                       style={{ position: 'relative' }}
                     >
                       {/* Left circular icon with strong neumorphic shadow */}
                       <div className="flex-shrink-0 flex items-center justify-center w-16 h-16 rounded-full bg-background shadow-neu-outset border-4 border-background relative" style={{ zIndex: 2 }}>
-                        <span className="flex items-center justify-center w-12 h-12 rounded-full bg-surface shadow-neu-inset text-primary text-2xl">
+                        <span className="flex items-center justify-center w-12 h-12 rounded-full bg-surface shadow-neu-inset text-primary text-heading-2">
                           {getQuoteTypeIcon(lead.quoteType)}
                         </span>
                       </div>
@@ -545,7 +545,7 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
                           {/* Countdown timer center-center in the embossed area, neumorphic */}
                           {lead.expiresAt && lead.status === LeadStatusEnum.APPROVED && (
                             <div className="flex items-center justify-center w-full h-full min-h-[32px] min-w-[120px]">
-                              <div className="rounded-lg bg-background shadow-neu-inset px-4 py-1 text-xs font-semibold text-foreground">
+                              <div className="rounded-lg bg-background shadow-neu-inset px-4 py-1 text-caption text-foreground">
                                 <LiveCountdownBar
                                   expiresAt={lead.expiresAt}
                                   leadId={lead.id}
@@ -558,7 +558,7 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
                           )}
                           <div className="flex items-center gap-4" style={{ width: '100%' }}>
                             <div className="flex flex-col min-w-0 flex-1">
-                              <span className="text-body-small font-bold text-foreground truncate">
+                              <span className="text-body-small text-foreground truncate">
                                 {QUOTE_TYPE_LABELS[lead.quoteType]}
                               </span>
                               <span className="text-caption text-muted-foreground truncate">
@@ -570,7 +570,7 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
                               <Button
                                 onClick={() => onCancelLead(lead)}
                                 variant="minimal"
-                                className="flex items-center gap-1 px-2 py-1 text-xs text-muted-foreground hover:text-error bg-transparent shadow-none"
+                                className="flex items-center gap-1 px-2 py-1 text-caption text-muted-foreground hover:text-error bg-transparent shadow-none"
                                 title="Cancel lead"
                               >
                                 <XCircleIcon />
@@ -581,15 +581,15 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
                           <div className="flex items-center gap-2 mt-1">
                             {/* Verification badge */}
                             {lead.phoneVerified && (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-success/10 text-success shadow-neu-inset text-xs" title="Verified Contact">
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-success/10 text-success shadow-neu-inset text-caption" title="Verified Contact">
                                 <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
                                 </svg>
-                                <span className="font-bold">Verified</span>
+                                <span className="">Verified</span>
                               </span>
                             )}
                             {/* Status badge */}
-                            <span className={`px-2.5 py-0.5 rounded-lg font-bold shadow-neu-inset text-xs ${statusInfo.accent}`}>
+                            <span className={`px-2.5 py-0.5 rounded-lg shadow-neu-inset text-caption ${statusInfo.accent}`}>
                               {statusInfo.label}
                             </span>
                           </div>

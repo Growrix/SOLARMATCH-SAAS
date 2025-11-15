@@ -9,13 +9,13 @@
 // - Next.js development hot-reloads code, which would create new instances
 // - This pattern ensures we only have ONE client, even with hot-reload
 //
-// TEACHING NOTE: This is called the "Singleton Pattern" - a common design
+// TEACHING NOTE: This is called the"Singleton Pattern" - a common design
 // pattern that ensures only one instance of a class exists.
 // ============================================================================
 
 // Import the PrismaClient class from the generated code
 import { PrismaClient } from '@prisma/client';
-// TEACHING NOTE: After running "npx prisma generate", this gets auto-generated
+// TEACHING NOTE: After running"npx prisma generate", this gets auto-generated
 // in node_modules/@prisma/client based on your schema.prisma
 
 // ----------------------------------------------------------------------------
@@ -25,7 +25,7 @@ import { PrismaClient } from '@prisma/client';
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
-// TEACHING NOTE: "globalThis" is a JavaScript object that persists between
+// TEACHING NOTE:"globalThis" is a JavaScript object that persists between
 // hot-reloads in development. We store our Prisma instance here.
 // Without this, Next.js would create a new PrismaClient on every code change!
 
@@ -40,8 +40,8 @@ export const prisma =
       ? ['error', 'warn']  // In development: only errors and warnings (query logs are too verbose for JWT)
       : ['error'],          // In production: only show errors (less noise)
   });
-// TEACHING NOTE: The "??" is the "nullish coalescing operator"
-// It means: "If left side is null/undefined, use right side"
+// TEACHING NOTE: The"??" is the"nullish coalescing operator"
+// It means:"If left side is null/undefined, use right side"
 // This ensures we reuse the existing client if it exists
 
 // ----------------------------------------------------------------------------
@@ -51,7 +51,7 @@ if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma;
 }
 // TEACHING NOTE: In development, save the client to globalThis
-// This survives hot-reloads, preventing the "too many connections" error
+// This survives hot-reloads, preventing the"too many connections" error
 // In production, we don't need this because there's no hot-reload
 
 // ----------------------------------------------------------------------------

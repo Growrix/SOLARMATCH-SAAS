@@ -109,7 +109,7 @@ export async function POST(
     }
 
     return NextResponse.json(
-      { error: 'Invalid action. Use "initiate" or "confirm"' },
+      { error: 'Invalid action. Use"initiate" or"confirm"' },
       { status: 400 }
     );
 

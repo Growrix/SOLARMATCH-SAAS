@@ -143,7 +143,7 @@ const HomeownerSignInModal: React.FC<HomeownerSignInModalProps> = ({
   
   const handleForgotPassword = () => {
     if (!formData.email.trim()) {
-      setError('Please enter your email address first, then click "Forgot password?"');
+      setError('Please enter your email address first, then click"Forgot password?"');
       return;
     }
     setSuccess('If an account with this email exists, you will receive a password reset link shortly.');
@@ -175,7 +175,7 @@ const HomeownerSignInModal: React.FC<HomeownerSignInModalProps> = ({
           <div className="w-16 h-16 bg-surface shadow-neu-outset rounded-2xl mx-auto mb-6 flex items-center justify-center">
             <UserIcon />
           </div>
-          <h2 className="text-2xl font-bold text-foreground mb-2">
+          <h2 className="text-heading-2 text-foreground mb-2">
             Welcome Back
           </h2>
           <p className="text-muted-foreground text-body-small">
@@ -188,7 +188,7 @@ const HomeownerSignInModal: React.FC<HomeownerSignInModalProps> = ({
             <div className="flex items-start space-x-3">
               <AlertTriangleIcon />
               <div>
-                <p className="text-destructive text-body-small font-medium mb-1">Sign In Error</p>
+                <p className="text-destructive text-body-small mb-1">Sign In Error</p>
                 <p className="text-destructive text-body-small">{error}</p>
               </div>
             </div>
@@ -208,7 +208,7 @@ const HomeownerSignInModal: React.FC<HomeownerSignInModalProps> = ({
           <button
             onClick={handleGoogleSignIn}
             disabled={loading || !!success}
-            className="w-full bg-surface shadow-neu-outset hover:shadow-neu-inset border border-border rounded-xl px-4 py-3 text-foreground font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-3"
+            className="w-full bg-surface shadow-neu-outset hover:shadow-neu-inset border border-border rounded-xl px-4 py-3 text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-3"
           >
             <GoogleIcon />
             <span>Continue with Google</span>
@@ -217,7 +217,7 @@ const HomeownerSignInModal: React.FC<HomeownerSignInModalProps> = ({
           <button
             onClick={handleAppleSignIn}
             disabled={loading || !!success}
-            className="w-full bg-surface shadow-neu-outset hover:shadow-neu-inset border border-border rounded-xl px-4 py-3 text-foreground font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-3"
+            className="w-full bg-surface shadow-neu-outset hover:shadow-neu-inset border border-border rounded-xl px-4 py-3 text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-3"
           >
             <AppleIcon />
             <span>Continue with Apple</span>
@@ -263,7 +263,7 @@ const HomeownerSignInModal: React.FC<HomeownerSignInModalProps> = ({
                 </svg>
               </div>
               <input
-                type={showPassword ? "text" : "password"}
+                type={showPassword ?"text" :"password"}
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
@@ -317,7 +317,7 @@ const HomeownerSignInModal: React.FC<HomeownerSignInModalProps> = ({
                 handleClose();
                 if (typeof onSwitchToSignUp === 'function') onSwitchToSignUp();
               }}
-              className="text-primary hover:text-primary/90 font-medium transition-colors"
+              className="text-primary hover:text-primary/90 transition-colors"
             >
               Sign up
             </button>

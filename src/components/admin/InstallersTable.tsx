@@ -131,7 +131,7 @@ const InstallersTable: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Search */}
           <div className="md:col-span-1">
-            <label htmlFor="search" className="block text-sm font-medium text-foreground mb-2">
+            <label htmlFor="search" className="block text-body-small text-foreground mb-2">
               Search
             </label>
             <input
@@ -146,7 +146,7 @@ const InstallersTable: React.FC = () => {
 
           {/* Phone Verified Filter */}
           <div>
-            <label htmlFor="phoneVerified" className="block text-sm font-medium text-foreground mb-2">
+            <label htmlFor="phoneVerified" className="block text-body-small text-foreground mb-2">
               Phone Verified
             </label>
             <select
@@ -163,7 +163,7 @@ const InstallersTable: React.FC = () => {
 
           {/* Installer Verified Filter */}
           <div>
-            <label htmlFor="installerVerified" className="block text-sm font-medium text-foreground mb-2">
+            <label htmlFor="installerVerified" className="block text-body-small text-foreground mb-2">
               Installer Verified
             </label>
             <select
@@ -185,7 +185,7 @@ const InstallersTable: React.FC = () => {
         {loading ? (
           <div className="p-8 text-center">
             <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
-            <p className="mt-2 text-sm text-muted-foreground">Loading installers...</p>
+            <p className="mt-2 text-body-small text-muted-foreground">Loading installers...</p>
           </div>
         ) : error ? (
           <div className="p-8 text-center">
@@ -209,22 +209,22 @@ const InstallersTable: React.FC = () => {
               <table className="w-full">
                 <thead className="bg-surface shadow-neu-inset border-b border-border">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
                       Company / Contact
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
                       Email
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
                       Phone
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
                       Verified
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
                       Registered
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
                       Status
                     </th>
                   </tr>
@@ -245,27 +245,27 @@ const InstallersTable: React.FC = () => {
                               />
                             ) : (
                               <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                                <span className="text-primary font-medium text-sm">
+                                <span className="text-primary text-body-small">
                                   {installer.companyName?.charAt(0).toUpperCase() || installer.name?.charAt(0).toUpperCase() || 'I'}
                                 </span>
                               </div>
                             )}
                           </div>
                           <div className="ml-4">
-                            <div className="text-sm font-medium text-foreground">
+                            <div className="text-body-small text-foreground">
                               {installer.companyName || 'No company name'}
                             </div>
-                            <div className="text-sm text-muted-foreground">
+                            <div className="text-body-small text-muted-foreground">
                               {installer.name || 'No name'}
                             </div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-foreground">{installer.email}</div>
+                        <div className="text-body-small text-foreground">{installer.email}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-foreground">
+                        <div className="text-body-small text-foreground">
                           {installer.phone || 'N/A'}
                         </div>
                       </td>
@@ -282,12 +282,12 @@ const InstallersTable: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-foreground">
+                        <div className="text-body-small text-foreground">
                           {formatDate(installer.createdAt)}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        <span className={`inline-flex px-2 py-1 text-caption rounded-full ${
                           installer.isActive
                             ? 'bg-success/10 text-success border border-success/20'
                             : 'bg-error/10 text-error border border-error/20'
@@ -317,30 +317,30 @@ const InstallersTable: React.FC = () => {
                         />
                       ) : (
                         <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                          <span className="text-primary font-medium">
+                          <span className="text-primary">
                             {installer.companyName?.charAt(0).toUpperCase() || installer.name?.charAt(0).toUpperCase() || 'I'}
                           </span>
                         </div>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-medium text-foreground truncate">
+                      <h3 className="text-body-small text-foreground truncate">
                         {installer.companyName || 'No company name'}
                       </h3>
-                      <p className="text-sm text-muted-foreground truncate">
+                      <p className="text-body-small text-muted-foreground truncate">
                         {installer.name || 'No name'}
                       </p>
                     </div>
                   </div>
 
-                  <div className="space-y-2 text-sm">
+                  <div className="space-y-2 text-body-small">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Email:</span>
-                      <span className="text-foreground font-medium truncate ml-2">{installer.email}</span>
+                      <span className="text-foreground truncate ml-2">{installer.email}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Phone:</span>
-                      <span className="text-foreground font-medium">{installer.phone || 'N/A'}</span>
+                      <span className="text-foreground">{installer.phone || 'N/A'}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-muted-foreground">Verified:</span>
@@ -357,11 +357,11 @@ const InstallersTable: React.FC = () => {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-muted-foreground">Registered:</span>
-                      <span className="text-foreground font-medium">{formatDate(installer.createdAt)}</span>
+                      <span className="text-foreground">{formatDate(installer.createdAt)}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-muted-foreground">Status:</span>
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      <span className={`inline-flex px-2 py-1 text-caption rounded-full ${
                         installer.isActive
                           ? 'bg-success/10 text-success border border-success/20'
                           : 'bg-error/10 text-error border border-error/20'
@@ -399,10 +399,10 @@ const InstallersTable: React.FC = () => {
           </div>
           <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm text-foreground">
-                Showing <span className="font-medium">{(currentPage - 1) * limit + 1}</span> to{' '}
-                <span className="font-medium">{Math.min(currentPage * limit, total)}</span> of{' '}
-                <span className="font-medium">{total}</span> results
+              <p className="text-body-small text-foreground">
+                Showing <span className="">{(currentPage - 1) * limit + 1}</span> to{' '}
+                <span className="">{Math.min(currentPage * limit, total)}</span> of{' '}
+                <span className="">{total}</span> results
               </p>
             </div>
             <div>

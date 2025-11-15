@@ -19,8 +19,8 @@ export interface QuoteRequest {
     totalSystemCost: number;
   };
   system: {
-    size: string; // e.g. "6.6kW"
-    battery: string; // e.g. "10kWh" or "Not Included"
+    size: string; // e.g."6.6kW"
+    battery: string; // e.g."10kWh" or"Not Included"
     annualProduction: number;
   };
   details: {

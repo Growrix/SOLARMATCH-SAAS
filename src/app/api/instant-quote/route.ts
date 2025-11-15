@@ -25,21 +25,21 @@ import { prisma } from '@/lib/prisma';
 // REQUEST BODY STRUCTURE:
 // {
 //   // Property & Location
-//   quoteType: "residential" | "commercial",
-//   postcode: "2000",
-//   location: "Sydney",
-//   state: "NSW",
+//   quoteType:"residential" |"commercial",
+//   postcode:"2000",
+//   location:"Sydney",
+//   state:"NSW",
 //   
 //   // Energy Usage
-//   electricityUsageType: "monthly" | "quarterly",
-//   electricityValue: "400",
+//   electricityUsageType:"monthly" |"quarterly",
+//   electricityValue:"400",
 //   
 //   // System Configuration
-//   roofType: "tile",
-//   budgetRange: "10000-20000",
-//   panelOrientation: "north",
-//   roofTilt: "optimal",
-//   shadingLevel: "none",
+//   roofType:"tile",
+//   budgetRange:"10000-20000",
+//   panelOrientation:"north",
+//   roofTilt:"optimal",
+//   shadingLevel:"none",
 //   desiredOffset: 100,
 //   
 //   // Optional fields...
@@ -56,9 +56,9 @@ import { prisma } from '@/lib/prisma';
 //   },
 //   
 //   // Tracking
-//   sessionId?: "abc123",
-//   userAgent?: "Mozilla/5.0...",
-//   ipAddress?: "192.168.1.1"
+//   sessionId?:"abc123",
+//   userAgent?:"Mozilla/5.0...",
+//   ipAddress?:"192.168.1.1"
 // }
 // ============================================================================
 
@@ -163,7 +163,7 @@ export async function POST(request: Request) {
     // Validate quote type
     if (!['residential', 'commercial'].includes(quoteType)) {
       return NextResponse.json(
-        { error: 'Invalid quote type. Must be "residential" or "commercial"' },
+        { error: 'Invalid quote type. Must be"residential" or"commercial"' },
         { status: 400 }
       );
     }
@@ -366,25 +366,25 @@ export async function GET(request: Request) {
 // POST /api/instant-quote
 // -----------------------
 // curl -X POST http://localhost:3000/api/instant-quote \
-//   -H "Content-Type: application/json" \
+//   -H"Content-Type: application/json" \
 //   -d '{
-//     "quoteType": "residential",
-//     "postcode": "2000",
-//     "location": "Sydney",
-//     "state": "NSW",
-//     "electricityUsageType": "monthly",
-//     "electricityValue": "400",
-//     "roofType": "tile",
-//     "budgetRange": "10000-20000",
-//     "panelOrientation": "north",
-//     "roofTilt": "optimal",
-//     "shadingLevel": "none",
-//     "desiredOffset": 100,
-//     "results": {
-//       "systemSize": 6.6,
-//       "annualProduction": 9500,
-//       "annualSavings": 1250,
-//       "finalPrice": 5000
+//   "quoteType":"residential",
+//   "postcode":"2000",
+//   "location":"Sydney",
+//   "state":"NSW",
+//   "electricityUsageType":"monthly",
+//   "electricityValue":"400",
+//   "roofType":"tile",
+//   "budgetRange":"10000-20000",
+//   "panelOrientation":"north",
+//   "roofTilt":"optimal",
+//   "shadingLevel":"none",
+//   "desiredOffset": 100,
+//   "results": {
+//     "systemSize": 6.6,
+//     "annualProduction": 9500,
+//     "annualSavings": 1250,
+//     "finalPrice": 5000
 //     }
 //   }'
 //

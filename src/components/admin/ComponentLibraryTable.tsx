@@ -90,7 +90,7 @@ export default function ComponentLibraryTable() {
       usageCount: 25,
       usedIn: ['Homepage Hero', 'Main CTAs', 'Signup Forms'],
       example: (
-        <button className="inline-flex items-center justify-center gap-3 px-8 py-4 text-sm font-bold tracking-wider rounded-full transition-all duration-200 border border-accent bg-transparent text-accent shadow-neu-outset-sm hover:shadow-neu-inset-sm">
+        <button className="inline-flex items-center justify-center gap-3 px-8 py-4 text-body-small tracking-wider rounded-full transition-colors duration-200 border border-accent bg-transparent text-accent shadow-neu-outset-sm hover:shadow-neu-inset-sm">
           Get Started
         </button>
       ),
@@ -102,7 +102,7 @@ export default function ComponentLibraryTable() {
       usageCount: 32,
       usedIn: ['Modals (Cancel)', 'Forms (Secondary Actions)', 'Alternative CTAs'],
       example: (
-        <button className="inline-flex items-center justify-center gap-3 px-8 py-4 text-sm font-bold tracking-wider rounded-full transition-all duration-200 bg-background text-muted-foreground shadow-neu-outset-sm hover:text-foreground hover:shadow-neu-inset-sm">
+        <button className="inline-flex items-center justify-center gap-3 px-8 py-4 text-body-small tracking-wider rounded-full transition-colors duration-200 bg-background text-muted-foreground shadow-neu-outset-sm hover:text-foreground hover:shadow-neu-inset-sm">
           Learn More
         </button>
       ),
@@ -114,7 +114,7 @@ export default function ComponentLibraryTable() {
       usageCount: 18,
       usedIn: ['Navigation', 'Subtle CTAs', 'Inline Actions'],
       example: (
-        <button className="inline-flex items-center justify-center gap-3 px-8 py-4 text-sm font-bold tracking-wider rounded-full transition-all duration-200 bg-transparent text-foreground hover:bg-background/80 hover:shadow-neu-outset-sm border-none">
+        <button className="inline-flex items-center justify-center gap-3 px-8 py-4 text-body-small tracking-wider rounded-full transition-colors duration-200 bg-transparent text-foreground hover:bg-background/80 hover:shadow-neu-outset-sm border-none">
           Skip
         </button>
       ),
@@ -126,7 +126,7 @@ export default function ComponentLibraryTable() {
       usageCount: 15,
       usedIn: ['Cards', 'Alternative Actions', 'Outlined CTAs'],
       example: (
-        <button className="inline-flex items-center justify-center gap-3 px-8 py-4 text-sm font-bold tracking-wider rounded-full transition-all duration-200 border-2 border-border bg-transparent shadow-neu-outset-sm text-foreground hover:text-accent">
+        <button className="inline-flex items-center justify-center gap-3 px-8 py-4 text-body-small tracking-wider rounded-full transition-colors duration-200 border-2 border-border bg-transparent shadow-neu-outset-sm text-foreground hover:text-accent">
           View Details
         </button>
       ),
@@ -138,7 +138,7 @@ export default function ComponentLibraryTable() {
       usageCount: 22,
       usedIn: ['QuoteBuilderModal (Save Draft)', 'Table Actions', 'Modals'],
       example: (
-        <button className="inline-flex items-center justify-center gap-3 px-4 py-2 text-sm font-bold tracking-wider rounded-full transition-all duration-200 bg-transparent text-foreground hover:text-accent hover:bg-accent/5 shadow-none border-none">
+        <button className="inline-flex items-center justify-center gap-3 px-4 py-2 text-body-small tracking-wider rounded-full transition-colors duration-200 bg-transparent text-foreground hover:text-accent hover:bg-accent/5 shadow-none border-none">
           Save Draft
         </button>
       ),
@@ -150,7 +150,7 @@ export default function ComponentLibraryTable() {
       usageCount: 8,
       usedIn: ['Delete Confirmations', 'Critical Actions', 'Dangerous Operations'],
       example: (
-        <button className="inline-flex items-center justify-center gap-3 px-8 py-4 text-sm font-bold tracking-wider rounded-full transition-all duration-200 bg-destructive text-destructive-foreground shadow-lg hover:bg-destructive/90">
+        <button className="inline-flex items-center justify-center gap-3 px-8 py-4 text-body-small tracking-wider rounded-full transition-colors duration-200 bg-destructive text-destructive-foreground shadow-lg hover:bg-destructive/90">
           Delete Account
         </button>
       ),
@@ -188,7 +188,7 @@ export default function ComponentLibraryTable() {
       usageCount: 3,
       usedIn: ['AdminSidebar (Collapsed)', 'InstallerSidebar (Mobile)', 'HomeownerSidebar (Mobile)'],
       example: (
-        <button className="fixed top-4 h-8 w-8 flex items-center justify-center rounded-full bg-surface text-primary shadow-neu-inset border border-border transition-all duration-200" style={{left: '84px'}}>
+        <button className="fixed top-4 h-8 w-8 flex items-center justify-center rounded-full bg-surface text-primary shadow-neu-inset border border-border transition-colors duration-200" style={{left: '84px'}}>
           <svg width="14" height="14" fill="none" stroke="currentColor"><path d="M10 15l-5-5 5-5"/></svg>
         </button>
       ),
@@ -198,11 +198,11 @@ export default function ComponentLibraryTable() {
     {
       name: 'Quote Modal Confirm Button',
       description: 'Raw Tailwind button for quote distribution modal confirm action',
-      className: 'bg-primary text-white px-6 py-3 rounded-full shadow-neu-outset hover:shadow-neu-outset-lg transition-all',
+      className: 'bg-primary text-foreground-secondary px-6 py-3 rounded-full shadow-neu-outset hover:shadow-neu-outset-lg transition-colors',
       usageCount: 1,
       usedIn: ['Quote Distribution Modal (Admin)'],
       example: (
-        <button className="bg-primary text-white px-6 py-3 rounded-full shadow-neu-outset hover:shadow-neu-outset-lg transition-all">
+        <button className="bg-primary text-foreground-secondary px-6 py-3 rounded-full shadow-neu-outset hover:shadow-neu-outset-lg transition-colors">
           Confirm Selection
         </button>
       ),
@@ -210,16 +210,16 @@ export default function ComponentLibraryTable() {
     {
       name: 'Count Selector Button (Square)',
       description: 'Square neumorphic button for increment/decrement actions',
-      className: 'w-10 h-10 rounded-xl bg-surface text-foreground shadow-neu-inset hover:shadow-neu-outset transition-all font-bold text-lg',
+      className: 'w-10 h-10 rounded-xl bg-surface text-foreground shadow-neu-inset hover:shadow-neu-outset transition-colors text-heading-4',
       usageCount: 6,
       usedIn: ['Quote Distribution Modal (Count Selector)'],
       example: (
         <div className="flex items-center gap-3">
-          <button className="w-10 h-10 rounded-xl bg-surface text-foreground shadow-neu-inset hover:shadow-neu-outset transition-all font-bold text-lg">
+          <button className="w-10 h-10 rounded-xl bg-surface text-foreground shadow-neu-inset hover:shadow-neu-outset transition-colors text-heading-4">
             -
           </button>
-          <span className="text-xl font-bold text-foreground min-w-[3ch] text-center">3</span>
-          <button className="w-10 h-10 rounded-xl bg-surface text-foreground shadow-neu-inset hover:shadow-neu-outset transition-all font-bold text-lg">
+          <span className="text-heading-3 text-foreground min-w-[3ch] text-center">3</span>
+          <button className="w-10 h-10 rounded-xl bg-surface text-foreground shadow-neu-inset hover:shadow-neu-outset transition-colors text-heading-4">
             +
           </button>
         </div>
@@ -228,15 +228,15 @@ export default function ComponentLibraryTable() {
     {
       name: 'Homeowner Dashboard Filter Tab',
       description: 'Tab button for homeowner dashboard filters (All/Active/Past)',
-      className: 'px-3 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all bg-primary/10 text-primary shadow-neu-inset',
+      className: 'px-3 py-2 rounded-xl text-caption sm:text-body-small transition-colors bg-primary/10 text-primary shadow-neu-inset',
       usageCount: 3,
       usedIn: ['Homeowner Dashboard (Filter Tabs)'],
       example: (
         <div className="flex gap-2">
-          <button className="px-3 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all bg-primary/10 text-primary shadow-neu-inset">
+          <button className="px-3 py-2 rounded-xl text-caption sm:text-body-small transition-colors bg-primary/10 text-primary shadow-neu-inset">
             All
           </button>
-          <button className="px-3 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all text-muted-foreground hover:bg-surface hover:text-primary hover:shadow-neu-outset-sm">
+          <button className="px-3 py-2 rounded-xl text-caption sm:text-body-small transition-colors text-muted-foreground hover:bg-surface hover:text-primary hover:shadow-neu-outset-sm">
             Active
           </button>
         </div>
@@ -251,22 +251,22 @@ export default function ComponentLibraryTable() {
       example: (
         <div className="flex items-center gap-2 bg-background rounded-full p-1 shadow-neu-inset">
           <button
-            className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 bg-surface shadow-neu-outset scale-100"
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-colors duration-200 bg-surface shadow-neu-outset scale-100"
             aria-label="Dark theme"
           >
-            <span className="text-lg">🌙</span>
+            <span className="text-heading-4">🌙</span>
           </button>
           <button
-            className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 bg-background shadow-neu-inset-sm hover:shadow-neu-inset scale-90 opacity-60 hover:opacity-100"
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-colors duration-200 bg-background shadow-neu-inset-sm hover:shadow-neu-inset scale-90 opacity-60 hover:opacity-100"
             aria-label="Light theme"
           >
-            <span className="text-lg">☀️</span>
+            <span className="text-heading-4">☀️</span>
           </button>
           <button
-            className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 bg-background shadow-neu-inset-sm hover:shadow-neu-inset scale-90 opacity-60 hover:opacity-100"
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-colors duration-200 bg-background shadow-neu-inset-sm hover:shadow-neu-inset scale-90 opacity-60 hover:opacity-100"
             aria-label="Purple theme"
           >
-            <span className="text-lg">💜</span>
+            <span className="text-heading-4">💜</span>
           </button>
         </div>
       ),
@@ -283,7 +283,7 @@ export default function ComponentLibraryTable() {
       usedIn: ['Quote Distribution Modal', 'Installer Feed', 'Modals', 'Admin Newsletter Table'],
       example: (
         <div className="theme-card p-6">
-          <h3 className="text-lg font-bold text-foreground mb-2">Card Title</h3>
+          <h3 className="text-heading-4 text-foreground mb-2">Card Title</h3>
           <p className="text-muted-foreground">Standard card with neumorphic styling using .theme-card class.</p>
         </div>
       ),
@@ -296,7 +296,7 @@ export default function ComponentLibraryTable() {
       usedIn: ['Admin Leads Page (Filters)', 'Component Library (This Page)'],
       example: (
         <div className="bg-surface shadow-neu-outset rounded-2xl p-6 border border-border">
-          <h3 className="text-lg font-bold text-foreground mb-2">Inline Card</h3>
+          <h3 className="text-heading-4 text-foreground mb-2">Inline Card</h3>
           <p className="text-muted-foreground">Uses direct utility classes for maximum control.</p>
         </div>
       ),
@@ -310,12 +310,12 @@ export default function ComponentLibraryTable() {
       example: (
         <div className="detail-card p-6 space-y-4">
           <div>
-            <h4 className="text-sm font-semibold text-muted-foreground mb-1">Property Type</h4>
-            <p className="text-base font-medium text-foreground">Residential</p>
+            <h4 className="text-label text-muted-foreground mb-1">Property Type</h4>
+            <p className="text-body text-foreground">Residential</p>
           </div>
           <div>
-            <h4 className="text-sm font-semibold text-muted-foreground mb-1">Energy Bill</h4>
-            <p className="text-base font-medium text-foreground">£250/month</p>
+            <h4 className="text-label text-muted-foreground mb-1">Energy Bill</h4>
+            <p className="text-body text-foreground">£250/month</p>
           </div>
         </div>
       ),
@@ -327,11 +327,11 @@ export default function ComponentLibraryTable() {
     {
       name: 'Success Badge (/10 opacity)',
       description: 'Status badge with 10% background opacity and solid text',
-      className: 'bg-success/10 text-success border border-success/20 px-3 py-1 rounded-full text-sm font-medium',
+      className: 'bg-success/10 text-success border border-success/20 px-3 py-1 rounded-full text-body-small',
       usageCount: 45,
       usedIn: ['Admin Leads (Phone Verified Badge)', 'Lead Cards', 'Status Indicators'],
       example: (
-        <span className="bg-success/10 text-success border border-success/20 px-3 py-1 rounded-full text-sm font-medium">
+        <span className="bg-success/10 text-success border border-success/20 px-3 py-1 rounded-full text-body-small">
           Verified
         </span>
       ),
@@ -339,11 +339,11 @@ export default function ComponentLibraryTable() {
     {
       name: 'Error Badge (/10 opacity)',
       description: 'Error/rejection badge with 10% background opacity',
-      className: 'bg-error/10 text-error border border-error/20 px-3 py-1 rounded-full text-sm font-medium',
+      className: 'bg-error/10 text-error border border-error/20 px-3 py-1 rounded-full text-body-small',
       usageCount: 30,
       usedIn: ['Admin Leads (Rejected Status)', 'Error States', 'Validation Feedback'],
       example: (
-        <span className="bg-error/10 text-error border border-error/20 px-3 py-1 rounded-full text-sm font-medium">
+        <span className="bg-error/10 text-error border border-error/20 px-3 py-1 rounded-full text-body-small">
           Rejected
         </span>
       ),
@@ -351,11 +351,11 @@ export default function ComponentLibraryTable() {
     {
       name: 'Warning Badge (/10 opacity)',
       description: 'Warning/pending badge with 10% background opacity',
-      className: 'bg-warning/10 text-warning border border-warning/20 px-3 py-1 rounded-full text-sm font-medium',
+      className: 'bg-warning/10 text-warning border border-warning/20 px-3 py-1 rounded-full text-body-small',
       usageCount: 28,
       usedIn: ['Admin Leads (Pending Status)', 'Alerts', 'Action Required Indicators'],
       example: (
-        <span className="bg-warning/10 text-warning border border-warning/20 px-3 py-1 rounded-full text-sm font-medium">
+        <span className="bg-warning/10 text-warning border border-warning/20 px-3 py-1 rounded-full text-body-small">
           Pending
         </span>
       ),
@@ -363,11 +363,11 @@ export default function ComponentLibraryTable() {
     {
       name: 'Info Badge (/10 opacity)',
       description: 'Info badge with 10% background opacity',
-      className: 'bg-info/10 text-info border border-info/20 px-3 py-1 rounded-full text-sm font-medium',
+      className: 'bg-info/10 text-info border border-info/20 px-3 py-1 rounded-full text-body-small',
       usageCount: 18,
       usedIn: ['Admin Leads (Info Status)', 'Tooltips', 'Help Indicators'],
       example: (
-        <span className="bg-info/10 text-info border border-info/20 px-3 py-1 rounded-full text-sm font-medium">
+        <span className="bg-info/10 text-info border border-info/20 px-3 py-1 rounded-full text-body-small">
           Info
         </span>
       ),
@@ -387,8 +387,8 @@ export default function ComponentLibraryTable() {
               </svg>
             </div>
             <div>
-              <h4 className="text-xl font-semibold text-foreground">Tactile Surface</h4>
-              <p className="text-sm text-muted-foreground">Hover and click to feel the depth</p>
+              <h4 className="text-heading-3 text-foreground">Tactile Surface</h4>
+              <p className="text-body-small text-muted-foreground">Hover and click to feel the depth</p>
             </div>
           </div>
         </div>
@@ -397,11 +397,11 @@ export default function ComponentLibraryTable() {
     {
       name: 'Solid Success Badge',
       description: 'Full background success badge (used in Admin Leads table)',
-      className: 'bg-success text-success-foreground px-3 py-1 rounded-full text-sm font-medium',
+      className: 'bg-success text-success-foreground px-3 py-1 rounded-full text-body-small',
       usageCount: 12,
       usedIn: ['Admin Leads Page (getStatusColor function)'],
       example: (
-        <span className="bg-success text-success-foreground px-3 py-1 rounded-full text-sm font-medium">
+        <span className="bg-success text-success-foreground px-3 py-1 rounded-full text-body-small">
           Approved
         </span>
       ),
@@ -418,8 +418,8 @@ export default function ComponentLibraryTable() {
       usedIn: ['All pages', 'Headings', 'Body content', 'Primary labels'],
       example: (
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-foreground">Page Heading</h1>
-          <p className="text-base text-foreground">Primary content text uses text-foreground for optimal theme adaptation.</p>
+          <h1 className="text-heading-1 text-foreground">Page Heading</h1>
+          <p className="text-body text-foreground">Primary content text uses text-foreground for optimal theme adaptation.</p>
         </div>
       ),
     },
@@ -431,8 +431,8 @@ export default function ComponentLibraryTable() {
       usedIn: ['Descriptions', 'Subtitles', 'Secondary labels', 'Form labels'],
       example: (
         <div className="space-y-2">
-          <h2 className="text-2xl font-bold text-foreground">Section Title</h2>
-          <p className="text-base text-muted-foreground">Secondary descriptive text uses text-muted-foreground for hierarchy.</p>
+          <h2 className="text-heading-2 text-foreground">Section Title</h2>
+          <p className="text-body text-muted-foreground">Secondary descriptive text uses text-muted-foreground for hierarchy.</p>
         </div>
       ),
     },
@@ -452,47 +452,47 @@ export default function ComponentLibraryTable() {
             <table className="w-full">
               <thead className="bg-surface shadow-neu-inset">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Date</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-3 text-right text-caption text-muted-foreground uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 <tr className="hover:bg-surface-hover cursor-pointer transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-foreground">John Smith</div>
-                    <div className="text-sm text-muted-foreground">john@example.com</div>
+                    <div className="text-body-small text-foreground">John Smith</div>
+                    <div className="text-body-small text-muted-foreground">john@example.com</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-success/10 text-success border border-success/20">
+                    <span className="inline-flex px-2 py-1 text-caption rounded-full bg-success/10 text-success border border-success/20">
                       Approved
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                  <td className="px-6 py-4 whitespace-nowrap text-body-small text-foreground">
                     08 Nov 2025
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button className="text-primary hover:text-primary/80 font-medium">
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-body-small">
+                    <button className="text-primary hover:text-primary/80">
                       View →
                     </button>
                   </td>
                 </tr>
                 <tr className="hover:bg-surface-hover cursor-pointer transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-foreground">Sarah Johnson</div>
-                    <div className="text-sm text-muted-foreground">sarah@example.com</div>
+                    <div className="text-body-small text-foreground">Sarah Johnson</div>
+                    <div className="text-body-small text-muted-foreground">sarah@example.com</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-warning/10 text-warning border border-warning/20">
+                    <span className="inline-flex px-2 py-1 text-caption rounded-full bg-warning/10 text-warning border border-warning/20">
                       Pending
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                  <td className="px-6 py-4 whitespace-nowrap text-body-small text-foreground">
                     07 Nov 2025
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button className="text-primary hover:text-primary/80 font-medium">
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-body-small">
+                    <button className="text-primary hover:text-primary/80">
                       View →
                     </button>
                   </td>
@@ -511,7 +511,7 @@ export default function ComponentLibraryTable() {
       usedIn: ['Admin Leads Table'],
       example: (
         <div className="bg-surface rounded-2xl shadow-neu-outset overflow-hidden p-6">
-          <p className="text-foreground text-sm">Table container with neumorphic shadow</p>
+          <p className="text-foreground text-body-small">Table container with neumorphic shadow</p>
         </div>
       ),
     },
@@ -523,19 +523,19 @@ export default function ComponentLibraryTable() {
       usedIn: ['Admin Leads Table'],
       example: (
         <div className="bg-surface shadow-neu-inset rounded-xl p-4">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Table Header Style</p>
+          <p className="text-caption text-muted-foreground uppercase tracking-wider">Table Header Style</p>
         </div>
       ),
     },
     {
       name: 'Table Header Cell',
       description: 'Individual table header cell styling',
-      className: 'px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider',
+      className: 'px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider',
       usageCount: 10,
       usedIn: ['Admin Leads Table Headers'],
       example: (
         <div className="bg-surface shadow-neu-inset rounded-xl p-2">
-          <span className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider block">
+          <span className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider block">
             Column Name
           </span>
         </div>
@@ -549,9 +549,9 @@ export default function ComponentLibraryTable() {
       usedIn: ['Admin Leads Table Body'],
       example: (
         <div className="divide-y divide-border space-y-0">
-          <div className="py-4 text-sm text-foreground">Row 1</div>
-          <div className="py-4 text-sm text-foreground">Row 2</div>
-          <div className="py-4 text-sm text-foreground">Row 3</div>
+          <div className="py-4 text-body-small text-foreground">Row 1</div>
+          <div className="py-4 text-body-small text-foreground">Row 2</div>
+          <div className="py-4 text-body-small text-foreground">Row 3</div>
         </div>
       ),
     },
@@ -563,7 +563,7 @@ export default function ComponentLibraryTable() {
       usedIn: ['Admin Leads Table Rows'],
       example: (
         <div className="bg-surface rounded-xl p-4 hover:bg-surface-hover cursor-pointer transition-colors">
-          <p className="text-sm text-foreground">Hover over this row to see the effect</p>
+          <p className="text-body-small text-foreground">Hover over this row to see the effect</p>
         </div>
       ),
     },
@@ -576,8 +576,8 @@ export default function ComponentLibraryTable() {
       example: (
         <div className="bg-surface rounded-xl">
           <div className="px-6 py-4 whitespace-nowrap">
-            <div className="text-sm font-medium text-foreground">John Smith</div>
-            <div className="text-sm text-muted-foreground">john@example.com</div>
+            <div className="text-body-small text-foreground">John Smith</div>
+            <div className="text-body-small text-muted-foreground">john@example.com</div>
           </div>
         </div>
       ),
@@ -594,8 +594,8 @@ export default function ComponentLibraryTable() {
       usedIn: ['Cards (.theme-card)', 'Modals', 'Primary Buttons', 'Elevated Surfaces'],
       example: (
         <div className="bg-surface shadow-neu-outset rounded-2xl p-6 w-48 text-center">
-          <p className="text-foreground font-medium">Raised Surface</p>
-          <p className="text-muted-foreground text-sm mt-2">shadow-neu-outset</p>
+          <p className="text-foreground">Raised Surface</p>
+          <p className="text-muted-foreground text-body-small mt-2">shadow-neu-outset</p>
         </div>
       ),
     },
@@ -607,8 +607,8 @@ export default function ComponentLibraryTable() {
       usedIn: ['Form Inputs (.form-input)', 'Form Selects (.form-select)', 'Secondary Buttons', 'Search Fields'],
       example: (
         <div className="bg-surface shadow-neu-inset rounded-2xl p-6 w-48 text-center">
-          <p className="text-foreground font-medium">Pressed Surface</p>
-          <p className="text-muted-foreground text-sm mt-2">shadow-neu-inset</p>
+          <p className="text-foreground">Pressed Surface</p>
+          <p className="text-muted-foreground text-body-small mt-2">shadow-neu-inset</p>
         </div>
       ),
     },
@@ -647,8 +647,8 @@ export default function ComponentLibraryTable() {
     <div>
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">Component Library</h1>
-        <p className="text-lg text-muted-foreground">
+        <h1 className="text-heading-1 text-foreground mb-2">Component Library</h1>
+        <p className="text-heading-4 text-muted-foreground">
           Complete reference of all neumorphic components used across the site with exact class names
         </p>
       </div>
@@ -671,7 +671,7 @@ export default function ComponentLibraryTable() {
             <button
               key={category.id}
               onClick={() => setActiveCategory(category.id)}
-              className={`inline-flex items-center gap-2 px-8 py-4 text-sm font-bold tracking-wider rounded-full transition-all duration-200 bg-background text-muted-foreground shadow-neu-outset-sm hover:text-foreground hover:shadow-neu-inset-sm ${
+              className={`inline-flex items-center gap-2 px-8 py-4 text-body-small tracking-wider rounded-full transition-colors duration-200 bg-background text-muted-foreground shadow-neu-outset-sm hover:text-foreground hover:shadow-neu-inset-sm ${
                 activeCategory === category.id
                   ? 'border-2 border-accent text-accent bg-transparent shadow-neu-outset-sm hover:shadow-neu-inset-sm active:shadow-neu-inset-sm active:scale-[0.98]'
                   : ''
@@ -696,12 +696,12 @@ export default function ComponentLibraryTable() {
               {/* Header */}
               <div className="mb-4">
                 <div className="flex items-start justify-between mb-2">
-                  <h3 className="text-lg font-bold text-foreground">{pattern.name}</h3>
-                  <span className="bg-background px-3 py-1 rounded-full text-xs font-medium text-muted-foreground">
+                  <h3 className="text-heading-4 text-foreground">{pattern.name}</h3>
+                  <span className="bg-background px-3 py-1 rounded-full text-caption text-muted-foreground">
                     Used {pattern.usageCount}× times
                   </span>
                 </div>
-                <p className="text-sm text-muted-foreground">{pattern.description}</p>
+                <p className="text-body-small text-muted-foreground">{pattern.description}</p>
               </div>
 
               {/* Live Preview */}
@@ -711,18 +711,18 @@ export default function ComponentLibraryTable() {
 
               {/* Class Name */}
               <div className="mb-4">
-                <h4 className="text-sm font-semibold text-foreground mb-2">Class Name:</h4>
+                <h4 className="text-label text-foreground mb-2">Class Name:</h4>
                 <div className="bg-background rounded-lg p-4 border border-border overflow-x-auto">
-                  <code className="text-sm text-foreground font-mono">{pattern.className}</code>
+                  <code className="text-body-small text-foreground font-mono">{pattern.className}</code>
                 </div>
               </div>
 
               {/* Used In */}
               <div>
-                <h4 className="text-sm font-semibold text-foreground mb-2">Used In:</h4>
+                <h4 className="text-label text-foreground mb-2">Used In:</h4>
                 <div className="flex flex-wrap gap-2">
                   {pattern.usedIn.map((location, i) => (
-                    <span key={i} className="bg-background text-foreground text-xs px-3 py-1 rounded-full border border-border">
+                    <span key={i} className="bg-background text-foreground text-caption px-3 py-1 rounded-full border border-border">
                       {location}
                     </span>
                   ))}
@@ -735,31 +735,31 @@ export default function ComponentLibraryTable() {
 
       {/* Summary Stats */}
       <div className="mt-8 bg-surface shadow-neu-outset rounded-2xl p-6">
-        <h3 className="text-lg font-bold text-foreground mb-4">Category Summary</h3>
+        <h3 className="text-heading-4 text-foreground mb-4">Category Summary</h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
           <div className="text-center">
-            <p className="text-2xl font-bold text-foreground">{formsPatterns.length}</p>
-            <p className="text-sm text-muted-foreground">Forms</p>
+            <p className="text-heading-2 text-foreground">{formsPatterns.length}</p>
+            <p className="text-body-small text-muted-foreground">Forms</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-foreground">{buttonsPatterns.length}</p>
-            <p className="text-sm text-muted-foreground">Buttons</p>
+            <p className="text-heading-2 text-foreground">{buttonsPatterns.length}</p>
+            <p className="text-body-small text-muted-foreground">Buttons</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-foreground">{cardsPatterns.length}</p>
-            <p className="text-sm text-muted-foreground">Cards</p>
+            <p className="text-heading-2 text-foreground">{cardsPatterns.length}</p>
+            <p className="text-body-small text-muted-foreground">Cards</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-foreground">{badgesPatterns.length}</p>
-            <p className="text-sm text-muted-foreground">Badges</p>
+            <p className="text-heading-2 text-foreground">{badgesPatterns.length}</p>
+            <p className="text-body-small text-muted-foreground">Badges</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-foreground">{typographyPatterns.length}</p>
-            <p className="text-sm text-muted-foreground">Typography</p>
+            <p className="text-heading-2 text-foreground">{typographyPatterns.length}</p>
+            <p className="text-body-small text-muted-foreground">Typography</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-foreground">{shadowsPatterns.length}</p>
-            <p className="text-sm text-muted-foreground">Shadows</p>
+            <p className="text-heading-2 text-foreground">{shadowsPatterns.length}</p>
+            <p className="text-body-small text-muted-foreground">Shadows</p>
           </div>
         </div>
       </div>

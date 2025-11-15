@@ -35,7 +35,7 @@ const Footer: React.FC<FooterProps> = ({ onBecomePartnerClick, onPartnerSignInCl
               <div className="bg-background shadow-neu-inset p-3 rounded-xl">
                 <Sun />
               </div>
-              <span className="text-heading-3 font-bold text-foreground">SolarMatch</span>
+              <span className="text-heading-3 text-foreground">SolarMatch</span>
             </div>
             <p className="text-body text-muted-foreground mb-8 leading-relaxed">
               Australia&apos;s trusted platform for connecting homeowners with verified solar installers. 
@@ -59,7 +59,7 @@ const Footer: React.FC<FooterProps> = ({ onBecomePartnerClick, onPartnerSignInCl
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-heading-4 font-bold text-foreground mb-6">Quick Links</h3>
+            <h3 className="text-heading-4 text-foreground mb-6">Quick Links</h3>
             <ul className="space-y-3">
               <li>
                 <button onClick={() => alert('How It Works Clicked')} className="text-body text-muted-foreground hover:text-primary transition-colors text-left w-full">
@@ -91,7 +91,7 @@ const Footer: React.FC<FooterProps> = ({ onBecomePartnerClick, onPartnerSignInCl
 
           {/* For Installers */}
           <div>
-            <h3 className="text-heading-4 font-bold text-foreground mb-6">For Installers</h3>
+            <h3 className="text-heading-4 text-foreground mb-6">For Installers</h3>
             <ul className="space-y-3">
               <li>
                 <button onClick={onBecomePartnerClick} className="text-body text-muted-foreground hover:text-primary transition-colors text-left flex items-center gap-2 w-full">
@@ -129,7 +129,7 @@ const Footer: React.FC<FooterProps> = ({ onBecomePartnerClick, onPartnerSignInCl
 
           {/* Contact Info */}
           <div>
-            <h3 className="text-heading-4 font-bold text-foreground mb-6">Contact Us</h3>
+            <h3 className="text-heading-4 text-foreground mb-6">Contact Us</h3>
             <div className="space-y-4 mb-8">
               <div className="flex items-center gap-3">
                 <Phone className="h-5 w-5 text-primary" />
@@ -145,7 +145,7 @@ const Footer: React.FC<FooterProps> = ({ onBecomePartnerClick, onPartnerSignInCl
               </div>
             </div>
             <div className="tactile p-4">
-              <p className="text-body-small font-semibold text-foreground mb-2">Operating Hours:</p>
+              <p className="text-body-small text-foreground mb-2">Operating Hours:</p>
               <p className="text-body-small text-muted-foreground">Mon - Fri: 8:00 AM - 6:00 PM AEST<br />Sat: 9:00 AM - 4:00 PM AEST</p>
             </div>
           </div>

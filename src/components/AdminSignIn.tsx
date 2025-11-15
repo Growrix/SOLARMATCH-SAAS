@@ -106,7 +106,7 @@ const AdminSignIn: React.FC = () => {
           <div className="w-16 h-16 bg-surface shadow-neu-outset rounded-2xl mx-auto mb-6 flex items-center justify-center">
             <LockIcon />
           </div>
-          <h2 className="text-2xl font-bold text-foreground mb-2">Admin Login</h2>
+          <h2 className="text-heading-2 text-foreground mb-2">Admin Login</h2>
           <p className="text-muted-foreground text-body-small">Secure administrative access</p>
         </div>
 
@@ -115,7 +115,7 @@ const AdminSignIn: React.FC = () => {
             <div className="flex items-start space-x-3">
               <AlertTriangleIcon />
               <div>
-                <p className="text-destructive text-body-small font-medium mb-1">Sign In Error</p>
+                <p className="text-destructive text-body-small mb-1">Sign In Error</p>
                 <p className="text-destructive text-body-small">{error}</p>
               </div>
             </div>
@@ -161,7 +161,7 @@ const AdminSignIn: React.FC = () => {
                 </svg>
               </div>
               <input
-                type={showPassword ? "text" : "password"}
+                type={showPassword ?"text" :"password"}
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}

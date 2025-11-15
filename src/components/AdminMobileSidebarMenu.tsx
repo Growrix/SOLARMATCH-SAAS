@@ -121,7 +121,7 @@ const NavItem: React.FC<{
 }> = ({ icon, title, isActive, onClick }) => (
     <button 
         onClick={onClick} 
-        className={`w-full flex items-center justify-center space-x-3 px-4 py-3 rounded-xl transition-colors text-base font-semibold ${
+        className={`w-full flex items-center justify-center space-x-3 px-4 py-3 rounded-xl transition-colors text-body ${
             isActive 
                 ? 'bg-primary text-primary-foreground' 
                 : 'bg-surface text-foreground hover:bg-surface-hover'
@@ -186,7 +186,7 @@ const AdminMobileSidebarMenu: React.FC<AdminMobileSidebarMenuProps> = ({
                 className="theme-card relative w-full max-w-xs flex flex-col p-6 animate-slide-in-up"
             >
                 <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-bold text-foreground">Admin Menu</h2>
+                    <h2 className="text-heading-3 text-foreground">Admin Menu</h2>
                     <button 
                         onClick={onClose} 
                         className="p-2 -mr-2 rounded-md text-muted-foreground hover:bg-surface-hover"
@@ -236,7 +236,7 @@ const AdminMobileSidebarMenu: React.FC<AdminMobileSidebarMenuProps> = ({
                 <div className="mt-6 pt-6 border-t border-border">
                     <button 
                         onClick={handleLogoutClick} 
-                        className="w-full flex items-center justify-center space-x-3 px-4 py-3 rounded-xl transition-colors text-base font-semibold bg-destructive/10 text-destructive hover:bg-destructive/20"
+                        className="w-full flex items-center justify-center space-x-3 px-4 py-3 rounded-xl transition-colors text-body bg-destructive/10 text-destructive hover:bg-destructive/20"
                     >
                         <LogOutIcon />
                         <span>Logout</span>

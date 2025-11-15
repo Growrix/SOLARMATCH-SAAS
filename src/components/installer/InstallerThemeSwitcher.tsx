@@ -44,15 +44,15 @@ export default function InstallerThemeSwitcher({ theme, setTheme }: ThemeSwitche
   ];
 
   return (
-    <div className="flex items-center p-1 rounded-full bg-gray-100 dark:bg-slate-800">
+    <div className="flex items-center p-1 rounded-full bg-surface">
       {options.map((opt) => (
         <button
           key={opt.name}
           onClick={() => setTheme(opt.name)}
-          className={`p-1.5 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-slate-800 focus:ring-primary ${
+          className={`p-1.5 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-primary ${
             theme === opt.name
-              ? 'bg-white dark:bg-slate-700 shadow-sm'
-              : 'text-muted-foreground hover:text-slate-900 dark:text-gray-400 dark:hover:text-white'
+              ? 'bg-surface shadow-sm'
+              : 'text-muted-foreground hover:text-foreground'
           }`}
           aria-label={`Switch to ${opt.name} theme`}
           title={`Switch to ${opt.name} theme`}

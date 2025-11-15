@@ -1,5 +1,5 @@
-import * as React from "react";
-import { cn } from "@/lib/utils";
+import * as React from"react";
+import { cn } from"@/lib/utils";
 
 interface MenuToggleButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   isOpen?: boolean;
@@ -11,14 +11,14 @@ export const MenuToggleButton = React.forwardRef<HTMLButtonElement, MenuToggleBu
       <button
         ref={ref}
         className={cn(
-          "p-3 rounded-full transition-all duration-200",
-          "dark:bg-background dark:shadow-neu-outset-sm",
-          "hover:dark:shadow-neu-outset",
-          "active:dark:shadow-neu-inset-sm active:scale-95",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        "p-3 rounded-full transition-colors duration-200",
+        "",
+        "hover:",
+        "active: active:scale-95",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           className
         )}
-        aria-label={isOpen ? "Close menu" : "Open menu"}
+        aria-label={isOpen ?"Close menu" :"Open menu"}
         aria-expanded={isOpen}
         {...props}
       >
@@ -29,7 +29,7 @@ export const MenuToggleButton = React.forwardRef<HTMLButtonElement, MenuToggleBu
             viewBox="0 0 24 24"
             strokeWidth={2}
             stroke="currentColor"
-            className="h-5 w-5 text-white"
+            className="h-5 w-5 text-foreground-secondary"
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -40,7 +40,7 @@ export const MenuToggleButton = React.forwardRef<HTMLButtonElement, MenuToggleBu
             viewBox="0 0 24 24"
             strokeWidth={2}
             stroke="currentColor"
-            className="h-5 w-5 text-white"
+            className="h-5 w-5 text-foreground-secondary"
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
           </svg>
@@ -50,4 +50,4 @@ export const MenuToggleButton = React.forwardRef<HTMLButtonElement, MenuToggleBu
   }
 );
 
-MenuToggleButton.displayName = "MenuToggleButton";
+MenuToggleButton.displayName ="MenuToggleButton";

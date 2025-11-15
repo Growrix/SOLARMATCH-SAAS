@@ -281,7 +281,7 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors p-2 rounded-lg"
+          className="absolute top-4 right-4 text-muted hover:text-foreground transition-colors p-2 rounded-lg"
           aria-label="Close"
         >
           <XIcon />
@@ -295,12 +295,12 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
         </div>
 
         {/* Header */}
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white text-center mb-2">
+        <h2 className="text-heading-2 text-foreground text-center mb-2">
           Verify Your Phone
         </h2>
-        <p className="text-slate-600 dark:text-slate-400 text-center mb-6">
+        <p className="text-muted text-center mb-6">
           Enter the 6-digit code sent to<br />
-          <span className="font-semibold text-slate-900 dark:text-white">{phoneNumber}</span>
+          <span className="text-foreground">{phoneNumber}</span>
         </p>
 
         {/* OTP Input Fields */}
@@ -316,15 +316,15 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
               onChange={e => handleInputChange(index, e.target.value)}
               onKeyDown={e => handleKeyDown(index, e)}
               disabled={isVerifying || isExpired}
-              className={`w-12 h-14 text-center text-2xl font-bold border-2 rounded-lg 
+              className={`w-12 h-14 text-center text-heading-2 border-2 rounded-lg 
                 ${error 
-                  ? 'border-destructive dark:border-red-400' 
-                  : 'border-border dark:border-slate-600 focus:border-primary dark:focus:border-primary'
+                  ? 'border-destructive' 
+                  : 'border-border focus:border-primary'
                 }
-                bg-white dark:bg-slate-800 text-slate-900 dark:text-white
+                bg-surface text-foreground
                 focus:outline-none focus:ring-2 focus:ring-primary/20
                 disabled:opacity-50 disabled:cursor-not-allowed
-                transition-all`}
+                transition-colors`}
             />
           ))}
         </div>
@@ -332,16 +332,16 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
         {/* Timer */}
         {!isExpired ? (
           <div className="text-center mb-4">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-body-small text-muted">
               Code expires in{' '}
-              <span className={`font-semibold ${timeRemaining < 60 ? 'text-destructive' : 'text-primary'}`}>
+              <span className={` ${timeRemaining < 60 ? 'text-destructive' : 'text-primary'}`}>
                 {formatTime(timeRemaining)}
               </span>
             </p>
           </div>
         ) : (
           <div className="text-center mb-4">
-            <p className="text-sm text-destructive dark:text-red-400 font-semibold">
+            <p className="text-body-small text-destructive">
               Code has expired
             </p>
           </div>
@@ -350,7 +350,7 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
         {/* Remaining Attempts */}
         {remainingAttempts !== null && remainingAttempts < 3 && (
           <div className="text-center mb-4">
-            <p className="text-sm text-amber-600 dark:text-amber-400">
+            <p className="text-body-small text-warning">
               {remainingAttempts} {remainingAttempts === 1 ? 'attempt' : 'attempts'} remaining
             </p>
           </div>
@@ -358,32 +358,32 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 mb-4 flex items-start gap-2">
-            <div className="text-destructive dark:text-red-400 flex-shrink-0 mt-0.5">
+          <div className="bg-error/10 border border-error rounded-lg p-3 mb-4 flex items-start gap-2">
+            <div className="text-destructive flex-shrink-0 mt-0.5">
               <AlertCircleIcon />
             </div>
-            <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+            <p className="text-body-small text-error">{error}</p>
           </div>
         )}
 
         {/* Resend Button */}
         <div className="text-center mb-4">
           {rateLimitRetryAfter > 0 ? (
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-body-small text-muted">
               Too many requests. Try again in {formatTime(rateLimitRetryAfter)}
             </p>
           ) : resendCooldown > 0 ? (
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-body-small text-muted">
               Resend available in {resendCooldown}s
             </p>
           ) : (
             <button
               onClick={handleResend}
               disabled={!canResend || isVerifying}
-              className={`text-sm font-semibold ${
+              className={`text-label ${
                 canResend && !isVerifying
-                  ? 'text-primary hover:text-teal-700 dark:hover:text-teal-300'
-                  : 'text-slate-400 dark:text-slate-500 cursor-not-allowed'
+                  ? 'text-primary hover:text-teal-700'
+                  : 'text-muted cursor-not-allowed'
               } transition-colors`}
             >
               {isResending ? 'Sending...' : 'Didn\'t receive a code? Resend'}
@@ -395,15 +395,15 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
         <button
           onClick={() => handleVerify()}
           disabled={isVerifying || code.some(d => !d) || isExpired}
-          className="w-full bg-primary text-white py-3 px-4 rounded-xl font-semibold 
+          className="w-full bg-primary text-foreground-secondary py-3 px-4 rounded-xl 
             hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed 
-            transition-all"
+       transition-colors"
         >
           {isVerifying ? 'Verifying...' : 'Verify Code'}
         </button>
 
         {/* Help Text */}
-        <p className="text-xs text-slate-500 dark:text-slate-400 text-center mt-4">
+        <p className="text-caption text-muted text-center mt-4">
           This helps us ensure the security of your account and prevents spam submissions.
         </p>
       </div>

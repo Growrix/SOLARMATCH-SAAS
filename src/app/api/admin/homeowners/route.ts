@@ -40,10 +40,10 @@ export async function GET(request: NextRequest) {
       const searchValue = `%${escapeLikePattern(q.trim())}%`;
       conditions.push(
         Prisma.sql`(
-          "name" ILIKE ${searchValue} ESCAPE '\\' OR
-          "email" ILIKE ${searchValue} ESCAPE '\\' OR
-          "phone" ILIKE ${searchValue} ESCAPE '\\' OR
-          "postcode" ILIKE ${searchValue} ESCAPE '\\'
+        "name" ILIKE ${searchValue} ESCAPE '\\' OR
+        "email" ILIKE ${searchValue} ESCAPE '\\' OR
+        "phone" ILIKE ${searchValue} ESCAPE '\\' OR
+        "postcode" ILIKE ${searchValue} ESCAPE '\\'
         )`
       );
     }
@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
     if (fromDate) {
       const from = new Date(fromDate);
       if (Number.isNaN(from.getTime())) {
-        return NextResponse.json({ error: 'Invalid "from" date format' }, { status: 400 });
+        return NextResponse.json({ error: 'Invalid"from" date format' }, { status: 400 });
       }
       conditions.push(Prisma.sql`"createdAt" >= ${from}`);
     }
@@ -70,16 +70,16 @@ export async function GET(request: NextRequest) {
     if (toDate) {
       const to = new Date(toDate);
       if (Number.isNaN(to.getTime())) {
-        return NextResponse.json({ error: 'Invalid "to" date format' }, { status: 400 });
+        return NextResponse.json({ error: 'Invalid"to" date format' }, { status: 400 });
       }
       to.setHours(23, 59, 59, 999);
       conditions.push(Prisma.sql`"createdAt" <= ${to}`);
     }
 
     if (quotaFilter === 'available') {
-      conditions.push(Prisma.sql`("leadSubmissionLimit" - "leadSubmissionCount") > 0`);
+      conditions.push(Prisma.sql`("leadSubmissionLimit" -"leadSubmissionCount") > 0`);
     } else if (quotaFilter === 'exhausted') {
-      conditions.push(Prisma.sql`("leadSubmissionLimit" - "leadSubmissionCount") <= 0`);
+      conditions.push(Prisma.sql`("leadSubmissionLimit" -"leadSubmissionCount") <= 0`);
     }
 
     const whereClause =
@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
     const offset = (page - 1) * pageSize;
 
     const totalResult = await prisma.$queryRaw<Array<{ total: number }>>(
-      Prisma.sql`SELECT COUNT(*)::int AS total FROM "users" ${whereClause}`
+      Prisma.sql`SELECT COUNT(*)::int AS total FROM"users" ${whereClause}`
     );
 
     const itemsRaw = await prisma.$queryRaw<Array<{
@@ -107,19 +107,19 @@ export async function GET(request: NextRequest) {
     }>>(
       Prisma.sql`
         SELECT
-          "id",
-          "name",
-          "email",
-          "phone",
-          "postcode",
-          "createdAt",
-          "isActive",
-          "phoneVerified",
-          "leadSubmissionCount",
-          "leadSubmissionLimit"
-        FROM "users"
+        "id",
+        "name",
+        "email",
+        "phone",
+        "postcode",
+        "createdAt",
+        "isActive",
+        "phoneVerified",
+        "leadSubmissionCount",
+        "leadSubmissionLimit"
+        FROM"users"
         ${whereClause}
-        ORDER BY "createdAt" DESC
+        ORDER BY"createdAt" DESC
         OFFSET ${offset}
         LIMIT ${pageSize}
       `
