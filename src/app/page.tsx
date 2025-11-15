@@ -191,6 +191,9 @@ export default function Home() {
           location: pendingQuoteData?.location,
           state: pendingQuoteData?.state,
           energyBill: pendingQuoteData?.electricityValue || pendingQuoteData?.energyBill || 0,
+          name: homeownerInfo?.name, // ✅ Phase 12: Include name from HomeownersInfoForm
+          phoneNumber: homeownerInfo?.phone, // ✅ Phase 12: Include phone from HomeownersInfoForm
+          address: homeownerInfo?.address || pendingQuoteData?.address, // ✅ Phase 12: Include address from HomeownersInfoForm
           propertyAddress: homeownerInfo?.address || pendingQuoteData?.address, // 🆕 Use address from HomeownersInfoForm
           propertyType: pendingQuoteData?.propertyType || 'residential',
           roofType: pendingQuoteData?.roofType,

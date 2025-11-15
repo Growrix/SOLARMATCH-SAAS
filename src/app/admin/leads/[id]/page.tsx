@@ -673,6 +673,13 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
                   {getQuoteTypeLabel(lead.quoteType)}
                 </p>
               </div>
+              {/* ✅ Property Address Field - Full Width */}
+              <div className="col-span-2">
+                <p className="text-body-small text-muted-foreground">Property Address</p>
+                <p className="text-foreground">
+                  {lead.address || 'Not provided'}
+                </p>
+              </div>
             </div>
           </div>
 

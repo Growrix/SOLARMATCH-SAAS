@@ -13,6 +13,7 @@ import NewQuoteRequestModal from '@/components/NewQuoteRequestModal';
 import SimplifiedQuoteFormModal from '@/components/homeowner/SimplifiedQuoteFormModal';
 import QuoteOptionsModal from '@/components/QuoteOptionsModal';
 import QuoteTypeDistributionModal from '@/components/homeowner/QuoteTypeDistributionModal';
+import DetailedInformationModal from '@/components/DetailedInformationModal'; // ✅ Phase 12: Added for first-quote flow
 import MessagingModal from '@/components/MessagingModal';
 import ProfileManagement from '@/components/ProfileManagement';
 import VerifiedBadge from '@/components/VerifiedBadge';
@@ -620,6 +621,7 @@ export default function HomeownerDashboardPage() {
   const [isSimplifiedQuoteModalOpen, setIsSimplifiedQuoteModalOpen] = useState(false);
   const [isQuoteOptionsModalOpen, setIsQuoteOptionsModalOpen] = useState(false);
   const [isQuoteTypeDistributionModalOpen, setIsQuoteTypeDistributionModalOpen] = useState(false);
+  const [isDetailedInfoModalOpen, setIsDetailedInfoModalOpen] = useState(false); // ✅ Phase 12: Added for first-quote contact info
   const [isMessagingModalOpen, setIsMessagingModalOpen] = useState(false);
   const [showContactVerificationModal, setShowContactVerificationModal] = useState(false);
   const [pendingOTP, setPendingOTP] = useState<PendingOTPState | null>(null);
@@ -1107,21 +1109,44 @@ export default function HomeownerDashboardPage() {
           setPendingQuoteData(null);
         }}
         onSelectOption={async (quoteType: 'call_visit' | 'written') => {
-          console.log('[Dashboard] Quote type selected (raw):', quoteType);
+          console.log('[Dashboard - Phase 12] Quote type selected (raw):', quoteType);
           
           // Transform to API format: 'call_visit' -> 'CALL_VISIT', 'written' -> 'WRITTEN_QUOTE'
           const apiQuoteType: 'CALL_VISIT' | 'WRITTEN_QUOTE' = 
             quoteType === 'call_visit' ? 'CALL_VISIT' : 'WRITTEN_QUOTE';
           
-          console.log('[Dashboard] Quote type (transformed):', apiQuoteType);
-          console.log('[Dashboard] Pending quote data:', pendingQuoteData);
+          console.log('[Dashboard - Phase 12] Quote type (transformed):', apiQuoteType);
+          console.log('[Dashboard - Phase 12] Pending quote data:', pendingQuoteData);
+          
+          // ✅ Phase 12 Fix: Store selected quote type and open DetailedInformationModal
+          // Instead of submitting directly, collect name/phone/address first
           setSelectedQuoteType(apiQuoteType);
           setIsQuoteOptionsModalOpen(false);
+          setIsDetailedInfoModalOpen(true); // Open DetailedInformationModal
+          
+          console.log('[Dashboard - Phase 12] Opening DetailedInformationModal for contact info collection');
+        }}
+      />
+
+      {/* ✅ Phase 12: DetailedInformationModal for first-quote contact info collection */}
+      <DetailedInformationModal
+        isOpen={isDetailedInfoModalOpen}
+        onClose={() => {
+          setIsDetailedInfoModalOpen(false);
+          setPendingQuoteData(null);
+          setSelectedQuoteType(null);
+        }}
+        onSubmit={async (detailedInfo: { name: string; phone: string; address: string }) => {
+          console.log('[Dashboard - Phase 12] DetailedInfo received:', detailedInfo);
+          console.log('[Dashboard - Phase 12] Selected quote type:', selectedQuoteType);
+          console.log('[Dashboard - Phase 12] Pending quote data:', pendingQuoteData);
+          
+          setIsDetailedInfoModalOpen(false);
           setIsSubmittingRequest(true);
 
           try {
             const payload = {
-              quoteType: apiQuoteType,
+              quoteType: selectedQuoteType,
               quoteData: pendingQuoteData,
               propertyPostcode: pendingQuoteData?.postcode || '',
               location: pendingQuoteData?.location || '',
@@ -1134,11 +1159,15 @@ export default function HomeownerDashboardPage() {
               desiredOffset: pendingQuoteData?.desiredOffset || 100,
               batteryRequired: pendingQuoteData?.batteryIncluded || false,
               batteryCapacity: pendingQuoteData?.batteryCapacity || '',
+              // ✅ Phase 12: Add contact fields from DetailedInformationModal
+              name: detailedInfo.name,
+              phoneNumber: detailedInfo.phone,
+              address: detailedInfo.address,
             };
             
-            console.log('[Dashboard] Submitting payload:', payload);
+            console.log('[Dashboard - Phase 12] Submitting payload with contact info:', payload);
 
-            // Submit lead directly since user is already authenticated
+            // Submit lead with complete contact information
             const response = await fetch('/api/leads', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -1165,15 +1194,15 @@ export default function HomeownerDashboardPage() {
             }
 
             // Success! Refresh dashboard
-            console.log('✅ Lead submitted successfully:', result);
+            console.log('✅ [Phase 12] Lead submitted successfully with contact info:', result);
             
             // Check if this was the first quote submission
             const isFirstQuote = result.leadSubmissionCount === 1;
             
-            if (isFirstQuote && apiQuoteType && result.remainingLeadAllowance !== undefined && result.quoteLimit) {
+            if (isFirstQuote && selectedQuoteType && result.remainingLeadAllowance !== undefined && result.quoteLimit) {
               // Show first quote success modal with details
               setFirstQuoteSuccessData({
-                quoteType: apiQuoteType,
+                quoteType: selectedQuoteType,
                 remainingQuotes: result.remainingLeadAllowance,
                 totalQuoteLimit: result.quoteLimit,
               });
@@ -1193,7 +1222,6 @@ export default function HomeownerDashboardPage() {
             setIsSubmittingRequest(false);
           }
         }}
-        quoteData={pendingQuoteData}
       />
 
       {/* Phase 4.11: Quote Type Distribution Modal for second+ quotes */}
