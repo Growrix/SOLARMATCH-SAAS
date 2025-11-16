@@ -1367,7 +1367,12 @@ export default function HomeownerDashboardPage() {
             setSelectedLead(null);
           }}
           leadId={selectedLead.id}
-          initialData={selectedLead.quoteData || {}}
+          initialData={{
+            // Merge quoteData (has form inputs) with top-level fields (has database values)
+            // This ensures SimplifiedQuoteForm prefill can find energyBill/billType
+            ...selectedLead.quoteData,
+            ...selectedLead, // Top-level fields override quoteData
+          }}
           onSaveSuccess={handleLeadEditSuccess}
         />
       )}
