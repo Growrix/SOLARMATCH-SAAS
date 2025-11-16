@@ -1204,6 +1204,11 @@ export default function HomeownerDashboardPage() {
           setIsSubmittingRequest(true);
 
           try {
+            // DEBUG: Log what we receive from form
+            console.log('[Dashboard] pendingQuoteData keys:', Object.keys(pendingQuoteData));
+            console.log('[Dashboard] electricityValue:', pendingQuoteData?.electricityValue);
+            console.log('[Dashboard] electricityUsageType:', pendingQuoteData?.electricityUsageType);
+            
             const payload = {
               quoteType: selectedQuoteType,
               quoteData: pendingQuoteData,
@@ -1212,7 +1217,8 @@ export default function HomeownerDashboardPage() {
               state: pendingQuoteData?.state || '',
               propertyType: pendingQuoteData?.propertyType || 'residential',
               roofType: pendingQuoteData?.roofType || '',
-              energyBill: pendingQuoteData?.electricityUsage || 0,
+              // FIX: Use electricityValue (sent by form), not electricityUsage
+              energyBill: pendingQuoteData?.electricityValue || pendingQuoteData?.electricityUsage || 0,
               billType: pendingQuoteData?.electricityUsageType || 'quarterly',
               budgetRange: pendingQuoteData?.budgetRange || '',
               desiredOffset: pendingQuoteData?.desiredOffset || 100,
