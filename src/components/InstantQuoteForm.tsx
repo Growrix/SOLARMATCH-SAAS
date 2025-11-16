@@ -712,7 +712,14 @@ const InstantQuoteForm: React.FC<InstantQuoteFormProps> = ({ onProceedToDetailed
       }
 
       setQuoteResult(resultData);
-      onQuoteCalculated({ ...formData, ...resultData, propertyType: quoteType });
+      // FIX: Include electricityValue and electricityUsageType (separate state variables, not in formData)
+      onQuoteCalculated({ 
+        ...formData, 
+        ...resultData, 
+        propertyType: quoteType,
+        electricityValue,  // Add electricity input value
+        electricityUsageType  // Add billing period type
+      });
       
       // Save quote to database (non-blocking)
       console.log('Attempting to save quote to database...');
