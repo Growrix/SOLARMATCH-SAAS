@@ -74,6 +74,21 @@ export interface HomeownerLeadSummaryItem {
   phoneVerified: boolean; // Phone verification status for homeowner
   expiresAt: Date | null; // Countdown timer expiry timestamp
   phoneNumber: string | null; // Lead phone number (may differ from user phone)
+  // Phase 1: Add all form fields for LeadEditModal prefill
+  energyBill: number;
+  billType: string;
+  address: string | null; // propertyAddress in form, address in database
+  postcode: string; // propertyPostcode in form, postcode in database
+  location: string;
+  state: string;
+  propertyType: string;
+  roofType: string;
+  budgetRange: string;
+  desiredOffset: number;
+  batteryRequired: boolean;
+  batteryCapacity: string | null;
+  timeframe: string | null;
+  additionalNotes: string | null;
 }
 
 export interface HomeownerLeadSummary {
@@ -462,6 +477,21 @@ export async function getHomeownerLeadSummary(userId: string): Promise<Homeowner
         expiresAt: true, // Countdown timer feature
         phoneVerified: true, // For verification status
         phoneNumber: true, // Phase 12: For ContactVerificationModal prefill
+        // Phase 1: Add all form fields for LeadEditModal prefill
+        energyBill: true,
+        billType: true,
+        address: true, // propertyAddress in form, address in database
+        postcode: true, // propertyPostcode in form, postcode in database
+        location: true,
+        state: true,
+        propertyType: true,
+        roofType: true,
+        budgetRange: true,
+        desiredOffset: true,
+        batteryRequired: true,
+        batteryCapacity: true,
+        timeframe: true,
+        additionalNotes: true,
       },
     }),
     prisma.lead.groupBy({
@@ -514,6 +544,21 @@ export async function getHomeownerLeadSummary(userId: string): Promise<Homeowner
       phoneVerified: lead.phoneVerified,
       expiresAt: lead.expiresAt,
       phoneNumber: lead.phoneNumber,
+      // Phase 1: Map all form fields for LeadEditModal prefill
+      energyBill: lead.energyBill,
+      billType: lead.billType,
+      address: lead.address, // Maps to propertyAddress in form
+      postcode: lead.postcode, // Maps to propertyPostcode in form
+      location: lead.location,
+      state: lead.state,
+      propertyType: lead.propertyType,
+      roofType: lead.roofType,
+      budgetRange: lead.budgetRange,
+      desiredOffset: lead.desiredOffset,
+      batteryRequired: lead.batteryRequired,
+      batteryCapacity: lead.batteryCapacity,
+      timeframe: lead.timeframe,
+      additionalNotes: lead.additionalNotes,
     })),
   };
 }

@@ -106,6 +106,21 @@ interface RecentLeadSummary {
   phoneVerified: boolean; // Phase 4.13: Verification status
   expiresAt: string | null; // Countdown timer feature
   phoneNumber: string | null; // Lead phone number (may differ from user phone)
+  // Phase 1: Add all form fields for LeadEditModal prefill
+  energyBill: number;
+  billType: string;
+  address: string | null; // Maps to propertyAddress in form
+  postcode: string; // Maps to propertyPostcode in form
+  location: string;
+  state: string;
+  propertyType: string;
+  roofType: string;
+  budgetRange: string;
+  desiredOffset: number;
+  batteryRequired: boolean;
+  batteryCapacity: string | null;
+  timeframe: string | null;
+  additionalNotes: string | null;
 }
 
 interface HomeownerDashboardSummary {
