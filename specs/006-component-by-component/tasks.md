@@ -4490,3 +4490,131 @@ Get-Content "src\app\homeowner\dashboard\page.tsx" | Select-String -Pattern "ele
 
 **Phase 19 Report**: Single-line fix resolves data integrity issue where second+ leads showed incorrect kWh values in edit modal. Root cause: field name mismatch (`electricityUsage` vs `electricityValue`) in dashboard payload builder for QuoteTypeDistributionModal flow. Fix applied (line 913), TypeScript clean. Audit report documents full data flow analysis. Testing pending for 4 scenarios (first lead, second lead, third lead, edit persistence). Low risk, isolated change, defensive API already handles both names. Estimated 15 minutes testing remaining.
 
+---
+
+## Phase 20: Commercial Quote Support in Edit Modal and Dashboard Display 🎯 P1 FEATURE FIX (November 16, 2025)
+
+**Priority**: P1 (High - Critical Feature Gap)  
+**Status**: In Progress  
+**Goal**: Enable commercial lead editing with correct field display in LeadEditModal AND add visual property type badges to dashboard lead cards  
+
+### Issues Addressed
+
+**P1-06: Commercial Lead Edit Modal Missing Fields**
+- **Problem**: When homeowner edits a commercial lead, SimplifiedQuoteForm does not show commercial-specific fields (peakDemand, isThreePhase, projectPriority)
+- **Root Cause**: `quoteType` state in SimplifiedQuoteForm initializes to 'residential' (default), and prefill `useEffect` runs AFTER first render
+- **Impact**: Homeowners cannot edit commercial-specific fields; data integrity compromised
+
+**P1-07: Dashboard Lead Cards Missing Property Type Indicator**
+- **Problem**: Lead cards show quote request type (CALL_VISIT, WRITTEN_QUOTE, BIDDING) but NOT property type (residential/commercial)
+- **Root Cause**: No UI component or logic to display `lead.propertyType`
+- **Impact**: Homeowners cannot visually distinguish residential vs commercial leads on dashboard
+
+### Phase 20 Tasks
+
+- [ ] **T20.1**: Fix SimplifiedQuoteForm `quoteType` state initialization (5 min)
+  - Update `useState` initializer (line 44) to check `initialData` prop synchronously
+  - Use functional initializer: `useState(() => { if (initialData) { /* detect quoteType */ } return 'residential'; })`
+  - Keep existing `useEffect` prefill logic (lines 159-285) as is
+
+- [ ] **T20.2**: Add `getPropertyTypeInfo` helper to dashboard page (5 min)
+  - Insert after line 55 in `src/app/homeowner/dashboard/page.tsx`
+  - Returns `{ icon, label, color }` for residential (🏠 Home, success) or commercial (🏢 Building, primary)
+
+- [ ] **T20.3**: Add property type badge to dashboard lead cards (10 min)
+  - Update lead card header rendering (around line 576)
+  - Add property type badge BEFORE quote type icon
+  - Use semantic tokens: `bg-surface`, `shadow-neu-inset`, color from helper
+  - Make responsive: icon only on mobile (`hidden sm:inline`)
+
+- [ ] **T20.4**: Run 6-command verification on modified files (10 min)
+  - Target files: `src/components/homeowner/SimplifiedQuoteForm.tsx`, `src/app/homeowner/dashboard/page.tsx`
+  - Expected result: 0/0/0/0/0/0 (no hardcoded colors, dark mode classes, RGB/HEX, etc.)
+
+- [ ] **T20.5**: Run TypeScript and build validation (5 min)
+  - `npx tsc --noEmit` (expect 0 errors)
+  - `npm run build` (expect success)
+
+- [ ] **T20.6**: Test Scenario A - Create residential, edit to commercial (10 min)
+  - Create residential lead with kWh value
+  - Verify dashboard shows "🏠 Residential" badge
+  - Edit lead, switch to commercial quote type
+  - Verify commercial fields (peakDemand, isThreePhase, projectPriority) shown
+  - Fill commercial fields, save
+  - Verify dashboard badge updates to "🏢 Commercial"
+  - Verify admin dashboard shows updated commercial data
+
+- [ ] **T20.7**: Test Scenario B - Create commercial, edit fields (10 min)
+  - Create commercial lead with peakDemand=50kW, isThreePhase=true
+  - Verify dashboard shows "🏢 Commercial" badge
+  - Edit lead, change peakDemand to 75kW
+  - Verify edit modal shows commercial fields prefilled
+  - Save, verify admin sees updated peakDemand
+
+- [ ] **T20.8**: Test Scenario C - Create commercial, edit to residential (10 min)
+  - Create commercial lead
+  - Edit lead, switch to residential quote type
+  - Verify commercial fields hidden, residential fields shown
+  - Save, verify lead saved as residential
+
+- [ ] **T20.9**: Test Scenario D - Dashboard visual display (5 min)
+  - Create 3 leads: 2 residential, 1 commercial
+  - Verify dashboard shows 2 leads with "🏠 Residential" badge, 1 with "🏢 Commercial" badge
+  - Check all 3 themes (Dark, Light, Purple)
+
+- [ ] **T20.10**: Test Scenario E - Admin dashboard display (5 min)
+  - Admin views lead details for commercial lead
+  - Verify propertyType="Commercial", quoteData includes peakDemand, isThreePhase, projectPriority
+
+- [ ] **T20.11**: Commit and update gitstatus.md (5 min)
+  - Atomic commit with descriptive message (see audit report for template)
+  - Update `DOC/Prompts/gitstatus.md` with commit ID, timestamp, description
+
+### Phase 20 Validation Checklist
+
+**Pre-Implementation**:
+- [x] Audit report created: `DOC/AUDIT-REPORTS/LEAD-GENERATION-SYSTEM/07-COMMERCIAL-QUOTE-EDIT-ISSUE.md`
+- [x] Root causes identified and documented
+- [ ] Phase 20 documented in tasks.md
+
+**Implementation**:
+- [ ] SimplifiedQuoteForm `quoteType` state initialization fixed
+- [ ] Dashboard property type badge added
+- [ ] Verification commands passed (0/0/0/0/0/0)
+- [ ] TypeScript check passed (0 errors)
+- [ ] Build validation passed
+
+**Testing**:
+- [ ] Scenario A: Residential → Commercial edit ✅
+- [ ] Scenario B: Commercial field edit ✅
+- [ ] Scenario C: Commercial → Residential edit ✅
+- [ ] Scenario D: Dashboard visual badges ✅
+- [ ] Scenario E: Admin dashboard display ✅
+
+**Post-Implementation**:
+- [ ] All 5 test scenarios passed
+- [ ] No regressions in existing lead CRUD operations
+- [ ] Theme system intact (Dark, Light, Purple)
+- [ ] Commit created with descriptive message
+- [ ] gitstatus.md updated
+- [ ] Changes pushed to remote
+
+### Estimated Time
+- **Audit**: ✅ 30 minutes (COMPLETE)
+- **Implementation**: 20 minutes (PENDING)
+- **Testing**: 50 minutes (PENDING)
+- **Documentation**: 5 minutes (PENDING)
+- **TOTAL**: ~105 minutes (30 minutes complete, 75 minutes remaining)
+
+### Risk Level
+**LOW** - No database schema changes, no API changes, no backend logic changes. Frontend-only fixes (state initialization + UI badge). Commercial field prefill logic already exists and works. Low risk of regressions.
+
+### References
+- **Audit Report**: `DOC/AUDIT-REPORTS/LEAD-GENERATION-SYSTEM/07-COMMERCIAL-QUOTE-EDIT-ISSUE.md`
+- **Related Files**: `src/components/homeowner/SimplifiedQuoteForm.tsx`, `src/app/homeowner/dashboard/page.tsx`, `src/components/homeowner/LeadEditModal.tsx`
+
+---
+
+**Phase 20 Report**: Two-part fix resolves commercial quote support gaps: (1) SimplifiedQuoteForm `quoteType` state now initializes from `initialData` prop synchronously, enabling commercial fields to show on first render when editing commercial leads; (2) Dashboard lead cards now display property type badge (🏠 Residential or 🏢 Commercial) for visual distinction. Frontend-only changes, no backend modifications. Testing pending for 5 scenarios (edit flows, dashboard display, admin display). Low risk, no schema changes. Estimated 75 minutes remaining.
+
+

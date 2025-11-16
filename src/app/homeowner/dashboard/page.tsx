@@ -50,9 +50,27 @@ const EditIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height
 const EyeIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
 const XCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" x2="9" y1="9" y2="15"/><line x1="9" x2="15" y1="9" y2="15"/></svg>;
 const TrophyIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>;
+const Home = ({ className }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+const Building = ({ className }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>;
 
 // Import helper functions (client-safe utilities)
 import { canCancelLead } from '@/lib/utils/lead-helpers';
+
+// Phase 20: Helper function to get property type display info (Residential/Commercial)
+const getPropertyTypeInfo = (propertyType: string): { icon: React.ReactNode; label: string; color: string } => {
+  if (propertyType === 'commercial') {
+    return {
+      icon: <Building className="h-4 w-4" />,
+      label: 'Commercial',
+      color: 'text-primary'
+    };
+  }
+  return {
+    icon: <Home className="h-4 w-4" />,
+    label: 'Residential',
+    color: 'text-success'
+  };
+};
 
 
 
@@ -626,6 +644,16 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
                             </div>
                           </div>
                           <div className="flex items-center gap-2 mt-1">
+                            {/* Phase 20: Property Type Badge (Residential/Commercial) */}
+                            {(() => {
+                              const propTypeInfo = getPropertyTypeInfo(lead.propertyType);
+                              return (
+                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-surface shadow-neu-inset text-caption ${propTypeInfo.color}`} title={`${propTypeInfo.label} Property`}>
+                                  {propTypeInfo.icon}
+                                  <span className="hidden sm:inline">{propTypeInfo.label}</span>
+                                </span>
+                              );
+                            })()}
                             {/* Verification badge */}
                             {lead.phoneVerified && (
                               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-success/10 text-success shadow-neu-inset text-caption" title="Verified Contact">

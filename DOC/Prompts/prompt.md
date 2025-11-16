@@ -1881,3 +1881,22 @@ you must audit all the related and relevant files including frontend and backend
 
 ***strict rules***
 never spoil any other functionality while working on these modals and flows. always test everything after making changes. 
+
+
+
+***new issues found***
+
+- I have created a new homeowners account
+- generated first lead
+- verified contact
+- generated 2nd and 3rd lead
+- edited 3rd lead and chosed commercial quote request from the residential and filled up all the quote fields accordingly. and submitted the quote. 
+
+# the first issue : editlead modal is not showing the commercial parts while opening editing option of the lead. it should work just same as the residential part is working while generating, eiditing leads. 
+
+***additionally*** The lead modal in the homeowners dashboard should show the quote type Residential/commercial based on the users selection. Add icon and texts accordningly in the lead modal card in the homeowners dashboard.
+
+***instruction*** 
+Audit the related and relevant frontend and backend and identify the main cause and gaps/missing implimentations that were not fouced earlier. create a comprhensive audit report of the issues found and the plan to fix them. after that start fixing the issues step by step. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on. create the audit report under this folder D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\AUDIT-REPORTS\LEAD-GENERATION-SYSTEM. And create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\tasks.md file for this task and start implimenting the changes step by step as per the plan you created.
+
+***strict rules*** Never spoil any other functionality while working on these modals and flows. always test everything after making changes. 

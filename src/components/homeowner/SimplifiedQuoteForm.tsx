@@ -1,5 +1,4 @@
-﻿
-'use client'
+﻿'use client'
 
 import React, { useEffect, useState, useMemo } from 'react'
 import SavingsChart from '../SavingsChart';
@@ -41,7 +40,15 @@ const SimplifiedQuoteForm: React.FC<SimplifiedQuoteFormProps> = ({
   submitButtonText = 'Submit Quote Request',
   isLoading = false
 }) => {
-  const [quoteType, setQuoteType] = useState<'residential' | 'commercial'>('residential');
+  // Phase 20: Initialize quoteType from initialData synchronously to show commercial fields on first render
+  const [quoteType, setQuoteType] = useState<'residential' | 'commercial'>(() => {
+    if (initialData) {
+      const data = initialData as Record<string, unknown>;
+      const typeRaw = String(data.propertyType || data.quoteType || data.projectType || 'residential');
+      return typeRaw === 'commercial' ? 'commercial' : 'residential';
+    }
+    return 'residential';
+  });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isPrefilling, setIsPrefilling] = useState(false);
