@@ -138,6 +138,80 @@
 - [ ] 18.24-18.30: Testing & Validation (TypeScript, build, manual testing, themes) (120 min)
 - [ ] 18.31-18.32: Documentation & Commit (README update, atomic commit) (30 min)
 
+**Phase 19: Homeowner Lead Actions (Edit, Cancel, Preview, Phone Sync)** 🎯 NEW (November 16, 2025)
+- 🎯 **Goal**: Implement P1 high-priority lead management features for homeowners
+- 📋 **Approach**: Add missing API endpoints, wire up existing modals, enhance UI
+- 🔍 **Scope**: Edit API (~150 lines), UI buttons (~50 lines), phone sync warning (~30 lines)
+- 📄 **Audit Report**: `DOC/AUDIT-REPORTS/LEAD-GENERATION-SYSTEM/06-HOMEOWNER-LEAD-ACTIONS-AUDIT.md`
+- 🔗 **Feature Branch**: `007-part-b-homeowner-lead-actions` (parent: `007-migration-and-build`)
+- ⏱️ **Estimated**: 6-8 hours - LOW RISK (90% already implemented)
+- 📊 **Status**: LeadEditModal (✅ exists), LeadPreviewModal (✅ exists), Cancel API (✅ exists), Edit API (❌ missing)
+
+**Current State**:
+- ✅ LeadEditModal.tsx (245 lines) - Fully functional, needs backend
+- ✅ LeadPreviewModal.tsx (415 lines) - 100% complete, ready to use
+- ✅ Cancel API + Service - Fully implemented, just needs UI visibility
+- ❌ Edit API - Missing PATCH /api/leads/[id] endpoint
+- ❌ Phone Sync - No warning UI when User.phone ≠ Lead.phoneNumber
+
+**Reference Issues** (from 05-ISSUES-AND-RECOMMENDATIONS.md):
+- P1-01: No Lead Editing Capability (90% complete)
+- P1-02: Lead Cancellation Not Connected (95% complete)
+- P1-04: No Lead Preview for Homeowners (100% complete)
+- P1-05: Phone Number Not Synced (0% complete)
+
+**Subtasks**:
+- [ ] 19.1: Create PATCH /api/leads/[id] route + updateLead() service (90 min)
+  - Add API route with authentication, ownership validation
+  - Add updateLead() function to lead-service.ts
+  - Add canEditLead() helper (DRAFT/PENDING_APPROVAL only)
+  - Filter allowed fields (no quoteType, status, homeownerId changes)
+  - Test with curl/Postman
+- [ ] 19.2: Fix Cancel Button Visibility + Logic (30 min)
+  - Import canCancelLead() helper from lead-service
+  - Add cancel button to lead card action area
+  - Replace simple status check with helper function
+  - Test cancellation flow, verify quota restoration
+- [ ] 19.3: Fix BIDDING Quota Restoration on Cancel (15 min)
+  - Update cancelLead() in lead-service.ts
+  - Add biddingLeadsSubmitted decrement logic
+  - Test with BIDDING lead, verify both quotas restored
+- [ ] 19.4: Add Edit Button to Lead Card (30 min)
+  - Show for PENDING_APPROVAL status only
+  - Wire to handleEditLead() with lead.quoteData pre-fill
+  - Test edit flow end-to-end
+- [ ] 19.5: Add Preview Button to Lead Card (30 min)
+  - Show for APPROVED, PURCHASED, QUOTED, ACCEPTED statuses
+  - Wire to handlePreviewLead() with lead data
+  - Verify read-only modal opens correctly
+- [ ] 19.6: Add Phone Sync Warning Badge + Modal Section (60 min)
+  - Add warning badge to lead card when Lead.phoneNumber ≠ User.phone
+  - Add tooltip explaining independent phone numbers
+  - Add warning section to LeadEditModal
+  - Add "Sync with Profile" button handler
+- [ ] 19.7: Visual Verification - All 3 themes (30 min)
+  - Test Dark, Light, Purple themes
+  - Verify button hover states, shadows
+  - Run 6-command verification (0/0/0/0/0/0 expected)
+- [ ] 19.8: Functional Testing - All Actions (60 min)
+  - Test edit flow (create PENDING_APPROVAL, edit, verify admin sees update)
+  - Test cancel flow (verify quota restoration, BIDDING quota restoration)
+  - Test preview flow (APPROVED lead, verify read-only view)
+  - Test phone sync warning (different phones, sync button)
+- [ ] 19.9: Admin Dashboard Verification (30 min)
+  - Login as admin, navigate to /admin/leads
+  - Verify edited leads show updated data
+  - Verify cancelled leads show CANCELLED status
+  - Check audit logs
+- [ ] 19.10: Build Validation + TypeScript Check (15 min)
+  - Run `npx tsc --noEmit` (0 errors expected)
+  - Run `npm run build` (success expected)
+  - Check browser console (no errors/warnings)
+- [ ] 19.11: Documentation + Commit (30 min)
+  - Update 05-ISSUES-AND-RECOMMENDATIONS.md (mark P1-01, P1-02, P1-04, P1-05 as ✅ Implemented)
+  - Write atomic commit message
+  - Push to remote branch
+
 **Phase 15: Homeowner Select Quote Distribution Modal** 🎯 ACTIVE (November 6, 2025)
 - 🎯 **Goal**: Migrate Select Quote Distribution modal to neumorphic design with 100% design token compliance
 - 📋 **Approach**: UI-only migration (preserve ALL functionality - validation, count selection, submission logic)

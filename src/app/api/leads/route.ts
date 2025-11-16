@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
       homeownerId: session.user.id,
       quoteData: body.quoteData, // InstantQuote calculation results
       quoteType: body.quoteType,
-      propertyAddress: body.propertyAddress,
+      propertyAddress: body.propertyAddress || body.address, // Support both field names
       propertyPostcode: body.propertyPostcode,
       location: body.location,
       state: body.state,
@@ -86,6 +86,9 @@ export async function POST(request: NextRequest) {
       batteryCapacity: body.batteryCapacity,
       timeframe: body.timeframe,
       additionalNotes: body.additionalNotes,
+      // ✅ Phase 12 Fix: Pass name and phoneNumber from request body (authenticated first-quote flow)
+      name: body.name,
+      phoneNumber: body.phoneNumber,
       ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
       userAgent: request.headers.get('user-agent') || 'unknown',
     });

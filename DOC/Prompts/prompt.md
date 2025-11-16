@@ -1848,3 +1848,20 @@ D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-
 ***instructions***
 check the audit report that mentioned above , but you can perform more audit if needed. then create a detailed plan as mentioned above. Make sure to plan meets Industry standards and best practices. do not overcomplicate things. keep it simple yet robust. 
 ***The goal*** is to have a complete, robust, user friendly auth system that reflects the new auth modals and flow. it should work end to end without any issues.
+
+
+
+***homeowners lead modal***
+lets now work on this part : ## 🟡 P1 - HIGH PRIORITY ISSUES (Should Fix Soon), 
+### P1-01: No Lead Editing Capability,### P1-02: Lead Cancellation Not Connected , ### P1-04: No Lead Preview for Homeowners,### P1-05: Phone Number Not Synced Between User and Lead (check the details from this D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\AUDIT-REPORTS\LEAD-GENERATION-SYSTEM\05-ISSUES-AND-RECOMMENDATIONS.md file). 
+
+***existing system audit*** I had these edit, draft etc modals before and worked , but after we have updated the lead submission process a bit , we need to check the current lead generation process and data inputs and outputs etc to see what needs to be changed in order to reflect the edit, draft , preview , cancel modals and flows. previously we hade some buttons on the lead card but now we do not have these. So we need to audit the existing lead generation process and data inputs and outputs etc to see what needs to be changed in order to reflect the edit, draft , preview , cancel modals and flows. these changes in the leads by the homeowners must reflect in the leads shown to admins for now. we havent worked on the installers side yet. but the changes must be reflected in the leads shown to admins for now. 
+
+
+***Instructions*** you must audit deeply the current state and all the existing modals , flows, frontend , backend etc to get the clear picture and create a audit report and a plan to implimenet these changes. After that you must start implimenting the changes step by step. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on. create the audit report under this folder D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\AUDIT-REPORTS\LEAD-GENERATION-SYSTEM. And create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\tasks.md file for this task and start implimenting the changes step by step as per the plan you created.
+
+***Strickt rules*** never spoil any other functionality while working on these modals and flows. always test everything after making changes. 
+
+
+***Admin Dashboard, homeowner Management***
+as we have updated the auth under data inputs, I can see there are few issues in the homeowners management. 

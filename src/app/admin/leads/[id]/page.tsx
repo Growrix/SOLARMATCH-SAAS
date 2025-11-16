@@ -27,6 +27,7 @@ interface Lead {
   visibility: string;
   phoneVerified: boolean;
   phoneNumber: string | null;
+  name: string | null; // Phase 12: Homeowner name from lead form
   quoteType?: 'CALL_VISIT' | 'WRITTEN_QUOTE' | 'BIDDING'; // Phase 4.12: Quote type
   projectType: string;
   propertyType: string;
@@ -642,7 +643,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
               <div>
                 <p className="text-body-small text-muted-foreground">Name</p>
                 <p className="text-foreground">
-                  {lead.homeowner?.name || 'N/A'}
+                  {lead.name || lead.homeowner?.name || 'N/A'}
                 </p>
               </div>
               <div>

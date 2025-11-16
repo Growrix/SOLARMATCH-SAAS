@@ -18,6 +18,7 @@ import { LeadStatus, LeadVisibility, PurchaseStatus, UserRole } from '@prisma/cl
 import { createAuditLog, AUDIT_ACTIONS } from './audit-logger';
 import { createNotification } from './notification-service';
 import { getSetting, getSettingAsNumber } from './settings-service';
+import { canCancelLead, canEditLead } from '@/lib/utils/lead-helpers';
 
 /**
  * Create Lead Input
@@ -42,6 +43,9 @@ export interface CreateLeadInput {
   additionalNotes?: string;
   ipAddress?: string;
   userAgent?: string;
+  // ✅ Phase 12 Fix: Accept name and phoneNumber from request (for authenticated first-quote flow)
+  name?: string;
+  phoneNumber?: string;
 }
 
 /**
@@ -69,6 +73,7 @@ export interface HomeownerLeadSummaryItem {
   quoteData: any | null; // Preserve instant quote inputs for pre-fill experiences
   phoneVerified: boolean; // Phone verification status for homeowner
   expiresAt: Date | null; // Countdown timer expiry timestamp
+  phoneNumber: string | null; // Lead phone number (may differ from user phone)
 }
 
 export interface HomeownerLeadSummary {
@@ -78,6 +83,8 @@ export interface HomeownerLeadSummary {
   biddingLeadsSubmitted: number; // T263: Track BIDDING quota usage (max 1)
   biddingQuotaRemaining: number; // T263: Remaining BIDDING quota (0 or 1)
   phoneVerified: boolean;
+  phoneNumber: string | null; // Phase 12: Phone from most recent lead for ContactVerificationModal prefill
+  userPhone: string | null; // User's actual phone number in profile for sync detection
   requiresVerification: boolean;
   verificationThreshold: number;
   lastSubmissionAt: Date | null;
@@ -196,7 +203,10 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
       visibility: LeadVisibility.HIDDEN, // Visible to homeowner/admin, hidden from installers until approved
       quoteData: input.quoteData || null, // Phase 4.5: Store complete instant quote data
       phoneVerified: homeowner?.phoneVerified || false, // Phase 4.13: Copy verification status from homeowner
-      phoneNumber: homeowner?.phone || null, // Phase 4.13: Copy phone number from homeowner
+      // ✅ Phase 12 Fix: Use name from input (authenticated flow) OR User table (guest flow after signup)
+      name: input.name || homeowner?.name || null,
+      // ✅ Phase 12 Fix: Use phoneNumber from input (authenticated flow) OR User table (guest flow after signup)
+      phoneNumber: input.phoneNumber || homeowner?.phone || null,
     },
     include: {
       homeowner: {
@@ -420,6 +430,7 @@ export async function getHomeownerLeadSummary(userId: string): Promise<Homeowner
     where: { id: userId },
     select: {
       id: true,
+      phone: true, // Fetch user's actual phone number
       phoneVerified: true,
       leadSubmissionCount: true,
       leadSubmissionLimit: true,
@@ -450,6 +461,7 @@ export async function getHomeownerLeadSummary(userId: string): Promise<Homeowner
         quoteData: true,
         expiresAt: true, // Countdown timer feature
         phoneVerified: true, // For verification status
+        phoneNumber: true, // Phase 12: For ContactVerificationModal prefill
       },
     }),
     prisma.lead.groupBy({
@@ -482,6 +494,8 @@ export async function getHomeownerLeadSummary(userId: string): Promise<Homeowner
     biddingLeadsSubmitted: homeowner.biddingLeadsSubmitted, // T263: Return BIDDING usage count
     biddingQuotaRemaining, // T263: Return remaining BIDDING quota (0 or 1)
     phoneVerified: homeowner.phoneVerified,
+    phoneNumber: recentLeads.length > 0 ? recentLeads[0].phoneNumber : null, // Phase 12: For ContactVerificationModal prefill
+    userPhone: homeowner.phone, // User's actual phone number for sync detection
     requiresVerification,
     verificationThreshold,
     lastSubmissionAt: recentLeads.length > 0 ? recentLeads[0].createdAt : null,
@@ -499,6 +513,7 @@ export async function getHomeownerLeadSummary(userId: string): Promise<Homeowner
       quoteData: lead.quoteData,
       phoneVerified: lead.phoneVerified,
       expiresAt: lead.expiresAt,
+      phoneNumber: lead.phoneNumber,
     })),
   };
 }
@@ -588,29 +603,6 @@ export async function getLeadById(input: GetLeadByIdInput) {
 }
 
 /**
- * Check if a lead can be edited
- * 
- * @param lead - Lead object
- * @returns True if lead can be edited (status is PENDING_APPROVAL)
- * 
- * Business Rule: Only leads awaiting admin approval can be edited.
- * After approval (APPROVED) or purchase (PURCHASED), editing is disabled.
- */
-export function canEditLead(lead: { status: LeadStatus }): boolean {
-  return lead.status === LeadStatus.PENDING_APPROVAL;
-}
-
-/**
- * Check if a lead can be cancelled
- * 
- * @param lead - Lead object
- * @returns True if lead can be cancelled (not PURCHASED)
- * 
- * Business Rule: Leads can be cancelled unless they've been purchased by an installer.
- * Cancelling restores 1 quota to the homeowner's balance.
- */
-export function canCancelLead(lead: { status: LeadStatus }): boolean {
-  return lead.status !== LeadStatus.PURCHASED;
 }
 
 /**
@@ -860,15 +852,21 @@ export async function cancelLead(
     },
   });
 
-  // Restore quota to homeowner (decrement submission count)
-  await prisma.user.update({
-    where: { id: existingLead.homeownerId },
-    data: {
-      leadSubmissionCount: {
-        decrement: 1,
+  // Restore quota to homeowner ONLY for BIDDING leads
+  // BIDDING leads are paid requests that should refund the quota
+  // INSTANT leads are free and should not affect quota
+  const shouldRestoreQuota = existingLead.quoteType === 'BIDDING';
+  
+  if (shouldRestoreQuota) {
+    await prisma.user.update({
+      where: { id: existingLead.homeownerId },
+      data: {
+        leadSubmissionCount: {
+          decrement: 1,
+        },
       },
-    },
-  });
+    });
+  }
 
   // Log audit trail
   await createAuditLog({
@@ -882,7 +880,7 @@ export async function cancelLead(
       quoteType: existingLead.quoteType,
       postcode: existingLead.postcode,
       location: existingLead.location,
-      quotaRestored: true,
+      quotaRestored: shouldRestoreQuota,
     },
     ipAddress,
     userAgent,

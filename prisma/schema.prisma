@@ -161,6 +161,7 @@ model Lead {
   visibility            LeadVisibility    @default(HIDDEN)
   phoneVerified         Boolean           @default(false)
   phoneNumber           String?
+  name                  String?           // Phase 12: Homeowner name for contact purposes
   projectType           String
   propertyType          String
   postcode              String

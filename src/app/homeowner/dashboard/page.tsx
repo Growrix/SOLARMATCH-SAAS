@@ -13,7 +13,7 @@ import NewQuoteRequestModal from '@/components/NewQuoteRequestModal';
 import SimplifiedQuoteFormModal from '@/components/homeowner/SimplifiedQuoteFormModal';
 import QuoteOptionsModal from '@/components/QuoteOptionsModal';
 import QuoteTypeDistributionModal from '@/components/homeowner/QuoteTypeDistributionModal';
-import DetailedInformationModal from '@/components/DetailedInformationModal'; // ✅ Phase 12: Added for first-quote flow
+import HomeownersInfoForm from '@/components/HomeownersInfoForm'; // ✅ Phase 12: Reuse guest flow component for consistency
 import MessagingModal from '@/components/MessagingModal';
 import ProfileManagement from '@/components/ProfileManagement';
 import VerifiedBadge from '@/components/VerifiedBadge';
@@ -48,8 +48,11 @@ const HomeIconNav = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" hei
 const MenuIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6"><line x1="3" x2="21" y1="6" y2="6"/><line x1="3" x2="21" y1="12" y2="12"/><line x1="3" x2="21" y1="18" y2="18"/></svg>;
 const EditIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>;
 const EyeIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
-const XCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>;
+const XCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" x2="9" y1="9" y2="15"/><line x1="9" x2="15" y1="9" y2="15"/></svg>;
 const TrophyIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>;
+
+// Import helper functions (client-safe utilities)
+import { canCancelLead } from '@/lib/utils/lead-helpers';
 
 
 
@@ -102,6 +105,7 @@ interface RecentLeadSummary {
   quoteData: Record<string, unknown> | null;
   phoneVerified: boolean; // Phase 4.13: Verification status
   expiresAt: string | null; // Countdown timer feature
+  phoneNumber: string | null; // Lead phone number (may differ from user phone)
 }
 
 interface HomeownerDashboardSummary {
@@ -109,6 +113,8 @@ interface HomeownerDashboardSummary {
   quoteLimit: number;
   remainingLeadAllowance: number;
   phoneVerified: boolean;
+  phoneNumber: string | null; // Phase 12: Phone from most recent lead for verification modal prefill
+  userPhone: string | null; // User's actual phone number for sync detection
   requiresVerification: boolean;
   verificationThreshold: number;
   lastSubmissionAt: string | null;
@@ -525,8 +531,9 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
             {summary.recentLeads.map((lead) => {
               const statusInfo = STATUS_LABELS[lead.status as LeadStatus];
               const canEdit = lead.status === LeadStatusEnum.PENDING_APPROVAL;
-              const canCancel = lead.status !== LeadStatusEnum.PURCHASED;
+              const isActuallyCancellable = canCancelLead(lead);
               const canPreview = [LeadStatusEnum.APPROVED as string, LeadStatusEnum.PURCHASED as string, LeadStatusEnum.QUOTED as string, LeadStatusEnum.ACCEPTED as string].includes(lead.status);
+              const isPhoneOutOfSync = lead.phoneNumber && summary.userPhone && lead.phoneNumber !== summary.userPhone;
 
               return (
                     <div
@@ -566,18 +573,42 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
                                 Created {formatDateTime(lead.createdAt)}
                               </span>
                             </div>
-                            {/* Action button (right side, minimal, icon only, subtle) */}
-                            {canCancel && (
-                              <Button
-                                onClick={() => onCancelLead(lead)}
-                                variant="minimal"
-                                className="flex items-center gap-1 px-2 py-1 text-caption text-muted-foreground hover:text-error bg-transparent shadow-none"
-                                title="Cancel lead"
-                              >
-                                <XCircleIcon />
-                                <span className="hidden sm:inline">Cancel</span>
-                              </Button>
-                            )}
+                            {/* Action buttons (right side, minimal, icon-focused) */}
+                            <div className="flex items-center gap-1">
+                              {canEdit && (
+                                <Button
+                                  onClick={() => onEditLead(lead)}
+                                  variant="minimal"
+                                  className="flex items-center gap-1 px-2 py-1 text-caption text-muted-foreground hover:text-primary bg-transparent shadow-none"
+                                  title="Edit lead"
+                                >
+                                  <EditIcon />
+                                  <span className="hidden sm:inline">Edit</span>
+                                </Button>
+                              )}
+                              {canPreview && (
+                                <Button
+                                  onClick={() => onPreviewLead(lead)}
+                                  variant="minimal"
+                                  className="flex items-center gap-1 px-2 py-1 text-caption text-muted-foreground hover:text-primary bg-transparent shadow-none"
+                                  title="Preview lead"
+                                >
+                                  <EyeIcon />
+                                  <span className="hidden sm:inline">Preview</span>
+                                </Button>
+                              )}
+                              {isActuallyCancellable && (
+                                <Button
+                                  onClick={() => onCancelLead(lead)}
+                                  variant="minimal"
+                                  className="flex items-center gap-1 px-2 py-1 text-caption text-muted-foreground hover:text-error bg-transparent shadow-none"
+                                  title="Cancel lead"
+                                >
+                                  <XCircleIcon />
+                                  <span className="hidden sm:inline">Cancel</span>
+                                </Button>
+                              )}
+                            </div>
                           </div>
                           <div className="flex items-center gap-2 mt-1">
                             {/* Verification badge */}
@@ -587,6 +618,15 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
                                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
                                 </svg>
                                 <span className="">Verified</span>
+                              </span>
+                            )}
+                            {/* Phone not synced warning badge */}
+                            {isPhoneOutOfSync && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-warning/10 text-warning shadow-neu-inset text-caption" title="Lead phone differs from profile phone">
+                                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd"/>
+                                </svg>
+                                <span className="">Phone Not Synced</span>
                               </span>
                             )}
                             {/* Status badge */}
@@ -622,6 +662,7 @@ export default function HomeownerDashboardPage() {
   const [isQuoteOptionsModalOpen, setIsQuoteOptionsModalOpen] = useState(false);
   const [isQuoteTypeDistributionModalOpen, setIsQuoteTypeDistributionModalOpen] = useState(false);
   const [isDetailedInfoModalOpen, setIsDetailedInfoModalOpen] = useState(false); // ✅ Phase 12: Added for first-quote contact info
+  const [homeownerInfo, setHomeownerInfo] = useState<{ name: string; phone: string; address: string } | null>(null); // ✅ Phase 12: Store homeowner contact info
   const [isMessagingModalOpen, setIsMessagingModalOpen] = useState(false);
   const [showContactVerificationModal, setShowContactVerificationModal] = useState(false);
   const [pendingOTP, setPendingOTP] = useState<PendingOTPState | null>(null);
@@ -1074,16 +1115,16 @@ export default function HomeownerDashboardPage() {
         isOpen={isNewQuoteModalOpen}
         onClose={() => setIsNewQuoteModalOpen(false)}
         onQuoteCalculated={(data) => {
-          console.log('Quote calculated:', data);
-          // Store quote data and open QuoteOptionsModal to select quote type
+          console.log('[Dashboard - Phase 12] Quote calculated:', data);
+          // Store quote data for later submission
           setPendingQuoteData(data);
-          setIsNewQuoteModalOpen(false);
-          setIsQuoteOptionsModalOpen(true);
+          // Don't close modal yet - results will display inside modal
         }}
         onProceedToDetailedQuote={() => {
+          console.log('[Dashboard - Phase 12] User clicked "Get Detailed Quotes from Installers"');
+          // Close InstantQuoteForm modal and open QuoteOptionsModal
           setIsNewQuoteModalOpen(false);
-          // Navigate to detailed quote page or show detailed quote form
-          setActivePage('Quote Requests');
+          setIsQuoteOptionsModalOpen(true);
         }}
         initialData={quoteFormInitialData}
       />
@@ -1118,29 +1159,32 @@ export default function HomeownerDashboardPage() {
           console.log('[Dashboard - Phase 12] Quote type (transformed):', apiQuoteType);
           console.log('[Dashboard - Phase 12] Pending quote data:', pendingQuoteData);
           
-          // ✅ Phase 12 Fix: Store selected quote type and open DetailedInformationModal
-          // Instead of submitting directly, collect name/phone/address first
+          // ✅ Phase 12 Fix: Store selected quote type and open HomeownersInfoForm
+          // Reuse guest flow component for UI consistency
           setSelectedQuoteType(apiQuoteType);
           setIsQuoteOptionsModalOpen(false);
-          setIsDetailedInfoModalOpen(true); // Open DetailedInformationModal
+          setIsDetailedInfoModalOpen(true); // Open HomeownersInfoForm (same as guest flow)
           
-          console.log('[Dashboard - Phase 12] Opening DetailedInformationModal for contact info collection');
+          console.log('[Dashboard - Phase 12] Opening HomeownersInfoForm for contact info collection');
         }}
       />
 
-      {/* ✅ Phase 12: DetailedInformationModal for first-quote contact info collection */}
-      <DetailedInformationModal
+      {/* ✅ Phase 12: HomeownersInfoForm for first-quote contact info collection (reused from guest flow) */}
+      <HomeownersInfoForm
         isOpen={isDetailedInfoModalOpen}
         onClose={() => {
           setIsDetailedInfoModalOpen(false);
           setPendingQuoteData(null);
           setSelectedQuoteType(null);
+          setHomeownerInfo(null);
         }}
-        onSubmit={async (detailedInfo: { name: string; phone: string; address: string }) => {
-          console.log('[Dashboard - Phase 12] DetailedInfo received:', detailedInfo);
+        onContinue={async (info: { name: string; phone: string; address: string }) => {
+          console.log('[Dashboard - Phase 12] Homeowner info received:', info);
           console.log('[Dashboard - Phase 12] Selected quote type:', selectedQuoteType);
           console.log('[Dashboard - Phase 12] Pending quote data:', pendingQuoteData);
           
+          // Store homeowner info
+          setHomeownerInfo(info);
           setIsDetailedInfoModalOpen(false);
           setIsSubmittingRequest(true);
 
@@ -1159,10 +1203,11 @@ export default function HomeownerDashboardPage() {
               desiredOffset: pendingQuoteData?.desiredOffset || 100,
               batteryRequired: pendingQuoteData?.batteryIncluded || false,
               batteryCapacity: pendingQuoteData?.batteryCapacity || '',
-              // ✅ Phase 12: Add contact fields from DetailedInformationModal
-              name: detailedInfo.name,
-              phoneNumber: detailedInfo.phone,
-              address: detailedInfo.address,
+              // ✅ Phase 12: Add contact fields from HomeownersInfoForm (same as guest flow)
+              name: info.name,
+              phoneNumber: info.phone,
+              address: info.address,
+              propertyAddress: info.address,
             };
             
             console.log('[Dashboard - Phase 12] Submitting payload with contact info:', payload);
@@ -1174,24 +1219,38 @@ export default function HomeownerDashboardPage() {
               body: JSON.stringify(payload),
             });
 
-            const result = await response.json();
-
+            // ✅ CRITICAL FIX: Check response.ok BEFORE parsing JSON to prevent crashes
             if (!response.ok) {
-              // Handle verification required
-              if (result.requiresVerification) {
-                alert('Phone verification required. Please verify your phone number to submit more quotes.');
-                setShowContactVerificationModal(true);
-                return;
-              }
+              // Try to parse error as JSON, fallback to text if HTML error page
+              let errorMessage = 'Failed to submit quote request';
+              try {
+                const result = await response.json();
+                errorMessage = result.error || errorMessage;
+                
+                // Handle verification required
+                if (result.requiresVerification) {
+                  alert('Phone verification required. Please verify your phone number to submit more quotes.');
+                  setShowContactVerificationModal(true);
+                  return;
+                }
 
-              // Handle limit reached
-              if (result.limitReached) {
-                alert(`You have reached your quote limit (${result.quoteLimit} total).`);
-                return;
+                // Handle limit reached
+                if (result.limitReached) {
+                  alert(`You have reached your quote limit (${result.quoteLimit} total).`);
+                  return;
+                }
+              } catch (parseError) {
+                // Response is not JSON (likely HTML error page)
+                const responseText = await response.text();
+                console.error('[Dashboard - Phase 12] Non-JSON error response:', responseText.substring(0, 200));
+                errorMessage = `Server error (${response.status}). Please try again or contact support.`;
               }
-
-              throw new Error(result.error || 'Failed to submit lead');
+              
+              throw new Error(errorMessage);
             }
+
+            // Now safe to parse JSON
+            const result = await response.json();
 
             // Success! Refresh dashboard
             console.log('✅ [Phase 12] Lead submitted successfully with contact info:', result);
@@ -1215,8 +1274,9 @@ export default function HomeownerDashboardPage() {
             await fetchDashboardSummary();
             setPendingQuoteData(null);
             setSelectedQuoteType(null);
+            setHomeownerInfo(null);
           } catch (error) {
-            console.error('Failed to submit lead:', error);
+            console.error('[Dashboard - Phase 12] Failed to submit lead:', error);
             alert(error instanceof Error ? error.message : 'Failed to submit quote request. Please try again.');
           } finally {
             setIsSubmittingRequest(false);
@@ -1244,7 +1304,7 @@ export default function HomeownerDashboardPage() {
 
       <ContactVerificationModal
         isOpen={showContactVerificationModal}
-        defaultPhone={session?.user?.phone || ''}
+        defaultPhone={dashboardSummary?.phoneNumber || homeownerInfo?.phone || session?.user?.phone || ''}
         onClose={() => setShowContactVerificationModal(false)}
         onOTPRequested={handleOTPRequested}
       />
