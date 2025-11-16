@@ -89,8 +89,8 @@ export async function POST(request: NextRequest) {
       state: body.state,
       propertyType: body.propertyType || 'residential',
       roofType: body.roofType,
-      // FIX: Use raw electricity value (user input: kWh or bill amount)
-      energyBill: body.energyBill || Number(body.electricityValue) || 0,
+      // FIX: Convert to Number - handle both string and number inputs
+      energyBill: Number(body.energyBill) || Number(body.electricityValue) || 0,
       billType: body.billType || body.electricityUsageType || 'quarterly',
       budgetRange: body.budgetRange,
       desiredOffset: body.desiredOffset || 100,

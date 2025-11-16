@@ -1217,8 +1217,8 @@ export default function HomeownerDashboardPage() {
               state: pendingQuoteData?.state || '',
               propertyType: pendingQuoteData?.propertyType || 'residential',
               roofType: pendingQuoteData?.roofType || '',
-              // FIX: Use electricityValue (sent by form), not electricityUsage
-              energyBill: pendingQuoteData?.electricityValue || pendingQuoteData?.electricityUsage || 0,
+              // FIX: Convert to Number - electricityValue comes as string from form
+              energyBill: Number(pendingQuoteData?.electricityValue) || Number(pendingQuoteData?.electricityUsage) || 0,
               billType: pendingQuoteData?.electricityUsageType || 'quarterly',
               budgetRange: pendingQuoteData?.budgetRange || '',
               desiredOffset: pendingQuoteData?.desiredOffset || 100,
