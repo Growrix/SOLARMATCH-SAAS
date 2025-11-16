@@ -98,9 +98,10 @@ export async function POST(request: NextRequest) {
       batteryCapacity: body.batteryCapacity,
       timeframe: body.timeframe,
       additionalNotes: body.additionalNotes,
-      // ✅ Phase 12 Fix: Pass name and phoneNumber from request body (authenticated first-quote flow)
-      name: body.name,
-      phoneNumber: body.phoneNumber,
+      // ✅ Phase 21.2 Fix: Only pass name/phoneNumber if provided in request (first-time registration)
+      // If not provided, createLead will use homeowner.name/phone from User table
+      ...(body.name && { name: body.name }),
+      ...(body.phoneNumber && { phoneNumber: body.phoneNumber }),
       ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
       userAgent: request.headers.get('user-agent') || 'unknown',
     });
