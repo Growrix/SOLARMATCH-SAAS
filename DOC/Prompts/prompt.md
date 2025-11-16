@@ -1865,3 +1865,19 @@ lets now work on this part : ## 🟡 P1 - HIGH PRIORITY ISSUES (Should Fix Soon)
 
 ***Admin Dashboard, homeowner Management***
 as we have updated the auth under data inputs, I can see there are few issues in the homeowners management. 
+
+
+***test result*** the test is passed , the first lead is now can be edited and also shows the update in the admin lead details. 
+
+***new issues found***
+ but I have found new issues now : - I have generated a second lead in the homeowners dashboard and while generated , I have changed the value of the Kwh field and created a new lead. but this new lead is not showing the correct kwh value in the leadedit , As each leads are unique, each leads should show their own data in the lead edit modal.
+
+the homeowners can change/edit form fields or can select between commercial and residential quote requests. each leads should show their own data in the lead edit modal. the prefilled area also should import the exactly that specific leads data while editing. 
+
+The generated leads should show the exactly same data in the admin side accordningly. 
+
+***instructions***
+you must audit all the related and relevant files including frontend and backend. create a comprhensive audit report of the issues found and the plan to fix them. after that start fixing the issues step by step. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on. create the audit report under this folder D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\AUDIT-REPORTS\LEAD-GENERATION-SYSTEM. And create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\tasks.md file for this task and start implimenting the changes step by step as per the plan you created.
+
+***strict rules***
+never spoil any other functionality while working on these modals and flows. always test everything after making changes. 

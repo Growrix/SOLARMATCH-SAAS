@@ -912,7 +912,7 @@ export default function HomeownerDashboardPage() {
             state: pendingQuoteData?.state || '',
             propertyType: pendingQuoteData?.propertyType || 'residential',
             roofType: pendingQuoteData?.roofType || '',
-            energyBill: pendingQuoteData?.electricityUsage || 0,
+            energyBill: Number(pendingQuoteData?.electricityValue) || 0, // FIX: Use electricityValue not electricityUsage
             billType: pendingQuoteData?.electricityUsageType || 'quarterly',
             budgetRange: pendingQuoteData?.budgetRange || '',
             desiredOffset: pendingQuoteData?.desiredOffset || 100,

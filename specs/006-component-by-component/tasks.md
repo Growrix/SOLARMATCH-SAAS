@@ -4376,3 +4376,117 @@ If migration fails:
 ---
 
 **Phase 18 Report**: Complete authentication system replacement planned. Audit identified ~2,300 lines of legacy code (8 modals, 5 API routes, 17 session dependencies). Migration includes database changes (add clerkId, remove password, delete 3 models), full component replacement, session management update, middleware migration, and installer onboarding flow. Success criteria: all 3 user types authenticated via Clerk, all functionality preserved, TypeScript + build passing, all themes working. Estimated 12 hours for complete migration. Medium risk due to scope (all auth flows affected). Rollback plan documented.
+
+---
+
+## Phase 19: Fix Second Lead kWh Value Not Showing Correctly 🎯 DATA INTEGRITY FIX (November 16, 2025)
+
+### Issue Summary
+**User Report**: When creating multiple leads with different kWh values, the edit modal shows incorrect values for second+ leads (shows 0 or first lead's value instead of each lead's unique value).
+
+**Root Cause**: Field name mismatch in dashboard payload builder - using `electricityUsage` instead of `electricityValue`.
+
+**Impact**: All second+ leads created via QuoteTypeDistributionModal have `energyBill: 0` in database, breaking edit modal prefill and admin display accuracy.
+
+### Phase 19 Tasks
+
+#### T19.1: Apply Single-Line Fix ✅ COMPLETE
+**File**: `src/app/homeowner/dashboard/page.tsx`  
+**Line**: 913  
+**Change**: `energyBill: pendingQuoteData?.electricityUsage || 0` → `energyBill: Number(pendingQuoteData?.electricityValue) || 0`
+
+**Status**: ✅ COMPLETE (November 16, 2025 15:30)
+- [x] Fix applied
+- [x] TypeScript check passed (0 errors)
+- [ ] Testing pending
+
+#### T19.2: Verify Fix with Test Scenarios
+**Test 1**: First lead creation
+- [ ] Create first lead with kWh `960`
+- [ ] Open edit modal → Verify prefills with `960`
+- [ ] Admin view → Verify shows `960`
+
+**Test 2**: Second lead creation
+- [ ] Create second lead with kWh `550` (different from first)
+- [ ] Open edit modal → Verify prefills with `550` (not `960` or `0`)
+- [ ] Admin view → Verify shows `550`
+
+**Test 3**: Third lead creation
+- [ ] Create third lead with kWh `1200`
+- [ ] Open edit modal → Verify prefills with `1200`
+- [ ] Admin view → Verify shows `1200`
+
+**Test 4**: Edit persistence
+- [ ] Edit second lead → Change kWh to `750`
+- [ ] Save → Close modal
+- [ ] Reopen edit modal → Verify shows `750`
+- [ ] Admin view → Verify shows `750`
+
+#### T19.3: Build Validation
+- [ ] `npx tsc --noEmit` → 0 errors
+- [ ] `npm run build` → Success
+
+#### T19.4: Commit and Document
+- [ ] Commit with message: "fix: Use electricityValue not electricityUsage for second+ lead energyBill - Each lead now saves its unique kWh value"
+- [ ] Update `DOC/Prompts/gitstatus.md` with commit info
+- [ ] Push to remote branch
+
+### Files Modified
+- `src/app/homeowner/dashboard/page.tsx` (Line 913 - single field name change)
+
+### Files Created
+- `DOC/AUDIT-REPORTS/LEAD-GENERATION-SYSTEM/06-SECOND-LEAD-KWH-VALUE-ISSUE.md` (Comprehensive audit report)
+
+### Verification Commands
+```powershell
+# Check TypeScript
+npx tsc --noEmit
+
+# Check build
+npm run build
+
+# Verify fix is present
+Get-Content "src\app\homeowner\dashboard\page.tsx" | Select-String -Pattern "electricityValue" -Context 2
+```
+
+### Success Criteria
+- ✅ First lead with kWh `960` → Edit modal shows `960`
+- ✅ Second lead with kWh `550` → Edit modal shows `550` (not `960` or `0`)
+- ✅ Third lead with kWh `1200` → Edit modal shows `1200`
+- ✅ Edit any lead → Change kWh → Save → Reopen → New value persists
+- ✅ Admin views all leads → Each shows its correct unique kWh value
+- ✅ TypeScript: 0 errors
+- ✅ Build: Success
+
+### Phase 19 Validation Checklist
+- [x] Root cause identified and documented
+- [x] Audit report created (`06-SECOND-LEAD-KWH-VALUE-ISSUE.md`)
+- [x] Fix applied (dashboard.tsx line 913)
+- [x] TypeScript check passed
+- [ ] Test scenario 1 passed (first lead)
+- [ ] Test scenario 2 passed (second lead - different kWh)
+- [ ] Test scenario 3 passed (third lead)
+- [ ] Test scenario 4 passed (edit persistence)
+- [ ] Build validation passed
+- [ ] Commit created with descriptive message
+- [ ] gitstatus.md updated
+- [ ] Changes pushed to remote
+
+### Estimated Time
+- **Audit**: ✅ 20 minutes (COMPLETE)
+- **Fix**: ✅ 5 minutes (COMPLETE)
+- **Testing**: 15 minutes (PENDING)
+- **Documentation**: ✅ 10 minutes (COMPLETE)
+- **TOTAL**: ~50 minutes (35 minutes complete, 15 minutes remaining)
+
+### Risk Level
+**LOW** - Single-line fix, isolated change, defensive coding in API already handles both field names. No database schema changes. No breaking changes.
+
+### References
+- **Audit Report**: `DOC/AUDIT-REPORTS/LEAD-GENERATION-SYSTEM/06-SECOND-LEAD-KWH-VALUE-ISSUE.md`
+- **Related Files**: `src/components/homeowner/SimplifiedQuoteForm.tsx`, `src/app/api/leads/route.ts`, `src/lib/services/lead-service.ts`
+
+---
+
+**Phase 19 Report**: Single-line fix resolves data integrity issue where second+ leads showed incorrect kWh values in edit modal. Root cause: field name mismatch (`electricityUsage` vs `electricityValue`) in dashboard payload builder for QuoteTypeDistributionModal flow. Fix applied (line 913), TypeScript clean. Audit report documents full data flow analysis. Testing pending for 4 scenarios (first lead, second lead, third lead, edit persistence). Low risk, isolated change, defensive API already handles both names. Estimated 15 minutes testing remaining.
+
