@@ -93,6 +93,8 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -125,6 +127,8 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
   
   const resetForm = () => {
     setFormData({ 
+      name: '',
+      phone: '',
       email: '',
       password: '',
       confirmPassword: ''
@@ -148,6 +152,22 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
     setSuccess(null);
     
     // Client-side validation
+    // Check name (either from form or homeownerInfo)
+    const name = formData.name || homeownerInfo?.name;
+    const phone = formData.phone || homeownerInfo?.phone;
+
+    if (!name || name.trim().length < 2) {
+      setError("Please enter your full name (at least 2 characters).");
+      setLoading(false);
+      return;
+    }
+
+    if (!phone || phone.trim().length === 0) {
+      setError("Please enter your phone number.");
+      setLoading(false);
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match.");
       setLoading(false);
@@ -161,7 +181,6 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
     }
 
     try {
-      // Call the registration API with contact info from HomeownersInfoForm
       const response = await fetch('/api/auth/register/homeowner', {
         method: 'POST',
         headers: {
@@ -170,9 +189,10 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
-          name: homeownerInfo?.name, // 🆕 Pass name to populate User.name
-          phone: homeownerInfo?.phone, // 🆕 Pass phone to populate User.phone
-          address: homeownerInfo?.address, // 🆕 Pass address for future use
+          // Use form data if available, otherwise fallback to homeownerInfo prop
+          name: formData.name || homeownerInfo?.name,
+          phone: formData.phone || homeownerInfo?.phone,
+          address: homeownerInfo?.address, // Address only comes from homeownerInfo
         }),
       });
 
@@ -329,6 +349,45 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
 
           {/* Form Fields */}
           <div className="space-y-4">
+            {/* Name - Show only if not provided via homeownerInfo */}
+            {!homeownerInfo?.name && (
+              <div className="relative">
+                <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Full Name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  required
+                  minLength={2}
+                  className="form-input w-full pl-11 pr-4 py-3"
+                />
+              </div>
+            )}
+
+            {/* Phone - Show only if not provided via homeownerInfo */}
+            {!homeownerInfo?.phone && (
+              <div className="relative">
+                <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                <input
+                  type="tel"
+                  name="phone"
+                  placeholder="Phone Number (e.g., 04XX XXX XXX)"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  required
+                  pattern="^(\+?61|0)[2-478](?:[ -]?[0-9]){8}$"
+                  title="Please enter a valid Australian phone number (e.g., 04XX XXX XXX or +61 4XX XXX XXX)"
+                  className="form-input w-full pl-11 pr-4 py-3"
+                />
+              </div>
+            )}
+
             {/* Email */}
             <div className="relative">
               <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">

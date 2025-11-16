@@ -20,6 +20,34 @@ import { createNotification } from './notification-service';
 import { getSetting, getSettingAsNumber } from './settings-service';
 import { canCancelLead, canEditLead } from '@/lib/utils/lead-helpers';
 
+// 🔧 PHASE 21.3: Helper functions to inherit user data from first lead
+async function getNameFromFirstLead(homeownerId: string): Promise<string | null> {
+  const firstLead = await prisma.lead.findFirst({
+    where: { homeownerId, name: { not: null } },
+    orderBy: { createdAt: 'asc' },
+    select: { name: true },
+  });
+  return firstLead?.name || null;
+}
+
+async function getPhoneFromFirstLead(homeownerId: string): Promise<string | null> {
+  const firstLead = await prisma.lead.findFirst({
+    where: { homeownerId, phoneNumber: { not: null } },
+    orderBy: { createdAt: 'asc' },
+    select: { phoneNumber: true },
+  });
+  return firstLead?.phoneNumber || null;
+}
+
+async function getAddressFromFirstLead(homeownerId: string): Promise<string | null> {
+  const firstLead = await prisma.lead.findFirst({
+    where: { homeownerId, address: { not: null } },
+    orderBy: { createdAt: 'asc' },
+    select: { address: true },
+  });
+  return firstLead?.address || null;
+}
+
 /**
  * Create Lead Input
  */
@@ -203,7 +231,8 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
       postcode: input.propertyPostcode,
       location: input.location,
       state: input.state,
-      address: input.propertyAddress,
+      // 🔧 PHASE 21.3: Inherit address from first lead if not provided
+      address: input.propertyAddress || await getAddressFromFirstLead(input.homeownerId),
       energyBill: input.energyBill,
       billType: input.billType,
       roofType: input.roofType || 'unknown',
@@ -219,10 +248,12 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
       visibility: LeadVisibility.HIDDEN, // Visible to homeowner/admin, hidden from installers until approved
       quoteData: input.quoteData || null, // Phase 4.5: Store complete instant quote data
       phoneVerified: homeowner?.phoneVerified || false, // Phase 4.13: Copy verification status from homeowner
-      // ✅ Phase 12 Fix: Use name from input (authenticated flow) OR User table (guest flow after signup)
-      name: input.name || homeowner?.name || null,
-      // ✅ Phase 12 Fix: Use phoneNumber from input (authenticated flow) OR User table (guest flow after signup)
-      phoneNumber: input.phoneNumber || homeowner?.phone || null,
+      
+      // 🔧 PHASE 21.3: Inherit user data from first lead if homeowner.name is NULL
+      // If user signed up directly (not via guest flow), homeowner.name/phone will be NULL
+      // Solution: Copy name/phoneNumber from their first lead
+      name: input.name || homeowner?.name || await getNameFromFirstLead(input.homeownerId),
+      phoneNumber: input.phoneNumber || homeowner?.phone || await getPhoneFromFirstLead(input.homeownerId),
     },
     include: {
       homeowner: {
