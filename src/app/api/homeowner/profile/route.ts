@@ -164,6 +164,20 @@ export async function PUT(request: NextRequest) {
       },
     });
 
+    // ========================================================================
+    // ✅ PHASE 21: SYNCHRONIZE DENORMALIZED LEAD FIELDS
+    // ========================================================================
+    // When user updates profile, sync name and phone to all their leads
+    // This ensures admin dashboard always shows current user data
+    // Fixes: Admin lead details showing stale/missing user info for leads 2-3
+    await prisma.lead.updateMany({
+      where: { homeownerId: session.user.id },
+      data: {
+        name: name.trim(),
+        phoneNumber: phone?.trim() || null,
+      },
+    });
+
     return NextResponse.json(updatedUser, { status: 200 });
     
   } catch (error) {

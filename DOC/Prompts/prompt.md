@@ -1849,7 +1849,7 @@ D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-
 check the audit report that mentioned above , but you can perform more audit if needed. then create a detailed plan as mentioned above. Make sure to plan meets Industry standards and best practices. do not overcomplicate things. keep it simple yet robust. 
 ***The goal*** is to have a complete, robust, user friendly auth system that reflects the new auth modals and flow. it should work end to end without any issues.
 
-
+-------------------------------------------------------------------------
 
 ***homeowners lead modal***
 lets now work on this part : ## 🟡 P1 - HIGH PRIORITY ISSUES (Should Fix Soon), 
@@ -1862,7 +1862,7 @@ lets now work on this part : ## 🟡 P1 - HIGH PRIORITY ISSUES (Should Fix Soon)
 
 ***Strickt rules*** never spoil any other functionality while working on these modals and flows. always test everything after making changes. 
 
-
+-----------------------------------------------------------------------
 ***Admin Dashboard, homeowner Management***
 as we have updated the auth under data inputs, I can see there are few issues in the homeowners management. 
 
@@ -1882,7 +1882,7 @@ you must audit all the related and relevant files including frontend and backend
 ***strict rules***
 never spoil any other functionality while working on these modals and flows. always test everything after making changes. 
 
-
+-------------------------------------------------------------------------
 
 ***new issues found***
 
@@ -1900,3 +1900,14 @@ never spoil any other functionality while working on these modals and flows. alw
 Audit the related and relevant frontend and backend and identify the main cause and gaps/missing implimentations that were not fouced earlier. create a comprhensive audit report of the issues found and the plan to fix them. after that start fixing the issues step by step. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on. create the audit report under this folder D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\AUDIT-REPORTS\LEAD-GENERATION-SYSTEM. And create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\tasks.md file for this task and start implimenting the changes step by step as per the plan you created.
 
 ***strict rules*** Never spoil any other functionality while working on these modals and flows. always test everything after making changes. 
+
+--------------------------------------------------------------------------
+
+***Admin dashboard lead details issues***
+now I can see in the lead details modal is only showing the name,contct,address in the first lead only, but not showing in the 2nd and 3rd lead details modal. it should show the name,contact,address in all the leads details modal accordningly. all these user information should be always updated in real time whenever user update their profile information. 
+
+***instructions***
+you must audit all the related and relevant files including frontend and backend. create a comprhensive audit report of the issues found and the plan to fix them. after that start fixing the issues step by step. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on. create the audit report under this folder D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\AUDIT-REPORTS\LEAD-GENERATION-SYSTEM. And create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\tasks.md file for this task and start implimenting the changes step by step as per the plan you created.
+
+***strict rules***
+never spoil any other functionality while working on these modals and flows. always test everything after making changes.
