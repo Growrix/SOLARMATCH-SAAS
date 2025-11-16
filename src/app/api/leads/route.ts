@@ -52,6 +52,20 @@ export async function POST(request: NextRequest) {
     // DEBUGGING: Log full body to identify where bad quoteType comes from
     console.log('[POST /api/leads] FULL BODY:', JSON.stringify(body, null, 2));
     
+    // DEBUG: Log energyBill calculation
+    const calculatedEnergyBill = body.energyBill || 
+                  Number(body.electricityValue) || 
+                  (body.quoteData?.currentAnnualBill ? 
+                    (body.quoteData.currentAnnualBill / (body.billType === 'monthly' || body.electricityUsageType === 'monthly' ? 12 : 4)) : 
+                    0);
+    console.log('[POST /api/leads] energyBill calculation:', {
+      bodyEnergyBill: body.energyBill,
+      electricityValue: body.electricityValue,
+      currentAnnualBill: body.quoteData?.currentAnnualBill,
+      billType: body.billType || body.electricityUsageType,
+      calculated: calculatedEnergyBill
+    });
+    
     // Validate required fields
     if (!body.quoteType || !body.propertyPostcode || !body.location) {
       return NextResponse.json(
@@ -78,8 +92,12 @@ export async function POST(request: NextRequest) {
       state: body.state,
       propertyType: body.propertyType || 'residential',
       roofType: body.roofType,
-      // FIX: Support both field names (form sends electricityValue, DB uses energyBill)
-      energyBill: body.energyBill || Number(body.electricityValue) || 0,
+      // FIX: Support multiple field name variations and calculate from quoteData if needed
+      energyBill: body.energyBill || 
+                  Number(body.electricityValue) || 
+                  (body.quoteData?.currentAnnualBill ? 
+                    (body.quoteData.currentAnnualBill / (body.billType === 'monthly' || body.electricityUsageType === 'monthly' ? 12 : 4)) : 
+                    0),
       billType: body.billType || body.electricityUsageType || 'quarterly',
       budgetRange: body.budgetRange,
       desiredOffset: body.desiredOffset || 100,
