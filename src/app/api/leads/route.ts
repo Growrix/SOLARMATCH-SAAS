@@ -78,8 +78,9 @@ export async function POST(request: NextRequest) {
       state: body.state,
       propertyType: body.propertyType || 'residential',
       roofType: body.roofType,
-      energyBill: body.energyBill,
-      billType: body.billType || 'quarterly',
+      // FIX: Support both field names (form sends electricityValue, DB uses energyBill)
+      energyBill: body.energyBill || Number(body.electricityValue) || 0,
+      billType: body.billType || body.electricityUsageType || 'quarterly',
       budgetRange: body.budgetRange,
       desiredOffset: body.desiredOffset || 100,
       batteryRequired: body.batteryRequired || false,
