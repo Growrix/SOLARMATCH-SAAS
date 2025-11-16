@@ -609,21 +609,39 @@ model UserProfileHistory {
 
 ## ✅ Audit Conclusion
 
-**Root Cause Confirmed**: Profile updates only modify User table, not denormalized Lead fields.
+**Root Cause Confirmed**: TWO issues found:
 
-**Solution**: Add cascade update logic to profile update API to synchronize `lead.name` and `lead.phoneNumber`.
+1. **Profile updates only modify User table**, not denormalized Lead fields (FIXED in Phase 21)
+2. **Lead creation doesn't fetch user name** - homeowner query missing `name` field (FIXED in Phase 21.1)
 
-**Risk Assessment**: Low risk - backend-only change, no UI modifications, preserves performance.
+**Solutions Implemented**:
+
+### Solution 1: Cascade profile updates to all user leads
+- Modified: `/api/homeowner/profile` PUT handler
+- Added: `prisma.lead.updateMany()` to sync name/phoneNumber after profile update
+- Status: ✅ **DEPLOYED**
+
+### Solution 2: Include name in homeowner fetch during lead creation
+- Modified: `lead-service.ts` createLead() function (line 128-135)
+- Added: `name: true` to homeowner select clause
+- Root Issue: When creating leads 2-3, the fallback `homeowner?.name` was undefined because name wasn't fetched
+- Status: ✅ **DEPLOYED**
+
+**Testing Results**:
+- Before Fix: Lead 1 shows name ✅, Lead 2-3 show "N/A" ❌
+- After Fix: ALL leads show current user name ✅
+
+**Risk Assessment**: Low risk - backend-only changes, no UI modifications, preserves performance.
 
 **Effort Estimate**: ~30 minutes (implementation + testing)
 
 **Priority**: High - violates user requirement for real-time updates
 
-**Status**: Ready for implementation ✅
+**Status**: Complete ✅
 
 ---
 
 **Auditor**: GitHub Copilot  
 **Date**: December 2024  
-**Phase**: Phase 21  
-**Next Step**: Implement cascade update logic in profile update API
+**Phase**: Phase 21 + Phase 21.1  
+**Fix Deployed**: Solution 1 (profile sync) + Solution 2 (lead creation name fetch)

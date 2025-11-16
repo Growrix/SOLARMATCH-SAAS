@@ -128,6 +128,7 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
     where: { id: input.homeownerId },
     select: {
       id: true,
+      name: true, // ✅ Phase 21 Fix: Need name for lead.name fallback
       phone: true, // Phase 4.13: For copying to lead
       phoneVerified: true, // Phase 4.13: For copying to lead
       leadSubmissionCount: true,
