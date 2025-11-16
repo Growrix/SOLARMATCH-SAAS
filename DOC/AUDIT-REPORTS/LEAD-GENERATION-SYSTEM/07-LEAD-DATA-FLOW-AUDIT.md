@@ -123,6 +123,36 @@ The admin `/api/leads` endpoint likely returns `energyBill` BUT may not return `
 
 ---
 
+## ✅ IMPLEMENTATION STATUS
+
+### **✅ Phase 1: COMPLETE** (Fix Dashboard RecentLeadSummary Data)
+
+**Step 1.1**: ✅ Update `getHomeownerLeadSummary()` Prisma Query
+- **File**: `src/lib/services/lead-service.ts:450`
+- **Action**: Added ALL form fields to `select` clause:
+  - ✅ energyBill, billType
+  - ✅ address (propertyAddress in form), postcode (propertyPostcode in form)
+  - ✅ location, state, propertyType, roofType
+  - ✅ budgetRange, desiredOffset, batteryRequired, batteryCapacity
+  - ✅ timeframe, additionalNotes
+
+**Step 1.2**: ✅ Update `HomeownerLeadSummaryItem` Interface
+- **File**: `src/lib/services/lead-service.ts:62`
+- **Action**: Added all form fields to interface
+
+**Step 1.3**: ✅ Update Dashboard `RecentLeadSummary` Interface
+- **File**: `src/app/homeowner/dashboard/page.tsx:96`
+- **Action**: Added all form fields to match backend
+
+**Step 1.4**: ✅ Update `recentLeads` Mapping
+- **File**: `src/lib/services/lead-service.ts:503`
+- **Action**: Included all new fields in mapping with correct database field names
+
+**Build Status**: ✅ TypeScript compiles successfully  
+**Commit**: `16e6ba2` - Phase 1 Complete
+
+---
+
 ## 📋 COMPREHENSIVE FIX PLAN
 
 ### **Phase 1: Fix Dashboard RecentLeadSummary Data (CRITICAL)**
@@ -281,7 +311,8 @@ The admin `/api/leads` endpoint likely returns `energyBill` BUT may not return `
 
 ## 🎯 SUCCESS CRITERIA
 
-- [ ] LeadEditModal shows ALL fields on first open
+- [x] **Phase 1 COMPLETE**: Dashboard now fetches and passes ALL form fields to LeadEditModal
+- [ ] LeadEditModal shows ALL fields on first open (requires testing)
 - [ ] Energy Usage section displays energyBill value immediately
 - [ ] System Details section shows all preferences
 - [ ] Admin can view complete lead data including energyBill
@@ -290,4 +321,29 @@ The admin `/api/leads` endpoint likely returns `energyBill` BUT may not return `
 
 ---
 
-**Next Step**: Implement Phase 1 (Update Prisma select query and interfaces)
+## 📝 PHASE 1 IMPLEMENTATION NOTES
+
+### Field Name Mapping (Database → Form)
+- `address` (DB) → `propertyAddress` (Form) - SimplifiedQuoteForm expects both
+- `postcode` (DB) → `propertyPostcode` (Form) - SimplifiedQuoteForm expects both
+- `energyBill` (DB) → `electricityValue` (Form state) - Handled by prefill logic at lines 267-273
+- `billType` (DB) → `electricityUsageType` (Form state) - Handled by prefill logic at lines 267-273
+
+### SimplifiedQuoteForm Prefill Logic
+The form's `useEffect` at lines 267-273 uses `pickString()` helper to try BOTH field names:
+```typescript
+const energyValue = pickString(['energyBill', 'electricityValue'], '');
+setElectricityValue(energyValue);
+```
+
+This means the form will now correctly populate `electricityValue` state from `lead.energyBill` passed via `initialData`.
+
+### Next Testing Steps
+1. ✅ Login as homeowner with existing lead
+2. ✅ Click "Edit" button on PENDING_APPROVAL lead
+3. ✅ **VERIFY**: Energy Usage section shows £{energyBill} value immediately
+4. ✅ **VERIFY**: All other fields pre-populated (roof type, budget, etc.)
+
+---
+
+**Next Step**: Test Phase 1 in development environment, then proceed to Phase 2/3
