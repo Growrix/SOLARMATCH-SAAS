@@ -11,6 +11,12 @@ import bcrypt from"bcryptjs";
 
 export async function POST(request: NextRequest) {
   try {
+    // Phase 21: Capture IP address and user agent for tracking
+    const signupIp = request.headers.get('x-forwarded-for')?.split(',')[0].trim() 
+                  || request.headers.get('x-real-ip') 
+                  || 'unknown';
+    const signupUserAgent = request.headers.get('user-agent') || 'unknown';
+    
     // Parse request body
     const body = await request.json();
     const { email, password, name, phone, address } = body; // 🆕 Accept name, phone, address
@@ -19,10 +25,11 @@ export async function POST(request: NextRequest) {
     // VALIDATION - EXTENDED SIGNUP (email, password, name, phone)
     // ========================================================================
     
-    // Check required fields (email and password are mandatory)
-    if (!email || !password) {
+    // Phase 21: Make name field REQUIRED for all homeowner registrations
+    // Check required fields (email, password, and name are mandatory)
+    if (!email || !password || !name) {
       return NextResponse.json(
-        { error:"Email and password are required" },
+        { error:"Email, password, and name are required" },
         { status: 400 }
       );
     }
@@ -56,8 +63,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 🆕 Validate name (optional but recommended)
-    if (name && name.trim().length < 2) {
+    // Phase 21: Validate name (NOW REQUIRED, not optional)
+    if (name.trim().length < 2) {
       return NextResponse.json(
         { error:"Name must be at least 2 characters long" },
         { status: 400 }
@@ -110,8 +117,10 @@ export async function POST(request: NextRequest) {
         password: hashedPassword,
         role:"HOMEOWNER", // Set role as HOMEOWNER
         isActive: true,
-        name: name?.trim() || null, // 🆕 Store name from HomeownersInfoForm
+        name: name.trim(), // Phase 21: Name is now REQUIRED (not nullable)
         phone: phone?.trim() || null, // 🆕 Store phone from HomeownersInfoForm
+        signupIp, // Phase 21: Capture IP at registration
+        signupUserAgent, // Phase 21: Capture browser/device info
         // Note: address is not in User model - stored in Lead model instead
       },
       select: {

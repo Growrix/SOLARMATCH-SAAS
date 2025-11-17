@@ -86,7 +86,7 @@ export default function BlogPage() {
         {/* Hero Section */}
         <section className="py-16 sm:py-24 bg-surface/30">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center animate-fade-in-up">
-            <h1 className="text-heading-1 sm:text-heading-1 md:text-6xl text-foreground mb-4 tracking-tight">The SolarMatch Blog</h1>
+            <h1 className="text-heading-1 sm:text-heading-1 md:text-heading-1 text-foreground mb-4 tracking-tight">The SolarMatch Blog</h1>
             <p className="text-heading-4 sm:text-heading-3 text-muted-foreground max-w-3xl mx-auto">Your definitive guide to solar energy, rebates, and technology in Australia.</p>
           </div>
         </section>

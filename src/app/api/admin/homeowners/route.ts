@@ -104,22 +104,50 @@ export async function GET(request: NextRequest) {
       phoneVerified: boolean;
       leadSubmissionCount: number;
       leadSubmissionLimit: number;
+      signupIp: string | null;
+      primaryAddress: string | null;
+      residentialLeadCount: number;
+      commercialLeadCount: number;
     }>>(
       Prisma.sql`
         SELECT
-        "id",
-        "name",
-        "email",
-        "phone",
-        "postcode",
-        "createdAt",
-        "isActive",
-        "phoneVerified",
-        "leadSubmissionCount",
-        "leadSubmissionLimit"
-        FROM"users"
+        u."id",
+        u."name",
+        u."email",
+        u."phone",
+        (
+          SELECT l."postcode"
+          FROM "leads" l
+          WHERE l."homeownerId" = u."id" AND l."postcode" IS NOT NULL
+          ORDER BY l."createdAt" ASC
+          LIMIT 1
+        ) as "postcode",
+        u."createdAt",
+        u."isActive",
+        u."phoneVerified",
+        u."leadSubmissionCount",
+        u."leadSubmissionLimit",
+        u."signupIp",
+        (
+          SELECT l."address"
+          FROM "leads" l
+          WHERE l."homeownerId" = u."id" AND l."address" IS NOT NULL
+          ORDER BY l."createdAt" DESC
+          LIMIT 1
+        ) as "primaryAddress",
+        (
+          SELECT COUNT(*)::int
+          FROM "leads" l
+          WHERE l."homeownerId" = u."id" AND l."propertyType" ILIKE '%residential%'
+        ) as "residentialLeadCount",
+        (
+          SELECT COUNT(*)::int
+          FROM "leads" l
+          WHERE l."homeownerId" = u."id" AND l."propertyType" ILIKE '%commercial%'
+        ) as "commercialLeadCount"
+        FROM"users" u
         ${whereClause}
-        ORDER BY"createdAt" DESC
+        ORDER BY u."createdAt" DESC
         OFFSET ${offset}
         LIMIT ${pageSize}
       `

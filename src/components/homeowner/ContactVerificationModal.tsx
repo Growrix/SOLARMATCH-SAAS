@@ -244,7 +244,7 @@ const ContactVerificationModal: React.FC<ContactVerificationModalProps> = ({
           )}
 
           {statusMessage && !error && (
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-body-small text-emerald-700">
+            <div className="rounded-lg border border-success/30 bg-success/10 p-3 text-body-small text-success">
               {statusMessage}
             </div>
           )}

@@ -147,6 +147,23 @@
 - ⏱️ **Estimated**: 6-8 hours - LOW RISK (90% already implemented)
 - 📊 **Status**: LeadEditModal (✅ exists), LeadPreviewModal (✅ exists), Cancel API (✅ exists), Edit API (❌ missing)
 
+**Phase 20: Commercial Quote Support in Edit Modal** 🎯 NEW (November 16, 2025)
+- 🎯 **Goal**: Fix commercial quote fields not showing in edit modal + add property type badges
+- 📋 **Approach**: Fix SimplifiedQuoteForm state initialization + add dashboard visual indicators
+- 🔍 **Scope**: Single state init fix + property type badge component
+- 📄 **Audit Report**: `DOC/AUDIT-REPORTS/LEAD-GENERATION-SYSTEM/07-COMMERCIAL-QUOTE-EDIT-ISSUE.md`
+- ⏱️ **Estimated**: 75 minutes - LOW RISK (frontend-only, no schema changes)
+- 📊 **Status**: Audit complete, ready for implementation
+
+**Phase 21: Admin Homeowners Management Page - Data Import Fix** 🎯 NEW (November 17, 2025)
+- 🎯 **Goal**: Fix missing user names, add address/IP/quote type columns to admin homeowners table
+- 📋 **Approach**: Backfill names, add IP capture, aggregate lead data, enhance admin UI
+- 🔍 **Scope**: Schema changes (add signupIp), API aggregation queries, frontend table updates
+- 📄 **Audit Report**: `DOC/AUDIT-REPORTS/LEAD-GENERATION-SYSTEM/09-HOMEOWNERS-MANAGEMENT-PAGE-AUDIT.md`
+- 📄 **Implementation Plan**: `DOC/AUDIT-REPORTS/LEAD-GENERATION-SYSTEM/09-IMPLEMENTATION-PLAN.md`
+- ⏱️ **Estimated**: 4-6 hours - MEDIUM RISK (schema changes, requires migration)
+- 📊 **Status**: Audit complete, implementation plan ready
+
 **Current State**:
 - ✅ LeadEditModal.tsx (245 lines) - Fully functional, needs backend
 - ✅ LeadPreviewModal.tsx (415 lines) - 100% complete, ready to use
@@ -4616,5 +4633,296 @@ Get-Content "src\app\homeowner\dashboard\page.tsx" | Select-String -Pattern "ele
 ---
 
 **Phase 20 Report**: Two-part fix resolves commercial quote support gaps: (1) SimplifiedQuoteForm `quoteType` state now initializes from `initialData` prop synchronously, enabling commercial fields to show on first render when editing commercial leads; (2) Dashboard lead cards now display property type badge (🏠 Residential or 🏢 Commercial) for visual distinction. Frontend-only changes, no backend modifications. Testing pending for 5 scenarios (edit flows, dashboard display, admin display). Low risk, no schema changes. Estimated 75 minutes remaining.
+
+---
+
+## Phase 21: Admin Homeowners Management Page - Data Import Fix 🎯 P0 CRITICAL (November 17, 2025)
+
+**Status**: 📋 PLANNED (Audit Complete, Ready for Implementation)  
+**Priority**: P0 - CRITICAL (Admin Dashboard Core Functionality)  
+**Estimated Time**: 4-6 hours  
+**Risk Level**: MEDIUM (Database schema changes, requires migration and backfill)
+
+### Overview
+The admin homeowners management page (`/admin/homeowners`) is partially functional but has critical data gaps. Homeowner names show as "No name", and requested columns (address, IP address, quote type) are missing. This phase fixes data collection, adds missing imports, and enhances the admin table with aggregated lead data.
+
+### Audit Findings
+- ✅ **Working**: Email, phone, postcode, status, lead usage, registration date
+- ❌ **Broken**: User names not displaying (showing "No name" for all users)
+- ❌ **Missing**: Address, IP address, quote type (residential/commercial)
+- ⚠️ **Root Cause**: Name field is optional during signup; address/IP/quote type are lead-level data not aggregated to user table
+
+### Documentation
+- **Audit Report**: `DOC/AUDIT-REPORTS/LEAD-GENERATION-SYSTEM/09-HOMEOWNERS-MANAGEMENT-PAGE-AUDIT.md`
+- **Implementation Plan**: `DOC/AUDIT-REPORTS/LEAD-GENERATION-SYSTEM/09-IMPLEMENTATION-PLAN.md`
+- **Related Constitution**: `DOC/constitution.md` (theming alignment required)
+
+### Phase 21 Tasks
+
+#### Part A: Data Backfill & Name Field Fix (Priority: P0)
+- [ ] 21.1: Create SQL backfill script for missing names (15 min)
+  - Location: `prisma/scripts/backfill-homeowner-names.sql`
+  - Query: Update User.name from Lead.name where User.name IS NULL
+  - Verify: Count of NULL names should be 0 after execution
+  
+- [ ] 21.2: Run backfill script on database (10 min)
+  - Backup database before execution
+  - Execute backfill script
+  - Verify data integrity with count queries
+  
+- [ ] 21.3: Make name field required in registration (20 min)
+  - File: `src/app/api/auth/register/homeowner/route.ts`
+  - Update validation to require name field
+  - Update error messages
+  - Test registration flow (should reject if name missing)
+  
+- [ ] 21.4: Update registration form UI (15 min)
+  - File: `src/components/auth/HomeownersInfoForm.tsx` (if exists)
+  - Add visual indicator for required name field
+  - Update placeholder and help text
+  
+- [ ] 21.5: Test name display fix (30 min)
+  - Verify all existing homeowners show names in admin table
+  - Test new registration captures name
+  - Verify API returns correct data
+  - Check mobile responsive view
+
+#### Part B: IP Address Capture & Display (Priority: P1)
+- [ ] 21.6: Update Prisma schema with IP fields (10 min)
+  - Add `signupIp String?` to User model
+  - Add `signupUserAgent String?` to User model
+  - Add `lastLoginIp String?` for future use
+  
+- [ ] 21.7: Create Prisma migration (10 min)
+  - Run: `npx prisma migrate dev --name add_signup_ip_to_users`
+  - Verify migration file created
+  - Test migration on development database
+  
+- [ ] 21.8: Update registration endpoint to capture IP (20 min)
+  - File: `src/app/api/auth/register/homeowner/route.ts`
+  - Extract IP from `x-forwarded-for` or `x-real-ip` headers
+  - Store signupIp and signupUserAgent in User record
+  - Test with curl/Postman to verify capture
+  
+- [ ] 21.9: Backfill existing users' IPs from AuditLog (20 min)
+  - Location: `prisma/scripts/backfill-signup-ips.sql`
+  - Query: Update User.signupIp from earliest AuditLog entry
+  - Verify: Check percentage of users with captured IPs
+  
+- [ ] 21.10: Update API response to include IP (15 min)
+  - File: `src/app/api/admin/homeowners/route.ts`
+  - Add `signupIp` to SELECT query
+  - Update TypeScript interface
+  - Test API response includes IP field
+  
+- [ ] 21.11: Add IP column to admin table (30 min)
+  - File: `src/components/AdminHomeownersList.tsx`
+  - Add "IP Address" column header
+  - Display signupIp with fallback "Not captured"
+  - Format as monospace font
+  - Test sorting and filtering by IP
+  
+- [ ] 21.12: Test IP capture and display (30 min)
+  - Create new homeowner → verify IP captured
+  - Check existing users show backfilled IPs
+  - Verify admin table displays column
+  - Test mobile responsive layout
+
+#### Part C: Address & Quote Type Aggregation (Priority: P1)
+- [ ] 21.13: Update API with aggregated lead data (90 min)
+  - File: `src/app/api/admin/homeowners/route.ts`
+  - Modify SQL query to include subqueries:
+    - `primaryAddress`: Latest lead address
+    - `residentialLeadCount`: Count of residential leads
+    - `commercialLeadCount`: Count of commercial leads
+    - `mostUsedQuoteType`: Most frequent quote type
+  - Update TypeScript interfaces
+  - Test query performance (should be < 500ms for 1000 users)
+  - Verify aggregated data accuracy
+  
+- [ ] 21.14: Add database indexes for performance (15 min)
+  - Create indexes on:
+    - `leads(homeownerId, address)`
+    - `leads(homeownerId, propertyType)`
+    - `users(signupIp)`
+  - Verify query execution plan improved
+  
+- [ ] 21.15: Add Address column to admin table (30 min)
+  - File: `src/components/AdminHomeownersList.tsx`
+  - Add "Address" column header
+  - Display primaryAddress with fallback "No address yet"
+  - Add tooltip explaining "from most recent lead"
+  - Test column display and sorting
+  
+- [ ] 21.16: Add Quote Type column to admin table (45 min)
+  - File: `src/components/AdminHomeownersList.tsx`
+  - Add "Quote Type" column header
+  - Display residential/commercial counts as badges:
+    - 🏠 X Residential (blue badge)
+    - 🏢 X Commercial (purple badge)
+  - Handle case: "No leads yet"
+  - Add tooltip with breakdown
+  - Test visual appearance in all 3 themes
+  
+- [ ] 21.17: Add filter chips for quote type (30 min)
+  - Add filter options:
+    - "Residential Only"
+    - "Commercial Only"
+    - "Both Types"
+  - Wire filters to API query
+  - Test filter functionality
+  
+- [ ] 21.18: Update mobile card view (30 min)
+  - Add address, quote type, IP to mobile cards
+  - Ensure responsive layout
+  - Test on mobile breakpoints (320px, 375px)
+
+#### Part D: Testing & Validation (Priority: P0)
+- [ ] 21.19: Run verification commands (15 min)
+  - AdminHomeownersList.tsx: 0/0/0/0/0/0 expected
+  - Verify no hardcoded colors or styles
+  
+- [ ] 21.20: TypeScript validation (10 min)
+  - Run: `npx tsc --noEmit`
+  - Fix any type errors
+  - Verify all interfaces updated
+  
+- [ ] 21.21: Build validation (10 min)
+  - Run: `npm run build`
+  - Verify build succeeds
+  - Check for warnings
+  
+- [ ] 21.22: Visual theme verification (30 min)
+  - Test Dark theme (default)
+  - Test Light theme
+  - Test Purple theme
+  - Verify neumorphic shadows correct
+  - Check hover states and transitions
+  
+- [ ] 21.23: Functional testing (60 min)
+  - **Test Scenario A**: New homeowner registration
+    - Create account with name
+    - Verify IP captured
+    - Check admin table shows name + IP
+  
+  - **Test Scenario B**: Lead creation updates aggregates
+    - Existing user creates residential lead with address
+    - Check admin table shows address + quote type
+    - Create commercial lead
+    - Verify quote type counts update
+  
+  - **Test Scenario C**: Data accuracy
+    - Verify names match user records
+    - Verify addresses match latest leads
+    - Verify quote type counts accurate
+    - Verify IP addresses correct
+  
+  - **Test Scenario D**: Search and filters
+    - Search by name → results correct
+    - Search by address → results correct
+    - Filter by "Residential Only" → only residential users
+    - Filter by "Has Address" → only users with leads
+  
+  - **Test Scenario E**: Sorting
+    - Sort by name → alphabetical
+    - Sort by registration date → chronological
+    - Sort by address → alphabetical
+    - Verify pagination still works
+  
+  - **Test Scenario F**: Mobile responsive
+    - View on 320px width
+    - View on 375px width
+    - View on 768px width
+    - Verify all data displays correctly
+  
+- [ ] 21.24: Performance testing (20 min)
+  - Test with 100+ homeowners
+  - Measure API response time (target: < 500ms)
+  - Check for N+1 queries
+  - Verify pagination performance
+
+#### Part E: Documentation & Deployment (Priority: P1)
+- [ ] 21.25: Update documentation (15 min)
+  - Mark Phase 21 complete in tasks.md
+  - Update audit report with results
+  - Add changelog entry
+  
+- [ ] 21.26: Create atomic commit (10 min)
+  - Commit message format:
+    ```
+    feat(admin): Fix homeowners management page data imports
+    
+    - Fix missing user names via backfill + required field
+    - Add IP address capture and display
+    - Add aggregated address and quote type columns
+    - Add filters for residential/commercial
+    - Performance: Query optimized with indexes
+    - Testing: All 6 scenarios passed, 3 themes verified
+    
+    Closes #[issue-number]
+    Related: 09-HOMEOWNERS-MANAGEMENT-PAGE-AUDIT.md
+    ```
+  - Get user approval before pushing
+  
+- [ ] 21.27: Post-deployment monitoring (30 min)
+  - Monitor error logs for 24 hours
+  - Check API performance metrics
+  - Gather admin user feedback
+  - Address any issues immediately
+
+### Success Criteria
+✅ **Name Column**: All homeowners show actual names (no "No name")  
+✅ **Address Column**: Shows primary/latest property address  
+✅ **IP Address Column**: Shows signup IP (or first/latest IP)  
+✅ **Quote Type Column**: Shows residential/commercial preference or count  
+✅ **No Broken Functionality**: All existing features still work  
+✅ **Performance**: API response time < 500ms for 1000 homeowners  
+✅ **Data Accuracy**: All displayed data matches database records  
+✅ **Theme Compliance**: All 3 themes working correctly  
+✅ **Mobile Responsive**: All breakpoints display correctly
+
+### Risk Mitigation
+- **Risk**: Data loss during migration  
+  **Mitigation**: Backup database before migrations, test on staging first
+  
+- **Risk**: Performance degradation  
+  **Mitigation**: Add database indexes, test with large dataset
+  
+- **Risk**: Breaking existing functionality  
+  **Mitigation**: Run full test suite, verify all filters/search/pagination
+  
+- **Risk**: Incomplete data display  
+  **Mitigation**: Handle NULL/missing data gracefully, use fallback values
+
+### Estimated Time Breakdown
+- **Part A (Name Fix)**: 90 minutes
+- **Part B (IP Capture)**: 135 minutes
+- **Part C (Aggregations)**: 240 minutes
+- **Part D (Testing)**: 155 minutes
+- **Part E (Docs)**: 55 minutes
+- **TOTAL**: ~675 minutes (11.25 hours) - Budget 4-6 hours with parallel tasks
+
+### Files to Modify
+**Database**:
+- `prisma/schema.prisma`
+- `prisma/migrations/[timestamp]_add_signup_ip_to_users/migration.sql`
+- `prisma/scripts/backfill-homeowner-names.sql`
+- `prisma/scripts/backfill-signup-ips.sql`
+
+**Backend**:
+- `src/app/api/admin/homeowners/route.ts`
+- `src/app/api/auth/register/homeowner/route.ts`
+
+**Frontend**:
+- `src/components/AdminHomeownersList.tsx`
+- `src/components/auth/HomeownersInfoForm.tsx` (if exists)
+
+**Documentation**:
+- `specs/006-component-by-component/tasks.md`
+- `DOC/AUDIT-REPORTS/LEAD-GENERATION-SYSTEM/09-HOMEOWNERS-MANAGEMENT-PAGE-AUDIT.md`
+
+---
+
+**Phase 21 Report**: Admin homeowners management page audit complete. Critical issues identified: missing user names (optional signup field), no address column (lead-level data not aggregated), no IP capture (not stored in User model), no quote type display (lead-level data). Implementation plan created with 4 parts: (A) backfill names + make required, (B) add IP capture + display, (C) aggregate address + quote type, (D) comprehensive testing. Estimated 4-6 hours, MEDIUM risk (schema changes required). All documentation complete, ready for implementation.
 
 

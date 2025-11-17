@@ -98,6 +98,9 @@ model User {
   biddingLeadsSubmitted Int                        @default(0)
   profileComplete       Boolean                    @default(false) // Auth Part A+B: installer onboarding gate
   sessionVersion        Int                        @default(0) // Auth Part A+B: invalidate sessions on password reset
+  signupIp              String? // Phase 21: IP address captured at registration
+  signupUserAgent       String? // Phase 21: Browser/device info at registration
+  lastLoginIp           String? // Phase 21: Most recent login IP (future use)
   accounts              Account[]
   leadsAsHomeowner      Lead[]                     @relation("homeowner_leads")
   leadsAsInstaller      Lead[]                     @relation("installer_leads")

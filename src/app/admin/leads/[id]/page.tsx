@@ -578,7 +578,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
   if (error || !lead) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
-        <p className="text-red-500 mb-4">{error || 'Lead not found'}</p>
+        <p className="text-error mb-4">{error || 'Lead not found'}</p>
         <button
           onClick={() => router.push('/admin/leads')}
           className="px-4 py-2 bg-primary text-foreground-secondary rounded-lg hover:bg-primary"

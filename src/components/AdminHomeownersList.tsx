@@ -25,6 +25,10 @@ interface Homeowner {
   leadSubmissionCount: number;
   leadSubmissionLimit: number;
   remainingLeadAllowance: number;
+  signupIp: string | null;
+  primaryAddress: string | null;
+  residentialLeadCount: number;
+  commercialLeadCount: number;
 }
 
 interface ApiResponse {
@@ -384,6 +388,15 @@ export default function AdminHomeownersList() {
                     Postcode
                   </th>
                   <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
+                    Address
+                  </th>
+                  <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
+                    IP Address
+                  </th>
+                  <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
+                    Quote Type
+                  </th>
+                  <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
                     Status
                   </th>
                   <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
@@ -443,6 +456,33 @@ export default function AdminHomeownersList() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-body-small text-foreground">
                         {homeowner.postcode || 'Not set'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-body-small text-foreground max-w-xs truncate" title={homeowner.primaryAddress || undefined}>
+                        {homeowner.primaryAddress || <span className="text-muted-foreground">No address</span>}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-body-small text-foreground font-mono">
+                        {homeowner.signupIp || <span className="text-muted-foreground">Not captured</span>}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex gap-1">
+                        {homeowner.residentialLeadCount > 0 && (
+                          <span className="inline-flex items-center px-2 py-1 text-caption rounded-full bg-info/10 text-info border border-info/20">
+                            R: {homeowner.residentialLeadCount}
+                          </span>
+                        )}
+                        {homeowner.commercialLeadCount > 0 && (
+                          <span className="inline-flex items-center px-2 py-1 text-caption rounded-full bg-warning/10 text-warning border border-warning/20">
+                            C: {homeowner.commercialLeadCount}
+                          </span>
+                        )}
+                        {homeowner.residentialLeadCount === 0 && homeowner.commercialLeadCount === 0 && (
+                          <span className="text-caption text-muted-foreground">No leads</span>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -561,6 +601,36 @@ export default function AdminHomeownersList() {
                   <div>
                     <span className="text-muted-foreground">Postcode:</span>
                     <div className="text-foreground">{homeowner.postcode || 'Not set'}</div>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-muted-foreground">Address:</span>
+                    <div className="text-foreground text-caption">
+                      {homeowner.primaryAddress || <span className="text-muted-foreground">No address</span>}
+                    </div>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-muted-foreground">IP Address:</span>
+                    <div className="text-foreground font-mono text-caption">
+                      {homeowner.signupIp || <span className="text-muted-foreground">Not captured</span>}
+                    </div>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-muted-foreground">Quote Type:</span>
+                    <div className="flex gap-1 mt-1">
+                      {homeowner.residentialLeadCount > 0 && (
+                        <span className="inline-flex items-center px-2 py-1 text-caption rounded-full bg-info/10 text-info border border-info/20">
+                          Residential: {homeowner.residentialLeadCount}
+                        </span>
+                      )}
+                      {homeowner.commercialLeadCount > 0 && (
+                        <span className="inline-flex items-center px-2 py-1 text-caption rounded-full bg-warning/10 text-warning border border-warning/20">
+                          Commercial: {homeowner.commercialLeadCount}
+                        </span>
+                      )}
+                      {homeowner.residentialLeadCount === 0 && homeowner.commercialLeadCount === 0 && (
+                        <span className="text-caption text-muted-foreground">No leads</span>
+                      )}
+                    </div>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Lead Usage:</span>

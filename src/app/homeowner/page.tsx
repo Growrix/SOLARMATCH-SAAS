@@ -70,7 +70,7 @@ export default function HomeownerHomePage() {
               <SunIcon />
             </div>
             
-            <h1 className="text-heading-1 sm:text-heading-1 md:text-6xl text-foreground mb-4 tracking-tight" style={{ animation: 'fade-in-up 0.8s ease-out' }}>
+            <h1 className="text-heading-1 sm:text-heading-1 md:text-heading-1 text-foreground mb-4 tracking-tight" style={{ animation: 'fade-in-up 0.8s ease-out' }}>
               Welcome to Your
               <br />
               <span className="text-primary">Solar Journey</span>

@@ -1911,3 +1911,39 @@ you must audit all the related and relevant files including frontend and backend
 
 ***strict rules***
 never spoil any other functionality while working on these modals and flows. always test everything after making changes. do to attempt blindly if you dont have clear picture. 
+------------------------------------------------------------------------------
+
+***http://localhost:3000/admin/homeowners***
+In the admin dashboard , homeowners management page imports needs to be updated as per the new auth system. currently its using old auth system imports. so please update the imports accordingly. The existing rows should import the data correctly accordning to the new auth system. Now this is importing partially ,e.g Homeowners name is not showing but the email is showing. so please fix all these issues accordingly.
+
+***what I need to import additionally*** to add row and import : Quote type (residential/commercial), Address , IP address, 
+
+***note*** the data can be collected based on users activity. e.g when a user signup , we can collect their IP address and signup data, when a user generate first lead we can collect their address, contact,name, postcode etc. you must understand how we can collect these data based on users activity and then import them accordingly in the admin dashboard homeowners management page. 
+
+***instructions*** Audit and understand the current imports and data flow. create a comprhensive audit report of the issues found and identify the gaps between the existing partial imports and also for the additional imports that are requested to add and the plan to fix and impliment them. after that start fixing the issues step by step. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on. create the audit report under this folder D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\AUDIT-REPORTS\LEAD-GENERATION-SYSTEM. And create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\tasks.md file for this task and start implimenting the changes step by step as per the plan you created.
+
+***strict rules*** never spoil any other functionality while working on these modals and flows. always test everything after making changes. do to attempt blindly if you dont have clear picture.
+
+-------------------------------------------------------------------------
+
+***Homeowners Lead generation from the homepage*** there are multiple flow for the homeowners to generate leads. and I found one issue with the one flow. The flows are not built actually.
+
+***When a user is signed up but not generaated any lead yet and wants to genearate first lead*** user try to generate lead from the homepage instantQuote form. now the current flow : InstantQuote calcualor > showing results> quote option modal > and not continuing to the next flows. 
+the next flow should be : InstantQuote calcualor > showing results> quote option modal > detailed information modal > lead succssful modal (and the lead should be generated). 
+
+***second lead generation from the homepage InstantQuote form*** when a user is signed up and already generated one lead and then the user try to generate 2nd lead from the homepage instantQuote form. now the current flow : InstantQuote calcualor > showing results> get detailed quotes from installers > contact verification modal > after the contact verified > QuoteType Distribution modal > generate leads as per the users selection. 
+
+***second+ lead generation from the homepage InstantQuote form***
+when the user has quote generation limits , the flow should be : InstantQuote calcualor > showing results> get detailed quotes from installers > QuoteType Distribution modal > generate leads as per the users selection. 
+
+***when the limit reached*** when the user has reached the lead generation limits , the flow should be : InstantQuote calcualor > showing results> get detailed quotes from installers > Lead limit reached modal(create a new modal for this). this is the end point for now.
+
+***instructions*** Audit and understand the current flows and data flow. create a comprhensive audit report of the issues found and identify the gaps between the existing flows and the requested flows and the plan to fix and impliment them. after that start fixing the issues step by step. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on. create the audit report under this folder D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\AUDIT-REPORTS\LEAD-GENERATION-SYSTEM. And create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\tasks.md file for this task and start implimenting the changes step by step as per the plan you created.
+
+***notes** the dashboard flows are working fine, do not tocuh or harm them anyways. 
+
+***strict rules*** never spoil any other flows and functionality while working on these modals and flows. All the existing lead generation flows should work as it is working now. only work on the new area that mentioned. always test everything after making changes. do to attempt blindly if you dont have clear picture. 
+
+
+
+----------------------------------------------------------------------------------------

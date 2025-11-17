@@ -19,7 +19,7 @@ const Hero: React.FC<HeroProps> = ({ onInstantQuoteClick, onRebateCalculatorClic
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
         <div className="text-center max-w-4xl mx-auto">
-          <h1 className="text-[34px] leading-tight sm:text-heading-1 md:text-6xl lg:text-7xl text-foreground mb-4 tracking-tight" style={{ animation: 'fade-in-up 0.8s ease-out' }}>
+          <h1 className="text-[34px] leading-tight sm:text-heading-1 md:text-heading-1 lg:text-heading-1 text-foreground mb-4 tracking-tight" style={{ animation: 'fade-in-up 0.8s ease-out' }}>
             Smarter Solar
             <br className="sm:hidden" />
             <span className="text-foreground whitespace-nowrap"> Starts Here</span>

@@ -229,7 +229,7 @@ export default function LeadDetailPage({ params }: { params: { id: string } }) {
               </button>
               <button
                 onClick={handleMessage}
-                className="flex items-center px-4 py-2 bg-accent text-foreground-secondary rounded-lg hover:bg-purple-700 transition-colors"
+                className="flex items-center px-4 py-2 bg-accent text-foreground-secondary rounded-lg hover:bg-accent/90 transition-colors"
               >
                 <ChatBubbleLeftIcon className="h-5 w-5 mr-2" />
                 Message
@@ -440,7 +440,7 @@ export default function LeadDetailPage({ params }: { params: { id: string } }) {
                         </span>
                       )}
                       {lead.quoteData.smartExport && (
-                        <span className="px-3 py-1 bg-accent/20 text-purple-800 rounded-full text-body-small">
+                        <span className="px-3 py-1 bg-accent/20 text-accent rounded-full text-body-small">
                           Smart Export
                         </span>
                       )}
@@ -611,7 +611,7 @@ export default function LeadDetailPage({ params }: { params: { id: string } }) {
                   Installation Urgency
                 </h2>
                 <div className="flex items-center">
-                  <ClockIcon className="h-5 w-5 text-orange-500 mr-2" />
+                  <ClockIcon className="h-5 w-5 text-accent mr-2" />
                   <span className="text-foreground">
                     {lead.quoteData.installationUrgency}
                   </span>

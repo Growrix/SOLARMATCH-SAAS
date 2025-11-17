@@ -122,9 +122,9 @@ export default function AdminHomeownersAnalytics() {
           <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-6 text-foreground-secondary">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-blue-100 text-body-small mb-1">Total Homeowners</p>
+                <p className="text-foreground-secondary text-body-small mb-1">Total Homeowners</p>
                 <p className="text-heading-1">{analytics.totals.homeowners.toLocaleString()}</p>
-                <p className="text-blue-100 text-caption mt-2">{getTimeWindowLabel(timeWindow)}</p>
+                <p className="text-foreground-secondary text-caption mt-2">{getTimeWindowLabel(timeWindow)}</p>
               </div>
               <div className="bg-surface/20 p-4 rounded-lg">
                 <UsersIcon />

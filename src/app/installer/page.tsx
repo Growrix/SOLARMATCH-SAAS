@@ -163,7 +163,7 @@ export default function InstallerHomePage() {
           {/* Main Content */}
           <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto text-center animate-fade-in-up">
-              <h1 className="text-heading-1 md:text-heading-1 lg:text-6xl leading-tight mb-4 text-foreground">
+              <h1 className="text-heading-1 md:text-heading-1 lg:text-heading-1 leading-tight mb-4 text-foreground">
                 Grow Smarter.
                 <span className="text-primary"> Not Harder.</span>
               </h1>

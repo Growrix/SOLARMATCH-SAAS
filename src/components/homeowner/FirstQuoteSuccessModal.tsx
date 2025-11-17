@@ -10,14 +10,14 @@ const XIcon = () => (
 );
 
 const CheckCircleIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-16 w-16 text-emerald-500">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-16 w-16 text-success">
     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
     <polyline points="22 4 12 14.01 9 11.01" />
   </svg>
 );
 
 const ShieldCheckIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-emerald-500">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-success">
     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
     <path d="m9 12 2 2 4-4" />
   </svg>
@@ -110,7 +110,7 @@ const FirstQuoteSuccessModal: React.FC<FirstQuoteSuccessModalProps> = ({
         {/* Information Cards */}
         <div className="mx-6 mb-6 space-y-4">
           {/* Verification Benefits */}
-          <div className="p-5 bg-emerald-50 rounded-xl border border-emerald-200">
+          <div className="p-5 bg-success/10 rounded-xl border border-success/30">
             <div className="flex items-start space-x-3">
               <div className="mt-0.5">
                 <ShieldCheckIcon />
@@ -124,7 +124,7 @@ const FirstQuoteSuccessModal: React.FC<FirstQuoteSuccessModalProps> = ({
                 </p>
                 <button
                   onClick={onVerifyContact}
-                  className="inline-flex items-center space-x-2 bg-emerald-500 hover:bg-emerald-600 text-foreground-secondary px-4 py-2 rounded-lg transition-colors"
+                  className="inline-flex items-center space-x-2 bg-success hover:bg-success/90 text-foreground-secondary px-4 py-2 rounded-lg transition-colors"
                 >
                   <ShieldCheckIcon />
                   <span>Verify Contact Number</span>

@@ -192,7 +192,7 @@ export default function InstallerSelectorModal({
                     type="checkbox"
                     checked={includeUnverified}
                     onChange={(e) => setIncludeUnverified(e.target.checked)}
-                    className="rounded border-border text-emerald-600 focus:ring-emerald-500"
+                    className="rounded border-border text-success focus:ring-success"
                   />
                   <span className="text-body-small text-gray-700">
                     Include Unverified Installers
@@ -201,7 +201,7 @@ export default function InstallerSelectorModal({
 
                 <button
                   onClick={selectAllVerified}
-                  className="text-body-small text-emerald-600 hover:underline"
+                  className="text-body-small text-success hover:underline"
                 >
                   Select All Verified ({installers.filter(i => i.installerVerified).length})
                 </button>
@@ -268,7 +268,7 @@ export default function InstallerSelectorModal({
                         type="checkbox"
                         checked={selectedIds.includes(installer.id)}
                         onChange={() => toggleInstaller(installer.id)}
-                        className="rounded border-border text-emerald-600 focus:ring-emerald-500"
+                        className="rounded border-border text-success focus:ring-success"
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
@@ -276,7 +276,7 @@ export default function InstallerSelectorModal({
                             {installer.name || 'No Name'}
                           </span>
                           {installer.installerVerified && (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-caption bg-emerald-100 text-emerald-800">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-caption bg-success/20 text-success">
                               Verified
                             </span>
                           )}
@@ -313,7 +313,7 @@ export default function InstallerSelectorModal({
                 type="checkbox"
                 checked={notifyInstallers}
                 onChange={(e) => setNotifyInstallers(e.target.checked)}
-                className="rounded border-border text-emerald-600 focus:ring-emerald-500"
+                className="rounded border-border text-success focus:ring-success"
               />
               <span className="text-body-small text-gray-700">
                 Send notifications to assigned installers
@@ -333,7 +333,7 @@ export default function InstallerSelectorModal({
             <button
               onClick={handleSubmit}
               disabled={submitting || selectedIds.length === 0}
-              className="px-4 py-2 text-body-small text-foreground-secondary bg-emerald-600 hover:bg-emerald-700 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-body-small text-foreground-secondary bg-success hover:bg-success/90 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submitting ? 'Assigning...' : `Assign to ${selectedIds.length} Installer${selectedIds.length !== 1 ? 's' : ''}`}
             </button>

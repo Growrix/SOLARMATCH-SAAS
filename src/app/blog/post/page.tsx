@@ -219,7 +219,7 @@ export default function BlogPostPage() {
             
             {/* Body */}
             <div className="prose prose-lg max-w-none space-y-6">
-              <p className="text-heading-3 font-light text-muted-foreground">{post.excerpt}</p>
+              <p className="text-heading-3 text-muted-foreground">{post.excerpt}</p>
               
               <p className="text-foreground leading-relaxed">
                 As Australia continues its transition towards a renewable energy future, staying updated on government incentives is crucial for homeowners considering a solar investment. The landscape of rebates and tariffs is constantly evolving, with significant changes implemented at the start of 2024. This guide will walk you through the key updates to ensure you can maximize your savings.

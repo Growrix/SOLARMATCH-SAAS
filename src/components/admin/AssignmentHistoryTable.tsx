@@ -143,7 +143,7 @@ export default function AssignmentHistoryTable({
                     </span>
                   )}
                   {assignment.status === 'accepted' && (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-caption bg-emerald-100 text-emerald-800">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-caption bg-success/20 text-success">
                       Accepted
                     </span>
                   )}
@@ -167,7 +167,7 @@ export default function AssignmentHistoryTable({
                     <button
                       onClick={() => handleRemove(assignment.installerId, assignment.installerName)}
                       disabled={removingId === assignment.installerId}
-                      className="text-error hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="text-error hover:text-error/80 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {removingId === assignment.installerId ? 'Removing...' : 'Remove'}
                     </button>

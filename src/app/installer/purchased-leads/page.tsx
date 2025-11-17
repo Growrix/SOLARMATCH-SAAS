@@ -227,7 +227,7 @@ export default function PurchasedLeadsPage() {
 
                     {/* Contact Details - REVEALED */}
                     <div className="bg-success/10 border border-success rounded-lg p-4 mb-4">
-                      <h3 className="text-body-small text-green-900 mb-3">
+                      <h3 className="text-body-small text-success mb-3">
                         Contact Information
                       </h3>
                       <div className="space-y-2">

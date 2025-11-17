@@ -178,11 +178,11 @@ export default function InstallerAssignedLeads() {
                   🎯 Admin Assigned
                 </span>
                 {lead.assignmentMode === 'exclusive' ? (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-caption bg-emerald-100 text-emerald-800">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-caption bg-success/20 text-success">
                     Exclusive
                   </span>
                 ) : (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-caption bg-orange-100 text-orange-800">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-caption bg-accent/20 text-accent">
                     Competitive {lead.competitorCount && `(${lead.competitorCount})`}
                   </span>
                 )}
@@ -232,7 +232,7 @@ export default function InstallerAssignedLeads() {
               </div>
 
               {lead.batteryRequired && (
-                <span className="inline-flex items-center px-2 py-1 rounded-md text-caption bg-accent/20 text-purple-800">
+                <span className="inline-flex items-center px-2 py-1 rounded-md text-caption bg-accent/20 text-accent">
                   🔋 Battery Required
                 </span>
               )}
@@ -270,7 +270,7 @@ export default function InstallerAssignedLeads() {
                 <button
                   onClick={() => handleAcceptAssignment(lead.id)}
                   disabled={acceptingId === lead.id}
-                  className="w-full px-4 py-2 bg-emerald-500 text-foreground-secondary rounded-lg hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed text-body-small flex items-center justify-center gap-2"
+                  className="w-full px-4 py-2 bg-success text-foreground-secondary rounded-lg hover:bg-success/90 disabled:opacity-50 disabled:cursor-not-allowed text-body-small flex items-center justify-center gap-2"
                 >
                   {acceptingId === lead.id ? (
                     <>
