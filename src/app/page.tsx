@@ -10,6 +10,9 @@ import QuoteOptionsModal from '../components/QuoteOptionsModal';
 import QuoteSuccessModal from '../components/QuoteSuccessModal';
 import HomeownerSignupModal from '../components/HomeownerSignupModal';
 import HomeownersInfoForm from '../components/HomeownersInfoForm';
+import ContactVerificationModal from '../components/homeowner/ContactVerificationModal';
+import QuoteTypeDistributionModal from '../components/homeowner/QuoteTypeDistributionModal';
+import LeadLimitReachedModal from '../components/homeowner/LeadLimitReachedModal';
 import Footer from '../components/Footer';
 import BlogSection from '../components/BlogSection';
 import NewsletterSignup from '../components/NewsletterSignup';
@@ -46,15 +49,51 @@ export default function Home() {
   const [isHomeownersInfoFormOpen, setIsHomeownersInfoFormOpen] = useState(false);
   const [isHomeownerSignupModalOpen, setIsHomeownerSignupModalOpen] = useState(false);
   const [isQuoteSuccessModalOpen, setIsQuoteSuccessModalOpen] = useState(false);
+  const [isContactVerificationModalOpen, setIsContactVerificationModalOpen] = useState(false);
+  const [isQuoteTypeDistributionModalOpen, setIsQuoteTypeDistributionModalOpen] = useState(false);
+  const [isLeadLimitReachedModalOpen, setIsLeadLimitReachedModalOpen] = useState(false);
   const [selectedQuoteType, setSelectedQuoteType] = useState<'call_visit' | 'written' | null>(null);
   const [quoteData, setQuoteData] = useState<any>(null);
   const [pendingQuoteData, setPendingQuoteData] = useState<any>(null);
   const [homeownerInfo, setHomeownerInfo] = useState<{ name: string; phone: string; address: string } | null>(null);
+  const [userLeadCount, setUserLeadCount] = useState<number>(0);
+  const [isPhoneVerified, setIsPhoneVerified] = useState<boolean>(false);
+  const [remainingLeadQuota, setRemainingLeadQuota] = useState<number>(0);
 
   // Ensure page starts at top on mount
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  // Fetch user lead count and verification status for authenticated users
+  useEffect(() => {
+    const fetchUserLeadData = async () => {
+      if (status === 'authenticated' && session?.user?.id) {
+        try {
+          const response = await fetch('/api/leads?userId=' + session.user.id);
+          if (response.ok) {
+            const data = await response.json();
+            const leadCount = data.leads?.length || 0;
+            setUserLeadCount(leadCount);
+            
+            // Fetch user verification status
+            const userResponse = await fetch('/api/user/me');
+            if (userResponse.ok) {
+              const userData = await userResponse.json();
+              setIsPhoneVerified(userData.phoneVerified || false);
+              // Calculate remaining quota (default: 3 max leads)
+              const maxLeads = 3;
+              setRemainingLeadQuota(Math.max(0, maxLeads - leadCount));
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching user lead data:', error);
+        }
+      }
+    };
+
+    fetchUserLeadData();
+  }, [status, session]);
 
   // Captures quote data from the form and stores it pending authentication
   const handleQuoteCalculated = useCallback((data: any) => {
@@ -71,60 +110,54 @@ export default function Home() {
     
     // Check if user is already logged in
     if (status === 'authenticated' && session?.user) {
-      // User is logged in - submit quote directly without signup
-      console.log('User already logged in, submitting quote request:', { 
-        quoteType: apiQuoteType, 
-        quoteData: pendingQuoteData,
-        userId: session.user.id,
-        userEmail: session.user.email
-      });
+      // ===== AUTHENTICATED USER CONDITIONAL FLOWS =====
       
-      try {
-        const response = await fetch('/api/leads', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            quoteType: apiQuoteType,
-            propertyPostcode: pendingQuoteData?.postcode || pendingQuoteData?.propertyPostcode,
-            location: pendingQuoteData?.location,
-            state: pendingQuoteData?.state,
-            energyBill: pendingQuoteData?.electricityValue || pendingQuoteData?.energyBill || 0,
-            quoteData: pendingQuoteData,
-            ...pendingQuoteData
-          })
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          // Success! Lead created - show success modal
-          setIsQuoteSuccessModalOpen(true);
-          setPendingQuoteData(null);
-        } else if (response.status === 403 && data.requiresVerification) {
-          // Phone verification required - for now, show error
-          // TODO: Implement OTP flow in parent component
-          console.error('Phone verification required:', data);
-          alert('Phone verification required for second submission. Feature coming soon!');
-        } else {
-          // Other error
-          console.error('Lead submission error:', data.error);
-          alert(data.error || 'Failed to submit lead request. Please try again.');
-        }
-      } catch (err) {
-        console.error('Lead submission error:', err);
-        alert('An unexpected error occurred. Please try again.');
+      // Flow 5: Check if user has reached lead limit (3 quotes max)
+      if (remainingLeadQuota <= 0) {
+        setIsLeadLimitReachedModalOpen(true);
+        return;
+      }
+      
+      // Flow 2: First lead (0 leads) - Collect user data via HomeownersInfoForm
+      if (userLeadCount === 0) {
+        console.log('First lead flow - showing HomeownersInfoForm for data collection');
+        setIsHomeownersInfoFormOpen(true);
+        return;
+      }
+      
+      // Flow 3: Second lead (1+ leads, unverified phone) - Show verification flow
+      if (userLeadCount >= 1 && !isPhoneVerified) {
+        console.log('Second lead flow (unverified) - showing ContactVerificationModal');
+        setIsContactVerificationModalOpen(true);
+        return;
+      }
+      
+      // Flow 4: Second+ lead (1+ leads, verified phone) - Direct to distribution
+      if (userLeadCount >= 1 && isPhoneVerified) {
+        console.log('Second+ lead flow (verified) - showing QuoteTypeDistributionModal');
+        setIsQuoteTypeDistributionModalOpen(true);
+        return;
       }
     } else {
+      // ===== GUEST USER FLOW (Flow 1) - No changes needed =====
       // User is not logged in - show HomeownersInfoForm first
       setIsHomeownersInfoFormOpen(true);
     }
   };
 
   const handleHomeownerInfoContinue = (info: { name: string; phone: string; address: string }) => {
-    // Store homeowner info and proceed to signup
+    // Store homeowner info
     setHomeownerInfo(info);
     setIsHomeownersInfoFormOpen(false);
-    setIsHomeownerSignupModalOpen(true);
+    
+    // Check if user is authenticated (Flow 2) or guest (Flow 1)
+    if (status === 'authenticated' && session?.user) {
+      // Flow 2: Authenticated first lead - create lead directly
+      handleAuthenticatedFirstLead(info);
+    } else {
+      // Flow 1: Guest - proceed to signup
+      setIsHomeownerSignupModalOpen(true);
+    }
   };
 
   const handleHomeownerSignupSuccess = async () => {
@@ -237,6 +270,143 @@ export default function Home() {
     setIsQuoteSuccessModalOpen(false);
     // Navigate to homeowner dashboard
     router.push('/homeowner/dashboard');
+  };
+
+  // Handler for ContactVerificationModal OTP requested (Flow 3)
+  const handleOTPRequested = (payload: { phoneNumber: string; verificationId: string; expiresAt: Date; remainingAttempts: number }) => {
+    console.log('OTP requested:', payload);
+    // After OTP is sent, user will verify in the modal
+    // When verification is complete, the modal will handle success internally
+    // We'll show the QuoteTypeDistributionModal after they close the verification modal
+  };
+
+  // Handler called when ContactVerificationModal closes after successful verification
+  const handleVerificationModalClose = () => {
+    setIsContactVerificationModalOpen(false);
+    // Check if verification was successful by refetching user data
+    if (status === 'authenticated' && session?.user?.id) {
+      fetch('/api/user/me')
+        .then(res => res.json())
+        .then(userData => {
+          if (userData.phoneVerified) {
+            setIsPhoneVerified(true);
+            // Show quote distribution modal after successful verification
+            setIsQuoteTypeDistributionModalOpen(true);
+          }
+        })
+        .catch(err => console.error('Error fetching user verification status:', err));
+    }
+  };
+
+  // Handler for QuoteTypeDistributionModal submission (Flows 3 & 4)
+  const handleQuoteDistributionSubmit = async (distributions: Array<{ type: 'CALL_VISIT' | 'WRITTEN_QUOTE' | 'BIDDING'; count: number }>) => {
+    try {
+      // Create leads based on distribution selections
+      for (const dist of distributions) {
+        for (let i = 0; i < dist.count; i++) {
+          const apiQuoteType = dist.type; // Already in correct format: CALL_VISIT, WRITTEN_QUOTE, or BIDDING
+          
+          const response = await fetch('/api/leads', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              quoteType: apiQuoteType,
+              propertyPostcode: pendingQuoteData?.postcode || pendingQuoteData?.propertyPostcode,
+              location: pendingQuoteData?.location,
+              state: pendingQuoteData?.state,
+              energyBill: pendingQuoteData?.electricityValue || pendingQuoteData?.energyBill || 0,
+              propertyType: pendingQuoteData?.propertyType || 'residential',
+              roofType: pendingQuoteData?.roofType,
+              budgetRange: pendingQuoteData?.budgetRange,
+              desiredOffset: pendingQuoteData?.desiredOffset || 100,
+              batteryRequired: pendingQuoteData?.batteryRequired || false,
+              batteryCapacity: pendingQuoteData?.batteryCapacity,
+              timeframe: pendingQuoteData?.timeframe,
+              additionalNotes: pendingQuoteData?.additionalNotes,
+              billType: pendingQuoteData?.billType || 'quarterly',
+              quoteData: pendingQuoteData
+            })
+          });
+
+          if (!response.ok) {
+            const data = await response.json();
+            console.error('Lead creation failed:', data);
+            throw new Error(data.error || 'Failed to create lead');
+          }
+        }
+      }
+
+      // Success! Close distribution modal and show success
+      setIsQuoteTypeDistributionModalOpen(false);
+      setIsQuoteSuccessModalOpen(true);
+      setPendingQuoteData(null);
+      
+      // Refresh user lead count
+      const leadCountResponse = await fetch('/api/leads?userId=' + session?.user?.id);
+      if (leadCountResponse.ok) {
+        const leadData = await leadCountResponse.json();
+        setUserLeadCount(leadData.leads?.length || 0);
+        setRemainingLeadQuota(Math.max(0, 3 - (leadData.leads?.length || 0)));
+      }
+    } catch (error) {
+      console.error('Error creating leads:', error);
+      alert('Failed to create lead requests. Please try again.');
+    }
+  };
+
+  // Handler for authenticated first lead (Flow 2)
+  const handleAuthenticatedFirstLead = async (info: { name: string; phone: string; address: string }) => {
+    setHomeownerInfo(info);
+    setIsHomeownersInfoFormOpen(false);
+    
+    // Convert selectedQuoteType to API format
+    const apiQuoteType = selectedQuoteType === 'call_visit' ? 'CALL_VISIT' : 'WRITTEN_QUOTE';
+    
+    try {
+      const response = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          quoteType: apiQuoteType,
+          propertyPostcode: pendingQuoteData?.postcode || pendingQuoteData?.propertyPostcode,
+          location: pendingQuoteData?.location,
+          state: pendingQuoteData?.state,
+          energyBill: pendingQuoteData?.electricityValue || pendingQuoteData?.energyBill || 0,
+          name: info.name,
+          phoneNumber: info.phone,
+          address: info.address,
+          propertyAddress: info.address,
+          propertyType: pendingQuoteData?.propertyType || 'residential',
+          roofType: pendingQuoteData?.roofType,
+          budgetRange: pendingQuoteData?.budgetRange,
+          desiredOffset: pendingQuoteData?.desiredOffset || 100,
+          batteryRequired: pendingQuoteData?.batteryRequired || false,
+          batteryCapacity: pendingQuoteData?.batteryCapacity,
+          timeframe: pendingQuoteData?.timeframe,
+          additionalNotes: pendingQuoteData?.additionalNotes,
+          billType: pendingQuoteData?.billType || 'quarterly',
+          quoteData: pendingQuoteData
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log('First lead created successfully for authenticated user!');
+        setIsQuoteSuccessModalOpen(true);
+        setPendingQuoteData(null);
+        
+        // Update user lead count
+        setUserLeadCount(1);
+        setRemainingLeadQuota(2); // 3 max - 1 used = 2 remaining
+      } else {
+        console.error('Lead submission error:', data.error);
+        alert(data.error || 'Failed to submit lead request. Please try again.');
+      }
+    } catch (err) {
+      console.error('Lead submission error:', err);
+      alert('An unexpected error occurred. Please try again.');
+    }
   };
 
   const handleScrollToQuote = () => {
@@ -374,6 +544,35 @@ export default function Home() {
           isOpen={isQuoteSuccessModalOpen}
           onClose={() => setIsQuoteSuccessModalOpen(false)}
           onDashboardClick={handleDashboardClick}
+        />
+      )}
+
+      {/* New Modals for Phase 22 */}
+      {isContactVerificationModalOpen && (
+        <ContactVerificationModal
+          isOpen={isContactVerificationModalOpen}
+          onClose={handleVerificationModalClose}
+          onOTPRequested={handleOTPRequested}
+          defaultPhone={session?.user?.phone || ''}
+        />
+      )}
+
+      {isQuoteTypeDistributionModalOpen && (
+        <QuoteTypeDistributionModal
+          isOpen={isQuoteTypeDistributionModalOpen}
+          onClose={() => setIsQuoteTypeDistributionModalOpen(false)}
+          onSubmit={handleQuoteDistributionSubmit}
+          remainingQuota={remainingLeadQuota}
+          userAlreadyHasBiddingLead={false} // Homepage flow doesn't support bidding
+        />
+      )}
+
+      {isLeadLimitReachedModalOpen && (
+        <LeadLimitReachedModal
+          isOpen={isLeadLimitReachedModalOpen}
+          onClose={() => setIsLeadLimitReachedModalOpen(false)}
+          usedQuotes={userLeadCount}
+          totalQuoteLimit={3}
         />
       )}
 
