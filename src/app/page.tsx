@@ -14,6 +14,7 @@ import ContactVerificationModal from '../components/homeowner/ContactVerificatio
 import QuoteTypeDistributionModal from '../components/homeowner/QuoteTypeDistributionModal';
 import LeadLimitReachedModal from '../components/homeowner/LeadLimitReachedModal';
 import FirstQuoteSuccessModal from '../components/homeowner/FirstQuoteSuccessModal';
+import OTPVerificationModal from '../components/OTPVerificationModal';
 import Footer from '../components/Footer';
 import BlogSection from '../components/BlogSection';
 import NewsletterSignup from '../components/NewsletterSignup';
@@ -54,6 +55,8 @@ export default function Home() {
   const [isContactVerificationModalOpen, setIsContactVerificationModalOpen] = useState(false);
   const [isQuoteTypeDistributionModalOpen, setIsQuoteTypeDistributionModalOpen] = useState(false);
   const [isLeadLimitReachedModalOpen, setIsLeadLimitReachedModalOpen] = useState(false);
+  const [showOTPModal, setShowOTPModal] = useState(false);
+  const [pendingOTP, setPendingOTP] = useState<{ phoneNumber: string; verificationId: string; expiresAt: Date; remainingAttempts: number } | null>(null);
   const [selectedQuoteType, setSelectedQuoteType] = useState<'call_visit' | 'written' | null>(null);
   const [quoteData, setQuoteData] = useState<any>(null);
   const [pendingQuoteData, setPendingQuoteData] = useState<any>(null);
@@ -79,13 +82,23 @@ export default function Home() {
             const leadCount = data.leads?.length || 0;
             setUserLeadCount(leadCount);
             
+            // Extract phone number from first lead as additional fallback
+            const firstLeadPhone = data.leads?.[0]?.phoneNumber || '';
+            
             // Fetch user verification status
             const userResponse = await fetch('/api/user/me');
             if (userResponse.ok) {
               const userData = await userResponse.json();
               setIsPhoneVerified(userData.phoneVerified || false);
-              setUserPhoneNumber(userData.phoneNumber || session?.user?.phone || '');
+              setUserPhoneNumber(userData.phoneNumber || session?.user?.phone || firstLeadPhone || '');
               // Calculate remaining quota (default: 3 max leads)
+              const maxLeads = 3;
+              setRemainingLeadQuota(Math.max(0, maxLeads - leadCount));
+            } else {
+              // Fallback when /api/user/me doesn't exist
+              console.log('[Homepage] /api/user/me not available, using session data');
+              setUserPhoneNumber(session?.user?.phone || firstLeadPhone || '');
+              setIsPhoneVerified(session?.user?.phoneVerified || false);
               const maxLeads = 3;
               setRemainingLeadQuota(Math.max(0, maxLeads - leadCount));
             }
@@ -320,28 +333,88 @@ export default function Home() {
 
   // Handler for ContactVerificationModal OTP requested (Flow 3)
   const handleOTPRequested = (payload: { phoneNumber: string; verificationId: string; expiresAt: Date; remainingAttempts: number }) => {
-    console.log('OTP requested:', payload);
-    // After OTP is sent, user will verify in the modal
-    // When verification is complete, the modal will handle success internally
-    // We'll show the QuoteTypeDistributionModal after they close the verification modal
+    setPendingOTP(payload);
+    setIsContactVerificationModalOpen(false);
+    setShowOTPModal(true);
   };
 
-  // Handler called when ContactVerificationModal closes after successful verification
+  const handleOTPVerificationSuccess = async () => {
+    setShowOTPModal(false);
+    setPendingOTP(null);
+    setIsPhoneVerified(true);
+    
+    // Refresh user lead data after verification
+    if (status === 'authenticated' && session?.user?.id) {
+      try {
+        const response = await fetch(`/api/leads?userId=${session.user.id}`);
+        if (response.ok) {
+          const data = await response.json();
+          setUserLeadCount(data.leads?.length || 0);
+          setRemainingLeadQuota(Math.max(0, 3 - (data.leads?.length || 0)));
+        }
+      } catch (error) {
+        console.error('[Homepage] Error refreshing lead data after verification:', error);
+      }
+    }
+    
+    // Show quote distribution modal after successful verification
+    setIsQuoteTypeDistributionModalOpen(true);
+  };
+
+  const handleResendOTP = async (): Promise<{
+    success: boolean;
+    verificationId?: string;
+    expiresAt?: Date;
+    error?: string;
+    retryAfter?: number;
+  }> => {
+    if (!pendingOTP?.phoneNumber) {
+      return {
+        success: false,
+        error: 'No pending verification',
+      };
+    }
+    
+    try {
+      const response = await fetch('/api/verification/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phoneNumber: pendingOTP.phoneNumber }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        if (response.status === 429) {
+          return {
+            success: false,
+            error: data.error,
+            retryAfter: data.retryAfter,
+          };
+        }
+        return {
+          success: false,
+          error: data.error || 'Failed to resend code',
+        };
+      }
+      
+      return {
+        success: true,
+        verificationId: data.verificationId,
+        expiresAt: new Date(data.expiresAt),
+      };
+    } catch (error) {
+      console.error('[Homepage] Error resending OTP:', error);
+      return {
+        success: false,
+        error: 'Failed to resend code. Please try again.',
+      };
+    }
+  };
+
+  // Handler called when ContactVerificationModal closes
   const handleVerificationModalClose = () => {
     setIsContactVerificationModalOpen(false);
-    // Check if verification was successful by refetching user data
-    if (status === 'authenticated' && session?.user?.id) {
-      fetch('/api/user/me')
-        .then(res => res.json())
-        .then(userData => {
-          if (userData.phoneVerified) {
-            setIsPhoneVerified(true);
-            // Show quote distribution modal after successful verification
-            setIsQuoteTypeDistributionModalOpen(true);
-          }
-        })
-        .catch(err => console.error('Error fetching user verification status:', err));
-    }
   };
 
   // Handler for QuoteTypeDistributionModal submission (Flows 3 & 4)
@@ -614,6 +687,16 @@ export default function Home() {
           defaultPhone={userPhoneNumber || session?.user?.phone || ''}
         />
       )}
+
+      <OTPVerificationModal
+        isOpen={showOTPModal}
+        onClose={() => setShowOTPModal(false)}
+        phoneNumber={pendingOTP?.phoneNumber || session?.user?.phone || ''}
+        verificationId={pendingOTP?.verificationId || ''}
+        expiresAt={pendingOTP?.expiresAt || new Date()}
+        onVerificationSuccess={handleOTPVerificationSuccess}
+        onResendOTP={handleResendOTP}
+      />
 
       {isQuoteTypeDistributionModalOpen && (
         <QuoteTypeDistributionModal
