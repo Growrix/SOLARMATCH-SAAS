@@ -164,33 +164,59 @@
 - ⏱️ **Actual Time**: 4 hours - All fixes implemented and committed (a45b88b)
 - 📊 **Status**: Complete - Name backfill, IP capture, address/quote type aggregation, postcode fix, className violations fixed
 
-**Phase 22: Homepage Lead Generation Flows Fix** 🎯 NEW (November 17, 2025)
+**Phase 22: Homepage Lead Generation Flows Fix** ✅ COMPLETE (November 17, 2025)
 - 🎯 **Goal**: Fix broken homepage lead generation flows for authenticated users with conditional routing
 - 📋 **Approach**: Add missing state variables, modals, user status API, conditional flow logic
 - 🔍 **Scope**: Flow 2 (first lead), Flow 3 (second lead + verification), Flow 4 (second+ verified), Flow 5 (limit reached)
 - 📄 **Audit Report**: `DOC/AUDIT-REPORTS/LEAD-GENERATION-SYSTEM/10-HOMEPAGE-LEAD-GENERATION-FLOWS-AUDIT.md`
 - 🔗 **Feature Branch**: `main-secondary` (continue from Phase 21)
-- ⏱️ **Estimated**: 6.5 hours - HIGH PRIORITY (blocking authenticated users from homepage lead generation)
-- 📊 **Status**: Audit complete, ready for implementation
-
-**Current Issues**:
-- ❌ Flow 2 (authenticated first lead): Stops at QuoteOptionsModal, missing HomeownersInfoForm data collection
-- ❌ Flow 3 (second lead, unverified): ContactVerificationModal not integrated
-- ❌ Flow 4 (second+ lead, verified): QuoteTypeDistributionModal not integrated
-- ❌ Flow 5 (limit reached): LeadLimitReachedModal doesn't exist
+- ⏱️ **Actual Time**: 1.5 hours - Implementation complete, testing revealed issue
+- 📊 **Status**: Implementation done (commit 6a351ba), but Flow 2 using wrong modal
 
 **Subtasks**:
-- [ ] 22.1: Add missing state variables (7 new states for modals + user data) (15 min)
-- [ ] 22.2: Add missing imports (ContactVerificationModal, QuoteTypeDistributionModal) (5 min)
-- [ ] 22.3: Create LeadLimitReachedModal component (neumorphic design) (45 min)
-- [ ] 22.4: Add useEffect to fetch user lead count + verification status (30 min)
-- [ ] 22.5: Fix Flow 2 - Show HomeownersInfoForm for 0-lead users (60 min)
-- [ ] 22.6: Implement Flow 3 - Verification → Distribution for unverified (90 min)
-- [ ] 22.7: Implement Flow 4 - Direct to Distribution for verified (60 min)
-- [ ] 22.8: Implement Flow 5 - Lead limit reached modal (30 min)
-- [ ] 22.9: Testing all 5 flows (guest, first, second unverified, second+ verified, limit) (60 min)
-- [ ] 22.10: TypeScript + Build validation (10 min)
-- [ ] 22.11: User approval and atomic commit (10 min)
+- [x] 22.1: Add missing state variables (7 new states for modals + user data) (15 min) ✅
+- [x] 22.2: Add missing imports (ContactVerificationModal, QuoteTypeDistributionModal) (5 min) ✅
+- [x] 22.3: Create LeadLimitReachedModal component (neumorphic design) (45 min) ✅
+- [x] 22.4: Add useEffect to fetch user lead count + verification status (30 min) ✅
+- [x] 22.5: Fix Flow 2 - Show HomeownersInfoForm for 0-lead users (60 min) ✅
+- [x] 22.6: Implement Flow 3 - Verification → Distribution for unverified (90 min) ✅
+- [x] 22.7: Implement Flow 4 - Direct to Distribution for verified (60 min) ✅
+- [x] 22.8: Implement Flow 5 - Lead limit reached modal (30 min) ✅
+- [x] 22.9: Testing all 5 flows (60 min) ⚠️ Testing revealed Flow 2 issue
+- [x] 22.10: TypeScript + Build validation (10 min) ✅
+- [x] 22.11: User approval and atomic commit (10 min) ✅
+
+**Issue Found:**
+- ❌ Flow 2 uses `QuoteSuccessModal` instead of `FirstQuoteSuccessModal`
+- ❌ Missing "Verify Contact" CTA for first-time users
+- ❌ No remaining quota display for first lead
+
+**Phase 22.1: Fix Flow 2 Modal Issue** 🎯 ACTIVE (November 17, 2025)
+- 🎯 **Goal**: Fix Flow 2 to use correct FirstQuoteSuccessModal instead of QuoteSuccessModal
+- 📋 **Approach**: Add FirstQuoteSuccessModal import, state, handler, and render
+- 🔍 **Issue**: Implementation used wrong success modal, breaking first-time user onboarding
+- 📄 **Re-Audit Report**: `DOC/AUDIT-REPORTS/LEAD-GENERATION-SYSTEM/11-HOMEPAGE-FLOWS-RE-AUDIT.md`
+- ⏱️ **Estimated**: 45 minutes (15 min code + 30 min testing)
+- 📊 **Status**: Re-audit complete, ready for fix
+
+**Root Cause:**
+- Original audit specified `FirstQuoteSuccessModal` for Flow 2
+- Implementation incorrectly used `QuoteSuccessModal` (generic)
+- Missing FirstQuoteSuccessModal import, state, and render
+
+**Subtasks**:
+- [ ] 22.1.1: Add FirstQuoteSuccessModal import (1 min)
+- [ ] 22.1.2: Add isFirstQuoteSuccessModalOpen state (1 min)
+- [ ] 22.1.3: Add handleVerifyContactFromFirstQuote handler (5 min)
+- [ ] 22.1.4: Update handleAuthenticatedFirstLead to use correct modal (2 min)
+- [ ] 22.1.5: Add FirstQuoteSuccessModal render block (5 min)
+- [ ] 22.1.6: Verify QuoteSuccessModal only used in guest/Flow3/Flow4 (2 min)
+- [ ] 22.1.7: TypeScript + Build validation (5 min)
+- [ ] 22.1.8: Test Flow 2 - Authenticated first lead (10 min)
+- [ ] 22.1.9: Test "Verify Contact" button (5 min)
+- [ ] 22.1.10: Test guest flow regression (5 min)
+- [ ] 22.1.11: Test Flows 3 & 4 regression (5 min)
+- [ ] 22.1.12: Commit fix with descriptive message (5 min)
 
 **Current State**:
 - ✅ LeadEditModal.tsx (245 lines) - Fully functional, needs backend

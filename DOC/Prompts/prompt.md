@@ -1946,3 +1946,10 @@ when the user has quote generation limits , the flow should be : InstantQuote ca
 
 ----------------------------------------------------------------------------------------
 
+***Homeowners Lead generation from the homepage- test*** i have tested the flows that you have implimented. I have found issues with the very first flow , it is not working as expected and also not as per your audit and plan.
+
+***instructions*** you must re-audit the flow and identify the gaps between the existing flow and the requested flow. create a comprhensive audit report of the issues found and the plan to fix and impliment them. after that start fixing the issues step by step. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on. create the audit report under this folder D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\AUDIT-REPORTS\LEAD-GENERATION-SYSTEM. 
+Compare with the previous audit report(D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\AUDIT-REPORTS\LEAD-GENERATION-SYSTEM\10-HOMEPAGE-LEAD-GENERATION-FLOWS-AUDIT.md) that you have created for this flow and identify what went wrong and why the implimentation is not as per the plan. 
+And create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\tasks.md file for this task and start implimenting the changes step by step as per the plan you created. 
+
+***strict rules*** never spoil any other flows and functionality while working on these modals and flows. All the existing lead generation flows should work as it is working now. only work on the new area that mentioned. always test everything after making changes. do to attempt blindly if you dont have clear picture.

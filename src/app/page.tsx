@@ -13,6 +13,7 @@ import HomeownersInfoForm from '../components/HomeownersInfoForm';
 import ContactVerificationModal from '../components/homeowner/ContactVerificationModal';
 import QuoteTypeDistributionModal from '../components/homeowner/QuoteTypeDistributionModal';
 import LeadLimitReachedModal from '../components/homeowner/LeadLimitReachedModal';
+import FirstQuoteSuccessModal from '../components/homeowner/FirstQuoteSuccessModal';
 import Footer from '../components/Footer';
 import BlogSection from '../components/BlogSection';
 import NewsletterSignup from '../components/NewsletterSignup';
@@ -49,6 +50,7 @@ export default function Home() {
   const [isHomeownersInfoFormOpen, setIsHomeownersInfoFormOpen] = useState(false);
   const [isHomeownerSignupModalOpen, setIsHomeownerSignupModalOpen] = useState(false);
   const [isQuoteSuccessModalOpen, setIsQuoteSuccessModalOpen] = useState(false);
+  const [isFirstQuoteSuccessModalOpen, setIsFirstQuoteSuccessModalOpen] = useState(false);
   const [isContactVerificationModalOpen, setIsContactVerificationModalOpen] = useState(false);
   const [isQuoteTypeDistributionModalOpen, setIsQuoteTypeDistributionModalOpen] = useState(false);
   const [isLeadLimitReachedModalOpen, setIsLeadLimitReachedModalOpen] = useState(false);
@@ -272,6 +274,13 @@ export default function Home() {
     router.push('/homeowner/dashboard');
   };
 
+  // Handler for "Verify Contact" button in FirstQuoteSuccessModal
+  const handleVerifyContactFromFirstQuote = () => {
+    setIsFirstQuoteSuccessModalOpen(false);
+    // Open verification modal to prepare for future leads
+    setIsContactVerificationModalOpen(true);
+  };
+
   // Handler for ContactVerificationModal OTP requested (Flow 3)
   const handleOTPRequested = (payload: { phoneNumber: string; verificationId: string; expiresAt: Date; remainingAttempts: number }) => {
     console.log('OTP requested:', payload);
@@ -393,7 +402,7 @@ export default function Home() {
 
       if (response.ok) {
         console.log('First lead created successfully for authenticated user!');
-        setIsQuoteSuccessModalOpen(true);
+        setIsFirstQuoteSuccessModalOpen(true); // ✅ Use FirstQuoteSuccessModal for first lead
         setPendingQuoteData(null);
         
         // Update user lead count
@@ -544,6 +553,18 @@ export default function Home() {
           isOpen={isQuoteSuccessModalOpen}
           onClose={() => setIsQuoteSuccessModalOpen(false)}
           onDashboardClick={handleDashboardClick}
+        />
+      )}
+
+      {/* FirstQuoteSuccessModal for authenticated first lead (Flow 2) */}
+      {isFirstQuoteSuccessModalOpen && (
+        <FirstQuoteSuccessModal
+          isOpen={isFirstQuoteSuccessModalOpen}
+          onClose={() => setIsFirstQuoteSuccessModalOpen(false)}
+          onVerifyContact={handleVerifyContactFromFirstQuote}
+          quoteType={selectedQuoteType === 'call_visit' ? 'CALL_VISIT' : 'WRITTEN_QUOTE'}
+          remainingQuotes={remainingLeadQuota}
+          totalQuoteLimit={3}
         />
       )}
 
