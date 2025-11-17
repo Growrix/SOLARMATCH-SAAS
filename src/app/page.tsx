@@ -61,6 +61,7 @@ export default function Home() {
   const [userLeadCount, setUserLeadCount] = useState<number>(0);
   const [isPhoneVerified, setIsPhoneVerified] = useState<boolean>(false);
   const [remainingLeadQuota, setRemainingLeadQuota] = useState<number>(0);
+  const [userPhoneNumber, setUserPhoneNumber] = useState<string>('');
 
   // Ensure page starts at top on mount
   useEffect(() => {
@@ -83,6 +84,7 @@ export default function Home() {
             if (userResponse.ok) {
               const userData = await userResponse.json();
               setIsPhoneVerified(userData.phoneVerified || false);
+              setUserPhoneNumber(userData.phoneNumber || session?.user?.phone || '');
               // Calculate remaining quota (default: 3 max leads)
               const maxLeads = 3;
               setRemainingLeadQuota(Math.max(0, maxLeads - leadCount));
@@ -103,6 +105,40 @@ export default function Home() {
     setQuoteData(data);
   }, []);
 
+  // Handler for "Get Your Quotes" button - routes based on user state
+  const handleProceedToDetailedQuote = () => {
+    // Guest users (not authenticated) - show QuoteOptionsModal
+    if (status !== 'authenticated' || !session?.user) {
+      setIsQuoteOptionsModalOpen(true);
+      return;
+    }
+
+    // Authenticated users - route based on lead count
+    // Flow 2: First lead (0 leads) - show QuoteOptionsModal to select quote type
+    if (userLeadCount === 0) {
+      setIsQuoteOptionsModalOpen(true);
+      return;
+    }
+
+    // Flow 5: Lead limit reached (3+ leads) - block further requests
+    if (userLeadCount >= 3) {
+      setIsLeadLimitReachedModalOpen(true);
+      return;
+    }
+
+    // Flow 3: Second+ lead, unverified phone - show verification modal
+    if (userLeadCount >= 1 && !isPhoneVerified) {
+      setIsContactVerificationModalOpen(true);
+      return;
+    }
+
+    // Flow 4: Second+ lead, verified phone - show distribution modal
+    if (userLeadCount >= 1 && isPhoneVerified) {
+      setIsQuoteTypeDistributionModalOpen(true);
+      return;
+    }
+  };
+
   const handleQuoteOptionSelected = async (type: 'call_visit' | 'written') => {
     setSelectedQuoteType(type);
     setIsQuoteOptionsModalOpen(false);
@@ -113,12 +149,6 @@ export default function Home() {
     // Check if user is already logged in
     if (status === 'authenticated' && session?.user) {
       // ===== AUTHENTICATED USER CONDITIONAL FLOWS =====
-      
-      // Flow 5: Check if user has reached lead limit (3 quotes max)
-      if (remainingLeadQuota <= 0) {
-        setIsLeadLimitReachedModalOpen(true);
-        return;
-      }
       
       // Flow 2: First lead (0 leads) - Collect user data via HomeownersInfoForm
       if (userLeadCount === 0) {
@@ -138,6 +168,13 @@ export default function Home() {
       if (userLeadCount >= 1 && isPhoneVerified) {
         console.log('Second+ lead flow (verified) - showing QuoteTypeDistributionModal');
         setIsQuoteTypeDistributionModalOpen(true);
+        return;
+      }
+      
+      // Flow 5: Lead limit reached (3 or more leads) - Block further requests
+      if (userLeadCount >= 3) {
+        console.log('Lead limit reached - showing LeadLimitReachedModal');
+        setIsLeadLimitReachedModalOpen(true);
         return;
       }
     } else {
@@ -247,7 +284,7 @@ export default function Home() {
       
       if (response.ok) {
         console.log('[Guest Flow] Lead created successfully!', { leadId: data.lead?.id });
-        setIsQuoteSuccessModalOpen(true);
+        setIsQuoteSuccessModalOpen(true); // Guest flow uses QuoteSuccessModal (audit: Flow 1 working, no changes needed)
         setPendingQuoteData(null);
       } else {
         console.error('[Guest Flow] Lead creation failed:', data);
@@ -510,7 +547,7 @@ export default function Home() {
           {/* Calculator Forms */}
           {activeCalculator === 'quote' ? (
             <InstantQuoteForm 
-              onProceedToDetailedQuote={() => setIsQuoteOptionsModalOpen(true)}
+              onProceedToDetailedQuote={handleProceedToDetailedQuote}
               onQuoteCalculated={handleQuoteCalculated}
               hideSubmitButton={false}
             />
@@ -574,7 +611,7 @@ export default function Home() {
           isOpen={isContactVerificationModalOpen}
           onClose={handleVerificationModalClose}
           onOTPRequested={handleOTPRequested}
-          defaultPhone={session?.user?.phone || ''}
+          defaultPhone={userPhoneNumber || session?.user?.phone || ''}
         />
       )}
 

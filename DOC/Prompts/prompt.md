@@ -1953,3 +1953,9 @@ Compare with the previous audit report(D:\Desktop Mass\SOLAR LEAD GEN PROJECT MA
 And create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\tasks.md file for this task and start implimenting the changes step by step as per the plan you created. 
 
 ***strict rules*** never spoil any other flows and functionality while working on these modals and flows. All the existing lead generation flows should work as it is working now. only work on the new area that mentioned. always test everything after making changes. do to attempt blindly if you dont have clear picture.
+
+----------------------------------------------------------------------
+
+***test- flow 2*** instantquote> results> quoteoption modal> Quote Request Limit Reached (which is the wrong modal), and it is not generating the leads.
+
+check back the plan, what it was suppose to be . this is a completely wrong implimenetation. 
