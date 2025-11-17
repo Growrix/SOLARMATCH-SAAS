@@ -169,23 +169,23 @@ export default function Home() {
       return;
     }
 
-    // Flow 5: Lead limit reached (3+ leads) - block further requests
-    if (userLeadCount >= 3) {
-      console.log('[Flow 5] Lead limit reached (' + userLeadCount + '/3 leads) → LeadLimitReachedModal');
+    // Flow 5: Lead limit reached (NO remaining quota) - block further requests
+    if (remainingLeadQuota <= 0) {
+      console.log('[Flow 5] Lead limit reached (0 remaining quota, ' + userLeadCount + ' leads used) → LeadLimitReachedModal');
       setIsLeadLimitReachedModalOpen(true);
       return;
     }
 
     // Flow 3: Second+ lead, unverified phone - show verification modal
     if (userLeadCount >= 1 && !isPhoneVerified) {
-      console.log('[Flow 3] Second+ lead, unverified phone → ContactVerificationModal');
+      console.log('[Flow 3] Second+ lead, unverified phone (' + remainingLeadQuota + ' remaining) → ContactVerificationModal');
       setIsContactVerificationModalOpen(true);
       return;
     }
 
     // Flow 4: Second+ lead, verified phone - show distribution modal
     if (userLeadCount >= 1 && isPhoneVerified) {
-      console.log('[Flow 4] Second+ lead, verified phone → QuoteTypeDistributionModal');
+      console.log('[Flow 4] Second+ lead, verified phone (' + remainingLeadQuota + ' remaining) → QuoteTypeDistributionModal');
       setIsQuoteTypeDistributionModalOpen(true);
       return;
     }
