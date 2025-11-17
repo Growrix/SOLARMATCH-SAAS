@@ -209,6 +209,13 @@ export async function GET(request: NextRequest) {
       filters,
     });
 
+    console.log('[GET /api/leads] Result for user:', {
+      userId: session.user.id,
+      userRole: session.user.role,
+      leadCount: result.leads.length,
+      firstThreeLeads: result.leads.slice(0, 3).map(l => ({ id: l.id, status: l.status })),
+    });
+
     return NextResponse.json(
       {
         leads: result.leads,

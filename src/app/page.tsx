@@ -76,12 +76,27 @@ export default function Home() {
     const fetchUserLeadData = async () => {
       if (status === 'authenticated' && session?.user?.id) {
         try {
+          console.log('[Homepage useEffect] User session:', {
+            id: session.user.id,
+            email: session.user.email,
+            role: session.user.role,
+          });
+
           // Fetch user's leads (session-based, no userId param needed)
           const response = await fetch('/api/leads');
           if (response.ok) {
             const data = await response.json();
             const leadCount = data.leads?.length || 0;
-            console.log('[Homepage useEffect] Fetched lead data:', { leadCount, totalLeads: data.leads?.length });
+            console.log('[Homepage useEffect] Fetched lead data:', { 
+              leadCount, 
+              totalLeads: data.leads?.length,
+              userRole: session.user.role,
+              leadsPreview: data.leads?.slice(0, 3).map((l: any) => ({ 
+                id: l.id, 
+                homeownerId: l.homeownerId, 
+                status: l.status 
+              }))
+            });
             setUserLeadCount(leadCount);
             
             // Extract phone number from first lead as additional fallback
