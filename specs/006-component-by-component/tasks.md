@@ -155,14 +155,42 @@
 - ⏱️ **Estimated**: 75 minutes - LOW RISK (frontend-only, no schema changes)
 - 📊 **Status**: Audit complete, ready for implementation
 
-**Phase 21: Admin Homeowners Management Page - Data Import Fix** 🎯 NEW (November 17, 2025)
+**Phase 21: Admin Homeowners Management Page - Data Import Fix** ✅ COMPLETE (November 17, 2025)
 - 🎯 **Goal**: Fix missing user names, add address/IP/quote type columns to admin homeowners table
 - 📋 **Approach**: Backfill names, add IP capture, aggregate lead data, enhance admin UI
 - 🔍 **Scope**: Schema changes (add signupIp), API aggregation queries, frontend table updates
 - 📄 **Audit Report**: `DOC/AUDIT-REPORTS/LEAD-GENERATION-SYSTEM/09-HOMEOWNERS-MANAGEMENT-PAGE-AUDIT.md`
 - 📄 **Implementation Plan**: `DOC/AUDIT-REPORTS/LEAD-GENERATION-SYSTEM/09-IMPLEMENTATION-PLAN.md`
-- ⏱️ **Estimated**: 4-6 hours - MEDIUM RISK (schema changes, requires migration)
-- 📊 **Status**: Audit complete, implementation plan ready
+- ⏱️ **Actual Time**: 4 hours - All fixes implemented and committed (a45b88b)
+- 📊 **Status**: Complete - Name backfill, IP capture, address/quote type aggregation, postcode fix, className violations fixed
+
+**Phase 22: Homepage Lead Generation Flows Fix** 🎯 NEW (November 17, 2025)
+- 🎯 **Goal**: Fix broken homepage lead generation flows for authenticated users with conditional routing
+- 📋 **Approach**: Add missing state variables, modals, user status API, conditional flow logic
+- 🔍 **Scope**: Flow 2 (first lead), Flow 3 (second lead + verification), Flow 4 (second+ verified), Flow 5 (limit reached)
+- 📄 **Audit Report**: `DOC/AUDIT-REPORTS/LEAD-GENERATION-SYSTEM/10-HOMEPAGE-LEAD-GENERATION-FLOWS-AUDIT.md`
+- 🔗 **Feature Branch**: `main-secondary` (continue from Phase 21)
+- ⏱️ **Estimated**: 6.5 hours - HIGH PRIORITY (blocking authenticated users from homepage lead generation)
+- 📊 **Status**: Audit complete, ready for implementation
+
+**Current Issues**:
+- ❌ Flow 2 (authenticated first lead): Stops at QuoteOptionsModal, missing HomeownersInfoForm data collection
+- ❌ Flow 3 (second lead, unverified): ContactVerificationModal not integrated
+- ❌ Flow 4 (second+ lead, verified): QuoteTypeDistributionModal not integrated
+- ❌ Flow 5 (limit reached): LeadLimitReachedModal doesn't exist
+
+**Subtasks**:
+- [ ] 22.1: Add missing state variables (7 new states for modals + user data) (15 min)
+- [ ] 22.2: Add missing imports (ContactVerificationModal, QuoteTypeDistributionModal) (5 min)
+- [ ] 22.3: Create LeadLimitReachedModal component (neumorphic design) (45 min)
+- [ ] 22.4: Add useEffect to fetch user lead count + verification status (30 min)
+- [ ] 22.5: Fix Flow 2 - Show HomeownersInfoForm for 0-lead users (60 min)
+- [ ] 22.6: Implement Flow 3 - Verification → Distribution for unverified (90 min)
+- [ ] 22.7: Implement Flow 4 - Direct to Distribution for verified (60 min)
+- [ ] 22.8: Implement Flow 5 - Lead limit reached modal (30 min)
+- [ ] 22.9: Testing all 5 flows (guest, first, second unverified, second+ verified, limit) (60 min)
+- [ ] 22.10: TypeScript + Build validation (10 min)
+- [ ] 22.11: User approval and atomic commit (10 min)
 
 **Current State**:
 - ✅ LeadEditModal.tsx (245 lines) - Fully functional, needs backend
