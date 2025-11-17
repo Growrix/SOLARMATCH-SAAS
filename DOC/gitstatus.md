@@ -2,6 +2,42 @@
 
 ## Latest Commits
 
+### Phase 22.1: Fix Flow 2 Modal Issue (November 17, 2025)
+**Commit:** `9b6d895` - fix: Phase 22.1 - use FirstQuoteSuccessModal for authenticated first lead  
+**Branch:** `main-secondary`  
+**Status:** ✅ Complete - Flow 2 now uses correct modal
+
+**Changes:**
+- Added `FirstQuoteSuccessModal` import to `src/app/page.tsx`
+- Added `isFirstQuoteSuccessModalOpen` state variable
+- Added `handleVerifyContactFromFirstQuote` handler function
+- Updated `handleAuthenticatedFirstLead` to show `FirstQuoteSuccessModal` (was QuoteSuccessModal)
+- Rendered FirstQuoteSuccessModal with correct props:
+  * `remainingQuotes` - Shows 2/3 quota
+  * `onVerifyContact` - Prepares user for Flow 3
+  * `quoteType` - CALL_VISIT or WRITTEN_QUOTE
+  * `totalQuoteLimit` - 3 max quotes
+
+**Fix Details:**
+- **Before:** Flow 2 showed generic `QuoteSuccessModal` (no quota, no verification CTA)
+- **After:** Flow 2 shows `FirstQuoteSuccessModal` (displays quota, has "Verify Contact" button)
+- **User Impact:** First-time authenticated users now see remaining quotes and can verify early
+
+**Related:**
+- Re-Audit Report: `DOC/AUDIT-REPORTS/LEAD-GENERATION-SYSTEM/11-HOMEPAGE-FLOWS-RE-AUDIT.md`
+- Root Cause: Implementation didn't follow original audit specification (10-HOMEPAGE-LEAD-GENERATION-FLOWS-AUDIT.md)
+
+**Known Issue:**
+- `/api/user/me` returns 404 (needs creation for full verification status fetching)
+- Workaround: Using `/api/leads` to fetch lead count (working)
+
+**Validation:**
+- ✅ TypeScript: 0 errors
+- ✅ className Violations: 0 (pre-commit hook passed)
+- ⚠️ Manual Testing: Required (Flow 2 end-to-end test)
+
+---
+
 ### Phase 22: Homepage Lead Generation Flows Fix (November 17, 2025)
 **Commit:** `6a351ba` - feat: implement Phase 22 homepage lead generation flows fix  
 **Branch:** `main-secondary`  
