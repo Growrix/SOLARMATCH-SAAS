@@ -80,6 +80,7 @@ export default function Home() {
           if (response.ok) {
             const data = await response.json();
             const leadCount = data.leads?.length || 0;
+            console.log('[Homepage useEffect] Fetched lead data:', { leadCount, leads: data.leads?.length });
             setUserLeadCount(leadCount);
             
             // Extract phone number from first lead as additional fallback
@@ -89,18 +90,27 @@ export default function Home() {
             const userResponse = await fetch('/api/user/me');
             if (userResponse.ok) {
               const userData = await userResponse.json();
+              console.log('[Homepage useEffect] User data from /api/user/me:', { 
+                phoneVerified: userData.phoneVerified,
+                phoneNumber: userData.phoneNumber 
+              });
               setIsPhoneVerified(userData.phoneVerified || false);
               setUserPhoneNumber(userData.phoneNumber || session?.user?.phone || firstLeadPhone || '');
               // Calculate remaining quota (default: 3 max leads)
               const maxLeads = 3;
-              setRemainingLeadQuota(Math.max(0, maxLeads - leadCount));
+              const remaining = Math.max(0, maxLeads - leadCount);
+              console.log('[Homepage useEffect] Quota calculated:', { leadCount, maxLeads, remaining });
+              setRemainingLeadQuota(remaining);
             } else {
               // Fallback when /api/user/me doesn't exist
-              console.log('[Homepage] /api/user/me not available, using session data');
+              console.log('[Homepage useEffect] /api/user/me not available, using session data');
+              console.log('[Homepage useEffect] Session phoneVerified:', session?.user?.phoneVerified);
               setUserPhoneNumber(session?.user?.phone || firstLeadPhone || '');
               setIsPhoneVerified(session?.user?.phoneVerified || false);
               const maxLeads = 3;
-              setRemainingLeadQuota(Math.max(0, maxLeads - leadCount));
+              const remaining = Math.max(0, maxLeads - leadCount);
+              console.log('[Homepage useEffect] Fallback quota calculated:', { leadCount, maxLeads, remaining });
+              setRemainingLeadQuota(remaining);
             }
           }
         } catch (error) {
@@ -120,8 +130,17 @@ export default function Home() {
 
   // Handler for "Get Your Quotes" button - routes based on user state
   const handleProceedToDetailedQuote = () => {
+    console.log('[handleProceedToDetailedQuote] Flow routing decision:', {
+      status,
+      userLeadCount,
+      isPhoneVerified,
+      remainingLeadQuota,
+      sessionUser: session?.user?.email,
+    });
+
     // Guest users (not authenticated) - show QuoteOptionsModal
     if (status !== 'authenticated' || !session?.user) {
+      console.log('[Flow 1] Guest user → QuoteOptionsModal');
       setIsQuoteOptionsModalOpen(true);
       return;
     }
@@ -129,27 +148,34 @@ export default function Home() {
     // Authenticated users - route based on lead count
     // Flow 2: First lead (0 leads) - show QuoteOptionsModal to select quote type
     if (userLeadCount === 0) {
+      console.log('[Flow 2] First lead (0 leads) → QuoteOptionsModal');
       setIsQuoteOptionsModalOpen(true);
       return;
     }
 
     // Flow 5: Lead limit reached (3+ leads) - block further requests
     if (userLeadCount >= 3) {
+      console.log('[Flow 5] Lead limit reached (' + userLeadCount + '/3 leads) → LeadLimitReachedModal');
       setIsLeadLimitReachedModalOpen(true);
       return;
     }
 
     // Flow 3: Second+ lead, unverified phone - show verification modal
     if (userLeadCount >= 1 && !isPhoneVerified) {
+      console.log('[Flow 3] Second+ lead, unverified phone → ContactVerificationModal');
       setIsContactVerificationModalOpen(true);
       return;
     }
 
     // Flow 4: Second+ lead, verified phone - show distribution modal
     if (userLeadCount >= 1 && isPhoneVerified) {
+      console.log('[Flow 4] Second+ lead, verified phone → QuoteTypeDistributionModal');
       setIsQuoteTypeDistributionModalOpen(true);
       return;
     }
+
+    // Fallback (should never reach here)
+    console.warn('[Flow Error] No matching flow condition. State:', { userLeadCount, isPhoneVerified });
   };
 
   const handleQuoteOptionSelected = async (type: 'call_visit' | 'written') => {
