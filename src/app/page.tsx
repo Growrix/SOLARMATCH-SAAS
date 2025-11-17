@@ -76,11 +76,12 @@ export default function Home() {
     const fetchUserLeadData = async () => {
       if (status === 'authenticated' && session?.user?.id) {
         try {
-          const response = await fetch('/api/leads?userId=' + session.user.id);
+          // Fetch user's leads (session-based, no userId param needed)
+          const response = await fetch('/api/leads');
           if (response.ok) {
             const data = await response.json();
             const leadCount = data.leads?.length || 0;
-            console.log('[Homepage useEffect] Fetched lead data:', { leadCount, leads: data.leads?.length });
+            console.log('[Homepage useEffect] Fetched lead data:', { leadCount, totalLeads: data.leads?.length });
             setUserLeadCount(leadCount);
             
             // Extract phone number from first lead as additional fallback
@@ -372,11 +373,13 @@ export default function Home() {
     // Refresh user lead data after verification
     if (status === 'authenticated' && session?.user?.id) {
       try {
-        const response = await fetch(`/api/leads?userId=${session.user.id}`);
+        const response = await fetch('/api/leads');
         if (response.ok) {
           const data = await response.json();
-          setUserLeadCount(data.leads?.length || 0);
-          setRemainingLeadQuota(Math.max(0, 3 - (data.leads?.length || 0)));
+          const leadCount = data.leads?.length || 0;
+          console.log('[Homepage] Refreshed lead data after verification:', { leadCount });
+          setUserLeadCount(leadCount);
+          setRemainingLeadQuota(Math.max(0, 3 - leadCount));
         }
       } catch (error) {
         console.error('[Homepage] Error refreshing lead data after verification:', error);
