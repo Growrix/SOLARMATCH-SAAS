@@ -1959,3 +1959,26 @@ And create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solar
 ***test- flow 2*** instantquote> results> quoteoption modal> Quote Request Limit Reached (which is the wrong modal), and it is not generating the leads.
 
 check back the plan, what it was suppose to be . this is a completely wrong implimenetation. 
+
+-----------------------------------------------------------------------------------
+
+***When a user is signed up and has 0 leads and trying to generate first lead from the homepage InstantQuote form***
+Now when the user has 0 lead and user already signedup, then show the first lead generation flow , which is working fine now. when the user has 1st lead already and try to generate 2nd lead, then show the 2nd lead generation flow which is also working fine now (the verification requred is also working fine).
+
+***The areas to work on : for 3rd , 4th and 5th lead generation flows :***
+- when the user has 2 or more than 2 leads already and try to generate more leads, then the flow should be the: instantquote> results> lead distribution modal> generate leads as per the users selection. and this flow repeates until the user reach the lead generation limit which is 5 leads in total. 
+- when the user has reached the lead generation limit which is 5 leads in total, then the flow should be instantquote> results> lead limit reached modal ,this is the end point for lead generation now.
+
+***current issues*** now the verification modal is showing even the user has 2 or more leads already. this is wrong. please fix this issue. because users need the contact verification only once while generating the 2nd lead. after that no need to verify again and again. 
+
+***plan***you can create conditions based on the leads count of the user. identify the leads count of the user and then create conditions based on that to show the correct flow accordingly. 
+
+***instructions*** Audit and understand the current flows and data flow. audit the relevant fronend and backend in deailed and create a comprhensive audit report of the issues found and identify the gaps between the existing flows and the requested flows and the plan to fix and impliment them. after that start fixing the issues step by step. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on. create the audit report under this folder D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\AUDIT-REPORTS\LEAD-GENERATION-SYSTEM. And create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\tasks.md file for this task and start implimenting the changes step by step as per the plan you created.
+
+***note*** currently the first lead and second lead generation flows are working fine, do not touch or harm them anyways. undersatand the lead generation principals including data inputs and data imports. understand all the logics and condition. 
+
+***strict rules*** never spoil any other flows and functionality while working on these modals and flows. All the existing lead generation flows should work as it is working now. only work on the new area that mentioned. always test everything after making changes. do to attempt blindly if you dont have clear picture. 
+
+-----------------------------------------------------------------------------------
+
+

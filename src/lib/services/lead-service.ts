@@ -276,6 +276,15 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResu
     updateData.biddingLeadsSubmitted = { increment: 1 };
   }
   
+  // ✅ PHASE 21.4: Update User model with name/phone from first lead (if User.name/phone are null)
+  // This ensures User model has contact info after first lead generation
+  if (!homeowner?.name && lead.name) {
+    updateData.name = lead.name;
+  }
+  if (!homeowner?.phone && lead.phoneNumber) {
+    updateData.phone = lead.phoneNumber;
+  }
+  
   await prisma.user.update({
     where: { id: input.homeownerId },
     data: updateData,

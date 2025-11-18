@@ -191,7 +191,7 @@
 - ❌ Missing "Verify Contact" CTA for first-time users
 - ❌ No remaining quota display for first lead
 
-**Phase 22.1: Fix Flow 2 Modal Issue** 🎯 ACTIVE (November 17, 2025)
+**Phase 22.1: Fix Flow 2 Modal Issue** ✅ COMPLETE (November 17, 2025)
 - 🎯 **Goal**: Fix Flow 2 to use correct FirstQuoteSuccessModal instead of QuoteSuccessModal
 - 📋 **Approach**: Add FirstQuoteSuccessModal import, state, handler, and render
 - 🔍 **Issue**: Implementation used wrong success modal, breaking first-time user onboarding
@@ -205,18 +205,93 @@
 - Missing FirstQuoteSuccessModal import, state, and render
 
 **Subtasks**:
-- [ ] 22.1.1: Add FirstQuoteSuccessModal import (1 min)
-- [ ] 22.1.2: Add isFirstQuoteSuccessModalOpen state (1 min)
-- [ ] 22.1.3: Add handleVerifyContactFromFirstQuote handler (5 min)
-- [ ] 22.1.4: Update handleAuthenticatedFirstLead to use correct modal (2 min)
-- [ ] 22.1.5: Add FirstQuoteSuccessModal render block (5 min)
-- [ ] 22.1.6: Verify QuoteSuccessModal only used in guest/Flow3/Flow4 (2 min)
-- [ ] 22.1.7: TypeScript + Build validation (5 min)
-- [ ] 22.1.8: Test Flow 2 - Authenticated first lead (10 min)
-- [ ] 22.1.9: Test "Verify Contact" button (5 min)
-- [ ] 22.1.10: Test guest flow regression (5 min)
-- [ ] 22.1.11: Test Flows 3 & 4 regression (5 min)
-- [ ] 22.1.12: Commit fix with descriptive message (5 min)
+- [x] 22.1.1: Add FirstQuoteSuccessModal import (1 min)
+- [x] 22.1.2: Add isFirstQuoteSuccessModalOpen state (1 min)
+- [x] 22.1.3: Add handleVerifyContactFromFirstQuote handler (5 min)
+- [x] 22.1.4: Update handleAuthenticatedFirstLead to use correct modal (2 min)
+- [x] 22.1.5: Add FirstQuoteSuccessModal render block (5 min)
+- [x] 22.1.6: Verify QuoteSuccessModal only used in guest/Flow3/Flow4 (2 min)
+- [x] 22.1.7: TypeScript + Build validation (5 min)
+- [x] 22.1.8: Test Flow 2 - Authenticated first lead (10 min)
+- [x] 22.1.9: Test "Verify Contact" button (5 min)
+- [x] 22.1.10: Test guest flow regression (5 min)
+- [x] 22.1.11: Test Flows 3 & 4 regression (5 min)
+- [x] 22.1.12: Commit fix with descriptive message (5 min)
+
+---
+
+**Phase 23: Fix Lead Generation Verification Logic (3rd-5th Leads)** 🎯 ACTIVE (November 18, 2025)
+- 🎯 **Goal**: Fix verification modal incorrectly showing for users with 2+ verified leads
+- 📋 **Approach**: Update NextAuth session after OTP verification + fix hardcoded lead limits
+- 🔍 **Issue**: Session state not persisted after verification, causing re-verification prompt
+- 📄 **Audit Report**: `DOC/AUDIT-REPORTS/LEAD-GENERATION-SYSTEM/12-LEAD-COUNT-VERIFICATION-LOGIC-AUDIT.md`
+- 📄 **Implementation Plan**: `DOC/AUDIT-REPORTS/LEAD-GENERATION-SYSTEM/13-IMPLEMENTATION-PLAN.md`
+- 🔗 **Feature Branch**: `main-secondary`
+- ⏱️ **Estimated**: 75 minutes (45 min code + 30 min testing)
+- 📊 **Status**: Audit complete, ready for implementation
+
+**Root Cause:**
+- NextAuth session not updated after OTP verification success
+- Session cached with `phoneVerified: false` persists across browser sessions
+- Hardcoded MAX_LEADS = 3 (should be 5) causing early limit modal
+- Flow routing checks `isPhoneVerified` from stale session data
+
+**Expected Flow Behavior:**
+| Lead Count | Phone Verified | Expected Modal | Current Behavior |
+|-----------|---------------|----------------|------------------|
+| 0 | N/A | QuoteOptionsModal → HomeownersInfoForm | ✅ Working |
+| 1 | No | ContactVerificationModal → OTP | ✅ Working |
+| 2 | Yes | QuoteTypeDistributionModal | ❌ Shows verification again |
+| 3 | Yes | QuoteTypeDistributionModal | ❌ Shows verification again |
+| 4 | Yes | QuoteTypeDistributionModal | ❌ Shows verification again |
+| 5 | Yes | LeadLimitReachedModal | ❌ Shows at 3 leads (wrong limit) |
+
+**Subtasks**:
+- [ ] 23.1: T330 - Update Session After OTP Verification ⚡ CRITICAL (15 min)
+  - Import `update` function from `useSession`
+  - Call `updateSession()` in `handleOTPVerificationSuccess`
+  - Add error handling and logging
+  - Fix remaining quota calculation (use 5 instead of 3)
+- [ ] 23.2: T331 - Fix Hardcoded Lead Limits (10 min)
+  - Define `MAX_LEADS = 5` constant
+  - Replace all hardcoded `3` with `MAX_LEADS`
+  - Update limit check to `userLeadCount >= MAX_LEADS`
+  - Update quota calculations in all handlers
+- [ ] 23.3: T332 - Optimize useEffect Dependencies (5 min)
+  - Change dependency from `session` to `session?.user?.id`
+  - Prevent unnecessary re-renders on token refresh
+- [ ] 23.4: T333 - Enhanced Debugging Logs (5 min)
+  - Add session vs local state comparison
+  - Log both `isPhoneVerified` and `sessionPhoneVerified`
+  - Add lead count and max leads to logs
+- [ ] 23.5: T334 - Comprehensive Flow Testing (30 min)
+  - Test all 8 test cases (TC-1 through TC-8)
+  - **CRITICAL:** TC-8 - Verify no re-verification after browser close
+  - Verify lead limit modal at 5 leads (not 3)
+  - Test session persistence across page refreshes
+- [ ] 23.6: TypeScript + Build Validation (10 min)
+  - Run `npx tsc --noEmit` (0 errors expected)
+  - Run `npm run build` (success expected)
+  - Check browser console (no errors/warnings)
+- [ ] 23.7: User Testing & Approval (20 min)
+  - Execute full test matrix with user scenarios
+  - Verify no regression in existing flows
+  - Get user approval before commit
+- [ ] 23.8: Atomic Commit (5 min)
+  - Write descriptive commit message
+  - Reference audit and implementation plan
+  - Push to remote branch
+
+**Phase 23 Completion Criteria:**
+✅ **Phase Complete When:**
+1. Users with 2+ verified leads can generate additional leads without seeing ContactVerificationModal
+2. Verification modal only shows ONCE during 2nd lead generation
+3. Lead limit modal correctly shows after 5th lead (not 3rd)
+4. Session state matches database state after verification
+5. No verification modal re-appears after page refresh/browser close
+6. All 8 test cases pass (especially TC-8: session persistence)
+
+---
 
 **Current State**:
 - ✅ LeadEditModal.tsx (245 lines) - Fully functional, needs backend

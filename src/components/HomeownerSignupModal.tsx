@@ -69,22 +69,18 @@ interface HomeownerSignupModalProps {
   onClose: () => void;
   onSuccess: () => void;
   onSwitchToSignIn?: () => void;
-  homeownerInfo?: { name: string; phone: string; address: string } | null; // 🆕 Pass contact info from HomeownersInfoForm
 }
 
 /**
  * HomeownerSignupModal - Redesigned to match InstallerSignupModal (SOT)
  * Consistent modal structure, styling, and form design
  * Zero hardcoded colors, uses semantic tokens only
- * 
- * Updated: Now accepts homeownerInfo to populate User.name and User.phone during registration
  */
 const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({ 
   isOpen, 
   onClose, 
   onSuccess,
-  onSwitchToSignIn,
-  homeownerInfo // 🆕 Receive contact info collected in HomeownersInfoForm
+  onSwitchToSignIn 
 }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -161,7 +157,7 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
     }
 
     try {
-      // Call the registration API with contact info from HomeownersInfoForm
+      // Call the registration API
       const response = await fetch('/api/auth/register/homeowner', {
         method: 'POST',
         headers: {
@@ -170,9 +166,6 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
-          name: homeownerInfo?.name, // 🆕 Pass name to populate User.name
-          phone: homeownerInfo?.phone, // 🆕 Pass phone to populate User.phone
-          address: homeownerInfo?.address, // 🆕 Pass address for future use
         }),
       });
 
@@ -351,7 +344,7 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
               <input
-                type={showPassword ?"text" :"password"}
+                type={showPassword ? "text" : "password"}
                 name="password"
                 placeholder="Password (min. 8 characters)"
                 value={formData.password}
@@ -384,7 +377,7 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
               <input
-                type={showPassword ?"text" :"password"}
+                type={showPassword ? "text" : "password"}
                 name="confirmPassword"
                 placeholder="Confirm Password"
                 value={formData.confirmPassword}
@@ -424,7 +417,7 @@ const HomeownerSignupModal: React.FC<HomeownerSignupModalProps> = ({
             Already have an account?{' '}
             <button
               onClick={onSwitchToSignIn}
-              className="text-primary hover:underline"
+              className="text-primary text-body hover:underline"
             >
               Sign In
             </button>

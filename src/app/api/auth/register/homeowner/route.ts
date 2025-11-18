@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     
     // Parse request body
     const body = await request.json();
-    const { email, password, name, phone, address } = body; // 🆕 Accept name, phone, address
+    const { email, password } = body; // Name/phone/address collected during 1st lead, not signup
 
     // ========================================================================
     // VALIDATION - EXTENDED SIGNUP (email, password, name, phone)
@@ -27,9 +27,9 @@ export async function POST(request: NextRequest) {
     
     // Phase 21: Make name field REQUIRED for all homeowner registrations
     // Check required fields (email, password, and name are mandatory)
-    if (!email || !password || !name) {
+    if (!email || !password) {
       return NextResponse.json(
-        { error:"Email, password, and name are required" },
+        { error:"Email and password are required" },
         { status: 400 }
       );
     }
@@ -63,24 +63,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Phase 21: Validate name (NOW REQUIRED, not optional)
-    if (name.trim().length < 2) {
-      return NextResponse.json(
-        { error:"Name must be at least 2 characters long" },
-        { status: 400 }
-      );
-    }
+    // Password complexity validation removed - simplified
 
     // 🆕 Validate phone format (optional but recommended - Australian format)
-    if (phone) {
-      const phoneRegex = /^(\+?61|0)[2-478](?:[ -]?[0-9]){8}$/;
-      if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
-        return NextResponse.json(
-          { error:"Invalid Australian phone number format. Expected format: 04XX XXX XXX or +61 4XX XXX XXX" },
-          { status: 400 }
-        );
-      }
-    }
 
     // ========================================================================
     // CHECK IF USER ALREADY EXISTS
@@ -117,8 +102,8 @@ export async function POST(request: NextRequest) {
         password: hashedPassword,
         role:"HOMEOWNER", // Set role as HOMEOWNER
         isActive: true,
-        name: name.trim(), // Phase 21: Name is now REQUIRED (not nullable)
-        phone: phone?.trim() || null, // 🆕 Store phone from HomeownersInfoForm
+        name: null, // ✅ NULL - will be filled during 1st lead generation
+        phone: null, // ✅ NULL - will be filled during 1st lead generation
         signupIp, // Phase 21: Capture IP at registration
         signupUserAgent, // Phase 21: Capture browser/device info
         // Note: address is not in User model - stored in Lead model instead
@@ -128,17 +113,17 @@ export async function POST(request: NextRequest) {
         name: true,
         email: true,
         role: true,
-        phone: true, // 🆕 Include phone in response
+        phone: true, // Include phone in response (will be null)
         createdAt: true,
       },
     });
 
-    // 🆕 Log successful registration with contact info
+    // ✅ Log successful registration (name/phone will be null until 1st lead)
     console.log('✅ [Registration] User created successfully:', {
       userId: user.id,
       email: user.email,
-      hasName: !!user.name,
-      hasPhone: !!user.phone,
+      hasName: !!user.name, // Will be false initially
+      hasPhone: !!user.phone, // Will be false initially
       role: user.role
     });
 
@@ -152,10 +137,10 @@ export async function POST(request: NextRequest) {
         message:"Account created successfully",
         user: {
           id: user.id,
-          name: user.name,
+          name: user.name, // Will be null
           email: user.email,
           role: user.role,
-          phone: user.phone, // 🆕 Include phone in response
+          phone: user.phone, // Will be null
         },
       },
       { status: 201 } // 201 Created

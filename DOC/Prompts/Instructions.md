@@ -4,7 +4,7 @@ commit all the changes to your local repository:
     git add .
     git commit -m "Your commit message"
 Push the changes to the remote repository:
-    git push origin your-branch-name: main-secondary
+    git push origin your-branch-name: flow-4-issue
 
     ***instruction***
     each time you make commits, you must update the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Prompts\gitstatus.md file with the latest commit information to keep track of changes effectively. with the commit id ,timestamp, and a brief description of the changes made in that commit.make sure the push has the excatly current versions, so that it can be restored if needed. 

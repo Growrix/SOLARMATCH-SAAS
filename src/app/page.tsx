@@ -43,9 +43,13 @@ const TagIcon = () => (
   </svg>
 );
 
+// ✅ Phase 23: Lead submission limits (matches backend MAX_LEAD_SUBMISSIONS_TOTAL setting)
+const MAX_LEADS = 5; // Users can submit up to 5 leads total
+
 export default function Home() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  // ✅ Phase 23 Fix 1: Import update function for session management
+  const { data: session, status, update: updateSession } = useSession();
   const [activeCalculator, setActiveCalculator] = useState<'quote' | 'rebate'>('quote');
   const [isQuoteOptionsModalOpen, setIsQuoteOptionsModalOpen] = useState(false);
   const [isHomeownersInfoFormOpen, setIsHomeownersInfoFormOpen] = useState(false);
@@ -112,10 +116,9 @@ export default function Home() {
               });
               setIsPhoneVerified(userData.phoneVerified || false);
               setUserPhoneNumber(userData.phoneNumber || session?.user?.phone || firstLeadPhone || '');
-              // Calculate remaining quota (default: 3 max leads)
-              const maxLeads = 3;
-              const remaining = Math.max(0, maxLeads - leadCount);
-              console.log('[Homepage useEffect] Quota calculated:', { leadCount, maxLeads, remaining });
+              // ✅ Phase 23 Fix 2: Calculate remaining quota (5 max leads)
+              const remaining = Math.max(0, MAX_LEADS - leadCount);
+              console.log('[Homepage useEffect] Quota calculated:', { leadCount, maxLeads: MAX_LEADS, remaining });
               setRemainingLeadQuota(remaining);
             } else {
               // Fallback when /api/user/me doesn't exist
@@ -123,9 +126,9 @@ export default function Home() {
               console.log('[Homepage useEffect] Session phoneVerified:', session?.user?.phoneVerified);
               setUserPhoneNumber(session?.user?.phone || firstLeadPhone || '');
               setIsPhoneVerified(session?.user?.phoneVerified || false);
-              const maxLeads = 3;
-              const remaining = Math.max(0, maxLeads - leadCount);
-              console.log('[Homepage useEffect] Fallback quota calculated:', { leadCount, maxLeads, remaining });
+              // ✅ Phase 23 Fix 2: Use MAX_LEADS constant instead of hardcoded 3
+              const remaining = Math.max(0, MAX_LEADS - leadCount);
+              console.log('[Homepage useEffect] Fallback quota calculated:', { leadCount, maxLeads: MAX_LEADS, remaining });
               setRemainingLeadQuota(remaining);
             }
           }
@@ -136,7 +139,7 @@ export default function Home() {
     };
 
     fetchUserLeadData();
-  }, [status, session]);
+  }, [status, session?.user?.id]); // ✅ Phase 23 Fix 3: Optimize dependency (only user ID, not entire session)
 
   // Captures quote data from the form and stores it pending authentication
   const handleQuoteCalculated = useCallback((data: any) => {
@@ -146,11 +149,14 @@ export default function Home() {
 
   // Handler for "Get Your Quotes" button - routes based on user state
   const handleProceedToDetailedQuote = () => {
+    // ✅ Phase 23 Fix 4: Enhanced logging for debugging session vs local state
     console.log('[handleProceedToDetailedQuote] Flow routing decision:', {
       status,
       userLeadCount,
-      isPhoneVerified,
+      isPhoneVerified, // Local state from /api/user/me or session
+      sessionPhoneVerified: session?.user?.phoneVerified, // Direct from session
       remainingLeadQuota,
+      maxLeads: MAX_LEADS,
       sessionUser: session?.user?.email,
     });
 
@@ -169,9 +175,9 @@ export default function Home() {
       return;
     }
 
-    // Flow 5: Lead limit reached (NO remaining quota) - block further requests
-    if (remainingLeadQuota <= 0) {
-      console.log('[Flow 5] Lead limit reached (0 remaining quota, ' + userLeadCount + ' leads used) → LeadLimitReachedModal');
+    // ✅ Phase 23 Fix 2: Lead limit reached (5 leads) - block further requests
+    if (userLeadCount >= MAX_LEADS) {
+      console.log('[Flow 5] Lead limit reached (' + userLeadCount + '/' + MAX_LEADS + ' leads used) → LeadLimitReachedModal');
       setIsLeadLimitReachedModalOpen(true);
       return;
     }
@@ -226,9 +232,9 @@ export default function Home() {
         return;
       }
       
-      // Flow 5: Lead limit reached (3 or more leads) - Block further requests
-      if (userLeadCount >= 3) {
-        console.log('Lead limit reached - showing LeadLimitReachedModal');
+      // ✅ Phase 23 Fix 2: Lead limit reached (5 leads) - Block further requests
+      if (userLeadCount >= MAX_LEADS) {
+        console.log('[Flow 5] Lead limit reached (' + userLeadCount + '/' + MAX_LEADS + ' leads) → LeadLimitReachedModal');
         setIsLeadLimitReachedModalOpen(true);
         return;
       }
@@ -385,6 +391,19 @@ export default function Home() {
     setPendingOTP(null);
     setIsPhoneVerified(true);
     
+    // ✅ Phase 23 Fix 1: CRITICAL - Update NextAuth session with verified status
+    try {
+      await updateSession({
+        user: {
+          ...session?.user,
+          phoneVerified: true,
+        },
+      });
+      console.log('[OTP Success] ✅ Session updated with phoneVerified: true');
+    } catch (error) {
+      console.error('[OTP Success] ❌ Failed to update session:', error);
+    }
+    
     // Refresh user lead data after verification
     if (status === 'authenticated' && session?.user?.id) {
       try {
@@ -394,7 +413,8 @@ export default function Home() {
           const leadCount = data.leads?.length || 0;
           console.log('[Homepage] Refreshed lead data after verification:', { leadCount });
           setUserLeadCount(leadCount);
-          setRemainingLeadQuota(Math.max(0, 3 - leadCount));
+          // ✅ Phase 23 Fix 2: Use MAX_LEADS instead of hardcoded 3
+          setRemainingLeadQuota(Math.max(0, MAX_LEADS - leadCount));
         }
       } catch (error) {
         console.error('[Homepage] Error refreshing lead data after verification:', error);
@@ -509,7 +529,8 @@ export default function Home() {
       if (leadCountResponse.ok) {
         const leadData = await leadCountResponse.json();
         setUserLeadCount(leadData.leads?.length || 0);
-        setRemainingLeadQuota(Math.max(0, 3 - (leadData.leads?.length || 0)));
+        // ✅ Phase 23 Fix 2: Use MAX_LEADS constant
+        setRemainingLeadQuota(Math.max(0, MAX_LEADS - (leadData.leads?.length || 0)));
       }
     } catch (error) {
       console.error('Error creating leads:', error);
@@ -561,7 +582,8 @@ export default function Home() {
         
         // Update user lead count
         setUserLeadCount(1);
-        setRemainingLeadQuota(2); // 3 max - 1 used = 2 remaining
+        // ✅ Phase 23 Fix 2: 5 max - 1 used = 4 remaining
+        setRemainingLeadQuota(MAX_LEADS - 1);
       } else {
         console.error('Lead submission error:', data.error);
         alert(data.error || 'Failed to submit lead request. Please try again.');
@@ -698,7 +720,6 @@ export default function Home() {
           onClose={() => setIsHomeownerSignupModalOpen(false)}
           onSuccess={handleHomeownerSignupSuccess}
           onSwitchToSignIn={() => setIsHomeownerSignupModalOpen(false)}
-          homeownerInfo={homeownerInfo} // 🆕 Pass contact info collected in HomeownersInfoForm
         />
       )}
 
