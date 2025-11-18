@@ -2000,7 +2000,7 @@ Now when the user has 0 lead and user already signedup, then show the first lead
 
 --------------------------------------------------------------------------
 
-lets work on the src/components/homeowner/LeadLimitReachedModal.tsx
+lets work on the src/components/homeowner/FirstQuoteSuccessModal.tsx
 
  modal to enhance the migration of UI. make sure to use the semantic approach. read the global css and use only semantic classes for icon,texts,buttons,main card, background card, nuemorphic classes etc.  check the main file and implimnet as per needed. 
 

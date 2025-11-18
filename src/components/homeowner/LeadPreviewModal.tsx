@@ -70,7 +70,7 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center px-4 py-8 animate-fade-in"
+      className="fixed inset-0 bg-background/95 backdrop-blur-sm z-modal flex items-center justify-center px-4 py-8 animate-fade-in"
       onClick={onClose}
     >
       <div 
@@ -89,7 +89,7 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="text-muted hover:text-foreground transition-colors p-2 rounded-lg"
+            className="text-icon hover:text-foreground transition-colors p-2 rounded-lg hover:bg-surface-hover"
             aria-label="Close"
           >
             <XIcon />
@@ -100,8 +100,8 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
         <div className="mb-6">
           <span className={`inline-flex items-center px-3 py-1 rounded-full text-body-small ${
             lead.status === 'APPROVED' ? 'bg-success/20 text-success' :
-            lead.status === 'PURCHASED' ? 'bg-primary/20 text-primary' :
-            'bg-slate-100 text-foreground'
+            lead.status === 'PURCHASED' ? 'bg-accent/20 text-accent' :
+            'bg-surface text-foreground'
           }`}>
             {lead.status.replace('_', ' ')}
           </span>
@@ -110,7 +110,7 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
         {/* Content Sections */}
         <div className="space-y-6">
           {/* Location Details */}
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="info-section rounded-lg p-4">
             <h3 className="text-heading-4 text-foreground mb-4">Location Details</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -129,7 +129,7 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
           </div>
 
           {/* Energy Usage */}
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="info-section rounded-lg p-4">
             <h3 className="text-heading-4 text-foreground mb-4">Energy Usage</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -148,7 +148,7 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
           </div>
 
           {/* Property Details */}
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="info-section rounded-lg p-4">
             <h3 className="text-heading-4 text-foreground mb-4">Property Details</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -191,7 +191,7 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
           </div>
 
           {/* System Preferences */}
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="info-section rounded-lg p-4">
             <h3 className="text-heading-4 text-foreground mb-4">System Preferences</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -228,7 +228,7 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
 
           {/* Battery Storage */}
           {data.batteryIncluded && (
-            <div className="bg-slate-50 rounded-lg p-4">
+            <div className="info-section rounded-lg p-4">
               <h3 className="text-heading-4 text-foreground mb-4">Battery Storage</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -275,7 +275,7 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
 
           {/* Additional Features */}
           {(data.includeEVCharging || data.includeSmartHome || data.includeGridServices || data.includeOptimizers || data.includeMicroinverters) && (
-            <div className="bg-slate-50 rounded-lg p-4">
+            <div className="info-section rounded-lg p-4">
               <h3 className="text-heading-4 text-foreground mb-4">Additional Features</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {data.includeEVCharging && (
@@ -314,7 +314,7 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
 
           {/* Equipment Preferences */}
           {(data.panelBrand || data.systemSizeOverride) && (
-            <div className="bg-slate-50 rounded-lg p-4">
+            <div className="info-section rounded-lg p-4">
               <h3 className="text-heading-4 text-foreground mb-4">Equipment Preferences</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {data.panelBrand && (
@@ -339,7 +339,7 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
 
           {/* Additional Notes */}
           {data.additionalNotes && (
-            <div className="bg-slate-50 rounded-lg p-4">
+            <div className="info-section rounded-lg p-4">
               <h3 className="text-heading-4 text-foreground mb-4">Additional Notes</h3>
               <p className="text-body text-foreground whitespace-pre-wrap">
                 {data.additionalNotes}
@@ -349,7 +349,7 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
 
           {/* Commercial Details */}
           {data.propertyType === 'commercial' && (
-            <div className="bg-slate-50 rounded-lg p-4">
+            <div className="info-section rounded-lg p-4">
               <h3 className="text-heading-4 text-foreground mb-4">Commercial Details</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {data.peakDemand && (
@@ -379,7 +379,7 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
           )}
 
           {/* Metadata */}
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="info-section rounded-lg p-4">
             <h3 className="text-heading-4 text-foreground mb-4">Request Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -402,7 +402,7 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
         <div className="mt-6 flex justify-end">
           <button
             onClick={onClose}
-            className="px-6 py-2.5 rounded-xl text-foreground-secondary bg-primary hover:bg-primary/90 transition-colors"
+            className="neu-btn px-6 py-2.5 rounded-xl"
           >
             Close
           </button>
