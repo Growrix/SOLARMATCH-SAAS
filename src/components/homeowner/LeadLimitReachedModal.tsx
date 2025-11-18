@@ -1,6 +1,8 @@
+
 'use client';
 
 import React from 'react';
+import Button from '@/components/ui/button';
 
 // --- Icon Components ---
 const XIcon = () => (
@@ -59,17 +61,18 @@ const LeadLimitReachedModal: React.FC<LeadLimitReachedModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center px-4 py-6 animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6 bg-black/50 backdrop-blur-sm animate-fade-in"
       onClick={handleBackdropClick}
     >
       <div
-        className="theme-card relative w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-slide-in-up"
+        className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-slide-in-up"
         onClick={(e) => e.stopPropagation()}
       >
+        <div className="card bg-surface shadow-neu-outset-md text-foreground">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-muted hover:text-muted transition-colors z-10"
+          className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors z-10"
           aria-label="Close"
         >
           <XIcon />
@@ -81,13 +84,13 @@ const LeadLimitReachedModal: React.FC<LeadLimitReachedModalProps> = ({
           <h2 className="text-heading-1 text-foreground mt-4 mb-2">
             Quote Request Limit Reached
           </h2>
-          <p className="text-muted text-center max-w-lg">
+          <p className="text-muted-foreground text-center max-w-lg">
             You&apos;ve reached your maximum number of free quote requests. Contact us to request additional quotes.
           </p>
         </div>
 
         {/* Usage Card */}
-        <div className="mx-6 mb-6 p-6 bg-warning/10 border border-warning rounded-xl">
+        <div className="mx-6 mb-6 p-6 card bg-warning/10 border border-warning">
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-3">
               <BarChartIcon />
@@ -95,7 +98,7 @@ const LeadLimitReachedModal: React.FC<LeadLimitReachedModalProps> = ({
                 <h3 className="text-heading-4 text-foreground mb-1">
                   Quote Usage
                 </h3>
-                <p className="text-muted text-body-small">
+                <p className="text-muted-foreground text-body-small">
                   All available quote requests have been used
                 </p>
               </div>
@@ -104,18 +107,18 @@ const LeadLimitReachedModal: React.FC<LeadLimitReachedModalProps> = ({
               <div className="text-heading-1 text-warning">
                 {usedQuotes}/{totalQuoteLimit}
               </div>
-              <p className="text-body-small text-muted">quotes used</p>
+              <p className="text-body-small text-muted-foreground">quotes used</p>
             </div>
           </div>
         </div>
 
         {/* Info Section */}
-        <div className="mx-6 mb-6 p-6 bg-surface border border-border rounded-xl">
+        <div className="mx-6 mb-6 p-6 card bg-surface border border-border">
           <h3 className="text-heading-4 text-foreground mb-4 flex items-center gap-2">
             <BarChartIcon />
             What happens next?
           </h3>
-          <ul className="space-y-3 text-muted">
+          <ul className="space-y-3 text-muted-foreground">
             <li className="flex items-start gap-2">
               <span className="text-primary mt-1">•</span>
               <span>Review the quotes you&apos;ve already received from installers</span>
@@ -137,30 +140,34 @@ const LeadLimitReachedModal: React.FC<LeadLimitReachedModalProps> = ({
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-3 mx-6 mb-6">
-          <button
+          <Button
             onClick={onClose}
-            className="flex-1 px-6 py-3 bg-surface border border-border rounded-xl text-foreground hover:bg-surface-hover transition-colors shadow-neu-inset"
+            variant="primary"
+            className="flex-1"
           >
             Close
-          </button>
-          <button
+          </Button>
+          {/* Use semantic Button component instead of legacy class */}
+          <Button
             onClick={handleContactSupport}
-            className="flex-1 px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:opacity-90 transition-opacity shadow-neu-outset flex items-center justify-center gap-2"
+            variant="secondary"
+            className="flex-1 flex items-center justify-center gap-2"
           >
             <MailIcon />
             Contact Support
-          </button>
+          </Button>
         </div>
 
         {/* Footer Note */}
-        <div className="mx-6 mb-6 p-4 bg-primary/10 border border-primary/20 rounded-xl">
-          <p className="text-body-small text-muted text-center">
+        <div className="mx-6 mb-6 p-4 card bg-primary/10 border border-primary/20">
+          <p className="text-body-small text-muted-foreground text-center">
             <strong className="text-foreground">Need more quotes?</strong> Our team is here to help! 
             Email us at{' '}
             <a href="mailto:support@solarmatch.com.au" className="text-primary hover:underline">
               support@solarmatch.com.au
             </a>
           </p>
+        </div>
         </div>
       </div>
     </div>

@@ -1,4 +1,6 @@
-﻿'use client';
+﻿
+'use client';
+import Button from '@/components/ui/button';
 
 import { useState, useEffect } from 'react';
 
@@ -162,9 +164,9 @@ export default function QuoteTypeDistributionModal({
                   <button
                     key={num}
                     onClick={() => handleCallVisitChange(num)}
-                    className={`w-12 h-12 rounded-lg transition-colors ${
+                    className={`w-12 h-12 rounded-lg font-semibold transition-colors ${
                       callVisitCount === num
-                        ? 'bg-primary text-foreground-secondary shadow-md scale-105'
+                        ? 'bg-white text-foreground-inverted shadow-md scale-105'
                         : 'bg-surface shadow-neu-inset text-foreground hover:shadow-neu-outset'
                     }`}
                   >
@@ -198,9 +200,9 @@ export default function QuoteTypeDistributionModal({
                   <button
                     key={num}
                     onClick={() => handleWrittenQuoteChange(num)}
-                    className={`w-12 h-12 rounded-lg transition-colors ${
+                    className={`w-12 h-12 rounded-lg font-semibold transition-colors ${
                       writtenQuoteCount === num
-                        ? 'bg-primary text-foreground-secondary shadow-md scale-105'
+                        ? 'bg-white text-foreground-inverted shadow-md scale-105'
                         : 'bg-surface shadow-neu-inset text-foreground hover:shadow-neu-outset'
                     }`}
                   >
@@ -238,9 +240,9 @@ export default function QuoteTypeDistributionModal({
                     key={num}
                     onClick={() => handleBiddingChange(num)}
                     disabled={userAlreadyHasBiddingLead && num === 1}
-                    className={`w-12 h-12 rounded-lg transition-colors ${
+                    className={`w-12 h-12 rounded-lg font-semibold transition-colors ${
                       biddingCount === num
-                        ? 'bg-warning text-foreground-secondary shadow-md scale-105'
+                        ? 'bg-white text-foreground-inverted shadow-md scale-105'
                         : userAlreadyHasBiddingLead && num === 1
                         ? 'bg-muted text-muted-foreground cursor-not-allowed opacity-50'
                         : 'bg-surface shadow-neu-inset text-foreground hover:shadow-neu-outset'
@@ -308,23 +310,21 @@ export default function QuoteTypeDistributionModal({
 
         {/* Footer */}
         <div className="sticky bottom-0 bg-surface border-t border-border px-6 py-4 flex gap-3 justify-end">
-          <button
+          <Button
             onClick={onClose}
-            className="px-6 py-2.5 rounded-lg text-foreground bg-surface shadow-neu-inset hover:shadow-neu-outset transition-colors"
+            variant="secondary"
+            className="px-6 py-2.5 rounded-lg"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleSubmit}
             disabled={!isValid}
-            className={`px-6 py-2.5 rounded-lg transition-colors ${
-              isValid
-                ? 'bg-primary hover:bg-primary/90 text-foreground-secondary shadow-md hover:shadow-lg'
-                : 'bg-muted text-muted-foreground cursor-not-allowed opacity-50'
-            }`}
+            variant="primary"
+            className="px-6 py-2.5 rounded-lg"
           >
             Confirm Selection
-          </button>
+          </Button>
         </div>
       </div>
     </div>

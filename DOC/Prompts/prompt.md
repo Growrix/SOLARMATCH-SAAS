@@ -2000,8 +2000,9 @@ Now when the user has 0 lead and user already signedup, then show the first lead
 
 --------------------------------------------------------------------------
 
-lets work on the src/components/homeowner/ContactVerificationModal.tsx
- modal to enhance the migration of UI. make sure to use the semantic approach. read the global css and use only semantic classes for icon,texts,buttons,main card, background card, nuemorphic classes etc.  check the screenshot and the main file and implimnet as per needed. 
+lets work on the src/components/homeowner/LeadLimitReachedModal.tsx
+
+ modal to enhance the migration of UI. make sure to use the semantic approach. read the global css and use only semantic classes for icon,texts,buttons,main card, background card, nuemorphic classes etc.  check the main file and implimnet as per needed. 
 
 ***strict rules*** no hardcoded ui , no inline styles, only semantic classes from the global css. always test everything after making changes. do to attempt blindly if you dont have clear picture. never touch any backend or UX even. only work with the UI
 

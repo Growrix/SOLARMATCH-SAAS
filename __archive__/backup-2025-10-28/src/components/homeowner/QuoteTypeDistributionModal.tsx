@@ -158,19 +158,24 @@ export default function QuoteTypeDistributionModal({
                 Count:
               </label>
               <div className="flex gap-2">
-                {[0, 1, 2, 3, 4].map((num) => (
-                  <button
-                    key={num}
-                    onClick={() => handleCallVisitChange(num)}
-                    className={`w-12 h-12 rounded-lg font-semibold transition-all ${
-                      callVisitCount === num
-                        ? 'bg-emerald-600 text-white shadow-md scale-105'
-                        : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
-                    }`}
-                  >
-                    {num}
-                  </button>
-                ))}
+                {[0, 1, 2, 3, 4].map((num) => {
+                  const isActive = callVisitCount === num;
+                  let btnClass = '';
+                  if (isActive) {
+                    btnClass = 'bg-white text-foreground-inverted font-bold shadow-md scale-105';
+                  } else {
+                    btnClass = 'bg-slate-100 dark:bg-slate-700 text-muted-foreground dark:text-muted-foreground hover:bg-slate-200 dark:hover:bg-slate-600';
+                  }
+                  return (
+                    <button
+                      key={num}
+                      onClick={() => handleCallVisitChange(num)}
+                      className={`w-12 h-12 rounded-lg font-semibold transition-all ${btnClass}`}
+                    >
+                      {num}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -194,19 +199,24 @@ export default function QuoteTypeDistributionModal({
                 Count:
               </label>
               <div className="flex gap-2">
-                {[0, 1, 2, 3, 4].map((num) => (
-                  <button
-                    key={num}
-                    onClick={() => handleWrittenQuoteChange(num)}
-                    className={`w-12 h-12 rounded-lg font-semibold transition-all ${
-                      writtenQuoteCount === num
-                        ? 'bg-emerald-600 text-white shadow-md scale-105'
-                        : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
-                    }`}
-                  >
-                    {num}
-                  </button>
-                ))}
+                {[0, 1, 2, 3, 4].map((num) => {
+                  const isActive = writtenQuoteCount === num;
+                  let btnClass = '';
+                  if (isActive) {
+                    btnClass = 'bg-white text-foreground-inverted font-bold shadow-md scale-105';
+                  } else {
+                    btnClass = 'bg-slate-100 dark:bg-slate-700 text-muted-foreground dark:text-muted-foreground hover:bg-slate-200 dark:hover:bg-slate-600';
+                  }
+                  return (
+                    <button
+                      key={num}
+                      onClick={() => handleWrittenQuoteChange(num)}
+                      className={`w-12 h-12 rounded-lg font-semibold transition-all ${btnClass}`}
+                    >
+                      {num}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -233,22 +243,27 @@ export default function QuoteTypeDistributionModal({
                 Count:
               </label>
               <div className="flex gap-2">
-                {[0, 1].map((num) => (
-                  <button
-                    key={num}
-                    onClick={() => handleBiddingChange(num)}
-                    disabled={userAlreadyHasBiddingLead && num === 1}
-                    className={`w-12 h-12 rounded-lg font-semibold transition-all ${
-                      biddingCount === num
-                        ? 'bg-amber-600 text-white shadow-md scale-105'
-                        : userAlreadyHasBiddingLead && num === 1
-                        ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
-                        : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
-                    }`}
-                  >
-                    {num}
-                  </button>
-                ))}
+                {[0, 1].map((num) => {
+                  const isActive = biddingCount === num;
+                  let btnClass = '';
+                  if (isActive) {
+                    btnClass = 'bg-white text-foreground-inverted font-bold shadow-md scale-105';
+                  } else if (userAlreadyHasBiddingLead && num === 1) {
+                    btnClass = 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed';
+                  } else {
+                    btnClass = 'bg-slate-100 dark:bg-slate-700 text-muted-foreground dark:text-muted-foreground hover:bg-slate-200 dark:hover:bg-slate-600';
+                  }
+                  return (
+                    <button
+                      key={num}
+                      onClick={() => handleBiddingChange(num)}
+                      disabled={userAlreadyHasBiddingLead && num === 1}
+                      className={`w-12 h-12 rounded-lg font-semibold transition-all ${btnClass}`}
+                    >
+                      {num}
+                    </button>
+                  );
+                })}
               </div>
               {userAlreadyHasBiddingLead && (
                 <p className="text-xs text-red-600 dark:text-red-400 ml-2">

@@ -1678,4 +1678,19 @@ body {
   @apply w-9 h-9 sm:w-10 sm:h-10 rounded-full;
 }
 
+/* ============================================
+   SEMANTIC TEXT CLASSES
+   ============================================ */
+
+/* Inverted foreground text - dark on light backgrounds (always visible on white) */
+.text-foreground-inverted {
+  @apply text-slate-900;
+}
+
+:root.theme-dark .text-foreground-inverted,
+:root.theme-light .text-foreground-inverted,
+:root.theme-purple .text-foreground-inverted {
+  color: rgb(15 23 42); /* slate-900 - always dark for white backgrounds */
+}
+
 

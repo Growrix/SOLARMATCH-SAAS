@@ -14,6 +14,7 @@ import LeadPreviewModal from '@/components/homeowner/LeadPreviewModal';
 import LeadLimitReachedModal from '@/components/homeowner/LeadLimitReachedModal';
 import ContactVerificationModal from '@/components/homeowner/ContactVerificationModal';
 import SimplifiedQuoteFormModal from '@/components/homeowner/SimplifiedQuoteFormModal';
+import QuoteTypeDistributionModal from '@/components/homeowner/QuoteTypeDistributionModal';
 
 // Installer Modals
 import InstallerSignupModal from '@/components/InstallerSignupModal';
@@ -677,6 +678,26 @@ export default function ComponentLibraryTable() {
 
   // HOMEOWNER MODALS CATEGORY - Modal components used by homeowners
   const homeownerModalsPatterns: ComponentPattern[] = [
+        {
+          name: 'QuoteTypeDistributionModal',
+          description: 'Modal for selecting quote type distribution within remaining quota',
+          className: 'fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4',
+          usageCount: 1,
+          usedIn: ['Homeowner Dashboard'],
+          example: (
+            <div className="bg-background p-4 rounded-xl shadow-neu-outset">
+              <p className="text-foreground mb-2">src/components/homeowner/QuoteTypeDistributionModal.tsx</p>
+              <p className="text-muted-foreground text-caption mb-3">Quote type distribution modal</p>
+              <Button
+                onClick={() => setOpenModal('quoteTypeDistribution')}
+                variant="secondary"
+                className="w-auto"
+              >
+                Preview Modal
+              </Button>
+            </div>
+          ),
+        },
     {
       name: 'HomeownerSignupModal',
       description: 'Homeowner registration modal with form validation',
@@ -1158,6 +1179,15 @@ export default function ComponentLibraryTable() {
         onClose={() => setOpenModal(null)}
         usedQuotes={5}
         totalQuoteLimit={5}
+      />
+
+      <QuoteTypeDistributionModal
+        isOpen={openModal === 'quoteTypeDistribution'}
+        onClose={() => setOpenModal(null)}
+        onSubmit={() => setOpenModal(null)}
+        remainingQuota={4}
+        quoteData={null}
+        userAlreadyHasBiddingLead={false}
       />
 
       <ContactVerificationModal
