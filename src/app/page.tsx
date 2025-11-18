@@ -739,7 +739,7 @@ export default function Home() {
           onVerifyContact={handleVerifyContactFromFirstQuote}
           quoteType={selectedQuoteType === 'call_visit' ? 'CALL_VISIT' : 'WRITTEN_QUOTE'}
           remainingQuotes={remainingLeadQuota}
-          totalQuoteLimit={3}
+          totalQuoteLimit={MAX_LEADS}
         />
       )}
 
@@ -778,7 +778,7 @@ export default function Home() {
           isOpen={isLeadLimitReachedModalOpen}
           onClose={() => setIsLeadLimitReachedModalOpen(false)}
           usedQuotes={userLeadCount}
-          totalQuoteLimit={3}
+          totalQuoteLimit={MAX_LEADS}
         />
       )}
 
