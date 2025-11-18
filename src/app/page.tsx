@@ -69,6 +69,7 @@ export default function Home() {
   const [isPhoneVerified, setIsPhoneVerified] = useState<boolean>(false);
   const [remainingLeadQuota, setRemainingLeadQuota] = useState<number>(0);
   const [userPhoneNumber, setUserPhoneNumber] = useState<string>('');
+  const [hasBiddingLead, setHasBiddingLead] = useState<boolean>(false);
 
   // Ensure page starts at top on mount
   useEffect(() => {
@@ -102,6 +103,9 @@ export default function Home() {
               }))
             });
             setUserLeadCount(leadCount);
+            // Detect if user already has a BIDDING lead (quota is max 1)
+            const alreadyHasBidding = (data.leads || []).some((l: any) => l.quoteType === 'BIDDING');
+            setHasBiddingLead(alreadyHasBidding);
             
             // Extract phone number from first lead as additional fallback
             const firstLeadPhone = data.leads?.[0]?.phoneNumber || '';
@@ -498,6 +502,8 @@ export default function Home() {
               location: pendingQuoteData?.location,
               state: pendingQuoteData?.state,
               energyBill: pendingQuoteData?.electricityValue || pendingQuoteData?.energyBill || 0,
+              // Include propertyAddress when available for better prefill
+              propertyAddress: pendingQuoteData?.address || pendingQuoteData?.propertyAddress,
               propertyType: pendingQuoteData?.propertyType || 'residential',
               roofType: pendingQuoteData?.roofType,
               budgetRange: pendingQuoteData?.budgetRange,
@@ -506,7 +512,7 @@ export default function Home() {
               batteryCapacity: pendingQuoteData?.batteryCapacity,
               timeframe: pendingQuoteData?.timeframe,
               additionalNotes: pendingQuoteData?.additionalNotes,
-              billType: pendingQuoteData?.billType || 'quarterly',
+              billType: pendingQuoteData?.billType || pendingQuoteData?.electricityUsageType || 'quarterly',
               quoteData: pendingQuoteData
             })
           });
@@ -514,6 +520,21 @@ export default function Home() {
           if (!response.ok) {
             const data = await response.json();
             console.error('Lead creation failed:', data);
+            // Mirror dashboard-friendly error handling
+            if (response.status === 403 && data.requiresVerification) {
+              alert('Phone verification required. Please verify your phone number to submit more quotes.');
+              setIsContactVerificationModalOpen(true);
+              throw new Error('Verification required');
+            }
+            if (response.status === 403 && data.limitReached) {
+              alert(`You have reached your quote limit (${data.quoteLimit} total).`);
+              throw new Error('Limit reached');
+            }
+            // Current API returns 500 with details when bidding quota exceeded
+            if ((data.details || data.error || '').toString().includes('BIDDING quota exceeded')) {
+              alert('You have already submitted a BIDDING lead. Only 1 bidding lead is allowed per homeowner.');
+              throw new Error('Bidding quota exhausted');
+            }
             throw new Error(data.error || 'Failed to create lead');
           }
         }
@@ -525,12 +546,14 @@ export default function Home() {
       setPendingQuoteData(null);
       
       // Refresh user lead count
-      const leadCountResponse = await fetch('/api/leads?userId=' + session?.user?.id);
+      const leadCountResponse = await fetch('/api/leads');
       if (leadCountResponse.ok) {
         const leadData = await leadCountResponse.json();
         setUserLeadCount(leadData.leads?.length || 0);
         // ✅ Phase 23 Fix 2: Use MAX_LEADS constant
         setRemainingLeadQuota(Math.max(0, MAX_LEADS - (leadData.leads?.length || 0)));
+        const alreadyHasBidding = (leadData.leads || []).some((l: any) => l.quoteType === 'BIDDING');
+        setHasBiddingLead(alreadyHasBidding);
       }
     } catch (error) {
       console.error('Error creating leads:', error);
@@ -769,7 +792,7 @@ export default function Home() {
           onClose={() => setIsQuoteTypeDistributionModalOpen(false)}
           onSubmit={handleQuoteDistributionSubmit}
           remainingQuota={remainingLeadQuota}
-          userAlreadyHasBiddingLead={false} // Homepage flow doesn't support bidding
+          userAlreadyHasBiddingLead={hasBiddingLead}
         />
       )}
 

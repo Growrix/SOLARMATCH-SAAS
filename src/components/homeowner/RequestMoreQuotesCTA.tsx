@@ -8,6 +8,7 @@ interface RequestMoreQuotesCTAProps {
   requiresVerification: boolean;
   onRequest: () => void;
   onVerifyContact: () => void;
+  onLimitReached?: () => void; // New: open limit reached modal
   isProcessing?: boolean;
   className?: string;
 }
@@ -19,6 +20,7 @@ const RequestMoreQuotesCTA: React.FC<RequestMoreQuotesCTAProps> = ({
   requiresVerification,
   onRequest,
   onVerifyContact,
+  onLimitReached,
   isProcessing = false,
   className = '',
 }) => {
@@ -111,8 +113,20 @@ const RequestMoreQuotesCTA: React.FC<RequestMoreQuotesCTAProps> = ({
           </p>
           <Button
             type="button"
-            onClick={hasRemaining ? onRequest : undefined}
-            disabled={!hasRemaining || isProcessing}
+            onClick={() => {
+              if (isProcessing) return;
+              if (hasRemaining) {
+                onRequest();
+              } else {
+                if (onLimitReached) {
+                  onLimitReached();
+                } else {
+                  // Fallback: dispatch global event if callback not provided
+                  window.dispatchEvent(new CustomEvent('leadLimitReached'));
+                }
+              }
+            }}
+            disabled={isProcessing}
             variant="secondary"
             className="w-full sm:w-auto px-6 py-2.5"
           >

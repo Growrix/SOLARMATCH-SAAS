@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Button from '@/components/ui/button';
 import { useSession } from 'next-auth/react';
 
 interface ContactVerificationModalProps {
@@ -255,13 +256,14 @@ const ContactVerificationModal: React.FC<ContactVerificationModalProps> = ({
             </p>
           )}
 
-          <button
+          <Button
             type="submit"
             disabled={isSubmitting || retrySeconds > 0}
-            className="w-full rounded-xl bg-primary px-4 py-3 text-label text-foreground-secondary shadow-sm transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+            variant="secondary"
+            className="w-full rounded-xl px-4 py-3 text-label"
           >
             {isSubmitting ? 'Sending code…' : 'Send verification code'}
-          </button>
+          </Button>
         </form>
       </div>
     </div>

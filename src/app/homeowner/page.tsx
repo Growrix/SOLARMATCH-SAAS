@@ -83,7 +83,9 @@ export default function HomeownerHomePage() {
             <div className="flex justify-center mb-12" style={{ animation: 'fade-in-up 0.8s ease-out 0.4s both' }}>
               <button 
                 onClick={() => router.push('/homeowner/dashboard')}
-                className="bg-primary text-foreground-secondary px-8 py-4 rounded-xl text-heading-4 hover:bg-primary/90 transition-colors transform active:scale-95 flex items-center justify-center space-x-2 shadow-xl"
+                as={Button}
+                variant="secondary"
+                className="px-8 py-4 rounded-xl text-heading-4 w-full flex items-center justify-center space-x-2"
               >
                 <span>Go to Dashboard</span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><line x1="5" x2="19" y1="12" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>

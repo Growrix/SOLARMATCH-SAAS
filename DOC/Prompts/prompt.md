@@ -1985,3 +1985,23 @@ Now when the user has 0 lead and user already signedup, then show the first lead
 -----------------------------------------------------------------------------------
 
 
+***Bidding lead Generation issue*** Main focus should be on the bidding lead generation from the QuoteDistributionModal only.
+
+
+***QuoteDistributionModal issue*** There are few issues with it :
+
+1. while generating bidding leads from the QuoteDistributionModal , after selecting the bidding quote type and clicking on the generate lead button, it is not generating the bidding lead, but it is counting the lead. 
+2. The homepage leadgeneration flow is not generating bidding leads from the QuoteDistributionModal. but the dashboard leadgeneration flow is generating bidding leads from the QuoteDistributionModal. You can just follow the dashboard QuoteDistributionModal logic/condition/flow to fix the homepage QuoteDistributionModal flow for bidding leads.
+3. As the quotedistributionmodal is used in multiple places now, so make sure to keep everything aligned and working fine in all the places after fixing the bidding lead generation issue.
+
+***instructions*** Audit and understand the current flows and data flow. audit the relevant fronend and backend in deailed and create a comprhensive audit report of the issues found and identify the gaps between the existing flows and the requested flows and the plan to fix and impliment them. after that start fixing the issues step by step. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on. create the audit report under this folder D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\AUDIT-REPORTS\LEAD-GENERATION-SYSTEM. And create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\tasks.md file for this task and start implimenting the changes step by step as per the plan you created.
+
+***strict rules*** never spoil any other flows and functionality while working on these modals and flows. All the existing lead generation flows should work as it is working now. only work on the new area that mentioned. always test everything after making changes. do to attempt blindly if you dont have clear picture. Do not commit or push until I ask. focus on the main issues.
+
+--------------------------------------------------------------------------
+
+lets work on the src/components/homeowner/ContactVerificationModal.tsx
+ modal to enhance the migration of UI. make sure to use the semantic approach. read the global css and use only semantic classes for icon,texts,buttons,main card, background card, nuemorphic classes etc.  check the screenshot and the main file and implimnet as per needed. 
+
+***strict rules*** no hardcoded ui , no inline styles, only semantic classes from the global css. always test everything after making changes. do to attempt blindly if you dont have clear picture. never touch any backend or UX even. only work with the UI
+

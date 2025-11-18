@@ -18,6 +18,7 @@ import MessagingModal from '@/components/MessagingModal';
 import ProfileManagement from '@/components/ProfileManagement';
 import VerifiedBadge from '@/components/VerifiedBadge';
 import RequestMoreQuotesCTA from '@/components/homeowner/RequestMoreQuotesCTA';
+import LeadLimitReachedModal from '@/components/homeowner/LeadLimitReachedModal';
 import ContactVerificationModal from '@/components/homeowner/ContactVerificationModal';
 import OTPVerificationModal from '@/components/OTPVerificationModal';
 import FirstQuoteSuccessModal from '@/components/homeowner/FirstQuoteSuccessModal';
@@ -334,6 +335,7 @@ interface DashboardOverviewContentProps {
   onEditLead: (lead: RecentLeadSummary) => void;
   onPreviewLead: (lead: RecentLeadSummary) => void;
   onCancelLead: (lead: RecentLeadSummary) => void;
+  onLimitReached?: () => void;
 }
 
 const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
@@ -345,6 +347,7 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
   onEditLead,
   onPreviewLead,
   onCancelLead,
+  onLimitReached,
 }) => {
   const StatCard: React.FC<{ 
     icon: React.ReactNode; 
@@ -473,6 +476,7 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
         requiresVerification={summary.requiresVerification}
         onRequest={onRequestMoreQuotes}
         onVerifyContact={onVerifyContact}
+        onLimitReached={onLimitReached}
         className="mb-6"
       />
 
@@ -498,7 +502,7 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
           </div>
           <div className="text-right">
             <div className="text-heading-1 text-warning">
-              {summary.biddingQuotaRemaining ?? 0} / 1
+              {summary.biddingLeadsSubmitted ?? 0} / 1
             </div>
             <div className="text-caption text-muted-foreground mt-1">
               {(summary.biddingQuotaRemaining ?? 0) === 1 ? 'Available' : 'Used'}
@@ -729,6 +733,7 @@ export default function HomeownerDashboardPage() {
   const [editLeadModalOpen, setEditLeadModalOpen] = useState(false);
   const [previewLeadModalOpen, setPreviewLeadModalOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<RecentLeadSummary | null>(null);
+  const [isLeadLimitModalOpen, setIsLeadLimitModalOpen] = useState(false);
   
   // Sidebar collapse state
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -800,6 +805,13 @@ export default function HomeownerDashboardPage() {
   useEffect(() => {
     fetchDashboardSummary();
   }, [fetchDashboardSummary]);
+
+  // Listen for global lead limit reached events (fallback trigger from CTA button)
+  useEffect(() => {
+    const handler = () => setIsLeadLimitModalOpen(true);
+    window.addEventListener('leadLimitReached', handler);
+    return () => window.removeEventListener('leadLimitReached', handler);
+  }, []);
 
   // Debug: Log modal states
   useEffect(() => {
@@ -1119,6 +1131,7 @@ export default function HomeownerDashboardPage() {
             onEditLead={handleEditLead}
             onPreviewLead={handlePreviewLead}
             onCancelLead={handleCancelLead}
+            onLimitReached={() => setIsLeadLimitModalOpen(true)}
           />
         );
       case 'Call/Visit Quotes':
@@ -1144,6 +1157,7 @@ export default function HomeownerDashboardPage() {
             onEditLead={handleEditLead}
             onPreviewLead={handlePreviewLead}
             onCancelLead={handleCancelLead}
+            onLimitReached={() => setIsLeadLimitModalOpen(true)}
           />
         );
     }
@@ -1367,6 +1381,15 @@ export default function HomeownerDashboardPage() {
         onVerificationSuccess={handleOTPVerificationSuccess}
         onResendOTP={handleResendOTP}
       />
+
+      {isLeadLimitModalOpen && (
+        <LeadLimitReachedModal
+          isOpen={isLeadLimitModalOpen}
+          onClose={() => setIsLeadLimitModalOpen(false)}
+          usedQuotes={dashboardSummary?.totalSubmitted || 0}
+          totalQuoteLimit={dashboardSummary?.quoteLimit || 0}
+        />
+      )}
 
       {/* First Quote Success Modal */}
       {firstQuoteSuccessData && (

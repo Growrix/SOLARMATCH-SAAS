@@ -392,15 +392,14 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
         </div>
 
         {/* Verify Button */}
-        <button
+        <Button
           onClick={() => handleVerify()}
           disabled={isVerifying || code.some(d => !d) || isExpired}
-          className="w-full bg-primary text-foreground-secondary py-3 px-4 rounded-xl 
-            hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed 
-       transition-colors"
+          variant="secondary"
+          className="w-full"
         >
           {isVerifying ? 'Verifying...' : 'Verify Code'}
-        </button>
+        </Button>
 
         {/* Help Text */}
         <p className="text-caption text-muted text-center mt-4">

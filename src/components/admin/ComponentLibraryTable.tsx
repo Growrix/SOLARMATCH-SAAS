@@ -2,6 +2,37 @@
 
 import React, { useState } from 'react';
 
+// Import all modal components
+// Admin Modals
+import InstallerSelectorModal from '@/components/admin/InstallerSelectorModal';
+
+// Homeowner Modals
+import HomeownerSignupModal from '@/components/HomeownerSignupModal';
+import HomeownerSignInModal from '@/components/HomeownerSignInModal';
+import FirstQuoteSuccessModal from '@/components/homeowner/FirstQuoteSuccessModal';
+import LeadPreviewModal from '@/components/homeowner/LeadPreviewModal';
+import LeadLimitReachedModal from '@/components/homeowner/LeadLimitReachedModal';
+import ContactVerificationModal from '@/components/homeowner/ContactVerificationModal';
+import SimplifiedQuoteFormModal from '@/components/homeowner/SimplifiedQuoteFormModal';
+
+// Installer Modals
+import InstallerSignupModal from '@/components/InstallerSignupModal';
+import InstallerSignInModal from '@/components/InstallerSignInModal';
+
+import InstallerEligibilityModal from '@/components/InstallerEligibilityModal';
+import InstallerMessagingModal from '@/components/InstallerMessagingModal';
+import QuoteBuilderModal from '@/components/QuoteBuilderModal';
+
+import Button from '@/components/ui/button';
+
+// Shared Modals
+import OTPVerificationModal from '@/components/OTPVerificationModal';
+import QuoteOptionsModal from '@/components/QuoteOptionsModal';
+import NewQuoteRequestModal from '@/components/NewQuoteRequestModal';
+import MessagingModal from '@/components/MessagingModal';
+import DetailedInformationModal from '@/components/DetailedInformationModal';
+import DetailedQuoteAuthModal from '@/components/DetailedQuoteAuthModal';
+
 /**
  * Component Library Table
  * 
@@ -24,6 +55,9 @@ export default function ComponentLibraryTable() {
   const [activeCategory, setActiveCategory] = useState('forms');
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Modal state management
+  const [openModal, setOpenModal] = useState<string | null>(null);
+
   const categories = [
     { id: 'forms', label: 'Forms', icon: '📝' },
     { id: 'buttons', label: 'Buttons', icon: '🔘' },
@@ -32,6 +66,9 @@ export default function ComponentLibraryTable() {
     { id: 'badges', label: 'Badges', icon: '🏷️' },
     { id: 'typography', label: 'Typography', icon: '📄' },
     { id: 'shadows', label: 'Shadows', icon: '🌑' },
+    { id: 'admin-modals', label: 'Admin Modals', icon: '🔐' },
+    { id: 'homeowner-modals', label: 'Homeowner Modals', icon: '🏠' },
+    { id: 'installer-modals', label: 'Installer Modals', icon: '⚡' },
   ];
 
   // FORMS CATEGORY - Real patterns from codebase
@@ -614,6 +651,278 @@ export default function ComponentLibraryTable() {
     },
   ];
 
+  // ADMIN MODALS CATEGORY - Modal components used by admin users
+  const adminModalsPatterns: ComponentPattern[] = [
+    {
+      name: 'InstallerSelectorModal',
+      description: 'Modal for selecting installers to assign to leads',
+      className: 'fixed inset-0 z-50 overflow-y-auto',
+      usageCount: 1,
+      usedIn: ['Admin Lead Management'],
+      example: (
+        <div className="bg-background p-4 rounded-xl shadow-neu-outset">
+          <p className="text-foreground mb-2">src/components/admin/InstallerSelectorModal.tsx</p>
+          <p className="text-muted-foreground text-caption mb-3">Installer assignment modal for admin</p>
+          <Button
+            onClick={() => setOpenModal('installerSelector')}
+            variant="secondary"
+            className="w-auto"
+          >
+            Preview Modal
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
+  // HOMEOWNER MODALS CATEGORY - Modal components used by homeowners
+  const homeownerModalsPatterns: ComponentPattern[] = [
+    {
+      name: 'HomeownerSignupModal',
+      description: 'Homeowner registration modal with form validation',
+      className: 'fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center px-4 py-20 animate-fade-in',
+      usageCount: 1,
+      usedIn: ['Homeowner Authentication'],
+      example: (
+        <div className="bg-background p-4 rounded-xl shadow-neu-outset">
+          <p className="text-foreground mb-2">src/components/HomeownerSignupModal.tsx</p>
+          <p className="text-muted-foreground text-caption mb-3">Signup modal for homeowner users</p>
+          <Button
+            onClick={() => setOpenModal('homeownerSignup')}
+            variant="secondary"
+            className="w-auto"
+          >
+            Preview Modal
+          </Button>
+        </div>
+      ),
+    },
+    {
+      name: 'HomeownerSignInModal',
+      description: 'Homeowner login modal with authentication',
+      className: 'fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center px-4 py-20 animate-fade-in',
+      usageCount: 1,
+      usedIn: ['Homeowner Authentication'],
+      example: (
+        <div className="bg-background p-4 rounded-xl shadow-neu-outset">
+          <p className="text-foreground mb-2">src/components/HomeownerSignInModal.tsx</p>
+          <p className="text-muted-foreground text-caption mb-3">Sign in modal for homeowner users</p>
+          <Button
+            onClick={() => setOpenModal('homeownerSignIn')}
+            variant="secondary"
+            className="w-auto"
+          >
+            Preview Modal
+          </Button>
+        </div>
+      ),
+    },
+    {
+      name: 'FirstQuoteSuccessModal',
+      description: 'Success confirmation modal after first quote submission',
+      className: 'fixed inset-0 bg-overlay/80 backdrop-blur-sm z-50 flex items-center justify-center px-4 py-6 animate-fade-in',
+      usageCount: 1,
+      usedIn: ['Homeowner Dashboard'],
+      example: (
+        <div className="bg-background p-4 rounded-xl shadow-neu-outset">
+          <p className="text-foreground mb-2">src/components/homeowner/FirstQuoteSuccessModal.tsx</p>
+          <p className="text-muted-foreground text-caption mb-3">Quote submission success modal</p>
+          <Button
+            onClick={() => setOpenModal('firstQuoteSuccess')}
+            variant="secondary"
+            className="w-auto"
+          >
+            Preview Modal
+          </Button>
+        </div>
+      ),
+    },
+    {
+      name: 'LeadPreviewModal',
+      description: 'Modal for previewing lead details before submission',
+      className: 'fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center px-4 py-8 animate-fade-in',
+      usageCount: 1,
+      usedIn: ['Homeowner Dashboard'],
+      example: (
+        <div className="bg-background p-4 rounded-xl shadow-neu-outset">
+          <p className="text-foreground mb-2">src/components/homeowner/LeadPreviewModal.tsx</p>
+          <p className="text-muted-foreground text-caption mb-3">Lead preview modal</p>
+          <Button
+            onClick={() => setOpenModal('leadPreview')}
+            variant="secondary"
+            className="w-auto"
+          >
+            Preview Modal
+          </Button>
+        </div>
+      ),
+    },
+    {
+      name: 'LeadLimitReachedModal',
+      description: 'Modal displayed when homeowner reaches quote submission limit',
+      className: 'fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center px-4 py-20 animate-fade-in',
+      usageCount: 1,
+      usedIn: ['Homeowner Dashboard'],
+      example: (
+        <div className="bg-background p-4 rounded-xl shadow-neu-outset">
+          <p className="text-foreground mb-2">src/components/homeowner/LeadLimitReachedModal.tsx</p>
+          <p className="text-muted-foreground text-caption mb-3">Lead limit notification modal</p>
+          <Button
+            onClick={() => setOpenModal('leadLimitReached')}
+            variant="secondary"
+            className="w-auto"
+          >
+            Preview Modal
+          </Button>
+        </div>
+      ),
+    },
+    {
+      name: 'ContactVerificationModal',
+      description: 'Modal for verifying homeowner contact information',
+      className: 'fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center px-4 py-20 animate-fade-in',
+      usageCount: 1,
+      usedIn: ['Homeowner Dashboard'],
+      example: (
+        <div className="bg-background p-4 rounded-xl shadow-neu-outset">
+          <p className="text-foreground mb-2">src/components/homeowner/ContactVerificationModal.tsx</p>
+          <p className="text-muted-foreground text-caption mb-3">Contact verification modal</p>
+          <Button
+            onClick={() => setOpenModal('contactVerification')}
+            variant="secondary"
+            className="w-auto"
+          >
+            Preview Modal
+          </Button>
+        </div>
+      ),
+    },
+    {
+      name: 'SimplifiedQuoteFormModal',
+      description: 'Simplified quote request form modal',
+      className: 'fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center px-4 py-8 animate-fade-in',
+      usageCount: 1,
+      usedIn: ['Homeowner Quote Flow'],
+      example: (
+        <div className="bg-background p-4 rounded-xl shadow-neu-outset">
+          <p className="text-foreground mb-2">src/components/homeowner/SimplifiedQuoteFormModal.tsx</p>
+          <p className="text-muted-foreground text-caption mb-3">Simplified quote form</p>
+          <Button
+            onClick={() => setOpenModal('simplifiedQuoteForm')}
+            variant="secondary"
+            className="w-auto"
+          >
+            Preview Modal
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
+  // INSTALLER MODALS CATEGORY - Modal components used by installers
+  const installerModalsPatterns: ComponentPattern[] = [
+    {
+      name: 'InstallerSignupModal',
+      description: 'Installer registration modal with business verification',
+      className: 'fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center px-4 py-20 animate-fade-in',
+      usageCount: 1,
+      usedIn: ['Installer Authentication'],
+      example: (
+        <div className="bg-background p-4 rounded-xl shadow-neu-outset">
+          <p className="text-foreground mb-2">src/components/InstallerSignupModal.tsx</p>
+          <p className="text-muted-foreground text-caption mb-3">Signup modal for installer users</p>
+          <Button
+            onClick={() => setOpenModal('installerSignup')}
+            variant="secondary"
+            className="w-auto"
+          >
+            Preview Modal
+          </Button>
+        </div>
+      ),
+    },
+    {
+      name: 'InstallerSignInModal',
+      description: 'Installer login modal with authentication',
+      className: 'fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center px-4 py-20 animate-fade-in',
+      usageCount: 1,
+      usedIn: ['Installer Authentication'],
+      example: (
+        <div className="bg-background p-4 rounded-xl shadow-neu-outset">
+          <p className="text-foreground mb-2">src/components/InstallerSignInModal.tsx</p>
+          <p className="text-muted-foreground text-caption mb-3">Sign in modal for installer users</p>
+          <Button
+            onClick={() => setOpenModal('installerSignIn')}
+            variant="secondary"
+            className="w-auto"
+          >
+            Preview Modal
+          </Button>
+        </div>
+      ),
+    },
+    {
+      name: 'InstallerEligibilityModal',
+      description: 'Modal for checking installer eligibility for leads',
+      className: 'fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center px-4 py-20 animate-fade-in',
+      usageCount: 1,
+      usedIn: ['Installer Dashboard'],
+      example: (
+        <div className="bg-background p-4 rounded-xl shadow-neu-outset">
+          <p className="text-foreground mb-2">src/components/InstallerEligibilityModal.tsx</p>
+          <p className="text-muted-foreground text-caption mb-3">Eligibility check modal</p>
+          <Button
+            onClick={() => setOpenModal('installerEligibility')}
+            variant="secondary"
+            className="w-auto"
+          >
+            Preview Modal
+          </Button>
+        </div>
+      ),
+    },
+    {
+      name: 'InstallerMessagingModal',
+      description: 'Messaging modal for installer-homeowner communication',
+      className: 'fixed inset-0 z-50 flex items-center justify-center',
+      usageCount: 1,
+      usedIn: ['Installer Dashboard'],
+      example: (
+        <div className="bg-background p-4 rounded-xl shadow-neu-outset">
+          <p className="text-foreground mb-2">src/components/InstallerMessagingModal.tsx</p>
+          <p className="text-muted-foreground text-caption mb-3">Messaging interface for installers</p>
+          <Button
+            onClick={() => setOpenModal('installerMessaging')}
+            variant="secondary"
+            className="w-auto"
+          >
+            Preview Modal
+          </Button>
+        </div>
+      ),
+    },
+    {
+      name: 'QuoteBuilderModal',
+      description: 'Modal for installers to create and submit quotes',
+      className: 'fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-0 md:p-4 animate-fade-in',
+      usageCount: 1,
+      usedIn: ['Installer Dashboard'],
+      example: (
+        <div className="bg-background p-4 rounded-xl shadow-neu-outset">
+          <p className="text-foreground mb-2">src/components/QuoteBuilderModal.tsx</p>
+          <p className="text-muted-foreground text-caption mb-3">Quote creation modal</p>
+          <Button
+            onClick={() => setOpenModal('quoteBuilder')}
+            variant="secondary"
+            className="w-auto"
+          >
+            Preview Modal
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
   // Get patterns for active category
   const getActivePatterns = (): ComponentPattern[] => {
     switch (activeCategory) {
@@ -631,6 +940,12 @@ export default function ComponentLibraryTable() {
         return typographyPatterns;
       case 'shadows':
         return shadowsPatterns;
+      case 'admin-modals':
+        return adminModalsPatterns;
+      case 'homeowner-modals':
+        return homeownerModalsPatterns;
+      case 'installer-modals':
+        return installerModalsPatterns;
       default:
         return [];
     }
@@ -736,7 +1051,7 @@ export default function ComponentLibraryTable() {
       {/* Summary Stats */}
       <div className="mt-8 bg-surface shadow-neu-outset rounded-2xl p-6">
         <h3 className="text-heading-4 text-foreground mb-4">Category Summary</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           <div className="text-center">
             <p className="text-heading-2 text-foreground">{formsPatterns.length}</p>
             <p className="text-body-small text-muted-foreground">Forms</p>
@@ -761,8 +1076,143 @@ export default function ComponentLibraryTable() {
             <p className="text-heading-2 text-foreground">{shadowsPatterns.length}</p>
             <p className="text-body-small text-muted-foreground">Shadows</p>
           </div>
+          <div className="text-center">
+            <p className="text-heading-2 text-foreground">{adminModalsPatterns.length}</p>
+            <p className="text-body-small text-muted-foreground">Admin Modals</p>
+          </div>
+          <div className="text-center">
+            <p className="text-heading-2 text-foreground">{homeownerModalsPatterns.length}</p>
+            <p className="text-body-small text-muted-foreground">Homeowner Modals</p>
+          </div>
+          <div className="text-center">
+            <p className="text-heading-2 text-foreground">{installerModalsPatterns.length}</p>
+            <p className="text-body-small text-muted-foreground">Installer Modals</p>
+          </div>
         </div>
       </div>
+
+      {/* Actual Modal Renders */}
+      {/* Admin Modals */}
+      <InstallerSelectorModal
+        isOpen={openModal === 'installerSelector'}
+        onClose={() => setOpenModal(null)}
+        lead={{
+          id: 'preview-lead',
+          firstName: 'John',
+          lastName: 'Doe',
+          email: 'john@example.com',
+          phone: '1234567890',
+          address: '123 Solar St',
+          city: 'San Francisco',
+          state: 'CA',
+          zipCode: '94102',
+        }}
+        onAssign={() => {}}
+      />
+
+      {/* Homeowner Modals */}
+      <HomeownerSignupModal
+        isOpen={openModal === 'homeownerSignup'}
+        onClose={() => setOpenModal(null)}
+        onSignupSuccess={() => {}}
+      />
+
+      <HomeownerSignInModal
+        isOpen={openModal === 'homeownerSignIn'}
+        onClose={() => setOpenModal(null)}
+        onSignInSuccess={() => {}}
+      />
+
+      <FirstQuoteSuccessModal
+        isOpen={openModal === 'firstQuoteSuccess'}
+        onClose={() => setOpenModal(null)}
+        onVerifyContact={() => {}}
+        quoteType="WRITTEN_QUOTE"
+        remainingQuotes={4}
+        totalQuoteLimit={5}
+      />
+
+      <LeadPreviewModal
+        isOpen={openModal === 'leadPreview'}
+        onClose={() => setOpenModal(null)}
+        lead={{
+          id: 'preview-lead',
+          address: '123 Solar Street',
+          city: 'San Francisco',
+          state: 'CA',
+          zipCode: '94102',
+          propertyType: 'Single Family Home',
+          roofType: 'Asphalt Shingles',
+          roofAge: '5 years',
+          shadeLevel: 'Minimal',
+          monthlyBill: 150,
+          systemSize: 6.5,
+          quoteType: 'WRITTEN_QUOTE',
+          createdAt: new Date().toISOString(),
+          status: 'PENDING',
+        }}
+      />
+
+      <LeadLimitReachedModal
+        isOpen={openModal === 'leadLimitReached'}
+        onClose={() => setOpenModal(null)}
+        usedQuotes={5}
+        totalQuoteLimit={5}
+      />
+
+      <ContactVerificationModal
+        isOpen={openModal === 'contactVerification'}
+        onClose={() => setOpenModal(null)}
+        phoneNumber="+1234567890"
+        onVerificationSuccess={() => {}}
+      />
+
+      <SimplifiedQuoteFormModal
+        isOpen={openModal === 'simplifiedQuoteForm'}
+        onClose={() => setOpenModal(null)}
+        onSubmit={() => {}}
+      />
+
+      {/* Installer Modals */}
+      <InstallerSignupModal
+        isOpen={openModal === 'installerSignup'}
+        onClose={() => setOpenModal(null)}
+        onSignupSuccess={() => {}}
+      />
+
+      <InstallerSignInModal
+        isOpen={openModal === 'installerSignIn'}
+        onClose={() => setOpenModal(null)}
+        onSignInSuccess={() => {}}
+      />
+
+      <InstallerEligibilityModal
+        isOpen={openModal === 'installerEligibility'}
+        onClose={() => setOpenModal(null)}
+        leadId="preview-lead"
+        onEligible={() => {}}
+      />
+
+      <InstallerMessagingModal
+        isOpen={openModal === 'installerMessaging'}
+        onClose={() => setOpenModal(null)}
+        leadId="preview-lead"
+        homeownerName="John Doe"
+      />
+
+      <QuoteBuilderModal
+        isOpen={openModal === 'quoteBuilder'}
+        onClose={() => setOpenModal(null)}
+        lead={{
+          id: 'preview-lead',
+          address: '123 Solar Street',
+          city: 'San Francisco',
+          state: 'CA',
+          zipCode: '94102',
+          systemSize: 6.5,
+        }}
+        onSubmitQuote={() => {}}
+      />
     </div>
   );
 }
