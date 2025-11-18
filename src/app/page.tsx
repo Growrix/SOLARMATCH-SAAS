@@ -182,16 +182,16 @@ export default function Home() {
       return;
     }
 
-    // Flow 3: Second+ lead, unverified phone - show verification modal
-    if (userLeadCount >= 1 && !isPhoneVerified) {
-      console.log('[Flow 3] Second+ lead, unverified phone (' + remainingLeadQuota + ' remaining) → ContactVerificationModal');
+    // Flow 3: Exactly second lead and not verified → require verification once
+    if (userLeadCount === 1 && !isPhoneVerified) {
+      console.log('[Flow 3] Second lead, unverified phone (' + remainingLeadQuota + ' remaining) → ContactVerificationModal');
       setIsContactVerificationModalOpen(true);
       return;
     }
 
-    // Flow 4: Second+ lead, verified phone - show distribution modal
-    if (userLeadCount >= 1 && isPhoneVerified) {
-      console.log('[Flow 4] Second+ lead, verified phone (' + remainingLeadQuota + ' remaining) → QuoteTypeDistributionModal');
+    // Flow 4: Second+ lead, verified OR 3rd+ lead regardless → distribution modal
+    if ((userLeadCount >= 1 && isPhoneVerified) || userLeadCount >= 2) {
+      console.log('[Flow 4] Second+ lead → QuoteTypeDistributionModal');
       setIsQuoteTypeDistributionModalOpen(true);
       return;
     }
@@ -218,24 +218,24 @@ export default function Home() {
         return;
       }
       
-      // Flow 3: Second lead (1+ leads, unverified phone) - Show verification flow
-      if (userLeadCount >= 1 && !isPhoneVerified) {
+      // ✅ Lead limit reached first
+      if (userLeadCount >= MAX_LEADS) {
+        console.log('[Flow 5] Lead limit reached (' + userLeadCount + '/' + MAX_LEADS + ' leads) → LeadLimitReachedModal');
+        setIsLeadLimitReachedModalOpen(true);
+        return;
+      }
+
+      // Flow 3: Exactly second lead and not verified → verification
+      if (userLeadCount === 1 && !isPhoneVerified) {
         console.log('Second lead flow (unverified) - showing ContactVerificationModal');
         setIsContactVerificationModalOpen(true);
         return;
       }
       
-      // Flow 4: Second+ lead (1+ leads, verified phone) - Direct to distribution
-      if (userLeadCount >= 1 && isPhoneVerified) {
-        console.log('Second+ lead flow (verified) - showing QuoteTypeDistributionModal');
+      // Flow 4: Verified on 2nd+ OR 3rd+ regardless → distribution
+      if ((userLeadCount >= 1 && isPhoneVerified) || userLeadCount >= 2) {
+        console.log('Second+ lead flow - showing QuoteTypeDistributionModal');
         setIsQuoteTypeDistributionModalOpen(true);
-        return;
-      }
-      
-      // ✅ Phase 23 Fix 2: Lead limit reached (5 leads) - Block further requests
-      if (userLeadCount >= MAX_LEADS) {
-        console.log('[Flow 5] Lead limit reached (' + userLeadCount + '/' + MAX_LEADS + ' leads) → LeadLimitReachedModal');
-        setIsLeadLimitReachedModalOpen(true);
         return;
       }
     } else {

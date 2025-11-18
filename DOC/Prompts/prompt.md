@@ -1962,6 +1962,8 @@ check back the plan, what it was suppose to be . this is a completely wrong impl
 
 -----------------------------------------------------------------------------------
 
+***test- flow issue highlight*** instantquote> results> contact verification modal> after verfication (which is showing up even the contact is verified already) in stated it should show the lead distribution modal here. this is the most focus area to fix. Your fix did not work as expected. so I am just repeating the same prompt that given earlier. please read carefully and fix the issue accordingly. 
+
 ***When a user is signed up and has 0 leads and trying to generate first lead from the homepage InstantQuote form***
 Now when the user has 0 lead and user already signedup, then show the first lead generation flow , which is working fine now. when the user has 1st lead already and try to generate 2nd lead, then show the 2nd lead generation flow which is also working fine now (the verification requred is also working fine).
 
@@ -1975,10 +1977,11 @@ Now when the user has 0 lead and user already signedup, then show the first lead
 
 ***instructions*** Audit and understand the current flows and data flow. audit the relevant fronend and backend in deailed and create a comprhensive audit report of the issues found and identify the gaps between the existing flows and the requested flows and the plan to fix and impliment them. after that start fixing the issues step by step. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on. create the audit report under this folder D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\AUDIT-REPORTS\LEAD-GENERATION-SYSTEM. And create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\tasks.md file for this task and start implimenting the changes step by step as per the plan you created.
 
-***note*** currently the first lead and second lead generation flows are working fine, do not touch or harm them anyways. undersatand the lead generation principals including data inputs and data imports. understand all the logics and condition. 
+***note*** currently the first lead and second lead generation flows are working fine, do not touch or harm them anyways. undersatand the lead generation principals including data inputs and data imports. understand all the logics and condition. read above all the conversation again and again to find any better approach
 
 ***strict rules*** never spoil any other flows and functionality while working on these modals and flows. All the existing lead generation flows should work as it is working now. only work on the new area that mentioned. always test everything after making changes. do to attempt blindly if you dont have clear picture. 
 
+- never edit any auth modal to fix this issue. only work on the lead generation flows and modals. Do not repeate the same mistake you did above while fixing the flow issues.
 -----------------------------------------------------------------------------------
 
 
