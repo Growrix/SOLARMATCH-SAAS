@@ -147,7 +147,7 @@ npm run build
 **Based on:** UI-Field-Audit.md (2025-11-19)
 **Goal:** Add missing fields to achieve full parity across Profile, Verification Modal, and Admin View
 
-### Task F9.1: Add Representative Fields to Profile ✅ IN PROGRESS
+### Task F9.1: Add Representative Fields to Profile ✅ COMPLETE
 - **Path:** `src/app/installer/(dashboard)/profile/page.tsx`
 - **Changes:**
   - Add `representativeName` field (editable under Company Details)
@@ -156,9 +156,9 @@ npm run build
   - Wire to `editableVerification` state
   - Include in `handleSaveVerificationEdits`
 - **Validation:** 6-command semantic check (0/0/0/0/0/0)
-- **Commit:** "feat(installer): add representative name and designation to profile"
+- **Commit:** "feat(installer): add representative name and designation to profile" (d5a07e9)
 
-### Task F9.2: Add Representative Contact Display (Read-Only)
+### Task F9.2: Add Representative Contact Display (Read-Only) ✅ COMPLETE
 - **Path:** `src/app/installer/(dashboard)/profile/page.tsx`
 - **Changes:**
   - Add read-only `email` field in Company Details (sourced from user.email)
@@ -166,50 +166,50 @@ npm run build
   - Purpose: Match modal structure where contact is part of application
   - Visual: Gray text or disabled input style
 - **Validation:** Semantic check
-- **Commit:** "feat(installer): add representative contact display to profile"
+- **Commit:** "feat(installer): add representative contact display to profile" (ac7e877)
 
-### Task F9.3: Add LinkedIn/YouTube to Admin View
+### Task F9.3: Add LinkedIn/YouTube to Admin View ✅ COMPLETE
 - **Path:** `src/app/admin/installers/[id]/page.tsx`
 - **Changes:**
   - Update mock data: replace `facebookHandle`, `instagramHandle` with `socialLinks: { facebook, instagram, linkedin, youtube }`
   - Display all 4 social platforms in Additional Information
   - Match Profile/Modal URL structure
 - **Validation:** Semantic check
-- **Commit:** "feat(admin): add LinkedIn/YouTube to installer verification view"
+- **Commit:** "feat(admin): add LinkedIn/YouTube and standardize social links" (1a22567)
 
-### Task F9.4: Add Logo Preview in Admin View
+### Task F9.4: Add Logo Preview in Admin View ✅ COMPLETE
 - **Path:** `src/app/admin/installers/[id]/page.tsx`
 - **Changes:**
   - Add Logo section after Additional Information
   - Show placeholder if `logoKey` exists
   - Message: "(Logo preview - API pending)" for now
 - **Validation:** Semantic check
-- **Commit:** "feat(admin): add logo preview section to installer view"
+- **Commit:** "feat(admin): add logo preview and phone to application details" (5410114)
 
-### Task F9.5: Rename description → companyDescription in Admin
+### Task F9.5: Rename description → companyDescription in Admin ✅ COMPLETE
 - **Path:** `src/app/admin/installers/[id]/page.tsx`
 - **Changes:**
   - Update mock data field: `description` → `companyDescription`
   - Update all display references
   - Align with Profile/Modal naming
 - **Validation:** Semantic check
-- **Commit:** "refactor(admin): rename description to companyDescription"
+- **Commit:** "feat(admin): add LinkedIn/YouTube and standardize social links" (1a22567)
 
-### Task F9.6: Add Phone to Admin Application Details
+### Task F9.6: Add Phone to Admin Application Details ✅ COMPLETE
 - **Path:** `src/app/admin/installers/[id]/page.tsx`
 - **Changes:**
   - Add `phone` field under Company & Representative section (Application Details)
   - Currently only in Installer Information header; now in both places
 - **Validation:** Semantic check
-- **Commit:** "feat(admin): add phone to application details section"
+- **Commit:** "feat(admin): add logo preview and phone to application details" (5410114)
 
-### Task F9.7: Final Parity Validation
+### Task F9.7: Final Parity Validation ✅ COMPLETE
 - **Actions:**
   - Cross-check all fields in all three views
   - Verify field naming consistency
   - Test edit flows in Profile
   - Document final state in UI-Field-Audit.md
-- **Commit:** "docs: update field parity audit with implementation results"
+- **Commit:** "docs: update field parity audit with implementation results" (pending)
 
 ---
 

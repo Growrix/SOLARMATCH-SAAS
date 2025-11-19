@@ -141,3 +141,29 @@ Validation Notes
 
 Changelog
 - 2025-11-19: Enabled universal edit toggle for verification sections in profile; produced parity audit.
+- 2025-11-19: Implemented Phase F9 field parity tasks:
+  - F9.1: Added representativeName and designation to Profile
+  - F9.2: Added read-only email/phone display in Profile Company Details
+  - F9.3: Replaced facebookHandle/instagramHandle with socialLinks object; added LinkedIn/YouTube to Admin
+  - F9.4: Added logo preview section to Admin view
+  - F9.5: Renamed description → companyDescription in Admin
+  - F9.6: Added phone to Admin Application Details (Company & Representative)
+  - All semantic checks passed (0/0/0/0/0/0) across all modified files
+
+## Updated Field Parity Status (Post-Implementation)
+
+### Resolved Gaps
+✅ Representative fields in Profile: representativeName, designation now editable
+✅ Representative contact in Profile: email, phone displayed (read-only from account)
+✅ Social links standardized: All three views use socialLinks.{facebook, instagram, linkedin, youtube}
+✅ Admin LinkedIn/YouTube: Now displayed with clickable links
+✅ Admin description naming: Renamed to companyDescription
+✅ Admin logo: Logo preview section added with placeholder
+✅ Admin phone placement: Now in both Installer Information and Application Details
+
+### Remaining Considerations (Phase B5)
+- File upload functionality (license, ABN, logo) requires S3 presigned URLs and backend integration
+- Image preview for logo requires S3 signed GET URL
+- Save handlers currently log to console; need API endpoints
+- Operational status toggle needs backend persistence
+- Password change needs auth provider integration
