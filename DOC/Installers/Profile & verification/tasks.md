@@ -140,3 +140,77 @@ npm run build
 - Email templates for approval/rejection/pause.
 - Webhooks/audit to external BI.
 - Automated inactivity -> INACTIVE transitions.
+
+---
+
+## Phase F9: Field Parity Implementation (UI-Only)
+**Based on:** UI-Field-Audit.md (2025-11-19)
+**Goal:** Add missing fields to achieve full parity across Profile, Verification Modal, and Admin View
+
+### Task F9.1: Add Representative Fields to Profile ✅ IN PROGRESS
+- **Path:** `src/app/installer/(dashboard)/profile/page.tsx`
+- **Changes:**
+  - Add `representativeName` field (editable under Company Details)
+  - Add `designation` field (editable under Company Details)
+  - Position: After `companyName`, before `abnOrLicense`
+  - Wire to `editableVerification` state
+  - Include in `handleSaveVerificationEdits`
+- **Validation:** 6-command semantic check (0/0/0/0/0/0)
+- **Commit:** "feat(installer): add representative name and designation to profile"
+
+### Task F9.2: Add Representative Contact Display (Read-Only)
+- **Path:** `src/app/installer/(dashboard)/profile/page.tsx`
+- **Changes:**
+  - Add read-only `email` field in Company Details (sourced from user.email)
+  - Add read-only `phone` field in Company Details (sourced from user.phone)
+  - Purpose: Match modal structure where contact is part of application
+  - Visual: Gray text or disabled input style
+- **Validation:** Semantic check
+- **Commit:** "feat(installer): add representative contact display to profile"
+
+### Task F9.3: Add LinkedIn/YouTube to Admin View
+- **Path:** `src/app/admin/installers/[id]/page.tsx`
+- **Changes:**
+  - Update mock data: replace `facebookHandle`, `instagramHandle` with `socialLinks: { facebook, instagram, linkedin, youtube }`
+  - Display all 4 social platforms in Additional Information
+  - Match Profile/Modal URL structure
+- **Validation:** Semantic check
+- **Commit:** "feat(admin): add LinkedIn/YouTube to installer verification view"
+
+### Task F9.4: Add Logo Preview in Admin View
+- **Path:** `src/app/admin/installers/[id]/page.tsx`
+- **Changes:**
+  - Add Logo section after Additional Information
+  - Show placeholder if `logoKey` exists
+  - Message: "(Logo preview - API pending)" for now
+- **Validation:** Semantic check
+- **Commit:** "feat(admin): add logo preview section to installer view"
+
+### Task F9.5: Rename description → companyDescription in Admin
+- **Path:** `src/app/admin/installers/[id]/page.tsx`
+- **Changes:**
+  - Update mock data field: `description` → `companyDescription`
+  - Update all display references
+  - Align with Profile/Modal naming
+- **Validation:** Semantic check
+- **Commit:** "refactor(admin): rename description to companyDescription"
+
+### Task F9.6: Add Phone to Admin Application Details
+- **Path:** `src/app/admin/installers/[id]/page.tsx`
+- **Changes:**
+  - Add `phone` field under Company & Representative section (Application Details)
+  - Currently only in Installer Information header; now in both places
+- **Validation:** Semantic check
+- **Commit:** "feat(admin): add phone to application details section"
+
+### Task F9.7: Final Parity Validation
+- **Actions:**
+  - Cross-check all fields in all three views
+  - Verify field naming consistency
+  - Test edit flows in Profile
+  - Document final state in UI-Field-Audit.md
+- **Commit:** "docs: update field parity audit with implementation results"
+
+---
+
+**Execution Order:** F9.1 → F9.2 → F9.3 → F9.4 → F9.5 → F9.6 → F9.7

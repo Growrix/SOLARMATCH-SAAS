@@ -407,6 +407,34 @@ const InstallerProfilePage: React.FC = () => {
           </div>
 
           <div>
+            <label className="block text-body-small text-muted-foreground mb-1">Representative Name</label>
+            {isEditingVerification ? (
+              <input
+                type="text"
+                value={editableVerification?.representativeName || ''}
+                onChange={(e) => setEditableVerification(prev => ({ ...prev!, representativeName: e.target.value }))}
+                className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+              />
+            ) : (
+              <p className="text-body text-foreground">{verification?.representativeName || 'Not provided'}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-body-small text-muted-foreground mb-1">Designation</label>
+            {isEditingVerification ? (
+              <input
+                type="text"
+                value={editableVerification?.designation || ''}
+                onChange={(e) => setEditableVerification(prev => ({ ...prev!, designation: e.target.value }))}
+                className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+              />
+            ) : (
+              <p className="text-body text-foreground">{verification?.designation || 'Not provided'}</p>
+            )}
+          </div>
+
+          <div>
             <label className="block text-body-small text-muted-foreground mb-1">ABN / License</label>
             {isEditingVerification ? (
               <input
