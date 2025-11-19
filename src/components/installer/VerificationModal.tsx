@@ -10,50 +10,48 @@ interface VerificationModalProps {
   onSubmit: (data: VerificationFormData) => void;
 }
 
-// Step 1 schema
-const step1Schema = z.object({
+// Consolidated validation schema
+const verificationSchema = z.object({
+  // Company & Representative
   companyName: z.string().min(2, 'Company name is required'),
   representativeName: z.string().min(2, 'Representative name is required'),
   designation: z.string().min(2, 'Designation is required'),
   email: z.string().email('Valid email is required'),
   phone: z.string().regex(/^\+614\d{8}$/, 'Valid Australian mobile number required (+614XXXXXXXX)'),
-});
-
-// Step 2 schema
-const step2Schema = z.object({
+  // Business Legal
   abnOrLicense: z.string().min(5, 'ABN or License number is required'),
   establishedYear: z.number().min(1900).max(new Date().getFullYear(), 'Valid year required'),
   employeeCount: z.number().min(1, 'At least 1 employee required'),
   licenseDocKey: z.string().optional(),
   abnDocKey: z.string().optional(),
-});
-
-// Step 3 schema
-const step3Schema = z.object({
+  // Services & Coverage
   services: z.array(z.string()).min(1, 'Select at least one service'),
   serviceAreas: z.array(z.string()).min(1, 'Select at least one service area'),
   postcodes: z.array(z.string()).min(1, 'Enter at least one postcode'),
+  // Additional Information
   website: z.string().url('Valid URL required').optional().or(z.literal('')),
   socialLinks: z.object({
     facebook: z.string().optional(),
+    instagram: z.string().optional(),
     linkedin: z.string().optional(),
-    twitter: z.string().optional(),
+    youtube: z.string().optional(),
   }).optional(),
   companyDescription: z.string().optional(),
   logoKey: z.string().optional(),
 });
 
-export type VerificationFormData = z.infer<typeof step1Schema> & z.infer<typeof step2Schema> & z.infer<typeof step3Schema>;
+export type VerificationFormData = z.infer<typeof verificationSchema>;
 
 const VerificationModal: React.FC<VerificationModalProps> = ({ open, onClose, onSubmit }) => {
-  const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<Partial<VerificationFormData>>({
     phone: '+61 ',
     services: [],
     serviceAreas: [],
     postcodes: [],
+    socialLinks: { facebook: '', instagram: '', linkedin: '', youtube: '' },
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [sectionErrors, setSectionErrors] = useState<Record<string, string[]>>({});
 
   // Format phone to E.164 on change
   const handlePhoneChange = (value: string) => {
@@ -64,63 +62,52 @@ const VerificationModal: React.FC<VerificationModalProps> = ({ open, onClose, on
     setFormData(prev => ({ ...prev, phone: formatted }));
   };
 
-  // Validate current step
-  const validateStep = () => {
+  // Validate entire form and categorize errors by section
+  const validateForm = () => {
     setErrors({});
+    setSectionErrors({});
+    
     try {
-      if (currentStep === 1) {
-        step1Schema.parse({
-          companyName: formData.companyName,
-          representativeName: formData.representativeName,
-          designation: formData.designation,
-          email: formData.email,
-          phone: formData.phone?.replace(/\s/g, ''),
-        });
-      } else if (currentStep === 2) {
-        step2Schema.parse({
-          abnOrLicense: formData.abnOrLicense,
-          establishedYear: formData.establishedYear,
-          employeeCount: formData.employeeCount,
-          licenseDocKey: formData.licenseDocKey,
-          abnDocKey: formData.abnDocKey,
-        });
-      } else if (currentStep === 3) {
-        step3Schema.parse({
-          services: formData.services,
-          serviceAreas: formData.serviceAreas,
-          postcodes: formData.postcodes,
-          website: formData.website,
-          socialLinks: formData.socialLinks,
-          companyDescription: formData.companyDescription,
-          logoKey: formData.logoKey,
-        });
-      }
+      verificationSchema.parse({
+        ...formData,
+        phone: formData.phone?.replace(/\s/g, ''),
+      });
       return true;
     } catch (err) {
       if (err instanceof z.ZodError) {
         const newErrors: Record<string, string> = {};
+        const newSectionErrors: Record<string, string[]> = {
+          company: [],
+          legal: [],
+          services: [],
+          additional: [],
+        };
+
         err.issues.forEach((issue) => {
-          newErrors[issue.path[0] as string] = issue.message;
+          const field = issue.path[0] as string;
+          newErrors[field] = issue.message;
+
+          // Categorize by section
+          if (['companyName', 'representativeName', 'designation', 'email', 'phone'].includes(field)) {
+            newSectionErrors.company.push(issue.message);
+          } else if (['abnOrLicense', 'establishedYear', 'employeeCount', 'licenseDocKey', 'abnDocKey'].includes(field)) {
+            newSectionErrors.legal.push(issue.message);
+          } else if (['services', 'serviceAreas', 'postcodes'].includes(field)) {
+            newSectionErrors.services.push(issue.message);
+          } else if (['website', 'socialLinks', 'companyDescription', 'logoKey'].includes(field)) {
+            newSectionErrors.additional.push(issue.message);
+          }
         });
+
         setErrors(newErrors);
+        setSectionErrors(newSectionErrors);
       }
       return false;
     }
   };
 
-  const handleNext = () => {
-    if (validateStep()) {
-      setCurrentStep(prev => prev + 1);
-    }
-  };
-
-  const handleBack = () => {
-    setCurrentStep(prev => prev - 1);
-    setErrors({});
-  };
-
   const handleSubmitForm = () => {
-    if (validateStep()) {
+    if (validateForm()) {
       onSubmit(formData as VerificationFormData);
     }
   };
@@ -139,8 +126,8 @@ const VerificationModal: React.FC<VerificationModalProps> = ({ open, onClose, on
   // Reset on open
   useEffect(() => {
     if (open) {
-      setCurrentStep(1);
       setErrors({});
+      setSectionErrors({});
     }
   }, [open]);
 
@@ -155,17 +142,17 @@ const VerificationModal: React.FC<VerificationModalProps> = ({ open, onClose, on
       aria-labelledby="verification-modal-title"
     >
       <div
-        className="bg-surface border border-border rounded-xl shadow-neu-outset max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+        className="bg-surface border border-border rounded-xl shadow-neu-outset max-w-4xl w-full max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 bg-surface border-b border-border px-6 py-4 flex items-center justify-between">
+        <div className="sticky top-0 bg-surface border-b border-border px-6 py-4 flex items-center justify-between z-10">
           <div>
             <h2 id="verification-modal-title" className="text-heading-3 text-foreground">
-              Installer Verification
+              Installer Verification Application
             </h2>
             <p className="text-body-small text-muted-foreground">
-              Step {currentStep} of 3
+              Complete all required sections below
             </p>
           </div>
           <button
@@ -179,112 +166,131 @@ const VerificationModal: React.FC<VerificationModalProps> = ({ open, onClose, on
           </button>
         </div>
 
-        {/* Body */}
-        <div className="px-6 py-6 space-y-6">
-          {/* Step 1: Personal & Company Identity */}
-          {currentStep === 1 && (
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="companyName" className="block text-body-small text-foreground mb-2">
-                  Company Name <span className="text-error">*</span>
-                </label>
-                <input
-                  id="companyName"
-                  type="text"
-                  value={formData.companyName || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, companyName: e.target.value }))}
-                  className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="Solar Solutions Pty Ltd"
-                />
-                {errors.companyName && <p className="text-error text-body-small mt-1">{errors.companyName}</p>}
-              </div>
-
-              <div>
-                <label htmlFor="representativeName" className="block text-body-small text-foreground mb-2">
-                  Representative Name <span className="text-error">*</span>
-                </label>
-                <input
-                  id="representativeName"
-                  type="text"
-                  value={formData.representativeName || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, representativeName: e.target.value }))}
-                  className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="John Smith"
-                />
-                {errors.representativeName && <p className="text-error text-body-small mt-1">{errors.representativeName}</p>}
-              </div>
-
-              <div>
-                <label htmlFor="designation" className="block text-body-small text-foreground mb-2">
-                  Designation <span className="text-error">*</span>
-                </label>
-                <input
-                  id="designation"
-                  type="text"
-                  value={formData.designation || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, designation: e.target.value }))}
-                  className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="Managing Director"
-                />
-                {errors.designation && <p className="text-error text-body-small mt-1">{errors.designation}</p>}
-              </div>
-
-              <div>
-                <label htmlFor="email" className="block text-body-small text-foreground mb-2">
-                  Email <span className="text-error">*</span>
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  value={formData.email || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                  className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="contact@solarsolutions.com.au"
-                />
-                {errors.email && <p className="text-error text-body-small mt-1">{errors.email}</p>}
-              </div>
-
-              <div>
-                <label htmlFor="phone" className="block text-body-small text-foreground mb-2">
-                  Contact Number <span className="text-error">*</span>
-                </label>
-                <input
-                  id="phone"
-                  type="tel"
-                  value={formData.phone || ''}
-                  onChange={(e) => handlePhoneChange(e.target.value)}
-                  className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="+61 4XX XXX XXX"
-                />
-                {errors.phone && <p className="text-error text-body-small mt-1">{errors.phone}</p>}
-                <p className="text-body-small text-muted-foreground mt-1">
-                  Format: +61 4XX XXX XXX
-                </p>
-              </div>
+        {/* Body - 4 Static Sections */}
+        <div className="px-6 py-6 space-y-8">
+          
+          {/* Section 1: Company & Representative */}
+          <div className="bg-surface border border-border rounded-xl p-6 shadow-neu-inset space-y-4">
+            <div className="border-b border-border pb-3">
+              <h3 className="text-heading-4 text-foreground">Company & Representative</h3>
+              <p className="text-body-small text-muted-foreground">Primary contact and company information</p>
+              {sectionErrors.company && sectionErrors.company.length > 0 && (
+                <div className="mt-2 p-3 bg-error/10 border border-error/20 rounded-lg">
+                  <p className="text-body-small text-error">Please complete all required fields in this section</p>
+                </div>
+              )}
             </div>
-          )}
 
-          {/* Step 2: Business Legal Details */}
-          {currentStep === 2 && (
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="abnOrLicense" className="block text-body-small text-foreground mb-2">
-                  ABN / License Number <span className="text-error">*</span>
-                </label>
-                <input
-                  id="abnOrLicense"
-                  type="text"
-                  value={formData.abnOrLicense || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, abnOrLicense: e.target.value }))}
-                  className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="12 345 678 901"
-                />
-                {errors.abnOrLicense && <p className="text-error text-body-small mt-1">{errors.abnOrLicense}</p>}
-              </div>
+            <div>
+              <label htmlFor="companyName" className="block text-body-small text-foreground mb-2">
+                Company Name <span className="text-error">*</span>
+              </label>
+              <input
+                id="companyName"
+                type="text"
+                value={formData.companyName || ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, companyName: e.target.value }))}
+                className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="Solar Solutions Pty Ltd"
+              />
+              {errors.companyName && <p className="text-error text-body-small mt-1">{errors.companyName}</p>}
+            </div>
 
+            <div>
+              <label htmlFor="representativeName" className="block text-body-small text-foreground mb-2">
+                Representative Name <span className="text-error">*</span>
+              </label>
+              <input
+                id="representativeName"
+                type="text"
+                value={formData.representativeName || ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, representativeName: e.target.value }))}
+                className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="John Smith"
+              />
+              {errors.representativeName && <p className="text-error text-body-small mt-1">{errors.representativeName}</p>}
+            </div>
+
+            <div>
+              <label htmlFor="designation" className="block text-body-small text-foreground mb-2">
+                Designation <span className="text-error">*</span>
+              </label>
+              <input
+                id="designation"
+                type="text"
+                value={formData.designation || ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, designation: e.target.value }))}
+                className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="Managing Director"
+              />
+              {errors.designation && <p className="text-error text-body-small mt-1">{errors.designation}</p>}
+            </div>
+
+            <div>
+              <label htmlFor="email" className="block text-body-small text-foreground mb-2">
+                Email <span className="text-error">*</span>
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={formData.email || ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="contact@solarsolutions.com.au"
+              />
+              {errors.email && <p className="text-error text-body-small mt-1">{errors.email}</p>}
+            </div>
+
+            <div>
+              <label htmlFor="phone" className="block text-body-small text-foreground mb-2">
+                Contact Number <span className="text-error">*</span>
+              </label>
+              <input
+                id="phone"
+                type="tel"
+                value={formData.phone || ''}
+                onChange={(e) => handlePhoneChange(e.target.value)}
+                className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="+61 4XX XXX XXX"
+              />
+              {errors.phone && <p className="text-error text-body-small mt-1">{errors.phone}</p>}
+              <p className="text-body-small text-muted-foreground mt-1">
+                Format: +61 4XX XXX XXX
+              </p>
+            </div>
+          </div>
+
+          {/* Section 2: Business Legal Information */}
+          <div className="bg-surface border border-border rounded-xl p-6 shadow-neu-inset space-y-4">
+            <div className="border-b border-border pb-3">
+              <h3 className="text-heading-4 text-foreground">Business Legal Information</h3>
+              <p className="text-body-small text-muted-foreground">Company registration and legal details</p>
+              {sectionErrors.legal && sectionErrors.legal.length > 0 && (
+                <div className="mt-2 p-3 bg-error/10 border border-error/20 rounded-lg">
+                  <p className="text-body-small text-error">Please complete all required fields in this section</p>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="abnOrLicense" className="block text-body-small text-foreground mb-2">
+                ABN / License Number <span className="text-error">*</span>
+              </label>
+              <input
+                id="abnOrLicense"
+                type="text"
+                value={formData.abnOrLicense || ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, abnOrLicense: e.target.value }))}
+                className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="12 345 678 901"
+              />
+              {errors.abnOrLicense && <p className="text-error text-body-small mt-1">{errors.abnOrLicense}</p>}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="establishedYear" className="block text-body-small text-foreground mb-2">
-                  Company Established Year <span className="text-error">*</span>
+                  Established Year <span className="text-error">*</span>
                 </label>
                 <input
                   id="establishedYear"
@@ -314,187 +320,275 @@ const VerificationModal: React.FC<VerificationModalProps> = ({ open, onClose, on
                 />
                 {errors.employeeCount && <p className="text-error text-body-small mt-1">{errors.employeeCount}</p>}
               </div>
-
-              <div>
-                <label className="block text-body-small text-foreground mb-2">
-                  Upload License Document (Optional)
-                </label>
-                <div className="border-2 border-dashed border-border rounded-xl p-6 text-center bg-surface shadow-neu-inset">
-                  <svg className="mx-auto h-12 w-12 text-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                  </svg>
-                  <p className="text-body-small text-muted-foreground mt-2">
-                    Click to upload or drag and drop
-                  </p>
-                  <p className="text-caption text-muted-foreground">
-                    PDF, JPG, PNG (max 5MB)
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-body-small text-foreground mb-2">
-                  Upload ABN Document (Optional)
-                </label>
-                <div className="border-2 border-dashed border-border rounded-xl p-6 text-center bg-surface shadow-neu-inset">
-                  <svg className="mx-auto h-12 w-12 text-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                  </svg>
-                  <p className="text-body-small text-muted-foreground mt-2">
-                    Click to upload or drag and drop
-                  </p>
-                  <p className="text-caption text-muted-foreground">
-                    PDF, JPG, PNG (max 5MB)
-                  </p>
-                </div>
-              </div>
             </div>
-          )}
 
-          {/* Step 3: Services & Coverage Areas */}
-          {currentStep === 3 && (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-body-small text-foreground mb-2">
-                  Types of Services Offered <span className="text-error">*</span>
-                </label>
-                <div className="space-y-2">
-                  {['Installation', 'Maintenance', 'Inspection', 'Repair', 'Consultation'].map(service => (
-                    <label key={service} className="flex items-center space-x-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.services?.includes(service)}
-                        onChange={(e) => {
-                          const updated = e.target.checked
-                            ? [...(formData.services || []), service]
-                            : (formData.services || []).filter(s => s !== service);
-                          setFormData(prev => ({ ...prev, services: updated }));
-                        }}
-                        className="rounded border-border text-primary focus:ring-2 focus:ring-primary"
-                      />
-                      <span className="text-body text-foreground">{service}</span>
-                    </label>
-                  ))}
-                </div>
-                {errors.services && <p className="text-error text-body-small mt-1">{errors.services}</p>}
-              </div>
-
-              <div>
-                <label className="block text-body-small text-foreground mb-2">
-                  Service Areas <span className="text-error">*</span>
-                </label>
-                <div className="space-y-2">
-                  {['Sydney', 'Melbourne', 'Brisbane', 'Perth', 'Adelaide', 'Regional NSW', 'Regional VIC', 'Regional QLD'].map(area => (
-                    <label key={area} className="flex items-center space-x-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.serviceAreas?.includes(area)}
-                        onChange={(e) => {
-                          const updated = e.target.checked
-                            ? [...(formData.serviceAreas || []), area]
-                            : (formData.serviceAreas || []).filter(a => a !== area);
-                          setFormData(prev => ({ ...prev, serviceAreas: updated }));
-                        }}
-                        className="rounded border-border text-primary focus:ring-2 focus:ring-primary"
-                      />
-                      <span className="text-body text-foreground">{area}</span>
-                    </label>
-                  ))}
-                </div>
-                {errors.serviceAreas && <p className="text-error text-body-small mt-1">{errors.serviceAreas}</p>}
-              </div>
-
-              <div>
-                <label htmlFor="postcodes" className="block text-body-small text-foreground mb-2">
-                  Postcodes Served <span className="text-error">*</span>
-                </label>
-                <input
-                  id="postcodes"
-                  type="text"
-                  value={(formData.postcodes || []).join(', ')}
-                  onChange={(e) => {
-                    const codes = e.target.value.split(',').map(c => c.trim()).filter(Boolean);
-                    setFormData(prev => ({ ...prev, postcodes: codes }));
-                  }}
-                  className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="2000, 2001, 2010"
-                />
-                <p className="text-body-small text-muted-foreground mt-1">
-                  Separate multiple postcodes with commas
+            <div>
+              <label className="block text-body-small text-foreground mb-2">
+                Upload License Document (Optional)
+              </label>
+              <div className="border-2 border-dashed border-border rounded-xl p-6 text-center bg-surface shadow-neu-inset hover:border-primary transition-colors cursor-pointer">
+                <svg className="mx-auto h-12 w-12 text-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <p className="text-body-small text-muted-foreground mt-2">
+                  Click to upload or drag and drop
                 </p>
-                {errors.postcodes && <p className="text-error text-body-small mt-1">{errors.postcodes}</p>}
+                <p className="text-caption text-muted-foreground">
+                  PDF, JPG, PNG (max 5MB)
+                </p>
               </div>
+            </div>
 
-              <div>
-                <label htmlFor="website" className="block text-body-small text-foreground mb-2">
-                  Website URL (Optional)
-                </label>
-                <input
-                  id="website"
-                  type="url"
-                  value={formData.website || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, website: e.target.value }))}
-                  className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="https://www.solarsolutions.com.au"
-                />
-                {errors.website && <p className="text-error text-body-small mt-1">{errors.website}</p>}
+            <div>
+              <label className="block text-body-small text-foreground mb-2">
+                Upload ABN Document (Optional)
+              </label>
+              <div className="border-2 border-dashed border-border rounded-xl p-6 text-center bg-surface shadow-neu-inset hover:border-primary transition-colors cursor-pointer">
+                <svg className="mx-auto h-12 w-12 text-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <p className="text-body-small text-muted-foreground mt-2">
+                  Click to upload or drag and drop
+                </p>
+                <p className="text-caption text-muted-foreground">
+                  PDF, JPG, PNG (max 5MB)
+                </p>
               </div>
+            </div>
+          </div>
 
-              <div>
-                <label htmlFor="companyDescription" className="block text-body-small text-foreground mb-2">
-                  Company Description (Optional)
-                </label>
-                <textarea
-                  id="companyDescription"
-                  value={formData.companyDescription || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, companyDescription: e.target.value }))}
-                  className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="Tell us about your company..."
-                  rows={4}
-                />
+          {/* Section 3: Services & Coverage */}
+          <div className="bg-surface border border-border rounded-xl p-6 shadow-neu-inset space-y-4">
+            <div className="border-b border-border pb-3">
+              <h3 className="text-heading-4 text-foreground">Services & Coverage</h3>
+              <p className="text-body-small text-muted-foreground">Service offerings and areas covered</p>
+              {sectionErrors.services && sectionErrors.services.length > 0 && (
+                <div className="mt-2 p-3 bg-error/10 border border-error/20 rounded-lg">
+                  <p className="text-body-small text-error">Please complete all required fields in this section</p>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-body-small text-foreground mb-2">
+                Types of Services Offered <span className="text-error">*</span>
+              </label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {['Installation', 'Maintenance', 'Inspection', 'Repair', 'Consultation'].map(service => (
+                  <label key={service} className="flex items-center space-x-2 cursor-pointer p-2 rounded-lg hover:bg-background/50 transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={formData.services?.includes(service)}
+                      onChange={(e) => {
+                        const updated = e.target.checked
+                          ? [...(formData.services || []), service]
+                          : (formData.services || []).filter(s => s !== service);
+                        setFormData(prev => ({ ...prev, services: updated }));
+                      }}
+                      className="rounded border-border text-primary focus:ring-2 focus:ring-primary"
+                    />
+                    <span className="text-body text-foreground">{service}</span>
+                  </label>
+                ))}
               </div>
+              {errors.services && <p className="text-error text-body-small mt-1">{errors.services}</p>}
+            </div>
 
-              <div>
-                <label className="block text-body-small text-foreground mb-2">
-                  Company Logo (Optional)
-                </label>
-                <div className="border-2 border-dashed border-border rounded-xl p-6 text-center bg-surface shadow-neu-inset">
-                  <svg className="mx-auto h-12 w-12 text-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <p className="text-body-small text-muted-foreground mt-2">
-                    Click to upload logo
-                  </p>
-                  <p className="text-caption text-muted-foreground">
-                    PNG, JPG (max 2MB)
-                  </p>
+            <div>
+              <label className="block text-body-small text-foreground mb-2">
+                Service Areas <span className="text-error">*</span>
+              </label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {['Sydney', 'Melbourne', 'Brisbane', 'Perth', 'Adelaide', 'Regional NSW', 'Regional VIC', 'Regional QLD'].map(area => (
+                  <label key={area} className="flex items-center space-x-2 cursor-pointer p-2 rounded-lg hover:bg-background/50 transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={formData.serviceAreas?.includes(area)}
+                      onChange={(e) => {
+                        const updated = e.target.checked
+                          ? [...(formData.serviceAreas || []), area]
+                          : (formData.serviceAreas || []).filter(a => a !== area);
+                        setFormData(prev => ({ ...prev, serviceAreas: updated }));
+                      }}
+                      className="rounded border-border text-primary focus:ring-2 focus:ring-primary"
+                    />
+                    <span className="text-body text-foreground">{area}</span>
+                  </label>
+                ))}
+              </div>
+              {errors.serviceAreas && <p className="text-error text-body-small mt-1">{errors.serviceAreas}</p>}
+            </div>
+
+            <div>
+              <label htmlFor="postcodes" className="block text-body-small text-foreground mb-2">
+                Postcodes Served <span className="text-error">*</span>
+              </label>
+              <input
+                id="postcodes"
+                type="text"
+                value={(formData.postcodes || []).join(', ')}
+                onChange={(e) => {
+                  const codes = e.target.value.split(',').map(c => c.trim()).filter(Boolean);
+                  setFormData(prev => ({ ...prev, postcodes: codes }));
+                }}
+                className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="2000, 2001, 2010"
+              />
+              <p className="text-body-small text-muted-foreground mt-1">
+                Separate multiple postcodes with commas
+              </p>
+              {errors.postcodes && <p className="text-error text-body-small mt-1">{errors.postcodes}</p>}
+            </div>
+          </div>
+
+          {/* Section 4: Additional Information */}
+          <div className="bg-surface border border-border rounded-xl p-6 shadow-neu-inset space-y-4">
+            <div className="border-b border-border pb-3">
+              <h3 className="text-heading-4 text-foreground">Additional Information</h3>
+              <p className="text-body-small text-muted-foreground">Website, social media, and company details</p>
+            </div>
+
+            <div>
+              <label htmlFor="website" className="block text-body-small text-foreground mb-2">
+                Website URL (Optional)
+              </label>
+              <input
+                id="website"
+                type="url"
+                value={formData.website || ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, website: e.target.value }))}
+                className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="https://www.solarsolutions.com.au"
+              />
+              {errors.website && <p className="text-error text-body-small mt-1">{errors.website}</p>}
+            </div>
+
+            <div className="space-y-3">
+              <label className="block text-body-small text-foreground">
+                Social Media Links (Optional)
+              </label>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <div className="flex items-center space-x-2 mb-2">
+                    <svg className="w-5 h-5 text-icon" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                    </svg>
+                    <span className="text-body-small text-foreground">Facebook</span>
+                  </div>
+                  <input
+                    type="url"
+                    value={formData.socialLinks?.facebook || ''}
+                    onChange={(e) => setFormData(prev => ({ 
+                      ...prev, 
+                      socialLinks: { ...prev.socialLinks, facebook: e.target.value } 
+                    }))}
+                    className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                    placeholder="https://facebook.com/yourpage"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center space-x-2 mb-2">
+                    <svg className="w-5 h-5 text-icon" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073z"/><path d="M12 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                    </svg>
+                    <span className="text-body-small text-foreground">Instagram</span>
+                  </div>
+                  <input
+                    type="url"
+                    value={formData.socialLinks?.instagram || ''}
+                    onChange={(e) => setFormData(prev => ({ 
+                      ...prev, 
+                      socialLinks: { ...prev.socialLinks, instagram: e.target.value } 
+                    }))}
+                    className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                    placeholder="https://instagram.com/yourpage"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center space-x-2 mb-2">
+                    <svg className="w-5 h-5 text-icon" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                    </svg>
+                    <span className="text-body-small text-foreground">LinkedIn</span>
+                  </div>
+                  <input
+                    type="url"
+                    value={formData.socialLinks?.linkedin || ''}
+                    onChange={(e) => setFormData(prev => ({ 
+                      ...prev, 
+                      socialLinks: { ...prev.socialLinks, linkedin: e.target.value } 
+                    }))}
+                    className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                    placeholder="https://linkedin.com/company/yourcompany"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center space-x-2 mb-2">
+                    <svg className="w-5 h-5 text-icon" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                    </svg>
+                    <span className="text-body-small text-foreground">YouTube</span>
+                  </div>
+                  <input
+                    type="url"
+                    value={formData.socialLinks?.youtube || ''}
+                    onChange={(e) => setFormData(prev => ({ 
+                      ...prev, 
+                      socialLinks: { ...prev.socialLinks, youtube: e.target.value } 
+                    }))}
+                    className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                    placeholder="https://youtube.com/@yourchannel"
+                  />
                 </div>
               </div>
             </div>
-          )}
+
+            <div>
+              <label htmlFor="companyDescription" className="block text-body-small text-foreground mb-2">
+                Company Description (Optional)
+              </label>
+              <textarea
+                id="companyDescription"
+                value={formData.companyDescription || ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, companyDescription: e.target.value }))}
+                className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="Tell us about your company, experience, and what sets you apart..."
+                rows={4}
+              />
+            </div>
+
+            <div>
+              <label className="block text-body-small text-foreground mb-2">
+                Company Logo (Optional)
+              </label>
+              <div className="border-2 border-dashed border-border rounded-xl p-6 text-center bg-surface shadow-neu-inset hover:border-primary transition-colors cursor-pointer">
+                <svg className="mx-auto h-12 w-12 text-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p className="text-body-small text-muted-foreground mt-2">
+                  Click to upload logo
+                </p>
+                <p className="text-caption text-muted-foreground">
+                  PNG, JPG (max 2MB)
+                </p>
+              </div>
+            </div>
+          </div>
+
         </div>
 
         {/* Footer */}
         <div className="sticky bottom-0 bg-surface border-t border-border px-6 py-4 flex justify-between gap-3">
-          {currentStep > 1 ? (
-            <Button variant="secondary" onClick={handleBack}>
-              Back
-            </Button>
-          ) : (
-            <Button variant="secondary" onClick={onClose}>
-              Cancel
-            </Button>
-          )}
-
-          {currentStep < 3 ? (
-            <Button onClick={handleNext}>
-              Next
-            </Button>
-          ) : (
-            <Button onClick={handleSubmitForm}>
-              Submit Application
-            </Button>
-          )}
+          <Button variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button onClick={handleSubmitForm}>
+            Submit Application
+          </Button>
         </div>
       </div>
     </div>

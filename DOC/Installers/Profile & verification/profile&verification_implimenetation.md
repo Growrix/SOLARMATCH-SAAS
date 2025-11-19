@@ -102,9 +102,19 @@ model InstallerPreferences {
 }
 ```
 
+**Additional Model Extensions (for enhancements):**
+
+Extend `InstallerProfile` with operational status:
+
+```prisma
+// Add to existing InstallerProfile model:
+operationalStatus String @default("ACTIVE") // ACTIVE | PAUSED | INACTIVE
+```
+
 Notes:
 - Continue to use `User.installerVerified` as primary verified flag; update upon approval.
 - Documents stored via S3 keys; download via presigned URLs.
+- `operationalStatus` controls lead assignment and visibility: ACTIVE = receives leads, PAUSED = no new leads (user-controlled), INACTIVE = admin-disabled.
 
 Migration steps:
 
@@ -128,17 +138,30 @@ Installer-facing:
   - Creates `Notification` to admins (optional: future batch)
 - GET `src/app/api/installer/profile/route.ts`
   - Auth: INSTALLER
-  - Returns User + `InstallerProfile` + latest `InstallerVerification` + `InstallerPreferences`
+  - Returns User + `InstallerProfile` + latest `InstallerVerification` + `InstallerPreferences` + `operationalStatus`
 - PUT `src/app/api/installer/profile/route.ts`
   - Auth: INSTALLER
-  - Updates `InstallerProfile` and selected User fields (name, phone normalized E.164)
+  - Updates `InstallerProfile` (including editable verification fields post-approval: services, areas, social links, description, uploads)
+  - Updates selected User fields (name, phone normalized E.164)
 - GET/PUT `src/app/api/installer/preferences/route.ts`
   - Auth: INSTALLER
   - Read/update `InstallerPreferences`
-- GET `src/app/api/installer/uploads/presign/route.ts` (optional)
+- GET `src/app/api/installer/uploads/presign/route.ts`
   - Auth: INSTALLER
   - Query: `filename`, `contentType`
   - Uses `getPresignedUploadUrl(generateFileKey(user.id, filename, 'documents'))`
+- PUT `src/app/api/installer/account/status/route.ts` (new)
+  - Auth: INSTALLER
+  - Body: `{ status: 'ACTIVE' | 'PAUSED' }`
+  - Toggles `InstallerProfile.operationalStatus`
+  - Cannot set INACTIVE (admin-only)
+- POST `src/app/api/installer/account/change-password/route.ts` (new)
+  - Auth: INSTALLER
+  - Body: `{ currentPassword: string, newPassword: string }`
+  - Validates current password via NextAuth credentials provider logic
+  - Validates new password complexity (min 12, upper/lower/digit/symbol)
+  - Updates User password hash
+  - Optionally invalidates session tokens for security (force re-login)
 
 Admin-facing:
 - GET `src/app/api/admin/installers/[id]/verification/route.ts`
@@ -154,6 +177,11 @@ Admin-facing:
 - GET `src/app/api/admin/installers/[id]/logs/route.ts`
   - Auth: ADMIN
   - Returns `InstallerVerificationLog[]`
+- PUT `src/app/api/admin/installers/[id]/status/route.ts` (new)
+  - Auth: ADMIN
+  - Body: `{ status: 'ACTIVE' | 'PAUSED' | 'INACTIVE' }`
+  - Sets `InstallerProfile.operationalStatus`
+  - Admin can set any status including INACTIVE (disable installer)
 
 Implementation hints:
 - Use `prisma` client from `src/lib/prisma`
@@ -165,56 +193,74 @@ Implementation hints:
 
 ## 5) UI — Installer
 
-5.1 Verification Modal (multi-step)
+5.1 Verification Modal (multi-step → section-based refactor)
 - Location: shared component `src/components/installer/VerificationModal.tsx`
 - Trigger: 
   - CTA on relevant dashboard pages when `!user.installerVerified`
   - Banner on `profile` page if `verification.status !== 'APPROVED'`
-- Steps (from product brief):
-  1) Personal & Company Identity
-  2) Business Legal Details (ABN/license + optional uploads)
-  3) Services & Coverage Areas (multiselects, postcodes, optional web/social/logo/about)
+- **Refactor (F5)**: Convert 3-step wizard to 4 static sections matching admin review layout:
+  1) **Company & Representative**: company name, representative name, designation, email, phone
+  2) **Business Legal Information**: ABN/license number, established year, employee count, license doc upload, ABN doc upload
+  3) **Services & Coverage**: services multiselect, service areas multiselect, postcodes editor
+  4) **Additional Information**: website, social links (Facebook, Instagram, LinkedIn, YouTube), company description, logo upload
 - Patterns:
   - Backdrop: `fixed inset-0 bg-background/80 backdrop-blur-sm z-modal`
   - Panel: `bg-surface border border-border rounded-xl shadow-neu-outset`
-  - Sticky step header/footer with `border-b`/`border-t`
+  - Each section as card-like div with heading + fields
+  - Consolidated validation: Zod schemas merged; show inline section error summaries
   - Use shared `Button`; inputs: `bg-surface border-border text-foreground`
-  - Validation: Zod per step; disable Next/Submit until valid
   - File upload: request presigned PUT, then upload directly to S3; store key
   - Phone: reuse formatting helpers; if not verified, allow OTP flow via existing modal
+  - Preserve accessibility: role=dialog, focus trap, ESC close
 
-5.2 Profile Page
+5.2 Profile Page (expanded)
 - Path: `src/app/installer/(dashboard)/profile/page.tsx`
-- Sections:
-  - Header with logo/avatar + status badge (✔ Verified, ⏳ Pending, ❗ Rejected)
-  - Personal Details, Company Details, Services & Areas, Website/Social
-  - Edit mode: inline forms; Save/Cancel; server PUT via `/api/installer/profile`
-  - Notification Preferences: toggles bound to `InstallerPreferences`
-  - Contact Verification: show phone status with action to open OTP modal
+- **Enhancements (F6, F7, F8)**:
+  - **Top Bar (F8)**: Operational status toggle (ACTIVE / PAUSED) with visual state
+  - **Paused Banner (F8)**: If status = PAUSED, show info banner: "Account paused. You will not receive new leads until reactivated."
+  - Sections:
+    - Header with logo/avatar + verification status badge (✔ Verified, ⏳ Pending, ❗ Rejected)
+    - **Personal Details**: editable name, email (read-only), phone with verification status
+    - **Company Details**: all verification fields editable post-approval (company name, ABN/license, established year, employee count)
+    - **Services & Coverage (F6)**: editable services multiselect, service areas multiselect, postcodes editor
+    - **Website & Social Links (F6)**: editable website URL, Facebook, Instagram, LinkedIn, YouTube links
+    - **Company Description (F6)**: textarea for description
+    - **Documents & Uploads (F6)**: file inputs for license doc, ABN doc, logo (stub handlers, show current files if exist)
+    - **Change Password (F7)**: card with Current Password, New Password, Confirm Password fields
+      - Zod validation: length >= 12, must include uppercase, lowercase, digit, symbol
+      - Confirm matches new password
+      - Submit button disabled until valid; stub handler for now (wire to API in backend phase)
+    - **Notification Preferences**: toggles bound to `InstallerPreferences`
+    - **Contact Verification**: show phone status with action to open OTP modal
+- Edit mode: inline forms per section; Save/Cancel; server PUT via `/api/installer/profile`
 - Gating:
   - If not verified, show prominent banner with button to open VerificationModal
 - Accessibility & Theming:
   - Follow `UI-UX-Layout-and-Routing-Standards.md` strictly (no hardcoded colors, no `dark:`)
+  - All new inputs/controls use semantic tokens only
 
 ---
 
 ## 6) UI — Admin
 
-6.1 Installers List (exists)
+6.1 Installers List (enhanced)
 - `src/app/admin/installers/page.tsx` + `InstallersTable`
 - Add row click → navigate to detail page below
+- **Enhancement**: Add `operationalStatus` column showing ACTIVE/PAUSED/INACTIVE badges
 
-6.2 Installer Detail & Review
+6.2 Installer Detail & Review (enhanced)
 - Path: `src/app/admin/installers/[id]/page.tsx`
 - Content:
-  - Profile snapshot (User + InstallerProfile)
+  - Profile snapshot (User + InstallerProfile + `operationalStatus`)
   - Current verification application with fields and file links (presigned download)
   - Actions: Approve, Reject (with reason), Request More Info (notes)
+  - **Enhancement**: Operational Status control (admin can set ACTIVE/PAUSED/INACTIVE)
   - Activity log (from `InstallerVerificationLog`)
 - Behavior:
   - On Approve → set `User.installerVerified = true`, status = APPROVED, notify installer
   - On Reject → status = REJECTED, store note, notify installer
   - On Request Info → status = MORE_INFO, notify installer
+  - **Enhancement**: Status change (ACTIVE/PAUSED/INACTIVE) → update profile, optionally notify installer
 
 ---
 
@@ -284,6 +330,12 @@ npm run build
 - Admin can review and approve/reject/request more info
 - Notifications sent to installer on status changes
 - Profile page reflects status and allows edits + preferences
+- **Enhancements**:
+  - Installer can edit all verification fields including optional uploads (license, ABN, logo), social links, services/areas, description
+  - Installer can change password with complexity validation (min 12 chars, upper/lower/digit/symbol)
+  - Installer can pause/reactivate operations via toggle; paused status shows banner
+  - Admin can view and modify operational status (ACTIVE/PAUSED/INACTIVE)
+  - Admin installers list shows operational status column
 - No hardcoded UI; passes 6-command checks; builds successfully
 
 ---
