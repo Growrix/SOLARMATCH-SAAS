@@ -1,75 +1,77 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from '@/components/ui/button';
 import VerificationModal from '@/components/installer/VerificationModal';
 import ContactVerificationModal from '@/components/homeowner/ContactVerificationModal';
 import OTPVerificationModal from '@/components/OTPVerificationModal';
-
-// Mock data hook (replace with real API call in Phase B5)
-const useMockProfileData = () => {
-  return {
-    user: {
-      id: 'mock-user-id',
-      name: 'John Smith',
-      email: 'john@solarsolutions.com.au',
-      phone: '+61 412 345 678',
-      phoneVerified: true,
-      companyName: 'Solar Solutions Pty Ltd',
-      installerVerified: false,
-      image: null,
-    },
-    profile: {
-      operationalStatus: 'ACTIVE', // ACTIVE | PAUSED | INACTIVE
-    },
-    verification: {
-      status: 'PENDING', // PENDING | APPROVED | REJECTED | MORE_INFO
-      companyName: 'Solar Solutions Pty Ltd',
-      representativeName: 'John Smith',
-      designation: 'Managing Director',
-      email: 'john@solarsolutions.com.au',
-      phone: '+61 412 345 678',
-      abnOrLicense: '12 345 678 901',
-      establishedYear: 2020,
-      employeeCount: 5,
-      services: ['Installation', 'Maintenance'],
-      serviceAreas: ['Sydney', 'Regional NSW'],
-      postcodes: ['2000', '2001'],
-      website: 'https://www.solarsolutions.com.au',
-      socialLinks: {
-        facebook: 'https://facebook.com/solarsolutions',
-        instagram: 'https://instagram.com/solarsolutions',
-        linkedin: 'https://linkedin.com/company/solarsolutions',
-        youtube: '',
-      },
-      companyDescription: 'Leading solar installation company in Sydney with 5+ years of experience.',
-      licenseDocKey: 'license-doc-key',
-      abnDocKey: 'abn-doc-key',
-      logoKey: 'logo-key',
-      adminNotes: null,
-    },
-    preferences: {
-      alertNewLead: true,
-      alertLeadUpdates: true,
-      alertAdminMessages: true,
-      alertVerificationUpdates: true,
-      alertAccountActivity: false,
-    },
-  };
-};
+import { 
+  submitVerification, 
+  fetchProfile,
+  updateProfile,
+  fetchPreferences,
+  updatePreferences,
+  changePassword,
+  toggleOperationalStatus,
+  type VerificationFormData, 
+  type ProfileData,
+  type PreferencesData,
+  getErrorMessage 
+} from '@/lib/api/installer';
 
 const InstallerProfilePage: React.FC = () => {
-  const { user, profile, verification, preferences } = useMockProfileData();
+  // Profile data state
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
   const [isEditing, setIsEditing] = useState(false);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
-  const [localPreferences, setLocalPreferences] = useState(preferences);
+  
+  // Verification submission state
+  const [submittingVerification, setSubmittingVerification] = useState(false);
+  const [verificationError, setVerificationError] = useState<string | null>(null);
+  const [verificationSuccess, setVerificationSuccess] = useState(false);
   
   // F8: Operational status state
-  const [operationalStatus, setOperationalStatus] = useState(profile.operationalStatus);
+  const [operationalStatus, setOperationalStatus] = useState<'ACTIVE' | 'PAUSED' | 'INACTIVE'>('ACTIVE');
+  const [togglingStatus, setTogglingStatus] = useState(false);
 
   // F6: Editable verification fields state
-  const [editableVerification, setEditableVerification] = useState(verification);
+  const [editableVerification, setEditableVerification] = useState<any>(null);
   const [isEditingVerification, setIsEditingVerification] = useState(false);
+
+  // Preferences state
+  const [localPreferences, setLocalPreferences] = useState<PreferencesData>({
+    alertNewLead: true,
+    alertLeadUpdates: true,
+    alertAdminMessages: true,
+    alertVerificationUpdates: true,
+    alertAccountActivity: false,
+  });
+  
+  // Fetch profile data on mount
+  useEffect(() => {
+    loadProfile();
+  }, []);
+  
+  const loadProfile = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await fetchProfile();
+      setProfileData(data);
+      setOperationalStatus(data.profile?.operationalStatus || 'ACTIVE');
+      setEditableVerification(data.verification);
+      if (data.preferences) {
+        setLocalPreferences(data.preferences);
+      }
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // F7: Password change state
   const [passwordData, setPasswordData] = useState({
@@ -134,10 +136,22 @@ const InstallerProfilePage: React.FC = () => {
     );
   };
 
-  const handleVerificationSubmit = (data: any) => {
-    console.log('Verification data submitted:', data);
-    setIsVerificationModalOpen(false);
-    // TODO: API call in Phase B5
+  const handleVerificationSubmit = async (data: VerificationFormData) => {
+    setSubmittingVerification(true);
+    setVerificationError(null);
+    setVerificationSuccess(false);
+    
+    try {
+      await submitVerification(data);
+      setVerificationSuccess(true);
+      setIsVerificationModalOpen(false);
+      await loadProfile(); // Refetch to get updated verification
+      setTimeout(() => setVerificationSuccess(false), 3000);
+    } catch (error) {
+      setVerificationError(getErrorMessage(error));
+    } finally {
+      setSubmittingVerification(false);
+    }
   };
 
   // F7: Password validation
@@ -170,27 +184,65 @@ const InstallerProfilePage: React.FC = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const handlePasswordChange = () => {
+  const handlePasswordChange = async () => {
     if (validatePassword()) {
-      console.log('Password change requested');
-      // TODO: API call in Phase B5
+      try {
+        await changePassword(passwordData);
+        alert('Password changed successfully. You will be logged out.');
+        // Force logout by redirecting to sign in
+        window.location.href = '/auth/signin';
+      } catch (error) {
+        alert(getErrorMessage(error));
+      }
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
       setPasswordErrors({});
     }
   };
 
   // F8: Toggle operational status
-  const handleStatusToggle = (newStatus: 'ACTIVE' | 'PAUSED') => {
-    console.log('Status toggle:', newStatus);
-    setOperationalStatus(newStatus);
-    // TODO: API call in Phase B5
+  const handleStatusToggle = async (newStatus: 'ACTIVE' | 'PAUSED') => {
+    setTogglingStatus(true);
+    try {
+      await toggleOperationalStatus(newStatus);
+      setOperationalStatus(newStatus);
+    } catch (error) {
+      alert(getErrorMessage(error));
+    } finally {
+      setTogglingStatus(false);
+    }
+  };
+  
+  // Handle preference toggle with optimistic update
+  const handlePreferenceToggle = async (key: keyof PreferencesData, value: boolean) => {
+    // Optimistic update
+    const prevPreferences = { ...localPreferences };
+    setLocalPreferences(prev => ({ ...prev, [key]: value }));
+    
+    try {
+      await updatePreferences({ [key]: value });
+    } catch (error) {
+      // Rollback on error
+      setLocalPreferences(prevPreferences);
+      alert(getErrorMessage(error));
+    }
   };
 
   // F6: Save verification edits
-  const handleSaveVerificationEdits = () => {
-    console.log('Verification edits saved:', editableVerification);
-    setIsEditingVerification(false);
-    // TODO: API call in Phase B5
+  const handleSaveVerificationEdits = async () => {
+    try {
+      await updateProfile({
+        services: editableVerification?.services,
+        serviceAreas: editableVerification?.serviceAreas,
+        postcodes: editableVerification?.postcodes,
+        website: editableVerification?.website,
+        socialLinks: editableVerification?.socialLinks,
+        companyDescription: editableVerification?.companyDescription,
+      });
+      setIsEditingVerification(false);
+      await loadProfile();
+    } catch (error) {
+      alert(getErrorMessage(error));
+    }
   };
 
   const handleOTPRequested = (payload: {
@@ -226,8 +278,80 @@ const InstallerProfilePage: React.FC = () => {
     };
   };
 
+  // Show loading skeleton
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+        <div className="bg-surface border border-border rounded-xl shadow-neu-outset p-6 animate-pulse">
+          <div className="h-8 bg-muted/20 rounded w-1/3 mb-4"></div>
+          <div className="h-4 bg-muted/20 rounded w-2/3"></div>
+        </div>
+      </div>
+    );
+  }
+  
+  // Show error state
+  if (error || !profileData) {
+    return (
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="bg-error/10 border border-error/20 rounded-xl p-6">
+          <p className="text-body text-error">Failed to load profile</p>
+          <p className="text-body-small text-error/80 mt-2">{error || 'Unknown error'}</p>
+          <Button onClick={loadProfile} className="mt-4">Retry</Button>
+        </div>
+      </div>
+    );
+  }
+  
+  const { user, profile, verification, preferences } = profileData;
+  
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+      {/* Success/Error Feedback Banners */}
+      {verificationSuccess && (
+        <div className="bg-success/10 border border-success/20 rounded-xl p-4 flex items-start gap-3">
+          <svg className="w-6 h-6 text-success flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+          </svg>
+          <div className="flex-1">
+            <p className="text-body text-success">Verification Submitted Successfully!</p>
+            <p className="text-body-small text-success/80 mt-1">
+              Your application is under review. You'll be notified once it's processed.
+            </p>
+          </div>
+          <button
+            onClick={() => setVerificationSuccess(false)}
+            className="text-success hover:text-success/80 transition-colors"
+            aria-label="Close"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
+      
+      {verificationError && (
+        <div className="bg-error/10 border border-error/20 rounded-xl p-4 flex items-start gap-3">
+          <svg className="w-6 h-6 text-error flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+          </svg>
+          <div className="flex-1">
+            <p className="text-body text-error">Submission Failed</p>
+            <p className="text-body-small text-error/80 mt-1">{verificationError}</p>
+          </div>
+          <button
+            onClick={() => setVerificationError(null)}
+            className="text-error hover:text-error/80 transition-colors"
+            aria-label="Close"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
+      
       {/* F8: Operational Status Toggle - Always show for demo */}
       <div className="bg-surface border border-border rounded-xl shadow-neu-outset p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -245,8 +369,9 @@ const InstallerProfilePage: React.FC = () => {
           <Button
             variant={operationalStatus === 'ACTIVE' ? 'secondary' : 'primary'}
             onClick={() => handleStatusToggle(operationalStatus === 'ACTIVE' ? 'PAUSED' : 'ACTIVE')}
+            disabled={togglingStatus}
           >
-            {operationalStatus === 'ACTIVE' ? 'Pause Operations' : 'Resume Operations'}
+            {togglingStatus ? 'Updating...' : (operationalStatus === 'ACTIVE' ? 'Pause Operations' : 'Resume Operations')}
           </Button>
         )}
       </div>
@@ -346,7 +471,7 @@ const InstallerProfilePage: React.FC = () => {
             {isEditing ? (
               <input
                 type="text"
-                defaultValue={user.name}
+                defaultValue={user.name || ''}
                 className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
               />
             ) : (
@@ -398,7 +523,7 @@ const InstallerProfilePage: React.FC = () => {
               <input
                 type="text"
                 value={editableVerification?.companyName || ''}
-                onChange={(e) => setEditableVerification(prev => ({ ...prev!, companyName: e.target.value }))}
+                onChange={(e) => setEditableVerification((prev: any) => ({ ...prev!, companyName: e.target.value }))}
                 className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
               />
             ) : (
@@ -412,7 +537,7 @@ const InstallerProfilePage: React.FC = () => {
               <input
                 type="text"
                 value={editableVerification?.representativeName || ''}
-                onChange={(e) => setEditableVerification(prev => ({ ...prev!, representativeName: e.target.value }))}
+                onChange={(e) => setEditableVerification((prev: any) => ({ ...prev!, representativeName: e.target.value }))}
                 className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
               />
             ) : (
@@ -426,7 +551,7 @@ const InstallerProfilePage: React.FC = () => {
               <input
                 type="text"
                 value={editableVerification?.designation || ''}
-                onChange={(e) => setEditableVerification(prev => ({ ...prev!, designation: e.target.value }))}
+                onChange={(e) => setEditableVerification((prev: any) => ({ ...prev!, designation: e.target.value }))}
                 className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
               />
             ) : (
@@ -454,7 +579,7 @@ const InstallerProfilePage: React.FC = () => {
               <input
                 type="text"
                 value={editableVerification?.abnOrLicense || ''}
-                onChange={(e) => setEditableVerification(prev => ({ ...prev!, abnOrLicense: e.target.value }))}
+                onChange={(e) => setEditableVerification((prev: any) => ({ ...prev!, abnOrLicense: e.target.value }))}
                 className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
               />
             ) : (
@@ -468,7 +593,7 @@ const InstallerProfilePage: React.FC = () => {
               <input
                 type="number"
                 value={editableVerification?.establishedYear || ''}
-                onChange={(e) => setEditableVerification(prev => ({ ...prev!, establishedYear: parseInt(e.target.value) }))}
+                onChange={(e) => setEditableVerification((prev: any) => ({ ...prev!, establishedYear: parseInt(e.target.value) }))}
                 className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
                 min="1900"
                 max={new Date().getFullYear()}
@@ -484,7 +609,7 @@ const InstallerProfilePage: React.FC = () => {
               <input
                 type="number"
                 value={editableVerification?.employeeCount || ''}
-                onChange={(e) => setEditableVerification(prev => ({ ...prev!, employeeCount: parseInt(e.target.value) }))}
+                onChange={(e) => setEditableVerification((prev: any) => ({ ...prev!, employeeCount: parseInt(e.target.value) }))}
                 className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
                 min="1"
               />
@@ -499,7 +624,7 @@ const InstallerProfilePage: React.FC = () => {
               <input
                 type="url"
                 value={editableVerification?.website || ''}
-                onChange={(e) => setEditableVerification(prev => ({ ...prev!, website: e.target.value }))}
+                onChange={(e) => setEditableVerification((prev: any) => ({ ...prev!, website: e.target.value }))}
                 className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
                 placeholder="https://www.example.com"
               />
@@ -513,7 +638,7 @@ const InstallerProfilePage: React.FC = () => {
             {isEditingVerification ? (
               <textarea
                 value={editableVerification?.companyDescription || ''}
-                onChange={(e) => setEditableVerification(prev => ({ ...prev!, companyDescription: e.target.value }))}
+                onChange={(e) => setEditableVerification((prev: any) => ({ ...prev!, companyDescription: e.target.value }))}
                 className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
                 rows={4}
                 placeholder="Tell us about your company..."
@@ -854,7 +979,7 @@ const InstallerProfilePage: React.FC = () => {
               <input
                 type="checkbox"
                 checked={localPreferences.alertNewLead}
-                onChange={(e) => setLocalPreferences(prev => ({ ...prev, alertNewLead: e.target.checked }))}
+                onChange={(e) => handlePreferenceToggle('alertNewLead', e.target.checked)}
                 className="sr-only peer"
               />
               <div className="w-11 h-6 bg-surface border-2 border-border peer-focus:ring-2 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:border-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-foreground after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary/20" />
@@ -870,7 +995,7 @@ const InstallerProfilePage: React.FC = () => {
               <input
                 type="checkbox"
                 checked={localPreferences.alertLeadUpdates}
-                onChange={(e) => setLocalPreferences(prev => ({ ...prev, alertLeadUpdates: e.target.checked }))}
+                onChange={(e) => handlePreferenceToggle('alertLeadUpdates', e.target.checked)}
                 className="sr-only peer"
               />
               <div className="w-11 h-6 bg-surface border-2 border-border peer-focus:ring-2 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:border-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-foreground after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary/20" />
@@ -886,7 +1011,7 @@ const InstallerProfilePage: React.FC = () => {
               <input
                 type="checkbox"
                 checked={localPreferences.alertAdminMessages}
-                onChange={(e) => setLocalPreferences(prev => ({ ...prev, alertAdminMessages: e.target.checked }))}
+                onChange={(e) => handlePreferenceToggle('alertAdminMessages', e.target.checked)}
                 className="sr-only peer"
               />
               <div className="w-11 h-6 bg-surface border-2 border-border peer-focus:ring-2 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:border-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-foreground after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary/20" />
@@ -902,7 +1027,7 @@ const InstallerProfilePage: React.FC = () => {
               <input
                 type="checkbox"
                 checked={localPreferences.alertVerificationUpdates}
-                onChange={(e) => setLocalPreferences(prev => ({ ...prev, alertVerificationUpdates: e.target.checked }))}
+                onChange={(e) => handlePreferenceToggle('alertVerificationUpdates', e.target.checked)}
                 className="sr-only peer"
               />
               <div className="w-11 h-6 bg-surface border-2 border-border peer-focus:ring-2 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:border-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-foreground after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary/20" />
@@ -918,7 +1043,7 @@ const InstallerProfilePage: React.FC = () => {
               <input
                 type="checkbox"
                 checked={localPreferences.alertAccountActivity}
-                onChange={(e) => setLocalPreferences(prev => ({ ...prev, alertAccountActivity: e.target.checked }))}
+                onChange={(e) => handlePreferenceToggle('alertAccountActivity', e.target.checked)}
                 className="sr-only peer"
               />
               <div className="w-11 h-6 bg-surface border-2 border-border peer-focus:ring-2 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:border-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-foreground after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary/20" />
@@ -932,6 +1057,7 @@ const InstallerProfilePage: React.FC = () => {
         open={isVerificationModalOpen}
         onClose={() => setIsVerificationModalOpen(false)}
         onSubmit={handleVerificationSubmit}
+        isSubmitting={submittingVerification}
       />
 
       {/* Contact Verification Modal */}

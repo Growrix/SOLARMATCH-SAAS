@@ -2101,3 +2101,8 @@ I want you to create a installer Profile page in the Installers dashboard. This 
 ***strict rules*** while building new components never use hardcoded ui , no inline styles, only semantic classes from the global css. always test everything after making changes. do to attempt blindly if you dont have clear picture. never touch any backend or UX even. only work with the UI when you are build the UI. only semantic approach is allowed. never do partial/incomplete work. always complete the full task as per the plan. 
 
 --------------------------------------------------------------------------
+
+***backend test*** After I submitted the verification from by clickin on "submit application" , I see there is no action or nothing happened. Therefore the admin part also remained unchanged. 
+
+***Insturctions***
+please check the backend connection and impliment the backend logic to store the data in the database accordingly. Do a audit to undertand the situation and the frontend and backend connection gaps/missing implimentations. create a comprhensive audit report of the issues found and the plan to fix them. after that start fixing the issues step by step.  create the audit report under this folder D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification. And create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification\tasks.md file for this task and start implimenting the changes step by step as per the plan you created.

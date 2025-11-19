@@ -145,6 +145,234 @@ npm run build
 
 ---
 
+## Phase B6  Frontend-Backend Integration (CRITICAL)
+
+**Status**: 🔴 In Progress  
+**Priority**: P0 - All features currently non-functional  
+**Reference**: `FRONTEND-BACKEND-INTEGRATION-AUDIT.md`
+
+### Critical Issue
+All backend APIs are functional, but no frontend-backend connections exist. Users clicking "Submit Application" see no action because data is only logged to console and never reaches the API.
+
+### Task Breakdown
+
+#### B6.1: Create API Client Library ✅
+- **File**: `src/lib/api/installer.ts` (new)
+- **Purpose**: Centralized fetch wrappers for all installer endpoints
+- **Deliverables**:
+  - TypeScript interfaces for request/response types
+  - Error handling utilities
+  - Functions: `submitVerification()`, `uploadDocument()`, `fetchProfile()`, `updateProfile()`, `updatePreferences()`, `changePassword()`, `toggleStatus()`
+- **Acceptance**: All API functions typed, error handling consistent
+- **Commit**: "feat(installer): add API client library for backend integration"
+
+#### B6.2: Implement File Upload System ✅
+- **Files**: 
+  - `src/components/installer/VerificationModal.tsx` (update)
+  - `src/hooks/useFileUpload.ts` (new custom hook)
+- **Deliverables**:
+  - Hidden file input elements for license, ABN, logo
+  - onChange handlers with file validation (type, size)
+  - Presigned URL fetch from `GET /api/installer/uploads/presign`
+  - Direct S3 upload via presigned URL
+  - S3 key storage in formData state
+  - Upload progress indicators
+  - Error handling with user feedback
+- **Acceptance**: 
+  - File selector opens on upload area click
+  - Valid files upload to S3
+  - Keys stored in form state
+  - Invalid files show error messages
+  - Upload progress visible
+- **Commit**: "feat(installer): implement S3 file upload with presigned URLs"
+
+#### B6.3: Wire Verification Submission ✅
+- **File**: `src/app/installer/(dashboard)/profile/page.tsx`
+- **Deliverables**:
+  - Replace `console.log` with API call to `POST /api/installer/verification/submit`
+  - Add loading state (disable submit button, show spinner)
+  - Handle success: update local state, show success message, close modal
+  - Handle errors: display error message, keep modal open, allow retry
+  - Update profile data after successful submission
+- **Acceptance**:
+  - Clicking submit calls API
+  - Data persists in database (verified via Prisma Studio)
+  - Success feedback shown
+  - Errors displayed with actionable messages
+  - Modal only closes on success
+- **Commit**: "feat(installer): wire verification submission to backend API"
+
+#### B6.4: Wire Profile GET API ✅
+- **File**: `src/app/installer/(dashboard)/profile/page.tsx`
+- **Deliverables**:
+  - Replace `useMockProfileData()` with real API fetch
+  - Add `useEffect` to fetch profile data on component mount
+  - Add loading skeleton during initial load
+  - Handle fetch errors with retry option
+  - Store API response in state
+- **Acceptance**:
+  - Profile data loads from database on page load
+  - Loading state visible during fetch
+  - Real user data displayed (not mock data)
+  - Errors show retry button
+  - Data refreshes after updates
+- **Commit**: "feat(installer): fetch profile data from backend API"
+
+#### B6.5: Wire Profile PUT API ✅
+- **File**: `src/app/installer/(dashboard)/profile/page.tsx`
+- **Deliverables**:
+  - Implement API call in `handleSaveVerificationEdits()`
+  - Call `PUT /api/installer/profile` with updated fields
+  - Add loading state during save
+  - Update local state on success
+  - Show success/error feedback
+- **Acceptance**:
+  - Profile updates persist to database
+  - Changes visible after page refresh
+  - Success message shown
+  - Errors handled gracefully
+- **Commit**: "feat(installer): wire profile update to backend API"
+
+#### B6.6: Wire Preferences GET/PUT APIs ✅
+- **File**: `src/app/installer/(dashboard)/profile/page.tsx`
+- **Deliverables**:
+  - Fetch preferences from `GET /api/installer/preferences` on mount
+  - Wire toggle handlers to `PUT /api/installer/preferences`
+  - Implement optimistic updates (instant UI feedback)
+  - Rollback on API failure
+  - Show error feedback if save fails
+- **Acceptance**:
+  - Preferences load from database
+  - Toggles update immediately (optimistic)
+  - Changes persist across page refreshes
+  - Failed updates rollback to previous state
+- **Commit**: "feat(installer): wire preferences to backend API with optimistic updates"
+
+#### B6.7: Wire Password Change API ✅
+- **File**: `src/app/installer/(dashboard)/profile/page.tsx`
+- **Deliverables**:
+  - Implement API call in `handlePasswordChange()`
+  - Call `POST /api/installer/account/change-password`
+  - Add loading state during password change
+  - Handle session invalidation (force logout after success)
+  - Show success message before logout
+  - Handle validation errors from API (wrong current password, weak password)
+- **Acceptance**:
+  - Password changes persist
+  - User logged out after successful change
+  - New password works on next login
+  - Old password no longer works
+  - Validation errors displayed clearly
+- **Commit**: "feat(installer): wire password change with session invalidation"
+
+#### B6.8: Wire Status Toggle API ✅
+- **File**: `src/app/installer/(dashboard)/profile/page.tsx`
+- **Deliverables**:
+  - Call `PUT /api/installer/account/status` in `handleStatusToggle()`
+  - Add loading state during toggle
+  - Update local state on success
+  - Show feedback (success/error)
+  - Verify status persists across sessions
+- **Acceptance**:
+  - Status changes persist to database
+  - PAUSED status shows banner immediately
+  - ACTIVE status removes banner
+  - Changes visible after page refresh
+- **Commit**: "feat(installer): wire operational status toggle to backend API"
+
+#### B6.9: Add Loading & Error States ✅
+- **Files**: All components with API calls
+- **Deliverables**:
+  - Add loading spinners for all async operations
+  - Disable buttons/forms during submission
+  - Display error messages with retry options
+  - Add success toasts/messages
+  - Implement timeout handling (30s limit)
+- **Acceptance**:
+  - All API calls show loading indicators
+  - Forms disabled during submission (prevent double-submit)
+  - Errors actionable (retry button, clear message)
+  - Success feedback visible
+  - No console errors
+- **Commit**: "feat(installer): add comprehensive loading and error states"
+
+#### B6.10: Admin Panel Integration ✅
+- **Files**: `src/app/admin/installers/**`
+- **Deliverables**:
+  - Wire admin verification detail view to `GET /api/admin/installers/[id]/verification`
+  - Wire approve/reject/request-info to `PUT /api/admin/installers/[id]/verification`
+  - Wire logs display to `GET /api/admin/installers/[id]/logs`
+  - Wire admin status control to `PUT /api/admin/installers/[id]/status`
+  - Add loading states and error handling
+- **Acceptance**:
+  - Admin sees real verification submissions
+  - Admin actions persist to database
+  - Installer notified of admin actions
+  - Logs display all verification history
+  - Status changes reflected immediately
+- **Commit**: "feat(admin): wire installer verification management to backend APIs"
+
+#### B6.11: End-to-End Testing ✅
+- **Scope**: Full user journey testing
+- **Test Cases**:
+  1. Installer submits verification → verify DB entry created with status PENDING
+  2. Upload license/ABN/logo → verify files in S3, keys in DB
+  3. Admin approves verification → verify `user.installerVerified = true`
+  4. Installer edits profile → verify changes persist
+  5. Installer changes password → verify forced logout, new password works
+  6. Installer toggles PAUSED → verify no new leads assigned
+  7. Admin rejects verification → verify installer sees rejection message
+  8. Admin requests more info → verify notification sent
+  9. All preferences toggle → verify persistence across sessions
+  10. Page refresh after each action → verify data consistency
+- **Acceptance**: All test cases pass, no console errors, TypeScript clean
+- **Documentation**: Update `BACKEND-COMPLETE.md` with test results
+
+### Validation Commands (Run after each task)
+
+```powershell
+# TypeScript check
+npx tsc --noEmit
+
+# Build check
+npm run build
+
+# Semantic verification (per modified file)
+Select-String -Path "<file>" -Pattern "text-gray-|text-slate-|text-zinc-|bg-gray-|bg-slate-|bg-zinc-|border-gray-|border-slate-"
+Select-String -Path "<file>" -Pattern "dark:"
+Select-String -Path "<file>" -Pattern "rgba\(|rgb\(|#[0-9a-fA-F]{3,6}"
+Select-String -Path "<file>" -Pattern "text-white|bg-white|text-black|bg-black"
+Select-String -Path "<file>" -Pattern "text-xs|text-sm|text-lg|text-xl|font-bold|font-semibold"
+```
+
+### Success Criteria
+- ✅ All form submissions reach backend APIs
+- ✅ Data persists in PostgreSQL database
+- ✅ File uploads work with S3 presigned URLs (or gracefully skipped if S3 not configured)
+- ✅ Profile data loads from API (no mock data)
+- ✅ All updates persist across page refreshes
+- ✅ Admin sees submitted verifications and can take actions
+- ✅ Admin actions update installer state and send notifications
+- ✅ Password change invalidates session
+- ✅ Loading states visible during all async operations
+- ✅ Errors displayed with actionable messages
+- ✅ Form validation prevents invalid submissions
+- ✅ Success feedback confirms actions
+- ✅ No console errors in browser
+- ✅ TypeScript compiles with 0 errors
+- ✅ npm run build succeeds
+
+### Dependencies
+- ✅ Backend APIs functional (Phase B5 complete)
+- ✅ Database schema complete
+- ✅ Validation schemas in place
+- ⚠️ S3 configuration (optional - AWS credentials needed for uploads)
+
+### Rollback Plan
+If critical issues found, rollback to commit before Phase B6 and reassess approach.
+
+---
+
 ## Future Enhancements (Optional)
 - Email templates for approval/rejection/pause.
 - Webhooks/audit to external BI.
