@@ -227,6 +227,9 @@ const InstallersTable: React.FC = () => {
                     <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
                       Status
                     </th>
+                    <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-background divide-y divide-border">
@@ -294,6 +297,15 @@ const InstallersTable: React.FC = () => {
                         }`}>
                           {installer.isActive ? 'Active' : 'Inactive'}
                         </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <Button
+                          onClick={() => window.location.href = `/admin/installers/${installer.id}`}
+                          variant="secondary"
+                          className="text-body-small"
+                        >
+                          View Details
+                        </Button>
                       </td>
                     </tr>
                   ))}
@@ -369,6 +381,15 @@ const InstallersTable: React.FC = () => {
                         {installer.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </div>
+                  </div>
+                  <div className="mt-3">
+                    <Button
+                      onClick={() => window.location.href = `/admin/installers/${installer.id}`}
+                      variant="secondary"
+                      className="w-full text-body-small"
+                    >
+                      View Details
+                    </Button>
                   </div>
                 </div>
               ))}

@@ -14,6 +14,7 @@ export default function InstallerDashboardLayout({ children }: { children: React
 	// Determine active page based on pathname
 	const getActivePage = () => {
 		if (pathname.includes('/leads')) return 'Lead Feed';
+		if (pathname.includes('/profile')) return 'Profile';
 		return 'Dashboard';
 	};
 	

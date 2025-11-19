@@ -2044,3 +2044,65 @@ You must audit the existing UI/UX design and routing structure of the site to ga
 ***strict rules*** while building new components never use hardcoded ui , no inline styles, only semantic classes from the global css. always test everything after making changes. do to attempt blindly if you dont have clear picture. never touch any backend or UX even. only work with the UI when you are build the UI. only semantic approach is allowed. 
 
 ***Goal*** The main goal of this blueprint/Design system is to ensure a consistent and user-friendly experience for all kind of UI development while maintaining alignment with the overall theming system of the site. So prepare that blueprint as per the Instructions above and also make sure that we can achieve the goal. you can enhance the blueprint as per your understanding to achieve the goal. it is not only about the installers part, it is for all the next builds of the site. so keep in mind that. 
+
+-----------------------------------------------------------------------------
+***Installer Verification form*** the installers should fill up this form and submit to the admin , so the admin can verify and approve the instalers as a Verified installers. The required fields are : 
+
+- Mandatory fileds
+Company name , Representation name, Designation, Contact number , Email Address, Post code/multiple post codes if serving in multiple areas, ABN/licence number, company established year, employee count, types of services offered (solar installation, maintenance, inspection etc), service areas (suburbs, cities, regions etc), 
+
+- Optional Fields: website address, social media links , brief company description (about us), upload licence document, upload ABN document, upload company logo, 
+
+***Installer Profile Page***
+
+I want you to create a installer Profile page in the Installers dashboard. This page will allow installers to view and edit their profile information, including personal details, contact information, company details, and any other relevant information. The profile page should be designed to be user-friendly and easy to navigate, with clear sections for different types of information. The profile page should include the following features: 
+1. View Profile Information:
+- Display the installer's profile information in a clear and organized manner.
+- Include sections for personal details (name, contact information), company details (company name, address, license number), and any other relevant information.
+- Provide an option to upload a profile picture or company logo.
+2. Edit Profile Information:
+- Include an "Edit Profile" button that allows installers to update their profile information.
+- Implement form validation to ensure that all required fields are filled out correctly.
+- Provide a "Save Changes" button to submit the updated information.
+- Include a "Cancel" button to discard any changes and return to the view mode.
+3. Change Password:
+- Include an option for installers to change their account password.
+- Implement form validation to ensure that the new password meets security requirements.
+- Provide a "Save Password" button to submit the new password.
+4. Notifications and Preferences:
+- Include a section for installers to manage their notification preferences (e.g., email notifications for new leads, updates, etc.).
+- Provide options to enable or disable specific types of notifications.
+5. Responsive Design:
+- Ensure that the profile page is responsive and works well on different screen sizes and devices.
+6. Contact Verification:
+- Include a contact verification process to ensure the accuracy of the installer's contact information.
+7. Email Verification: 
+- Implement an email verification process to confirm the installer's email address.
+
+ 
+
+
+---------------------------------------------------------------------------
+
+***Visual test result*** I have tested the ui you built . found some mismatch between installers verification modal and Admin installers verification view modal. The installers verification modals shoud be updated as per the admin installers verification view modal design.
+
+***Installers Profile page overview and issues found*** The profile page should have all the fields that has in the verfication modal , becuase the installers should be able to edit/update those fields later after submitting the verification form. but I can see the profile page has very limited fields and options to edit. as there are a lot of optional field in the installers verification modal and they must have options to fillup/upload them later from the profile. 
+
+***Modification & upgradation***
+- There is no change password option in the profile page. please add that section as well. 
+- There should a bar on the top of the page showing a switch that can Pause/Activate the installer profile. when the profile is paused , the installer will not receive any new leads,The admin will be notified too in the installers page. it should show active,inactive,pause status in the Installers page in the admin dashbaord. This option is for the installers when they are on holiday or need a temporary pause. 
+
+
+***instructions***
+ as we have modified our UI , so you have to update the backend plan accordingly. Audit the current implimentations first, understand what you built vs what else need to update. before that commit all the changes, so that we can rollback anytime to this current state.
+ - After the audit findings update the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification\tasks.md file with the new plan to fix and impliment the changes needed. after that start fixing the issues step by step. Make sure to keep everything aligned. 
+- you must update this D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification\profile&verification_implimenetation.md. As we have picked issues,updated plan, modified ui , we must need to be aligned with the backend plans accordingly. so the frontend changes stays aligned with the backend too. 
+
+***strict rules*** while building new components never use hardcoded ui , no inline styles, only semantic classes from the global css. always test everything after making changes. do to attempt blindly if you dont have clear picture. never touch any backend or UX even. only work with the UI when you are build the UI. only semantic approach is allowed. 
+
+
+
+
+
+
+the installers profile page now has limited edit options. I want the installers can edit all the other sections too. as you are saying the UI build is done but I see the profile page has nothing with the change password ,also no social media link input options,   And I want another section in the profile page that will show all the information that provided in the verification form  including optional fields , becuase the users should be able to submit those documenets later or edit/update any fileds later. 
