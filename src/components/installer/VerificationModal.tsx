@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Button from '@/components/ui/button';
 import { z } from 'zod';
+import { useMultiFileUpload } from '@/hooks/useFileUpload';
 
 interface VerificationModalProps {
   open: boolean;
@@ -52,6 +53,12 @@ const VerificationModal: React.FC<VerificationModalProps> = ({ open, onClose, on
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [sectionErrors, setSectionErrors] = useState<Record<string, string[]>>({});
+  
+  // File upload refs and state
+  const licenseFileRef = useRef<HTMLInputElement>(null);
+  const abnFileRef = useRef<HTMLInputElement>(null);
+  const logoFileRef = useRef<HTMLInputElement>(null);
+  const { uploadStates, upload: uploadFile } = useMultiFileUpload();
 
   // Format phone to E.164 on change
   const handlePhoneChange = (value: string) => {
@@ -60,6 +67,27 @@ const VerificationModal: React.FC<VerificationModalProps> = ({ open, onClose, on
       formatted = '+61 ' + formatted.replace(/^\+?61\s?/, '');
     }
     setFormData(prev => ({ ...prev, phone: formatted }));
+  };
+
+  // File upload handlers
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>, uploadId: string, fileType: 'document' | 'logo') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const key = await uploadFile(uploadId, file, fileType);
+    if (key) {
+      // Store key in form data
+      if (uploadId === 'license') {
+        setFormData(prev => ({ ...prev, licenseDocKey: key }));
+      } else if (uploadId === 'abn') {
+        setFormData(prev => ({ ...prev, abnDocKey: key }));
+      } else if (uploadId === 'logo') {
+        setFormData(prev => ({ ...prev, logoKey: key }));
+      }
+    }
+    
+    // Reset file input
+    e.target.value = '';
   };
 
   // Validate entire form and categorize errors by section
@@ -326,16 +354,56 @@ const VerificationModal: React.FC<VerificationModalProps> = ({ open, onClose, on
               <label className="block text-body-small text-foreground mb-2">
                 Upload License Document (Optional)
               </label>
-              <div className="border-2 border-dashed border-border rounded-xl p-6 text-center bg-surface shadow-neu-inset hover:border-primary transition-colors cursor-pointer">
-                <svg className="mx-auto h-12 w-12 text-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                </svg>
-                <p className="text-body-small text-muted-foreground mt-2">
-                  Click to upload or drag and drop
-                </p>
-                <p className="text-caption text-muted-foreground">
-                  PDF, JPG, PNG (max 5MB)
-                </p>
+              <input
+                ref={licenseFileRef}
+                type="file"
+                accept="application/pdf,image/jpeg,image/jpg,image/png"
+                onChange={(e) => handleFileSelect(e, 'license', 'document')}
+                style={{ display: 'none' }}
+              />
+              <div 
+                onClick={() => licenseFileRef.current?.click()}
+                className="border-2 border-dashed border-border rounded-xl p-6 text-center bg-surface shadow-neu-inset hover:border-primary transition-colors cursor-pointer"
+              >
+                {uploadStates.license?.uploading ? (
+                  <>
+                    <div className="mx-auto h-12 w-12 relative">
+                      <svg className="animate-spin h-12 w-12 text-primary" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                    </div>
+                    <p className="text-body-small text-foreground mt-2">Uploading... {Math.round(uploadStates.license.progress)}%</p>
+                  </>
+                ) : uploadStates.license?.key ? (
+                  <>
+                    <svg className="mx-auto h-12 w-12 text-success" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <p className="text-body-small text-success mt-2">Uploaded successfully</p>
+                    <p className="text-caption text-muted-foreground">Click to replace</p>
+                  </>
+                ) : uploadStates.license?.error ? (
+                  <>
+                    <svg className="mx-auto h-12 w-12 text-error" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                    <p className="text-body-small text-error mt-2">{uploadStates.license.error}</p>
+                    <p className="text-caption text-muted-foreground">Click to retry</p>
+                  </>
+                ) : (
+                  <>
+                    <svg className="mx-auto h-12 w-12 text-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    <p className="text-body-small text-muted-foreground mt-2">
+                      Click to upload or drag and drop
+                    </p>
+                    <p className="text-caption text-muted-foreground">
+                      PDF, JPG, PNG (max 5MB)
+                    </p>
+                  </>
+                )}
               </div>
             </div>
 
@@ -343,16 +411,56 @@ const VerificationModal: React.FC<VerificationModalProps> = ({ open, onClose, on
               <label className="block text-body-small text-foreground mb-2">
                 Upload ABN Document (Optional)
               </label>
-              <div className="border-2 border-dashed border-border rounded-xl p-6 text-center bg-surface shadow-neu-inset hover:border-primary transition-colors cursor-pointer">
-                <svg className="mx-auto h-12 w-12 text-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                </svg>
-                <p className="text-body-small text-muted-foreground mt-2">
-                  Click to upload or drag and drop
-                </p>
-                <p className="text-caption text-muted-foreground">
-                  PDF, JPG, PNG (max 5MB)
-                </p>
+              <input
+                ref={abnFileRef}
+                type="file"
+                accept="application/pdf,image/jpeg,image/jpg,image/png"
+                onChange={(e) => handleFileSelect(e, 'abn', 'document')}
+                style={{ display: 'none' }}
+              />
+              <div 
+                onClick={() => abnFileRef.current?.click()}
+                className="border-2 border-dashed border-border rounded-xl p-6 text-center bg-surface shadow-neu-inset hover:border-primary transition-colors cursor-pointer"
+              >
+                {uploadStates.abn?.uploading ? (
+                  <>
+                    <div className="mx-auto h-12 w-12 relative">
+                      <svg className="animate-spin h-12 w-12 text-primary" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                    </div>
+                    <p className="text-body-small text-foreground mt-2">Uploading... {Math.round(uploadStates.abn.progress)}%</p>
+                  </>
+                ) : uploadStates.abn?.key ? (
+                  <>
+                    <svg className="mx-auto h-12 w-12 text-success" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <p className="text-body-small text-success mt-2">Uploaded successfully</p>
+                    <p className="text-caption text-muted-foreground">Click to replace</p>
+                  </>
+                ) : uploadStates.abn?.error ? (
+                  <>
+                    <svg className="mx-auto h-12 w-12 text-error" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                    <p className="text-body-small text-error mt-2">{uploadStates.abn.error}</p>
+                    <p className="text-caption text-muted-foreground">Click to retry</p>
+                  </>
+                ) : (
+                  <>
+                    <svg className="mx-auto h-12 w-12 text-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    <p className="text-body-small text-muted-foreground mt-2">
+                      Click to upload or drag and drop
+                    </p>
+                    <p className="text-caption text-muted-foreground">
+                      PDF, JPG, PNG (max 5MB)
+                    </p>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -565,16 +673,56 @@ const VerificationModal: React.FC<VerificationModalProps> = ({ open, onClose, on
               <label className="block text-body-small text-foreground mb-2">
                 Company Logo (Optional)
               </label>
-              <div className="border-2 border-dashed border-border rounded-xl p-6 text-center bg-surface shadow-neu-inset hover:border-primary transition-colors cursor-pointer">
-                <svg className="mx-auto h-12 w-12 text-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <p className="text-body-small text-muted-foreground mt-2">
-                  Click to upload logo
-                </p>
-                <p className="text-caption text-muted-foreground">
-                  PNG, JPG (max 2MB)
-                </p>
+              <input
+                ref={logoFileRef}
+                type="file"
+                accept="image/jpeg,image/jpg,image/png"
+                onChange={(e) => handleFileSelect(e, 'logo', 'logo')}
+                style={{ display: 'none' }}
+              />
+              <div 
+                onClick={() => logoFileRef.current?.click()}
+                className="border-2 border-dashed border-border rounded-xl p-6 text-center bg-surface shadow-neu-inset hover:border-primary transition-colors cursor-pointer"
+              >
+                {uploadStates.logo?.uploading ? (
+                  <>
+                    <div className="mx-auto h-12 w-12 relative">
+                      <svg className="animate-spin h-12 w-12 text-primary" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                    </div>
+                    <p className="text-body-small text-foreground mt-2">Uploading... {Math.round(uploadStates.logo.progress)}%</p>
+                  </>
+                ) : uploadStates.logo?.key ? (
+                  <>
+                    <svg className="mx-auto h-12 w-12 text-success" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <p className="text-body-small text-success mt-2">Uploaded successfully</p>
+                    <p className="text-caption text-muted-foreground">Click to replace</p>
+                  </>
+                ) : uploadStates.logo?.error ? (
+                  <>
+                    <svg className="mx-auto h-12 w-12 text-error" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                    <p className="text-body-small text-error mt-2">{uploadStates.logo.error}</p>
+                    <p className="text-caption text-muted-foreground">Click to retry</p>
+                  </>
+                ) : (
+                  <>
+                    <svg className="mx-auto h-12 w-12 text-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <p className="text-body-small text-muted-foreground mt-2">
+                      Click to upload logo
+                    </p>
+                    <p className="text-caption text-muted-foreground">
+                      PNG, JPG (max 2MB)
+                    </p>
+                  </>
+                )}
               </div>
             </div>
           </div>
