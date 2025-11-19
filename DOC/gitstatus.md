@@ -113,3 +113,15 @@
 - All commits follow conventional commit format
 - Pre-commit hooks validate className usage (0 violations required)
 - Build validation ensures TypeScript and Next.js compatibility
+
+---
+
+### Documentation Update (November 19, 2025)
+**Commit:** `f3b8ed89aab82400abc58f6ee45c5154a728590c` - Audit: Installer frontend/backend/auth + plan to separate marketing homepage from dashboard via route groups. No code changes yet.  
+**Branch:** `main-secondary`
+
+**Files Added:**
+- `DOC/Installers/installer-audit-2025-11-19.md`
+- `DOC/Installers/plan-homepage-layout-fix.md`
+
+**Summary:** Added full installer-side audit (routes, layouts, middleware/auth, APIs) and a concrete plan to split the installer marketing homepage from the dashboard via App Router route groups.
