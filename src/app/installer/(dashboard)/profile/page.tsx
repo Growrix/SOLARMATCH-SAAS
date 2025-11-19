@@ -19,15 +19,33 @@ const useMockProfileData = () => {
       installerVerified: false,
       image: null,
     },
+    profile: {
+      operationalStatus: 'ACTIVE', // ACTIVE | PAUSED | INACTIVE
+    },
     verification: {
       status: 'PENDING', // PENDING | APPROVED | REJECTED | MORE_INFO
       companyName: 'Solar Solutions Pty Ltd',
       representativeName: 'John Smith',
       designation: 'Managing Director',
+      email: 'john@solarsolutions.com.au',
+      phone: '+61 412 345 678',
+      abnOrLicense: '12 345 678 901',
+      establishedYear: 2020,
+      employeeCount: 5,
       services: ['Installation', 'Maintenance'],
       serviceAreas: ['Sydney', 'Regional NSW'],
       postcodes: ['2000', '2001'],
       website: 'https://www.solarsolutions.com.au',
+      socialLinks: {
+        facebook: 'https://facebook.com/solarsolutions',
+        instagram: 'https://instagram.com/solarsolutions',
+        linkedin: 'https://linkedin.com/company/solarsolutions',
+        youtube: '',
+      },
+      companyDescription: 'Leading solar installation company in Sydney with 5+ years of experience.',
+      licenseDocKey: 'license-doc-key',
+      abnDocKey: 'abn-doc-key',
+      logoKey: 'logo-key',
       adminNotes: null,
     },
     preferences: {
@@ -41,10 +59,25 @@ const useMockProfileData = () => {
 };
 
 const InstallerProfilePage: React.FC = () => {
-  const { user, verification, preferences } = useMockProfileData();
+  const { user, profile, verification, preferences } = useMockProfileData();
   const [isEditing, setIsEditing] = useState(false);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
   const [localPreferences, setLocalPreferences] = useState(preferences);
+  
+  // F8: Operational status state
+  const [operationalStatus, setOperationalStatus] = useState(profile.operationalStatus);
+
+  // F6: Editable verification fields state
+  const [editableVerification, setEditableVerification] = useState(verification);
+  const [isEditingVerification, setIsEditingVerification] = useState(false);
+
+  // F7: Password change state
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [passwordErrors, setPasswordErrors] = useState<Record<string, string>>({});
 
   // Contact verification state
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
@@ -107,6 +140,59 @@ const InstallerProfilePage: React.FC = () => {
     // TODO: API call in Phase B5
   };
 
+  // F7: Password validation
+  const validatePassword = () => {
+    const errors: Record<string, string> = {};
+    
+    if (!passwordData.currentPassword) {
+      errors.currentPassword = 'Current password is required';
+    }
+    
+    if (!passwordData.newPassword) {
+      errors.newPassword = 'New password is required';
+    } else if (passwordData.newPassword.length < 12) {
+      errors.newPassword = 'Password must be at least 12 characters';
+    } else if (!/[A-Z]/.test(passwordData.newPassword)) {
+      errors.newPassword = 'Password must contain uppercase letter';
+    } else if (!/[a-z]/.test(passwordData.newPassword)) {
+      errors.newPassword = 'Password must contain lowercase letter';
+    } else if (!/[0-9]/.test(passwordData.newPassword)) {
+      errors.newPassword = 'Password must contain a number';
+    } else if (!/[^A-Za-z0-9]/.test(passwordData.newPassword)) {
+      errors.newPassword = 'Password must contain a special character';
+    }
+    
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      errors.confirmPassword = 'Passwords do not match';
+    }
+    
+    setPasswordErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handlePasswordChange = () => {
+    if (validatePassword()) {
+      console.log('Password change requested');
+      // TODO: API call in Phase B5
+      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setPasswordErrors({});
+    }
+  };
+
+  // F8: Toggle operational status
+  const handleStatusToggle = (newStatus: 'ACTIVE' | 'PAUSED') => {
+    console.log('Status toggle:', newStatus);
+    setOperationalStatus(newStatus);
+    // TODO: API call in Phase B5
+  };
+
+  // F6: Save verification edits
+  const handleSaveVerificationEdits = () => {
+    console.log('Verification edits saved:', editableVerification);
+    setIsEditingVerification(false);
+    // TODO: API call in Phase B5
+  };
+
   const handleOTPRequested = (payload: {
     phoneNumber: string;
     verificationId: string;
@@ -142,6 +228,46 @@ const InstallerProfilePage: React.FC = () => {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+      {/* F8: Operational Status Toggle */}
+      {user.installerVerified && (
+        <div className="bg-surface border border-border rounded-xl shadow-neu-outset p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className={`w-3 h-3 rounded-full ${operationalStatus === 'ACTIVE' ? 'bg-success' : operationalStatus === 'PAUSED' ? 'bg-warning' : 'bg-error'}`} />
+            <div>
+              <p className="text-body text-foreground">
+                Operational Status: <span className="text-foreground">{operationalStatus}</span>
+              </p>
+              <p className="text-body-small text-muted-foreground">
+                {operationalStatus === 'ACTIVE' ? 'Receiving new leads' : operationalStatus === 'PAUSED' ? 'Not receiving new leads' : 'Account disabled by admin'}
+              </p>
+            </div>
+          </div>
+          {operationalStatus !== 'INACTIVE' && (
+            <Button
+              variant={operationalStatus === 'ACTIVE' ? 'secondary' : 'primary'}
+              onClick={() => handleStatusToggle(operationalStatus === 'ACTIVE' ? 'PAUSED' : 'ACTIVE')}
+            >
+              {operationalStatus === 'ACTIVE' ? 'Pause Operations' : 'Resume Operations'}
+            </Button>
+          )}
+        </div>
+      )}
+
+      {/* F8: Paused Banner */}
+      {operationalStatus === 'PAUSED' && (
+        <div className="bg-warning/10 border border-warning/20 rounded-xl p-4 flex items-start gap-3">
+          <svg className="w-6 h-6 text-warning flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+          </svg>
+          <div className="flex-1">
+            <h3 className="text-body text-foreground">Operations Paused</h3>
+            <p className="text-body-small text-muted-foreground mt-1">
+              Your account is currently paused. You will not receive new lead assignments until you resume operations. Existing leads remain accessible.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-4">
@@ -262,20 +388,199 @@ const InstallerProfilePage: React.FC = () => {
       <div className="bg-surface border border-border rounded-xl shadow-neu-outset p-6 space-y-4">
         <div className="flex items-center justify-between border-b border-border pb-3">
           <h2 className="text-heading-3 text-foreground">Company Details</h2>
+          {user.installerVerified && (
+            <Button variant="secondary" onClick={() => setIsEditingVerification(!isEditingVerification)}>
+              {isEditingVerification ? 'Cancel' : 'Edit'}
+            </Button>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-body-small text-muted-foreground mb-1">Company Name</label>
-            <p className="text-body text-foreground">{verification?.companyName || 'Not provided'}</p>
+            {isEditingVerification ? (
+              <input
+                type="text"
+                value={editableVerification?.companyName || ''}
+                onChange={(e) => setEditableVerification(prev => ({ ...prev!, companyName: e.target.value }))}
+                className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+              />
+            ) : (
+              <p className="text-body text-foreground">{verification?.companyName || 'Not provided'}</p>
+            )}
           </div>
 
           <div>
+            <label className="block text-body-small text-muted-foreground mb-1">ABN / License</label>
+            {isEditingVerification ? (
+              <input
+                type="text"
+                value={editableVerification?.abnOrLicense || ''}
+                onChange={(e) => setEditableVerification(prev => ({ ...prev!, abnOrLicense: e.target.value }))}
+                className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+              />
+            ) : (
+              <p className="text-body text-foreground">{verification?.abnOrLicense || 'Not provided'}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-body-small text-muted-foreground mb-1">Established Year</label>
+            {isEditingVerification ? (
+              <input
+                type="number"
+                value={editableVerification?.establishedYear || ''}
+                onChange={(e) => setEditableVerification(prev => ({ ...prev!, establishedYear: parseInt(e.target.value) }))}
+                className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                min="1900"
+                max={new Date().getFullYear()}
+              />
+            ) : (
+              <p className="text-body text-foreground">{verification?.establishedYear || 'Not provided'}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-body-small text-muted-foreground mb-1">Employee Count</label>
+            {isEditingVerification ? (
+              <input
+                type="number"
+                value={editableVerification?.employeeCount || ''}
+                onChange={(e) => setEditableVerification(prev => ({ ...prev!, employeeCount: parseInt(e.target.value) }))}
+                className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                min="1"
+              />
+            ) : (
+              <p className="text-body text-foreground">{verification?.employeeCount || 'Not provided'}</p>
+            )}
+          </div>
+
+          <div className="md:col-span-2">
             <label className="block text-body-small text-muted-foreground mb-1">Website</label>
-            <p className="text-body text-foreground">{verification?.website || 'Not provided'}</p>
+            {isEditingVerification ? (
+              <input
+                type="url"
+                value={editableVerification?.website || ''}
+                onChange={(e) => setEditableVerification(prev => ({ ...prev!, website: e.target.value }))}
+                className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="https://www.example.com"
+              />
+            ) : (
+              <p className="text-body text-foreground">{verification?.website || 'Not provided'}</p>
+            )}
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="block text-body-small text-muted-foreground mb-2">Company Description</label>
+            {isEditingVerification ? (
+              <textarea
+                value={editableVerification?.companyDescription || ''}
+                onChange={(e) => setEditableVerification(prev => ({ ...prev!, companyDescription: e.target.value }))}
+                className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                rows={4}
+                placeholder="Tell us about your company..."
+              />
+            ) : (
+              <p className="text-body text-foreground">{verification?.companyDescription || 'Not provided'}</p>
+            )}
           </div>
         </div>
+
+        {isEditingVerification && (
+          <div className="flex justify-end gap-3 pt-4 border-t border-border">
+            <Button variant="secondary" onClick={() => {
+              setIsEditingVerification(false);
+              setEditableVerification(verification);
+            }}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveVerificationEdits}>Save Changes</Button>
+          </div>
+        )}
       </div>
+
+      {/* F6: Social Media Links */}
+      {user.installerVerified && (
+        <div className="bg-surface border border-border rounded-xl shadow-neu-outset p-6 space-y-4">
+          <div className="flex items-center justify-between border-b border-border pb-3">
+            <h2 className="text-heading-3 text-foreground">Social Media</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-body-small text-muted-foreground mb-1">Facebook</label>
+              {isEditingVerification ? (
+                <input
+                  type="url"
+                  value={editableVerification?.socialLinks?.facebook || ''}
+                  onChange={(e) => setEditableVerification(prev => ({ 
+                    ...prev!, 
+                    socialLinks: { ...prev!.socialLinks, facebook: e.target.value } 
+                  }))}
+                  className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                  placeholder="https://facebook.com/yourpage"
+                />
+              ) : (
+                <p className="text-body text-foreground">{verification?.socialLinks?.facebook || 'Not provided'}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-body-small text-muted-foreground mb-1">Instagram</label>
+              {isEditingVerification ? (
+                <input
+                  type="url"
+                  value={editableVerification?.socialLinks?.instagram || ''}
+                  onChange={(e) => setEditableVerification(prev => ({ 
+                    ...prev!, 
+                    socialLinks: { ...prev!.socialLinks, instagram: e.target.value } 
+                  }))}
+                  className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                  placeholder="https://instagram.com/yourpage"
+                />
+              ) : (
+                <p className="text-body text-foreground">{verification?.socialLinks?.instagram || 'Not provided'}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-body-small text-muted-foreground mb-1">LinkedIn</label>
+              {isEditingVerification ? (
+                <input
+                  type="url"
+                  value={editableVerification?.socialLinks?.linkedin || ''}
+                  onChange={(e) => setEditableVerification(prev => ({ 
+                    ...prev!, 
+                    socialLinks: { ...prev!.socialLinks, linkedin: e.target.value } 
+                  }))}
+                  className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                  placeholder="https://linkedin.com/company/yourcompany"
+                />
+              ) : (
+                <p className="text-body text-foreground">{verification?.socialLinks?.linkedin || 'Not provided'}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-body-small text-muted-foreground mb-1">YouTube</label>
+              {isEditingVerification ? (
+                <input
+                  type="url"
+                  value={editableVerification?.socialLinks?.youtube || ''}
+                  onChange={(e) => setEditableVerification(prev => ({ 
+                    ...prev!, 
+                    socialLinks: { ...prev!.socialLinks, youtube: e.target.value } 
+                  }))}
+                  className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                  placeholder="https://youtube.com/@yourchannel"
+                />
+              ) : (
+                <p className="text-body text-foreground">{verification?.socialLinks?.youtube || 'Not provided'}</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Services & Areas */}
       <div className="bg-surface border border-border rounded-xl shadow-neu-outset p-6 space-y-4">
@@ -286,30 +591,216 @@ const InstallerProfilePage: React.FC = () => {
         <div className="space-y-4">
           <div>
             <label className="block text-body-small text-muted-foreground mb-2">Services Offered</label>
-            <div className="flex flex-wrap gap-2">
-              {verification?.services?.map(service => (
-                <span key={service} className="px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-body-small">
-                  {service}
-                </span>
-              ))}
-            </div>
+            {isEditingVerification ? (
+              <div className="space-y-2">
+                {['Installation', 'Maintenance', 'Inspection', 'Repair', 'Consultation'].map(service => (
+                  <label key={service} className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={editableVerification?.services?.includes(service)}
+                      onChange={(e) => {
+                        const updated = e.target.checked
+                          ? [...(editableVerification?.services || []), service]
+                          : (editableVerification?.services || []).filter(s => s !== service);
+                        setEditableVerification(prev => ({ ...prev!, services: updated }));
+                      }}
+                      className="rounded border-border text-primary focus:ring-2 focus:ring-primary"
+                    />
+                    <span className="text-body text-foreground">{service}</span>
+                  </label>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {verification?.services?.map(service => (
+                  <span key={service} className="px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-body-small">
+                    {service}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           <div>
             <label className="block text-body-small text-muted-foreground mb-2">Service Areas</label>
-            <div className="flex flex-wrap gap-2">
-              {verification?.serviceAreas?.map(area => (
-                <span key={area} className="px-3 py-1 rounded-full bg-accent/10 text-foreground border border-border text-body-small">
-                  {area}
-                </span>
-              ))}
-            </div>
+            {isEditingVerification ? (
+              <div className="space-y-2">
+                {['Sydney', 'Melbourne', 'Brisbane', 'Perth', 'Adelaide', 'Regional NSW', 'Regional VIC', 'Regional QLD'].map(area => (
+                  <label key={area} className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={editableVerification?.serviceAreas?.includes(area)}
+                      onChange={(e) => {
+                        const updated = e.target.checked
+                          ? [...(editableVerification?.serviceAreas || []), area]
+                          : (editableVerification?.serviceAreas || []).filter(a => a !== area);
+                        setEditableVerification(prev => ({ ...prev!, serviceAreas: updated }));
+                      }}
+                      className="rounded border-border text-primary focus:ring-2 focus:ring-primary"
+                    />
+                    <span className="text-body text-foreground">{area}</span>
+                  </label>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {verification?.serviceAreas?.map(area => (
+                  <span key={area} className="px-3 py-1 rounded-full bg-accent/10 text-foreground border border-border text-body-small">
+                    {area}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           <div>
             <label className="block text-body-small text-muted-foreground mb-2">Postcodes Served</label>
-            <p className="text-body text-foreground">{verification?.postcodes?.join(', ') || 'Not provided'}</p>
+            {isEditingVerification ? (
+              <input
+                type="text"
+                value={(editableVerification?.postcodes || []).join(', ')}
+                onChange={(e) => {
+                  const codes = e.target.value.split(',').map(c => c.trim()).filter(Boolean);
+                  setEditableVerification(prev => ({ ...prev!, postcodes: codes }));
+                }}
+                className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="2000, 2001, 2010"
+              />
+            ) : (
+              <p className="text-body text-foreground">{verification?.postcodes?.join(', ') || 'Not provided'}</p>
+            )}
           </div>
+        </div>
+      </div>
+
+      {/* F6: Documents Upload Section */}
+      {user.installerVerified && isEditingVerification && (
+        <div className="bg-surface border border-border rounded-xl shadow-neu-outset p-6 space-y-4">
+          <div className="border-b border-border pb-3">
+            <h2 className="text-heading-3 text-foreground">Documents & Logo</h2>
+            <p className="text-body-small text-muted-foreground mt-1">Upload or update your business documents</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-body-small text-foreground mb-2">License Document</label>
+              <div className="border-2 border-dashed border-border rounded-xl p-4 text-center bg-surface shadow-neu-inset hover:border-primary transition-colors cursor-pointer">
+                <svg className="mx-auto h-10 w-10 text-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <p className="text-caption text-muted-foreground mt-2">Upload PDF/JPG</p>
+                {verification?.licenseDocKey && (
+                  <p className="text-caption text-success mt-1">✓ Uploaded</p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-body-small text-foreground mb-2">ABN Document</label>
+              <div className="border-2 border-dashed border-border rounded-xl p-4 text-center bg-surface shadow-neu-inset hover:border-primary transition-colors cursor-pointer">
+                <svg className="mx-auto h-10 w-10 text-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <p className="text-caption text-muted-foreground mt-2">Upload PDF/JPG</p>
+                {verification?.abnDocKey && (
+                  <p className="text-caption text-success mt-1">✓ Uploaded</p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-body-small text-foreground mb-2">Company Logo</label>
+              <div className="border-2 border-dashed border-border rounded-xl p-4 text-center bg-surface shadow-neu-inset hover:border-primary transition-colors cursor-pointer">
+                <svg className="mx-auto h-10 w-10 text-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p className="text-caption text-muted-foreground mt-2">Upload PNG/JPG</p>
+                {verification?.logoKey && (
+                  <p className="text-caption text-success mt-1">✓ Uploaded</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* F7: Change Password Section */}
+      <div className="bg-surface border border-border rounded-xl shadow-neu-outset p-6 space-y-4">
+        <div className="flex items-center justify-between border-b border-border pb-3">
+          <div>
+            <h2 className="text-heading-3 text-foreground">Security</h2>
+            <p className="text-body-small text-muted-foreground mt-1">Manage your password and security settings</p>
+          </div>
+        </div>
+
+        <div className="space-y-4 max-w-md">
+          <div>
+            <label htmlFor="currentPassword" className="block text-body-small text-foreground mb-2">
+              Current Password <span className="text-error">*</span>
+            </label>
+            <input
+              id="currentPassword"
+              type="password"
+              value={passwordData.currentPassword}
+              onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+              className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+              placeholder="Enter current password"
+            />
+            {passwordErrors.currentPassword && (
+              <p className="text-error text-body-small mt-1">{passwordErrors.currentPassword}</p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="newPassword" className="block text-body-small text-foreground mb-2">
+              New Password <span className="text-error">*</span>
+            </label>
+            <input
+              id="newPassword"
+              type="password"
+              value={passwordData.newPassword}
+              onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+              className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+              placeholder="Enter new password"
+            />
+            {passwordErrors.newPassword && (
+              <p className="text-error text-body-small mt-1">{passwordErrors.newPassword}</p>
+            )}
+            <div className="mt-2 space-y-1">
+              <p className="text-caption text-muted-foreground">Password must contain:</p>
+              <ul className="text-caption text-muted-foreground space-y-0.5 ml-4">
+                <li className={passwordData.newPassword.length >= 12 ? 'text-success' : ''}>• At least 12 characters</li>
+                <li className={/[A-Z]/.test(passwordData.newPassword) ? 'text-success' : ''}>• Uppercase letter (A-Z)</li>
+                <li className={/[a-z]/.test(passwordData.newPassword) ? 'text-success' : ''}>• Lowercase letter (a-z)</li>
+                <li className={/[0-9]/.test(passwordData.newPassword) ? 'text-success' : ''}>• Number (0-9)</li>
+                <li className={/[^A-Za-z0-9]/.test(passwordData.newPassword) ? 'text-success' : ''}>• Special character (!@#$%)</li>
+              </ul>
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="confirmPassword" className="block text-body-small text-foreground mb-2">
+              Confirm New Password <span className="text-error">*</span>
+            </label>
+            <input
+              id="confirmPassword"
+              type="password"
+              value={passwordData.confirmPassword}
+              onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+              className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+              placeholder="Confirm new password"
+            />
+            {passwordErrors.confirmPassword && (
+              <p className="text-error text-body-small mt-1">{passwordErrors.confirmPassword}</p>
+            )}
+          </div>
+
+          <Button
+            onClick={handlePasswordChange}
+            disabled={!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword}
+          >
+            Change Password
+          </Button>
         </div>
       </div>
 
