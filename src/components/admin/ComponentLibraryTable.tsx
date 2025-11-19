@@ -1128,20 +1128,18 @@ export default function ComponentLibraryTable() {
           state: 'CA',
           zipCode: '94102',
         }}
-        onAssign={() => {}}
+        onAssign={async () => {}}
       />
 
       {/* Homeowner Modals */}
       <HomeownerSignupModal
         isOpen={openModal === 'homeownerSignup'}
         onClose={() => setOpenModal(null)}
-        onSignupSuccess={() => {}}
       />
 
       <HomeownerSignInModal
         isOpen={openModal === 'homeownerSignIn'}
         onClose={() => setOpenModal(null)}
-        onSignInSuccess={() => {}}
       />
 
       <FirstQuoteSuccessModal
@@ -1158,19 +1156,11 @@ export default function ComponentLibraryTable() {
         onClose={() => setOpenModal(null)}
         lead={{
           id: 'preview-lead',
-          address: '123 Solar Street',
-          city: 'San Francisco',
-          state: 'CA',
-          zipCode: '94102',
-          propertyType: 'Single Family Home',
-          roofType: 'Asphalt Shingles',
-          roofAge: '5 years',
-          shadeLevel: 'Minimal',
-          monthlyBill: 150,
-          systemSize: 6.5,
           quoteType: 'WRITTEN_QUOTE',
-          createdAt: new Date().toISOString(),
           status: 'PENDING',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          quoteData: {},
         }}
       />
 
@@ -1193,7 +1183,6 @@ export default function ComponentLibraryTable() {
       <ContactVerificationModal
         isOpen={openModal === 'contactVerification'}
         onClose={() => setOpenModal(null)}
-        phoneNumber="+1234567890"
         onVerificationSuccess={() => {}}
       />
 
@@ -1207,26 +1196,22 @@ export default function ComponentLibraryTable() {
       <InstallerSignupModal
         isOpen={openModal === 'installerSignup'}
         onClose={() => setOpenModal(null)}
-        onSignupSuccess={() => {}}
       />
 
       <InstallerSignInModal
         isOpen={openModal === 'installerSignIn'}
         onClose={() => setOpenModal(null)}
-        onSignInSuccess={() => {}}
       />
 
       <InstallerEligibilityModal
         isOpen={openModal === 'installerEligibility'}
         onClose={() => setOpenModal(null)}
-        leadId="preview-lead"
         onEligible={() => {}}
       />
 
       <InstallerMessagingModal
         isOpen={openModal === 'installerMessaging'}
         onClose={() => setOpenModal(null)}
-        leadId="preview-lead"
         homeownerName="John Doe"
       />
 
@@ -1234,14 +1219,14 @@ export default function ComponentLibraryTable() {
         isOpen={openModal === 'quoteBuilder'}
         onClose={() => setOpenModal(null)}
         lead={{
-          id: 'preview-lead',
+          id: 1,
           address: '123 Solar Street',
           city: 'San Francisco',
           state: 'CA',
           zipCode: '94102',
-          systemSize: 6.5,
+          systemSize: '6.5',
         }}
-        onSubmitQuote={() => {}}
+        onSubmitQuote={async () => false}
       />
     </div>
   );

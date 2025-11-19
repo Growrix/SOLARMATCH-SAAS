@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { installerProfileUpdateSchema } from '@/lib/validation/installer';
+import { ZodError } from 'zod';
+import { Prisma } from '@prisma/client';
 
 // GET /api/installer/profile
 // Aggregates User + InstallerProfile + InstallerVerification + InstallerPreferences
@@ -94,5 +97,98 @@ export async function GET(_req: NextRequest) {
   } catch (error: any) {
     console.error('[GET /api/installer/profile] error:', error);
     return NextResponse.json({ error: error.message || 'Failed to load installer profile' }, { status: 500 });
+  }
+}
+
+// PUT /api/installer/profile
+// Update installer profile and editable verification fields (post-approval subset)
+export async function PUT(req: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: {
+        id: true,
+        role: true,
+        installerVerified: true,
+      },
+    });
+
+    if (!user || user.role !== 'INSTALLER') {
+      return NextResponse.json({ error: 'Forbidden - Installer access only' }, { status: 403 });
+    }
+
+    const body = await req.json();
+
+    // Validate payload
+    const validatedData = installerProfileUpdateSchema.parse(body);
+
+    // Convert socialLinks to Prisma Json type
+    const dataForPrisma = {
+      ...validatedData,
+      socialLinks: validatedData.socialLinks 
+        ? (validatedData.socialLinks as Prisma.InputJsonValue)
+        : undefined,
+    };
+
+    // Update InstallerProfile (basic fields)
+    if (dataForPrisma.companyName || dataForPrisma.businessAddress || dataForPrisma.postcode) {
+      await prisma.installerProfile.update({
+        where: { userId: user.id },
+        data: {
+          companyName: dataForPrisma.companyName,
+          businessAddress: dataForPrisma.businessAddress,
+          postcode: dataForPrisma.postcode,
+        },
+      });
+    }
+
+    // Update InstallerVerification (editable fields after approval)
+    if (user.installerVerified) {
+      const verification = await prisma.installerVerification.findUnique({
+        where: { userId: user.id },
+      });
+
+      if (verification && verification.status === 'APPROVED') {
+        const updateData: any = {};
+        
+        if (dataForPrisma.services) updateData.services = dataForPrisma.services;
+        if (dataForPrisma.serviceAreas) updateData.serviceAreas = dataForPrisma.serviceAreas;
+        if (dataForPrisma.postcodes) updateData.postcodes = dataForPrisma.postcodes;
+        if (dataForPrisma.website !== undefined) updateData.website = dataForPrisma.website;
+        if (dataForPrisma.socialLinks !== undefined) updateData.socialLinks = dataForPrisma.socialLinks;
+        if (dataForPrisma.companyDescription !== undefined) updateData.companyDescription = dataForPrisma.companyDescription;
+        if (dataForPrisma.logoKey !== undefined) updateData.logoKey = dataForPrisma.logoKey;
+
+        if (Object.keys(updateData).length > 0) {
+          await prisma.installerVerification.update({
+            where: { userId: user.id },
+            data: updateData,
+          });
+        }
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Profile updated successfully',
+    });
+  } catch (error: any) {
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { error: 'Validation failed', issues: error.issues },
+        { status: 400 }
+      );
+    }
+
+    console.error('[PUT /api/installer/profile] error:', error);
+    return NextResponse.json(
+      { error: error.message || 'Failed to update profile' },
+      { status: 500 }
+    );
   }
 }
