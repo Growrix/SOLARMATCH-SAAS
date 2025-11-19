@@ -8,6 +8,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import InstallerBottomNavBar from '@/components/InstallerBottomNavBar';
 import InstallerMobileSidebarMenu from '@/components/InstallerMobileSidebarMenu';
+import Button from '@/components/ui/button';
 
 const InfoCard: React.FC<{ 
   icon: string; 
@@ -171,14 +172,13 @@ export default function InstallerHomePage() {
                 From lead capture to compliance, future-proof your solar business with tools built for Australian installers.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button 
+                <Button 
                   onClick={handleDashboardClick}
-                  as={Button}
                   variant="secondary"
                   className="px-8 py-3 rounded-xl text-heading-4 w-full flex items-center justify-center"
                 >
                   Try It Free
-                </button>
+                </Button>
                 <button className="bg-transparent border-2 border-slate-800 text-foreground px-8 py-3 rounded-xl text-heading-4 hover:bg-surface hover:text-foreground-secondary transition-colors shadow-lg">
                   Watch Installer Stories
                 </button>

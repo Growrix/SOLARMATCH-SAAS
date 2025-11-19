@@ -202,7 +202,7 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
     setLoading(true);
     setError(null);
     try {
-      await signIn('google', { callbackUrl: '/installer/dashboard' });
+      await signIn('google', { callbackUrl: '/installer/leads' });
     } catch (err) {
       setError('Google sign up failed. Please try again.');
       setLoading(false);
@@ -213,7 +213,7 @@ const InstallerSignupModal: React.FC<InstallerSignupModalProps> = ({
     setLoading(true);
     setError(null);
     try {
-      await signIn('apple', { callbackUrl: '/installer/dashboard' });
+      await signIn('apple', { callbackUrl: '/installer/leads' });
     } catch (err) {
       setError('Apple sign up failed. Please try again.');
       setLoading(false);

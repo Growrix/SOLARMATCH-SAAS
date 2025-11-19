@@ -31,7 +31,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
   const isInstallerRoute = pathname?.startsWith('/installer');
   const isHomeownerRoute = pathname?.startsWith('/homeowner');
   const isAdminRoute = pathname?.startsWith('/admin');
-  const isDashboardRoute = pathname === '/homeowner/dashboard' || pathname === '/installer/dashboard' || pathname === '/admin/dashboard';
+  const isDashboardRoute = pathname === '/homeowner/dashboard' || pathname === '/installer/leads' || pathname === '/admin/dashboard';
   
   // Installer modal states
   const [isEligibilityModalOpen, setIsEligibilityModalOpen] = useState(false);
@@ -129,19 +129,19 @@ export default function LayoutContent({ children }: LayoutContentProps) {
       
       // Redirect based on actual role (should be INSTALLER)
       if (role === 'INSTALLER') {
-        router.push('/installer/dashboard');
+        router.push('/installer/leads');
       } else if (role === 'HOMEOWNER') {
         router.push('/homeowner/dashboard');
       } else if (role === 'ADMIN') {
         router.push('/admin/dashboard');
       } else {
         // Fallback
-        router.push('/installer/dashboard');
+        router.push('/installer/leads');
       }
     } catch (error) {
       console.error('Error fetching session after signup:', error);
       // Fallback to installer dashboard
-      router.push('/installer/dashboard');
+      router.push('/installer/leads');
     }
   };
 
@@ -159,19 +159,19 @@ export default function LayoutContent({ children }: LayoutContentProps) {
       
       // Redirect based on actual role
       if (role === 'INSTALLER') {
-        router.push('/installer/dashboard');
+        router.push('/installer/leads');
       } else if (role === 'HOMEOWNER') {
         router.push('/homeowner/dashboard');
       } else if (role === 'ADMIN') {
         router.push('/admin/dashboard');
       } else {
         // Fallback
-        router.push('/installer/dashboard');
+        router.push('/installer/leads');
       }
     } catch (error) {
       console.error('Error fetching session:', error);
       // Fallback to installer dashboard
-      router.push('/installer/dashboard');
+      router.push('/installer/leads');
     }
   };
 
@@ -205,7 +205,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
       if (role === 'HOMEOWNER') {
         router.push('/homeowner/dashboard');
       } else if (role === 'INSTALLER') {
-        router.push('/installer/dashboard');
+        router.push('/installer/leads');
       } else if (role === 'ADMIN') {
         router.push('/admin/dashboard');
       } else {
@@ -241,7 +241,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
         
         // Redirect based on actual role
         if (role === 'INSTALLER') {
-          router.push('/installer/dashboard');
+          router.push('/installer/leads');
         } else if (role === 'HOMEOWNER') {
           router.push('/homeowner/dashboard');
         } else if (role === 'ADMIN') {
@@ -329,7 +329,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
     const role = session?.user?.role;
     
     if (role === 'INSTALLER') {
-      router.push('/installer/dashboard');
+      router.push('/installer/leads');
     } else if (role === 'HOMEOWNER') {
       router.push('/homeowner/dashboard');
     } else if (role === 'ADMIN') {
@@ -337,7 +337,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
     } else {
       // If role not loaded yet, check current path or default to homeowner
       if (pathname?.startsWith('/installer')) {
-        router.push('/installer/dashboard');
+        router.push('/installer/leads');
       } else if (pathname?.startsWith('/admin')) {
         router.push('/admin/dashboard');
       } else {
@@ -386,7 +386,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
             onLogoutClick={handleLogoutClick}
             onDashboardClick={handleDashboardClick}
             onHomeownerDashboardClick={handleHomeownerDashboardClick}
-            onInstallerDashboardClick={() => router.push('/installer/dashboard')}
+            onInstallerDashboardClick={() => router.push('/installer/leads')}
             onInstallerHomeClick={() => router.push('/installer')}
             onAdminDashboardClick={() => router.push('/admin/dashboard')}
           />

@@ -2006,3 +2006,13 @@ lets work on the src/components/homeowner/FirstQuoteSuccessModal.tsx
 
 ***strict rules*** no hardcoded ui , no inline styles, only semantic classes from the global css. always test everything after making changes. do to attempt blindly if you dont have clear picture. never touch any backend or UX even. only work with the UI
 
+-------------------------------------------------------------------------------
+
+***INSTALLERS***
+
+
+As we are just started with the installers part, so we have plenty options to re-organize everything regarding installers. Now lets implimenet the fix as per your recommendation for the homepage issues .
+
+***strict rules*** never spoli homeowners. Admin parts while working on the installers part. be careful while implimenting , your implimentation should not create issues for other functionality of the site. forget about the commit or push , I will let you know when to do it. focus on the main task first. 
+
+_______________________________________________________________________________

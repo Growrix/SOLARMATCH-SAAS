@@ -58,7 +58,7 @@ export default withAuth(
         console.log(`Unauthorized access attempt to ${path} by user with role: ${token.role}`);
         // Redirect to their correct dashboard
         if (token.role === 'INSTALLER') {
-          return NextResponse.redirect(new URL('/installer/dashboard', req.url));
+          return NextResponse.redirect(new URL('/installer/leads', req.url));
         }
         return NextResponse.redirect(new URL('/', req.url));
       }

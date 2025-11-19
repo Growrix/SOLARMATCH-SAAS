@@ -127,12 +127,12 @@ const InstallerSignInModal: React.FC<InstallerSignInProps> = ({ isOpen, onClose,
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
-    await signIn('google', { callbackUrl: '/installer/dashboard' });
+    await signIn('google', { callbackUrl: '/installer/leads' });
   };
 
   const handleAppleSignIn = async () => {
     setLoading(true);
-    await signIn('apple', { callbackUrl: '/installer/dashboard' });
+    await signIn('apple', { callbackUrl: '/installer/leads' });
   };
   
   const handleForgotPassword = () => {
