@@ -2016,3 +2016,31 @@ As we are just started with the installers part, so we have plenty options to re
 ***strict rules*** never spoli homeowners. Admin parts while working on the installers part. be careful while implimenting , your implimentation should not create issues for other functionality of the site. forget about the commit or push , I will let you know when to do it. focus on the main task first. 
 
 _______________________________________________________________________________
+
+***UI/UX Blueprint: Layout & Routing Standards***
+I need to create a blueprint for the UI/UX layout and routing standards for the next all the build part of the site. This blueprint will serve as a guide for designing and developing the UI components and routing structure for the installers section. The blueprint should include the following sections: 
+
+1. Layout Standards:
+- Define the overall layout structure for the installers section, including header, footer, sidebar, and main content area.
+- Specify the grid system and spacing guidelines to ensure consistency across different pages and components.
+- Outline the responsive design principles to ensure the UI adapts well to different screen sizes and devices. 
+2. Routing Standards:
+- Define the routing structure for the installers section, including URL patterns and naming conventions for different pages.
+- Specify the use of dynamic routing for pages that require parameters, such as installer profiles or lead details.
+- Outline the best practices for handling navigation and routing within the installers section, including the use of client-side routing and server-side rendering where appropriate.
+- Include guidelines for error handling and redirection for invalid routes or unauthorized access.
+3. Component Standards:
+- Define the standards for creating reusable UI components, including naming conventions, file structure, and documentation
+- Specify the use of semantic HTML elements and accessibility best practices for all components.
+- Outline the guidelines for styling components, including the use of CSS modules, global styles, and theming.
+4. Testing and Validation: 
+- Define the testing standards for UI components and routing, including unit tests, integration tests, and end-to-end tests.
+- Specify the use of testing frameworks and tools to ensure the quality and reliability of the UI/UX implementation.
+The blueprint should be documented in a clear and concise manner, with examples and illustrations where necessary. It should be easily accessible to all team members involved in the design and development of the installers section. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on.
+
+***instructions***
+You must audit the existing UI/UX design and routing structure of the site to gather insights and best practices. then create the blueprint as per the above mentioned sections. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on. create the blueprint document under this folder D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines. understand the design patterns used in the existing site and incorporate them into the blueprint to ensure consistency. e.g understand the common button class used, common card class used etc.only create new class if the new modal/componenet needs a design which is not in the existing system. Must have a class guide, so that Ai can easily understand and use these guides while building new components. 
+
+***strict rules*** while building new components never use hardcoded ui , no inline styles, only semantic classes from the global css. always test everything after making changes. do to attempt blindly if you dont have clear picture. never touch any backend or UX even. only work with the UI when you are build the UI. only semantic approach is allowed. 
+
+***Goal*** The main goal of this blueprint/Design system is to ensure a consistent and user-friendly experience for all kind of UI development while maintaining alignment with the overall theming system of the site. So prepare that blueprint as per the Instructions above and also make sure that we can achieve the goal. you can enhance the blueprint as per your understanding to achieve the goal. it is not only about the installers part, it is for all the next builds of the site. so keep in mind that. 
