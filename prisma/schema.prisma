@@ -112,6 +112,8 @@ model User {
   installerProfile      InstallerProfile? // Auth Part A+B: installer onboarding data
   verificationTokens    EmailVerificationToken[] // Auth Part A+B: email verification
   passwordResetTokens   PasswordResetToken[] // Auth Part A+B: password reset
+  installerVerification InstallerVerification?
+  installerPreferences  InstallerPreferences?
 
   @@index([email])
   @@index([role])
@@ -464,14 +466,15 @@ enum NotificationType {
 // ============================================================================
 
 model InstallerProfile {
-  id              String   @id @default(cuid())
-  userId          String   @unique
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  companyName     String
-  businessAddress String
-  postcode        String
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyName       String
+  businessAddress   String
+  postcode          String
+  operationalStatus String   @default("ACTIVE") // ACTIVE | PAUSED | INACTIVE
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   @@map("installer_profiles")
 }
@@ -502,6 +505,71 @@ model PasswordResetToken {
   @@index([userId])
   @@index([expires])
   @@map("password_reset_tokens")
+}
+
+// ============================================================================
+// INSTALLER VERIFICATION MODELS
+// ============================================================================
+
+model InstallerVerification {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyName         String
+  representativeName  String
+  designation         String
+  email               String
+  phone               String
+  abnOrLicense        String
+  establishedYear     Int
+  employeeCount       Int
+  services            String[]
+  serviceAreas        String[]
+  postcodes           String[]
+  website             String?
+  socialLinks         Json?
+  companyDescription  String?
+  licenseDocKey       String?
+  abnDocKey           String?
+  logoKey             String?
+  status              String   @default("PENDING") // PENDING | APPROVED | REJECTED | MORE_INFO
+  adminNotes          String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@map("installer_verifications")
+}
+
+model InstallerVerificationLog {
+  id        String   @id @default(cuid())
+  userId    String
+  adminId   String
+  action    String   // SUBMITTED | APPROVED | REJECTED | REQUEST_INFO
+  notes     String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([adminId])
+  @@index([createdAt])
+  @@map("installer_verification_logs")
+}
+
+model InstallerPreferences {
+  id                       String   @id @default(cuid())
+  userId                   String   @unique
+  user                     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  alertNewLead             Boolean  @default(true)
+  alertLeadUpdates         Boolean  @default(true)
+  alertAdminMessages       Boolean  @default(true)
+  alertVerificationUpdates Boolean  @default(true)
+  alertAccountActivity     Boolean  @default(true)
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  @@index([userId])
+  @@map("installer_preferences")
 }
 
 enum QuoteType {
