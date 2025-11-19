@@ -30,7 +30,7 @@ const DetailedInformationModal: React.FC<DetailedInformationModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       setName('');
-      setPhone('');
+      setPhone('+61 '); // Start with +61 prefix
       setAddress('');
       setErrors({});
       setApiError(null);
@@ -49,38 +49,46 @@ const DetailedInformationModal: React.FC<DetailedInformationModalProps> = ({
     };
   }, [isOpen, onClose]);
 
-  // Validate Australian phone number
+  // Validate Australian phone number in E.164 format
   const validatePhone = (phoneNumber: string): boolean => {
     // Remove all spaces and special characters
     const cleaned = phoneNumber.replace(/[\s\-\(\)]/g, '');
     
-    // Australian mobile formats:
-    // 04XX XXX XXX (10 digits starting with 04)
-    // +61 4XX XXX XXX (12 digits starting with +614)
-    const mobilePattern = /^(04\d{8}|\+614\d{8}|614\d{8})$/;
+    // E.164 format: +614XXXXXXXX (12 digits starting with +614)
+    const e164Pattern = /^\+614\d{8}$/;
     
-    return mobilePattern.test(cleaned);
+    return e164Pattern.test(cleaned);
   };
 
-  // Format phone number as user types
+  // Format phone number as user types - Always use E.164 format (+61)
   const formatPhone = (value: string): string => {
     // Remove all non-digit characters except +
-    const cleaned = value.replace(/[^\d+]/g, '');
+    let cleaned = value.replace(/[^\d+]/g, '');
     
-    // If starts with +61
+    // If user types 0 as first digit, convert to +614
+    if (cleaned.startsWith('0') && !cleaned.startsWith('+')) {
+      cleaned = '+614' + cleaned.slice(1);
+    }
+    
+    // If starts with 4 (without 0), add +61
+    if (cleaned.match(/^4\d/) && !cleaned.startsWith('+')) {
+      cleaned = '+61' + cleaned;
+    }
+    
+    // Ensure it starts with +61
+    if (!cleaned.startsWith('+61') && cleaned.length > 0) {
+      // If user somehow entered other digits, assume they want +61
+      cleaned = '+61' + cleaned;
+    }
+    
+    // Format: +61 4XX XXX XXX
     if (cleaned.startsWith('+61')) {
       const digits = cleaned.slice(3);
+      if (digits.length === 0) return '+61 ';
       if (digits.length <= 1) return '+61 ' + digits;
       if (digits.length <= 4) return '+61 ' + digits.slice(0, 1) + ' ' + digits.slice(1);
       if (digits.length <= 7) return '+61 ' + digits.slice(0, 1) + ' ' + digits.slice(1, 4) + ' ' + digits.slice(4);
       return '+61 ' + digits.slice(0, 1) + ' ' + digits.slice(1, 4) + ' ' + digits.slice(4, 7);
-    }
-    
-    // If starts with 04 (Australian mobile)
-    if (cleaned.startsWith('04')) {
-      if (cleaned.length <= 4) return cleaned;
-      if (cleaned.length <= 7) return cleaned.slice(0, 4) + ' ' + cleaned.slice(4);
-      return cleaned.slice(0, 4) + ' ' + cleaned.slice(4, 7) + ' ' + cleaned.slice(7, 10);
     }
     
     return cleaned;
@@ -111,7 +119,7 @@ const DetailedInformationModal: React.FC<DetailedInformationModalProps> = ({
     if (!phone.trim()) {
       newErrors.phone = 'Phone number is required';
     } else if (!validatePhone(phone)) {
-      newErrors.phone = 'Please enter a valid Australian mobile number (e.g., 0412 345 678 or +61 412 345 678)';
+      newErrors.phone = 'Please enter a valid Australian mobile number (e.g., +61 412 345 678)';
     }
 
     // Validate address
@@ -236,7 +244,7 @@ const DetailedInformationModal: React.FC<DetailedInformationModalProps> = ({
                 value={phone}
                 onChange={handlePhoneChange}
                 className={`theme-input pl-10 ${errors.phone ? 'border-destructive' : ''}`}
-                placeholder="0412 345 678"
+                placeholder="+61 412 345 678"
                 disabled={isSubmitting}
               />
             </div>
@@ -244,7 +252,7 @@ const DetailedInformationModal: React.FC<DetailedInformationModalProps> = ({
               <p className="mt-1 text-body-small text-destructive">{errors.phone}</p>
             )}
             <p className="mt-1 text-caption text-muted-foreground">
-              Australian mobile number (e.g., 0412 345 678 or +61 412 345 678)
+              Australian mobile number (auto-formats to +61 4XX XXX XXX)
             </p>
           </div>
 
