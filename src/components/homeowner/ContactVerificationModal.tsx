@@ -66,9 +66,36 @@ const ContactVerificationModal: React.FC<ContactVerificationModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [retrySeconds, setRetrySeconds] = useState<number>(0);
 
+  // Format phone number to E.164 - handles legacy 04XX format from database
+  const formatToE164 = (value: string): string => {
+    if (!value) return '';
+    
+    // Remove all spaces and special characters
+    let cleaned = value.replace(/[\s\-\(\)]/g, '');
+    
+    // If starts with 04, convert to +614
+    if (cleaned.startsWith('04')) {
+      return '+614' + cleaned.slice(2);
+    }
+    
+    // If already in E.164 format, return as-is
+    if (cleaned.startsWith('+')) {
+      return cleaned;
+    }
+    
+    // If starts with 4 (mobile), add +61
+    if (cleaned.startsWith('4')) {
+      return '+61' + cleaned;
+    }
+    
+    return value; // Return original if can't parse
+  };
+
   useEffect(() => {
     if (isOpen) {
-      setPhoneNumber(defaultPhone ?? '');
+      // Auto-convert legacy phone formats (04XX) to E.164 (+614XX)
+      const formattedPhone = formatToE164(defaultPhone ?? '');
+      setPhoneNumber(formattedPhone);
       setError(null);
       setStatusMessage(null);
       setIsSubmitting(false);
@@ -213,6 +240,9 @@ const ContactVerificationModal: React.FC<ContactVerificationModalProps> = ({
           </h2>
           <p className="mt-2 text-body-small text-muted">
             Confirming your contact details keeps the marketplace safe and lets installers reach you quickly. We will send a one-time passcode to the number you provide.
+          </p>
+          <p className="mt-3 text-caption text-muted">
+            You can skip verification and complete it later from your dashboard.
           </p>
         </header>
 

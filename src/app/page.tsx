@@ -186,15 +186,15 @@ export default function Home() {
       return;
     }
 
-    // Flow 3: Exactly second lead and not verified → require verification once
+    // Flow 3: Exactly second lead and not verified → suggest verification, but allow skip
     if (userLeadCount === 1 && !isPhoneVerified) {
-      console.log('[Flow 3] Second lead, unverified phone (' + remainingLeadQuota + ' remaining) → ContactVerificationModal');
+      console.log('[Flow 3] Second lead, unverified phone (' + remainingLeadQuota + ' remaining) → ContactVerificationModal (optional)');
       setIsContactVerificationModalOpen(true);
       return;
     }
 
-    // Flow 4: Second+ lead, verified OR 3rd+ lead regardless → distribution modal
-    if ((userLeadCount >= 1 && isPhoneVerified) || userLeadCount >= 2) {
+    // Flow 4: Second+ lead (all users) → distribution modal
+    if (userLeadCount >= 1) {
       console.log('[Flow 4] Second+ lead → QuoteTypeDistributionModal');
       setIsQuoteTypeDistributionModalOpen(true);
       return;
