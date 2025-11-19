@@ -208,6 +208,11 @@ const AdminInstallerVerificationPage: React.FC = () => {
               <label className="block text-body-small text-muted-foreground mb-1">Contact Email</label>
               <p className="text-body text-foreground">{verification.email}</p>
             </div>
+
+            <div>
+              <label className="block text-body-small text-muted-foreground mb-1">Contact Phone</label>
+              <p className="text-body text-foreground">{verification.phone}</p>
+            </div>
           </div>
         </div>
 
@@ -353,6 +358,26 @@ const AdminInstallerVerificationPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Logo Preview */}
+      {verification.logoKey && (
+        <div className="bg-surface border border-border rounded-xl shadow-neu-outset p-6 space-y-4">
+          <div className="flex items-center justify-between border-b border-border pb-3">
+            <h2 className="text-heading-3 text-foreground">Company Logo</h2>
+          </div>
+
+          <div className="flex items-center justify-center p-8 bg-muted/5 border border-dashed border-border rounded-xl">
+            <div className="text-center">
+              <svg className="mx-auto h-16 w-16 text-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <p className="text-body text-muted-foreground mt-3">Logo Preview</p>
+              <p className="text-body-small text-muted-foreground mt-1">(Image display requires S3 presigned URL - API pending)</p>
+              <p className="text-caption text-muted-foreground mt-2">Key: {verification.logoKey}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Admin Notes */}
       <div className="bg-surface border border-border rounded-xl shadow-neu-outset p-6 space-y-4">
