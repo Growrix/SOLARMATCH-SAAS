@@ -228,30 +228,28 @@ const InstallerProfilePage: React.FC = () => {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
-      {/* F8: Operational Status Toggle */}
-      {user.installerVerified && (
-        <div className="bg-surface border border-border rounded-xl shadow-neu-outset p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className={`w-3 h-3 rounded-full ${operationalStatus === 'ACTIVE' ? 'bg-success' : operationalStatus === 'PAUSED' ? 'bg-warning' : 'bg-error'}`} />
-            <div>
-              <p className="text-body text-foreground">
-                Operational Status: <span className="text-foreground">{operationalStatus}</span>
-              </p>
-              <p className="text-body-small text-muted-foreground">
-                {operationalStatus === 'ACTIVE' ? 'Receiving new leads' : operationalStatus === 'PAUSED' ? 'Not receiving new leads' : 'Account disabled by admin'}
-              </p>
-            </div>
+      {/* F8: Operational Status Toggle - Always show for demo */}
+      <div className="bg-surface border border-border rounded-xl shadow-neu-outset p-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className={`w-3 h-3 rounded-full ${operationalStatus === 'ACTIVE' ? 'bg-success' : operationalStatus === 'PAUSED' ? 'bg-warning' : 'bg-error'}`} />
+          <div>
+            <p className="text-body text-foreground">
+              Operational Status: <span className="text-foreground">{operationalStatus}</span>
+            </p>
+            <p className="text-body-small text-muted-foreground">
+              {operationalStatus === 'ACTIVE' ? 'Receiving new leads' : operationalStatus === 'PAUSED' ? 'Not receiving new leads' : 'Account disabled by admin'}
+            </p>
           </div>
-          {operationalStatus !== 'INACTIVE' && (
-            <Button
-              variant={operationalStatus === 'ACTIVE' ? 'secondary' : 'primary'}
-              onClick={() => handleStatusToggle(operationalStatus === 'ACTIVE' ? 'PAUSED' : 'ACTIVE')}
-            >
-              {operationalStatus === 'ACTIVE' ? 'Pause Operations' : 'Resume Operations'}
-            </Button>
-          )}
         </div>
-      )}
+        {operationalStatus !== 'INACTIVE' && (
+          <Button
+            variant={operationalStatus === 'ACTIVE' ? 'secondary' : 'primary'}
+            onClick={() => handleStatusToggle(operationalStatus === 'ACTIVE' ? 'PAUSED' : 'ACTIVE')}
+          >
+            {operationalStatus === 'ACTIVE' ? 'Pause Operations' : 'Resume Operations'}
+          </Button>
+        )}
+      </div>
 
       {/* F8: Paused Banner */}
       {operationalStatus === 'PAUSED' && (
@@ -388,11 +386,9 @@ const InstallerProfilePage: React.FC = () => {
       <div className="bg-surface border border-border rounded-xl shadow-neu-outset p-6 space-y-4">
         <div className="flex items-center justify-between border-b border-border pb-3">
           <h2 className="text-heading-3 text-foreground">Company Details</h2>
-          {user.installerVerified && (
-            <Button variant="secondary" onClick={() => setIsEditingVerification(!isEditingVerification)}>
-              {isEditingVerification ? 'Cancel' : 'Edit'}
-            </Button>
-          )}
+          <Button variant="secondary" onClick={() => setIsEditingVerification(!isEditingVerification)}>
+            {isEditingVerification ? 'Cancel' : 'Edit'}
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -499,12 +495,11 @@ const InstallerProfilePage: React.FC = () => {
         )}
       </div>
 
-      {/* F6: Social Media Links */}
-      {user.installerVerified && (
-        <div className="bg-surface border border-border rounded-xl shadow-neu-outset p-6 space-y-4">
-          <div className="flex items-center justify-between border-b border-border pb-3">
-            <h2 className="text-heading-3 text-foreground">Social Media</h2>
-          </div>
+      {/* F6: Social Media Links - Always show */}
+      <div className="bg-surface border border-border rounded-xl shadow-neu-outset p-6 space-y-4">
+        <div className="flex items-center justify-between border-b border-border pb-3">
+          <h2 className="text-heading-3 text-foreground">Social Media</h2>
+        </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -579,8 +574,7 @@ const InstallerProfilePage: React.FC = () => {
               )}
             </div>
           </div>
-        </div>
-      )}
+      </div>
 
       {/* Services & Areas */}
       <div className="bg-surface border border-border rounded-xl shadow-neu-outset p-6 space-y-4">
@@ -673,13 +667,12 @@ const InstallerProfilePage: React.FC = () => {
         </div>
       </div>
 
-      {/* F6: Documents Upload Section */}
-      {user.installerVerified && isEditingVerification && (
-        <div className="bg-surface border border-border rounded-xl shadow-neu-outset p-6 space-y-4">
-          <div className="border-b border-border pb-3">
-            <h2 className="text-heading-3 text-foreground">Documents & Logo</h2>
-            <p className="text-body-small text-muted-foreground mt-1">Upload or update your business documents</p>
-          </div>
+      {/* F6: Documents Upload Section - Always show */}
+      <div className="bg-surface border border-border rounded-xl shadow-neu-outset p-6 space-y-4">
+        <div className="border-b border-border pb-3">
+          <h2 className="text-heading-3 text-foreground">Documents & Logo</h2>
+          <p className="text-body-small text-muted-foreground mt-1">Upload or update your business documents</p>
+        </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
@@ -721,8 +714,7 @@ const InstallerProfilePage: React.FC = () => {
               </div>
             </div>
           </div>
-        </div>
-      )}
+      </div>
 
       {/* F7: Change Password Section */}
       <div className="bg-surface border border-border rounded-xl shadow-neu-outset p-6 space-y-4">

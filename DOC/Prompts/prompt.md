@@ -2098,11 +2098,6 @@ I want you to create a installer Profile page in the Installers dashboard. This 
  - After the audit findings update the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification\tasks.md file with the new plan to fix and impliment the changes needed. after that start fixing the issues step by step. Make sure to keep everything aligned. 
 - you must update this D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification\profile&verification_implimenetation.md. As we have picked issues,updated plan, modified ui , we must need to be aligned with the backend plans accordingly. so the frontend changes stays aligned with the backend too. 
 
-***strict rules*** while building new components never use hardcoded ui , no inline styles, only semantic classes from the global css. always test everything after making changes. do to attempt blindly if you dont have clear picture. never touch any backend or UX even. only work with the UI when you are build the UI. only semantic approach is allowed. 
+***strict rules*** while building new components never use hardcoded ui , no inline styles, only semantic classes from the global css. always test everything after making changes. do to attempt blindly if you dont have clear picture. never touch any backend or UX even. only work with the UI when you are build the UI. only semantic approach is allowed. never do partial/incomplete work. always complete the full task as per the plan. 
 
-
-
-
-
-
-the installers profile page now has limited edit options. I want the installers can edit all the other sections too. as you are saying the UI build is done but I see the profile page has nothing with the change password ,also no social media link input options,   And I want another section in the profile page that will show all the information that provided in the verification form  including optional fields , becuase the users should be able to submit those documenets later or edit/update any fileds later. 
+--------------------------------------------------------------------------
