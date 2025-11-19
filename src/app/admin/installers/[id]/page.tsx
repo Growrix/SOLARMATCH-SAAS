@@ -17,7 +17,7 @@ const useMockVerificationData = (id: string) => {
     },
     verification: {
       id: 'verification-123',
-      status: 'PENDING' as const,
+      status: 'PENDING' as 'PENDING' | 'APPROVED' | 'REJECTED' | 'MORE_INFO',
       companyName: 'Solar Solutions Pty Ltd',
       representativeName: 'John Smith',
       designation: 'Managing Director',
@@ -30,9 +30,13 @@ const useMockVerificationData = (id: string) => {
       serviceAreas: ['Sydney', 'Regional NSW', 'Central Coast'],
       postcodes: ['2000', '2001', '2050', '2060'],
       website: 'https://www.solarsolutions.com.au',
-      facebookHandle: 'solarsolutionsau',
-      instagramHandle: 'solarsolutions_au',
-      description: 'Leading solar installation company with 6+ years experience serving Sydney and surrounding areas. Specializing in residential and commercial installations.',
+      socialLinks: {
+        facebook: 'https://facebook.com/solarsolutionsau',
+        instagram: 'https://instagram.com/solarsolutions_au',
+        linkedin: 'https://linkedin.com/company/solarsolutions',
+        youtube: 'https://youtube.com/@solarsolutions',
+      },
+      companyDescription: 'Leading solar installation company with 6+ years experience serving Sydney and surrounding areas. Specializing in residential and commercial installations.',
       licenseDocKey: 'docs/license-12345.pdf',
       abnDocKey: 'docs/abn-67890.pdf',
       logoKey: 'logos/solar-solutions.png',
@@ -290,7 +294,7 @@ const AdminInstallerVerificationPage: React.FC = () => {
         </div>
 
         {/* Additional Information */}
-        {(verification.website || verification.facebookHandle || verification.instagramHandle || verification.description) && (
+        {(verification.website || verification.socialLinks || verification.companyDescription) && (
           <div>
             <h3 className="text-body text-foreground mb-3">Additional Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -303,25 +307,47 @@ const AdminInstallerVerificationPage: React.FC = () => {
                 </div>
               )}
 
-              {verification.facebookHandle && (
+              {verification.socialLinks?.facebook && (
                 <div>
                   <label className="block text-body-small text-muted-foreground mb-1">Facebook</label>
-                  <p className="text-body text-foreground">@{verification.facebookHandle}</p>
+                  <a href={verification.socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="text-body text-primary hover:underline">
+                    {verification.socialLinks.facebook}
+                  </a>
                 </div>
               )}
 
-              {verification.instagramHandle && (
+              {verification.socialLinks?.instagram && (
                 <div>
                   <label className="block text-body-small text-muted-foreground mb-1">Instagram</label>
-                  <p className="text-body text-foreground">@{verification.instagramHandle}</p>
+                  <a href={verification.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="text-body text-primary hover:underline">
+                    {verification.socialLinks.instagram}
+                  </a>
+                </div>
+              )}
+
+              {verification.socialLinks?.linkedin && (
+                <div>
+                  <label className="block text-body-small text-muted-foreground mb-1">LinkedIn</label>
+                  <a href={verification.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="text-body text-primary hover:underline">
+                    {verification.socialLinks.linkedin}
+                  </a>
+                </div>
+              )}
+
+              {verification.socialLinks?.youtube && (
+                <div>
+                  <label className="block text-body-small text-muted-foreground mb-1">YouTube</label>
+                  <a href={verification.socialLinks.youtube} target="_blank" rel="noopener noreferrer" className="text-body text-primary hover:underline">
+                    {verification.socialLinks.youtube}
+                  </a>
                 </div>
               )}
             </div>
 
-            {verification.description && (
+            {verification.companyDescription && (
               <div className="mt-4">
                 <label className="block text-body-small text-muted-foreground mb-1">Company Description</label>
-                <p className="text-body text-foreground">{verification.description}</p>
+                <p className="text-body text-foreground">{verification.companyDescription}</p>
               </div>
             )}
           </div>
