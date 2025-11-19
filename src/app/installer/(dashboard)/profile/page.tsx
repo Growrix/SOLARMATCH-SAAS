@@ -435,6 +435,20 @@ const InstallerProfilePage: React.FC = () => {
           </div>
 
           <div>
+            <label className="block text-body-small text-muted-foreground mb-1">
+              Representative Email <span className="text-muted-foreground">(from account)</span>
+            </label>
+            <p className="text-body text-muted-foreground">{user.email}</p>
+          </div>
+
+          <div>
+            <label className="block text-body-small text-muted-foreground mb-1">
+              Representative Phone <span className="text-muted-foreground">(from account)</span>
+            </label>
+            <p className="text-body text-muted-foreground">{user.phone}</p>
+          </div>
+
+          <div>
             <label className="block text-body-small text-muted-foreground mb-1">ABN / License</label>
             {isEditingVerification ? (
               <input
