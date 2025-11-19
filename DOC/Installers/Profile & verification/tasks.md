@@ -106,13 +106,22 @@ Atomic commit rule: One component/page per commit with descriptive message. Upda
 - On approve/reject/request-info  notify installer.
 - (Future) On operationalStatus change (PAUSED/ACTIVE)  optional notify admins.
 
-### Phase B5  UI Wiring to APIs (expanded)
-- VerificationModal: submit & upload docs.
-- Profile: fetch aggregated endpoint; save edits; wire pause toggle to status endpoint; upload docs via presign route.
-- Password: wire change password endpoint; on success clear fields + toast + maybe force re-login.
-- Admin detail: enable action buttons; show operationalStatus; allow status adjustments.
-- Admin list: include operationalStatus column.
-- Tests: end-to-end manual scenario.
+### Phase B5 (Updated)  Backend Integration — Installer Verification & Profile
+- B5.1 DB Migration: add `InstallerVerification`, `InstallerVerificationLog`, `InstallerPreferences`; extend `InstallerProfile.operationalStatus`.
+- B5.2 Aggregated Profile API: GET `/api/installer/profile` (User + Profile + latest Verification + Preferences + operationalStatus).
+- B5.3 Profile Update API: PUT `/api/installer/profile` (post-approval editable subset; normalize phone E.164).
+- B5.4 Verification Submit API: POST `/api/installer/verification/submit` (create/update PENDING + log SUBMITTED).
+- B5.5 Upload Presign API: GET `/api/installer/uploads/presign` (S3 presigned PUT; validate type/size).
+- B5.6 Password Change API: POST `/api/installer/account/change-password` (validate current + complexity; rotate session).
+- B5.7 Status Toggle API: PUT `/api/installer/account/status` (ACTIVE/PAUSED) and Admin status API (ACTIVE/PAUSED/INACTIVE).
+- B5.8 Admin Verification APIs: GET/PUT `/api/admin/installers/[id]/verification`, GET `/api/admin/installers/[id]/logs`.
+- B5.9 Notifications: on APPROVED/REJECTED/REQUEST_INFO (optional SUBMITTED → admin).
+- B5.10 Wiring & QA: Connect UI (Profile/Modal/Admin), run build checks and manual E2E.
+
+Acceptance:
+- All endpoints role-gated; validation via Zod; E.164 phone enforced.
+- Profile page shows aggregated data; verification flow end-to-end works with docs.
+- Admin can take actions and see logs; operationalStatus reflected in list and detail.
 
 ---
 
