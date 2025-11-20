@@ -165,8 +165,52 @@ export async function PUT(
       },
     });
 
-    // Update User.installerVerified if needed
-    if (updateUserVerified !== undefined) {
+    // If APPROVED, sync verification data to User model and create/update profile
+    if (action === 'APPROVE') {
+      // Sync verification data to User model (CRITICAL: B7.6)
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          name: verification.representativeName,
+          phone: verification.phone,
+          companyName: verification.companyName,
+          installerVerified: true,
+        },
+      });
+
+      // Create or update InstallerProfile
+      await prisma.installerProfile.upsert({
+        where: { userId },
+        create: {
+          userId,
+          companyName: verification.companyName,
+          businessAddress: '', // TODO: Add to verification form in future
+          postcode: verification.postcodes[0] || '',
+          operationalStatus: 'ACTIVE',
+        },
+        update: {
+          companyName: verification.companyName,
+          postcode: verification.postcodes[0] || undefined,
+        },
+      });
+
+      // Create InstallerPreferences if not exists
+      await prisma.installerPreferences.upsert({
+        where: { userId },
+        create: {
+          userId,
+          alertNewLead: true,
+          alertLeadUpdates: true,
+          alertAdminMessages: true,
+          alertVerificationUpdates: true,
+          alertAccountActivity: true,
+        },
+        update: {},
+      });
+
+      console.log(`[ADMIN] Verification APPROVED for installer ${userId}. User data synced: name, phone, company.`);
+    } else if (updateUserVerified !== undefined) {
+      // Update User.installerVerified for REJECT
       await prisma.user.update({
         where: { id: userId },
         data: { installerVerified: updateUserVerified },

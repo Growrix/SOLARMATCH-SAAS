@@ -29,6 +29,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
+    console.log('[VERIFICATION SUBMIT] Received body:', JSON.stringify(body, null, 2));
 
     // Validate payload with Zod
     const validatedData = installerVerificationSubmitSchema.parse(body);
@@ -98,6 +99,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (error: any) {
     if (error instanceof ZodError) {
+      console.error('[VERIFICATION SUBMIT] Validation failed:', error.issues);
       return NextResponse.json(
         { error: 'Validation failed', issues: error.issues },
         { status: 400 }
