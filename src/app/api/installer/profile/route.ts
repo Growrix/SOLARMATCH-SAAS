@@ -138,14 +138,30 @@ export async function PUT(req: NextRequest) {
         : undefined,
     };
 
-    // Update InstallerProfile (basic fields)
+    // Ensure InstallerProfile exists (create minimal record if missing)
+    let existingProfile = await prisma.installerProfile.findUnique({ where: { userId: user.id } });
+    if (!existingProfile) {
+      // Attempt to derive initial values from verification record if it exists
+      const existingVerification = await prisma.installerVerification.findUnique({ where: { userId: user.id } });
+      existingProfile = await prisma.installerProfile.create({
+        data: {
+          userId: user.id,
+          companyName: dataForPrisma.companyName || existingVerification?.companyName || 'Pending Company',
+          businessAddress: dataForPrisma.businessAddress || 'Pending Address',
+          postcode: dataForPrisma.postcode || (existingVerification?.postcodes?.[0] || '0000'),
+        },
+      });
+      console.log('[PUT /api/installer/profile] Created missing InstallerProfile');
+    }
+
+    // Update InstallerProfile if any basic fields provided
     if (dataForPrisma.companyName || dataForPrisma.businessAddress || dataForPrisma.postcode) {
       await prisma.installerProfile.update({
         where: { userId: user.id },
         data: {
-          companyName: dataForPrisma.companyName,
-          businessAddress: dataForPrisma.businessAddress,
-          postcode: dataForPrisma.postcode,
+          companyName: dataForPrisma.companyName ?? existingProfile.companyName,
+          businessAddress: dataForPrisma.businessAddress ?? existingProfile.businessAddress,
+          postcode: dataForPrisma.postcode ?? existingProfile.postcode,
         },
       });
     }

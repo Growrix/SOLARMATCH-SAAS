@@ -76,6 +76,20 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    // Ensure InstallerProfile exists after initial submission (so later profile edits work)
+    const existingProfile = await prisma.installerProfile.findUnique({ where: { userId: user.id } });
+    if (!existingProfile) {
+      await prisma.installerProfile.create({
+        data: {
+          userId: user.id,
+          companyName: dataForPrisma.companyName,
+          businessAddress: 'Pending Address', // Will be editable later in profile
+          postcode: (validatedData.postcodes && validatedData.postcodes[0]) || '0000',
+        },
+      });
+      console.log('[VERIFICATION SUBMIT] Created InstallerProfile bootstrap record');
+    }
+
     // Create log entry
     await prisma.installerVerificationLog.create({
       data: {
