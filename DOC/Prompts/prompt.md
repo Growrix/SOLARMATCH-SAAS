@@ -2145,3 +2145,42 @@ Push the changes to the remote repository:
 
     ***instruction***
     each time you make commits, you must update the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Prompts\gitstatus.md file with the latest commit information to keep track of changes effectively. with the commit id ,timestamp, and a brief description of the changes made in that commit.make sure the push has the excatly current versions, so that it can be restored if needed. 
+
+    -----------------------------------------------------------------------------
+
+  ***verfication modal issue*** in the Postcodes served filed , the user cant enter multiple postcode by using comma "," . please fix this issue. it should allow multiple postcode entry using comma ",". 
+
+- this is not fixed yet . it is still not allowing to type comma in the placeholder . so the users now only can type only one postcode, not multiple postcodes. Users should be able to type multiple postcodes separated by comma ",". 
+
+***Installer profile edit issues*** there are now 2 button for edit the profile. But I want to keep the only top "edit profile" button . and after clicked the user should be able to edit everything in the profile page. currently only few fields are editable. and the "Save changes" & "cancel" button should be at the bottom. 
+*** I have noticed there are fields restricted to edit : there should be no restriction to edit any field in the profile page. all the fields should be editable after clicking the "edit profile" button except the "Email" field. There should be one condition if the user edit the contact number then they must do the contact verification again with OTP. All the edits and updates should reflect the Admin Installer review modal. 
+
+***instructions***  Audit and understand the current flows and data flow. audit the relevant fronend and backend in deailed and create a comprhensive audit report of the issues found and identify the gaps between the existing flows and the requested flows and the plan to fix and impliment them. after that start fixing the issues step by step. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on. create the audit report under this folder D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification. And create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification\tasks.md file for this task and start implimenting the changes step by step as per the plan you created.
+
+----------------------------------------------------------------
+***test results and issues *** 
+- OTP verification issues : whilte editing the contact number. After input the OTP it is showing failed to save changes. 
+- I have tried to edit other fields and save changes, but in real nothing is updated as per the change I made even it shows "profile updated successfully" message. please fix these issues accordingly.
+
+- Company Details area can be edited and saved , but showing "Failed to Save Changes
+Validation failed" . 
+
+-Personal Details area , name cant be edited, I do not need the name to be uneditable. it should be editable.
+
+***duplicate fileds issues*** you need to enhance the UI of the profile page. There are duplicate fields in the profile page which is not needed. please remove the duplicate fields and keep only one field for each data point. e.g there are 2 fields for "Contact Number" , 2 fields for "Email Address" etc. please remove the duplicate fields and keep only one field for each data point. but make sure to keep those which is functional. e.g the Contact number field which is connected with the OTP verification should be kept. E.g There is only 1 option to input user name which is the representative name , but there is a name field in personal details which is fetching the same name. so just keep the Representative name filed. 
+
+
+***instructions***  Audit and understand the current flows and data flow. audit the relevant fronend and backend in deailed and create a comprhensive audit report of the issues found and identify the gaps between the existing flows and the requested flows and the plan to fix and impliment them. after that start fixing the issues step by step. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on. create the audit report under this folder D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification. And create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification\tasks.md file for this task and start implimenting the changes step by step as per the plan you created.
+
+---------------------------------------------------------------------------
+
+***phone number edit issue*** now edited the contact number>clicked on save all changes> OTP verfication modal > entered OTP > and now here is the issue : it is not updated the number and showing Failed to save chnages.  
+- this almost worked just failed to update the number. 
+
+***all other fileds*** all other fields are failing to update with the error says "Validation falied"
+
+***instructions***  Audit and understand the current flows and data flow. audit the relevant fronend and backend in deailed and create a comprhensive audit report of the issues found and identify the gaps between the existing flows and the requested flows and the plan to fix and impliment them. after that start fixing the issues step by step. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on. create the audit report under this folder D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification. And create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification\tasks.md file for this task and start implimenting the changes step by step as per the plan you created.
+
+---------------------------------------------------------------------------
+
+
