@@ -39,6 +39,7 @@ export async function GET(
         phone: true,
         phoneVerified: true,
         installerVerified: true,
+        companyName: true,
         createdAt: true,
       },
     });
@@ -47,22 +48,39 @@ export async function GET(
       return NextResponse.json({ error: 'Installer not found' }, { status: 404 });
     }
 
-    const profile = await prisma.installerProfile.findUnique({
-      where: { userId },
-      select: {
-        id: true,
-        companyName: true,
-        businessAddress: true,
-        postcode: true,
-        operationalStatus: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
-
     const verification = await prisma.installerVerification.findUnique({
       where: { userId },
     });
+
+    // Get verification logs
+    const verificationLogs = await prisma.installerVerificationLog.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        action: true,
+        notes: true,
+        createdAt: true,
+        adminId: true,
+      },
+    });
+
+    // Enrich logs with admin names
+    const logs = await Promise.all(
+      verificationLogs.map(async (log) => {
+        const adminUser = await prisma.user.findUnique({
+          where: { id: log.adminId },
+          select: { name: true, email: true },
+        });
+        return {
+          id: log.id,
+          action: log.action,
+          notes: log.notes,
+          timestamp: log.createdAt.toISOString(),
+          performedBy: adminUser?.name || adminUser?.email || 'Unknown Admin',
+        };
+      })
+    );
 
     // Generate presigned download URLs for documents
     let documentUrls: any = {};
@@ -84,9 +102,9 @@ export async function GET(
     }
 
     return NextResponse.json({
-      user,
-      profile,
+      installer: user,
       verification,
+      logs,
       documentUrls,
     });
   } catch (error: any) {

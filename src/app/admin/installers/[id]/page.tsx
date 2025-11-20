@@ -193,7 +193,7 @@ const AdminInstallerVerificationPage: React.FC = () => {
   }
 
   // Error state
-  if (error || !data) {
+  if (error || !data || !data.installer) {
     return (
       <div className="p-4 sm:p-6 lg:p-8">
         <div className="bg-error/10 border border-error/20 rounded-xl p-6">
@@ -252,7 +252,7 @@ const AdminInstallerVerificationPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-body-small text-muted-foreground mb-1">Name</label>
-            <p className="text-body text-foreground">{installer.name}</p>
+            <p className="text-body text-foreground">{installer.name || 'Not provided'}</p>
           </div>
 
           <div>
@@ -263,7 +263,7 @@ const AdminInstallerVerificationPage: React.FC = () => {
           <div>
             <label className="block text-body-small text-muted-foreground mb-1">Phone</label>
             <div className="flex items-center gap-2">
-              <p className="text-body text-foreground">{installer.phone}</p>
+              <p className="text-body text-foreground">{installer.phone || 'Not provided'}</p>
               {installer.phoneVerified && (
                 <span className="text-success">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
