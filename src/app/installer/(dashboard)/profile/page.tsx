@@ -83,6 +83,7 @@ const InstallerProfilePage: React.FC = () => {
 
   // Contact verification state
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [pendingVerificationPhone, setPendingVerificationPhone] = useState<string | null>(null);
   const [isOTPModalOpen, setIsOTPModalOpen] = useState(false);
   const [otpPayload, setOtpPayload] = useState<{
     phoneNumber: string;
@@ -152,6 +153,15 @@ const InstallerProfilePage: React.FC = () => {
     } finally {
       setSubmittingVerification(false);
     }
+  };
+
+  // C2.2: Auto-trigger contact verification after submission
+  const handleVerificationSubmitSuccess = (phone: string) => {
+    setPendingVerificationPhone(phone);
+    // Small delay to allow verification modal to close smoothly
+    setTimeout(() => {
+      setIsContactModalOpen(true);
+    }, 300);
   };
 
   // F7: Password validation
@@ -1058,13 +1068,17 @@ const InstallerProfilePage: React.FC = () => {
         onClose={() => setIsVerificationModalOpen(false)}
         onSubmit={handleVerificationSubmit}
         isSubmitting={submittingVerification}
+        onSubmitSuccess={handleVerificationSubmitSuccess}
       />
 
       {/* Contact Verification Modal */}
       <ContactVerificationModal
         isOpen={isContactModalOpen}
-        defaultPhone={user.phone}
-        onClose={() => setIsContactModalOpen(false)}
+        defaultPhone={pendingVerificationPhone || verification?.phone || user.phone || undefined}
+        onClose={() => {
+          setIsContactModalOpen(false);
+          setPendingVerificationPhone(null); // Clear pending phone on close
+        }}
         onOTPRequested={handleOTPRequested}
       />
 

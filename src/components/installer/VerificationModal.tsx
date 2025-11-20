@@ -11,6 +11,7 @@ interface VerificationModalProps {
   onSubmit: (data: VerificationFormData) => void;
   isSubmitting?: boolean;
   existingVerification?: Partial<VerificationFormData>;
+  onSubmitSuccess?: (phone: string) => void;
 }
 
 // Consolidated validation schema
@@ -45,7 +46,7 @@ const verificationSchema = z.object({
 
 export type VerificationFormData = z.infer<typeof verificationSchema>;
 
-const VerificationModal: React.FC<VerificationModalProps> = ({ open, onClose, onSubmit, isSubmitting = false, existingVerification }) => {
+const VerificationModal: React.FC<VerificationModalProps> = ({ open, onClose, onSubmit, isSubmitting = false, existingVerification, onSubmitSuccess }) => {
   const [formData, setFormData] = useState<Partial<VerificationFormData>>({
     phone: '+61 ',
     services: [],
@@ -191,6 +192,11 @@ const VerificationModal: React.FC<VerificationModalProps> = ({ open, onClose, on
         },
       };
       onSubmit(submitData as VerificationFormData);
+      
+      // Call success callback with phone number if provided
+      if (onSubmitSuccess && submitData.phone) {
+        onSubmitSuccess(submitData.phone);
+      }
     }
   };
 

@@ -407,7 +407,12 @@ const AdminInstallerVerificationPage: React.FC = () => {
           </div>
 
           {/* Additional Information */}
-          {(verification.website || verification.socialLinks || verification.companyDescription) && (
+          {(verification.website || 
+            verification.socialLinks?.facebook || 
+            verification.socialLinks?.instagram || 
+            verification.socialLinks?.linkedin || 
+            verification.socialLinks?.youtube || 
+            verification.companyDescription) && (
             <div>
               <h3 className="text-body text-foreground mb-3">Additional Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
