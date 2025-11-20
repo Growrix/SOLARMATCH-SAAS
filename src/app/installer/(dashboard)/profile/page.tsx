@@ -65,6 +65,10 @@ const InstallerProfilePage: React.FC = () => {
       if (data.preferences) {
         setLocalPreferences(data.preferences);
       }
+      // D5: Track original phone for change detection
+      const currentPhone = data.verification?.phone || data.user?.phone || '';
+      setOriginalPhone(currentPhone);
+      setEditedPhone(currentPhone);
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
@@ -241,27 +245,62 @@ const InstallerProfilePage: React.FC = () => {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
 
+  // D5: Phone change detection state
+  const [originalPhone, setOriginalPhone] = useState<string>('');
+  const [editedPhone, setEditedPhone] = useState<string>('');
+  const [phoneChanged, setPhoneChanged] = useState(false);
+  const [phoneVerificationComplete, setPhoneVerificationComplete] = useState(false);
+
+  // D5: Detect phone changes
+  useEffect(() => {
+    const changed = editedPhone !== originalPhone && editedPhone.trim() !== '';
+    setPhoneChanged(changed);
+    if (!changed) {
+      setPhoneVerificationComplete(false); // Reset verification if reverted to original
+    }
+  }, [editedPhone, originalPhone]);
+
   // F6: Save all profile changes
   const handleSaveAllChanges = async () => {
+    // D5: Check if phone changed and requires verification
+    if (phoneChanged && !phoneVerificationComplete) {
+      // Open contact verification modal to verify new phone
+      setPendingVerificationPhone(editedPhone);
+      setIsContactModalOpen(true);
+      setSaveError('Please verify your new phone number before saving.');
+      return; // Block save until verification complete
+    }
+
     try {
       setIsSaving(true);
       setSaveError(null);
       
       // Collect all changed fields (only post-approval editable fields)
-      await updateProfile({
+      const updateData: any = {
         services: editableVerification?.services,
         serviceAreas: editableVerification?.serviceAreas,
         postcodes: editableVerification?.postcodes,
         website: editableVerification?.website,
         socialLinks: editableVerification?.socialLinks,
         companyDescription: editableVerification?.companyDescription,
-      });
+      };
+
+      // D5: Include phone if changed and verified
+      if (phoneChanged && phoneVerificationComplete) {
+        updateData.phone = editedPhone;
+      }
+      
+      await updateProfile(updateData);
       
       // Exit edit mode
       setIsEditingProfile(false);
       
-      // Reload profile data
+      // Reload profile data (will update originalPhone)
       await loadProfile();
+      
+      // Reset phone change tracking
+      setPhoneChanged(false);
+      setPhoneVerificationComplete(false);
       
       // Show success toast
       setShowSuccessToast(true);
@@ -292,11 +331,21 @@ const InstallerProfilePage: React.FC = () => {
     setIsOTPModalOpen(true);
   };
 
-  const handleVerificationSuccess = () => {
+  const handleVerificationSuccess = async () => {
     console.log('Phone verification successful');
+    // D5: Mark phone verification as complete
+    setPhoneVerificationComplete(true);
     setIsOTPModalOpen(false);
+    setIsContactModalOpen(false);
     setOtpPayload(null);
-    // TODO: Refresh user data in Phase B5
+    await loadProfile();
+    
+    // D5: Auto-trigger save after phone verification
+    if (phoneChanged) {
+      setTimeout(() => {
+        handleSaveAllChanges();
+      }, 500);
+    }
   };
 
   const handleResendOTP = async () => {
@@ -547,16 +596,45 @@ const InstallerProfilePage: React.FC = () => {
 
           <div>
             <label className="block text-body-small text-muted-foreground mb-1">Phone</label>
-            <div className="flex items-center gap-2">
-              <p className="text-body text-foreground">{verification?.phone || user.phone || 'Not provided'}</p>
-              {user.phoneVerified && (
-                <span className="text-success">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                </span>
-              )}
-            </div>
+            {isEditingProfile ? (
+              <div>
+                <input
+                  type="tel"
+                  value={editedPhone}
+                  onChange={(e) => setEditedPhone(e.target.value)}
+                  placeholder="+61 4XX XXX XXX"
+                  disabled={isSaving}
+                  className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50"
+                />
+                {phoneChanged && !phoneVerificationComplete && (
+                  <p className="text-body-small text-warning mt-1 flex items-center gap-1">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    Phone number changed. Verification required before saving.
+                  </p>
+                )}
+                {phoneChanged && phoneVerificationComplete && (
+                  <p className="text-body-small text-success mt-1 flex items-center gap-1">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    New phone number verified. Ready to save.
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <p className="text-body text-foreground">{verification?.phone || user.phone || 'Not provided'}</p>
+                {user.phoneVerified && (
+                  <span className="text-success">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
