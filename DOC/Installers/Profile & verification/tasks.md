@@ -754,3 +754,230 @@ Select-String -Path "src\app\installer\(dashboard)\profile\page.tsx" -Pattern "r
 ---
 
 **Execution Order:** F9.1 → F9.2 → F9.3 → F9.4 → F9.5 → F9.6 → F9.7
+
+---
+
+## Phase C: Verification Flow Enhancements
+
+**Reference Audit:** `PHASE-C-ENHANCEMENT-AUDIT.md`  
+**Focus:** UX improvements for verification workflow  
+**Priority:** HIGH (user-reported issues)
+
+### Task C1: Fix Contact Modal Phone Pre-fill ⏳ PENDING
+- **Path:** `src/app/installer/(dashboard)/profile/page.tsx`
+- **Issue:** Contact verification modal doesn't show prefilled phone for unverified profiles
+- **Root Cause:** `defaultPhone` prop only passed when `user.phoneVerified === true`
+- **Fix:** Always pass phone with priority: `verification?.phone || user.phone || undefined`
+- **Changes:**
+  ```typescript
+  <ContactVerificationModal
+    isOpen={showContactModal}
+    onClose={() => setShowContactModal(false)}
+    defaultPhone={verification?.phone || user.phone || undefined} // ✅ Fixed priority
+    onVerificationSuccess={handleVerificationSuccess}
+  />
+  ```
+- **Testing:**
+  - Unverified profile → Open phone modal → See phone prefilled
+  - Verified profile → Open phone modal → See phone prefilled
+  - No phone → Empty input
+- **Estimated Time:** 15 minutes
+- **Commit:** "fix(installer): always prefill contact modal phone from verification or user data"
+
+### Task C2.1: Add onSubmitSuccess Callback to VerificationModal ⏳ PENDING
+- **Path:** `src/components/installer/VerificationModal.tsx`
+- **Enhancement:** Auto-trigger contact verification after verification submission
+- **Changes:**
+  1. Add prop to interface:
+     ```typescript
+     interface VerificationModalProps {
+       ...existing props
+       onSubmitSuccess?: (phone: string) => void; // NEW
+     }
+     ```
+  2. Call callback after successful API submission:
+     ```typescript
+     const handleSubmitForm = async () => {
+       if (validateForm()) {
+         const submitData = { ...formData, phone: formData.phone?.replace(/\s/g, '') };
+         await onSubmit(submitData);
+         
+         // NEW: Trigger success callback
+         if (onSubmitSuccess) {
+           onSubmitSuccess(submitData.phone!);
+         }
+       }
+     };
+     ```
+- **Estimated Time:** 30 minutes
+- **Commit:** "feat(installer): add onSubmitSuccess callback to VerificationModal"
+
+### Task C2.2: Wire Auto-trigger in Profile Page ⏳ PENDING
+- **Path:** `src/app/installer/(dashboard)/profile/page.tsx`
+- **Changes:**
+  1. Add state for pending verification phone:
+     ```typescript
+     const [pendingVerificationPhone, setPendingVerificationPhone] = useState<string | null>(null);
+     ```
+  2. Create success handler:
+     ```typescript
+     const handleVerificationSubmitSuccess = (phone: string) => {
+       setPendingVerificationPhone(phone);
+       setShowVerificationModal(false);
+       // Auto-open contact modal after short delay
+       setTimeout(() => setShowContactModal(true), 300);
+     };
+     ```
+  3. Pass callback to VerificationModal:
+     ```typescript
+     <VerificationModal
+       ...existing props
+       onSubmitSuccess={handleVerificationSubmitSuccess}
+     />
+     ```
+  4. Update ContactVerificationModal defaultPhone:
+     ```typescript
+     <ContactVerificationModal
+       defaultPhone={pendingVerificationPhone || verification?.phone || user.phone || undefined}
+       ...other props
+     />
+     ```
+- **Testing:**
+  - Submit verification → Modal closes → Contact modal opens (with delay)
+  - Contact modal shows submitted phone prefilled
+  - Can close and manually re-open later
+- **Estimated Time:** 30 minutes
+- **Commit:** "feat(installer): auto-trigger contact verification after submission"
+
+### Task C3: Optimize Admin View - Remove Blank Fields ⏳ PENDING
+- **Path:** `src/app/admin/installers/[id]/page.tsx`
+- **Issue:** Admin view shows empty sections/labels for optional fields with no data
+- **Fix:** Add granular conditionals to only show fields with actual data
+- **Changes:**
+  1. Update "Additional Information" section conditional:
+     ```typescript
+     // Only show section if at least one field has data
+     {(verification?.website || 
+       verification?.socialLinks?.facebook || 
+       verification?.socialLinks?.instagram || 
+       verification?.socialLinks?.linkedin || 
+       verification?.socialLinks?.youtube || 
+       verification?.companyDescription) && (
+       <div className="...">
+         <h3>Additional Information</h3>
+         
+         {/* Individual field conditionals */}
+         {verification.website && (
+           <div>
+             <label>Website</label>
+             <a href={verification.website}>{verification.website}</a>
+           </div>
+         )}
+         
+         {verification.socialLinks?.facebook && (
+           <div>
+             <label>Facebook</label>
+             <a href={verification.socialLinks.facebook}>{verification.socialLinks.facebook}</a>
+           </div>
+         )}
+         
+         {/* Repeat for instagram, linkedin, youtube */}
+         
+         {verification.companyDescription && (
+           <div>
+             <label>Company Description</label>
+             <p>{verification.companyDescription}</p>
+           </div>
+         )}
+       </div>
+     )}
+     ```
+  2. Update "Company Logo" section:
+     ```typescript
+     {verification?.logoKey && (
+       <div className="...">
+         {/* Logo preview section */}
+       </div>
+     )}
+     ```
+- **Testing:**
+  - No optional fields → "Additional Information" section hidden
+  - Only website → Only website shown, no empty social links
+  - All fields empty → Clean view, no "Not provided" labels
+- **Estimated Time:** 45 minutes
+- **Commit:** "refactor(admin): show only populated optional fields in verification view"
+
+### Task C4: Fix Postcodes Comma-Separated Input ⏳ PENDING
+- **Path:** `src/components/installer/VerificationModal.tsx`
+- **Issue:** Users can't enter multiple postcodes using comma separator
+- **Current:** Single text input, no parsing
+- **Required:** Parse comma-separated values → array
+- **Changes:**
+  1. Add postcode parsing handler:
+     ```typescript
+     const handlePostcodesChange = (value: string) => {
+       // Parse comma-separated values
+       const postcodes = value
+         .split(',')
+         .map(pc => pc.trim())
+         .filter(pc => pc.length > 0);
+       
+       setFormData(prev => ({ ...prev, postcodes }));
+     };
+     ```
+  2. Update input:
+     ```typescript
+     <input
+       type="text"
+       value={formData.postcodes?.join(', ') || ''}
+       onChange={(e) => handlePostcodesChange(e.target.value)}
+       placeholder="e.g., 5000, 5001, 5002"
+       className="..."
+     />
+     ```
+  3. Add helper text:
+     ```typescript
+     <p className="text-body-small text-muted-foreground">
+       Separate multiple postcodes with commas
+     </p>
+     ```
+  4. Optional: Add visual feedback (tags):
+     ```typescript
+     {formData.postcodes && formData.postcodes.length > 0 && (
+       <div className="flex flex-wrap gap-2 mt-2">
+         {formData.postcodes.map((pc, idx) => (
+           <span key={idx} className="px-2 py-1 bg-primary/10 text-primary rounded-lg text-body-small">
+             {pc}
+           </span>
+         ))}
+       </div>
+     )}
+     ```
+- **Testing:**
+  - Input: "5000, 5001, 5002" → Array: ["5000", "5001", "5002"]
+  - Input: "5000,5001,5002" (no spaces) → Same result
+  - Input: "5000,  5001  , 5002" (extra spaces) → Trimmed correctly
+  - Submit → Backend receives array
+  - Admin view → Displays "5000, 5001, 5002"
+- **Estimated Time:** 30 minutes (+ 30 min for tags if implementing)
+- **Commit:** "feat(installer): allow comma-separated postcode entry in verification form"
+
+---
+
+**Phase C Execution Order:** C1 → C4 → C2.1 → C2.2 → C3
+
+**Total Estimated Time:** 2-3 hours
+
+**Testing Strategy:**
+- Test each task individually after implementation
+- Run end-to-end verification flow: Submit → Auto-trigger phone → Verify
+- Test with various data states (empty, partial, complete)
+- Verify admin view with different field combinations
+
+**Success Criteria:**
+- ✅ C1: Phone modal always shows phone for unverified users
+- ✅ C2: Contact modal auto-opens after verification submission
+- ✅ C3: Admin view shows no blank optional field labels
+- ✅ C4: Users can enter multiple postcodes with commas
+
+---
