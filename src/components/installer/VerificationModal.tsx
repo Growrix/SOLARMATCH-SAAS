@@ -19,7 +19,7 @@ const verificationSchema = z.object({
   representativeName: z.string().min(2, 'Representative name is required'),
   designation: z.string().min(2, 'Designation is required'),
   email: z.string().email('Valid email is required'),
-  phone: z.string().regex(/^\+614\d{8}$/, 'Valid Australian mobile number required (+614XXXXXXXX)'),
+  phone: z.string().regex(/^\+61[0-9]{9}$/, 'Phone must be in E.164 format (+61XXXXXXXXX)'),
   // Business Legal
   abnOrLicense: z.string().min(5, 'ABN or License number is required'),
   establishedYear: z.number().min(1900).max(new Date().getFullYear(), 'Valid year required'),
@@ -137,7 +137,20 @@ const VerificationModal: React.FC<VerificationModalProps> = ({ open, onClose, on
 
   const handleSubmitForm = () => {
     if (validateForm()) {
-      onSubmit(formData as VerificationFormData);
+      // Remove spaces from phone for E.164 format and clean up empty strings
+      const submitData = {
+        ...formData,
+        phone: formData.phone?.replace(/\s/g, '') || '',
+        website: formData.website?.trim() || null,
+        companyDescription: formData.companyDescription?.trim() || null,
+        socialLinks: {
+          facebook: formData.socialLinks?.facebook?.trim() || null,
+          instagram: formData.socialLinks?.instagram?.trim() || null,
+          linkedin: formData.socialLinks?.linkedin?.trim() || null,
+          youtube: formData.socialLinks?.youtube?.trim() || null,
+        },
+      };
+      onSubmit(submitData as VerificationFormData);
     }
   };
 
@@ -483,7 +496,7 @@ const VerificationModal: React.FC<VerificationModalProps> = ({ open, onClose, on
                 Types of Services Offered <span className="text-error">*</span>
               </label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {['Installation', 'Maintenance', 'Inspection', 'Repair', 'Consultation'].map(service => (
+                {['Residential Solar', 'Commercial Solar', 'Battery Storage', 'EV Chargers', 'Solar Maintenance', 'System Upgrades'].map(service => (
                   <label key={service} className="flex items-center space-x-2 cursor-pointer p-2 rounded-lg hover:bg-background/50 transition-colors">
                     <input
                       type="checkbox"
@@ -508,7 +521,7 @@ const VerificationModal: React.FC<VerificationModalProps> = ({ open, onClose, on
                 Service Areas <span className="text-error">*</span>
               </label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {['Sydney', 'Melbourne', 'Brisbane', 'Perth', 'Adelaide', 'Regional NSW', 'Regional VIC', 'Regional QLD'].map(area => (
+                {['Sydney', 'Melbourne', 'Brisbane', 'Perth', 'Adelaide', 'Gold Coast', 'Canberra', 'Newcastle', 'Wollongong', 'Sunshine Coast', 'Hobart', 'Geelong', 'Townsville', 'Cairns', 'Darwin'].map(area => (
                   <label key={area} className="flex items-center space-x-2 cursor-pointer p-2 rounded-lg hover:bg-background/50 transition-colors">
                     <input
                       type="checkbox"
