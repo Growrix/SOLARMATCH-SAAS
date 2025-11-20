@@ -283,6 +283,13 @@ const InstallerProfilePage: React.FC = () => {
         website: editableVerification?.website,
         socialLinks: editableVerification?.socialLinks,
         companyDescription: editableVerification?.companyDescription,
+        // E2: Include company details fields
+        companyName: editableVerification?.companyName,
+        representativeName: editableVerification?.representativeName,
+        designation: editableVerification?.designation,
+        abnOrLicense: editableVerification?.abnOrLicense,
+        establishedYear: editableVerification?.establishedYear,
+        employeeCount: editableVerification?.employeeCount,
       };
 
       // D5: Include phone if changed and verified

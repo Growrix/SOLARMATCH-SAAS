@@ -87,6 +87,12 @@ export const installerProfileUpdateSchema = z.object({
   companyDescription: z.string().max(2000).optional().nullable(),
   logoKey: z.string().optional().nullable(),
   phone: phoneE164Schema.optional(), // E1: Allow phone updates after OTP verification
+  // E2: Add company details fields
+  representativeName: z.string().min(2).max(100).optional(),
+  designation: z.string().min(2).max(100).optional(),
+  abnOrLicense: z.string().min(9).max(50).optional(),
+  establishedYear: z.number().int().min(1900).max(new Date().getFullYear()).optional(),
+  employeeCount: z.number().int().min(1).max(10000).optional(),
 });
 
 export type InstallerProfileUpdate = z.infer<typeof installerProfileUpdateSchema>;

@@ -176,6 +176,13 @@ export async function PUT(req: NextRequest) {
         if (dataForPrisma.companyDescription !== undefined) updateData.companyDescription = dataForPrisma.companyDescription;
         if (dataForPrisma.logoKey !== undefined) updateData.logoKey = dataForPrisma.logoKey;
         if (dataForPrisma.phone) updateData.phone = dataForPrisma.phone; // E1: Sync phone to verification record
+        // E2: Add company details update logic
+        if (dataForPrisma.companyName) updateData.companyName = dataForPrisma.companyName;
+        if (dataForPrisma.representativeName) updateData.representativeName = dataForPrisma.representativeName;
+        if (dataForPrisma.designation) updateData.designation = dataForPrisma.designation;
+        if (dataForPrisma.abnOrLicense) updateData.abnOrLicense = dataForPrisma.abnOrLicense;
+        if (dataForPrisma.establishedYear !== undefined) updateData.establishedYear = dataForPrisma.establishedYear;
+        if (dataForPrisma.employeeCount !== undefined) updateData.employeeCount = dataForPrisma.employeeCount;
 
         if (Object.keys(updateData).length > 0) {
           await prisma.installerVerification.update({
