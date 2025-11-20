@@ -147,6 +147,18 @@ export async function PUT(req: NextRequest) {
       });
     }
 
+    // E1: Handle phone number update (User table + verification sync)
+    if (dataForPrisma.phone) {
+      // Update User.phone and mark as verified (OTP already completed in frontend)
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          phone: dataForPrisma.phone,
+          phoneVerified: true,
+        },
+      });
+    }
+
     // Update InstallerVerification (editable fields after approval)
     if (user.installerVerified) {
       const verification = await prisma.installerVerification.findUnique({
@@ -163,6 +175,7 @@ export async function PUT(req: NextRequest) {
         if (dataForPrisma.socialLinks !== undefined) updateData.socialLinks = dataForPrisma.socialLinks;
         if (dataForPrisma.companyDescription !== undefined) updateData.companyDescription = dataForPrisma.companyDescription;
         if (dataForPrisma.logoKey !== undefined) updateData.logoKey = dataForPrisma.logoKey;
+        if (dataForPrisma.phone) updateData.phone = dataForPrisma.phone; // E1: Sync phone to verification record
 
         if (Object.keys(updateData).length > 0) {
           await prisma.installerVerification.update({

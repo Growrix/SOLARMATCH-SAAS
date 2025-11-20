@@ -86,6 +86,7 @@ export const installerProfileUpdateSchema = z.object({
   socialLinks: socialLinksSchema,
   companyDescription: z.string().max(2000).optional().nullable(),
   logoKey: z.string().optional().nullable(),
+  phone: phoneE164Schema.optional(), // E1: Allow phone updates after OTP verification
 });
 
 export type InstallerProfileUpdate = z.infer<typeof installerProfileUpdateSchema>;
