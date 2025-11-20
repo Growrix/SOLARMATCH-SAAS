@@ -10,6 +10,7 @@ interface VerificationModalProps {
   onClose: () => void;
   onSubmit: (data: VerificationFormData) => void;
   isSubmitting?: boolean;
+  existingVerification?: Partial<VerificationFormData>;
 }
 
 // Consolidated validation schema
@@ -44,7 +45,7 @@ const verificationSchema = z.object({
 
 export type VerificationFormData = z.infer<typeof verificationSchema>;
 
-const VerificationModal: React.FC<VerificationModalProps> = ({ open, onClose, onSubmit, isSubmitting = false }) => {
+const VerificationModal: React.FC<VerificationModalProps> = ({ open, onClose, onSubmit, isSubmitting = false, existingVerification }) => {
   const [formData, setFormData] = useState<Partial<VerificationFormData>>({
     phone: '+61 ',
     services: [],
@@ -60,6 +61,45 @@ const VerificationModal: React.FC<VerificationModalProps> = ({ open, onClose, on
   const abnFileRef = useRef<HTMLInputElement>(null);
   const logoFileRef = useRef<HTMLInputElement>(null);
   const { uploadStates, upload: uploadFile } = useMultiFileUpload();
+
+  // Pre-fill form data when existingVerification is provided
+  useEffect(() => {
+    if (open && existingVerification) {
+      setFormData({
+        companyName: existingVerification.companyName || '',
+        representativeName: existingVerification.representativeName || '',
+        designation: existingVerification.designation || '',
+        email: existingVerification.email || '',
+        phone: existingVerification.phone ? `+61 ${existingVerification.phone.slice(3)}` : '+61 ',
+        abnOrLicense: existingVerification.abnOrLicense || '',
+        establishedYear: existingVerification.establishedYear,
+        employeeCount: existingVerification.employeeCount,
+        licenseDocKey: existingVerification.licenseDocKey,
+        abnDocKey: existingVerification.abnDocKey,
+        services: existingVerification.services || [],
+        serviceAreas: existingVerification.serviceAreas || [],
+        postcodes: existingVerification.postcodes || [],
+        website: existingVerification.website || '',
+        socialLinks: {
+          facebook: existingVerification.socialLinks?.facebook || '',
+          instagram: existingVerification.socialLinks?.instagram || '',
+          linkedin: existingVerification.socialLinks?.linkedin || '',
+          youtube: existingVerification.socialLinks?.youtube || '',
+        },
+        companyDescription: existingVerification.companyDescription || '',
+        logoKey: existingVerification.logoKey,
+      });
+    } else if (open && !existingVerification) {
+      // Reset to defaults when opening fresh
+      setFormData({
+        phone: '+61 ',
+        services: [],
+        serviceAreas: [],
+        postcodes: [],
+        socialLinks: { facebook: '', instagram: '', linkedin: '', youtube: '' },
+      });
+    }
+  }, [open, existingVerification]);
 
   // Format phone to E.164 on change
   const handlePhoneChange = (value: string) => {
