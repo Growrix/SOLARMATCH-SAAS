@@ -584,19 +584,6 @@ const InstallerProfilePage: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-body-small text-muted-foreground mb-1">Name</label>
-            {isEditingProfile ? (
-              <input
-                type="text"
-                defaultValue={user.name || ''}
-                className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
-              />
-            ) : (
-              <p className="text-body text-foreground">{verification?.representativeName || user.name || 'Not provided'}</p>
-            )}
-          </div>
-
-          <div>
             <label className="block text-body-small text-muted-foreground mb-1">Email</label>
             <p className="text-body text-foreground">{user.email}</p>
           </div>
@@ -693,20 +680,6 @@ const InstallerProfilePage: React.FC = () => {
             ) : (
               <p className="text-body text-foreground">{verification?.designation || 'Not provided'}</p>
             )}
-          </div>
-
-          <div>
-            <label className="block text-body-small text-muted-foreground mb-1">
-              Representative Email <span className="text-muted-foreground">(from account)</span>
-            </label>
-            <p className="text-body text-muted-foreground">{user.email}</p>
-          </div>
-
-          <div>
-            <label className="block text-body-small text-muted-foreground mb-1">
-              Representative Phone
-            </label>
-            <p className="text-body text-foreground">{verification?.phone || user.phone || 'Not provided'}</p>
           </div>
 
           <div>
