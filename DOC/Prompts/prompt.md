@@ -2106,3 +2106,42 @@ I want you to create a installer Profile page in the Installers dashboard. This 
 
 ***Insturctions***
 please check the backend connection and impliment the backend logic to store the data in the database accordingly. Do a audit to undertand the situation and the frontend and backend connection gaps/missing implimentations. create a comprhensive audit report of the issues found and the plan to fix them. after that start fixing the issues step by step.  create the audit report under this folder D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification. And create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification\tasks.md file for this task and start implimenting the changes step by step as per the plan you created.
+
+------------------------------------------------------------------------------
+
+***Installers Verification Modal test result and issues***
+
+After testing the installers verification modal I have found multiple issues - 
+
+1) The verification modal fileds mismatch with the installers profile details. 
+   - Personal Detailes section : fetching email from the Installer Authentication while signed up. but It is not fetching phone number from the verification details.
+
+There are more issues to identify actually. so please do a deep audit of the installers verification modal, installers profile page and the admin installers verification view modal to identify all the gaps/mismatches/missing implimentations. must audit the frontend vs backend, because the mismatches are there. create a comprhensive audit report of the issues found and the plan to fix them. after that start fixing the issues step by step.  create the audit report under this folder D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification. And create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification\tasks.md file for this task and start implimenting the changes step by step as per the plan you created.
+
+
+***what it should be *** All the inputs should be fetched from the same source/model. so that there is no mismatch between different views/modals. update the profile page fields as per the verification modal fields. and update the admin view modal fields as per the verification modal fields. so that everything stays aligned and consistent. 
+
+---------------------------------------------------------------------------
+
+***Installers Verification Modal test result and issues - 2nd part*** 
+Now the contact verification modal is not showing the prefilled number when the user profile is unverified, but it is showing when the profile is verified by the admin. 
+
+- additionally : I require installers to verify their contact number immidiately after they submit the verification form. The contact modal should pop up immidiately with the prefilled contact number immidiately after the profile verification is submitted. 
+
+note : everything is working fine here, just need a some enhancement . do not overcomplicate it. 
+
+***Admin Installers verification review modal test*** This modal is need to be enhanced a bit, because I see there are some fileds are not fetching data and showing blank. Just remove these blank fields from the modal to make it clean. only show the fields which has data. 
+
+***verfication modal issue*** in the Postcodes served filed , the user cant enter multiple postcode by using comma "," . please fix this issue. it should allow multiple postcode entry using comma ",". 
+
+***instructions***  Audit and understand the current flows and data flow. audit the relevant fronend and backend in deailed and create a comprhensive audit report of the issues found and identify the gaps between the existing flows and the requested flows and the plan to fix and impliment them. after that start fixing the issues step by step. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on. create the audit report under this folder D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification. And create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification\tasks.md file for this task and start implimenting the changes step by step as per the plan you created.
+
+***Mandatory before doing anything next*** commit all the changes to your local repository:
+
+    git add .
+    git commit -m "Your commit message"
+Push the changes to the remote repository:
+    git push origin your-branch-name: Installers_Second
+
+    ***instruction***
+    each time you make commits, you must update the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Prompts\gitstatus.md file with the latest commit information to keep track of changes effectively. with the commit id ,timestamp, and a brief description of the changes made in that commit.make sure the push has the excatly current versions, so that it can be restored if needed. 
