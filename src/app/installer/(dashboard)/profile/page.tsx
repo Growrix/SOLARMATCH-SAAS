@@ -702,7 +702,10 @@ const InstallerProfilePage: React.FC = () => {
               <input
                 type="number"
                 value={editableVerification?.establishedYear || ''}
-                onChange={(e) => setEditableVerification((prev: any) => ({ ...prev!, establishedYear: parseInt(e.target.value) }))}
+                onChange={(e) => {
+                  const val = e.target.value === '' ? undefined : parseInt(e.target.value);
+                  setEditableVerification((prev: any) => ({ ...prev!, establishedYear: val }));
+                }}
                 className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
                 min="1900"
                 max={new Date().getFullYear()}
@@ -718,7 +721,10 @@ const InstallerProfilePage: React.FC = () => {
               <input
                 type="number"
                 value={editableVerification?.employeeCount || ''}
-                onChange={(e) => setEditableVerification((prev: any) => ({ ...prev!, employeeCount: parseInt(e.target.value) }))}
+                onChange={(e) => {
+                  const val = e.target.value === '' ? undefined : parseInt(e.target.value);
+                  setEditableVerification((prev: any) => ({ ...prev!, employeeCount: val }));
+                }}
                 className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
                 min="1"
               />

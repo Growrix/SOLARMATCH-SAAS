@@ -124,6 +124,9 @@ export async function PUT(req: NextRequest) {
 
     const body = await req.json();
 
+    // DEBUG: Log incoming payload
+    console.log('[PUT /api/installer/profile] Incoming payload:', JSON.stringify(body, null, 2));
+
     // Validate payload
     const validatedData = installerProfileUpdateSchema.parse(body);
 
@@ -199,6 +202,7 @@ export async function PUT(req: NextRequest) {
     });
   } catch (error: any) {
     if (error instanceof ZodError) {
+      console.error('[PUT /api/installer/profile] Validation error:', JSON.stringify(error.issues, null, 2));
       return NextResponse.json(
         { error: 'Validation failed', issues: error.issues },
         { status: 400 }

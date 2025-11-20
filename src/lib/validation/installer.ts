@@ -83,7 +83,7 @@ export const installerProfileUpdateSchema = z.object({
   serviceAreas: z.array(serviceAreasEnum).optional(),
   postcodes: z.array(z.string().regex(/^[0-9]{4}$/)).optional(),
   website: z.string().url().optional().nullable(),
-  socialLinks: socialLinksSchema,
+  socialLinks: socialLinksSchema, // Already .optional().nullable() in schema definition
   companyDescription: z.string().max(2000).optional().nullable(),
   logoKey: z.string().optional().nullable(),
   phone: phoneE164Schema.optional(), // E1: Allow phone updates after OTP verification
