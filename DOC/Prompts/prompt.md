@@ -2191,3 +2191,14 @@ Submit your business details and documents for admin review to unlock lead purch
 
 ***instructions*** Audit and understand the current flows and data flow. audit the relevant fronend and backend in deailed and create a comprhensive audit report of the issues found and identify the gaps between the existing flows and the requested flows and the plan to fix and impliment them. after that start fixing the issues step by step. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on. create the audit report under this folder D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification. And create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification\tasks.md file for this task and start implimenting the changes step by step as per the plan you created.
 
+------------------------------------------------------------------------------------
+
+***Installer Profile Edit Issues***
+
+- the ""Services & Coverage" section is not editable in the profile page. please make it editable. as these fileds are checkbox, so while opt ing the checkboxes the previous selected options should stay selected. e.g if user selected "Sydney" and "Melbourne" while submitting the verification form, then while editing the profile page these 2 options should stay selected. and user can select/deselect any option as per their choice.
+- while editing the profile page, in the Postcodes served filed , it is not allowing to enter multiple postcodes by inserting comma . it should allow to input comma and let users add multiple post codes. even while editing profile there is no option to input comma. please fix this issue.
+- the "Documents & Logo" area also should be updated able. users can upload new documents/logo while editing the profile page. please make it editable. 
+
+***Pain points*** I have been repeating some of these issues again and again. And you are not fixing them effectively. please focus on the main issues and fix them completely.
+
+***instructions***  Audit and understand the current flows and data flow. audit the relevant fronend and backend in deailed and create a comprhensive audit report of the issues found and identify the gaps between the existing flows and the requested task and the plan to fix and impliment them. after that start fixing the issues step by step. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on. create the audit report under this folder D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification. And create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification\tasks.md file for this task and start implimenting the changes step by step as per the plan you created.

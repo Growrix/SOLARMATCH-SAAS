@@ -345,6 +345,80 @@ Select-String -Path "<file>" -Pattern "text-white|bg-white|text-black|bg-black"
 Select-String -Path "<file>" -Pattern "text-xs|text-sm|text-lg|text-xl|font-bold|font-semibold"
 ```
 
+## Phase E13: Services, Areas, Postcodes, Documents & Logo (Edit Fidelity)
+**Status:** Not Started  
+**Date:** November 20, 2025  
+**Audit Report:** `E13-SERVICES-DOCUMENTS-POSTCODES-AUDIT.md`
+
+### Objectives
+- Normalize services & service areas to backend enums
+- Map legacy labels to canonical enum values (no data loss)
+- Enhance postcode input via chips while retaining comma parsing
+- Enable editing of license, ABN, and logo keys (stub upload only)
+- Extend schema & API for new document keys
+- Provide inline validation errors (no silent failure)
+- Maintain semantic styling zero violations
+- Preserve existing business logic (UI/schema/API additive only)
+
+### Tasks
+1. E13.1 Schema: add `licenseDocKey`, `abnDocKey` to `installerProfileUpdateSchema` (optional)
+2. E13.2 UI: replace hardcoded services/serviceAreas arrays with enums + legacy mapping
+3. E13.3 Postcodes: add chips (removal), keep comma parser & 4-digit validation
+4. E13.4 Documents: add file inputs (edit mode) + handlers storing keys (stub presign)
+5. E13.5 API: accept & persist doc keys; map legacy service labels pre-parse
+6. E13.6 Validation UX: inline display of Zod issues per field
+7. E13.7 Testing: persistence + semantic verification (0/0/0/0/0/0)
+8. E13.8 Build: `npx tsc --noEmit` & `npm run build` (no new errors)
+9. E13.9 Docs: update `tasks.md`, `gitstatus.md` with results
+
+**Progress (Nov 20 2025):**
+- ✅ E13.1 Schema extension added (`licenseDocKey`, `abnDocKey`)
+- ✅ E13.2 UI enum normalization (services & areas + legacy mapping)
+- ✅ E13.3 Postcodes chip UX (add/remove + validation)
+- ✅ E13.4 Document file inputs (stub key generation)
+- ✅ E13.5 API route updates (doc keys + legacy normalization)
+- ✅ E13.6 Inline field-level validation errors (services/areas/postcodes)
+- ✅ E13.7 Semantic checks: profile page 0 matches after removing `text-white`
+- ✅ E13.8 Build/TS: Profile changes compile; existing admin TS errors unchanged
+- ✅ E13.9 Docs: Status updated here (gitstatus pending commit trigger)
+
+### Success Criteria
+- ✅ Services/serviceAreas persist & reload using enum values
+- ✅ Legacy labels remapped safely
+- ✅ Postcodes chips reflect current set; add/remove works; only valid 4-digit stored
+- ✅ License/ABN/logo keys editable & persisted
+- ✅ Inline validation errors visible (multiple concurrently)
+- ✅ All semantic checks return zero matches
+- ✅ TypeScript/build succeed with no added errors
+- ✅ No regression in existing profile logic
+
+### Semantic Verification (profile page)
+```powershell
+Select-String -Path "src\app\installer\(dashboard)\profile\page.tsx" -Pattern "text-gray-|text-slate-|bg-gray-|bg-slate-|border-gray-|border-slate-"
+Select-String -Path "src\app\installer\(dashboard)\profile\page.tsx" -Pattern "dark:"
+Select-String -Path "src\app\installer\(dashboard)\profile\page.tsx" -Pattern "rgba\(|rgb\(|#[0-9a-fA-F]{3,6}"
+Select-String -Path "src\app\installer\(dashboard)\profile\page.tsx" -Pattern "text-white|bg-white|text-black|bg-black"
+Select-String -Path "src\app\installer\(dashboard)\profile\page.tsx" -Pattern "text-xs|text-sm|text-lg|text-xl|font-bold|font-semibold"
+Select-String -Path "src\app\installer\(dashboard)\profile\page.tsx" -Pattern "sm:text-|md:text-|lg:text-"
+```
+
+### Manual Test Matrix
+- Select multiple services → Save → Reload (persist)
+- Mixed legacy + new service labels normalize
+- Multiple service areas persist after reload
+- Postcodes: enter `2000,2010, 2020,2030` → 4 chips; remove one; save & reload
+- Invalid postcode ignored
+- Stub uploads set & persist license/ABN/logo keys
+- Induce validation error (bad service) shows inline; other valid fields persist
+
+### Estimates
+- Schema/API: 1h; UI normalization: 1h; Postcodes UX: 1h; Document inputs: 1.5h; Validation UX: 1h; Testing + semantic: 1h; Docs: 0.5h → ~7h total
+
+### Notes
+- Upload integration deferred (keys only)
+- Atomic commits per component/file set
+- No modification to existing non-UI logic (preserve hooks & handlers)
+
 ### Success Criteria
 - ✅ All form submissions reach backend APIs
 - ✅ Data persists in PostgreSQL database

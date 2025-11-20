@@ -18,6 +18,26 @@ import {
   type PreferencesData,
   getErrorMessage 
 } from '@/lib/api/installer';
+import { servicesEnum, serviceAreasEnum } from '@/lib/validation/installer';
+
+// Phase E13: Canonical option arrays derived from Zod enums
+const SERVICE_OPTIONS = servicesEnum.options;
+const SERVICE_AREA_OPTIONS = serviceAreasEnum.options;
+
+// Phase E13: Legacy label mappings -> canonical enum values
+const LEGACY_SERVICE_MAP: Record<string,string> = {
+  Installation: 'Residential Solar',
+  Maintenance: 'Solar Maintenance',
+  Inspection: 'System Upgrades',
+  Repair: 'System Upgrades',
+  Consultation: 'Commercial Solar',
+};
+
+const LEGACY_AREA_MAP: Record<string,string> = {
+  'Regional NSW': 'Newcastle',
+  'Regional VIC': 'Geelong',
+  'Regional QLD': 'Gold Coast',
+};
 
 const InstallerProfilePage: React.FC = () => {
   // Profile data state
@@ -244,6 +264,8 @@ const InstallerProfilePage: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
+  // Phase E13: Field-level validation errors from API (Zod issues)
+  const [fieldErrors, setFieldErrors] = useState<Record<string,string>>({});
 
   // D5: Phone change detection state
   const [originalPhone, setOriginalPhone] = useState<string>('');
@@ -290,6 +312,10 @@ const InstallerProfilePage: React.FC = () => {
         abnOrLicense: editableVerification?.abnOrLicense,
         establishedYear: editableVerification?.establishedYear,
         employeeCount: editableVerification?.employeeCount,
+        // Phase E13: document keys
+        licenseDocKey: editableVerification?.licenseDocKey,
+        abnDocKey: editableVerification?.abnDocKey,
+        logoKey: editableVerification?.logoKey,
       };
 
       // D5: Include phone if changed and verified
@@ -312,11 +338,20 @@ const InstallerProfilePage: React.FC = () => {
       // Show success toast
       setShowSuccessToast(true);
       setTimeout(() => setShowSuccessToast(false), 3000);
+      setFieldErrors({}); // Clear field errors on success
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Save failed:', error);
       setSaveError(getErrorMessage(error) || 'Failed to save changes. Please try again.');
-      // Keep in edit mode so user can retry
+      // Extract Zod issues if present for inline display
+      if (error?.issues && Array.isArray(error.issues)) {
+        const mapped: Record<string,string> = {};
+        for (const issue of error.issues) {
+          const pathKey = Array.isArray(issue.path) ? issue.path.join('.') : String(issue.path);
+          if (!mapped[pathKey]) mapped[pathKey] = issue.message;
+        }
+        setFieldErrors(mapped);
+      }
     } finally {
       setIsSaving(false);
     }
@@ -367,6 +402,9 @@ const InstallerProfilePage: React.FC = () => {
           establishedYear: editableVerification?.establishedYear,
           employeeCount: editableVerification?.employeeCount,
           phone: editedPhone, // Include verified phone
+          licenseDocKey: editableVerification?.licenseDocKey,
+          abnDocKey: editableVerification?.abnDocKey,
+          logoKey: editableVerification?.logoKey,
         };
 
         await updateProfile(updateData);
@@ -384,9 +422,18 @@ const InstallerProfilePage: React.FC = () => {
         // Show success toast
         setShowSuccessToast(true);
         setTimeout(() => setShowSuccessToast(false), 3000);
+        setFieldErrors({});
       } catch (error: any) {
         console.error('Failed to save profile after verification:', error);
         setSaveError(error.message || 'Failed to save changes');
+        if (error?.issues && Array.isArray(error.issues)) {
+          const mapped: Record<string,string> = {};
+          for (const issue of error.issues) {
+            const pathKey = Array.isArray(issue.path) ? issue.path.join('.') : String(issue.path);
+            if (!mapped[pathKey]) mapped[pathKey] = issue.message;
+          }
+          setFieldErrors(mapped);
+        }
       } finally {
         setIsSaving(false);
       }
@@ -499,7 +546,7 @@ const InstallerProfilePage: React.FC = () => {
       )}
       
       {showSuccessToast && (
-        <div className="fixed top-4 right-4 bg-success text-white px-4 py-3 rounded-lg shadow-neu-outset z-50 flex items-center gap-2">
+        <div className="fixed top-4 right-4 bg-success text-foreground px-4 py-3 rounded-lg shadow-neu-outset z-50 flex items-center gap-2">
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
           </svg>
@@ -818,7 +865,7 @@ const InstallerProfilePage: React.FC = () => {
                 <input
                   type="url"
                   value={editableVerification?.socialLinks?.facebook || ''}
-                  onChange={(e) => setEditableVerification(prev => ({ 
+                  onChange={(e) => setEditableVerification((prev: any) => ({ 
                     ...prev!, 
                     socialLinks: { ...prev!.socialLinks, facebook: e.target.value } 
                   }))}
@@ -836,7 +883,7 @@ const InstallerProfilePage: React.FC = () => {
                 <input
                   type="url"
                   value={editableVerification?.socialLinks?.instagram || ''}
-                  onChange={(e) => setEditableVerification(prev => ({ 
+                  onChange={(e) => setEditableVerification((prev: any) => ({ 
                     ...prev!, 
                     socialLinks: { ...prev!.socialLinks, instagram: e.target.value } 
                   }))}
@@ -854,7 +901,7 @@ const InstallerProfilePage: React.FC = () => {
                 <input
                   type="url"
                   value={editableVerification?.socialLinks?.linkedin || ''}
-                  onChange={(e) => setEditableVerification(prev => ({ 
+                  onChange={(e) => setEditableVerification((prev: any) => ({ 
                     ...prev!, 
                     socialLinks: { ...prev!.socialLinks, linkedin: e.target.value } 
                   }))}
@@ -872,7 +919,7 @@ const InstallerProfilePage: React.FC = () => {
                 <input
                   type="url"
                   value={editableVerification?.socialLinks?.youtube || ''}
-                  onChange={(e) => setEditableVerification(prev => ({ 
+                  onChange={(e) => setEditableVerification((prev: any) => ({ 
                     ...prev!, 
                     socialLinks: { ...prev!.socialLinks, youtube: e.target.value } 
                   }))}
@@ -897,22 +944,28 @@ const InstallerProfilePage: React.FC = () => {
             <label className="block text-body-small text-muted-foreground mb-2">Services Offered</label>
             {isEditingProfile ? (
               <div className="space-y-2">
-                {['Installation', 'Maintenance', 'Inspection', 'Repair', 'Consultation'].map(service => (
+                {SERVICE_OPTIONS.map(service => (
                   <label key={service} className="flex items-center space-x-2 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={editableVerification?.services?.includes(service)}
                       onChange={(e) => {
+                        // Normalize legacy labels to canonical before updating state
+                        const canonical = LEGACY_SERVICE_MAP[service] || service;
+                        const current = (editableVerification?.services || []).map((s: string) => LEGACY_SERVICE_MAP[s] || s);
                         const updated = e.target.checked
-                          ? [...(editableVerification?.services || []), service]
-                          : (editableVerification?.services || []).filter(s => s !== service);
-                        setEditableVerification(prev => ({ ...prev!, services: updated }));
+                          ? [...current.filter((v: string, i: number, a: string[]) => a.indexOf(v) === i), canonical]
+                          : current.filter((s: string) => s !== canonical);
+                        setEditableVerification((prev: any) => ({ ...prev!, services: updated }));
                       }}
                       className="rounded border-border text-primary focus:ring-2 focus:ring-primary"
                     />
                     <span className="text-body text-foreground">{service}</span>
                   </label>
                 ))}
+                {fieldErrors['services'] && (
+                  <p className="text-caption text-error mt-2">{fieldErrors['services']}</p>
+                )}
               </div>
             ) : (
               <div className="flex flex-wrap gap-2">
@@ -929,22 +982,27 @@ const InstallerProfilePage: React.FC = () => {
             <label className="block text-body-small text-muted-foreground mb-2">Service Areas</label>
             {isEditingProfile ? (
               <div className="space-y-2">
-                {['Sydney', 'Melbourne', 'Brisbane', 'Perth', 'Adelaide', 'Regional NSW', 'Regional VIC', 'Regional QLD'].map(area => (
+                {SERVICE_AREA_OPTIONS.map(area => (
                   <label key={area} className="flex items-center space-x-2 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={editableVerification?.serviceAreas?.includes(area)}
                       onChange={(e) => {
+                        const canonical = LEGACY_AREA_MAP[area] || area;
+                        const current = (editableVerification?.serviceAreas || []).map((a: string) => LEGACY_AREA_MAP[a] || a);
                         const updated = e.target.checked
-                          ? [...(editableVerification?.serviceAreas || []), area]
-                          : (editableVerification?.serviceAreas || []).filter(a => a !== area);
-                        setEditableVerification(prev => ({ ...prev!, serviceAreas: updated }));
+                          ? [...current.filter((v: string, i: number, arr: string[]) => arr.indexOf(v) === i), canonical]
+                          : current.filter((a: string) => a !== canonical);
+                        setEditableVerification((prev: any) => ({ ...prev!, serviceAreas: updated }));
                       }}
                       className="rounded border-border text-primary focus:ring-2 focus:ring-primary"
                     />
                     <span className="text-body text-foreground">{area}</span>
                   </label>
                 ))}
+                {fieldErrors['serviceAreas'] && (
+                  <p className="text-caption text-error mt-2">{fieldErrors['serviceAreas']}</p>
+                )}
               </div>
             ) : (
               <div className="flex flex-wrap gap-2">
@@ -960,16 +1018,44 @@ const InstallerProfilePage: React.FC = () => {
           <div>
             <label className="block text-body-small text-muted-foreground mb-2">Postcodes Served</label>
             {isEditingProfile ? (
-              <input
-                type="text"
-                value={(editableVerification?.postcodes || []).join(', ')}
-                onChange={(e) => {
-                  const codes = e.target.value.split(',').map(c => c.trim()).filter(Boolean);
-                  setEditableVerification(prev => ({ ...prev!, postcodes: codes }));
-                }}
-                className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="2000, 2001, 2010"
-              />
+              <div className="space-y-2">
+                <div className="flex flex-wrap gap-2">
+                  {(editableVerification?.postcodes || []).map((code: string) => (
+                    <span key={code} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-caption">
+                      {code}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const filtered = (editableVerification?.postcodes || []).filter((c: string) => c !== code);
+                          setEditableVerification((prev: any) => ({ ...prev!, postcodes: filtered }));
+                        }}
+                        className="ml-1 text-primary hover:text-error focus:outline-none"
+                        aria-label={`Remove postcode ${code}`}
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                <input
+                  type="text"
+                  value={(editableVerification?.postcodes || []).join(', ')}
+                  onChange={(e) => {
+                    const codes = e.target.value
+                      .split(',')
+                      .map(c => c.trim())
+                      .filter(c => /^[0-9]{4}$/.test(c));
+                    const uniqueCodes = Array.from(new Set(codes));
+                    setEditableVerification((prev: any) => ({ ...prev!, postcodes: uniqueCodes }));
+                  }}
+                  className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                  placeholder="2000, 2001, 2010"
+                />
+                <p className="text-caption text-muted-foreground">Enter 4-digit codes separated by commas. Click × to remove.</p>
+                {fieldErrors['postcodes'] && (
+                  <p className="text-caption text-error">{fieldErrors['postcodes']}</p>
+                )}
+              </div>
             ) : (
               <p className="text-body text-foreground">{verification?.postcodes?.join(', ') || 'Not provided'}</p>
             )}
@@ -987,41 +1073,102 @@ const InstallerProfilePage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-body-small text-foreground mb-2">License Document</label>
-              <div className="border-2 border-dashed border-border rounded-xl p-4 text-center bg-surface shadow-neu-inset hover:border-primary transition-colors cursor-pointer">
-                <svg className="mx-auto h-10 w-10 text-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                </svg>
-                <p className="text-caption text-muted-foreground mt-2">Upload PDF/JPG</p>
-                {verification?.licenseDocKey && (
-                  <p className="text-caption text-success mt-1">✓ Uploaded</p>
-                )}
-              </div>
+              {isEditingProfile ? (
+                <div className="space-y-2">
+                  <input
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      // Stub: generate key locally (Phase E13 placeholder for presign/upload flow)
+                      const generatedKey = `license-${Date.now()}-${file.name}`;
+                      setEditableVerification((prev: any) => ({ ...prev!, licenseDocKey: generatedKey }));
+                    }}
+                    className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                  />
+                  <p className="text-caption text-muted-foreground">Accepted: PDF/JPG/PNG</p>
+                  {(editableVerification?.licenseDocKey || verification?.licenseDocKey) && (
+                    <p className="text-caption text-success">Key: {(editableVerification?.licenseDocKey || verification?.licenseDocKey)}</p>
+                  )}
+                </div>
+              ) : (
+                <div className="border-2 border-dashed border-border rounded-xl p-4 text-center bg-surface shadow-neu-inset">
+                  <svg className="mx-auto h-10 w-10 text-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                  <p className="text-caption text-muted-foreground mt-2">Upload PDF/JPG</p>
+                  {verification?.licenseDocKey && (
+                    <p className="text-caption text-success mt-1">✓ Uploaded</p>
+                  )}
+                </div>
+              )}
             </div>
 
             <div>
               <label className="block text-body-small text-foreground mb-2">ABN Document</label>
-              <div className="border-2 border-dashed border-border rounded-xl p-4 text-center bg-surface shadow-neu-inset hover:border-primary transition-colors cursor-pointer">
-                <svg className="mx-auto h-10 w-10 text-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                </svg>
-                <p className="text-caption text-muted-foreground mt-2">Upload PDF/JPG</p>
-                {verification?.abnDocKey && (
-                  <p className="text-caption text-success mt-1">✓ Uploaded</p>
-                )}
-              </div>
+              {isEditingProfile ? (
+                <div className="space-y-2">
+                  <input
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const generatedKey = `abn-${Date.now()}-${file.name}`;
+                      setEditableVerification((prev: any) => ({ ...prev!, abnDocKey: generatedKey }));
+                    }}
+                    className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                  />
+                  <p className="text-caption text-muted-foreground">Accepted: PDF/JPG/PNG</p>
+                  {(editableVerification?.abnDocKey || verification?.abnDocKey) && (
+                    <p className="text-caption text-success">Key: {(editableVerification?.abnDocKey || verification?.abnDocKey)}</p>
+                  )}
+                </div>
+              ) : (
+                <div className="border-2 border-dashed border-border rounded-xl p-4 text-center bg-surface shadow-neu-inset">
+                  <svg className="mx-auto h-10 w-10 text-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                  <p className="text-caption text-muted-foreground mt-2">Upload PDF/JPG</p>
+                  {verification?.abnDocKey && (
+                    <p className="text-caption text-success mt-1">✓ Uploaded</p>
+                  )}
+                </div>
+              )}
             </div>
 
             <div>
               <label className="block text-body-small text-foreground mb-2">Company Logo</label>
-              <div className="border-2 border-dashed border-border rounded-xl p-4 text-center bg-surface shadow-neu-inset hover:border-primary transition-colors cursor-pointer">
-                <svg className="mx-auto h-10 w-10 text-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <p className="text-caption text-muted-foreground mt-2">Upload PNG/JPG</p>
-                {verification?.logoKey && (
-                  <p className="text-caption text-success mt-1">✓ Uploaded</p>
-                )}
-              </div>
+              {isEditingProfile ? (
+                <div className="space-y-2">
+                  <input
+                    type="file"
+                    accept=".jpg,.jpeg,.png"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const generatedKey = `logo-${Date.now()}-${file.name}`;
+                      setEditableVerification((prev: any) => ({ ...prev!, logoKey: generatedKey }));
+                    }}
+                    className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                  />
+                  <p className="text-caption text-muted-foreground">Accepted: JPG/PNG</p>
+                  {(editableVerification?.logoKey || verification?.logoKey) && (
+                    <p className="text-caption text-success">Key: {(editableVerification?.logoKey || verification?.logoKey)}</p>
+                  )}
+                </div>
+              ) : (
+                <div className="border-2 border-dashed border-border rounded-xl p-4 text-center bg-surface shadow-neu-inset">
+                  <svg className="mx-auto h-10 w-10 text-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <p className="text-caption text-muted-foreground mt-2">Upload PNG/JPG</p>
+                  {verification?.logoKey && (
+                    <p className="text-caption text-success mt-1">✓ Uploaded</p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
       </div>

@@ -124,6 +124,26 @@ export async function PUT(req: NextRequest) {
 
     const body = await req.json();
 
+    // Phase E13: Legacy label normalization (services & serviceAreas)
+    const LEGACY_SERVICE_MAP: Record<string,string> = {
+      Installation: 'Residential Solar',
+      Maintenance: 'Solar Maintenance',
+      Inspection: 'System Upgrades',
+      Repair: 'System Upgrades',
+      Consultation: 'Commercial Solar',
+    };
+    const LEGACY_AREA_MAP: Record<string,string> = {
+      'Regional NSW': 'Newcastle',
+      'Regional VIC': 'Geelong',
+      'Regional QLD': 'Gold Coast',
+    };
+    if (Array.isArray(body.services)) {
+      body.services = body.services.map((s: string) => LEGACY_SERVICE_MAP[s] || s);
+    }
+    if (Array.isArray(body.serviceAreas)) {
+      body.serviceAreas = body.serviceAreas.map((a: string) => LEGACY_AREA_MAP[a] || a);
+    }
+
     // DEBUG: Log incoming payload
     console.log('[PUT /api/installer/profile] Incoming payload:', JSON.stringify(body, null, 2));
 
@@ -193,6 +213,9 @@ export async function PUT(req: NextRequest) {
       if (dataForPrisma.socialLinks !== undefined) updateData.socialLinks = dataForPrisma.socialLinks;
       if (dataForPrisma.companyDescription !== undefined) updateData.companyDescription = dataForPrisma.companyDescription;
       if (dataForPrisma.logoKey !== undefined) updateData.logoKey = dataForPrisma.logoKey;
+      // Phase E13: Document keys persistence
+      if (dataForPrisma.licenseDocKey !== undefined) updateData.licenseDocKey = dataForPrisma.licenseDocKey;
+      if (dataForPrisma.abnDocKey !== undefined) updateData.abnDocKey = dataForPrisma.abnDocKey;
       if (dataForPrisma.phone) updateData.phone = dataForPrisma.phone; // E1: Sync phone to verification record
       // E2: Add company details update logic
       if (dataForPrisma.companyName) updateData.companyName = dataForPrisma.companyName;

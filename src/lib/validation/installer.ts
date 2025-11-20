@@ -13,8 +13,8 @@ const socialLinksSchema = z.object({
   youtube: z.string().url().optional().nullable(),
 }).optional().nullable();
 
-// Services enum
-const servicesEnum = z.enum([
+// Services enum (exported for UI usage)
+export const servicesEnum = z.enum([
   'Residential Solar',
   'Commercial Solar',
   'Battery Storage',
@@ -23,8 +23,8 @@ const servicesEnum = z.enum([
   'System Upgrades',
 ]);
 
-// Service areas enum
-const serviceAreasEnum = z.enum([
+// Service areas enum (exported for UI usage)
+export const serviceAreasEnum = z.enum([
   'Sydney',
   'Melbourne',
   'Brisbane',
@@ -86,6 +86,9 @@ export const installerProfileUpdateSchema = z.object({
   socialLinks: socialLinksSchema, // Already .optional().nullable() in schema definition
   companyDescription: z.string().max(2000).optional().nullable(),
   logoKey: z.string().optional().nullable(),
+  // Newly added document keys for profile editing (Phase E13)
+  licenseDocKey: z.string().optional().nullable(),
+  abnDocKey: z.string().optional().nullable(),
   phone: phoneE164Schema.optional(), // E1: Allow phone updates after OTP verification
   // E2: Add company details fields
   representativeName: z.string().min(2).max(100).optional(),
