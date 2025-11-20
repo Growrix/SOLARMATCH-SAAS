@@ -602,8 +602,26 @@ const VerificationModal: React.FC<VerificationModalProps> = ({ open, onClose, on
                 className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
                 placeholder="2000, 2001, 2010"
               />
-              <p className="text-body-small text-muted-foreground mt-1">
-                Separate multiple postcodes with commas
+              
+              {/* D1: Visual tag display for postcodes */}
+              {formData.postcodes && formData.postcodes.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {formData.postcodes.map((postcode, idx) => (
+                    <span 
+                      key={idx} 
+                      className="inline-flex items-center px-3 py-1 rounded-lg bg-primary/10 text-primary border border-primary/20 text-body-small"
+                    >
+                      {postcode}
+                    </span>
+                  ))}
+                </div>
+              )}
+              
+              <p className="text-body-small text-muted-foreground mt-2">
+                {formData.postcodes && formData.postcodes.length > 0 
+                  ? `${formData.postcodes.length} postcode${formData.postcodes.length !== 1 ? 's' : ''} entered. Separate multiple postcodes with commas.`
+                  : 'Separate multiple postcodes with commas'
+                }
               </p>
               {errors.postcodes && <p className="text-error text-body-small mt-1">{errors.postcodes}</p>}
             </div>
