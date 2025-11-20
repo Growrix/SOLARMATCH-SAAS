@@ -1617,6 +1617,281 @@ Select-String -Path "src\app\installer\(dashboard)\profile\page.tsx" -Pattern "r
 
 **Actual Time:** 6 hours (vs 9.5h estimated)
 
+---
+
+## Phase E: Critical Bug Fixes (Production Blocking)
+
+**Status:** 🚨 CRITICAL - Started November 20, 2025  
+**Estimated Time:** 6-8 hours  
+**Priority:** CRITICAL - Phase D testing revealed 5 production-blocking bugs  
+**Documentation:** `PHASE-E-CRITICAL-FIXES-AUDIT.md`
+
+### Context
+Phase D testing uncovered critical failures:
+1. OTP phone verification completes but save fails with error
+2. Fields show "success" but don't actually update database
+3. Company details trigger "Validation failed" error
+4. Name field not editable despite user expectation
+5. Duplicate fields (phone, email, name) causing confusion
+
+**Root Cause:** Frontend sends fields (phone, companyName, representativeName, etc.) but backend validation schema rejects them as unknown fields. State initialization missing fields causing silent reversion.
+
+---
+
+### Task E1: Fix OTP Phone Save ⚠️ CRITICAL
+**Priority:** CRITICAL  
+**Estimated Time:** 2 hours  
+**Depends On:** None
+
+- **Issue:** Phone OTP completes successfully, auto-save triggers, but fails with "Validation failed" error
+- **Root Cause:** 
+  - Frontend sends `phone` in payload (line 288 of profile/page.tsx)
+  - Backend `installerProfileUpdateSchema` **rejects** unknown field `phone` (missing from schema)
+  - API handler doesn't update `User.phone` or `User.phoneVerified`
+- **Files to Fix:**
+  - `src/lib/validation/installer.ts` (line 76) - Add `phone` to schema
+  - `src/app/api/installer/profile/route.ts` (line 155) - Add phone update logic
+- **Changes:**
+  1. Add to validation schema:
+     ```typescript
+     phone: phoneE164Schema.optional(),
+     ```
+  2. Add to API handler:
+     ```typescript
+     if (dataForPrisma.phone) {
+       await prisma.user.update({
+         where: { id: user.id },
+         data: { phone: dataForPrisma.phone, phoneVerified: true },
+       });
+       updateData.phone = dataForPrisma.phone;  // Also update verification
+     }
+     ```
+- **Testing:**
+  - Change phone → Enter OTP → Verify auto-save succeeds
+  - Check `User.phone` updated in DB
+  - Check `User.phoneVerified` = true
+  - Check admin view shows new phone
+- **Semantic Verification:** Run 6 commands → expect 0/0/0/0/0/0
+- **Commit:** "fix(installer): E1 - phone OTP save handler with User table update"
+
+---
+
+### Task E2: Fix Company Details Update ⚠️ CRITICAL
+**Priority:** CRITICAL  
+**Estimated Time:** 2 hours  
+**Depends On:** None
+
+- **Issue:** Editing company fields (name, rep name, designation, ABN, year, employees) shows "Validation failed" error OR shows success but fields revert
+- **Root Cause:**
+  - **Validation:** Schema missing `representativeName`, `designation`, `abnOrLicense`, `establishedYear`, `employeeCount`
+  - **State:** `editableVerification` state not initialized with these fields (line 34-43)
+  - **Payload:** Fields not included in save payload (line 270-277)
+  - **API:** Handler doesn't update these fields (line 155-175)
+- **Files to Fix:**
+  - `src/lib/validation/installer.ts` (line 76-87)
+  - `src/app/installer/(dashboard)/profile/page.tsx` (lines 34-43, 270-277)
+  - `src/app/api/installer/profile/route.ts` (line 155-175)
+- **Changes:**
+  1. Update validation schema - Add 5 fields:
+     ```typescript
+     representativeName: z.string().min(2).max(100).optional(),
+     designation: z.string().min(2).max(100).optional(),
+     abnOrLicense: z.string().min(9).max(50).optional(),
+     establishedYear: z.number().int().min(1900).max(new Date().getFullYear()).optional(),
+     employeeCount: z.number().int().min(1).max(10000).optional(),
+     ```
+  2. Update state initialization - Add to useEffect:
+     ```typescript
+     companyName: verification.companyName,
+     representativeName: verification.representativeName,
+     designation: verification.designation,
+     abnOrLicense: verification.abnOrLicense,
+     establishedYear: verification.establishedYear,
+     employeeCount: verification.employeeCount,
+     ```
+  3. Update save payload - Add to updateData:
+     ```typescript
+     companyName: editableVerification?.companyName,
+     representativeName: editableVerification?.representativeName,
+     designation: editableVerification?.designation,
+     abnOrLicense: editableVerification?.abnOrLicense,
+     establishedYear: editableVerification?.establishedYear,
+     employeeCount: editableVerification?.employeeCount,
+     ```
+  4. Update API handler - Add update logic:
+     ```typescript
+     if (dataForPrisma.representativeName) updateData.representativeName = dataForPrisma.representativeName;
+     if (dataForPrisma.designation) updateData.designation = dataForPrisma.designation;
+     if (dataForPrisma.abnOrLicense) updateData.abnOrLicense = dataForPrisma.abnOrLicense;
+     if (dataForPrisma.establishedYear) updateData.establishedYear = dataForPrisma.establishedYear;
+     if (dataForPrisma.employeeCount) updateData.employeeCount = dataForPrisma.employeeCount;
+     ```
+- **Testing:**
+  - Edit each field individually → Save → Verify DB update
+  - Edit all fields together → Save → Verify all persist
+  - Reload page → Verify fields don't revert
+  - Check admin view → Verify all changes visible
+- **Semantic Verification:** Run 6 commands → expect 0/0/0/0/0/0
+- **Commit:** "fix(installer): E2 - company details save with full field support"
+
+---
+
+### Task E3: Remove Duplicate Fields ⚠️ HIGH
+**Priority:** HIGH  
+**Estimated Time:** 1 hour  
+**Depends On:** E2 complete
+
+- **Issue:** User sees duplicate fields causing confusion:
+  - 2x Phone: Personal Details (editable) + Company Details (read-only)
+  - 2x Email: Personal Details (read-only) + Company Details (read-only)
+  - 2x Name: Personal Details "Name" (broken) + Company Details "Representative Name" (working)
+- **User Request:** "remove the duplicate fields and keep only one field for each data point. but make sure to keep those which is functional."
+- **Files to Fix:**
+  - `src/app/installer/(dashboard)/profile/page.tsx` (lines 587-750)
+- **Changes:**
+  1. **Remove "Name" field** from Personal Details (lines 587-596)
+     - Delete entire `<div>` block with "Name" label
+     - Only keep "Representative Name" in Company Details (working correctly)
+  2. **Remove "Representative Email"** from Company Details (lines 696-702)
+     - Delete entire `<div>` block with "Representative Email (from account)" label
+     - Only keep "Email" in Personal Details
+  3. **Remove "Representative Phone"** from Company Details (lines 710-715)
+     - Delete entire `<div>` block with "Representative Phone" label
+     - Only keep "Phone" in Personal Details (has OTP functionality)
+  4. **Update grid layout**:
+     - Personal Details: 2 fields (Email, Phone) in 2-column grid
+     - Company Details: 6 fields (Company Name, Rep Name, Designation, ABN, Year, Employees) in 2-column grid
+- **Testing:**
+  - Count fields: Should see 1 Email, 1 Phone, 1 Representative Name
+  - Verify no duplicate fields anywhere
+  - Verify Personal Details Phone has OTP functionality
+  - Verify Company Details Representative Name editable
+- **Semantic Verification:** Run 6 commands → expect 0/0/0/0/0/0
+- **Commit:** "refactor(installer): E3 - remove duplicate fields (phone, email, name)"
+
+---
+
+### Task E4: Add Field-Level Error Feedback (ENHANCEMENT) 🎨
+**Priority:** LOW (Optional)  
+**Estimated Time:** 1 hour  
+**Depends On:** E1, E2 complete
+
+- **Purpose:** Show specific validation errors below each field instead of generic banner
+- **Files to Fix:**
+  - `src/app/installer/(dashboard)/profile/page.tsx`
+- **Changes:**
+  1. Add state: `const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});`
+  2. Parse Zod errors in catch block:
+     ```typescript
+     if (error.status === 400 && error.data?.issues) {
+       const fieldErrors: Record<string, string> = {};
+       error.data.issues.forEach((issue: any) => {
+         fieldErrors[issue.path[0]] = issue.message;
+       });
+       setFieldErrors(fieldErrors);
+     }
+     ```
+  3. Display errors below inputs:
+     ```typescript
+     {fieldErrors.companyName && (
+       <p className="text-body-small text-error mt-1">{fieldErrors.companyName}</p>
+     )}
+     ```
+- **Testing:**
+  - Submit invalid postcode → See error below postcode input
+  - Submit invalid year → See error below year input
+  - Fix error → Error disappears
+- **Semantic Verification:** Run 6 commands → expect 0/0/0/0/0/0
+- **Commit:** "feat(installer): E4 - field-level validation error feedback"
+
+---
+
+### Task E5: Add Update Logging for Testing (TESTING SUPPORT) 🔍
+**Priority:** LOW (Optional)  
+**Estimated Time:** 30 minutes  
+**Depends On:** E1, E2 complete
+
+- **Purpose:** Help with D8 admin sync testing by logging what gets updated
+- **Files to Fix:**
+  - `src/app/api/installer/profile/route.ts`
+- **Changes:**
+  1. Add console logs:
+     ```typescript
+     console.log('[Profile Update] User ID:', user.id);
+     console.log('[Profile Update] Payload:', JSON.stringify(dataForPrisma, null, 2));
+     console.log('[Profile Update] Updated fields:', Object.keys(updateData));
+     ```
+  2. Return updated fields in response:
+     ```typescript
+     return NextResponse.json({
+       success: true,
+       message: 'Profile updated successfully',
+       updatedAt: new Date().toISOString(),
+       updatedFields: Object.keys(updateData),
+     });
+     ```
+- **Testing:**
+  - Edit fields → Save → Check dev console for logs
+  - Check network tab → Verify `updatedFields` in response
+- **Commit:** "chore(installer): E5 - add update logging for testing"
+
+---
+
+### Task E6: Re-run D8 Testing After Fixes ✅
+**Priority:** HIGH  
+**Estimated Time:** 1 hour  
+**Depends On:** E1, E2, E3 complete
+
+- **Purpose:** Verify all Phase E fixes work, complete D8 admin sync testing
+- **Test Plan:** Use `PHASE-D-TEST-RESULTS.md` test cases
+- **Test Cases:**
+  1. Phone change + OTP → Verify saves successfully
+  2. Company details → Verify all 6 fields save
+  3. Services + areas → Verify multi-select works
+  4. Website + description → Verify optional fields save
+  5. Social links → Verify all 4 links save
+  6. Postcodes → Verify comma-separated list saves
+  7. Cancel edit → Verify revert works
+  8. Loading states → Verify spinner shows
+  9. Error handling → Verify errors display correctly
+  10. Admin sync → Verify all changes visible in admin view
+- **Documentation:** Update `PHASE-D-TEST-RESULTS.md` with pass/fail results
+- **Acceptance:** All 10 test cases pass, no errors
+- **Commit:** "docs: D8 testing results after Phase E fixes"
+
+---
+
+## Phase E Execution Order
+
+**Priority Sequence:** E1 → E2 → E3 → E6 → (E4, E5 optional)
+
+**Rationale:**
+- E1 (OTP phone) CRITICAL - users cannot update phone at all
+- E2 (company fields) CRITICAL - users cannot update any company info
+- E3 (duplicates) HIGH - must be done after E2 to avoid confusion
+- E6 (testing) HIGH - validate fixes work before considering phase complete
+- E4, E5 (enhancements) LOW - optional improvements, not blocking
+
+**Critical Path:** E1 + E2 + E3 + E6 = 6 hours
+
+**Commits:**
+- ⏳ E1: Phone OTP save fix
+- ⏳ E2: Company details save fix
+- ⏳ E3: Remove duplicate fields
+- ⏳ E6: D8 testing completion
+
+**Status Summary:**
+- ⏳ E1: OTP Phone Save (2h) - Not Started
+- ⏳ E2: Company Details (2h) - Not Started
+- ⏳ E3: Remove Duplicates (1h) - Not Started
+- ⏳ E4: Field Errors (1h) - Optional
+- ⏳ E5: Update Logging (30min) - Optional
+- ⏳ E6: Re-run D8 Testing (1h) - Not Started
+
+**Actual Time:** TBD
+
+---
+
 **Validation After Each Task:**
 ```powershell
 # TypeScript check
