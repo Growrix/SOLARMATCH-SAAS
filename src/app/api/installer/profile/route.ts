@@ -162,37 +162,37 @@ export async function PUT(req: NextRequest) {
       });
     }
 
-    // Update InstallerVerification (editable fields after approval)
-    if (user.installerVerified) {
-      const verification = await prisma.installerVerification.findUnique({
-        where: { userId: user.id },
-      });
+    // Update InstallerVerification (allow all installers to update profile)
+    const verification = await prisma.installerVerification.findUnique({
+      where: { userId: user.id },
+    });
 
-      if (verification && verification.status === 'APPROVED') {
-        const updateData: any = {};
-        
-        if (dataForPrisma.services) updateData.services = dataForPrisma.services;
-        if (dataForPrisma.serviceAreas) updateData.serviceAreas = dataForPrisma.serviceAreas;
-        if (dataForPrisma.postcodes) updateData.postcodes = dataForPrisma.postcodes;
-        if (dataForPrisma.website !== undefined) updateData.website = dataForPrisma.website;
-        if (dataForPrisma.socialLinks !== undefined) updateData.socialLinks = dataForPrisma.socialLinks;
-        if (dataForPrisma.companyDescription !== undefined) updateData.companyDescription = dataForPrisma.companyDescription;
-        if (dataForPrisma.logoKey !== undefined) updateData.logoKey = dataForPrisma.logoKey;
-        if (dataForPrisma.phone) updateData.phone = dataForPrisma.phone; // E1: Sync phone to verification record
-        // E2: Add company details update logic
-        if (dataForPrisma.companyName) updateData.companyName = dataForPrisma.companyName;
-        if (dataForPrisma.representativeName) updateData.representativeName = dataForPrisma.representativeName;
-        if (dataForPrisma.designation) updateData.designation = dataForPrisma.designation;
-        if (dataForPrisma.abnOrLicense) updateData.abnOrLicense = dataForPrisma.abnOrLicense;
-        if (dataForPrisma.establishedYear !== undefined) updateData.establishedYear = dataForPrisma.establishedYear;
-        if (dataForPrisma.employeeCount !== undefined) updateData.employeeCount = dataForPrisma.employeeCount;
+    if (verification) {
+      const updateData: any = {};
+      
+      if (dataForPrisma.services) updateData.services = dataForPrisma.services;
+      if (dataForPrisma.serviceAreas) updateData.serviceAreas = dataForPrisma.serviceAreas;
+      if (dataForPrisma.postcodes) updateData.postcodes = dataForPrisma.postcodes;
+      if (dataForPrisma.website !== undefined) updateData.website = dataForPrisma.website;
+      if (dataForPrisma.socialLinks !== undefined) updateData.socialLinks = dataForPrisma.socialLinks;
+      if (dataForPrisma.companyDescription !== undefined) updateData.companyDescription = dataForPrisma.companyDescription;
+      if (dataForPrisma.logoKey !== undefined) updateData.logoKey = dataForPrisma.logoKey;
+      if (dataForPrisma.phone) updateData.phone = dataForPrisma.phone; // E1: Sync phone to verification record
+      // E2: Add company details update logic
+      if (dataForPrisma.companyName) updateData.companyName = dataForPrisma.companyName;
+      if (dataForPrisma.representativeName) updateData.representativeName = dataForPrisma.representativeName;
+      if (dataForPrisma.designation) updateData.designation = dataForPrisma.designation;
+      if (dataForPrisma.abnOrLicense) updateData.abnOrLicense = dataForPrisma.abnOrLicense;
+      if (dataForPrisma.establishedYear !== undefined) updateData.establishedYear = dataForPrisma.establishedYear;
+      if (dataForPrisma.employeeCount !== undefined) updateData.employeeCount = dataForPrisma.employeeCount;
 
-        if (Object.keys(updateData).length > 0) {
-          await prisma.installerVerification.update({
-            where: { userId: user.id },
-            data: updateData,
-          });
-        }
+      if (Object.keys(updateData).length > 0) {
+        console.log('[PUT /api/installer/profile] Updating verification with:', JSON.stringify(updateData, null, 2));
+        await prisma.installerVerification.update({
+          where: { userId: user.id },
+          data: updateData,
+        });
+        console.log('[PUT /api/installer/profile] ✅ Verification updated successfully');
       }
     }
 
