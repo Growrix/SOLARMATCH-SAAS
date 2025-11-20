@@ -25,7 +25,7 @@ const InstallerProfilePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
   
   // Verification submission state
@@ -39,7 +39,6 @@ const InstallerProfilePage: React.FC = () => {
 
   // F6: Editable verification fields state
   const [editableVerification, setEditableVerification] = useState<any>(null);
-  const [isEditingVerification, setIsEditingVerification] = useState(false);
 
   // Preferences state
   const [localPreferences, setLocalPreferences] = useState<PreferencesData>({
@@ -237,9 +236,18 @@ const InstallerProfilePage: React.FC = () => {
     }
   };
 
-  // F6: Save verification edits
-  const handleSaveVerificationEdits = async () => {
+  // State for save operation
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
+
+  // F6: Save all profile changes
+  const handleSaveAllChanges = async () => {
     try {
+      setIsSaving(true);
+      setSaveError(null);
+      
+      // Collect all changed fields (only post-approval editable fields)
       await updateProfile({
         services: editableVerification?.services,
         serviceAreas: editableVerification?.serviceAreas,
@@ -248,10 +256,23 @@ const InstallerProfilePage: React.FC = () => {
         socialLinks: editableVerification?.socialLinks,
         companyDescription: editableVerification?.companyDescription,
       });
-      setIsEditingVerification(false);
+      
+      // Exit edit mode
+      setIsEditingProfile(false);
+      
+      // Reload profile data
       await loadProfile();
+      
+      // Show success toast
+      setShowSuccessToast(true);
+      setTimeout(() => setShowSuccessToast(false), 3000);
+      
     } catch (error) {
-      alert(getErrorMessage(error));
+      console.error('Save failed:', error);
+      setSaveError(getErrorMessage(error) || 'Failed to save changes. Please try again.');
+      // Keep in edit mode so user can retry
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -362,6 +383,36 @@ const InstallerProfilePage: React.FC = () => {
         </div>
       )}
       
+      {saveError && (
+        <div className="bg-error/10 border border-error/20 rounded-xl p-4 flex items-start gap-3">
+          <svg className="w-6 h-6 text-error flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+          </svg>
+          <div className="flex-1">
+            <p className="text-body text-error">Failed to Save Changes</p>
+            <p className="text-body-small text-error/80 mt-1">{saveError}</p>
+          </div>
+          <button
+            onClick={() => setSaveError(null)}
+            className="text-error hover:text-error/80 transition-colors"
+            aria-label="Close"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
+      
+      {showSuccessToast && (
+        <div className="fixed top-4 right-4 bg-success text-white px-4 py-3 rounded-lg shadow-neu-outset z-50 flex items-center gap-2">
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+          </svg>
+          <p>Profile updated successfully</p>
+        </div>
+      )}
+      
       {/* F8: Operational Status Toggle - Always show for demo */}
       <div className="bg-surface border border-border rounded-xl shadow-neu-outset p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -422,8 +473,8 @@ const InstallerProfilePage: React.FC = () => {
           </div>
         </div>
 
-        <Button variant="secondary" onClick={() => setIsEditing(!isEditing)}>
-          {isEditing ? 'Cancel' : 'Edit Profile'}
+        <Button variant="secondary" onClick={() => setIsEditingProfile(!isEditingProfile)}>
+          {isEditingProfile ? 'Cancel Editing' : 'Edit Profile'}
         </Button>
       </div>
 
@@ -478,7 +529,7 @@ const InstallerProfilePage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-body-small text-muted-foreground mb-1">Name</label>
-            {isEditing ? (
+            {isEditingProfile ? (
               <input
                 type="text"
                 defaultValue={user.name || ''}
@@ -508,28 +559,18 @@ const InstallerProfilePage: React.FC = () => {
             </div>
           </div>
         </div>
-
-        {isEditing && (
-          <div className="flex justify-end gap-3 pt-4 border-t border-border">
-            <Button variant="secondary" onClick={() => setIsEditing(false)}>Cancel</Button>
-            <Button onClick={() => setIsEditing(false)}>Save Changes</Button>
-          </div>
-        )}
       </div>
 
       {/* Company Details */}
       <div className="bg-surface border border-border rounded-xl shadow-neu-outset p-6 space-y-4">
         <div className="flex items-center justify-between border-b border-border pb-3">
           <h2 className="text-heading-3 text-foreground">Company Details</h2>
-          <Button variant="secondary" onClick={() => setIsEditingVerification(!isEditingVerification)}>
-            {isEditingVerification ? 'Cancel' : 'Edit'}
-          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-body-small text-muted-foreground mb-1">Company Name</label>
-            {isEditingVerification ? (
+            {isEditingProfile ? (
               <input
                 type="text"
                 value={editableVerification?.companyName || ''}
@@ -543,7 +584,7 @@ const InstallerProfilePage: React.FC = () => {
 
           <div>
             <label className="block text-body-small text-muted-foreground mb-1">Representative Name</label>
-            {isEditingVerification ? (
+            {isEditingProfile ? (
               <input
                 type="text"
                 value={editableVerification?.representativeName || ''}
@@ -557,7 +598,7 @@ const InstallerProfilePage: React.FC = () => {
 
           <div>
             <label className="block text-body-small text-muted-foreground mb-1">Designation</label>
-            {isEditingVerification ? (
+            {isEditingProfile ? (
               <input
                 type="text"
                 value={editableVerification?.designation || ''}
@@ -585,7 +626,7 @@ const InstallerProfilePage: React.FC = () => {
 
           <div>
             <label className="block text-body-small text-muted-foreground mb-1">ABN / License</label>
-            {isEditingVerification ? (
+            {isEditingProfile ? (
               <input
                 type="text"
                 value={editableVerification?.abnOrLicense || ''}
@@ -599,7 +640,7 @@ const InstallerProfilePage: React.FC = () => {
 
           <div>
             <label className="block text-body-small text-muted-foreground mb-1">Established Year</label>
-            {isEditingVerification ? (
+            {isEditingProfile ? (
               <input
                 type="number"
                 value={editableVerification?.establishedYear || ''}
@@ -615,7 +656,7 @@ const InstallerProfilePage: React.FC = () => {
 
           <div>
             <label className="block text-body-small text-muted-foreground mb-1">Employee Count</label>
-            {isEditingVerification ? (
+            {isEditingProfile ? (
               <input
                 type="number"
                 value={editableVerification?.employeeCount || ''}
@@ -630,7 +671,7 @@ const InstallerProfilePage: React.FC = () => {
 
           <div className="md:col-span-2">
             <label className="block text-body-small text-muted-foreground mb-1">Website</label>
-            {isEditingVerification ? (
+            {isEditingProfile ? (
               <input
                 type="url"
                 value={editableVerification?.website || ''}
@@ -645,7 +686,7 @@ const InstallerProfilePage: React.FC = () => {
 
           <div className="md:col-span-2">
             <label className="block text-body-small text-muted-foreground mb-2">Company Description</label>
-            {isEditingVerification ? (
+            {isEditingProfile ? (
               <textarea
                 value={editableVerification?.companyDescription || ''}
                 onChange={(e) => setEditableVerification((prev: any) => ({ ...prev!, companyDescription: e.target.value }))}
@@ -658,18 +699,6 @@ const InstallerProfilePage: React.FC = () => {
             )}
           </div>
         </div>
-
-        {isEditingVerification && (
-          <div className="flex justify-end gap-3 pt-4 border-t border-border">
-            <Button variant="secondary" onClick={() => {
-              setIsEditingVerification(false);
-              setEditableVerification(verification);
-            }}>
-              Cancel
-            </Button>
-            <Button onClick={handleSaveVerificationEdits}>Save Changes</Button>
-          </div>
-        )}
       </div>
 
       {/* F6: Social Media Links - Always show */}
@@ -681,7 +710,7 @@ const InstallerProfilePage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-body-small text-muted-foreground mb-1">Facebook</label>
-              {isEditingVerification ? (
+              {isEditingProfile ? (
                 <input
                   type="url"
                   value={editableVerification?.socialLinks?.facebook || ''}
@@ -699,7 +728,7 @@ const InstallerProfilePage: React.FC = () => {
 
             <div>
               <label className="block text-body-small text-muted-foreground mb-1">Instagram</label>
-              {isEditingVerification ? (
+              {isEditingProfile ? (
                 <input
                   type="url"
                   value={editableVerification?.socialLinks?.instagram || ''}
@@ -717,7 +746,7 @@ const InstallerProfilePage: React.FC = () => {
 
             <div>
               <label className="block text-body-small text-muted-foreground mb-1">LinkedIn</label>
-              {isEditingVerification ? (
+              {isEditingProfile ? (
                 <input
                   type="url"
                   value={editableVerification?.socialLinks?.linkedin || ''}
@@ -735,7 +764,7 @@ const InstallerProfilePage: React.FC = () => {
 
             <div>
               <label className="block text-body-small text-muted-foreground mb-1">YouTube</label>
-              {isEditingVerification ? (
+              {isEditingProfile ? (
                 <input
                   type="url"
                   value={editableVerification?.socialLinks?.youtube || ''}
@@ -762,7 +791,7 @@ const InstallerProfilePage: React.FC = () => {
         <div className="space-y-4">
           <div>
             <label className="block text-body-small text-muted-foreground mb-2">Services Offered</label>
-            {isEditingVerification ? (
+            {isEditingProfile ? (
               <div className="space-y-2">
                 {['Installation', 'Maintenance', 'Inspection', 'Repair', 'Consultation'].map(service => (
                   <label key={service} className="flex items-center space-x-2 cursor-pointer">
@@ -794,7 +823,7 @@ const InstallerProfilePage: React.FC = () => {
 
           <div>
             <label className="block text-body-small text-muted-foreground mb-2">Service Areas</label>
-            {isEditingVerification ? (
+            {isEditingProfile ? (
               <div className="space-y-2">
                 {['Sydney', 'Melbourne', 'Brisbane', 'Perth', 'Adelaide', 'Regional NSW', 'Regional VIC', 'Regional QLD'].map(area => (
                   <label key={area} className="flex items-center space-x-2 cursor-pointer">
@@ -826,7 +855,7 @@ const InstallerProfilePage: React.FC = () => {
 
           <div>
             <label className="block text-body-small text-muted-foreground mb-2">Postcodes Served</label>
-            {isEditingVerification ? (
+            {isEditingProfile ? (
               <input
                 type="text"
                 value={(editableVerification?.postcodes || []).join(', ')}
@@ -1061,6 +1090,38 @@ const InstallerProfilePage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Sticky Action Bar */}
+      {isEditingProfile && (
+        <div className="sticky bottom-0 bg-surface border-t border-border p-4 flex items-center justify-end gap-4 shadow-neu-outset z-10">
+          <Button 
+            variant="secondary" 
+            onClick={() => {
+              setIsEditingProfile(false);
+              setEditableVerification(verification);
+            }}
+            disabled={isSaving}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSaveAllChanges}
+            disabled={isSaving}
+          >
+            {isSaving ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Saving...
+              </>
+            ) : (
+              'Save All Changes'
+            )}
+          </Button>
+        </div>
+      )}
 
       {/* Verification Modal */}
       <VerificationModal

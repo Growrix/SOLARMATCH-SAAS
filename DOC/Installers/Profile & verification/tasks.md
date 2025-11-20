@@ -981,3 +981,655 @@ Select-String -Path "src\app\installer\(dashboard)\profile\page.tsx" -Pattern "r
 - ✅ C4: Users can enter multiple postcodes with commas
 
 ---
+
+## Phase D: Profile Edit UX Improvements
+
+**Reference Audit:** `PHASE-D-PROFILE-EDIT-AUDIT.md`  
+**Focus:** Fix profile editing UX issues discovered in testing  
+**Priority:** CRITICAL (broken functionality, poor UX)  
+**Total Estimated Time:** 9.5 hours
+
+### Critical Issues Identified
+1. **Postcode Input UX**: Comma parsing works but no visual feedback (users confused)
+2. **Duplicate Edit States**: Two separate edit states causing fragmented UX
+3. **No Save Functionality**: Save buttons don't call API, only close edit mode
+4. **Missing Phone OTP**: Phone changes don't trigger verification
+5. **Limited Editability**: Many fields missing from edit mode
+6. **No Loading/Error States**: Poor feedback during operations
+7. **No Admin Sync Testing**: Unknown if admin view reflects changes
+
+---
+
+### Task D1: Add Postcode Visual Feedback (ENHANCEMENT)
+**Priority:** LOW  
+**Estimated Time:** 30 minutes  
+**Depends On:** C4 complete
+
+- **Path:** `src/components/installer/VerificationModal.tsx`
+- **Issue:** Comma parsing works but users don't see feedback
+- **Enhancement:** Add visual tag display for entered postcodes
+- **Changes:**
+  ```typescript
+  {/* Below postcode input */}
+  {formData.postcodes && formData.postcodes.length > 0 && (
+    <div className="flex flex-wrap gap-2 mt-2">
+      {formData.postcodes.map((pc, idx) => (
+        <span 
+          key={idx} 
+          className="px-2 py-1 bg-primary/10 text-primary rounded-md text-body-small"
+        >
+          {pc}
+        </span>
+      ))}
+    </div>
+  )}
+  <p className="text-body-small text-muted-foreground mt-1">
+    {formData.postcodes?.length || 0} postcode(s) entered. Separate with commas.
+  </p>
+  ```
+- **Testing:**
+  - Type "5000, 5001, 5002" → See 3 tags appear
+  - Tags update in real-time as typing
+  - Helper text shows count
+- **Semantic Verification:** Run 6 commands → expect 0/0/0/0/0/0
+- **Commit:** "feat(installer): add visual feedback for comma-separated postcodes"
+
+---
+
+### Task D2: Unify Edit States (CRITICAL - HIGH PRIORITY)
+**Priority:** HIGH  
+**Estimated Time:** 1 hour  
+**Blocking:** D3, D4, D5
+
+- **Path:** `src/app/installer/(dashboard)/profile/page.tsx`
+- **Issue:** Two separate edit states (isEditing, isEditingVerification) causing duplicate buttons
+- **Root Cause:** Fragmented state management from incremental feature additions
+- **Fix:** Consolidate to single `isEditingProfile` state
+- **Changes:**
+  1. Remove duplicate state:
+     ```typescript
+     // DELETE: const [isEditing, setIsEditing] = useState(false);
+     // DELETE: const [isEditingVerification, setIsEditingVerification] = useState(false);
+     
+     // ADD: Single unified state
+     const [isEditingProfile, setIsEditingProfile] = useState(false);
+     ```
+  2. Remove all inline edit buttons:
+     ```typescript
+     {/* DELETE from Personal Details section (line ~425) */}
+     {/* DELETE from Company Details section (line ~524) */}
+     ```
+  3. Add single top-level edit button:
+     ```typescript
+     {/* After page title, before content */}
+     <div className="flex items-center justify-between mb-6">
+       <h1 className="text-heading-1 text-foreground">Profile</h1>
+       <button
+         onClick={() => setIsEditingProfile(!isEditingProfile)}
+         className="btn-secondary"
+       >
+         {isEditingProfile ? 'Cancel Editing' : 'Edit Profile'}
+       </button>
+     </div>
+     ```
+  4. Update all field rendering logic:
+     ```typescript
+     {/* Replace all instances of isEditing or isEditingVerification */}
+     {isEditingProfile ? (
+       <input ... />
+     ) : (
+       <p>{value}</p>
+     )}
+     ```
+- **Testing:**
+  - Only ONE "Edit Profile" button visible at top
+  - Clicking toggles ALL sections to edit mode
+  - Cancel returns all sections to read mode
+  - No orphaned edit buttons in sections
+- **Semantic Verification:** Run 6 commands → 0/0/0/0/0/0
+- **Commit:** "refactor(installer): unify fragmented edit states into single profile edit mode"
+
+---
+
+### Task D3: Add Bottom Action Buttons (HIGH PRIORITY)
+**Priority:** HIGH  
+**Estimated Time:** 30 minutes  
+**Depends On:** D2 complete
+
+- **Path:** `src/app/installer/(dashboard)/profile/page.tsx`
+- **Issue:** Save/Cancel buttons only in Personal Details section, missing in Company Details
+- **Fix:** Add single action bar at bottom of page (after all sections)
+- **Changes:**
+  ```typescript
+  {/* After all profile sections, before closing container */}
+  {isEditingProfile && (
+    <div className="sticky bottom-0 bg-surface border-t border-border p-4 flex items-center justify-end gap-4 shadow-elevation-high">
+      <button
+        onClick={() => setIsEditingProfile(false)}
+        className="btn-secondary"
+      >
+        Cancel
+      </button>
+      <button
+        onClick={handleSaveAllChanges}
+        disabled={isSaving}
+        className="btn-primary"
+      >
+        {isSaving ? (
+          <>
+            <LoadingSpinner className="mr-2" />
+            Saving...
+          </>
+        ) : (
+          'Save All Changes'
+        )}
+      </button>
+    </div>
+  )}
+  ```
+- **Remove old save buttons:**
+  ```typescript
+  {/* DELETE from Personal Details section (lines ~512-516) */}
+  {/* DELETE from Company Details section (if any) */}
+  ```
+- **Testing:**
+  - Edit mode → See sticky action bar at bottom
+  - Scroll page → Action bar stays visible
+  - Read mode → No action bar
+- **Semantic Verification:** Run 6 commands → 0/0/0/0/0/0
+- **Commit:** "feat(installer): add sticky bottom action bar for profile editing"
+
+---
+
+### Task D4: Implement Save Handler with API Integration (CRITICAL)
+**Priority:** CRITICAL  
+**Estimated Time:** 3 hours  
+**Depends On:** D2, D3, B6.5 (PUT API exists)
+
+- **Path:** `src/app/installer/(dashboard)/profile/page.tsx`
+- **Issue:** Save buttons currently just close edit mode, no API call
+- **Root Cause:** UI built before backend integration phase
+- **Fix:** Implement `handleSaveAllChanges()` with proper API integration
+- **Changes:**
+  1. Add state for saving/errors:
+     ```typescript
+     const [isSaving, setIsSaving] = useState(false);
+     const [saveError, setSaveError] = useState<string | null>(null);
+     ```
+  2. Implement save handler:
+     ```typescript
+     const handleSaveAllChanges = async () => {
+       try {
+         setIsSaving(true);
+         setSaveError(null);
+         
+         // Collect all changed fields
+         const updates = {
+           name: editedData.name,
+           companyName: editedData.companyName,
+           phone: editedData.phone,
+           // ... all other editable fields
+         };
+         
+         // Call PUT /api/installer/profile
+         const response = await updateProfile(updates);
+         
+         // Update local state with response
+         setProfileData(response);
+         
+         // Exit edit mode
+         setIsEditingProfile(false);
+         
+         // Show success message
+         showSuccessToast('Profile updated successfully');
+         
+       } catch (error) {
+         console.error('Save failed:', error);
+         setSaveError(error.message || 'Failed to save changes');
+         // Keep in edit mode so user can retry
+       } finally {
+         setIsSaving(false);
+       }
+     };
+     ```
+  3. Add error display:
+     ```typescript
+     {saveError && (
+       <div className="bg-error/10 border border-error text-error p-4 rounded-lg mb-4">
+         <p className="font-semibold">Failed to save changes</p>
+         <p className="text-body-small">{saveError}</p>
+         <button 
+           onClick={() => setSaveError(null)}
+           className="text-body-small underline mt-2"
+         >
+           Dismiss
+         </button>
+       </div>
+     )}
+     ```
+- **Testing:**
+  - Edit fields → Click Save → Verify API called
+  - Check database → Verify changes persisted
+  - Refresh page → See updated data
+  - Network error → See error message, stay in edit mode
+  - Retry after error → Works
+- **Validation Commands:**
+  ```powershell
+  npx tsc --noEmit
+  npm run build
+  ```
+- **Semantic Verification:** Run 6 commands → 0/0/0/0/0/0
+- **Commit:** "feat(installer): implement profile save with PUT API integration"
+
+---
+
+### Task D5: Add Phone Change Detection + OTP Verification (CRITICAL)
+**Priority:** CRITICAL  
+**Estimated Time:** 1.5 hours  
+**Depends On:** D4 complete
+
+- **Path:** `src/app/installer/(dashboard)/profile/page.tsx`
+- **Issue:** Phone changes don't trigger OTP verification
+- **Security Risk:** Users can change phone without verification
+- **Fix:** Detect phone changes, block save until OTP verified
+- **Changes:**
+  1. Add phone change detection:
+     ```typescript
+     const [originalPhone, setOriginalPhone] = useState<string>('');
+     const [phoneChanged, setPhoneChanged] = useState(false);
+     const [phoneVerificationPending, setPhoneVerificationPending] = useState(false);
+     
+     // On component mount and profile load
+     useEffect(() => {
+       if (profileData?.phone) {
+         setOriginalPhone(profileData.phone);
+       }
+     }, [profileData]);
+     
+     // Detect phone changes
+     useEffect(() => {
+       setPhoneChanged(editedData.phone !== originalPhone);
+     }, [editedData.phone, originalPhone]);
+     ```
+  2. Update save handler:
+     ```typescript
+     const handleSaveAllChanges = async () => {
+       // Check if phone changed
+       if (phoneChanged && !phoneVerificationPending) {
+         // Open contact verification modal FIRST
+         setPhoneVerificationPending(true);
+         setShowContactModal(true);
+         return; // Block save until verified
+       }
+       
+       // Only proceed if phone unchanged OR verified
+       if (phoneChanged && !phoneVerified) {
+         setSaveError('Please verify your new phone number before saving');
+         return;
+       }
+       
+       // ... rest of save logic
+     };
+     ```
+  3. Handle verification success:
+     ```typescript
+     const handlePhoneVerificationSuccess = () => {
+       setPhoneVerificationPending(false);
+       setPhoneVerified(true);
+       setShowContactModal(false);
+       
+       // Auto-trigger save after verification
+       setTimeout(() => handleSaveAllChanges(), 300);
+     };
+     ```
+  4. Update ContactVerificationModal:
+     ```typescript
+     <ContactVerificationModal
+       isOpen={showContactModal}
+       onClose={() => setShowContactModal(false)}
+       defaultPhone={editedData.phone} // Use edited phone, not original
+       onVerificationSuccess={handlePhoneVerificationSuccess}
+     />
+     ```
+  5. Add visual indicator for phone changes:
+     ```typescript
+     {phoneChanged && !phoneVerified && (
+       <p className="text-body-small text-warning mt-1">
+         ⚠️ Phone number changed. Verification required before saving.
+       </p>
+     )}
+     ```
+- **Testing:**
+  - Edit phone → See warning message
+  - Click Save → Contact modal opens automatically
+  - Cancel OTP → Stay in edit mode, save blocked
+  - Complete OTP → Auto-save triggers
+  - Phone unchanged → Save works without OTP
+- **Semantic Verification:** Run 6 commands → 0/0/0/0/0/0
+- **Commit:** "feat(installer): require OTP verification for phone number changes"
+
+---
+
+### Task D6: Add Missing Editable Fields (MEDIUM PRIORITY)
+**Priority:** MEDIUM  
+**Estimated Time:** 2 hours  
+**Depends On:** D2, D4 complete
+
+- **Path:** `src/app/installer/(dashboard)/profile/page.tsx`
+- **Issue:** Many fields displayed but not editable (website, social links, description, uploads)
+- **Fix:** Add edit mode inputs for all verification-related fields
+- **Changes:**
+  1. Add state for all editable fields:
+     ```typescript
+     const [editedData, setEditedData] = useState({
+       // Existing
+       name: '',
+       companyName: '',
+       phone: '',
+       // NEW
+       website: '',
+       facebookUrl: '',
+       instagramUrl: '',
+       linkedinUrl: '',
+       youtubeUrl: '',
+       companyDescription: '',
+       services: [] as string[],
+       serviceAreas: [] as string[],
+       postcodes: [] as string[],
+     });
+     ```
+  2. Add input fields in Company Details section:
+     ```typescript
+     {/* Website */}
+     <div>
+       <label>Website</label>
+       {isEditingProfile ? (
+         <input
+           type="url"
+           value={editedData.website}
+           onChange={(e) => setEditedData(prev => ({ ...prev, website: e.target.value }))}
+           placeholder="https://example.com"
+           className="input"
+         />
+       ) : (
+         <p>{verification?.website || 'Not provided'}</p>
+       )}
+     </div>
+     
+     {/* Social Links */}
+     <div>
+       <label>Facebook</label>
+       {isEditingProfile ? (
+         <input
+           type="url"
+           value={editedData.facebookUrl}
+           onChange={(e) => setEditedData(prev => ({ ...prev, facebookUrl: e.target.value }))}
+           placeholder="https://facebook.com/..."
+           className="input"
+         />
+       ) : (
+         <p>{verification?.socialLinks?.facebook || 'Not provided'}</p>
+       )}
+     </div>
+     
+     {/* Repeat for Instagram, LinkedIn, YouTube */}
+     
+     {/* Company Description */}
+     <div>
+       <label>Company Description</label>
+       {isEditingProfile ? (
+         <textarea
+           value={editedData.companyDescription}
+           onChange={(e) => setEditedData(prev => ({ ...prev, companyDescription: e.target.value }))}
+           rows={4}
+           placeholder="Tell us about your company..."
+           className="input"
+         />
+       ) : (
+         <p>{verification?.companyDescription || 'Not provided'}</p>
+       )}
+     </div>
+     ```
+  3. Add multi-select for services/areas:
+     ```typescript
+     {/* Services */}
+     <div>
+       <label>Services Offered</label>
+       {isEditingProfile ? (
+         <MultiSelect
+           options={SERVICE_OPTIONS}
+           value={editedData.services}
+           onChange={(services) => setEditedData(prev => ({ ...prev, services }))}
+         />
+       ) : (
+         <p>{verification?.services?.join(', ') || 'Not provided'}</p>
+       )}
+     </div>
+     
+     {/* Service Areas */}
+     <div>
+       <label>Service Areas</label>
+       {isEditingProfile ? (
+         <MultiSelect
+           options={SERVICE_AREA_OPTIONS}
+           value={editedData.serviceAreas}
+           onChange={(areas) => setEditedData(prev => ({ ...prev, serviceAreas: areas }))}
+         />
+       ) : (
+         <p>{verification?.serviceAreas?.join(', ') || 'Not provided'}</p>
+       )}
+     </div>
+     ```
+  4. Add file upload section (stub for now):
+     ```typescript
+     {/* Logo */}
+     <div>
+       <label>Company Logo</label>
+       {isEditingProfile ? (
+         <div>
+           {verification?.logoKey && (
+             <img src={`/api/uploads/${verification.logoKey}`} alt="Current logo" className="w-24 h-24 object-cover mb-2" />
+           )}
+           <input
+             type="file"
+             accept="image/*"
+             onChange={handleLogoUpload}
+             className="input"
+           />
+           <p className="text-body-small text-muted-foreground">Max 2MB, JPG/PNG</p>
+         </div>
+       ) : (
+         verification?.logoKey ? (
+           <img src={`/api/uploads/${verification.logoKey}`} alt="Logo" className="w-24 h-24 object-cover" />
+         ) : (
+           <p>Not provided</p>
+         )
+       )}
+     </div>
+     
+     {/* Repeat for license and ABN documents */}
+     ```
+  5. Update save handler to include new fields:
+     ```typescript
+     const updates = {
+       // ... existing fields
+       website: editedData.website,
+       socialLinks: {
+         facebook: editedData.facebookUrl,
+         instagram: editedData.instagramUrl,
+         linkedin: editedData.linkedinUrl,
+         youtube: editedData.youtubeUrl,
+       },
+       companyDescription: editedData.companyDescription,
+       services: editedData.services,
+       serviceAreas: editedData.serviceAreas,
+       postcodes: editedData.postcodes,
+     };
+     ```
+- **Testing:**
+  - All fields show read/edit toggle
+  - Changes persist after save
+  - Empty fields show "Not provided" in read mode
+  - Email field remains non-editable
+- **Semantic Verification:** Run 6 commands → 0/0/0/0/0/0
+- **Commit:** "feat(installer): add all verification fields to profile edit mode"
+
+---
+
+### Task D7: Add Loading/Error States (HIGH PRIORITY)
+**Priority:** HIGH  
+**Estimated Time:** 30 minutes  
+**Depends On:** D4 complete
+
+- **Path:** `src/app/installer/(dashboard)/profile/page.tsx`
+- **Issue:** No visual feedback during save operations
+- **Fix:** Add loading spinners, success toasts, error banners
+- **Changes:**
+  1. Add LoadingSpinner component (if not exists):
+     ```typescript
+     const LoadingSpinner = ({ className = "" }) => (
+       <svg 
+         className={`animate-spin h-4 w-4 ${className}`} 
+         xmlns="http://www.w3.org/2000/svg" 
+         fill="none" 
+         viewBox="0 0 24 24"
+       >
+         <circle 
+           className="opacity-25" 
+           cx="12" 
+           cy="12" 
+           r="10" 
+           stroke="currentColor" 
+           strokeWidth="4"
+         />
+         <path 
+           className="opacity-75" 
+           fill="currentColor" 
+           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+         />
+       </svg>
+     );
+     ```
+  2. Add success toast:
+     ```typescript
+     const [showSuccessToast, setShowSuccessToast] = useState(false);
+     
+     const showSuccess = (message: string) => {
+       setShowSuccessToast(true);
+       setTimeout(() => setShowSuccessToast(false), 3000);
+     };
+     
+     {showSuccessToast && (
+       <div className="fixed top-4 right-4 bg-success text-white px-4 py-3 rounded-lg shadow-elevation-high z-50 flex items-center gap-2">
+         <CheckIcon className="w-5 h-5" />
+         <p>Profile updated successfully</p>
+       </div>
+     )}
+     ```
+  3. Disable form during save:
+     ```typescript
+     {/* Add to all inputs */}
+     <input
+       disabled={isSaving}
+       className={`input ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+       ...
+     />
+     ```
+  4. Update save button:
+     ```typescript
+     <button
+       onClick={handleSaveAllChanges}
+       disabled={isSaving}
+       className="btn-primary"
+     >
+       {isSaving ? (
+         <>
+           <LoadingSpinner className="mr-2" />
+           Saving...
+         </>
+       ) : (
+         'Save All Changes'
+       )}
+     </button>
+     ```
+- **Testing:**
+  - Click Save → Button shows spinner
+  - All inputs disabled during save
+  - Success → Toast appears for 3 seconds
+  - Error → Banner shows, toast doesn't appear
+- **Semantic Verification:** Run 6 commands → 0/0/0/0/0/0
+- **Commit:** "feat(installer): add loading and success states to profile editing"
+
+---
+
+### Task D8: Admin Sync Testing (HIGH PRIORITY)
+**Priority:** HIGH  
+**Estimated Time:** 30 minutes  
+**Depends On:** D4, D5, D6 complete
+
+- **Purpose:** Verify admin view reflects all profile changes
+- **Not a code task:** Testing and validation phase
+- **Test Cases:**
+  1. Installer changes phone → Verify → Admin sees new phone
+  2. Installer updates company description → Admin sees update
+  3. Installer adds social links → Admin sees all links
+  4. Installer uploads new logo → Admin sees new logo
+  5. Installer changes service areas → Admin sees updated areas
+  6. Installer changes postcodes → Admin sees updated postcodes
+- **Expected Results:**
+  - All changes immediately visible in admin view after save
+  - Verification status remains unchanged (only data updates)
+  - Admin logs show update entries
+- **Issues Found:** Document any sync issues for hotfix
+- **Acceptance:** All test cases pass, no stale data in admin view
+- **Documentation:** Update `PHASE-D-PROFILE-EDIT-AUDIT.md` with test results
+
+---
+
+## Phase D Execution Order
+
+**Priority Sequence:** D2 → D3 → D4 → D5 → D7 → D6 → D1 → D8
+
+**Rationale:**
+- D2 (unify states) MUST come first - blocks D3, D4, D5
+- D3 (action bar) needed before D4 (save handler)
+- D4 (save API) CRITICAL - blocks D5, D6, D7
+- D5 (phone OTP) CRITICAL security feature
+- D7 (loading states) HIGH priority for UX
+- D6 (missing fields) can be done after core save works
+- D1 (postcode UX) is enhancement, lowest priority
+- D8 (testing) last after all changes complete
+
+**Validation After Each Task:**
+```powershell
+# TypeScript check
+npx tsc --noEmit
+
+# Build check
+npm run build
+
+# Semantic verification (per modified file)
+Select-String -Path "src\app\installer\(dashboard)\profile\page.tsx" -Pattern "text-gray-|text-slate-|bg-gray-|bg-slate-|border-gray-|border-slate-"
+Select-String -Path "src\app\installer\(dashboard)\profile\page.tsx" -Pattern "dark:"
+Select-String -Path "src\app\installer\(dashboard)\profile\page.tsx" -Pattern "rgba\(|rgb\(|#[0-9a-fA-F]{3,6}"
+Select-String -Path "src\app\installer\(dashboard)\profile\page.tsx" -Pattern "text-white|bg-white|text-black|bg-black"
+Select-String -Path "src\app\installer\(dashboard)\profile\page.tsx" -Pattern "text-xs|text-sm|text-lg|text-xl|font-bold|font-semibold"
+Select-String -Path "src\app\installer\(dashboard)\profile\page.tsx" -Pattern "sm:text-|md:text-|lg:text-"
+```
+
+**Success Criteria:**
+- ✅ Single unified edit state (no duplicate buttons)
+- ✅ Sticky action bar with Save/Cancel
+- ✅ Save calls PUT API and persists changes
+- ✅ Phone changes require OTP verification
+- ✅ All fields editable (except email)
+- ✅ Loading states during operations
+- ✅ Success/error feedback visible
+- ✅ Admin view syncs with changes
+- ✅ All tasks pass semantic verification (0/0/0/0/0/0)
+- ✅ TypeScript compiles with 0 errors
+- ✅ npm run build succeeds
+
+**Total Time Estimate:** 9.5 hours
+
+---
