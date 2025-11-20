@@ -267,7 +267,7 @@ const InstallerProfilePage: React.FC = () => {
       // Open contact verification modal to verify new phone
       setPendingVerificationPhone(editedPhone);
       setIsContactModalOpen(true);
-      setSaveError('Please verify your new phone number before saving.');
+      // Note: Save will auto-trigger after verification succeeds in handleVerificationSuccess
       return; // Block save until verification complete
     }
 
@@ -345,13 +345,51 @@ const InstallerProfilePage: React.FC = () => {
     setIsOTPModalOpen(false);
     setIsContactModalOpen(false);
     setOtpPayload(null);
-    await loadProfile();
     
-    // D5: Auto-trigger save after phone verification
+    // D5: Auto-save profile after phone verification completes
     if (phoneChanged) {
-      setTimeout(() => {
-        handleSaveAllChanges();
-      }, 500);
+      try {
+        setIsSaving(true);
+        setSaveError(null);
+        
+        // Collect all changed fields
+        const updateData: any = {
+          services: editableVerification?.services,
+          serviceAreas: editableVerification?.serviceAreas,
+          postcodes: editableVerification?.postcodes,
+          website: editableVerification?.website,
+          socialLinks: editableVerification?.socialLinks,
+          companyDescription: editableVerification?.companyDescription,
+          companyName: editableVerification?.companyName,
+          representativeName: editableVerification?.representativeName,
+          designation: editableVerification?.designation,
+          abnOrLicense: editableVerification?.abnOrLicense,
+          establishedYear: editableVerification?.establishedYear,
+          employeeCount: editableVerification?.employeeCount,
+          phone: editedPhone, // Include verified phone
+        };
+
+        await updateProfile(updateData);
+        
+        // Exit edit mode
+        setIsEditingProfile(false);
+        
+        // Reload profile data
+        await loadProfile();
+        
+        // Reset phone change tracking
+        setPhoneChanged(false);
+        setPhoneVerificationComplete(false);
+        
+        // Show success toast
+        setShowSuccessToast(true);
+        setTimeout(() => setShowSuccessToast(false), 3000);
+      } catch (error: any) {
+        console.error('Failed to save profile after verification:', error);
+        setSaveError(error.message || 'Failed to save changes');
+      } finally {
+        setIsSaving(false);
+      }
     }
   };
 
