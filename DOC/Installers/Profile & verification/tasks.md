@@ -373,6 +373,309 @@ If critical issues found, rollback to commit before Phase B6 and reassess approa
 
 ---
 
+## Phase B7: Data Synchronization & Field Alignment (CRITICAL)
+
+**Status**: 🔴 NEW PHASE - Critical data mismatch issues  
+**Priority**: P0 - Must fix before production  
+**Reference**: `FIELD-MISMATCH-AUDIT.md`  
+**Date Created**: November 20, 2025
+
+### Critical Issue
+Phone number and other fields stored in `InstallerVerification` are NOT synced to `User` model, causing mismatches between Personal Details display and submitted verification data. Profile page shows authentication phone instead of verification phone.
+
+### Root Cause
+Data is stored in three separate models (User, InstallerProfile, InstallerVerification) without synchronization logic. When installer submits verification with phone `+61401731255`, it's stored in `verification.phone` but `user.phone` remains unchanged, causing Personal Details section to show wrong phone.
+
+### Architecture Decision: Single Source of Truth
+- **User Model**: Authentication + basic profile (email, name, phone, companyName)
+- **InstallerVerification**: Business details + verification status
+- **Sync Rule**: On admin approval, sync verification data → User model
+
+---
+
+### Task B7.1: Fix Profile Personal Details Phone Display 🔴 CRITICAL
+- **File**: `src/app/installer/(dashboard)/profile/page.tsx`
+- **Issue**: Line 490 shows `user.phone` (authentication phone), not `verification.phone`
+- **Change**:
+  ```tsx
+  // OLD
+  <p className="text-body text-foreground">{user.phone}</p>
+  
+  // NEW
+  <p className="text-body text-foreground">{verification?.phone || user.phone || 'Not provided'}</p>
+  ```
+- **Acceptance**: 
+  - Personal Details shows verification phone if exists
+  - Falls back to user phone if no verification
+  - Shows "Not provided" if both null
+- **Test**: Submit verification with different phone → Personal Details updates immediately
+- **Commit**: "fix(installer): show verification phone in Personal Details section"
+
+---
+
+### Task B7.2: Fix Profile Company Details Phone Display 🔴 CRITICAL
+- **File**: `src/app/installer/(dashboard)/profile/page.tsx`
+- **Issue**: Line 573 shows `user.phone` with misleading label "(from account)"
+- **Change**:
+  ```tsx
+  // OLD
+  <div>
+    <label>Representative Phone (from account)</label>
+    <p>{user.phone}</p>
+  </div>
+  
+  // NEW
+  <div>
+    <label>Representative Phone</label>
+    <p>{verification?.phone || user.phone || 'Not provided'}</p>
+  </div>
+  ```
+- **Acceptance**: Company Details shows correct verification phone
+- **Commit**: "fix(installer): show verification phone in Company Details section"
+
+---
+
+### Task B7.3: Fix Profile Name Display 🟡 MEDIUM
+- **File**: `src/app/installer/(dashboard)/profile/page.tsx`
+- **Issue**: Personal Details shows `user.name`, but verification has `representativeName`
+- **Change**:
+  ```tsx
+  // In Personal Details section
+  <p>{verification?.representativeName || user.name || 'Not provided'}</p>
+  ```
+- **Acceptance**: Shows representative name from verification if exists
+- **Commit**: "fix(installer): prioritize verification representative name in Personal Details"
+
+---
+
+### Task B7.4: Create Admin Verification View API (Backend) 🔴 CRITICAL
+- **File**: `src/app/api/admin/installers/[id]/verification/route.ts` (NEW)
+- **Endpoint**: `GET /api/admin/installers/[id]/verification`
+- **Response**:
+  ```typescript
+  {
+    installer: {
+      id: string;
+      name: string;
+      email: string;
+      phone: string; // From User model
+      phoneVerified: boolean;
+      createdAt: string;
+    },
+    verification: {
+      // All fields from InstallerVerification model
+      companyName: string;
+      phone: string; // From verification (may differ from user.phone)
+      // ... all other verification fields
+    },
+    logs: VerificationLog[];
+  }
+  ```
+- **Acceptance**: 
+  - Returns aggregated User + Verification data
+  - Admin role required
+  - 404 if installer not found
+- **Commit**: "feat(api): add admin installer verification view endpoint"
+
+---
+
+### Task B7.5: Wire Admin View to Real API (Frontend) 🔴 CRITICAL
+- **File**: `src/app/admin/installers/[id]/page.tsx`
+- **Changes**:
+  1. Remove `useMockVerificationData` hook (lines 8-59)
+  2. Create `useEffect` to fetch from `/api/admin/installers/[id]/verification`
+  3. Add loading state
+  4. Add error handling
+  5. Update all references to use real data
+- **Acceptance**:
+  - Admin view shows real database data
+  - Phone numbers match verification submission
+  - No mock data visible
+- **Commit**: "feat(admin): wire installer verification view to backend API"
+
+---
+
+### Task B7.6: Create User Sync Logic on Verification Approval (Backend) 🔴 CRITICAL
+- **File**: `src/app/api/admin/installers/[id]/verification/status/route.ts` (NEW or UPDATE)
+- **Endpoint**: `PUT /api/admin/installers/[id]/verification/status`
+- **Logic**:
+  ```typescript
+  if (newStatus === 'APPROVED') {
+    // Sync verification data to User model
+    await prisma.user.update({
+      where: { id: verification.userId },
+      data: {
+        name: verification.representativeName,
+        phone: verification.phone,
+        companyName: verification.companyName,
+        installerVerified: true,
+      },
+    });
+    
+    // Create or update InstallerProfile
+    await prisma.installerProfile.upsert({
+      where: { userId: verification.userId },
+      create: {
+        userId: verification.userId,
+        companyName: verification.companyName,
+        businessAddress: '', // TODO: Add to verification form
+        postcode: verification.postcodes[0],
+        operationalStatus: 'ACTIVE',
+      },
+      update: {},
+    });
+    
+    // Create log entry
+    await prisma.installerVerificationLog.create({
+      data: {
+        userId: verification.userId,
+        adminId: adminId,
+        action: 'APPROVED',
+        notes: adminNotes,
+      },
+    });
+  }
+  ```
+- **Acceptance**:
+  - Approval syncs phone/name/company to User model
+  - Creates InstallerProfile if not exists
+  - User.installerVerified set to true
+  - Verification log created
+- **Commit**: "feat(api): sync verification data to User model on approval"
+
+---
+
+### Task B7.7: Pre-fill Verification Modal with Existing Data 🟡 MEDIUM
+- **File**: `src/components/installer/VerificationModal.tsx`
+- **Change**: Accept `existingVerification` prop and pre-fill form on mount
+- **Logic**:
+  ```tsx
+  useEffect(() => {
+    if (existingVerification) {
+      setFormData({
+        companyName: existingVerification.companyName,
+        phone: existingVerification.phone,
+        // ... all other fields
+      });
+    }
+  }, [existingVerification]);
+  ```
+- **Acceptance**: Re-opening modal shows previously submitted data
+- **Commit**: "feat(installer): pre-fill verification modal with existing data"
+
+---
+
+### Task B7.8: Update Admin Actions to Use Real API 🔴 CRITICAL
+- **File**: `src/app/admin/installers/[id]/page.tsx`
+- **Changes**:
+  1. Wire `handleApprove()` to `PUT /api/admin/installers/[id]/verification/status` with `status: APPROVED`
+  2. Wire `handleReject()` with `status: REJECTED`
+  3. Wire `handleRequestInfo()` with `status: MORE_INFO`
+  4. Add loading states for each action
+  5. Show success/error feedback
+  6. Reload verification data after action
+- **Acceptance**:
+  - Admin actions persist to database
+  - User model synced on approval (via B7.6)
+  - Success feedback shown
+  - Page refreshes with updated status
+- **Commit**: "feat(admin): wire approval/rejection actions to backend API"
+
+---
+
+### Task B7.9: Add Verification Logs Display (Frontend) 🟡 MEDIUM
+- **File**: `src/app/admin/installers/[id]/page.tsx`
+- **Change**: Display `logs` from API response (B7.4) in Activity Log section
+- **Fields**: action, timestamp, performedBy, notes
+- **Acceptance**: Real verification history displayed (no mock data)
+- **Commit**: "feat(admin): display real verification activity logs"
+
+---
+
+### Validation Commands (Run after each task)
+
+```powershell
+# TypeScript check
+npx tsc --noEmit
+
+# Build check
+npm run build
+
+# Semantic verification (profile page)
+Select-String -Path "src\app\installer\(dashboard)\profile\page.tsx" -Pattern "text-gray-|text-slate-|text-zinc-|bg-gray-|bg-slate-|bg-zinc-|border-gray-|border-slate-"
+Select-String -Path "src\app\installer\(dashboard)\profile\page.tsx" -Pattern "dark:"
+Select-String -Path "src\app\installer\(dashboard)\profile\page.tsx" -Pattern "rgba\(|rgb\(|#[0-9a-fA-F]{3,6}"
+```
+
+---
+
+### End-to-End Test Scenarios
+
+#### Scenario 1: Phone Number Sync
+1. ✅ Installer signs up with phone `+61400000000` (stored in `user.phone`)
+2. ✅ Installer submits verification with phone `+61411111111` (stored in `verification.phone`)
+3. ✅ **Expected**: Profile Personal Details shows `+61411111111` (from verification)
+4. ✅ **Expected**: Profile Company Details shows `+61411111111` (from verification)
+5. ✅ Admin approves verification
+6. ✅ **Expected**: `user.phone` updates to `+61411111111` (synced from verification)
+7. ✅ **Expected**: All views remain consistent after approval
+
+#### Scenario 2: Representative Name Sync
+1. ✅ Installer signs up with name "John" (stored in `user.name`)
+2. ✅ Installer submits verification with representative name "John Smith" (stored in `verification.representativeName`)
+3. ✅ **Expected**: Profile shows "John Smith" (prioritizes verification)
+4. ✅ Admin approves
+5. ✅ **Expected**: `user.name` updates to "John Smith"
+
+#### Scenario 3: Re-submission Flow
+1. ✅ Installer submits verification (status: PENDING)
+2. ✅ Admin requests more info (status: MORE_INFO)
+3. ✅ Installer re-opens verification modal
+4. ✅ **Expected**: Form pre-filled with previous submission data (B7.7)
+5. ✅ Installer updates fields and resubmits
+6. ✅ **Expected**: Verification status returns to PENDING
+7. ✅ **Expected**: Updated data visible in admin view
+
+---
+
+### Success Criteria
+- ✅ Profile Personal Details shows correct phone from verification
+- ✅ Profile Company Details shows correct phone from verification
+- ✅ Profile shows representative name from verification
+- ✅ Admin view connected to real database (no mock data)
+- ✅ Admin approval syncs verification data to User model
+- ✅ Phone/name/company consistent across all views after approval
+- ✅ Verification modal pre-fills with existing data on re-open
+- ✅ Admin actions persist and trigger notifications
+- ✅ All E2E test scenarios pass
+- ✅ TypeScript clean (0 errors)
+- ✅ Build succeeds
+
+---
+
+### Estimated Effort
+- **B7.1**: 15 minutes (display logic fix)
+- **B7.2**: 15 minutes (display logic fix)
+- **B7.3**: 15 minutes (display logic fix)
+- **B7.4**: 2 hours (new API endpoint)
+- **B7.5**: 1.5 hours (wire admin view)
+- **B7.6**: 2 hours (sync logic + approval API)
+- **B7.7**: 1 hour (pre-fill form logic)
+- **B7.8**: 1.5 hours (wire admin actions)
+- **B7.9**: 30 minutes (display logs)
+
+**Total**: ~9 hours
+
+---
+
+### Dependencies
+- ✅ Phase B6 complete (API client library exists)
+- ✅ Backend APIs functional
+- ✅ Database schema complete
+- ⚠️ Admin authentication (required for B7.4-B7.9)
+
+---
+
 ## Future Enhancements (Optional)
 - Email templates for approval/rejection/pause.
 - Webhooks/audit to external BI.
