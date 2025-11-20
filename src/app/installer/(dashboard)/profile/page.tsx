@@ -397,17 +397,17 @@ const InstallerProfilePage: React.FC = () => {
           {/* Avatar */}
           <div className="w-20 h-20 rounded-full bg-surface shadow-neu-inset flex items-center justify-center">
             {user.image ? (
-              <img src={user.image} alt={user.name} className="w-full h-full rounded-full object-cover" />
+              <img src={user.image} alt={user.name || 'User'} className="w-full h-full rounded-full object-cover" />
             ) : (
               <span className="text-heading-2 text-primary">
-                {user.name.charAt(0).toUpperCase()}
+                {user.name?.charAt(0).toUpperCase() || 'U'}
               </span>
             )}
           </div>
 
           <div>
-            <h1 className="text-heading-2 text-foreground">{user.name}</h1>
-            <p className="text-body text-muted-foreground">{user.companyName}</p>
+            <h1 className="text-heading-2 text-foreground">{user.name || 'User'}</h1>
+            <p className="text-body text-muted-foreground">{user.companyName || 'Company'}</p>
             <div className="mt-2">{getStatusBadge()}</div>
           </div>
         </div>
@@ -475,7 +475,7 @@ const InstallerProfilePage: React.FC = () => {
                 className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
               />
             ) : (
-              <p className="text-body text-foreground">{user.name}</p>
+              <p className="text-body text-foreground">{verification?.representativeName || user.name || 'Not provided'}</p>
             )}
           </div>
 
@@ -487,7 +487,7 @@ const InstallerProfilePage: React.FC = () => {
           <div>
             <label className="block text-body-small text-muted-foreground mb-1">Phone</label>
             <div className="flex items-center gap-2">
-              <p className="text-body text-foreground">{user.phone}</p>
+              <p className="text-body text-foreground">{verification?.phone || user.phone || 'Not provided'}</p>
               {user.phoneVerified && (
                 <span className="text-success">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -568,9 +568,9 @@ const InstallerProfilePage: React.FC = () => {
 
           <div>
             <label className="block text-body-small text-muted-foreground mb-1">
-              Representative Phone <span className="text-muted-foreground">(from account)</span>
+              Representative Phone
             </label>
-            <p className="text-body text-muted-foreground">{user.phone}</p>
+            <p className="text-body text-foreground">{verification?.phone || user.phone || 'Not provided'}</p>
           </div>
 
           <div>
