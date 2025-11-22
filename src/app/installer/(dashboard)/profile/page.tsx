@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { signOut } from 'next-auth/react';
 import Button from '@/components/ui/button';
 import VerificationModal from '@/components/installer/VerificationModal';
 import ContactVerificationModal from '@/components/homeowner/ContactVerificationModal';
@@ -105,6 +106,9 @@ const InstallerProfilePage: React.FC = () => {
     confirmPassword: '',
   });
   const [passwordErrors, setPasswordErrors] = useState<Record<string, string>>({});
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Contact verification state
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
@@ -189,7 +193,7 @@ const InstallerProfilePage: React.FC = () => {
     }, 300);
   };
 
-  // F7: Password validation
+  // F7: Password validation (aligned with signup modal)
   const validatePassword = () => {
     const errors: Record<string, string> = {};
     
@@ -199,16 +203,14 @@ const InstallerProfilePage: React.FC = () => {
     
     if (!passwordData.newPassword) {
       errors.newPassword = 'New password is required';
-    } else if (passwordData.newPassword.length < 12) {
-      errors.newPassword = 'Password must be at least 12 characters';
-    } else if (!/[A-Z]/.test(passwordData.newPassword)) {
-      errors.newPassword = 'Password must contain uppercase letter';
-    } else if (!/[a-z]/.test(passwordData.newPassword)) {
-      errors.newPassword = 'Password must contain lowercase letter';
-    } else if (!/[0-9]/.test(passwordData.newPassword)) {
-      errors.newPassword = 'Password must contain a number';
-    } else if (!/[^A-Za-z0-9]/.test(passwordData.newPassword)) {
-      errors.newPassword = 'Password must contain a special character';
+    } else if (passwordData.newPassword.length < 8) {
+      errors.newPassword = 'Password must be at least 8 characters';
+    } else {
+      const hasLetter = /[a-zA-Z]/.test(passwordData.newPassword);
+      const hasNumber = /[0-9]/.test(passwordData.newPassword);
+      if (!hasLetter || !hasNumber) {
+        errors.newPassword = 'Password must contain at least one letter and one number';
+      }
     }
     
     if (passwordData.newPassword !== passwordData.confirmPassword) {
@@ -223,9 +225,9 @@ const InstallerProfilePage: React.FC = () => {
     if (validatePassword()) {
       try {
         await changePassword(passwordData);
-        alert('Password changed successfully. You will be logged out.');
-        // Force logout by redirecting to sign in
-        window.location.href = '/auth/signin';
+        alert('Password changed successfully. You will be logged out and redirected to the homepage.');
+        // Sign out and redirect to homepage
+        await signOut({ callbackUrl: '/', redirect: true });
       } catch (error) {
         alert(getErrorMessage(error));
       }
@@ -1211,14 +1213,35 @@ const InstallerProfilePage: React.FC = () => {
             <label htmlFor="currentPassword" className="block text-body-small text-foreground mb-2">
               Current Password <span className="text-error">*</span>
             </label>
-            <input
-              id="currentPassword"
-              type="password"
-              value={passwordData.currentPassword}
-              onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
-              className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="Enter current password"
-            />
+            <div className="relative">
+              <input
+                id="currentPassword"
+                type={showCurrentPassword ? "text" : "password"}
+                value={passwordData.currentPassword}
+                onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                className="w-full rounded-xl bg-surface border border-border px-4 py-3 pr-12 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="Enter current password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showCurrentPassword ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
+                    <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
+                    <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>
+                    <line x1="2" x2="22" y1="2" y2="22"/>
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                )}
+              </button>
+            </div>
             {passwordErrors.currentPassword && (
               <p className="text-error text-body-small mt-1">{passwordErrors.currentPassword}</p>
             )}
@@ -1228,25 +1251,44 @@ const InstallerProfilePage: React.FC = () => {
             <label htmlFor="newPassword" className="block text-body-small text-foreground mb-2">
               New Password <span className="text-error">*</span>
             </label>
-            <input
-              id="newPassword"
-              type="password"
-              value={passwordData.newPassword}
-              onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
-              className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="Enter new password"
-            />
+            <div className="relative">
+              <input
+                id="newPassword"
+                type={showNewPassword ? "text" : "password"}
+                value={passwordData.newPassword}
+                onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+                className="w-full rounded-xl bg-surface border border-border px-4 py-3 pr-12 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="Enter new password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowNewPassword(!showNewPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showNewPassword ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
+                    <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
+                    <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>
+                    <line x1="2" x2="22" y1="2" y2="22"/>
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                )}
+              </button>
+            </div>
             {passwordErrors.newPassword && (
               <p className="text-error text-body-small mt-1">{passwordErrors.newPassword}</p>
             )}
             <div className="mt-2 space-y-1">
               <p className="text-caption text-muted-foreground">Password must contain:</p>
               <ul className="text-caption text-muted-foreground space-y-0.5 ml-4">
-                <li className={passwordData.newPassword.length >= 12 ? 'text-success' : ''}>• At least 12 characters</li>
-                <li className={/[A-Z]/.test(passwordData.newPassword) ? 'text-success' : ''}>• Uppercase letter (A-Z)</li>
-                <li className={/[a-z]/.test(passwordData.newPassword) ? 'text-success' : ''}>• Lowercase letter (a-z)</li>
-                <li className={/[0-9]/.test(passwordData.newPassword) ? 'text-success' : ''}>• Number (0-9)</li>
-                <li className={/[^A-Za-z0-9]/.test(passwordData.newPassword) ? 'text-success' : ''}>• Special character (!@#$%)</li>
+                <li className={passwordData.newPassword.length >= 8 ? 'text-success' : ''}>• At least 8 characters</li>
+                <li className={/[a-zA-Z]/.test(passwordData.newPassword) ? 'text-success' : ''}>• At least one letter</li>
+                <li className={/[0-9]/.test(passwordData.newPassword) ? 'text-success' : ''}>• At least one number</li>
               </ul>
             </div>
           </div>
@@ -1255,14 +1297,35 @@ const InstallerProfilePage: React.FC = () => {
             <label htmlFor="confirmPassword" className="block text-body-small text-foreground mb-2">
               Confirm New Password <span className="text-error">*</span>
             </label>
-            <input
-              id="confirmPassword"
-              type="password"
-              value={passwordData.confirmPassword}
-              onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-              className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="Confirm new password"
-            />
+            <div className="relative">
+              <input
+                id="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                value={passwordData.confirmPassword}
+                onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                className="w-full rounded-xl bg-surface border border-border px-4 py-3 pr-12 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="Confirm new password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showConfirmPassword ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
+                    <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
+                    <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>
+                    <line x1="2" x2="22" y1="2" y2="22"/>
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                )}
+              </button>
+            </div>
             {passwordErrors.confirmPassword && (
               <p className="text-error text-body-small mt-1">{passwordErrors.confirmPassword}</p>
             )}

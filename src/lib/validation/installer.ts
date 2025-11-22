@@ -128,15 +128,17 @@ export const operationalStatusSchema = z.object({
 
 export type OperationalStatusUpdate = z.infer<typeof operationalStatusSchema>;
 
-// Password Change Schema
+// Password Change Schema (aligned with signup: 8 chars, letter + number)
 export const passwordChangeSchema = z.object({
   currentPassword: z.string().min(1, 'Current password required'),
   newPassword: z.string()
-    .min(12, 'Password must be at least 12 characters')
-    .regex(/[A-Z]/, 'Password must contain uppercase letter')
-    .regex(/[a-z]/, 'Password must contain lowercase letter')
-    .regex(/[0-9]/, 'Password must contain digit')
-    .regex(/[^A-Za-z0-9]/, 'Password must contain special character'),
+    .min(8, 'Password must be at least 8 characters')
+    .refine((password) => /[a-zA-Z]/.test(password), {
+      message: 'Password must contain at least one letter',
+    })
+    .refine((password) => /[0-9]/.test(password), {
+      message: 'Password must contain at least one number',
+    }),
   confirmPassword: z.string(),
 }).refine((data) => data.newPassword === data.confirmPassword, {
   message: 'Passwords must match',

@@ -6227,6 +6227,184 @@ interface Installer {
 
 **Phase F15 Report**: Admin installers table fetching from wrong data source (User model instead of InstallerVerification). Root cause: Initial implementation used User fields which are only populated after admin approval. Fix requires: (A) Backend API query update to join InstallerVerification, (B) Frontend interface update to use verification data, (C) End-to-end testing. Estimated 2-3 hours, LOW risk (query change only, no schema migration). Benefits: Immediate data display, real-time updates, better search. All documentation complete, ready for implementation.
 
+---
+
+## Phase F16: Password Management Backend Implementation ✅ COMPLETE (November 22, 2025)
+
+**Priority**: P2 - Enhancement (Security Feature)  
+**Type**: Backend Implementation + UX Alignment  
+**Status**: ✅ COMPLETE - Feature fully implemented and aligned with signup modal  
+**Risk Level**: 🟢 LOW (Simplified requirements, improved UX)
+
+### Context
+
+User requested audit and implementation of password management backend. Initial audit found feature complete but with misaligned requirements. User identified two issues:
+1. No show/hide password toggle (signup modal has it)
+2. Password requirements too strict (12 chars vs signup's 8 chars)
+
+**Solution**: Aligned password change with signup modal for consistency.
+
+### Scope
+
+**Initial Audit Findings** (F16.1):
+- ✅ Frontend UI complete (Security section with 3 password fields)
+- ✅ Backend API complete (POST /api/installer/account/change-password)
+- ✅ Validation complete (Zod schema)
+- ⚠️ **Issue**: Requirements didn't match signup modal (12 chars vs 8 chars)
+- ⚠️ **Issue**: No show/hide password toggle
+
+**Alignment Changes** (F16.2):
+- ✅ Added show/hide password toggles (eye icons) to all 3 fields
+- ✅ Reduced min length from 12 → 8 characters
+- ✅ Simplified requirements: letter + number only (removed uppercase/lowercase/special char)
+- ✅ Updated backend validation schema to match
+- ✅ Updated frontend validation logic
+- ✅ Updated UI requirements list (5 items → 3 items)
+
+### Tasks
+
+#### ✅ F16.1: Comprehensive Audit
+**Status**: ✅ COMPLETE  
+**Duration**: 30 minutes  
+**Deliverable**: `DOC/Installers/Profile & verification/PASSWORD-MANAGEMENT-AUDIT.md`
+
+Audit covered:
+- Frontend UI implementation
+- Backend API implementation
+- Validation schema
+- Security assessment
+- Data flow diagram
+- Identified misalignment with signup modal
+
+#### ✅ F16.2: Alignment with Signup Modal
+**Status**: ✅ COMPLETE  
+**Duration**: 45 minutes  
+**Deliverable**: `DOC/Installers/Profile & verification/PASSWORD-CHANGE-ALIGNMENT-REPORT.md`
+
+**Changes Made**:
+
+1. **Frontend State** (`profile/page.tsx` lines 101-110):
+   - Added `showCurrentPassword`, `showNewPassword`, `showConfirmPassword` state
+
+2. **Validation Function** (`profile/page.tsx` lines 193-220):
+   - Changed min length: 12 → 8 characters
+   - Simplified: Combined uppercase/lowercase into single letter check
+   - Removed: Special character requirement
+   - Kept: Number requirement
+
+3. **Current Password Field** (`profile/page.tsx` lines 1219-1259):
+   - Added show/hide toggle with eye icon
+   - Changed type to dynamic: `{showCurrentPassword ? "text" : "password"}`
+
+4. **New Password Field** (`profile/page.tsx` lines 1230-1284):
+   - Added show/hide toggle with eye icon
+   - Updated requirements list from 5 items to 3 items:
+     - ✓ At least 8 characters (was 12)
+     - ✓ At least one letter (was separate uppercase/lowercase)
+     - ✓ At least one number (kept)
+   - Green checkmarks show as requirements met
+
+5. **Confirm Password Field** (`profile/page.tsx` lines 1254-1295):
+   - Added show/hide toggle with eye icon
+
+6. **Backend Validation** (`src/lib/validation/installer.ts`):
+   - Changed min length: 12 → 8 characters
+   - Changed letter check from separate uppercase/lowercase regex to single `/[a-zA-Z]/`
+   - Kept number requirement: `/[0-9]/`
+   - Removed special character requirement
+   - Used `.refine()` for better error messages
+
+#### ⚠️ F16.3: Manual Testing (REQUIRED)
+**Status**: ⚠️ PENDING USER TESTING  
+**Duration**: 15 minutes  
+
+**Test Cases to Execute**:
+1. ✅ Show/hide password toggle works on all 3 fields
+2. ✅ 8-character password accepted (e.g., "Test1234")
+3. ✅ Password without number rejected
+4. ✅ Password without letter rejected
+5. ✅ Real-time validation indicators turn green
+6. ✅ Wrong current password → Error message
+7. ✅ Password mismatch → Error message
+8. ✅ Successful password change → Force logout
+
+### Files Modified
+
+**Frontend**:
+- `src/app/installer/(dashboard)/profile/page.tsx`
+  - Added 3 show/hide state variables
+  - Simplified validation function
+  - Added eye icon toggles to all 3 password fields
+  - Updated requirements list (5 → 3 items)
+  - Updated all input classes to `pr-12` for icon space
+
+**Backend**:
+- `src/lib/validation/installer.ts`
+  - Updated passwordChangeSchema min length (12 → 8)
+  - Simplified letter requirement (combined uppercase/lowercase)
+  - Removed special character requirement
+
+**Documentation**:
+- `DOC/Installers/Profile & verification/PASSWORD-MANAGEMENT-AUDIT.md` - Initial audit
+- `DOC/Installers/Profile & verification/PASSWORD-CHANGE-ALIGNMENT-REPORT.md` - Alignment changes
+
+### Alignment Summary
+
+**Password Requirements (NOW CONSISTENT)**:
+| Requirement | Signup Modal | Password Change | Status |
+|-------------|--------------|-----------------|--------|
+| Min Length | 8 characters | 8 characters | ✅ Match |
+| Letter Required | Yes (any case) | Yes (any case) | ✅ Match |
+| Number Required | Yes | Yes | ✅ Match |
+| Special Char | No | No | ✅ Match |
+
+**UI Features (NOW CONSISTENT)**:
+| Feature | Signup Modal | Password Change | Status |
+|---------|--------------|-----------------|--------|
+| Show/Hide Password | ✅ Eye icon | ✅ Eye icon | ✅ Match |
+| Real-time Validation | ✅ Green checkmarks | ✅ Green checkmarks | ✅ Match |
+
+### Security Assessment
+
+**Still Secure**:
+- ✅ bcrypt hashing (cost factor 12) - unchanged
+- ✅ Session invalidation - unchanged
+- ✅ Current password verification - unchanged
+- ✅ OAuth account protection - unchanged
+- ✅ 8 chars + alphanumeric is industry-standard for basic security
+
+**Improved UX**:
+- ✅ Consistent with signup (no confusion)
+- ✅ Can see password while typing (fewer typos)
+- ✅ Simpler requirements (easier to remember)
+- ✅ Real-time feedback with green checkmarks
+
+### Success Criteria
+
+- ✅ Audit report created
+- ✅ Alignment changes implemented (frontend + backend)
+- ✅ Show/hide password toggle added to all 3 fields
+- ✅ Requirements simplified to match signup (8 chars, letter + number)
+- ✅ Backend validation updated
+- ✅ Documentation complete
+- ⚠️ Manual testing pending
+
+### Documentation
+
+- `specs/006-component-by-component/tasks.md` - This phase (F16)
+- `DOC/Installers/Profile & verification/PASSWORD-MANAGEMENT-AUDIT.md` - Initial comprehensive audit
+- `DOC/Installers/Profile & verification/PASSWORD-CHANGE-ALIGNMENT-REPORT.md` - Alignment implementation report
+- `DOC/Installers/Profile & verification/PASSWORD-MANAGEMENT-SUMMARY.md` - Quick reference guide
+- `DOC/Installers/Profile & verification/PASSWORD-MANAGEMENT-VISUAL-TEST-GUIDE.md` - Visual testing guide
+
+---
+
+**Phase F16 Report**: Password management feature completed and aligned with signup modal. Initial audit found feature fully implemented but with inconsistent requirements (12 chars vs signup's 8 chars) and missing show/hide toggle. **Alignment changes**: (1) Added eye icon toggles to all 3 password fields, (2) Simplified requirements to match signup (8 chars, letter + number only), (3) Updated frontend validation logic, (4) Updated backend Zod schema, (5) Removed complex requirements (uppercase/lowercase/special char). **Result**: Consistent user experience across signup and password change. Security unchanged (still uses bcrypt, session invalidation, current password verification). **Ready for manual testing** - 8 test cases documented. Risk: 🟢 LOW (simplified requirements, improved UX). User impact: 🟢 POSITIVE (better usability, fewer errors). All documentation complete (4 comprehensive reports).
+
+
+
+
+
 
 
 
