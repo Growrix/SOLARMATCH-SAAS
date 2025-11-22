@@ -17,20 +17,26 @@ import styles from './InstallersTable.module.css';
 import Image from 'next/image';
 import Button from '@/components/ui/button';
 
+// F15: InstallerVerification data structure
+interface InstallerVerification {
+  companyName: string;
+  representativeName: string;
+  phone: string;
+  address: string | null;
+  postcodes: string[];
+  status: string;
+}
+
 interface Installer {
   id: string;
   email: string;
-  name: string | null;
-  phone: string | null;
   phoneVerified: boolean;
-  companyName: string | null;
-  businessAddress: string | null;
-  postcode: string | null;
   installerVerified: boolean;
   isActive: boolean;
   image: string | null;
   createdAt: string;
   updatedAt: string;
+  installerVerification: InstallerVerification | null; // F15: Source of truth for business data
 }
 
 interface InstallersResponse {
@@ -213,10 +219,16 @@ const InstallersTable: React.FC = () => {
                       Company / Contact
                     </th>
                     <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
+                      Postcode(s)
+                    </th>
+                    <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
                       Email
                     </th>
                     <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
                       Phone
+                    </th>
+                    <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
+                      Address
                     </th>
                     <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
                       Verified
@@ -241,7 +253,7 @@ const InstallersTable: React.FC = () => {
                             {installer.image ? (
                               <Image
                                 src={installer.image}
-                                alt={installer.name || 'Installer'}
+                                alt={installer.installerVerification?.representativeName || 'Installer'}
                                 width={40}
                                 height={40}
                                 className="rounded-full object-cover"
@@ -249,19 +261,27 @@ const InstallersTable: React.FC = () => {
                             ) : (
                               <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
                                 <span className="text-primary text-body-small">
-                                  {installer.companyName?.charAt(0).toUpperCase() || installer.name?.charAt(0).toUpperCase() || 'I'}
+                                  {installer.installerVerification?.companyName?.charAt(0).toUpperCase() || 'I'}
                                 </span>
                               </div>
                             )}
                           </div>
                           <div className="ml-4">
                             <div className="text-body-small text-foreground">
-                              {installer.companyName || 'No company name'}
+                              {installer.installerVerification?.companyName || 'Verification not submitted'}
                             </div>
                             <div className="text-body-small text-muted-foreground">
-                              {installer.name || 'No name'}
+                              {installer.installerVerification?.representativeName || 'N/A'}
                             </div>
                           </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-body-small text-foreground">
+                          {installer.installerVerification?.postcodes?.[0] || 'N/A'}
+                          {installer.installerVerification?.postcodes && installer.installerVerification.postcodes.length > 1 && (
+                            <span className="text-muted-foreground"> +{installer.installerVerification.postcodes.length - 1}</span>
+                          )}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -269,7 +289,12 @@ const InstallersTable: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-body-small text-foreground">
-                          {installer.phone || 'N/A'}
+                          {installer.installerVerification?.phone || 'N/A'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-body-small text-foreground truncate max-w-xs" title={installer.installerVerification?.address || 'Not provided'}>
+                          {installer.installerVerification?.address || 'Not provided'}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -322,7 +347,7 @@ const InstallersTable: React.FC = () => {
                       {installer.image ? (
                         <Image
                           src={installer.image}
-                          alt={installer.name || 'Installer'}
+                          alt={installer.installerVerification?.representativeName || 'Installer'}
                           width={48}
                           height={48}
                           className="rounded-full object-cover"
@@ -330,17 +355,17 @@ const InstallersTable: React.FC = () => {
                       ) : (
                         <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
                           <span className="text-primary">
-                            {installer.companyName?.charAt(0).toUpperCase() || installer.name?.charAt(0).toUpperCase() || 'I'}
+                            {installer.installerVerification?.companyName?.charAt(0).toUpperCase() || 'I'}
                           </span>
                         </div>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="text-body-small text-foreground truncate">
-                        {installer.companyName || 'No company name'}
+                        {installer.installerVerification?.companyName || 'Verification not submitted'}
                       </h3>
                       <p className="text-body-small text-muted-foreground truncate">
-                        {installer.name || 'No name'}
+                        {installer.installerVerification?.representativeName || 'N/A'}
                       </p>
                     </div>
                   </div>
@@ -352,8 +377,25 @@ const InstallersTable: React.FC = () => {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Phone:</span>
-                      <span className="text-foreground">{installer.phone || 'N/A'}</span>
+                      <span className="text-foreground">{installer.installerVerification?.phone || 'N/A'}</span>
                     </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Address:</span>
+                      <span className="text-foreground truncate max-w-[200px]" title={installer.installerVerification?.address || 'Not provided'}>
+                        {installer.installerVerification?.address || 'Not provided'}
+                      </span>
+                    </div>
+                    {installer.installerVerification?.postcodes && installer.installerVerification.postcodes.length > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Postcode(s):</span>
+                        <span className="text-foreground">
+                          {installer.installerVerification.postcodes[0]}
+                          {installer.installerVerification.postcodes.length > 1 && (
+                            <span className="text-muted-foreground"> +{installer.installerVerification.postcodes.length - 1}</span>
+                          )}
+                        </span>
+                      </div>
+                    )}
                     <div className="flex justify-between items-center">
                       <span className="text-muted-foreground">Verified:</span>
                       <div className="flex gap-1">

@@ -520,6 +520,7 @@ model InstallerVerification {
   designation         String
   email               String
   phone               String
+  address             String?
   abnOrLicense        String
   establishedYear     Int
   employeeCount       Int

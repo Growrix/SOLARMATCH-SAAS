@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
         data: {
           userId: user.id,
           companyName: dataForPrisma.companyName,
-          businessAddress: 'Pending Address', // Will be editable later in profile
+          businessAddress: validatedData.address || 'Not provided',
           postcode: (validatedData.postcodes && validatedData.postcodes[0]) || '0000',
         },
       });

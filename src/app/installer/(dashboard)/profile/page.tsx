@@ -311,6 +311,7 @@ const InstallerProfilePage: React.FC = () => {
         companyName: editableVerification?.companyName,
         representativeName: editableVerification?.representativeName,
         designation: editableVerification?.designation,
+        address: editableVerification?.address, // F14: Business address
         abnOrLicense: editableVerification?.abnOrLicense,
         establishedYear: editableVerification?.establishedYear,
         employeeCount: editableVerification?.employeeCount,
@@ -400,6 +401,7 @@ const InstallerProfilePage: React.FC = () => {
           companyName: editableVerification?.companyName,
           representativeName: editableVerification?.representativeName,
           designation: editableVerification?.designation,
+          address: editableVerification?.address, // F14: Business address
           abnOrLicense: editableVerification?.abnOrLicense,
           establishedYear: editableVerification?.establishedYear,
           employeeCount: editableVerification?.employeeCount,
@@ -610,8 +612,8 @@ const InstallerProfilePage: React.FC = () => {
           </div>
 
           <div>
-            <h1 className="text-heading-2 text-foreground">{user.name || 'User'}</h1>
-            <p className="text-body text-muted-foreground">{user.companyName || 'Company'}</p>
+            <h1 className="text-heading-2 text-foreground">{verification?.companyName || 'Company'}</h1>
+            <p className="text-body text-muted-foreground">{verification?.representativeName || user.name || 'Representative'}</p>
             <div className="mt-2">{getStatusBadge()}</div>
           </div>
         </div>
@@ -672,18 +674,20 @@ const InstallerProfilePage: React.FC = () => {
         </div>
       )}
 
-      {/* Personal Details */}
+      {/* Company Details */}
       <div className="bg-surface border border-border rounded-xl shadow-neu-outset p-6 space-y-4">
         <div className="flex items-center justify-between border-b border-border pb-3">
-          <h2 className="text-heading-3 text-foreground">Personal Details</h2>
+          <h2 className="text-heading-3 text-foreground">Company Details</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Email Field */}
           <div>
             <label className="block text-body-small text-muted-foreground mb-1">Email</label>
             <p className="text-body text-foreground">{user.email}</p>
           </div>
 
+          {/* Phone Field */}
           <div>
             <label className="block text-body-small text-muted-foreground mb-1">Phone</label>
             {isEditingProfile ? (
@@ -726,16 +730,8 @@ const InstallerProfilePage: React.FC = () => {
               </div>
             )}
           </div>
-        </div>
-      </div>
 
-      {/* Company Details */}
-      <div className="bg-surface border border-border rounded-xl shadow-neu-outset p-6 space-y-4">
-        <div className="flex items-center justify-between border-b border-border pb-3">
-          <h2 className="text-heading-3 text-foreground">Company Details</h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Company Name */}
           <div>
             <label className="block text-body-small text-muted-foreground mb-1">Company Name</label>
             {isEditingProfile ? (
@@ -750,6 +746,7 @@ const InstallerProfilePage: React.FC = () => {
             )}
           </div>
 
+          {/* Representative Name */}
           <div>
             <label className="block text-body-small text-muted-foreground mb-1">Representative Name</label>
             {isEditingProfile ? (
@@ -764,6 +761,7 @@ const InstallerProfilePage: React.FC = () => {
             )}
           </div>
 
+          {/* Designation */}
           <div>
             <label className="block text-body-small text-muted-foreground mb-1">Designation</label>
             {isEditingProfile ? (
@@ -775,6 +773,21 @@ const InstallerProfilePage: React.FC = () => {
               />
             ) : (
               <p className="text-body text-foreground">{verification?.designation || 'Not provided'}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-body-small text-muted-foreground mb-1">Business Address</label>
+            {isEditingProfile ? (
+              <textarea
+                rows={3}
+                value={editableVerification?.address || ''}
+                onChange={(e) => setEditableVerification((prev: any) => ({ ...prev!, address: e.target.value }))}
+                className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="Street address, city, state, postcode"
+              />
+            ) : (
+              <p className="text-body text-foreground">{verification?.address || 'Not provided'}</p>
             )}
           </div>
 

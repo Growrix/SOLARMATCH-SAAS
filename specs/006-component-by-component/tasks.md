@@ -5054,4 +5054,1179 @@ The admin homeowners management page (`/admin/homeowners`) is partially function
 
 **Phase 21 Report**: Admin homeowners management page audit complete. Critical issues identified: missing user names (optional signup field), no address column (lead-level data not aggregated), no IP capture (not stored in User model), no quote type display (lead-level data). Implementation plan created with 4 parts: (A) backfill names + make required, (B) add IP capture + display, (C) aggregate address + quote type, (D) comprehensive testing. Estimated 4-6 hours, MEDIUM risk (schema changes required). All documentation complete, ready for implementation.
 
+---
+
+## Phase F14: Add Address Field to Installer Verification & Profile 🎯 P1 FEATURE FIX (November 22, 2025)
+
+**Status**: 📋 READY FOR IMPLEMENTATION  
+**Priority**: P1 - HIGH (Missing required field in installer verification workflow)  
+**Audit Report**: `DOC/Installers/Profile & verification/ADDRESS-FIELD-AUDIT.md`  
+**Type**: Database Schema Update + Frontend/Backend Enhancement  
+**Estimated Time**: 3-4 hours  
+**Risk Level**: MEDIUM (Schema migration required, affects 3 frontend components and 2 API routes)
+
+### Context
+The installer verification form, profile page, and admin review modal are missing an "Address" input field. Users cannot provide their business address during verification or profile editing, and the admin installers table doesn't display address data. The field needs to be added after "Contact Number" in all relevant UI locations.
+
+### Root Cause Analysis
+1. **Initial Oversight**: Address field was not included in original installer verification requirements
+2. **Hardcoded Placeholder**: Verification submit API uses hardcoded `'Pending Address'` instead of actual user input
+3. **Schema Gap**: `InstallerVerification` model lacks `address` field (though `InstallerProfile` has `businessAddress`)
+4. **UI Gaps**: No address input in verification form, profile page, or display in admin review modal
+5. **Table Gap**: Admin installers table doesn't show address column
+
+### Part A: Database Schema Update (60 minutes)
+
+#### Task F14.A1: Add Address Field to InstallerVerification Model ⚙️ BREAKING CHANGE
+**File**: `prisma/schema.prisma`  
+**Action**: Add optional address field to InstallerVerification model
+
+**Current Model (Lines 514-545)**:
+```prisma
+model InstallerVerification {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  companyName         String
+  representativeName  String
+  designation         String
+  email               String
+  phone               String
+  abnOrLicense        String
+  establishedYear     Int
+  employeeCount       Int
+  services            String[]
+  serviceAreas        String[]
+  postcodes           String[]
+  website             String?
+  socialLinks         Json?
+  companyDescription  String?
+  licenseDocKey       String?
+  abnDocKey           String?
+  logoKey             String?
+  status              String   @default("PENDING")
+  adminNotes          String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+```
+
+**Required Change**:
+```diff
+model InstallerVerification {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  companyName         String
+  representativeName  String
+  designation         String
+  email               String
+  phone               String
++ address             String?
+  abnOrLicense        String
+  establishedYear     Int
+  employeeCount       Int
+  // ...rest of fields
+}
+```
+
+**Steps**:
+1. Add `address String?` after `phone` field
+2. Run migration: `npx prisma migrate dev --name add_address_to_installer_verification`
+3. Regenerate client: `npx prisma generate`
+4. Verify migration applied: check `prisma/migrations/` folder
+
+**Validation**:
+- ✅ Migration file created without errors
+- ✅ Prisma client regenerated
+- ✅ Existing InstallerVerification records not broken (nullable field)
+
+---
+
+### Part B: Backend Validation & API Updates (45 minutes)
+
+#### Task F14.B1: Update Backend Validation Schema
+**File**: `src/lib/validation/installer.ts` (assumed location, verify exact path)  
+**Action**: Add address field to `installerVerificationSubmitSchema`
+
+**Expected Current Schema**:
+```typescript
+export const installerVerificationSubmitSchema = z.object({
+  companyName: z.string().min(2, 'Company name is required'),
+  representativeName: z.string().min(2, 'Representative name is required'),
+  designation: z.string().min(2, 'Designation is required'),
+  email: z.string().email('Valid email is required'),
+  phone: z.string().regex(/^\+61[0-9]{9}$/, 'Phone must be in E.164 format'),
+  // ...other fields
+});
+```
+
+**Required Change**:
+```diff
+export const installerVerificationSubmitSchema = z.object({
+  companyName: z.string().min(2, 'Company name is required'),
+  representativeName: z.string().min(2, 'Representative name is required'),
+  designation: z.string().min(2, 'Designation is required'),
+  email: z.string().email('Valid email is required'),
+  phone: z.string().regex(/^\+61[0-9]{9}$/, 'Phone must be in E.164 format'),
++ address: z.string().min(5, 'Address is required').optional(),
+  abnOrLicense: z.string().min(5, 'ABN or License number is required'),
+  // ...other fields
+});
+```
+
+**Validation**:
+- ✅ Schema accepts address field (optional string, min 5 chars if provided)
+- ✅ TypeScript types updated automatically
+
+---
+
+#### Task F14.B2: Update Verification Submit API to Use Actual Address
+**File**: `src/app/api/installer/verification/submit/route.ts`  
+**Action**: Replace hardcoded `'Pending Address'` with actual address from form
+
+**Current Code (Lines 82-94)**:
+```typescript
+const existingProfile = await prisma.installerProfile.findUnique({ where: { userId: user.id } });
+if (!existingProfile) {
+  await prisma.installerProfile.create({
+    data: {
+      userId: user.id,
+      companyName: dataForPrisma.companyName,
+      businessAddress: 'Pending Address', // ⚠️ HARDCODED
+      postcode: (validatedData.postcodes && validatedData.postcodes[0]) || '0000',
+    },
+  });
+  console.log('[VERIFICATION SUBMIT] Created InstallerProfile bootstrap record');
+}
+```
+
+**Required Change**:
+```diff
+const existingProfile = await prisma.installerProfile.findUnique({ where: { userId: user.id } });
+if (!existingProfile) {
+  await prisma.installerProfile.create({
+    data: {
+      userId: user.id,
+      companyName: dataForPrisma.companyName,
+-     businessAddress: 'Pending Address',
++     businessAddress: validatedData.address || 'Not provided',
+      postcode: (validatedData.postcodes && validatedData.postcodes[0]) || '0000',
+    },
+  });
+  console.log('[VERIFICATION SUBMIT] Created InstallerProfile bootstrap record');
+}
+```
+
+**Additional Change**: Ensure address is saved to InstallerVerification record (should automatically work if validation schema updated).
+
+**Validation**:
+- ✅ Address from form saves to InstallerVerification table
+- ✅ Address syncs to InstallerProfile.businessAddress during bootstrap
+- ✅ Fallback 'Not provided' used if address empty
+
+---
+
+#### Task F14.B3: Verify Profile Update API Handles Address
+**File**: `src/app/api/installer/profile/route.ts` (verify exact path)  
+**Action**: Ensure PUT route accepts and updates address field in both InstallerVerification and InstallerProfile
+
+**Expected Behavior**:
+- When installer edits profile, address should update in both tables
+- If address changes, sync to `InstallerProfile.businessAddress`
+
+**Validation**:
+- ✅ Profile edit saves address to InstallerVerification
+- ✅ InstallerProfile.businessAddress updated if installer edits address
+- ✅ Admin review modal reflects updated address
+
+---
+
+### Part C: Frontend Component Updates (90 minutes)
+
+#### Task F14.C1: Add Address Field to Verification Form
+**File**: `src/components/installer/VerificationModal.tsx`
+
+**Step 1: Update Zod Schema (Line 18)**
+```diff
+const verificationSchema = z.object({
+  companyName: z.string().min(2, 'Company name is required'),
+  representativeName: z.string().min(2, 'Representative name is required'),
+  designation: z.string().min(2, 'Designation is required'),
+  email: z.string().email('Valid email is required'),
+  phone: z.string().regex(/^\+61[0-9]{9}$/, 'Phone must be in E.164 format (+61XXXXXXXXX)'),
++ address: z.string().min(5, 'Address is required').optional(),
+  abnOrLicense: z.string().min(5, 'ABN or License number is required'),
+  // ...rest of fields
+});
+```
+
+**Step 2: Update Form State Initialization (Line 51)**
+```diff
+const [formData, setFormData] = useState<Partial<VerificationFormData>>({
+  phone: '+61 ',
++ address: '',
+  services: [],
+  serviceAreas: [],
+  postcodes: [],
+  socialLinks: { facebook: '', instagram: '', linkedin: '', youtube: '' },
+});
+```
+
+**Step 3: Update Prefill Logic (Line 76)**
+```diff
+useEffect(() => {
+  if (open && existingVerification) {
+    setFormData({
+      companyName: existingVerification.companyName || '',
+      representativeName: existingVerification.representativeName || '',
+      designation: existingVerification.designation || '',
+      email: existingVerification.email || '',
+      phone: existingVerification.phone ? `+61 ${existingVerification.phone.slice(3)}` : '+61 ',
++     address: existingVerification.address || '',
+      abnOrLicense: existingVerification.abnOrLicense || '',
+      // ...rest of fields
+    });
+  }
+}, [open, existingVerification]);
+```
+
+**Step 4: Add Address Input Field After "Contact Number" (After Line 348)**
+```tsx
+{/* After Contact Number field */}
+
+<div>
+  <label htmlFor="address" className="block text-body-small text-foreground mb-2">
+    Address <span className="text-error">*</span>
+  </label>
+  <textarea
+    id="address"
+    rows={3}
+    value={formData.address || ''}
+    onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+    className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+    placeholder="Street address, city, state, postcode"
+  />
+  {errors.address && <p className="text-error text-body-small mt-1">{errors.address}</p>}
+  <p className="text-body-small text-muted-foreground mt-1">
+    Your business or office address
+  </p>
+</div>
+```
+
+**Validation**:
+- ✅ Address input visible after "Contact Number", before "Business Legal Information"
+- ✅ Validation error shows if address < 5 characters (if provided)
+- ✅ Prefill works when editing existing verification
+- ✅ Data saves correctly on submit
+
+---
+
+#### Task F14.C2: Add Address to Installer Profile Page
+**File**: `src/app/installer/(dashboard)/profile/page.tsx`
+
+**Step 1: Add Address to State**
+```diff
+const [editableVerification, setEditableVerification] = useState<any>(null);
+```
+Ensure `editableVerification.address` is tracked.
+
+**Step 2: Add Address Display in Company Details Section (After Line 750)**
+```tsx
+{/* After Representative Name or Designation field */}
+
+<div>
+  <label className="block text-body-small text-muted-foreground mb-1">Business Address</label>
+  {isEditingProfile ? (
+    <textarea
+      rows={3}
+      value={editableVerification?.address || ''}
+      onChange={(e) => setEditableVerification((prev: any) => ({ ...prev!, address: e.target.value }))}
+      className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+      placeholder="Street address, city, state, postcode"
+    />
+  ) : (
+    <p className="text-body text-foreground">{verification?.address || 'Not provided'}</p>
+  )}
+</div>
+```
+
+**Step 3: Include Address in Save Changes Payload (Around Line 328)**
+Ensure `editableVerification.address` is included in the `updateData` object sent to the API.
+
+**Validation**:
+- ✅ Address displays in view mode (from InstallerVerification)
+- ✅ Address editable in edit mode
+- ✅ Save changes updates address in database
+- ✅ Admin review modal reflects updated address
+
+---
+
+#### Task F14.C3: Add Address Display in Admin Installer Details Modal
+**File**: `src/app/admin/installers/[id]/page.tsx`
+
+**Action**: Add address display after "Contact Phone" (After Line 332 in Application Details section)
+
+**Current Code Structure**:
+```tsx
+<div>
+  <label>Contact Email</label>
+  <p>{verification.email}</p>
+</div>
+
+<div>
+  <label>Contact Phone</label>
+  <p>{verification.phone}</p>
+</div>
+
+{/* ADD ADDRESS HERE */}
+```
+
+**Required Change**:
+```tsx
+<div>
+  <label className="block text-body-small text-muted-foreground mb-1">Contact Phone</label>
+  <p className="text-body text-foreground">{verification.phone}</p>
+</div>
+
+<div>
+  <label className="block text-body-small text-muted-foreground mb-1">Address</label>
+  <p className="text-body text-foreground">{verification.address || 'Not provided'}</p>
+</div>
+```
+
+**Validation**:
+- ✅ Address displays after "Contact Phone" in Application Details
+- ✅ Shows "Not provided" if empty
+- ✅ Reflects latest verification data from database
+
+---
+
+#### Task F14.C4: Add Address Column to Admin Installers Table
+**File**: `src/components/admin/InstallersTable.tsx`
+
+**Option A: Add New Column After Phone (Recommended)**
+
+**Step 1: Update Interface (Line 21)**
+```diff
+interface Installer {
+  id: string;
+  email: string;
+  name: string | null;
+  phone: string | null;
++ address: string | null;
+  phoneVerified: boolean;
+  companyName: string | null;
+  businessAddress: string | null;
+  postcode: string | null;
+  installerVerified: boolean;
+  isActive: boolean;
+  image: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+```
+
+**Step 2: Add Table Header (After Line 219)**
+```tsx
+<th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
+  Phone
+</th>
+<th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
+  Address
+</th>
+<th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
+  Verified
+</th>
+```
+
+**Step 3: Add Table Cell (After Line 265)**
+```tsx
+<td className="px-6 py-4 whitespace-nowrap">
+  <div className="text-body-small text-foreground">
+    {installer.phone || 'N/A'}
+  </div>
+</td>
+<td className="px-6 py-4 whitespace-nowrap">
+  <div className="text-body-small text-foreground truncate max-w-xs">
+    {installer.address || installer.businessAddress || 'Not provided'}
+  </div>
+</td>
+```
+
+**Step 4: Add Mobile Card Field (After Line 345)**
+```tsx
+<div className="flex justify-between">
+  <span className="text-muted-foreground">Phone:</span>
+  <span className="text-foreground">{installer.phone || 'N/A'}</span>
+</div>
+<div className="flex justify-between">
+  <span className="text-muted-foreground">Address:</span>
+  <span className="text-foreground truncate max-w-[200px]">
+    {installer.address || installer.businessAddress || 'Not provided'}
+  </span>
+</div>
+```
+
+**Step 5: Verify Backend API Returns Address**
+Ensure `/api/admin/installers/list` includes address from InstallerProfile or InstallerVerification.
+
+**Validation**:
+- ✅ Address column visible in desktop table view
+- ✅ Address displays in mobile card view
+- ✅ Data fetched correctly from InstallerProfile or InstallerVerification
+- ✅ Truncated long addresses with ellipsis
+- ✅ Searchable in search query (if backend supports)
+
+---
+
+### Part D: End-to-End Testing & Validation (45 minutes)
+
+#### Task F14.D1: Test New Installer Verification with Address
+**Scenario**: Fresh installer submits verification form with address
+
+1. Navigate to installer verification form
+2. Fill all required fields including address
+3. Submit form
+4. Verify address saved to `InstallerVerification` table
+5. Verify address synced to `InstallerProfile.businessAddress`
+6. Check admin review modal shows address correctly
+
+**Expected Result**:
+- ✅ Address field accepts multiline input (street, city, state, postcode)
+- ✅ Validation error shows if address < 5 characters
+- ✅ Address saves to InstallerVerification table
+- ✅ Address syncs to InstallerProfile.businessAddress
+- ✅ Admin review modal displays address after "Contact Phone"
+
+---
+
+#### Task F14.D2: Test Existing Verification Edit with Address
+**Scenario**: Installer with existing verification edits address via profile page
+
+1. Login as installer with existing verification
+2. Navigate to profile page
+3. Click "Edit Profile"
+4. Update address field
+5. Save changes
+6. Verify address updated in database
+7. Check admin review modal reflects new address
+
+**Expected Result**:
+- ✅ Address prefills correctly from existing verification
+- ✅ Address editable in edit mode
+- ✅ Save changes updates InstallerVerification.address
+- ✅ InstallerProfile.businessAddress updated
+- ✅ Admin review modal shows updated address
+
+---
+
+#### Task F14.D3: Test Admin Installers Table Displays Address
+**Scenario**: Admin views installers table with address column
+
+1. Login as admin
+2. Navigate to /admin/installers
+3. Verify address column visible
+4. Check address displays correctly for all installers
+5. Test mobile responsive view
+6. Test search includes address (if implemented)
+
+**Expected Result**:
+- ✅ Address column visible after Phone column
+- ✅ Address displays from InstallerProfile or InstallerVerification
+- ✅ Long addresses truncated with ellipsis
+- ✅ Mobile view displays address correctly
+- ✅ "Not provided" shown for empty addresses
+
+---
+
+#### Task F14.D4: Test Multi-Theme Compatibility
+**Scenario**: Verify address field works in all 3 themes
+
+1. Switch to Dark theme → check address input styling
+2. Switch to Light theme → check neumorphic shadows
+3. Switch to Purple theme → check accent colors
+
+**Expected Result**:
+- ✅ Address field uses semantic classes (`form-input`, `shadow-neu-inset`)
+- ✅ No hardcoded colors or inline styles
+- ✅ Placeholder text readable in all themes
+- ✅ Focus state visible in all themes
+
+---
+
+#### Task F14.D5: Run Verification Commands (Post-Migration)
+**Run these 6 commands to detect any hardcoded values**:
+
+```powershell
+# Command 1: Hardcoded gray/slate colors
+Select-String -Path "src\components\installer\VerificationModal.tsx" -Pattern "text-gray-|text-slate-|bg-gray-|bg-slate-|border-gray-|border-slate-"
+
+# Command 2: Dark mode classes
+Select-String -Path "src\components\installer\VerificationModal.tsx" -Pattern "dark:"
+
+# Command 3: RGB/HEX colors
+Select-String -Path "src\components\installer\VerificationModal.tsx" -Pattern "rgba\(|rgb\(|#[0-9a-fA-F]{3,6}"
+
+# Command 4: Hardcoded white/black
+Select-String -Path "src\components\installer\VerificationModal.tsx" -Pattern "text-white|bg-white|text-black|bg-black"
+
+# Command 5: Hardcoded typography
+Select-String -Path "src\components\installer\VerificationModal.tsx" -Pattern "text-xs|text-sm|text-lg|text-xl|font-bold|font-semibold"
+
+# Command 6: Manual responsive classes
+Select-String -Path "src\components\installer\VerificationModal.tsx" -Pattern "sm:text-|md:text-|lg:text-"
+```
+
+**Required Result**: 0 matches for ALL 6 commands.
+
+---
+
+### Success Criteria
+
+✅ **Database**:
+- InstallerVerification model has `address` field (nullable)
+- Migration applied without errors
+- Existing records not broken
+
+✅ **Verification Form**:
+- Address input visible after "Contact Number"
+- Validation works (min 5 chars if provided)
+- Data saves to InstallerVerification table
+- Prefill works when editing verification
+
+✅ **Profile Page**:
+- Address displays in view mode
+- Address editable in edit mode
+- Save changes updates database
+
+✅ **Admin Review Modal**:
+- Address displays after "Contact Phone"
+- Shows "Not provided" if empty
+- Reflects latest verification data
+
+✅ **Admin Installers Table**:
+- Address column visible
+- Data fetched from correct source
+- Mobile responsive
+- Searchable (if implemented)
+
+✅ **No Hardcoded Values**:
+- All 6 verification commands return 0 matches
+- Semantic classes used throughout
+- Multi-theme compatible
+
+✅ **End-to-End**:
+- New installer can submit verification with address
+- Existing installer can edit address via profile
+- Admin sees address in table and details modal
+- All themes work correctly
+
+---
+
+### Risk Mitigation
+
+- **Risk**: Database migration fails on production  
+  **Mitigation**: Test migration on staging first, nullable field safe for existing records
+
+- **Risk**: Address field not syncing between InstallerVerification and InstallerProfile  
+  **Mitigation**: Ensure verification submit API updates both tables
+
+- **Risk**: Breaking existing verification/profile functionality  
+  **Mitigation**: Field is optional, test thoroughly before deploying
+
+- **Risk**: Admin table performance with new column  
+  **Mitigation**: Address already exists in InstallerProfile, no new query cost
+
+---
+
+### Files to Modify
+
+**Database**:
+- `prisma/schema.prisma` - Add address field to InstallerVerification model
+
+**Backend**:
+- `src/lib/validation/installer.ts` - Add address validation to schema
+- `src/app/api/installer/verification/submit/route.ts` - Replace hardcoded address
+- `src/app/api/installer/profile/route.ts` - Verify address handling (if needed)
+
+**Frontend**:
+- `src/components/installer/VerificationModal.tsx` - Add address input field
+- `src/app/installer/(dashboard)/profile/page.tsx` - Display/edit address
+- `src/app/admin/installers/[id]/page.tsx` - Display address in review modal
+- `src/components/admin/InstallersTable.tsx` - Add address column
+
+**Documentation**:
+- `specs/006-component-by-component/tasks.md` - This phase
+- `DOC/Installers/Profile & verification/ADDRESS-FIELD-AUDIT.md` - Audit report
+
+---
+
+**Phase F14 Report**: Address field missing from installer verification workflow. Root cause: initial oversight + hardcoded placeholder in API. Implementation requires: (A) Prisma schema update, (B) validation schema + API fixes, (C) 4 frontend component updates, (D) end-to-end testing. Estimated 3-4 hours, MEDIUM risk (schema migration required). All documentation complete, ready for implementation.
+
+---
+
+## Phase F15: Fix Admin Installers Table Data Fetching 🎯 P1 DATA BUG (November 22, 2025)
+
+**Status**: 📋 READY FOR IMPLEMENTATION  
+**Priority**: P1 - HIGH (Admin cannot see installer details until approval + profile edits don't reflect)  
+**Audit Report**: `DOC/Installers/Profile & verification/ADMIN-TABLE-DATA-FETCHING-AUDIT.md`  
+**Type**: Backend API Query Fix + Frontend Interface Update  
+**Estimated Time**: 2-3 hours  
+**Risk Level**: LOW (Query change only, no schema migration)
+
+### Context
+The Admin Installers table is fetching data from the **wrong source** (`User` model) instead of `InstallerVerification` model. This causes three major issues:
+1. Company name and representative name only show AFTER admin approves installer (shows "No company name" / "No name" for pending applications)
+2. When installer edits profile, changes don't reflect in admin table (stale data)
+3. Search by company name doesn't work for pending installers
+
+### Root Cause Analysis
+
+**Problem**: Backend API fetches from `User` model, but installer data is stored in `InstallerVerification` model
+
+**Current Flow (WRONG)**:
+```
+Installer submits verification
+  ↓
+Data saved to InstallerVerification ← ✅ Correct
+  ↓
+Admin table queries User model ← ❌ WRONG SOURCE (shows NULL)
+  ↓
+Admin approves installer
+  ↓
+Data copied from InstallerVerification to User ← ⚠️ Only happens on approval
+  ↓
+Admin table shows data ← ❌ Too late, should show immediately
+```
+
+**Correct Flow (REQUIRED)**:
+```
+Installer submits verification
+  ↓
+Data saved to InstallerVerification ← ✅ Source of truth
+  ↓
+Admin table queries InstallerVerification via join ← ✅ FIX REQUIRED
+  ↓
+Admin sees data immediately ← ✅ Desired behavior
+  ↓
+Installer edits profile
+  ↓
+InstallerVerification updated ← ✅ Source of truth
+  ↓
+Admin table reflects changes in real-time ← ✅ Desired behavior
+```
+
+### Data Source Comparison
+
+| Field | Current Source (WRONG) | Correct Source | When Available |
+|-------|------------------------|----------------|----------------|
+| Email | User.email ✅ | User.email ✅ | Signup |
+| Company Name | User.companyName ❌ NULL | verification.companyName ✅ | Verification submission |
+| Representative Name | User.name ❌ NULL | verification.representativeName ✅ | Verification submission |
+| Phone | User.phone ❌ NULL | verification.phone ✅ | Verification submission |
+| Address | User.businessAddress ❌ NULL | verification.address ✅ | Verification submission (F14) |
+| Postcodes | User.postcode ❌ NULL | verification.postcodes[0] ✅ | Verification submission |
+| Phone Verified | User.phoneVerified ✅ | User.phoneVerified ✅ | Phone OTP |
+| Installer Verified | User.installerVerified ✅ | User.installerVerified ✅ | Admin approval |
+
+### Part A: Backend API Query Fix (90 minutes)
+
+#### Task F15.A1: Update Admin Installers List API to Include Verification Data
+**File**: `src/app/api/admin/installers/list/route.ts`
+
+**Current Query (Lines 62-77) - WRONG**:
+```typescript
+const installers = await prisma.user.findMany({
+  where,
+  select: {
+    id: true,
+    email: true,
+    name: true,              // ❌ NULL until approval
+    phone: true,             // ❌ NULL until approval
+    image: true,
+    companyName: true,       // ❌ NULL until approval
+    businessAddress: true,   // ❌ NULL until approval
+    postcode: true,          // ❌ NULL until approval
+    phoneVerified: true,
+    installerVerified: true,
+    isActive: true,
+    createdAt: true,
+    updatedAt: true,
+  },
+  orderBy: { createdAt: 'desc' },
+  skip: (page - 1) * limit,
+  take: limit,
+});
+```
+
+**Required Change**:
+```typescript
+const installers = await prisma.user.findMany({
+  where,
+  select: {
+    id: true,
+    email: true,              // ✅ Keep from User (auth source)
+    phoneVerified: true,      // ✅ Keep from User (auth flag)
+    installerVerified: true,  // ✅ Keep from User (approval flag)
+    isActive: true,
+    image: true,
+    createdAt: true,
+    updatedAt: true,
+    // ✅ ADD: Include verification data via relation
+    verification: {
+      select: {
+        companyName: true,        // ✅ Source of truth
+        representativeName: true, // ✅ Source of truth
+        phone: true,              // ✅ Source of truth
+        address: true,            // ✅ Source of truth (F14)
+        postcodes: true,          // ✅ Source of truth
+        status: true,             // ✅ PENDING/APPROVED/REJECTED
+      }
+    }
+  },
+  orderBy: { createdAt: 'desc' },
+  skip: (page - 1) * limit,
+  take: limit,
+});
+```
+
+**Explanation**:
+- Keep `User` fields for auth-related data (email, phoneVerified, installerVerified)
+- Join `InstallerVerification` to get business details (company name, representative name, phone, address)
+- This works for ALL installers (pending or approved) because verification record exists after submission
+
+---
+
+#### Task F15.A2: Update Search Filter to Search in Verification Data
+**File**: `src/app/api/admin/installers/list/route.ts`
+
+**Current Search (Lines 37-46) - WRONG**:
+```typescript
+if (search.trim()) {
+  where.OR = [
+    { email: { contains: search, mode: 'insensitive' } },
+    { name: { contains: search, mode: 'insensitive' } },           // ❌ Searching NULL
+    { phone: { contains: search, mode: 'insensitive' } },          // ❌ Searching NULL
+    { companyName: { contains: search, mode: 'insensitive' } },    // ❌ Searching NULL
+    { businessAddress: { contains: search, mode: 'insensitive' } }, // ❌ Searching NULL
+  ];
+}
+```
+
+**Required Change**:
+```typescript
+if (search.trim()) {
+  where.OR = [
+    // ✅ Search in User fields (auth source)
+    { email: { contains: search, mode: 'insensitive' } },
+    // ✅ Search in InstallerVerification fields (business data source)
+    {
+      verification: {
+        companyName: { contains: search, mode: 'insensitive' }
+      }
+    },
+    {
+      verification: {
+        representativeName: { contains: search, mode: 'insensitive' }
+      }
+    },
+    {
+      verification: {
+        phone: { contains: search, mode: 'insensitive' }
+      }
+    },
+    {
+      verification: {
+        address: { contains: search, mode: 'insensitive' }
+      }
+    },
+  ];
+}
+```
+
+**Validation**:
+- ✅ Search by email (User table)
+- ✅ Search by company name (InstallerVerification table)
+- ✅ Search by representative name (InstallerVerification table)
+- ✅ Search by phone (InstallerVerification table)
+- ✅ Search by address (InstallerVerification table)
+- ✅ Search works for pending installers (not just approved)
+
+---
+
+### Part B: Frontend Interface Update (60 minutes)
+
+#### Task F15.B1: Update InstallersTable Interface
+**File**: `src/components/admin/InstallersTable.tsx`
+
+**Current Interface (Lines 21-34) - WRONG**:
+```typescript
+interface Installer {
+  id: string;
+  email: string;
+  name: string | null;              // ❌ From User (NULL until approval)
+  phone: string | null;             // ❌ From User (NULL until approval)
+  phoneVerified: boolean;
+  companyName: string | null;       // ❌ From User (NULL until approval)
+  businessAddress: string | null;   // ❌ From User (NULL until approval)
+  postcode: string | null;          // ❌ From User (NULL until approval)
+  installerVerified: boolean;
+  isActive: boolean;
+  image: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+```
+
+**Required Change**:
+```typescript
+interface InstallerVerification {
+  companyName: string;
+  representativeName: string;
+  phone: string;
+  address: string | null;
+  postcodes: string[];
+  status: string;
+}
+
+interface Installer {
+  id: string;
+  email: string;              // ✅ From User (auth)
+  phoneVerified: boolean;     // ✅ From User (auth)
+  installerVerified: boolean; // ✅ From User (auth)
+  isActive: boolean;          // ✅ From User (auth)
+  image: string | null;       // ✅ From User (optional)
+  createdAt: string;
+  updatedAt: string;
+  verification: InstallerVerification | null; // ✅ From InstallerVerification
+}
+```
+
+---
+
+#### Task F15.B2: Update Table Display to Use Verification Data
+**File**: `src/components/admin/InstallersTable.tsx`
+
+**Current Display (Lines 243-263) - WRONG**:
+```tsx
+<td className="px-6 py-4 whitespace-nowrap">
+  <div className="flex items-center">
+    <div className="flex-shrink-0 h-10 w-10">
+      {installer.image ? (
+        <Image src={installer.image} alt={installer.name || 'Installer'} width={40} height={40} className="rounded-full object-cover" />
+      ) : (
+        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+          <span className="text-primary text-body-small">
+            {installer.companyName?.charAt(0).toUpperCase() || installer.name?.charAt(0).toUpperCase() || 'I'}
+          </span>
+        </div>
+      )}
+    </div>
+    <div className="ml-4">
+      <div className="text-body-small text-foreground">
+        {installer.companyName || 'No company name'}  {/* ❌ Shows "No company name" */}
+      </div>
+      <div className="text-body-small text-muted-foreground">
+        {installer.name || 'No name'}                 {/* ❌ Shows "No name" */}
+      </div>
+    </div>
+  </div>
+</td>
+```
+
+**Required Change**:
+```tsx
+<td className="px-6 py-4 whitespace-nowrap">
+  <div className="flex items-center">
+    <div className="flex-shrink-0 h-10 w-10">
+      {installer.image ? (
+        <Image 
+          src={installer.image} 
+          alt={installer.verification?.representativeName || 'Installer'} 
+          width={40} 
+          height={40} 
+          className="rounded-full object-cover" 
+        />
+      ) : (
+        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+          <span className="text-primary text-body-small">
+            {installer.verification?.companyName?.charAt(0).toUpperCase() || 'I'}
+          </span>
+        </div>
+      )}
+    </div>
+    <div className="ml-4">
+      <div className="text-body-small text-foreground">
+        {installer.verification?.companyName || 'Verification not submitted'}  {/* ✅ Shows company name */}
+      </div>
+      <div className="text-body-small text-muted-foreground">
+        {installer.verification?.representativeName || 'N/A'}                  {/* ✅ Shows representative name */}
+      </div>
+    </div>
+  </div>
+</td>
+```
+
+---
+
+#### Task F15.B3: Update Phone Column Display
+**File**: `src/components/admin/InstallersTable.tsx` (Line ~270)
+
+**Current**:
+```tsx
+<td className="px-6 py-4 whitespace-nowrap">
+  <div className="text-body-small text-foreground">
+    {installer.phone || 'N/A'}  {/* ❌ Shows N/A before approval */}
+  </div>
+</td>
+```
+
+**Required Change**:
+```tsx
+<td className="px-6 py-4 whitespace-nowrap">
+  <div className="text-body-small text-foreground">
+    {installer.verification?.phone || 'N/A'}  {/* ✅ Shows phone from verification */}
+  </div>
+</td>
+```
+
+---
+
+#### Task F15.B4: Update Address Column Display
+**File**: `src/components/admin/InstallersTable.tsx` (Line ~275)
+
+**Current**:
+```tsx
+<td className="px-6 py-4 whitespace-nowrap">
+  <div className="text-body-small text-foreground truncate max-w-xs" title={installer.businessAddress || 'Not provided'}>
+    {installer.businessAddress || 'Not provided'}  {/* ❌ Shows "Not provided" before approval */}
+  </div>
+</td>
+```
+
+**Required Change**:
+```tsx
+<td className="px-6 py-4 whitespace-nowrap">
+  <div className="text-body-small text-foreground truncate max-w-xs" title={installer.verification?.address || 'Not provided'}>
+    {installer.verification?.address || 'Not provided'}  {/* ✅ Shows address from verification */}
+  </div>
+</td>
+```
+
+---
+
+#### Task F15.B5: Add Postcode Column (Optional Enhancement)
+**File**: `src/components/admin/InstallersTable.tsx`
+
+**Add Table Header** (After Address column, before Verified column):
+```tsx
+<th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
+  Postcode(s)
+</th>
+```
+
+**Add Table Cell**:
+```tsx
+<td className="px-6 py-4 whitespace-nowrap">
+  <div className="text-body-small text-foreground">
+    {installer.verification?.postcodes?.[0] || 'N/A'}
+    {installer.verification?.postcodes && installer.verification.postcodes.length > 1 
+      ? <span className="text-muted-foreground"> +{installer.verification.postcodes.length - 1}</span>
+      : ''
+    }
+  </div>
+</td>
+```
+
+**Explanation**: Shows first postcode + count if multiple (e.g., "2000 +3")
+
+---
+
+#### Task F15.B6: Update Mobile Card Display
+**File**: `src/components/admin/InstallersTable.tsx` (Lines 345-365)
+
+**Update Company/Contact Display**:
+```tsx
+<div className="flex items-start justify-between mb-2">
+  <div>
+    <h3 className="text-body text-foreground">
+      {installer.verification?.companyName || 'Verification not submitted'}
+    </h3>
+    <p className="text-body-small text-muted-foreground">
+      {installer.verification?.representativeName || 'N/A'}
+    </p>
+  </div>
+  {/* ... status badges ... */}
+</div>
+```
+
+**Update Contact Details**:
+```tsx
+<div className="space-y-2">
+  <div className="flex justify-between">
+    <span className="text-muted-foreground">Email:</span>
+    <span className="text-foreground">{installer.email}</span>
+  </div>
+  <div className="flex justify-between">
+    <span className="text-muted-foreground">Phone:</span>
+    <span className="text-foreground">{installer.verification?.phone || 'N/A'}</span>
+  </div>
+  <div className="flex justify-between">
+    <span className="text-muted-foreground">Address:</span>
+    <span className="text-foreground truncate max-w-[200px]">
+      {installer.verification?.address || 'Not provided'}
+    </span>
+  </div>
+  {installer.verification?.postcodes && (
+    <div className="flex justify-between">
+      <span className="text-muted-foreground">Postcode(s):</span>
+      <span className="text-foreground">
+        {installer.verification.postcodes[0]}
+        {installer.verification.postcodes.length > 1 && ` +${installer.verification.postcodes.length - 1}`}
+      </span>
+    </div>
+  )}
+</div>
+```
+
+---
+
+### Part C: End-to-End Testing (30 minutes)
+
+#### Task F15.C1: Test Data Display Before Approval
+**Scenario**: Installer submits verification, admin views table BEFORE approval
+
+**Steps**:
+1. Create new installer account
+2. Submit verification form with all details
+3. Navigate to Admin → Installers page
+4. Verify installer appears in table with:
+   - ✅ Company name visible
+   - ✅ Representative name visible
+   - ✅ Phone visible
+   - ✅ Address visible
+   - ✅ Postcode(s) visible
+   - ✅ Status shows "Phone Verified: No/Yes" and "Installer: No" (pending)
+
+**Expected Result**: All installer details visible immediately after verification submission (no approval required)
+
+---
+
+#### Task F15.C2: Test Data Updates After Profile Edit
+**Scenario**: Installer edits profile, admin sees updated data in table
+
+**Steps**:
+1. Use existing installer with approved verification
+2. Installer edits company name in profile page
+3. Installer edits address in profile page
+4. Save changes
+5. Navigate to Admin → Installers page
+6. Verify table shows UPDATED company name and address
+
+**Expected Result**: Profile edits reflect in admin table in real-time (no page refresh needed if using real-time updates)
+
+---
+
+#### Task F15.C3: Test Search Functionality
+**Scenario**: Admin searches for installer by company name, representative name, phone, address
+
+**Steps**:
+1. Create installer with company name "Solar Power Co"
+2. Create installer with representative name "John Smith"
+3. Navigate to Admin → Installers page
+4. Search for "Solar Power" → verify first installer appears
+5. Search for "John Smith" → verify second installer appears
+6. Search for partial phone number → verify installer appears
+7. Search for partial address → verify installer appears
+
+**Expected Result**: Search works for all verification fields, including pending installers
+
+---
+
+#### Task F15.C4: Test Edge Cases
+
+**Case 1: Installer Without Verification**
+- User with role INSTALLER but no InstallerVerification record
+- **Expected**: Table shows "Verification not submitted" for company name, "N/A" for other fields
+
+**Case 2: Installer With NULL Address**
+- InstallerVerification exists but address field is NULL
+- **Expected**: Table shows "Not provided" in address column
+
+**Case 3: Multiple Postcodes**
+- Installer serves 5 postcodes
+- **Expected**: Table shows "2000 +4" (first postcode + count)
+
+---
+
+### Success Criteria
+
+✅ **Backend**:
+- API includes `verification` relation in User query
+- Search filters query `verification` fields
+- Response includes nested verification object
+
+✅ **Frontend**:
+- Interface updated to expect `verification` object
+- All display logic uses `verification` data (not User fields)
+- Company name, representative name, phone, address, postcodes visible
+
+✅ **Immediate Display**:
+- Installer details visible in table IMMEDIATELY after verification submission
+- No need to wait for admin approval
+
+✅ **Real-Time Updates**:
+- Profile edits reflect in admin table immediately
+- No stale data from User model
+
+✅ **Search**:
+- Search by company name works for pending installers
+- Search by representative name works for pending installers
+- Search by phone works for pending installers
+- Search by address works for pending installers
+
+✅ **Edge Cases**:
+- Handles installers without verification gracefully
+- Handles NULL address gracefully
+- Shows multiple postcodes correctly
+
+✅ **Mobile Responsive**:
+- Card view shows all verification fields
+- Truncates long addresses
+
+---
+
+### Risk Mitigation
+
+- **Risk**: Breaking existing admin table functionality  
+  **Mitigation**: Only changing query structure, not removing fields. Test thoroughly.
+
+- **Risk**: Performance impact of JOIN query  
+  **Mitigation**: User-InstallerVerification is 1:1 relation, minimal overhead. Already indexed.
+
+- **Risk**: Null pointer errors if verification is null  
+  **Mitigation**: Use optional chaining (`installer.verification?.companyName`) throughout
+
+- **Risk**: Search performance with nested queries  
+  **Mitigation**: InstallerVerification.userId is indexed, Prisma optimizes joins
+
+---
+
+### Files to Modify
+
+**Backend**:
+- `src/app/api/admin/installers/list/route.ts` - Update query to include verification relation, update search filter
+
+**Frontend**:
+- `src/components/admin/InstallersTable.tsx` - Update interface, display logic, mobile card
+
+**Documentation**:
+- `specs/006-component-by-component/tasks.md` - This phase (F15)
+- `DOC/Installers/Profile & verification/ADMIN-TABLE-DATA-FETCHING-AUDIT.md` - Audit report (already created)
+
+---
+
+**Phase F15 Report**: Admin installers table fetching from wrong data source (User model instead of InstallerVerification). Root cause: Initial implementation used User fields which are only populated after admin approval. Fix requires: (A) Backend API query update to join InstallerVerification, (B) Frontend interface update to use verification data, (C) End-to-end testing. Estimated 2-3 hours, LOW risk (query change only, no schema migration). Benefits: Immediate data display, real-time updates, better search. All documentation complete, ready for implementation.
+
+
+
 

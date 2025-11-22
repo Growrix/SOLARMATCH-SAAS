@@ -50,6 +50,7 @@ export const installerVerificationSubmitSchema = z.object({
   designation: z.string().min(2, 'Designation required').max(100),
   email: z.string().email('Valid email required'),
   phone: phoneE164Schema,
+  address: z.string().min(5, 'Address must be at least 5 characters').max(500).optional().nullable(),
 
   // Business Legal
   abnOrLicense: z.string().min(9, 'ABN/License required').max(50),
@@ -93,6 +94,7 @@ export const installerProfileUpdateSchema = z.object({
   // E2: Add company details fields
   representativeName: z.string().min(2).max(100).optional(),
   designation: z.string().min(2).max(100).optional(),
+  address: z.string().min(5).max(500).optional().nullable(), // F14: Business address field
   abnOrLicense: z.string().min(9).max(50).optional(),
   establishedYear: z.number().int().min(1900).max(new Date().getFullYear()).optional(),
   employeeCount: z.number().int().min(1).max(10000).optional(),

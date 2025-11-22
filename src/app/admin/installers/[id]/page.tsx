@@ -321,6 +321,11 @@ const AdminInstallerVerificationPage: React.FC = () => {
                 <label className="block text-body-small text-muted-foreground mb-1">Contact Phone</label>
                 <p className="text-body text-foreground">{verification.phone}</p>
               </div>
+
+              <div>
+                <label className="block text-body-small text-muted-foreground mb-1">Business Address</label>
+                <p className="text-body text-foreground">{verification.address || 'Not provided'}</p>
+              </div>
             </div>
           </div>
 

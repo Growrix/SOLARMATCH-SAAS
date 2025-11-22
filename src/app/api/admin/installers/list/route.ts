@@ -37,10 +37,27 @@ export async function GET(req: NextRequest) {
     if (search.trim()) {
       where.OR = [
         { email: { contains: search, mode: 'insensitive' } },
-        { name: { contains: search, mode: 'insensitive' } },
-        { phone: { contains: search, mode: 'insensitive' } },
-        { companyName: { contains: search, mode: 'insensitive' } },
-        { businessAddress: { contains: search, mode: 'insensitive' } },
+        // F15: Search in InstallerVerification relation (source of truth for business data)
+        {
+          installerVerification: {
+            companyName: { contains: search, mode: 'insensitive' }
+          }
+        },
+        {
+          installerVerification: {
+            representativeName: { contains: search, mode: 'insensitive' }
+          }
+        },
+        {
+          installerVerification: {
+            phone: { contains: search, mode: 'insensitive' }
+          }
+        },
+        {
+          installerVerification: {
+            address: { contains: search, mode: 'insensitive' }
+          }
+        },
       ];
     }
 
@@ -63,17 +80,23 @@ export async function GET(req: NextRequest) {
       select: {
         id: true,
         email: true,
-        name: true,
-        phone: true,
         image: true,
-        companyName: true,
-        businessAddress: true,
-        postcode: true,
         phoneVerified: true,
         installerVerified: true,
         isActive: true,
         createdAt: true,
         updatedAt: true,
+        // F15: Include InstallerVerification relation (source of truth for business data)
+        installerVerification: {
+          select: {
+            companyName: true,
+            representativeName: true,
+            phone: true,
+            address: true,
+            postcodes: true,
+            status: true,
+          }
+        }
       },
       orderBy: { createdAt: 'desc' },
       skip: (page - 1) * limit,

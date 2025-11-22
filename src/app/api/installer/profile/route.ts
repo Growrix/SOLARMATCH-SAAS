@@ -54,6 +54,7 @@ export async function GET(_req: NextRequest) {
         designation: true,
         email: true,
         phone: true,
+        address: true,
         abnOrLicense: true,
         establishedYear: true,
         employeeCount: true,
@@ -221,6 +222,7 @@ export async function PUT(req: NextRequest) {
       if (dataForPrisma.companyName) updateData.companyName = dataForPrisma.companyName;
       if (dataForPrisma.representativeName) updateData.representativeName = dataForPrisma.representativeName;
       if (dataForPrisma.designation) updateData.designation = dataForPrisma.designation;
+      if (dataForPrisma.address !== undefined) updateData.address = dataForPrisma.address; // F14: Business address
       if (dataForPrisma.abnOrLicense) updateData.abnOrLicense = dataForPrisma.abnOrLicense;
       if (dataForPrisma.establishedYear !== undefined) updateData.establishedYear = dataForPrisma.establishedYear;
       if (dataForPrisma.employeeCount !== undefined) updateData.employeeCount = dataForPrisma.employeeCount;

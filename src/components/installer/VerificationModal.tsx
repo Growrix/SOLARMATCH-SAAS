@@ -22,6 +22,7 @@ const verificationSchema = z.object({
   designation: z.string().min(2, 'Designation is required'),
   email: z.string().email('Valid email is required'),
   phone: z.string().regex(/^\+61[0-9]{9}$/, 'Phone must be in E.164 format (+61XXXXXXXXX)'),
+  address: z.string().min(5, 'Address must be at least 5 characters').optional(),
   // Business Legal
   abnOrLicense: z.string().min(5, 'ABN or License number is required'),
   establishedYear: z.number().min(1900).max(new Date().getFullYear(), 'Valid year required'),
@@ -49,6 +50,7 @@ export type VerificationFormData = z.infer<typeof verificationSchema>;
 const VerificationModal: React.FC<VerificationModalProps> = ({ open, onClose, onSubmit, isSubmitting = false, existingVerification, onSubmitSuccess }) => {
   const [formData, setFormData] = useState<Partial<VerificationFormData>>({
     phone: '+61 ',
+    address: '',
     services: [],
     serviceAreas: [],
     postcodes: [],
@@ -73,6 +75,7 @@ const VerificationModal: React.FC<VerificationModalProps> = ({ open, onClose, on
         designation: existingVerification.designation || '',
         email: existingVerification.email || '',
         phone: existingVerification.phone ? `+61 ${existingVerification.phone.slice(3)}` : '+61 ',
+        address: existingVerification.address || '',
         abnOrLicense: existingVerification.abnOrLicense || '',
         establishedYear: existingVerification.establishedYear,
         employeeCount: existingVerification.employeeCount,
@@ -347,6 +350,24 @@ const VerificationModal: React.FC<VerificationModalProps> = ({ open, onClose, on
               {errors.phone && <p className="text-error text-body-small mt-1">{errors.phone}</p>}
               <p className="text-body-small text-muted-foreground mt-1">
                 Format: +61 4XX XXX XXX
+              </p>
+            </div>
+
+            <div>
+              <label htmlFor="address" className="block text-body-small text-foreground mb-2">
+                Business Address <span className="text-error">*</span>
+              </label>
+              <textarea
+                id="address"
+                rows={3}
+                value={formData.address || ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="Street address, city, state, postcode"
+              />
+              {errors.address && <p className="text-error text-body-small mt-1">{errors.address}</p>}
+              <p className="text-body-small text-muted-foreground mt-1">
+                Your business or office address
               </p>
             </div>
           </div>
