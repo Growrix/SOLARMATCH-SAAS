@@ -2202,3 +2202,15 @@ Submit your business details and documents for admin review to unlock lead purch
 ***Pain points*** I have been repeating some of these issues again and again. And you are not fixing them effectively. please focus on the main issues and fix them completely.
 
 ***instructions***  Audit and understand the current flows and data flow. audit the relevant fronend and backend in deailed and create a comprhensive audit report of the issues found and identify the gaps between the existing flows and the requested task and the plan to fix and impliment them. after that start fixing the issues step by step. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on. create the audit report under this folder D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification. And create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification\tasks.md file for this task and start implimenting the changes step by step as per the plan you created.
+
+-----------------------------------------------------------------------------
+
+***Installer profile vrificatiom modal issues to fix***
+- in the Postcodes served filed , the user cant enter multiple postcode by using comma "," . please fix this issue. it should allow multiple postcode entry using comma ",".
+
+***Installer Profile Edit Issues to fix***
+- while editing the profile page, in the Postcodes served filed , it is not allowing to enter multiple postcodes by inserting comma . it should allow to input comma and let users add multiple post codes. even while editing profile there is no option to input comma. please fix this issue.
+
+***instructions***  Audit and understand the current flows and data flow. audit the relevant fronend and backend including files, prisma,API,DB etc and create a comprhensive audit report of the issues found and identify the issues and root cause and then plan to fix and impliment them. after that start fixing the issues step by step. create the audit report under this folder D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification. And create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification\tasks.md file for this task and start implimenting the changes step by step as per the plan you created.
+
+-----------------------------------------------------------------------------

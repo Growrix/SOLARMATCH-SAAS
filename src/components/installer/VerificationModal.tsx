@@ -56,6 +56,7 @@ const VerificationModal: React.FC<VerificationModalProps> = ({ open, onClose, on
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [sectionErrors, setSectionErrors] = useState<Record<string, string[]>>({});
+  const [rawPostcodesInput, setRawPostcodesInput] = useState<string>('');
   
   // File upload refs and state
   const licenseFileRef = useRef<HTMLInputElement>(null);
@@ -90,6 +91,7 @@ const VerificationModal: React.FC<VerificationModalProps> = ({ open, onClose, on
         companyDescription: existingVerification.companyDescription || '',
         logoKey: existingVerification.logoKey,
       });
+      setRawPostcodesInput((existingVerification.postcodes || []).join(', '));
     } else if (open && !existingVerification) {
       // Reset to defaults when opening fresh
       setFormData({
@@ -99,6 +101,7 @@ const VerificationModal: React.FC<VerificationModalProps> = ({ open, onClose, on
         postcodes: [],
         socialLinks: { facebook: '', instagram: '', linkedin: '', youtube: '' },
       });
+      setRawPostcodesInput('');
     }
   }, [open, existingVerification]);
 
@@ -594,9 +597,12 @@ const VerificationModal: React.FC<VerificationModalProps> = ({ open, onClose, on
               <input
                 id="postcodes"
                 type="text"
-                value={(formData.postcodes || []).join(', ')}
+                value={rawPostcodesInput}
                 onChange={(e) => {
-                  const codes = e.target.value.split(',').map(c => c.trim()).filter(Boolean);
+                  const inputValue = e.target.value;
+                  setRawPostcodesInput(inputValue);
+                  // Parse into array for validation, keep empty strings during typing
+                  const codes = inputValue.split(',').map(c => c.trim()).filter(Boolean);
                   setFormData(prev => ({ ...prev, postcodes: codes }));
                 }}
                 className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"

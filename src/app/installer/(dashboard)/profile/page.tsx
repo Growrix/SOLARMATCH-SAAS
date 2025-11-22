@@ -59,6 +59,7 @@ const InstallerProfilePage: React.FC = () => {
 
   // F6: Editable verification fields state
   const [editableVerification, setEditableVerification] = useState<any>(null);
+  const [rawPostcodesInput, setRawPostcodesInput] = useState<string>('');
 
   // Preferences state
   const [localPreferences, setLocalPreferences] = useState<PreferencesData>({
@@ -82,6 +83,7 @@ const InstallerProfilePage: React.FC = () => {
       setProfileData(data);
       setOperationalStatus(data.profile?.operationalStatus || 'ACTIVE');
       setEditableVerification(data.verification);
+      setRawPostcodesInput((data.verification?.postcodes || []).join(', '));
       if (data.preferences) {
         setLocalPreferences(data.preferences);
       }
@@ -615,7 +617,14 @@ const InstallerProfilePage: React.FC = () => {
         </div>
 
         {verification && (
-          <Button variant="secondary" onClick={() => setIsEditingProfile(!isEditingProfile)}>
+          <Button variant="secondary" onClick={() => {
+            const newEditingState = !isEditingProfile;
+            setIsEditingProfile(newEditingState);
+            // Sync rawPostcodesInput when entering edit mode
+            if (newEditingState) {
+              setRawPostcodesInput((editableVerification?.postcodes || []).join(', '));
+            }
+          }}>
             {isEditingProfile ? 'Cancel Editing' : 'Edit Profile'}
           </Button>
         )}
@@ -1039,19 +1048,21 @@ const InstallerProfilePage: React.FC = () => {
                 </div>
                 <input
                   type="text"
-                  value={(editableVerification?.postcodes || []).join(', ')}
+                  value={rawPostcodesInput}
                   onChange={(e) => {
-                    const codes = e.target.value
-                      .split(',')
-                      .map(c => c.trim())
-                      .filter(c => /^[0-9]{4}$/.test(c));
+                    const inputValue = e.target.value;
+                    setRawPostcodesInput(inputValue);
+                    // Parse into array for chips/validation
+                    const codes = inputValue.split(',').map(c => c.trim()).filter(Boolean);
                     const uniqueCodes = Array.from(new Set(codes));
                     setEditableVerification((prev: any) => ({ ...prev!, postcodes: uniqueCodes }));
                   }}
                   className="w-full rounded-xl bg-surface border border-border px-4 py-2 text-foreground shadow-neu-inset focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder="2000, 2001, 2010"
                 />
-                <p className="text-caption text-muted-foreground">Enter 4-digit codes separated by commas. Click × to remove.</p>
+                <p className="text-caption text-muted-foreground">
+                  Enter 4-digit codes separated by commas. Click × to remove. Validation on save.
+                </p>
                 {fieldErrors['postcodes'] && (
                   <p className="text-caption text-error">{fieldErrors['postcodes']}</p>
                 )}
