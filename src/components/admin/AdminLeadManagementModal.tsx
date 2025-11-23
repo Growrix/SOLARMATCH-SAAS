@@ -30,11 +30,20 @@ interface Lead {
 
 interface Installer {
   id: string;
-  name: string | null;
   email: string;
-  companyName: string | null;
   installerVerified: boolean;
-  postcode: string | null;
+  phoneVerified: boolean;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  installerVerification: {
+    companyName: string | null;
+    representativeName: string | null;
+    phone: string | null;
+    address: string | null;
+    postcodes: string | null; // Comma-separated
+    status: string;
+  } | null;
 }
 
 interface AdminLeadManagementModalProps {
@@ -119,11 +128,11 @@ export default function AdminLeadManagementModal({
     setLoading(true);
     setError(null);
     try {
-      const verified = filterMode === 'verified' ? 'true' : filterMode === 'unverified' ? 'false' : '';
-      const response = await fetch(`/api/admin/users?role=INSTALLER${verified ? `&verified=${verified}` : ''}`);
+      const installerVerified = filterMode === 'verified' ? 'true' : filterMode === 'unverified' ? 'false' : '';
+      const response = await fetch(`/api/admin/installers/list${installerVerified ? `?installerVerified=${installerVerified}` : ''}`);
       if (!response.ok) throw new Error('Failed to fetch installers');
       const data = await response.json();
-      setInstallers(data.users || []);
+      setInstallers(data.installers || []);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -131,12 +140,29 @@ export default function AdminLeadManagementModal({
     }
   };
 
-  // Smart suggestions: postcode match + verified
+  // Smart suggestions: postcode match + verified + active
   const suggestedInstallers = installers.filter((inst) => {
-    if (!lead.postcode || !inst.postcode) return false;
+    // Must be verified
+    if (!inst.installerVerified) return false;
+    
+    // Must be active
+    if (!inst.isActive) return false;
+    
+    // Must have verification profile
+    if (!inst.installerVerification) return false;
+    
+    // Postcode match (primary factor)
+    if (!lead.postcode || !inst.installerVerification.postcodes) return false;
     const leadPostcodes = lead.postcode.split(',').map(p => p.trim().toLowerCase());
-    const instPostcodes = inst.postcode.split(',').map(p => p.trim().toLowerCase());
-    return inst.installerVerified && leadPostcodes.some(lp => instPostcodes.some(ip => ip.includes(lp) || lp.includes(ip)));
+    const instPostcodes = inst.installerVerification.postcodes.split(',').map(p => p.trim().toLowerCase());
+    const hasPostcodeMatch = leadPostcodes.some(lp => 
+      instPostcodes.some(ip => ip.includes(lp) || lp.includes(ip))
+    );
+    
+    return hasPostcodeMatch;
+  }).sort((a, b) => {
+    // Sort by newest first (higher visibility for new installers)
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
   // Filter installers
@@ -144,17 +170,18 @@ export default function AdminLeadManagementModal({
     // Search filter
     const query = searchQuery.toLowerCase();
     const matchesSearch = !query || 
-      installer.name?.toLowerCase().includes(query) ||
+      installer.installerVerification?.companyName?.toLowerCase().includes(query) ||
+      installer.installerVerification?.representativeName?.toLowerCase().includes(query) ||
       installer.email.toLowerCase().includes(query) ||
-      installer.companyName?.toLowerCase().includes(query) ||
-      installer.postcode?.toLowerCase().includes(query);
+      installer.installerVerification?.phone?.toLowerCase().includes(query) ||
+      installer.installerVerification?.postcodes?.toLowerCase().includes(query);
 
     if (!matchesSearch) return false;
 
     // Postcode filter
     if (postcodeFilterEnabled && lead.postcode) {
       const leadPostcodes = lead.postcode.split(',').map(p => p.trim().toLowerCase());
-      const instPostcodes = installer.postcode?.split(',').map(p => p.trim().toLowerCase()) || [];
+      const instPostcodes = installer.installerVerification?.postcodes?.split(',').map(p => p.trim().toLowerCase()) || [];
       const matchesPostcode = leadPostcodes.some(lp => instPostcodes.some(ip => ip.includes(lp) || lp.includes(ip)));
       if (!matchesPostcode) return false;
     }
@@ -400,17 +427,31 @@ export default function AdminLeadManagementModal({
                           className="rounded border-border text-success focus:ring-success"
                         />
                         <div className="flex-1">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <span className="text-body-small text-foreground">
-                              {installer.companyName || installer.name || 'No Name'}
+                              {installer.installerVerification?.companyName || 'Profile Incomplete'}
                             </span>
                             <span className="inline-flex items-center px-2 py-0.5 rounded text-caption bg-success/20 text-success">
                               Verified
                             </span>
                           </div>
-                          <p className="text-caption text-muted-foreground">
-                            {installer.postcode || 'No postcode'}
-                          </p>
+                          {installer.installerVerification?.postcodes && (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {installer.installerVerification.postcodes.split(',').map((pc, idx) => (
+                                <span 
+                                  key={idx}
+                                  className="inline-flex items-center px-2 py-0.5 rounded text-caption bg-info/10 text-info"
+                                >
+                                  {pc.trim()}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          {!installer.installerVerification && (
+                            <p className="text-caption text-muted-foreground mt-1">
+                              Verification pending
+                            </p>
+                          )}
                         </div>
                       </label>
                     ))}
@@ -452,17 +493,35 @@ export default function AdminLeadManagementModal({
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="text-body-small text-foreground truncate">
-                              {installer.companyName || installer.name || 'No Name'}
+                              {installer.installerVerification?.companyName || 'Profile Incomplete'}
                             </span>
-                            {installer.installerVerified && (
+                            {installer.installerVerified && installer.installerVerification && (
                               <span className="inline-flex items-center px-2 py-0.5 rounded text-caption bg-success/20 text-success">
                                 Verified
                               </span>
                             )}
+                            {!installer.installerVerification && (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-caption bg-warning/20 text-warning">
+                                Pending Profile
+                              </span>
+                            )}
                           </div>
                           <div className="text-caption text-muted-foreground">
-                            {installer.email} {installer.postcode && `• ${installer.postcode}`}
+                            {installer.email}
                           </div>
+                          {installer.installerVerification?.postcodes && (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              <span className="text-caption text-muted-foreground">Service Areas:</span>
+                              {installer.installerVerification.postcodes.split(',').map((pc, idx) => (
+                                <span 
+                                  key={idx}
+                                  className="inline-flex items-center px-2 py-0.5 rounded text-caption bg-info/10 text-info"
+                                >
+                                  {pc.trim()}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </div>
                         <button
                           onClick={(e) => {
