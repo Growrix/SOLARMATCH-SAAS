@@ -16,6 +16,7 @@
 
 import { useState, useEffect } from 'react';
 import Button from '@/components/ui/button';
+import InstallerProfileModal from '@/components/admin/InstallerProfileModal';
 
 interface Assignment {
   id: string;
@@ -86,6 +87,7 @@ interface AdminLeadManagementModalProps {
     notes?: string;
     notifyInstallers: boolean;
   }) => Promise<void>;
+  onRemoveAssignment?: (installerId: string) => Promise<void>;
 }
 
 export default function AdminLeadManagementModal({
@@ -101,6 +103,7 @@ export default function AdminLeadManagementModal({
   onArchive,
   onUnarchive,
   onAssign,
+  onRemoveAssignment,
 }: AdminLeadManagementModalProps) {
   // Section A: Approval & Pricing State
   const [leadPrice, setLeadPrice] = useState(lead.price?.toString() || '');
@@ -117,7 +120,9 @@ export default function AdminLeadManagementModal({
   const [postcodeFilterEnabled, setPostcodeFilterEnabled] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [previewInstallerId, setPreviewInstallerId] = useState<string | null>(null);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [notifyInstallers, setNotifyInstallers] = useState(true);
+  const [removingInstallerId, setRemovingInstallerId] = useState<string | null>(null);
 
   // Section C: Admin Notes State
   const [adminNotes, setAdminNotes] = useState(lead.adminNotes || '');
@@ -144,6 +149,7 @@ export default function AdminLeadManagementModal({
     if (isOpen) {
       fetchInstallers();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, filterMode]);
 
   const fetchInstallers = async () => {
@@ -316,6 +322,21 @@ export default function AdminLeadManagementModal({
     }
   };
 
+  const handleRemoveAssignment = async (installerId: string) => {
+    if (!onRemoveAssignment) return;
+    
+    setRemovingInstallerId(installerId);
+    try {
+      await onRemoveAssignment(installerId);
+      // Refresh installers list after removal
+      await fetchInstallers();
+    } catch (err: any) {
+      setError(err.message || 'Failed to remove assignment');
+    } finally {
+      setRemovingInstallerId(null);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -323,7 +344,7 @@ export default function AdminLeadManagementModal({
       <div className="flex min-h-screen items-center justify-center p-4">
         {/* Backdrop */}
         <div
-          className="fixed inset-0 bg-overlay transition-opacity"
+          className="fixed inset-0 bg-black/50 transition-opacity"
           onClick={onClose}
         />
 
@@ -532,63 +553,81 @@ export default function AdminLeadManagementModal({
                 ) : (
                   <div className="space-y-2 max-h-80 overflow-y-auto border border-border rounded-lg p-3 bg-surface">
                     {filteredInstallers.map((installer) => (
-                      <label
-                        key={installer.id}
-                        className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                          selectedInstallerIds.includes(installer.id)
-                            ? 'bg-success/10 border border-success/30'
-                            : 'bg-surface hover:bg-muted/20 border border-transparent'
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedInstallerIds.includes(installer.id)}
-                          onChange={() => toggleInstaller(installer.id)}
-                          className="rounded border-border text-success focus:ring-success"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-body-small text-foreground truncate">
-                              {installer.installerVerification?.companyName || 'Profile Incomplete'}
-                            </span>
-                            {installer.installerVerified && installer.installerVerification && (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded text-caption bg-success/20 text-success">
-                                Verified
-                              </span>
-                            )}
-                            {!installer.installerVerification && (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded text-caption bg-warning/20 text-warning">
-                                Pending Profile
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-caption text-muted-foreground">
-                            {installer.email}
-                          </div>
-                          {installer.installerVerification?.postcodes && typeof installer.installerVerification.postcodes === 'string' && (
-                            <div className="flex flex-wrap gap-1 mt-1">
-                              <span className="text-caption text-muted-foreground">Service Areas:</span>
-                              {installer.installerVerification.postcodes.split(',').map((pc, idx) => (
-                                <span 
-                                  key={idx}
-                                  className="inline-flex items-center px-2 py-0.5 rounded text-caption bg-info/10 text-info"
-                                >
-                                  {pc.trim()}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setPreviewInstallerId(previewInstallerId === installer.id ? null : installer.id);
-                          }}
-                          className="text-caption text-info hover:underline"
+                      <div key={installer.id} className="space-y-2">
+                        <label
+                          className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
+                            selectedInstallerIds.includes(installer.id)
+                              ? 'bg-success/10 border border-success/30'
+                              : 'bg-surface hover:bg-muted/20 border border-transparent'
+                          }`}
                         >
-                          {previewInstallerId === installer.id ? 'Hide' : 'Preview'}
-                        </button>
-                      </label>
+                          <input
+                            type="checkbox"
+                            checked={selectedInstallerIds.includes(installer.id)}
+                            onChange={() => toggleInstaller(installer.id)}
+                            className="rounded border-border text-success focus:ring-success"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-body-small text-foreground truncate">
+                                {installer.installerVerification?.companyName || 'Profile Incomplete'}
+                              </span>
+                              {installer.installerVerified && installer.installerVerification && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-caption bg-success/20 text-success">
+                                  Verified
+                                </span>
+                              )}
+                              {!installer.installerVerification && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-caption bg-warning/20 text-warning">
+                                  Pending Profile
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-caption text-muted-foreground">
+                              {installer.email}
+                            </div>
+                            {installer.installerVerification?.postcodes && typeof installer.installerVerification.postcodes === 'string' && (
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                <span className="text-caption text-muted-foreground">Service Areas:</span>
+                                {installer.installerVerification.postcodes.split(',').map((pc, idx) => (
+                                  <span 
+                                    key={idx}
+                                    className="inline-flex items-center px-2 py-0.5 rounded text-caption bg-info/10 text-info"
+                                  >
+                                    {pc.trim()}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setPreviewInstallerId(installer.id);
+                                setShowPreviewModal(true);
+                              }}
+                              className="text-caption text-info hover:underline whitespace-nowrap"
+                            >
+                              Preview
+                            </button>
+                            {filterMode === 'assigned' && onRemoveAssignment && (
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  if (window.confirm(`Remove ${installer.installerVerification?.companyName || installer.email} from this lead?`)) {
+                                    handleRemoveAssignment(installer.id);
+                                  }
+                                }}
+                                disabled={removingInstallerId === installer.id}
+                                className="text-caption text-error hover:underline whitespace-nowrap disabled:opacity-50"
+                              >
+                                {removingInstallerId === installer.id ? 'Removing...' : 'Remove'}
+                              </button>
+                            )}
+                          </div>
+                        </label>
+                      </div>
                     ))}
                   </div>
                 )}
@@ -843,6 +882,18 @@ export default function AdminLeadManagementModal({
           </div>
         </div>
       </div>
+
+      {/* Installer Profile Preview Modal */}
+      {previewInstallerId && (
+        <InstallerProfileModal
+          isOpen={showPreviewModal}
+          onClose={() => {
+            setShowPreviewModal(false);
+            setPreviewInstallerId(null);
+          }}
+          installerId={previewInstallerId}
+        />
+      )}
     </div>
   );
 }

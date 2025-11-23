@@ -389,7 +389,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
 
     try {
       const response = await fetch(
-        `/api/admin/leads/${lead.id}/assignments/${installerId}`,
+        `/api/admin/leads/${lead.id}/assign?installerId=${installerId}`,
         { method: 'DELETE' }
       );
 
@@ -623,7 +623,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
 
           <div className="flex items-center gap-3">
             {lead.status === 'PENDING_APPROVAL' ? (
-              <Button variant="warning" size="sm" className="rounded-full px-4 py-2 text-body-small cursor-default" disabled>
+              <Button variant="secondary" className="rounded-full px-4 py-2 text-body-small cursor-default bg-warning text-warning-foreground" disabled>
                 Pending Approval
               </Button>
             ) : (
@@ -849,30 +849,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
             </div>
           )}
 
-          {/* ASSIGNMENT HISTORY (Phase 7) */}
-          <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-heading-3 text-foreground">
-                📋 Assignment History
-              </h2>
-              {!lead.archivedAt && (
-                <Button
-                  onClick={() => setShowAssignModal(true)}
-                  variant="secondary"
-                  className="bg-info text-info-foreground text-body-small"
-                >
-                  + Assign to Installer
-                </Button>
-              )}
-            </div>
-            <AssignmentHistoryTable
-              assignments={lead.assignments || []}
-              leadId={lead.id}
-              onRemoveAssignment={handleRemoveAssignment}
-            />
-          </div>
-
-          {/* TIMESTAMPS */}
+          {/* TIMESTAMPS */
           <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
             <h2 className="text-heading-3 mb-4 text-foreground">
               Timeline
@@ -910,7 +887,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
               )}
             </div>
           </div>
-        </div>
+        }</div>
 
         {/* RIGHT COLUMN - Admin Actions */}
         <div className="space-y-6">
@@ -955,141 +932,28 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
             </div>
           )}
 
-          {/* PRICING */}
+          {/* ASSIGNMENT HISTORY (Phase 7) */}
           <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
-            <h2 className="text-heading-3 mb-4 text-foreground">
-              Lead Pricing
-            </h2>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-body-small mb-2 text-muted-foreground">
-                  Price (£)
-                </label>
-                <input
-                  type="number"
-                  value={leadPrice}
-                  onChange={(e) => setLeadPrice(e.target.value)}
-                  placeholder="Enter price"
-                  className="form-input w-full rounded-xl bg-surface text-foreground shadow-neu-inset border border-border px-4 py-3 placeholder:text-muted-foreground"
-                />
-              </div>
-              <Button
-                onClick={handleSavePrice}
-                disabled={savingPrice || !leadPrice}
-                variant="secondary"
-                className="w-full"
-              >
-                {savingPrice ? <LoadingIcon /> : <SaveIcon />}
-                Save Price
-              </Button>
-            </div>
-          </div>
-
-          {/* ADMIN NOTES */}
-          <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
-            <h2 className="text-heading-3 mb-4 text-foreground">
-              Admin Notes
-            </h2>
-            <div className="space-y-3">
-              <textarea
-                value={adminNotes}
-                onChange={(e) => setAdminNotes(e.target.value)}
-                placeholder="Add internal notes..."
-                rows={4}
-                className="form-input w-full rounded-xl bg-surface text-foreground shadow-neu-inset border border-border px-4 py-3 placeholder:text-muted-foreground"
-              />
-              <Button
-                onClick={handleSaveNotes}
-                disabled={savingNotes}
-                variant="secondary"
-                className="w-full"
-              >
-                {savingNotes ? <LoadingIcon /> : <SaveIcon />}
-                Save Notes
-              </Button>
-            </div>
-          </div>
-
-          {/* PURCHASE STATUS */}
-          {lead.installerId && (
-            <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
-              <h2 className="text-heading-3 mb-4 text-foreground">
-                Purchase Info
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-heading-3 text-foreground">
+                📋 Assignment History
               </h2>
-              <div className="space-y-3">
-                <div>
-                  <p className="text-body-small text-muted-foreground">Installer</p>
-                  <p className="text-foreground">
-                    {lead.installer?.name || 'N/A'}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-body-small text-muted-foreground">Status</p>
-                  <p className="text-foreground">
-                    {lead.purchaseStatus || 'Not Purchased'}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* LIFECYCLE ACTIONS (Phase 7) */}
-          {!lead.archivedAt && (
-            <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
-              <h2 className="text-heading-3 mb-4 text-foreground">
-                Lead Lifecycle
-              </h2>
-              <div className="space-y-3">
-                {/* Resell Button - Only if purchased */}
-                {lead.installerId && (
-                  <Button
-                    onClick={handleResell}
-                    disabled={reselling}
-                    variant="secondary"
-                    className="w-full text-body-small"
-                  >
-                    {reselling ? <LoadingIcon /> : '🔄'}
-                    Resell Lead
-                  </Button>
-                )}
-
-                {/* Reset Timer - Only if has expiry */}
-                {lead.expiresAt && (
-                  <div className="space-y-2">
-                    <input
-                      type="number"
-                      value={resetDays}
-                      onChange={(e) => setResetDays(parseInt(e.target.value) || 7)}
-                      min="1"
-                      max="365"
-                      placeholder="Days to extend"
-                      className="form-input w-full rounded-xl bg-surface text-foreground shadow-neu-inset border border-border px-4 py-3 text-body-small placeholder:text-muted-foreground"
-                    />
-                    <Button
-                      onClick={handleResetTimer}
-                      disabled={resettingTimer}
-                      variant="secondary"
-                      className="w-full text-body-small"
-                    >
-                      {resettingTimer ? <LoadingIcon /> : '⏰'}
-                      Extend Timer (+{resetDays}d)
-                    </Button>
-                  </div>
-                )}
-
-                {/* Archive Button */}
+              {!lead.archivedAt && (
                 <Button
-                  onClick={handleArchive}
-                  disabled={archiving}
+                  onClick={() => setShowAssignModal(true)}
                   variant="secondary"
-                  className="w-full text-body-small"
+                  className="bg-info text-info-foreground text-body-small"
                 >
-                  {archiving ? <LoadingIcon /> : '🗄️'}
-                  Archive Lead
+                  + Assign to Installer
                 </Button>
-              </div>
+              )}
             </div>
-          )}
+            <AssignmentHistoryTable
+              assignments={lead.assignments || []}
+              leadId={lead.id}
+              onRemoveAssignment={handleRemoveAssignment}
+            />
+          </div>
 
           {/* UNARCHIVE SECTION */}
           {lead.archivedAt && (
@@ -1285,6 +1149,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
             await handleAssign(data);
             setShowManagementModal(false);
           }}
+          onRemoveAssignment={handleRemoveAssignment}
         />
       )}
     </div>

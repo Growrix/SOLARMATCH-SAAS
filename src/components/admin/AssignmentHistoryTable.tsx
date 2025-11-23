@@ -58,7 +58,7 @@ export default function AssignmentHistoryTable({
     return (
       <div className="text-center py-8 bg-surface rounded-lg border border-border">
         <svg
-          className="mx-auto h-12 w-12 text-gray-400"
+          className="mx-auto h-12 w-12 text-muted-foreground"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -91,7 +91,7 @@ export default function AssignmentHistoryTable({
 
       {/* Table */}
       <div className="overflow-hidden rounded-lg border border-border">
-        <table className="min-w-full divide-y divide-gray-200">
+        <table className="min-w-full divide-y divide-border">
           <thead className="bg-surface">
             <tr>
               <th className="px-6 py-3 text-left text-caption text-muted-foreground uppercase tracking-wider">
@@ -114,9 +114,9 @@ export default function AssignmentHistoryTable({
               </th>
             </tr>
           </thead>
-          <tbody className="bg-surface divide-y divide-gray-200">
+          <tbody className="bg-surface divide-y divide-border">
             {assignments.map((assignment) => (
-              <tr key={assignment.id} className="hover:bg-surface">
+              <tr key={assignment.id} className="hover:bg-surface-hover">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div>
                     <div className="text-body-small text-foreground">
@@ -127,13 +127,13 @@ export default function AssignmentHistoryTable({
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-body-small text-gray-700">
+                <td className="px-6 py-4 whitespace-nowrap text-body-small text-foreground">
                   {format(new Date(assignment.assignedAt), 'MMM d, yyyy')}
                   <div className="text-caption text-muted-foreground">
                     {format(new Date(assignment.assignedAt), 'h:mm a')}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-body-small text-gray-700">
+                <td className="px-6 py-4 whitespace-nowrap text-body-small text-foreground">
                   {assignment.assignedByName}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
@@ -153,13 +153,13 @@ export default function AssignmentHistoryTable({
                     </span>
                   )}
                 </td>
-                <td className="px-6 py-4 text-body-small text-gray-700">
+                <td className="px-6 py-4 text-body-small text-foreground">
                   {assignment.notes ? (
                     <div className="max-w-xs truncate" title={assignment.notes}>
                       {assignment.notes}
                     </div>
                   ) : (
-                    <span className="text-gray-400">—</span>
+                    <span className="text-muted-foreground">—</span>
                   )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-body-small">
@@ -173,7 +173,7 @@ export default function AssignmentHistoryTable({
                     </button>
                   )}
                   {assignment.status !== 'pending' && (
-                    <span className="text-gray-400">—</span>
+                    <span className="text-muted-foreground">—</span>
                   )}
                 </td>
               </tr>

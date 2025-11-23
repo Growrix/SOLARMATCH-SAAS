@@ -104,3 +104,83 @@ export async function POST(
     );
   }
 }
+
+/**
+ * DELETE /api/admin/leads/[id]/assign?installerId=xxx
+ * 
+ * Purpose: Admin removes installer assignment from lead
+ * Auth: ADMIN role required
+ * 
+ * Query:
+ * - installerId: string - Installer user ID to remove
+ * 
+ * Returns: Success message
+ */
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    // 1. Authenticate
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    // 2. Check admin role
+    if (session.user.role !== UserRole.ADMIN) {
+      return NextResponse.json(
+        { error: 'Forbidden: Admin access required' },
+        { status: 403 }
+      );
+    }
+
+    // 3. Get installerId from query
+    const { searchParams } = new URL(request.url);
+    const installerId = searchParams.get('installerId');
+
+    if (!installerId) {
+      return NextResponse.json(
+        { error: 'installerId query parameter is required' },
+        { status: 400 }
+      );
+    }
+
+    // 4. Remove assignment
+    const { removeLeadAssignment } = await import('@/lib/services/lead-service');
+    
+    await removeLeadAssignment(
+      params.id,
+      installerId,
+      session.user.id
+    );
+
+    // 5. Return success
+    return NextResponse.json(
+      {
+        success: true,
+        message: 'Assignment removed successfully',
+      },
+      { status: 200 }
+    );
+
+  } catch (error: any) {
+    console.error('❌ [API] DELETE /api/admin/leads/[id]/assign error:', error);
+
+    if (error.message.includes('not found')) {
+      return NextResponse.json(
+        { error: 'Assignment not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: error.message || 'Failed to remove assignment' },
+      { status: 500 }
+    );
+  }
+}
