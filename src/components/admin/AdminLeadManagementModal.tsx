@@ -152,7 +152,7 @@ export default function AdminLeadManagementModal({
     if (!inst.installerVerification) return false;
     
     // Postcode match (primary factor)
-    if (!lead.postcode || !inst.installerVerification.postcodes) return false;
+    if (!lead.postcode || !inst.installerVerification.postcodes || typeof inst.installerVerification.postcodes !== 'string') return false;
     const leadPostcodes = lead.postcode.split(',').map(p => p.trim().toLowerCase());
     const instPostcodes = inst.installerVerification.postcodes.split(',').map(p => p.trim().toLowerCase());
     const hasPostcodeMatch = leadPostcodes.some(lp => 
@@ -181,7 +181,10 @@ export default function AdminLeadManagementModal({
     // Postcode filter
     if (postcodeFilterEnabled && lead.postcode) {
       const leadPostcodes = lead.postcode.split(',').map(p => p.trim().toLowerCase());
-      const instPostcodes = installer.installerVerification?.postcodes?.split(',').map(p => p.trim().toLowerCase()) || [];
+      const postcodeStr = installer.installerVerification?.postcodes;
+      const instPostcodes = (postcodeStr && typeof postcodeStr === 'string') 
+        ? postcodeStr.split(',').map(p => p.trim().toLowerCase()) 
+        : [];
       const matchesPostcode = leadPostcodes.some(lp => instPostcodes.some(ip => ip.includes(lp) || lp.includes(ip)));
       if (!matchesPostcode) return false;
     }
