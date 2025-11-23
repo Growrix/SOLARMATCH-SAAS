@@ -17,6 +17,26 @@
 import { useState, useEffect } from 'react';
 import Button from '@/components/ui/button';
 
+interface Assignment {
+  id: string;
+  installerId: string;
+  assignedAt: string;
+  notes: string | null;
+  installer: {
+    id: string;
+    email: string;
+    installerVerified: boolean;
+    installerVerification: {
+      companyName: string | null;
+      representativeName: string | null;
+      phone: string | null;
+      address: string | null;
+      postcodes: string | null;
+      status: string;
+    } | null;
+  };
+}
+
 interface Lead {
   id: string;
   status: string;
@@ -26,6 +46,7 @@ interface Lead {
   expiresAt?: Date | null;
   archivedAt?: Date | null;
   postcode?: string | null;
+  assignments?: Assignment[];
 }
 
 interface Installer {
@@ -91,7 +112,8 @@ export default function AdminLeadManagementModal({
   const [installers, setInstallers] = useState<Installer[]>([]);
   const [selectedInstallerIds, setSelectedInstallerIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterMode, setFilterMode] = useState<'all' | 'verified' | 'unverified'>('all');
+  const [filterMode, setFilterMode] = useState<'all' | 'verified' | 'unverified' | 'assigned'>('all');
+  const [assignedInstallers, setAssignedInstallers] = useState<Installer[]>([]);
   const [postcodeFilterEnabled, setPostcodeFilterEnabled] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [previewInstallerId, setPreviewInstallerId] = useState<string | null>(null);
@@ -128,11 +150,32 @@ export default function AdminLeadManagementModal({
     setLoading(true);
     setError(null);
     try {
-      const installerVerified = filterMode === 'verified' ? 'true' : filterMode === 'unverified' ? 'false' : '';
-      const response = await fetch(`/api/admin/installers/list${installerVerified ? `?installerVerified=${installerVerified}` : ''}`);
-      if (!response.ok) throw new Error('Failed to fetch installers');
-      const data = await response.json();
-      setInstallers(data.installers || []);
+      if (filterMode === 'assigned') {
+        // Show currently assigned installers from lead.assignments
+        if (lead.assignments && lead.assignments.length > 0) {
+          const assigned = lead.assignments.map((assignment) => ({
+            id: assignment.installer.id,
+            email: assignment.installer.email,
+            installerVerified: assignment.installer.installerVerified,
+            phoneVerified: false,
+            isActive: true,
+            createdAt: assignment.assignedAt,
+            updatedAt: assignment.assignedAt,
+            installerVerification: assignment.installer.installerVerification,
+          }));
+          setAssignedInstallers(assigned);
+          setInstallers(assigned);
+        } else {
+          setAssignedInstallers([]);
+          setInstallers([]);
+        }
+      } else {
+        const installerVerified = filterMode === 'verified' ? 'true' : filterMode === 'unverified' ? 'false' : '';
+        const response = await fetch(`/api/admin/installers/list${installerVerified ? `?installerVerified=${installerVerified}` : ''}`);
+        if (!response.ok) throw new Error('Failed to fetch installers');
+        const data = await response.json();
+        setInstallers(data.installers || []);
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -343,14 +386,14 @@ export default function AdminLeadManagementModal({
                   className="form-input w-full px-4 py-3"
                 />
 
-                <div className="flex flex-wrap items-center gap-3">
-                  {/* Segmented Filter (reverted to non-button elements, no muted gray background) */}
-                  <div className="flex gap-2" role="tablist" aria-label="Installer verification filter">
+                <div className="space-y-3">
+                  {/* Segmented Filter Tabs */}
+                  <div className="flex flex-wrap items-center gap-2" role="tablist" aria-label="Installer filter">
                     <div
                       role="tab"
                       aria-selected={filterMode === 'all'}
                       onClick={() => setFilterMode('all')}
-                      className={`px-3 py-1 rounded-md cursor-pointer text-body-small transition-colors select-none ${filterMode === 'all' ? 'bg-surface shadow-neu-inset text-foreground' : 'text-muted-foreground hover:bg-surface-subtle hover:text-foreground'}`}
+                      className={`px-3 py-1 rounded-md cursor-pointer text-body-small transition-colors select-none ${filterMode === 'all' ? 'bg-surface shadow-neu-inset text-foreground' : 'text-muted-foreground hover:bg-muted/10 hover:text-foreground'}`}
                     >
                       All
                     </div>
@@ -358,7 +401,7 @@ export default function AdminLeadManagementModal({
                       role="tab"
                       aria-selected={filterMode === 'verified'}
                       onClick={() => setFilterMode('verified')}
-                      className={`px-3 py-1 rounded-md cursor-pointer text-body-small transition-colors select-none ${filterMode === 'verified' ? 'bg-surface shadow-neu-inset text-success' : 'text-muted-foreground hover:bg-surface-subtle hover:text-success'}`}
+                      className={`px-3 py-1 rounded-md cursor-pointer text-body-small transition-colors select-none ${filterMode === 'verified' ? 'bg-surface shadow-neu-inset text-success' : 'text-muted-foreground hover:bg-muted/10 hover:text-success'}`}
                     >
                       Verified
                     </div>
@@ -366,36 +409,46 @@ export default function AdminLeadManagementModal({
                       role="tab"
                       aria-selected={filterMode === 'unverified'}
                       onClick={() => setFilterMode('unverified')}
-                      className={`px-3 py-1 rounded-md cursor-pointer text-body-small transition-colors select-none ${filterMode === 'unverified' ? 'bg-surface shadow-neu-inset text-error' : 'text-muted-foreground hover:bg-surface-subtle hover:text-error'}`}
+                      className={`px-3 py-1 rounded-md cursor-pointer text-body-small transition-colors select-none ${filterMode === 'unverified' ? 'bg-surface shadow-neu-inset text-error' : 'text-muted-foreground hover:bg-muted/10 hover:text-error'}`}
                     >
                       Unverified
                     </div>
+                    <div
+                      role="tab"
+                      aria-selected={filterMode === 'assigned'}
+                      onClick={() => setFilterMode('assigned')}
+                      className={`px-3 py-1 rounded-md cursor-pointer text-body-small transition-colors select-none ${filterMode === 'assigned' ? 'bg-surface shadow-neu-inset text-info' : 'text-muted-foreground hover:bg-muted/10 hover:text-info'}`}
+                    >
+                      Assigned {lead.assignments && lead.assignments.length > 0 && `(${lead.assignments.length})`}
+                    </div>
+
+                    {/* Postcode Match Toggle */}
+                    {lead.postcode && filterMode !== 'assigned' && (
+                      <label className="flex items-center gap-2 ml-auto">
+                        <input
+                          type="checkbox"
+                          checked={postcodeFilterEnabled}
+                          onChange={(e) => setPostcodeFilterEnabled(e.target.checked)}
+                          className="rounded border-border text-success focus:ring-success"
+                        />
+                        <span className="text-body-small text-foreground">
+                          Match Postcode ({lead.postcode})
+                        </span>
+                      </label>
+                    )}
                   </div>
 
-                  {/* Postcode Match Toggle */}
-                  {lead.postcode && (
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={postcodeFilterEnabled}
-                        onChange={(e) => setPostcodeFilterEnabled(e.target.checked)}
-                        className="rounded border-border text-success focus:ring-success"
-                      />
-                      <span className="text-body-small text-foreground">
-                        Match Postcode ({lead.postcode})
-                      </span>
-                    </label>
-                  )}
-
                   {/* Quick Actions */}
-                  {suggestedInstallers.length > 0 && (
-                    <Button
-                      variant="minimal"
-                      onClick={selectAllSuggested}
-                      className="ml-auto text-success"
-                    >
-                      Select All Recommended ({suggestedInstallers.length})
-                    </Button>
+                  {filterMode !== 'assigned' && suggestedInstallers.length > 0 && (
+                    <div className="flex justify-end">
+                      <Button
+                        variant="minimal"
+                        onClick={selectAllSuggested}
+                        className="text-success"
+                      >
+                        Select All Recommended ({suggestedInstallers.length})
+                      </Button>
+                    </div>
                   )}
                 </div>
 
@@ -403,7 +456,7 @@ export default function AdminLeadManagementModal({
               </div>
 
               {/* Smart Suggestions */}
-              {showSuggestions && suggestedInstallers.length > 0 && (
+              {filterMode !== 'assigned' && showSuggestions && suggestedInstallers.length > 0 && (
                 <div className="p-4 rounded-lg bg-success/5 border border-success/20">
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="text-body-small text-success">

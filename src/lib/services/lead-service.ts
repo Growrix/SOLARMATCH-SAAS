@@ -650,6 +650,27 @@ export async function getLeadById(input: GetLeadByIdInput) {
           phone: true,
         },
       },
+      assignments: {
+        include: {
+          installer: {
+            select: {
+              id: true,
+              email: true,
+              installerVerified: true,
+              installerVerification: {
+                select: {
+                  companyName: true,
+                  representativeName: true,
+                  phone: true,
+                  address: true,
+                  postcodes: true,
+                  status: true,
+                },
+              },
+            },
+          },
+        },
+      },
     },
   });
 
