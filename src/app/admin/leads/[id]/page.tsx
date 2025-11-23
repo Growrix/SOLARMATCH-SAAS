@@ -1122,20 +1122,70 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
             setShowManagementModal(false);
           }}
           onSavePrice={async (price: string) => {
-            setLeadPrice(price);
-            await handleSavePrice();
+            // Update price using the passed parameter
+            try {
+              const response = await fetch(`/api/leads/${lead.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  leadPrice: parseFloat(price),
+                }),
+              });
+
+              if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Failed to update price');
+              }
+
+              // Refresh lead data immediately
+              await fetchLead();
+            } catch (err) {
+              throw err;
+            }
           }}
           onSaveNotes={async (notes: string) => {
-            setAdminNotes(notes);
-            await handleSaveNotes();
+            // Update notes using the passed parameter
+            try {
+              const response = await fetch(`/api/leads/${lead.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ adminNotes: notes }),
+              });
+
+              if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Failed to update notes');
+              }
+
+              // Refresh lead data immediately
+              await fetchLead();
+            } catch (err) {
+              throw err;
+            }
           }}
           onResell={async () => {
             await handleResell();
             setShowManagementModal(false);
           }}
           onResetTimer={async (days: number) => {
-            setResetDays(days);
-            await handleResetTimer();
+            // Reset timer using the passed parameter
+            try {
+              const response = await fetch(`/api/leads/${lead.id}/reset-timer`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ days }),
+              });
+
+              if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Failed to reset timer');
+              }
+
+              // Refresh lead data immediately
+              await fetchLead();
+            } catch (err) {
+              throw err;
+            }
           }}
           onArchive={async () => {
             await handleArchive();

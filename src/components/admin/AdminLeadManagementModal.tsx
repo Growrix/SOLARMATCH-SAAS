@@ -107,8 +107,20 @@ export default function AdminLeadManagementModal({
   onRemoveAssignment,
 }: AdminLeadManagementModalProps) {
   // Section A: Approval & Pricing State
-  const [leadPrice, setLeadPrice] = useState(lead.price?.toString() || '');
-  const [countdownDays, setCountdownDays] = useState(7);
+  const [leadPrice, setLeadPrice] = useState(() => {
+    // Initialize from leadPrice or price field
+    return (lead.leadPrice?.toString() || lead.price?.toString() || '');
+  });
+  const [countdownDays, setCountdownDays] = useState(() => {
+    // Calculate from expiresAt if exists, otherwise default to 7
+    if (lead.expiresAt) {
+      const now = new Date();
+      const expires = new Date(lead.expiresAt);
+      const daysRemaining = Math.ceil((expires.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      return daysRemaining > 0 ? daysRemaining : 7;
+    }
+    return 7;
+  });
   const [rejectReason, setRejectReason] = useState('');
   const [showRejectInput, setShowRejectInput] = useState(false);
 
@@ -263,12 +275,21 @@ export default function AdminLeadManagementModal({
 
     try {
       // Sequential handler calls for changed fields
-      if (leadPrice !== lead.price?.toString()) {
+      const initialPrice = lead.leadPrice?.toString() || lead.price?.toString() || '';
+      if (leadPrice && leadPrice !== initialPrice) {
         await onSavePrice(leadPrice);
       }
 
       if (adminNotes !== lead.adminNotes) {
         await onSaveNotes(adminNotes);
+      }
+
+      // Reset timer if countdown changed and lead is approved
+      if (lead.status === 'APPROVED' && lead.expiresAt && onResetTimer) {
+        const currentDays = Math.ceil((new Date(lead.expiresAt).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+        if (countdownDays !== currentDays && countdownDays > 0) {
+          await onResetTimer(countdownDays);
+        }
       }
 
       if (selectedInstallerIds.length > 0) {
@@ -679,7 +700,14 @@ export default function AdminLeadManagementModal({
             {/* SECTION A: Approval & Pricing */}
             {(['DRAFT', 'PENDING_APPROVAL', 'PENDING_PHONE'].includes(lead.status) || isEditMode) && (
               <div className="p-6 rounded-lg bg-surface shadow-neu-outset space-y-4">
-                <h3 className="text-heading-3 text-foreground">Approval & Pricing</h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-heading-3 text-foreground">Approval & Pricing</h3>
+                  {lead.status === 'APPROVED' && (
+                    <span className="text-caption text-success">
+                      ✓ Lead Approved
+                    </span>
+                  )}
+                </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -692,7 +720,13 @@ export default function AdminLeadManagementModal({
                       onChange={(e) => setLeadPrice(e.target.value)}
                       placeholder="Enter price"
                       className="form-input w-full px-4 py-3"
+                      disabled={submitting}
                     />
+                    {lead.leadPrice && (
+                      <p className="text-caption mt-1 text-muted-foreground">
+                        Current: £{lead.leadPrice.toFixed(2)}
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -707,9 +741,21 @@ export default function AdminLeadManagementModal({
                       onChange={(e) => setCountdownDays(parseInt(e.target.value) || 7)}
                       placeholder="Enter expiry days"
                       className="form-input w-full px-4 py-3 placeholder:text-muted-foreground"
+                      disabled={submitting}
                     />
                     <p className="text-caption mt-1 text-muted-foreground">
-                      Lead will expire in {countdownDays} day{countdownDays !== 1 ? 's' : ''}
+                      {lead.expiresAt ? (
+                        <>
+                          Current expiry: {new Date(lead.expiresAt).toLocaleDateString('en-GB')}
+                          {' • '}
+                          {(() => {
+                            const daysLeft = Math.ceil((new Date(lead.expiresAt).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                            return daysLeft > 0 ? `${daysLeft}d left` : 'Expired';
+                          })()}
+                        </>
+                      ) : (
+                        `Will expire in ${countdownDays} day${countdownDays !== 1 ? 's' : ''}`
+                      )}
                     </p>
                   </div>
                 </div>
