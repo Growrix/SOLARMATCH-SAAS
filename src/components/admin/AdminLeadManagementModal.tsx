@@ -438,7 +438,7 @@ export default function AdminLeadManagementModal({
                               Verified
                             </span>
                           </div>
-                          {installer.installerVerification?.postcodes && (
+                          {installer.installerVerification?.postcodes && typeof installer.installerVerification.postcodes === 'string' && (
                             <div className="flex flex-wrap gap-1 mt-1">
                               {installer.installerVerification.postcodes.split(',').map((pc, idx) => (
                                 <span 
@@ -512,7 +512,7 @@ export default function AdminLeadManagementModal({
                           <div className="text-caption text-muted-foreground">
                             {installer.email}
                           </div>
-                          {installer.installerVerification?.postcodes && (
+                          {installer.installerVerification?.postcodes && typeof installer.installerVerification.postcodes === 'string' && (
                             <div className="flex flex-wrap gap-1 mt-1">
                               <span className="text-caption text-muted-foreground">Service Areas:</span>
                               {installer.installerVerification.postcodes.split(',').map((pc, idx) => (
