@@ -14,6 +14,7 @@ import Button from '@/components/Button';
 import QuoteDataDisplay from '@/components/admin/QuoteDataDisplay';
 import InstallerSelectorModal from '@/components/admin/InstallerSelectorModal';
 import AssignmentHistoryTable from '@/components/admin/AssignmentHistoryTable';
+import AdminLeadManagementModal from '@/components/admin/AdminLeadManagementModal';
 
 // ============================================================================
 // TYPES
@@ -170,6 +171,9 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
   const [unarchiving, setUnarchiving] = useState(false);
   const [resettingTimer, setResettingTimer] = useState(false);
   const [resetDays, setResetDays] = useState(7);
+
+  // Phase 24: Admin Lead Management Modal
+  const [showManagementModal, setShowManagementModal] = useState(false);
 
   // ============================================================================
   // FETCH LEAD DATA
@@ -618,9 +622,15 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
           </div>
 
           <div className="flex items-center gap-3">
-            <span className={`px-4 py-2 rounded-full text-body-small ${getStatusColor(lead.status)}`}>
-              {lead.status}
-            </span>
+            {lead.status === 'PENDING_APPROVAL' ? (
+              <Button variant="warning" size="sm" className="rounded-full px-4 py-2 text-body-small cursor-default" disabled>
+                Pending Approval
+              </Button>
+            ) : (
+              <span className={`px-4 py-2 rounded-full text-body-small ${getStatusColor(lead.status)}`}>
+                {lead.status}
+              </span>
+            )}
             {lead.phoneVerified && (
               <span className="px-3 py-1 bg-success text-success-foreground rounded-full text-caption">
                 ✓ Verified
@@ -904,6 +914,20 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
 
         {/* RIGHT COLUMN - Admin Actions */}
         <div className="space-y-6">
+          {/* PHASE 24: UNIFIED LEAD MANAGEMENT BUTTON */}
+          <div className="p-6 rounded-lg bg-surface shadow-neu-outset border border-border">
+            <Button
+              onClick={() => setShowManagementModal(true)}
+              variant="secondary"
+              className="w-full"
+            >
+              ⚙️ Manage Lead
+            </Button>
+            <p className="text-caption text-center mt-2 text-muted-foreground">
+              Approve, price, assign, and manage lifecycle
+            </p>
+          </div>
+
           {/* ACTION BUTTONS - Show for DRAFT, PENDING_APPROVAL, and PENDING_PHONE statuses */}
           {(['DRAFT', 'PENDING_APPROVAL', 'PENDING_PHONE'].includes(lead.status)) && (
             <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
@@ -1213,6 +1237,54 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
           onClose={() => setShowAssignModal(false)}
           onAssign={handleAssign}
           leadId={lead.id}
+        />
+      )}
+
+      {/* PHASE 24: ADMIN LEAD MANAGEMENT MODAL */}
+      {showManagementModal && (
+        <AdminLeadManagementModal
+          isOpen={showManagementModal}
+          lead={lead as any}
+          onClose={() => setShowManagementModal(false)}
+          onApprove={async (data: any) => {
+            // Transform modal data to match handleApprove signature
+            await handleApprove();
+            setShowManagementModal(false);
+          }}
+          onReject={async (reason: string) => {
+            // handleReject already uses rejectReason state
+            setRejectReason(reason);
+            await handleReject();
+            setShowManagementModal(false);
+          }}
+          onSavePrice={async (price: string) => {
+            setLeadPrice(price);
+            await handleSavePrice();
+          }}
+          onSaveNotes={async (notes: string) => {
+            setAdminNotes(notes);
+            await handleSaveNotes();
+          }}
+          onResell={async () => {
+            await handleResell();
+            setShowManagementModal(false);
+          }}
+          onResetTimer={async (days: number) => {
+            setResetDays(days);
+            await handleResetTimer();
+          }}
+          onArchive={async () => {
+            await handleArchive();
+            setShowManagementModal(false);
+          }}
+          onUnarchive={async () => {
+            await handleUnarchive();
+            setShowManagementModal(false);
+          }}
+          onAssign={async (data: any) => {
+            await handleAssign(data);
+            setShowManagementModal(false);
+          }}
         />
       )}
     </div>

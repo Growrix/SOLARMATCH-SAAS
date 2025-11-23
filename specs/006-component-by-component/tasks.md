@@ -342,6 +342,37 @@
 - Combining approve + assign into transactional backend operation.
 
 ---
+
+**Phase 25: Admin Lead Management Modal UI Refinement** 🔄 IN PROGRESS (November 23, 2025)
+- 🎯 **Goal**: Refine AdminLeadManagementModal to align with design system standards and user requirements (remove unnecessary UI, enforce semantic button usage).
+- 📋 **Approach**: Simplify countdown timer (remove checkbox), remove Exclusive/Competitive mode UI, replace all native `<button>` elements with `<Button>` component using semantic variants.
+- 📄 **Audit Report**: `DOC/Installers/Profile & verification/ADMIN-LEAD-MANAGEMENT-MODAL-REFINEMENT-AUDIT.md`
+- 🔗 **Scope**: UI-only refactoring (~150 lines modified in AdminLeadManagementModal.tsx)
+- 🛑 **Constraints**: UI-only (NO backend changes), semantic classes only, use Button component consistently, zero functionality changes.
+
+**Subtasks**:
+- [ ] 25.1: Simplify Countdown Timer UI (remove checkbox, show direct number input)
+- [ ] 25.2: Remove Assignment Mode UI (delete Exclusive/Competitive toggle section)
+- [ ] 25.3: Replace Close Button (native button → Button variant="ghost")
+- [ ] 25.4: Replace Segmented Filter Buttons (native buttons → Button component with variants)
+- [ ] 25.5: Replace Quick Action Buttons (Select All / Hide suggestions → Button component)
+- [ ] 25.6: Remove Unused State Variables (enableCountdown, assignmentMode)
+- [ ] 25.7: Run 6 hardcoded-value verification commands (Expect 0/0/0/0/0/0)
+- [ ] 25.8: TypeScript validation (`npx tsc --noEmit`)
+- [ ] 25.9: Visual + functional test (all sections render, handlers work)
+- [ ] 25.10: Multi-theme test (Dark/Light/Purple)
+- [ ] 25.11: User approval
+- [ ] 25.12: Atomic commit (reference Phase 25 audit)
+
+**Success Criteria**:
+- Countdown timer: Single number input (no checkbox opt-in/out).
+- Assignment mode section: Completely removed.
+- All buttons: Using `<Button>` component with semantic variants (primary, secondary, ghost, minimal).
+- Verification: 0/0/0/0/0/0 on all 6 hardcoded-value checks.
+- TypeScript: No errors.
+- Functionality: All handlers work identically (UI-only changes).
+
+---
 - ❌ Phone Sync - No warning UI when User.phone ≠ Lead.phoneNumber
 
 **Reference Issues** (from 05-ISSUES-AND-RECOMMENDATIONS.md):
@@ -6444,6 +6475,239 @@ Audit covered:
 ---
 
 **Phase F16 Report**: Password management feature completed and aligned with signup modal. Initial audit found feature fully implemented but with inconsistent requirements (12 chars vs signup's 8 chars) and missing show/hide toggle. **Alignment changes**: (1) Added eye icon toggles to all 3 password fields, (2) Simplified requirements to match signup (8 chars, letter + number only), (3) Updated frontend validation logic, (4) Updated backend Zod schema, (5) Removed complex requirements (uppercase/lowercase/special char). **Result**: Consistent user experience across signup and password change. Security unchanged (still uses bcrypt, session invalidation, current password verification). **Ready for manual testing** - 8 test cases documented. Risk: 🟢 LOW (simplified requirements, improved UX). User impact: 🟢 POSITIVE (better usability, fewer errors). All documentation complete (4 comprehensive reports).
+
+---
+
+## Phase 25: Enhanced Installer Assignment with Real Data 🎯 ACTIVE (November 23, 2025)
+
+**Objective**: Implement real data integration for installer assignment section with company names, postcodes, profile preview, smart suggestions, and bulk messaging.
+
+**Scope**: UI enhancements + API integration fixes
+
+**Reference Document**: `DOC/Installers/Profile & verification/INSTALLER-ASSIGNMENT-ENHANCEMENT-AUDIT.md`
+
+### Critical Issues Found
+
+1. **BROKEN API**: Modal calls `/api/admin/users?role=INSTALLER` which doesn't exist → 404
+2. **Missing Company Names**: UI shows `name` field instead of `installerVerification.companyName`
+3. **Missing Postcodes**: Data structure ready but not displayed
+4. **No Profile Preview**: Hover/click functionality not implemented
+5. **Basic Suggestions**: Only postcode match, no performance/activity data
+
+### Tasks
+
+#### 25.1 Fix Critical API Integration ⚠️ BLOCKER
+- [ ] Update `AdminLeadManagementModal.tsx` line ~123
+  - Change: `/api/admin/users?role=INSTALLER` 
+  - To: `/api/admin/installers/list`
+- [ ] Update query parameters mapping:
+  - `verified=true/false` → `installerVerified=true/false`
+- [ ] Update response interface to include `installerVerification` object
+- [ ] Test API returns data successfully
+
+#### 25.2 Enhance Installer Interface & Data Parsing
+- [ ] Update `Installer` interface in modal:
+  ```typescript
+  interface Installer {
+    id: string;
+    email: string;
+    installerVerified: boolean;
+    phoneVerified: boolean;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+    installerVerification: {
+      companyName: string | null;
+      representativeName: string | null;
+      phone: string | null;
+      address: string | null;
+      postcodes: string | null; // Comma-separated
+      status: string;
+    } | null;
+  }
+  ```
+- [ ] Parse `installerVerification.postcodes` (split by comma)
+- [ ] Add fallback handling for missing verification data
+
+#### 25.3 Update UI to Display Real Data
+- [ ] **Company Name Display**:
+  - Replace `installer.name` with `installer.installerVerification?.companyName`
+  - Show "Profile Incomplete" badge if verification missing
+- [ ] **Postcodes Display**:
+  - Parse comma-separated `postcodes` field
+  - Display as chips/badges below company name
+  - Style: `bg-info/10 text-info px-2 py-0.5 rounded text-caption`
+- [ ] **Verification Status Badge**:
+  - Show status from `installerVerification.status`
+  - Colors: Approved (success), Pending (warning), Rejected (error)
+- [ ] **Service Area Label**:
+  - Add "Service Areas:" label above postcode chips
+
+#### 25.4 Build Installer Profile Preview Component
+- [ ] Create `src/components/admin/InstallerProfilePreview.tsx`
+- [ ] Props: `installer: Installer`, `onClose: () => void`
+- [ ] Layout: Popover/modal triggered by row click
+- [ ] Display sections:
+  - Company name (heading)
+  - Representative name
+  - Contact phone
+  - Business address
+  - Service postcodes (as chips)
+  - Verification status badge
+  - Account status (Active/Paused)
+  - Placeholder: "Performance metrics coming soon"
+- [ ] Semantic styling (bg-surface, shadow-neu-outset)
+- [ ] Close button (X icon)
+- [ ] Click outside to close
+
+#### 25.5 Integrate Profile Preview into Modal
+- [ ] Add state: `previewInstallerId: string | null`
+- [ ] Update installer row:
+  - Add "View Profile" button/link
+  - onClick: `setPreviewInstallerId(installer.id)`
+- [ ] Render `<InstallerProfilePreview>` conditionally
+- [ ] Pass selected installer data
+- [ ] Position: Absolute overlay or inline expansion
+
+#### 25.6 Enhance Smart Suggestions Algorithm
+- [ ] Current logic (postcode match only) → Enhanced:
+  ```typescript
+  const suggestedInstallers = installers.filter((inst) => {
+    // Must be verified
+    if (!inst.installerVerified) return false;
+    
+    // Must be active
+    if (!inst.isActive) return false;
+    
+    // Must have verification profile
+    if (!inst.installerVerification) return false;
+    
+    // Postcode match (primary factor)
+    if (!lead.postcode || !inst.installerVerification.postcodes) return false;
+    const leadPostcodes = lead.postcode.split(',').map(p => p.trim().toLowerCase());
+    const instPostcodes = inst.installerVerification.postcodes.split(',').map(p => p.trim().toLowerCase());
+    const hasPostcodeMatch = leadPostcodes.some(lp => 
+      instPostcodes.some(ip => ip.includes(lp) || lp.includes(ip))
+    );
+    
+    return hasPostcodeMatch;
+  }).sort((a, b) => {
+    // Sort by newest first (higher visibility for new installers)
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+  ```
+- [ ] Update suggestions panel UI to show "Top 3 Matched"
+- [ ] Add tooltip explaining ranking criteria
+
+#### 25.7 Wire Bulk Messaging to Backend
+- [ ] Verify `onAssign` handler accepts `notes` field
+- [ ] Update bulk message textarea binding to `bulkMessage` state
+- [ ] On "Save Changes" / "Approve":
+  - Pass `notes: bulkMessage.trim() || undefined`
+  - Pass `notifyInstallers: true` flag
+- [ ] Add confirmation: "Send message to {count} installers?"
+- [ ] Test notification delivery (check email/database)
+
+#### 25.8 Add Performance Placeholders (Future-Ready)
+- [ ] In profile preview, add section:
+  ```jsx
+  <div className="mt-4 p-3 bg-muted/10 rounded-lg">
+    <p className="text-caption text-muted-foreground">
+      📊 Performance Metrics (Coming Soon)
+    </p>
+    <p className="text-caption text-muted-foreground mt-1">
+      • Account Age: {accountAge}
+    </p>
+    <p className="text-caption text-muted-foreground">
+      • Last Active: {lastActive}
+    </p>
+  </div>
+  ```
+- [ ] Calculate `accountAge` from `createdAt`
+- [ ] Calculate `lastActive` from `updatedAt`
+
+#### 25.9 Testing & Validation
+- [ ] **API Integration**:
+  - [ ] Fetch installers successfully
+  - [ ] Response includes verification data
+  - [ ] Search filter works (company, representative, phone)
+  - [ ] Verification filter works (verified/unverified)
+- [ ] **UI Display**:
+  - [ ] Company names display correctly
+  - [ ] Postcodes display as chips
+  - [ ] Verification status badges show
+  - [ ] "Profile Incomplete" badge for missing verification
+- [ ] **Smart Suggestions**:
+  - [ ] Recommended installers appear at top
+  - [ ] Postcode match prioritized
+  - [ ] Verified + active installers only
+  - [ ] "Select All Recommended" works
+- [ ] **Profile Preview**:
+  - [ ] Click row opens preview
+  - [ ] All fields display correctly
+  - [ ] Close button works
+  - [ ] Click outside closes
+- [ ] **Bulk Messaging**:
+  - [ ] Message textarea accepts input
+  - [ ] Message passed to assignment API
+  - [ ] Notifications sent (verify via logs/email)
+- [ ] **Design System**:
+  - [ ] No hardcoded colors (run 6 verification commands)
+  - [ ] Dark/Light/Purple themes work
+  - [ ] Responsive: 320px, 375px, 768px, 1024px, 1440px
+  - [ ] Accessibility (keyboard nav, ARIA labels)
+
+#### 25.10 Documentation
+- [ ] Update audit report with implementation notes
+- [ ] Add screenshots of new UI
+- [ ] Document API contract changes
+- [ ] Update component JSDoc comments
+
+### Files Modified
+
+**Frontend**:
+- `src/components/admin/AdminLeadManagementModal.tsx` - API fix, UI updates, enhanced suggestions
+- `src/components/admin/InstallerProfilePreview.tsx` - NEW component for profile preview
+
+**Backend** (verification only):
+- `src/app/api/admin/installers/list/route.ts` - Already returns correct data ✅
+
+**Documentation**:
+- `DOC/Installers/Profile & verification/INSTALLER-ASSIGNMENT-ENHANCEMENT-AUDIT.md` - Initial audit
+- `specs/006-component-by-component/tasks.md` - This phase
+
+### Success Criteria
+
+- ✅ API integration fixed - installers load from correct endpoint
+- ✅ Company names and postcodes display correctly from `installerVerification`
+- ✅ Profile preview functional with real verification data
+- ✅ Smart suggestions enhanced (postcode + verified + active + sorted by age)
+- ✅ Bulk messaging wired to backend assignment API with notifications
+- ✅ No TypeScript/build errors
+- ✅ Design system compliance (0/0/0/0/0/0 verification commands)
+- ✅ Multi-theme support maintained (Dark/Light/Purple)
+- ✅ User can test full assignment workflow end-to-end
+
+### Risk Assessment
+
+**Risk Level**: 🟡 MEDIUM
+- **API Change**: Low risk (simple endpoint URL update)
+- **Data Structure**: Low risk (verification data already exists in DB)
+- **UI Changes**: Medium risk (new component, enhanced logic)
+- **Testing**: High coverage required (API, UI, multi-theme, responsive)
+
+**Rollback Plan**: Checkpoint commit created before Phase 25 start
+
+### User Impact
+
+**Impact**: 🟢 HIGH POSITIVE
+- **Admins**: See real company names/postcodes, easier assignment decisions
+- **Installers**: Better matched to relevant leads via smart suggestions
+- **System**: More accurate lead-installer pairing → higher conversion rates
+
+---
+
+**Phase 25 Status**: ⚠️ READY TO START - Audit complete, checkpoint commit next
 
 
 
