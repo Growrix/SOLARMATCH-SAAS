@@ -42,6 +42,7 @@ interface Lead {
   id: string;
   status: string;
   price?: number | null;
+  leadPrice?: number | null;
   adminNotes?: string | null;
   installerId?: string | null;
   expiresAt?: Date | null;
