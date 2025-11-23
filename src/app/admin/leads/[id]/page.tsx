@@ -594,9 +594,9 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
   }
 
   return (
-    <div className="min-h-screen p-8 bg-background">
+    <div className="p-4 sm:p-6 lg:p-8">
       {/* HEADER */}
-      <div className="max-w-7xl mx-auto mb-8">
+      <div className="mb-8">
         <button
           onClick={() => router.push('/admin/leads')}
           className="flex items-center gap-2 mb-4 text-muted-foreground hover:text-foreground transition-colors"
@@ -641,7 +641,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
       </div>
 
       {/* MAIN CONTENT */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* LEFT COLUMN - Lead Details */}
         <div className="lg:col-span-2 space-y-6">
           {/* HOMEOWNER INFO */}
