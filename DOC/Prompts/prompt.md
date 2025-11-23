@@ -2235,3 +2235,22 @@ I want to enhance the Admin/Installers page a bit both frontend and backend to m
 We have built the frontned already. so now need to build the backand and its functionalities to change user passwords. 
 
 ***instrcutions*** Audit and understand the current flows and data flow. audit the relevant fronend and backend in deailed and create a comprhensive audit report of the plan. create the audit report under this folder D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification. And create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\tasks.md file for this task and start implimenting the changes step by step as per the plan you created.
+
+--------------------------------------------------------------------------------
+
+***Admin Lead details modal enhancement***
+I want to enhance the Admin Lead details modal a bit both frontend and backend to make it more functional and user friendly. Here are the changes needed :
+
+- The current frontend modal needs to be enhanced : I want the "Actions,Lead pricing, Admin Notes, Lead lifecycle" UI sections to be under 1 section. Means , all the functions should work as it is as now working, but the UI should be enhanced to make it more user friendly. 
+- One more section needed to add in this modal to show the "Installer's comapny name, postcodes" . The Goal is to send the leads to the selected installers based on their service areas(postcodes). so the admin should be able to see the installer's company name and postcodes in this modal while assigning the lead. The Admin should be able to select single/multiple installers from this modal while assigning the lead. 
+- Based on the homeowners postcodes, there should be a filter option to show only those installers who are serving in that postcode area. so that the admin can easily assign the lead to the relevant installers.
+- while assigning the lead to multiple installers, there should be an option to add individual admin notes for each installer. so that the admin can add different notes for different installers while assigning the lead.
+- There should be options to always edit the lead release modal, so that the admin can change the lead pricing and can add or remove the Installers even after the lead is assigned. 
+- The Admin should be able to filter the verified and unferified Installers. 
+
+***The Goal*** The main goal of these enhancements is to make the lead assignment process more efficient and user-friendly for the admin, while also ensuring that the relevant information about installers is easily accessible. And this new lead Approval flow should be within one single modal so that the admin can Select lead pricing, add admin notes, view lead lifecycle, and assign to multiple installers all in one place without navigating away or opening multiple modals and simply can approve the lead assignment after filling all these details in one go.
+
+
+***instructions***  Audit and understand the current UI . audit the relevant fronend and backend in deailed and create a comprhensive audit report of the current state and the gaps between the existing flows and the requested flows and the plan to fix and impliment them. after that start fixing the requirement step by step. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on. create the audit report under this folder D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification. And create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\tasks.md file for this task and start implimenting the changes step by step as per the plan you created.
+
+***Strict Rules*** now we are just working with the UI only, do not messup with the backend. keep the backend functionality as it is while enhancing the UI. Follow the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelineswhile building the new UI. never use hardcoded ui , no inline styles, only semantic classes from the global css. always test everything after making changes. do to attempt blindly if you dont have clear picture. only work with the UI when you are build the UI. only semantic approach is allowed.

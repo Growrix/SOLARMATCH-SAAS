@@ -298,6 +298,50 @@
 - ✅ LeadPreviewModal.tsx (415 lines) - 100% complete, ready to use
 - ✅ Cancel API + Service - Fully implemented, just needs UI visibility
 - ❌ Edit API - Missing PATCH /api/leads/[id] endpoint
+
+---
+
+**Phase 24: Admin Lead Details Modal Enhancement (UI-Only Consolidation)** 🔄 PLANNED (November 23, 2025)
+- 🎯 **Goal**: Consolidate Actions, Lead Pricing, Admin Notes, Installer Assignment, and Lead Lifecycle into a single unified modal `AdminLeadManagementModal` (UI-only, preserve all existing backend logic).
+- 📋 **Approach**: Extract existing box sections from `src/app/admin/leads/[id]/page.tsx` and integrate `InstallerSelectorModal` functionality with new filters, per-installer note UI (non-persistent), and edit mode support.
+- 📄 **Audit Report**: `DOC/Installers/Profile & verification/ADMIN-LEAD-DETAILS-MODAL-AUDIT.md`
+- 🔗 **Scope**: ~400–550 lines (new modal) + removal/replacement of ~5 existing box sections (no handler changes)
+- 🛑 **Constraints**: UI-only (NO API/schema/service modifications), semantic classes only, zero hardcoded colors, maintain all existing handlers.
+
+**Subtasks**:
+- [ ] 24.1: Extract current markup inventory (sections + modals) into working notes (COMPLETE in audit)
+- [ ] 24.2: Scaffold `AdminLeadManagementModal.tsx` with semantic container + header/footer
+- [ ] 24.3: Migrate Actions + Pricing + Countdown controls into Section A (Approval Settings)
+- [ ] 24.4: Integrate Admin Notes into Section C (single textarea, preserve handler)
+- [ ] 24.5: Integrate Lifecycle actions (resell, extend, archive/unarchive) into Section D
+- [ ] 24.6: Merge InstallerSelector features → Section B (filters + list + selection mode)
+- [ ] 24.7: Add postcode match toggle & verified/unverified segmented filter (client-side filtering only)
+- [ ] 24.8: Add per-installer expandable note UI (`installerNotes: Record<string,string>` state)
+- [ ] 24.9: Implement edit mode banner for already approved/purchased leads
+- [ ] 24.10: Replace page right-column boxes with single "Manage Lead" button opening new modal
+- [ ] 24.11: Multi-theme visual test (Dark/Light/Purple)
+- [ ] 24.12: Responsive test (320, 375, 768, 1024, 1440)
+- [ ] 24.13: Accessibility test (focus trap, heading hierarchy, labels)
+- [ ] 24.14: Run 6 hardcoded-value verification commands (Expect 0/0/0/0/0/0)
+- [ ] 24.15: TypeScript & build validation (`npx tsc --noEmit`, `npm run build`)
+- [ ] 24.16: User review & approval
+- [ ] 24.17: Atomic commit (reference audit report, UI-only change)
+
+**Success Criteria**:
+- All lead management actions accessible inside one modal.
+- No backend handler changes or regressions.
+- All semantic class usage passes verification (0 violations).
+- Installer list supports search + verified filter + postcode match toggle.
+- Per-installer note inputs visible and editable (UI-only state).
+- Works across 3 themes and 5 breakpoints.
+- Accessibility fundamentals (focus trap, headings, keyboard navigation).
+
+**Out of Scope (Deferred)**:
+- Persisting per-installer individual notes to backend.
+- Backend filtering for postcode (client-side only for this phase).
+- Combining approve + assign into transactional backend operation.
+
+---
 - ❌ Phone Sync - No warning UI when User.phone ≠ Lead.phoneNumber
 
 **Reference Issues** (from 05-ISSUES-AND-RECOMMENDATIONS.md):
