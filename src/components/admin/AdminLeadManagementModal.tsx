@@ -582,6 +582,22 @@ export default function AdminLeadManagementModal({
                                   Pending Profile
                                 </span>
                               )}
+                              {/* Show Price and Countdown for Assigned Installers */}
+                              {filterMode === 'assigned' && lead.leadPrice && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-caption bg-info/20 text-info">
+                                  £{lead.leadPrice.toFixed(2)}
+                                </span>
+                              )}
+                              {filterMode === 'assigned' && lead.expiresAt && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-caption bg-warning/20 text-warning">
+                                  {(() => {
+                                    const now = new Date();
+                                    const expires = new Date(lead.expiresAt);
+                                    const daysRemaining = Math.ceil((expires.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                                    return daysRemaining > 0 ? `${daysRemaining}d left` : 'Expired';
+                                  })()}
+                                </span>
+                              )}
                             </div>
                             <div className="text-caption text-muted-foreground">
                               {installer.email}
