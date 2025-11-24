@@ -1,4 +1,59 @@
-﻿'use client'
+﻿import React, { useEffect, useState } from 'react';
+import InstallerLeadCard from './InstallerLeadCard';
+import type { LeadFeedItem } from '@/src/types/lead';
+
+interface FeedData {
+  page: number;
+  limit: number;
+  total: number;
+  items: LeadFeedItem[];
+}
+
+export function InstallerLeadFeed() {
+  const [data, setData] = useState<FeedData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    async function load() {
+      setLoading(true);
+      try {
+        const res = await fetch('/api/installer/leads?quoteType=CALL_VISIT');
+        if (!res.ok) throw new Error('Failed to load feed');
+        const json = await res.json();
+        if (mounted) setData(json);
+      } catch (e: any) {
+        if (mounted) setError(e.message || 'Error');
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+    load();
+    return () => { mounted = false; };
+  }, []);
+
+  if (loading && !data) {
+    return <div className="p-4 text-body-small text-muted-foreground" aria-busy="true">Loading leads…</div>;
+  }
+  if (error) {
+    return <div className="p-4 text-body-small text-destructive" role="alert">{error}</div>;
+  }
+  if (!data || data.items.length === 0) {
+    return <div className="p-4 text-body-small text-muted-foreground">No leads available.</div>;
+  }
+
+  return (
+    <div className="grid gap-4" aria-label="installer leads feed">
+      {data.items.map(item => (
+        <InstallerLeadCard key={item.id} lead={item} />
+      ))}
+    </div>
+  );
+}
+
+export default InstallerLeadFeed;
+'use client'
 
 import React, { useState, useEffect, useCallback } from 'react';
 import QuoteBuilderModal from './QuoteBuilderModal';
