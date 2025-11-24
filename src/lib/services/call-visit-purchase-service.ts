@@ -1,5 +1,5 @@
 import { PrismaClient, LeadStatus } from '@prisma/client';
-import type { PurchaseAttemptResult, LeadFeedItem } from '../../types/lead';
+import type { PurchaseAttemptResult, LeadFeedItem } from '@/types/lead';
 import { logPurchase } from '../logger';
 
 const prisma = new PrismaClient();
@@ -9,6 +9,17 @@ const prisma = new PrismaClient();
  * Does not perform Stripe billing; focuses on ownership + masking state.
  */
 export async function purchaseCallVisitLead(leadId: string, installerId: string): Promise<PurchaseAttemptResult> {
+  // helper to persist audit row safely
+  async function audit(result: PurchaseAttemptResult) {
+    try {
+      await prisma.purchaseLogEntry.create({
+        data: { leadId, installerId, outcome: result.outcome, message: result.message || null }
+      });
+    } catch (_) {
+      // swallow audit errors (migration not applied / transient)
+    }
+  }
+
   try {
     const lead = await prisma.lead.findUnique({
       where: { id: leadId },
@@ -29,21 +40,18 @@ export async function purchaseCallVisitLead(leadId: string, installerId: string)
 
     if (!lead || lead.quoteType !== 'CALL_VISIT') {
       const res: PurchaseAttemptResult = { outcome: 'not_found', message: 'Lead not found' };
-      logPurchase(res, leadId, installerId);
-      return res;
+      await audit(res); logPurchase(res, leadId, installerId); return res;
     }
 
     const now = new Date();
     const isExpired = lead.expiresAt ? lead.expiresAt <= now : false;
     if (lead.status !== LeadStatus.APPROVED || isExpired || lead.cancelledAt || lead.archivedAt) {
       const outcome: PurchaseAttemptResult = { outcome: 'invalid_status', message: 'Lead not purchasable' };
-      logPurchase(outcome, leadId, installerId);
-      return outcome;
+      await audit(outcome); logPurchase(outcome, leadId, installerId); return outcome;
     }
     if (lead.installerId) {
       const outcome: PurchaseAttemptResult = { outcome: 'already_purchased', message: 'Lead already purchased' };
-      logPurchase(outcome, leadId, installerId);
-      return outcome;
+      await audit(outcome); logPurchase(outcome, leadId, installerId); return outcome;
     }
 
     const updateResult = await prisma.lead.updateMany({
@@ -53,8 +61,7 @@ export async function purchaseCallVisitLead(leadId: string, installerId: string)
 
     if (updateResult.count !== 1) {
       const conflict: PurchaseAttemptResult = { outcome: 'already_purchased', message: 'Purchase conflict' };
-      logPurchase(conflict, leadId, installerId);
-      return conflict;
+      await audit(conflict); logPurchase(conflict, leadId, installerId); return conflict;
     }
 
     const updated = await prisma.lead.findUnique({
@@ -74,8 +81,7 @@ export async function purchaseCallVisitLead(leadId: string, installerId: string)
 
     if (!updated) {
       const missing: PurchaseAttemptResult = { outcome: 'error', message: 'Lead missing post-update' };
-      logPurchase(missing, leadId, installerId);
-      return missing;
+      await audit(missing); logPurchase(missing, leadId, installerId); return missing;
     }
 
     const feedItem: LeadFeedItem = {
@@ -94,20 +100,14 @@ export async function purchaseCallVisitLead(leadId: string, installerId: string)
     };
     const success: PurchaseAttemptResult = { outcome: 'success', lead: feedItem };
 
-    try {
-      await prisma.purchaseLogEntry.create({
-        data: { leadId: feedItem.id, installerId, outcome: 'success', message: 'CALL_VISIT purchased' }
-      });
-    } catch (e) {
-      logPurchase({ outcome: 'error', message: 'PurchaseLogEntry missing (migration not applied)' }, leadId, installerId);
-    }
-
-    logPurchase(success, leadId, installerId);
-    return success;
+    await audit(success); logPurchase(success, leadId, installerId); return success;
   } catch (error) {
+    // Temporary debug log to surface underlying error during test
+    // Remove once purchase-success test passes consistently
+    // eslint-disable-next-line no-console
+    console.error('purchaseCallVisitLead error', error);
     const err: PurchaseAttemptResult = { outcome: 'error', message: 'Unexpected error purchasing lead' };
-    logPurchase(err, leadId, installerId);
-    return err;
+    await audit(err); logPurchase(err, leadId, installerId); return err;
   }
 }
 

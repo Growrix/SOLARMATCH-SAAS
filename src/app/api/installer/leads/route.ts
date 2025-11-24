@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
-import { fetchCallVisitFeed } from '@/src/lib/services/feed-service';
-import { feedQuerySchema } from '@/src/lib/validation/leadPurchase';
+import { fetchCallVisitFeed } from '@/lib/services/feed-service';
+import { feedQuerySchema } from '@/lib/validation/leadPurchase';
 // Auth integration placeholder: replace installerId derivation with real session extraction when available.
 
 // Minimal API route for installer CALL_VISIT lead feed (US1)
