@@ -127,6 +127,26 @@
 **Commit:** `a89791828442c8a87c98d55a1d25caa161123b2d` - feat: add OpenAPI contract TS mappings for CALL_VISIT feed & purchase (T015)  
 **Branch:** `007-call-visit-lead`  
 **Status:** ✅ Contract types aligned with OpenAPI specs (T015)
+### CALL_VISIT Migration & Feed Endpoint (November 24, 2025)
+**Commit:** `b8b5343` - feat/chore: apply purchase_log_entry migration & add feed endpoint + semantic token refactor (T004, T016–T018 gating)  
+**Branch:** `007-call-visit-lead`  
+**Status:** ✅ Migration applied; feed endpoint operational; typography violations resolved
+
+**Changes:**
+- Applied Prisma migration `20251124111848_purchase_log_entry`
+- Added API route `src/app/api/installer/leads/route.ts`
+- Added components `InstallerLeadCard.tsx`, `InstallerLeadFeed.tsx`
+- Replaced raw typography utilities (`text-sm`, `text-xs`, `font-medium`) with semantic tokens
+- Updated masking logic in feed-service earlier (now consumed by endpoint)
+
+**Validation:**
+- ✅ className scan: 0 violations after refactor
+- ✅ Prisma migrate dev successful and in sync
+- ✅ Endpoint returns feed structure (manual basic fetch in component)
+
+**Next:** Begin US1 remaining tasks (T019–T023: UI card enhancements, accessibility, test scaffolding)
+
+---
 
 **Changes:**
 - Added `src/types/callVisitContracts.ts` mapping purchase & feed responses
