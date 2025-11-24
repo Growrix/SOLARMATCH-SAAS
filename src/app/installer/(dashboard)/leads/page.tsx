@@ -5,19 +5,59 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import InstallerLeadFeed from '@/components/InstallerLeadFeed';
 import InstallerMessagingModal from '@/components/InstallerMessagingModal';
-import type { InstallerProfile as APIInstallerProfile, AssignedLead } from '@/types/installer';
-import type { InstallerProfile as ComponentInstallerProfile } from '@/components/InstallerLeadFeed';
+import type { AssignedLead } from '@/types/installer';
+import type { Lead, InstallerProfile } from '@/components/InstallerLeadFeed';
+
+// Map API AssignedLead to Component Lead format
+function mapAssignedLeadToComponentLead(apiLead: AssignedLead): Lead {
+  const isLocked = apiLead.homeowner.name === '***LOCKED***';
+  const quoteTypeMap: Record<string, Lead['type']> = {
+    CALL_VISIT: 'call_visit',
+    WRITTEN_QUOTE: 'written',
+    BIDDING: 'bidding'
+  };
+
+  return {
+    id: parseInt(apiLead.id) || 1,
+    homeownerId: parseInt(apiLead.homeownerId) || 1,
+    type: quoteTypeMap[apiLead.quoteType] || 'call_visit',
+    status: isLocked ? 'new' : 'unlocked', // TODO: map backend LeadStatus to UI statuses
+    dateSubmitted: new Date(apiLead.createdAt),
+    location: {
+      suburb: apiLead.location || 'Unknown',
+      postcode: apiLead.postcode || '',
+      state: apiLead.state || ''
+    },
+    systemDetails: {
+      estimatedSize: apiLead.projectType || 'N/A',
+      roofType: apiLead.roofType || 'N/A',
+      propertyType: apiLead.propertyType || 'Residential',
+      budget: apiLead.budgetRange || 'N/A'
+    },
+    contact: {
+      name: apiLead.homeowner.name || '***LOCKED***',
+      email: isLocked ? '***LOCKED***' : '***LOCKED***', // real email not exposed yet
+      phone: apiLead.homeowner.phone || '***LOCKED***'
+    },
+    unlockPrice: apiLead.leadPrice || 0,
+    isUnlocked: !isLocked,
+    unlockedBy: !isLocked ? [1] : [],
+    quotesReceived: apiLead.quotesCount || 0,
+    expiresAt: apiLead.expiresAt ? new Date(apiLead.expiresAt) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    priority: 'medium',
+    notes: apiLead.assignmentNotes || undefined
+  };
+}
 
 export default function InstallerLeadsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [showMessagingModal, setShowMessagingModal] = useState(false);
-  const [installer, setInstaller] = useState<ComponentInstallerProfile | null>(null);
-  const [assignedLeads, setAssignedLeads] = useState<AssignedLead[]>([]);
+  const [installer, setInstaller] = useState<InstallerProfile | null>(null);
+  const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Redirect if not authenticated or not installer
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/api/auth/signin');
@@ -26,7 +66,6 @@ export default function InstallerLeadsPage() {
     }
   }, [status, session, router]);
 
-  // Fetch installer profile and assigned leads
   useEffect(() => {
     async function fetchData() {
       if (status !== 'authenticated' || session?.user?.role !== 'INSTALLER') {
@@ -37,34 +76,29 @@ export default function InstallerLeadsPage() {
         setLoading(true);
         setError(null);
 
-        // Fetch installer profile
-        const profileRes = await fetch('/api/installer/profile');
-        if (!profileRes.ok) {
-          throw new Error('Failed to fetch installer profile');
-        }
-        const profileData = await profileRes.json();
-        const apiProfile: APIInstallerProfile = profileData.installer;
-        
-        // Adapt API response to component format
-        setInstaller({
-          id: 1, // Component expects number, using placeholder
-          companyName: apiProfile.companyName,
-          email: apiProfile.email,
-          phone: apiProfile.phone || '',
-          serviceAreas: apiProfile.serviceAreas,
-          isApproved: apiProfile.isApproved,
-          creditBalance: apiProfile.creditBalance,
-          totalUnlocks: apiProfile.totalUnlocks,
-          successRate: apiProfile.successRate,
-        });
-
         // Fetch assigned leads
         const leadsRes = await fetch('/api/installer/leads/assigned');
         if (!leadsRes.ok) {
           throw new Error('Failed to fetch assigned leads');
         }
         const leadsData = await leadsRes.json();
-        setAssignedLeads(leadsData.leads);
+        
+        // Map API leads to component format
+        const mappedLeads = (leadsData.leads || []).map(mapAssignedLeadToComponentLead);
+        setLeads(mappedLeads);
+
+        // Set installer profile (simplified for component)
+        setInstaller({
+          id: 1,
+          companyName: session.user.name || 'Installer',
+          email: session.user.email || '',
+          phone: '',
+          serviceAreas: [],
+          isApproved: true,
+          creditBalance: 1000,
+          totalUnlocks: mappedLeads.filter((l: Lead) => l.isUnlocked).length,
+          successRate: 85,
+        });
 
       } catch (err: any) {
         console.error('Error fetching data:', err);
@@ -77,11 +111,37 @@ export default function InstallerLeadsPage() {
     fetchData();
   }, [status, session]);
 
-  // Handler functions for Lead Feed
   const handleUnlockLead = async (leadId: number): Promise<boolean> => {
-    console.log('Unlock lead:', leadId);
-    // TODO: Implement actual unlock logic
-    return true;
+    try {
+      const response = await fetch(`/api/installer/leads/${leadId}/purchase`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Purchase failed:', errorData.error);
+        alert(errorData.error || 'Failed to purchase lead');
+        return false;
+      }
+
+      const data = await response.json();
+      console.log('Lead purchased successfully:', data);
+
+      // Refresh leads to show updated contact info
+      const leadsRes = await fetch('/api/installer/leads/assigned');
+      if (leadsRes.ok) {
+        const leadsData = await leadsRes.json();
+        const mappedLeads = (leadsData.leads || []).map(mapAssignedLeadToComponentLead);
+        setLeads(mappedLeads);
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error purchasing lead:', error);
+      alert('Failed to purchase lead. Please try again.');
+      return false;
+    }
   };
 
   const handleSubmitQuote = async (leadId: number, quoteData: any): Promise<boolean> => {
@@ -92,11 +152,9 @@ export default function InstallerLeadsPage() {
 
   const handleStartChat = (leadId: number): void => {
     console.log('Start chat with lead:', leadId);
-    // TODO: Implement actual chat logic
     setShowMessagingModal(true);
   };
 
-  // Loading state
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -108,7 +166,6 @@ export default function InstallerLeadsPage() {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -125,7 +182,6 @@ export default function InstallerLeadsPage() {
     );
   }
 
-  // No installer profile
   if (!installer) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -138,6 +194,7 @@ export default function InstallerLeadsPage() {
     <>
       <InstallerLeadFeed
         installer={installer}
+        leads={leads}
         onUnlockLead={handleUnlockLead}
         onSubmitQuote={handleSubmitQuote}
         onStartChat={handleStartChat}

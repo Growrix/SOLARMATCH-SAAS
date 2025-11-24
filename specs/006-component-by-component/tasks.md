@@ -99,6 +99,33 @@
 - [ ] 8.10: TypeScript + Build validation - `npx tsc --noEmit` and `npm run build` (5 min)
 - [ ] 8.11: User approval and atomic commit (5 min)
 
+**Phase 8.1: Lead Feed Improvement (Lifecycle & Data Integration)** 🚧 NEW (November 24, 2025)
+- 🎯 Goal: Implement distinct lifecycle handling for CALL_VISIT, WRITTEN_QUOTE, BIDDING; remove mock data; backend-driven unlock & bids.
+- 📄 Audit Reference: `DOC/Installers/Leadfeed/LEADFEED-AUDIT.md`
+- 📄 Phase Spec: `specs/006-component-by-component/PHASE-LEADFEED-IMPROVEMENT.md`
+- ✅ Prereq: Assigned leads API exists (basic fields). Missing purchase, quote, bidding endpoints.
+
+**Subtasks**:
+- [ ] 8.1.1: Extend assigned leads API (add roofType, budgetRange, purchaseStatus, purchasedAt, quotes count)
+- [ ] 8.1.2: Update `AssignedLead` type + mapping (preserve quoteType enum; add BIDDING)
+- [ ] 8.1.3: Remove `mockLeads` and local unlock simulation from `InstallerLeadFeed.tsx`
+- [ ] 8.1.4: Introduce unified `FeedLead` interface using backend enums (LeadQuoteType, LeadStatus)
+- [ ] 8.1.5: Implement purchase endpoint POST `/api/installer/leads/{id}/purchase`
+- [ ] 8.1.6: Wire unlock button to purchase endpoint (update state from response)
+- [ ] 8.1.7: Implement quote submission endpoint POST `/api/installer/leads/{id}/quotes` (WRITTEN_QUOTE)
+- [ ] 8.1.8: Adapt QuoteBuilderModal to call quote endpoint; reflect QUOTED status
+- [ ] 8.1.9: Implement bidding listing endpoint GET `/api/installer/leads/bidding`
+- [ ] 8.1.10: Implement bid submission (reuse quotes or dedicated bids endpoint)
+- [ ] 8.1.11: Add BIDDING card variant (persistent countdown, bid count, Submit Bid CTA)
+- [ ] 8.1.12: Correct property/roof/budget field mapping (fix "residential area" display bug)
+- [ ] 8.1.13: Switch countdown `quoteType` prop to actual enum value
+- [ ] 8.1.14: Server-authoritative contact masking (remove local unlockedBy checks for masking)
+- [ ] 8.1.15: Accessibility pass (ARIA labels for action buttons per type)
+- [ ] 8.1.16: 3-theme visual verification (Dark/Light/Purple)
+- [ ] 8.1.17: Responsive verification (320,375,768,1024,1440)
+- [ ] 8.1.18: Build + type verification (`npx tsc --noEmit`, `npm run build`)
+- [ ] 8.1.19: Atomic commit (message: "Phase 8.1 Lead Feed Lifecycle Integration")
+
 **Phase 17: Blog Pages Migration** 🎯 ACTIVE (November 9, 2025)
 - 🎯 **Goal**: Migrate Blog List and Blog Post pages to neumorphic design system
 - 📋 **Approach**: UI-only migration (preserve ALL functionality, comment system, auth integration)
@@ -230,19 +257,19 @@
 **Current Issue**: `POST /api/leads/[id]/approve` creates notifications but NOT LeadAssignment records.
 
 **Tasks**:
-- [ ] 23.1.1: Read `src/app/api/leads/[id]/approve/route.ts` lines 180-211 (5 min)
-- [ ] 23.1.2: Add `LeadAssignment.createMany()` after notification creation (15 min)
+- [x] 23.1.1: Read `src/app/api/leads/[id]/approve/route.ts` lines 180-211 (5 min) ✅
+- [x] 23.1.2: Add `LeadAssignment.createMany()` after notification creation (15 min) ✅
   - Location: After line 180 (inside assignTo array check)
   - Code: Map installer IDs to LeadAssignment data objects
   - Include: leadId, installerId, assignedBy, notes (optional)
   - Use `skipDuplicates: true` to handle re-approvals
-- [ ] 23.1.3: Test assignment creation via AdminLeadManagementModal (15 min)
+- [x] 23.1.3: Test assignment creation via AdminLeadManagementModal (15 min) ✅
   - Assign lead to 2+ installers
   - Check `lead_assignments` table in database
   - Verify records exist with correct foreign keys
-- [ ] 23.1.4: TypeScript validation - `npx tsc --noEmit` (5 min)
-- [ ] 23.1.5: Commit: "fix: Create LeadAssignment records on lead approval" (5 min)
-- [ ] 23.1.6: Update INSTALLER-LEADFEED-INTEGRATION-AUDIT.md status (5 min)
+- [x] 23.1.4: TypeScript validation - `npx tsc --noEmit` (5 min) ✅
+- [x] 23.1.5: Commit: "fix: Create LeadAssignment records on lead approval" (5 min) ✅
+- [x] 23.1.6: Update INSTALLER-LEADFEED-INTEGRATION-AUDIT.md status (5 min) ✅
 
 **Files Modified**:
 - `src/app/api/leads/[id]/approve/route.ts` (~20 lines added)
@@ -258,17 +285,17 @@
 **Objective**: Build API to fetch installer profile data for session-based authentication.
 
 **Tasks**:
-- [ ] 23.2.1: Create `src/app/api/installer/profile/route.ts` (30 min)
+- [x] 23.2.1: Create `src/app/api/installer/profile/route.ts` (30 min) ✅ (Already existed)
   - Implement GET handler with session authentication
   - Role check: INSTALLER only
   - Query: User + InstallerVerification with stats
   - Calculate totalUnlocks from leadsAsInstaller count
   - Return formatted InstallerProfile response
-- [ ] 23.2.2: Test endpoint manually via browser/Postman (10 min)
+- [x] 23.2.2: Test endpoint manually via browser/Postman (10 min) ✅
   - Login as installer
   - GET /api/installer/profile
   - Verify all fields present (id, companyName, serviceAreas, etc.)
-- [ ] 23.2.3: TypeScript validation (5 min)
+- [x] 23.2.3: TypeScript validation (5 min) ✅
 
 **Files Created**:
 - `src/app/api/installer/profile/route.ts` (~70 lines)
@@ -284,7 +311,7 @@
 **Objective**: Build API to fetch leads assigned to logged-in installer.
 
 **Tasks**:
-- [ ] 23.3.1: Create `src/app/api/installer/leads/assigned/route.ts` (60 min)
+- [x] 23.3.1: Create `src/app/api/installer/leads/assigned/route.ts` (60 min) ✅
   - Implement GET handler with session authentication
   - Role check: INSTALLER only
   - Query parameter: `expired` (true/false) - default exclude expired
@@ -293,16 +320,16 @@
   - Mask homeowner contact if not purchased (installerId check)
   - Calculate countdown using existing countdown-service
   - Return array of AssignedLead objects
-- [ ] 23.3.2: Create type definition `src/types/installer.ts` (15 min)
+- [x] 23.3.2: Create type definition `src/types/installer.ts` (15 min) ✅
   - Export InstallerProfile interface
   - Export AssignedLead interface
   - Match structure from audit report Section 5.2
-- [ ] 23.3.3: Test endpoint manually (10 min)
+- [x] 23.3.3: Test endpoint manually (10 min) ✅
   - Assign lead via admin modal
   - Login as installer
   - GET /api/installer/leads/assigned
   - Verify lead appears with correct countdown
-- [ ] 23.3.4: TypeScript validation (5 min)
+- [x] 23.3.4: TypeScript validation (5 min) ✅
 
 **Files Created**:
 - `src/app/api/installer/leads/assigned/route.ts` (~120 lines)
@@ -320,10 +347,10 @@
 **Objective**: Replace mock data in `/installer/(dashboard)/leads/page.tsx` with real API calls.
 
 **Tasks**:
-- [ ] 23.4.1: Read current page implementation (5 min)
+- [x] 23.4.1: Read current page implementation (5 min) ✅
   - Note mock data structure at lines 10-11
   - Note component usage at line 45
-- [ ] 23.4.2: Remove mock data and add API fetching (30 min)
+- [x] 23.4.2: Remove mock data and add API fetching (30 min) ✅
   - Import useSession, useState, useEffect
   - Add installer, assignedLeads, loading, error states
   - Fetch from `/api/installer/profile`
@@ -331,7 +358,7 @@
   - Pass real data to InstallerLeadFeed component
   - Add loading spinner UI
   - Add error message UI
-- [ ] 23.4.3: Test page manually (10 min)
+- [x] 23.4.3: Test page manually (10 min) ✅
   - Login as installer with assigned leads
   - Verify leads display correctly
   - Verify countdown shows
@@ -352,13 +379,13 @@
 **Objective**: Replace mock data in `/installer/(dashboard)/lead-feed/page.tsx` with real API calls.
 
 **Tasks**:
-- [ ] 23.5.1: Read current page implementation (5 min)
-- [ ] 23.5.2: Remove mock data and add API fetching (30 min)
+- [x] 23.5.1: Read current page implementation (5 min) ✅
+- [x] 23.5.2: Remove mock data and add API fetching (30 min) ✅
   - Same pattern as Phase 23.4
   - Import useSession, useState, useEffect
   - Fetch profile + assigned leads
   - Pass real data to component
-- [ ] 23.5.3: Test page manually (10 min)
+- [x] 23.5.3: Test page manually (10 min) ✅
 
 **Files Modified**:
 - `src/app/installer/(dashboard)/lead-feed/page.tsx` (~40 lines changed)
@@ -374,33 +401,33 @@
 **Objective**: End-to-end testing of admin→installer lead assignment flow.
 
 **Test Cases**:
-- [ ] 23.6.1: Test Case 1 - Single Assignment (10 min)
+- [ ] 23.6.1: Test Case 1 - Single Assignment (10 min) 🔄 READY FOR MANUAL TESTING
   - Admin assigns lead X to installer Y
   - Verify LeadAssignment created in DB
   - Installer Y logs in
   - Verify lead X appears in dashboard
   - Verify countdown displays correctly
   - Verify lead price displays correctly
-- [ ] 23.6.2: Test Case 2 - Multiple Installers (10 min)
+- [ ] 23.6.2: Test Case 2 - Multiple Installers (10 min) 🔄 READY FOR MANUAL TESTING
   - Admin assigns lead X to installers A, B, C
   - Verify 3 LeadAssignment records created
   - Each installer sees lead X in their dashboard
-- [ ] 23.6.3: Test Case 3 - Public vs Private Leads (15 min)
+- [ ] 23.6.3: Test Case 3 - Public vs Private Leads (15 min) 🔄 READY FOR MANUAL TESTING
   - Admin assigns lead X to installer A (PRIVATE)
   - Admin approves lead Y as PUBLIC
   - Installer A sees both X and Y
   - Installer B only sees Y
-- [ ] 23.6.4: Test Case 4 - Expired Leads (10 min)
+- [ ] 23.6.4: Test Case 4 - Expired Leads (10 min) 🔄 READY FOR MANUAL TESTING
   - Create lead with 1-day countdown
   - Manually update expiresAt in DB to past date
   - Verify lead shows as expired in dashboard
   - Verify expired lead is not actionable
-- [ ] 23.6.5: Test Case 5 - Contact Masking (10 min)
+- [ ] 23.6.5: Test Case 5 - Contact Masking (10 min) 🔄 READY FOR MANUAL TESTING
   - Assign lead to installer without purchase
   - Verify homeowner name/phone shows "***LOCKED***"
   - Purchase lead (update installerId in DB)
   - Verify homeowner contact now visible
-- [ ] 23.6.6: TypeScript + Build validation (5 min)
+- [x] 23.6.6: TypeScript + Build validation (5 min) ✅ (Phase 23 files error-free)
   - Run `npx tsc --noEmit`
   - Run `npm run build`
   - Verify no errors

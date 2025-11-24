@@ -28,7 +28,12 @@ export interface AssignedLead {
   state: string;
   propertyType: string | null;
   projectType: string;
+  roofType?: string | null;
+  budgetRange?: string | null;
   leadPrice: number | null;
+  purchaseStatus?: string | null;
+  purchasedAt?: string | null;
+  quotesCount?: number;
   expiresAt: string | null;
   createdAt: string;
   assignedAt: string;
@@ -43,4 +48,5 @@ export interface AssignedLead {
     minutesLeft: number;
     expired: boolean;
   } | null;
+  isPurchased?: boolean;
 }

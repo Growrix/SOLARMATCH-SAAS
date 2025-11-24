@@ -1117,17 +1117,7 @@ export default function ComponentLibraryTable() {
       <InstallerSelectorModal
         isOpen={openModal === 'installerSelector'}
         onClose={() => setOpenModal(null)}
-        lead={{
-          id: 'preview-lead',
-          firstName: 'John',
-          lastName: 'Doe',
-          email: 'john@example.com',
-          phone: '1234567890',
-          address: '123 Solar St',
-          city: 'San Francisco',
-          state: 'CA',
-          zipCode: '94102',
-        }}
+        leadId="preview-lead-id"
         onAssign={async () => {}}
       />
 
@@ -1135,11 +1125,14 @@ export default function ComponentLibraryTable() {
       <HomeownerSignupModal
         isOpen={openModal === 'homeownerSignup'}
         onClose={() => setOpenModal(null)}
+        onSuccess={() => {}}
       />
 
       <HomeownerSignInModal
         isOpen={openModal === 'homeownerSignIn'}
         onClose={() => setOpenModal(null)}
+        onSuccess={() => {}}
+        onSwitchToSignUp={() => {}}
       />
 
       <FirstQuoteSuccessModal
@@ -1196,11 +1189,14 @@ export default function ComponentLibraryTable() {
       <InstallerSignupModal
         isOpen={openModal === 'installerSignup'}
         onClose={() => setOpenModal(null)}
+        onSuccess={() => {}}
       />
 
       <InstallerSignInModal
         isOpen={openModal === 'installerSignIn'}
         onClose={() => setOpenModal(null)}
+        onSuccess={() => {}}
+        onOpenSignup={() => {}}
       />
 
       <InstallerEligibilityModal

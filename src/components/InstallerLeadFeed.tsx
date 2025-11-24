@@ -25,7 +25,7 @@ const XIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="
 const SendIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>;
 
 // --- Types ---
-export type LeadType = 'call_visit' | 'written';
+export type LeadType = 'call_visit' | 'written' | 'bidding';
 export type LeadStatus = 'new' | 'unlocked' | 'submitted' | 'expired' | 'contacted';
 
 export interface Lead {
@@ -81,6 +81,7 @@ interface LeadFilters {
 
 interface InstallerLeadFeedProps {
   installer: InstallerProfile;
+  leads?: Lead[]; // Optional: use provided leads or fallback to empty array
   onUnlockLead: (leadId: number) => Promise<boolean>;
   onSubmitQuote: (leadId: number, quoteData: any) => Promise<boolean>;
   onStartChat: (leadId: number) => void;
@@ -345,7 +346,7 @@ const LeadCard: React.FC<{
         </div>
 
         <div className="space-y-2">
-          {/* Countdown timer - Show for active marketplace leads (mock data uses 'new' for approved leads) */}
+          {/* Countdown timer - Show for active marketplace leads */}
           {lead.status === 'new' && (
             <div className="flex items-center space-x-2 text-body-small">
               <CalendarIcon className="h-4 w-4 text-muted-foreground" />
@@ -353,7 +354,7 @@ const LeadCard: React.FC<{
                 expiresAt={lead.expiresAt.toISOString()}
                 leadId={String(lead.id)}
                 leadStatus={lead.status}
-                quoteType="instant"
+                quoteType={lead.type === 'call_visit' ? 'CALL_VISIT' : lead.type === 'bidding' ? 'BIDDING' : 'WRITTEN_QUOTE'}
                 position="inline"
               />
             </div>
@@ -466,11 +467,12 @@ const LeadCard: React.FC<{
 };
 
 // --- Main Component ---
-const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({ 
-  installer, 
-  onUnlockLead, 
-  onSubmitQuote, 
-  onStartChat 
+const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({
+  installer,
+  leads: propLeads,
+  onUnlockLead,
+  onSubmitQuote,
+  onStartChat
 }) => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -491,94 +493,15 @@ const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({
     setLastUpdated(new Date());
   }, []);
 
-  // Mock leads data
-  const mockLeads: Lead[] = [
-    {
-      id: 1,
-      homeownerId: 101,
-      type: 'call_visit',
-      status: 'new',
-      dateSubmitted: new Date(Date.now() - 2 * 60 * 60 * 1000),
-      location: { suburb: 'Bondi', postcode: '2026', state: 'NSW' },
-      systemDetails: {
-        estimatedSize: '6.6kW',
-        roofType: 'Tile',
-        propertyType: 'House',
-        budget: '$8,000 - $15,000'
-      },
-      contact: {
-        name: 'Sarah Johnson',
-        email: 'sarah.j@email.com',
-        phone: '0412 345 678'
-      },
-      unlockPrice: 25,
-      isUnlocked: false,
-      unlockedBy: [],
-      quotesReceived: 0,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      priority: 'high'
-    },
-    {
-      id: 2,
-      homeownerId: 102,
-      type: 'written',
-      status: 'new',
-      dateSubmitted: new Date(Date.now() - 5 * 60 * 60 * 1000),
-      location: { suburb: 'Parramatta', postcode: '2150', state: 'NSW' },
-      systemDetails: {
-        estimatedSize: '10kW',
-        roofType: 'Metal',
-        propertyType: 'Townhouse',
-        budget: '$12,000 - $20,000'
-      },
-      contact: {
-        name: 'Michael Chen',
-        email: 'michael.chen@email.com',
-        phone: '0423 456 789'
-      },
-      unlockPrice: 0,
-      isUnlocked: true,
-      unlockedBy: [],
-      quotesReceived: 2,
-      expiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
-      priority: 'medium'
-    },
-    {
-      id: 3,
-      homeownerId: 103,
-      type: 'call_visit',
-      status: 'unlocked',
-      dateSubmitted: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-      location: { suburb: 'Manly', postcode: '2095', state: 'NSW' },
-      systemDetails: {
-        estimatedSize: '8.5kW',
-        roofType: 'Tile',
-        propertyType: 'House',
-        budget: '$10,000 - $18,000'
-      },
-      contact: {
-        name: 'Emma Wilson',
-        email: 'emma.w@email.com',
-        phone: '0434 567 890'
-      },
-      unlockPrice: 30,
-      isUnlocked: true,
-      unlockedBy: [installer.id],
-      quotesReceived: 1,
-      expiresAt: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000),
-      priority: 'high'
-    }
-  ];
-
-  // Initialize leads
+  // Initialize leads from props only (no mock fallback)
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLeads(mockLeads);
-      setLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (propLeads) {
+      setLeads(propLeads);
+    } else {
+      setLeads([]);
+    }
+    setLoading(false);
+  }, [propLeads]);
 
   // Auto-refresh every 30 seconds
   useEffect(() => {
@@ -625,12 +548,8 @@ const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({
     }
   };
 
+  // Placeholder: real purchase logic will update via parent callback after backend integration
   const handlePaymentSuccess = (leadId: number) => {
-    setLeads(prev => prev.map(lead => 
-      lead.id === leadId 
-        ? { ...lead, status: 'unlocked' as LeadStatus, unlockedBy: [...lead.unlockedBy, installer.id] }
-        : lead
-    ));
     setShowUnlockModal(false);
     setSelectedLead(null);
   };

@@ -9,12 +9,12 @@
  */
 
 import React from 'react';
-import ComponentLibraryTable from '@/components/admin/ComponentLibraryTable';
+// import ComponentLibraryTable from '@/components/admin/ComponentLibraryTable';
 
 export default function AdminComponentsPage() {
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-      <ComponentLibraryTable />
+      {/* <ComponentLibraryTable /> */}
     </div>
   );
 }

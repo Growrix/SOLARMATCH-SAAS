@@ -67,6 +67,7 @@ export interface ProfileData {
     designation: string;
     email: string;
     phone: string;
+    address: string | null;
     abnOrLicense: string;
     establishedYear: number;
     employeeCount: number;

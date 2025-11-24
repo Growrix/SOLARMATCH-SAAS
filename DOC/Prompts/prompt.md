@@ -2277,3 +2277,79 @@ Your task is to Audit the frontend and backend and understand the current functi
 ***The Goal*** Now the admin can select and assign leads to the installers,but the installers side needs to work. Installers should receive the leads accordingly. replace the mock data with the real data from the database. 
 
 ***instructions***  Identify the gaps between the UI and the backend to make the Installers side works accordingly. 
+
+--------------------------------------------------------------
+***call/visit leads***
+each type of lead has different lifecycle and endpoint. the call/visit lead should unlock the fileds that are locked after payment is done by the Installers. 
+
+- now the residential area is not fetching the lead data correctly. please fix this issue.
+- The contact detailes shoud be unlocked after payment made. 
+
+***Written Quote Leads***
+- now it is just behaving same as the call/visit leads. which should not do the same actions, and each type lead actions are different as all the leads are alo unique. so taking actions in one lead should not reflect anyother leads. 
+***Bidding Leads***
+- currently the installers lead feed is not showing any Bidding lead after assigning bidding lead from the admin lead managemenet system. 
+
+
+***Important*** As each leads are unique , so each lead should have its own unique journey and end points. 
+
+***instrcutions*** Audit and understand the frontend and backend deeply, make sure you have the clear picture. After that create a audit report in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Leadfeed  folder  and create implimenetation plan in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\tasks.md . after that start implimenting accordingly. 
+
+------------------------------------------------------------------------
+
+Perform a comprehensive audit on the Lead System including both frontend and backend components including modals, Api, prisma, DB schema etc that actually cover everything to track down. The audit should cover the following areas:
+
+- Homeowners Lead flow
+- Admin Lead flow
+- Installers Lead flow
+
+you must get all the pin points accurate data information. what is actually happeing right now including mentioning the user flows accordingly.also mention the file paths , structures, connections etc deeply. the goal is to understand the current scenario of the lead System end to end. based on this we will plan the next plan. 
+
+create the audit report under this folder D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Leadfeed. 
+--------------------------------------------------------------------------
+
+lets build the ## 3. Installer User Stories (Per Lead Type)
+### CALL_VISIT . 
+- US-CV-01: As a verified installer, I view a CALL_VISIT lead card showing summary + masked contact.
+- US-CV-02: I click "Purchase" and, if successful, the card updates with full contact details and a purchased badge. And it should in the purchase lead page as well. that page and necessary modals need to create.
+- as the call/visit lead will be shown to multiple installers, so once any installer purchased the lead will be shown as purchased by Anohter installer status, and unable to purchase that lead. 
+- US-CV-03: Other CALL_VISIT leads purchased by me remain accessible with contact; purchased by others show a disabled state.
+- 
+
+-------------------------------------------------------------------
+
+***what I picked from your idea***
+
+2. Purchase Experience
+
+Add a confirmation modal before purchase (“Are you sure? This action cannot be undone.”).
+Show price and terms clearly in the modal.
+After purchase, show a success toast/notification and auto-scroll to the purchased lead in the feed.
+3. Post-Purchase Handling
+
+Purchased leads should move to a “My Purchased Leads” tab or section for easy access.
+Optionally, allow installers to add private notes to purchased leads (for their own tracking, not messaging).
+If a lead is purchased by another installer, show a “Purchased by another installer” badge and disable the purchase button.
+4. Status Sync
+
+Ensure real-time or near-real-time status update across all roles (installer, admin, homeowner) to avoid double-purchase or stale UI.
+Consider using optimistic UI updates (show as purchased immediately, then confirm with backend).
+5. Audit & Security
+
+Log all purchase attempts and status changes for audit trail.
+Prevent race conditions: backend must atomically check and update lead status on purchase.
+6. Edge Cases
+
+If an installer tries to purchase a lead that was just bought by someone else, show a clear error (“Sorry, this lead was just purchased by another installer.”).
+If a lead is cancelled or archived by admin/homeowner after purchase, show a “No longer available” state in the installer’s feed.
+7. UI/UX
+
+Use clear visual cues: purchased (by me), purchased (by another), available, expired.
+Consider a tooltip or info icon explaining what “CALL_VISIT” means for new installers.
+8. Analytics
+
+Track conversion rates: how many installers view vs purchase.
+Optionally, show “Recently purchased” highlight activity.
+
+***instructions***  now merge my idea and your idea and create a Call/visit lead plan .md file under the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Leadfeed folder. I just need the plan only. keep it precised so that we can develop accordingly. 
+

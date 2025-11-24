@@ -23,6 +23,7 @@ interface VerificationData {
     designation: string;
     email: string;
     phone: string;
+    address: string | null;
     abnOrLicense: string;
     establishedYear: number;
     employeeCount: number;

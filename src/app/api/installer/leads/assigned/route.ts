@@ -39,14 +39,14 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const includeExpired = searchParams.get('expired') === 'true';
 
-    // Query LeadAssignment with lead and homeowner includes
+    // Query LeadAssignment with extended lead fields and homeowner
     const assignments = await prisma.leadAssignment.findMany({
       where: {
         installerId: session.user.id,
         lead: includeExpired ? undefined : {
           OR: [
-            { expiresAt: null }, // No expiry set
-            { expiresAt: { gt: new Date() } } // Not yet expired
+            { expiresAt: null },
+            { expiresAt: { gt: new Date() } }
           ]
         }
       },
@@ -54,43 +54,46 @@ export async function GET(request: NextRequest) {
         lead: {
           include: {
             homeowner: {
-              select: {
-                id: true,
-                name: true,
-                phone: true,
-              }
-            }
+              select: { id: true, name: true, phone: true }
+            },
+            quotes: { select: { id: true } }
           }
         }
       },
       orderBy: { assignedAt: 'desc' }
     });
 
-    // Map assignments to formatted lead objects
+    // Map assignments to formatted lead objects (extended shape)
     const leads = assignments.map(assignment => {
       const lead = assignment.lead;
-      const isPurchased = lead.installerId === session.user.id;
+      const isPurchased = lead.installerId === session.user.id && !!lead.purchasedAt;
 
       return {
         id: lead.id,
         homeownerId: lead.homeownerId,
-        status: lead.status,
-        quoteType: lead.quoteType,
+        status: lead.status, // Raw backend status (e.g. APPROVED, PURCHASED, QUOTED)
+        quoteType: lead.quoteType, // CALL_VISIT | WRITTEN_QUOTE | BIDDING
         postcode: lead.postcode,
         location: lead.location,
         state: lead.state,
         propertyType: lead.propertyType,
         projectType: lead.projectType,
+        roofType: lead.roofType,
+        budgetRange: lead.budgetRange,
         leadPrice: lead.leadPrice,
+        purchaseStatus: lead.purchaseStatus || null,
+        purchasedAt: lead.purchasedAt?.toISOString() || null,
+        quotesCount: lead.quotes.length,
         expiresAt: lead.expiresAt?.toISOString() || null,
         createdAt: lead.createdAt.toISOString(),
         assignedAt: assignment.assignedAt.toISOString(),
         assignmentNotes: assignment.notes,
         homeowner: {
           name: isPurchased ? lead.homeowner.name : '***LOCKED***',
-          phone: isPurchased ? lead.homeowner.phone : '***LOCKED***',
+          phone: isPurchased ? lead.homeowner.phone : '***LOCKED***'
         },
         countdown: calculateCountdown(lead.expiresAt),
+        isPurchased,
       };
     });
 
