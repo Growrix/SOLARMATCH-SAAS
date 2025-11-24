@@ -2266,3 +2266,14 @@ I want to enhance the Admin Lead details modal a bit both frontend and backend t
 --------------------------------------------------------------------------------
 
 Audit the frontent and backend and understand the scenario. then fix it accordingly.
+
+-----------------------------------------
+
+Your task is to Audit the frontend and backend and understand the current functioality of the following components and their data flow: 
+
+- Admin Lead management modal
+- Installers Leadfeed and its lead modals. currently there is only UI there with mock data. 
+
+***The Goal*** Now the admin can select and assign leads to the installers,but the installers side needs to work. Installers should receive the leads accordingly. replace the mock data with the real data from the database. 
+
+***instructions***  Identify the gaps between the UI and the backend to make the Installers side works accordingly. 
