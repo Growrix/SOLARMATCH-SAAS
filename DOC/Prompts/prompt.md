@@ -2262,3 +2262,7 @@ I want to enhance the Admin Lead details modal a bit both frontend and backend t
 - You did not maintin the semantic classes properly, I can see different buttons there. must follow the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines while building the new UI and also enhance the current ui that you built. 
 
 ***instructions***  Audit and understand the current UI . audit the relevant fronend and backend in deailed and create a comprhensive audit report of the current state and the gaps between the existing flows and the requested flows and the plan to fix and impliment them. after that start fixing the requirement step by step. Make sure to keep everything aligned with the constitution.md file and the overall theming system that we are working on. create the audit report under this folder D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Profile & verification. And create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\006-component-by-component\tasks.md file for this task and start implimenting the changes step by step as per the plan you created.
+
+--------------------------------------------------------------------------------
+
+Audit the frontent and backend and understand the scenario. then fix it accordingly.

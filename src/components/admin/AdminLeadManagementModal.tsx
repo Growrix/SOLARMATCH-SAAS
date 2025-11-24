@@ -32,7 +32,7 @@ interface Assignment {
       representativeName: string | null;
       phone: string | null;
       address: string | null;
-      postcodes: string | null;
+      postcodes: string[]; // Array of postcodes
       status: string;
     } | null;
   };
@@ -64,7 +64,7 @@ interface Installer {
     representativeName: string | null;
     phone: string | null;
     address: string | null;
-    postcodes: string | null; // Comma-separated
+    postcodes: string[]; // Array of postcodes, not comma-separated string
     status: string;
   } | null;
 }
@@ -193,6 +193,12 @@ export default function AdminLeadManagementModal({
         const response = await fetch(`/api/admin/installers/list${installerVerified ? `?installerVerified=${installerVerified}` : ''}`);
         if (!response.ok) throw new Error('Failed to fetch installers');
         const data = await response.json();
+        console.log('📥 Fetched installers:', data.installers?.length, 'installers');
+        console.log('📍 Lead postcode:', lead.postcode);
+        // Log first few installers with their postcodes
+        data.installers?.slice(0, 5).forEach((inst: any) => {
+          console.log('  -', inst.email, '| Postcodes:', inst.installerVerification?.postcodes);
+        });
         setInstallers(data.installers || []);
       }
     } catch (err: any) {
@@ -214,12 +220,11 @@ export default function AdminLeadManagementModal({
     if (!inst.installerVerification) return false;
     
     // Postcode match (primary factor)
-    if (!lead.postcode || !inst.installerVerification.postcodes || typeof inst.installerVerification.postcodes !== 'string') return false;
+    if (!lead.postcode || !inst.installerVerification.postcodes || !Array.isArray(inst.installerVerification.postcodes)) return false;
     
     // Normalize postcodes: trim whitespace and convert to lowercase
     const leadPostcode = lead.postcode.trim().toLowerCase();
     const instPostcodes = inst.installerVerification.postcodes
-      .split(',')
       .map(p => p.trim().toLowerCase())
       .filter(p => p.length > 0); // Remove empty entries
     
@@ -245,26 +250,50 @@ export default function AdminLeadManagementModal({
       installer.installerVerification?.representativeName?.toLowerCase().includes(query) ||
       installer.email.toLowerCase().includes(query) ||
       installer.installerVerification?.phone?.toLowerCase().includes(query) ||
-      installer.installerVerification?.postcodes?.toLowerCase().includes(query);
+      (Array.isArray(installer.installerVerification?.postcodes) 
+        ? installer.installerVerification.postcodes.some(pc => pc.toLowerCase().includes(query))
+        : false);
 
     if (!matchesSearch) return false;
 
     // Postcode filter
     if (postcodeFilterEnabled && lead.postcode) {
+      console.log('🎯 Postcode filter ENABLED. Lead postcode:', lead.postcode, '| Total installers to check:', installers.length);
       const leadPostcode = lead.postcode.trim().toLowerCase();
-      const postcodeStr = installer.installerVerification?.postcodes;
-      const instPostcodes = (postcodeStr && typeof postcodeStr === 'string') 
-        ? postcodeStr.split(',').map(p => p.trim().toLowerCase()).filter(p => p.length > 0)
+      
+      // Handle postcodes as array (correct Prisma schema type)
+      const instPostcodes = Array.isArray(installer.installerVerification?.postcodes)
+        ? installer.installerVerification.postcodes.map(p => p.trim().toLowerCase()).filter(p => p.length > 0)
         : [];
+      
+      // Debug logging
+      if (instPostcodes.length > 0) {
+        console.log('🔍 Postcode Match Debug:', {
+          leadPostcode,
+          installerEmail: installer.email,
+          installerPostcodes: instPostcodes,
+          rawPostcodes: installer.installerVerification?.postcodes
+        });
+      }
       
       // Check for match: exact match or prefix match
       const matchesPostcode = instPostcodes.some(ip => {
-        return ip === leadPostcode || // Exact match
-               ip.startsWith(leadPostcode) || // Installer has more specific code
-               leadPostcode.startsWith(ip); // Lead has more specific code
+        const exactMatch = ip === leadPostcode;
+        const installerHasMoreSpecific = ip.startsWith(leadPostcode);
+        const leadHasMoreSpecific = leadPostcode.startsWith(ip);
+        const match = exactMatch || installerHasMoreSpecific || leadHasMoreSpecific;
+        
+        if (match) {
+          console.log('✅ Match found:', { ip, leadPostcode, exactMatch, installerHasMoreSpecific, leadHasMoreSpecific });
+        }
+        
+        return match;
       });
       
-      if (!matchesPostcode) return false;
+      if (!matchesPostcode) {
+        console.log('❌ No match for installer:', installer.email);
+        return false;
+      }
     }
 
     return true;
@@ -550,9 +579,9 @@ export default function AdminLeadManagementModal({
                               Verified
                             </span>
                           </div>
-                          {installer.installerVerification?.postcodes && typeof installer.installerVerification.postcodes === 'string' && (
+                          {installer.installerVerification?.postcodes && Array.isArray(installer.installerVerification.postcodes) && (
                             <div className="flex flex-wrap gap-1 mt-1">
-                              {installer.installerVerification.postcodes.split(',').map((pc, idx) => (
+                              {installer.installerVerification.postcodes.map((pc, idx) => (
                                 <span 
                                   key={idx}
                                   className="inline-flex items-center px-2 py-0.5 rounded text-caption bg-info/10 text-info"
@@ -640,10 +669,10 @@ export default function AdminLeadManagementModal({
                             <div className="text-caption text-muted-foreground">
                               {installer.email}
                             </div>
-                            {installer.installerVerification?.postcodes && typeof installer.installerVerification.postcodes === 'string' && (
+                            {installer.installerVerification?.postcodes && Array.isArray(installer.installerVerification.postcodes) && (
                               <div className="flex flex-wrap gap-1 mt-1">
                                 <span className="text-caption text-muted-foreground">Service Areas:</span>
-                                {installer.installerVerification.postcodes.split(',').map((pc, idx) => (
+                                {installer.installerVerification.postcodes.map((pc, idx) => (
                                   <span 
                                     key={idx}
                                     className="inline-flex items-center px-2 py-0.5 rounded text-caption bg-info/10 text-info"
