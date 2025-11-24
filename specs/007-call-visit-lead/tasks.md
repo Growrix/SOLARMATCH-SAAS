@@ -44,7 +44,7 @@ T011: [X] Add structured logger utility (if not present) `src/lib/logger.ts`. [P
 T012: [X] Add placeholder audit log writer `logPurchaseAttempt(payload)`. (sequential)
 T013: [X] Create feed resolver service `src/lib/services/feed-service.ts` deriving flags server-side. [P]
 T014: [X] Add Zod schemas for request params & responses `src/lib/validation/leadPurchase.ts`. [P]
-T015: Contract-type alignment: create TypeScript types from OpenAPI (manual mapping). (sequential)
+T015: [X] Contract-type alignment: create TypeScript types from OpenAPI (manual mapping). (sequential)
 Checkpoint P2: Service scaffolds + types ready; proceed to user stories.
 
 ## Phase 3: User Story US1 (View Available CALL_VISIT Lead) – Priority P1
