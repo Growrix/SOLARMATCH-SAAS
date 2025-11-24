@@ -119,6 +119,29 @@
 ### Documentation Update (November 19, 2025)
 **Commit:** `f3b8ed89aab82400abc58f6ee45c5154a728590c` - Audit: Installer frontend/backend/auth + plan to separate marketing homepage from dashboard via route groups. No code changes yet.  
 **Branch:** `main-secondary`
+### CALL_VISIT Foundational Progress (November 24, 2025)
+**Commit:** `2637a331fa0b534f3408bb507c1d89159ffd8f76` - feat: CALL_VISIT feed flags fix and validation schemas (foundational tasks complete)  
+**Branch:** `007-call-visit-lead`  
+**Status:** ✅ Foundational Phase 2 tasks (T008–T014) completed; migration still pending (T004 drift)
+
+**Changes:**
+- Added atomic purchase service `src/lib/services/call-visit-purchase-service.ts`
+- Added feed resolver with corrected flag logic `src/lib/services/feed-service.ts`
+- Implemented structured logger `src/lib/logger.ts`
+- Implemented resilient audit writer `src/lib/audit/purchase-log.ts`
+- Added comprehensive Zod validation schemas `src/lib/validation/leadPurchase.ts`
+- Updated tasks file marking Phase 2 tasks complete
+
+**Notes:**
+- PurchaseLogEntry migration still blocked by drift (T004) – audit writes wrapped in try/catch
+- Next step: Contract type mapping (T015) then US1 endpoint (T016–T023)
+
+**Validation:**
+- ✅ TypeScript build (pre-commit) passed
+- ✅ className scan: 0 violations
+- ✅ Feed flag logic now correctly derives purchasedByMe/purchasedByOther
+
+---
 
 **Files Added:**
 - `DOC/Installers/installer-audit-2025-11-19.md`
