@@ -123,6 +123,24 @@
 **Commit:** `2637a331fa0b534f3408bb507c1d89159ffd8f76` - feat: CALL_VISIT feed flags fix and validation schemas (foundational tasks complete)  
 **Branch:** `007-call-visit-lead`  
 **Status:** ✅ Foundational Phase 2 tasks (T008–T014) completed; migration still pending (T004 drift)
+### CALL_VISIT Contract Mapping (November 24, 2025)
+**Commit:** `a89791828442c8a87c98d55a1d25caa161123b2d` - feat: add OpenAPI contract TS mappings for CALL_VISIT feed & purchase (T015)  
+**Branch:** `007-call-visit-lead`  
+**Status:** ✅ Contract types aligned with OpenAPI specs (T015)
+
+**Changes:**
+- Added `src/types/callVisitContracts.ts` mapping purchase & feed responses
+- Updated `tasks.md` marking T015 complete (Phase 2 fully done except migration)
+
+**Notes:**
+- Ready to begin US1 endpoint implementation (T016–T023)
+- Consider resolving migration drift (T004) before audit verification tasks needing persistent log entries
+
+**Validation:**
+- ✅ TypeScript compile (pre-commit) clean
+- ✅ className scan: 0 violations
+
+---
 
 **Changes:**
 - Added atomic purchase service `src/lib/services/call-visit-purchase-service.ts`
