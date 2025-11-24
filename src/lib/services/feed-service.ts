@@ -57,6 +57,9 @@ export async function fetchCallVisitFeed(args: FetchFeedArgs): Promise<FeedRespo
   const limit = args.limit ?? 25;
   const skip = (page - 1) * limit;
 
+  // US4 Archival/Cancellation lifecycle:
+  // Exclude leads that have been archived or cancelled so they no longer appear in active feed.
+  // (If future inactive display required, adjust filtering + add inactive flag derivation.)
   const where = {
     quoteType: 'CALL_VISIT' as const,
     status: { in: [LeadStatus.APPROVED, LeadStatus.PURCHASED] },
