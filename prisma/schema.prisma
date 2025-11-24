@@ -114,6 +114,7 @@ model User {
   passwordResetTokens   PasswordResetToken[] // Auth Part A+B: password reset
   installerVerification InstallerVerification?
   installerPreferences  InstallerPreferences?
+  purchaseLogs          PurchaseLogEntry[]
 
   @@index([email])
   @@index([role])
@@ -211,6 +212,10 @@ model Lead {
   installer             User?             @relation("installer_leads", fields: [installerId], references: [id])
   quotes                Quote[]
   assignments           LeadAssignment[]  @relation("lead_assignments")
+  purchaseLogs          PurchaseLogEntry[]
+
+  // Composite index for purchase conditional query performance
+  @@index([status, installerId])
 
   @@index([homeownerId])
   @@index([installerId])
@@ -576,4 +581,24 @@ model InstallerPreferences {
 enum QuoteType {
   FORMAL
   INFORMAL
+}
+
+// ============================================================================
+// PURCHASE LOG MODEL (CALL_VISIT Purchase Flow)
+// ============================================================================
+model PurchaseLogEntry {
+  id          String   @id @default(cuid())
+  leadId      String
+  installerId String
+  outcome     String   // success | already_purchased | invalid_status | error
+  message     String?
+  createdAt   DateTime @default(now())
+
+  lead        Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  installer   User     @relation(fields: [installerId], references: [id], onDelete: Cascade)
+
+  @@index([leadId])
+  @@index([installerId])
+  @@index([outcome])
+  @@map("purchase_log_entries")
 }

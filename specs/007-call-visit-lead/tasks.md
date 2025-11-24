@@ -25,13 +25,13 @@ Task numbering is global (T001+). [P] indicates parallelizable (different files/
 ## Phase 1: Setup
 Goal: Ensure local environment, dependencies, and baseline schema readiness.
 
-T001: Verify TypeScript strict + Next.js version (check `tsconfig.json`, `package.json`). [P]
-T002: Confirm Prisma schema has required Lead fields (`installerId`, `purchasedAt`, `leadPrice`, `status`, `quoteType`, `expiresAt`). [P]
-T003: Add `PurchaseLogEntry` model to `prisma/schema.prisma` if absent (id, leadId, installerId, outcome, timestamp, message). (sequential)
-T004: Generate and apply Prisma migration for `PurchaseLogEntry`. (sequential)
-T005: Create index on Lead (`status`, `installerId`) to aid conditional purchase query performance. (sequential)
-T006: Run `npx prisma generate` to update client. (sequential)
-T007: Baseline type check `npx tsc --noEmit`. (sequential)
+T001: [X] Verify TypeScript strict + Next.js version (check `tsconfig.json`, `package.json`).
+T002: [X] Confirm Prisma schema has required Lead fields (`installerId`, `purchasedAt`, `leadPrice`, `status`, `quoteType`, `expiresAt`).
+T003: [X] Add `PurchaseLogEntry` model to `prisma/schema.prisma` (id, leadId, installerId, outcome, timestamp, message).
+T004: [ ] Generate and apply Prisma migration for `PurchaseLogEntry` (BLOCKED: drift detected; requires `npx prisma migrate reset` confirmation).
+T005: [X] Create composite index on Lead (`status`, `installerId`) to aid conditional purchase query performance.
+T006: [X] Run `npx prisma generate` to update client.
+T007: [X] Baseline type check `npx tsc --noEmit`.
 Checkpoint P1: Schema + tooling validated; proceed.
 
 ## Phase 2: Foundational
