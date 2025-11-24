@@ -215,11 +215,20 @@ export default function AdminLeadManagementModal({
     
     // Postcode match (primary factor)
     if (!lead.postcode || !inst.installerVerification.postcodes || typeof inst.installerVerification.postcodes !== 'string') return false;
-    const leadPostcodes = lead.postcode.split(',').map(p => p.trim().toLowerCase());
-    const instPostcodes = inst.installerVerification.postcodes.split(',').map(p => p.trim().toLowerCase());
-    const hasPostcodeMatch = leadPostcodes.some(lp => 
-      instPostcodes.some(ip => ip.includes(lp) || lp.includes(ip))
-    );
+    
+    // Normalize postcodes: trim whitespace and convert to lowercase
+    const leadPostcode = lead.postcode.trim().toLowerCase();
+    const instPostcodes = inst.installerVerification.postcodes
+      .split(',')
+      .map(p => p.trim().toLowerCase())
+      .filter(p => p.length > 0); // Remove empty entries
+    
+    // Check for match: exact match or prefix match (e.g., "2000" matches "2000" or "20")
+    const hasPostcodeMatch = instPostcodes.some(ip => {
+      return ip === leadPostcode || // Exact match
+             ip.startsWith(leadPostcode) || // Installer has more specific code
+             leadPostcode.startsWith(ip); // Lead has more specific code
+    });
     
     return hasPostcodeMatch;
   }).sort((a, b) => {
@@ -242,12 +251,19 @@ export default function AdminLeadManagementModal({
 
     // Postcode filter
     if (postcodeFilterEnabled && lead.postcode) {
-      const leadPostcodes = lead.postcode.split(',').map(p => p.trim().toLowerCase());
+      const leadPostcode = lead.postcode.trim().toLowerCase();
       const postcodeStr = installer.installerVerification?.postcodes;
       const instPostcodes = (postcodeStr && typeof postcodeStr === 'string') 
-        ? postcodeStr.split(',').map(p => p.trim().toLowerCase()) 
+        ? postcodeStr.split(',').map(p => p.trim().toLowerCase()).filter(p => p.length > 0)
         : [];
-      const matchesPostcode = leadPostcodes.some(lp => instPostcodes.some(ip => ip.includes(lp) || lp.includes(ip)));
+      
+      // Check for match: exact match or prefix match
+      const matchesPostcode = instPostcodes.some(ip => {
+        return ip === leadPostcode || // Exact match
+               ip.startsWith(leadPostcode) || // Installer has more specific code
+               leadPostcode.startsWith(ip); // Lead has more specific code
+      });
+      
       if (!matchesPostcode) return false;
     }
 
