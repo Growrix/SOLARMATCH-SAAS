@@ -176,8 +176,20 @@ export async function POST(
       },
     });
 
-    // Notify assigned installers (if specific assignment)
+    // Create LeadAssignment records and notify assigned installers (if specific assignment)
     if (body.assignTo && body.assignTo !== 'ALL' && Array.isArray(body.assignTo)) {
+      // Create LeadAssignment records in database
+      await prisma.leadAssignment.createMany({
+        data: body.assignTo.map((installerId: string) => ({
+          leadId: id,
+          installerId,
+          assignedBy: session.user.id,
+          notes: body.assignmentNotes || null,
+        })),
+        skipDuplicates: true, // Handle re-approval gracefully
+      });
+
+      // Send notifications to assigned installers
       for (const installerId of body.assignTo) {
         await createNotification({
           userId: installerId,
