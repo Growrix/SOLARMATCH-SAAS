@@ -169,3 +169,34 @@ export interface PaginatedLeads {
   totalPages: number;
   hasMore: boolean;
 }
+
+/**
+ * Lead feed item with derived flags used by installer feed UI.
+ * All boolean flags are server-derived (no client-side inference).
+ */
+export interface LeadFeedItem {
+  id: string;
+  quoteType: 'CALL_VISIT';
+  status: LeadStatus; // APPROVED | PURCHASED subset for this feature
+  leadPrice: number;
+  installerId: string | null;
+  purchasedAt: Date | null;
+  // Derived flags
+  purchasedByMe: boolean;
+  purchasedByOther: boolean;
+  canPurchase: boolean;
+  maskedContact: boolean;
+  // Contact (present only if purchasedByMe)
+  contact?: {
+    name: string;
+    phone: string;
+  } | null;
+  // Optional time data
+  expiresAt?: Date | null;
+}
+
+export interface PurchaseAttemptResult {
+  outcome: 'success' | 'already_purchased' | 'invalid_status' | 'not_found' | 'error';
+  lead?: LeadFeedItem; // Returned on success
+  message?: string;
+}

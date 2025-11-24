@@ -37,13 +37,13 @@ Checkpoint P1: Schema + tooling validated; proceed.
 ## Phase 2: Foundational
 Goal: Shared utilities/services mandatory before user stories.
 
-T008: Create `src/types/lead.ts` definitions for derived flags (LeadFeedItem). [P]
-T009: Stub `src/lib/services/purchase-service.ts` with interface `purchaseLead(id: string, installerId: string)`. [P]
-T010: Implement outcome enum mapping inside service (success, already_purchased, invalid_status, error). (sequential)
-T011: Add structured logger utility (if not present) `src/lib/logger.ts`. [P]
-T012: Add placeholder audit log writer `logPurchaseAttempt(payload)`. (sequential)
-T013: Create feed resolver service `src/lib/services/feed-service.ts` deriving flags server-side. [P]
-T014: Add Zod schemas for request params & responses `src/lib/validation/leadPurchase.ts`. [P]
+T008: [X] Create `src/types/lead.ts` definitions for derived flags (LeadFeedItem). [P]
+T009: [X] Stub atomic purchase service `src/lib/services/call-visit-purchase-service.ts` with `purchaseCallVisitLead(id, installerId)`. [P]
+T010: [X] Implement outcome enum mapping inside service (success, already_purchased, invalid_status, not_found, error) + audit logging attempt. (sequential)
+T011: [X] Add structured logger utility (if not present) `src/lib/logger.ts`. [P]
+T012: [X] Add placeholder audit log writer `logPurchaseAttempt(payload)`. (sequential)
+T013: [X] Create feed resolver service `src/lib/services/feed-service.ts` deriving flags server-side. [P]
+T014: [X] Add Zod schemas for request params & responses `src/lib/validation/leadPurchase.ts`. [P]
 T015: Contract-type alignment: create TypeScript types from OpenAPI (manual mapping). (sequential)
 Checkpoint P2: Service scaffolds + types ready; proceed to user stories.
 
