@@ -1,4 +1,4 @@
-import type { PurchaseAttemptResult } from '../../types/lead';
+import type { PurchaseAttemptResult } from '@/types/lead';
 
 /**
  * Minimal structured logger wrapper.

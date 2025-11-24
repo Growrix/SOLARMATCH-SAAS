@@ -494,7 +494,7 @@ const InstallerProfilePage: React.FC = () => {
           <div className="flex-1">
             <p className="text-body text-success">Verification Submitted Successfully!</p>
             <p className="text-body-small text-success/80 mt-1">
-              Your application is under review. You'll be notified once it's processed.
+              Your application is under review. You&apos;ll be notified once it&apos;s processed.
             </p>
           </div>
           <button
