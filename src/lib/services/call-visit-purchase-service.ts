@@ -102,10 +102,6 @@ export async function purchaseCallVisitLead(leadId: string, installerId: string)
 
     await audit(success); logPurchase(success, leadId, installerId); return success;
   } catch (error) {
-    // Temporary debug log to surface underlying error during test
-    // Remove once purchase-success test passes consistently
-    // eslint-disable-next-line no-console
-    console.error('purchaseCallVisitLead error', error);
     const err: PurchaseAttemptResult = { outcome: 'error', message: 'Unexpected error purchasing lead' };
     await audit(err); logPurchase(err, leadId, installerId); return err;
   }

@@ -13,7 +13,9 @@ export async function GET(req: NextRequest) {
       return Response.json({ error: 'invalid_query', issues: validation.error.issues }, { status: 400 });
     }
 
-    const installerId = 'installer-dev-placeholder'; // TODO: derive from session/auth context when implemented
+    // Support test override via header; fall back to placeholder installer id
+    const headerOverride = req.headers.get('x-installer-id');
+    const installerId = headerOverride && headerOverride.trim().length > 0 ? headerOverride : 'installer-dev-placeholder';
 
     const feed = await fetchCallVisitFeed({ installerId, ...validation.data });
     return Response.json(feed, { status: 200 });
