@@ -2366,3 +2366,15 @@ Optionally, show “Recently purchased” highlight activity.
 
  ###homeowners flow : 
  The homeowners will get notified instantly, also their lead statu will be changed to *responded by a Installer* > they should get a message saying "An Installer has responded to your request, Installer will contact you soon" > after installer purchase the lead, the leads cant be edited, updated, cancelled. All the homeowners actions will be locked> end of call/visit lead flow. 
+
+----------------------------------------------------------------------
+
+There are few things to update accordingly in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Leadfeed\CALL-VISIT-IMPLEMENTATION-PLAN.md :
+
+ -As i do not have the strip API now , so you need to make the flow works with minimal changes, so when I have the real API it can work immidiately or with few edits. 
+ - I want you to Installers flow first, then Admin and then the Homeowners accordingly. So that i can test each users flow and move forward.
+ - You should have some rules for testing and moving forward , if the test failed then stop an fix and then only move. becauase my experience with AI coding is not so good so far. after a long implimentation I always get surprised with the built and later it is annoying to fix unfinished tasks, also it is wasting time. so please make sure to have some rules for testing and moving forward.
+ - while building the flow make sure to keep everything aligned with the implimenetation plan
+ - refer this D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines while building any new UI. so that you can stay concistent. 
+
+ ***instructions*** update the implimenetation plan as per explained above. After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\007-call-visit-lead\tasks.md based on the implimentation Plan. make sure the tasks has testing instructions after implimentations and also follow the mandatory rules. 

@@ -2,6 +2,59 @@
 
 ## Latest Commits
 
+### CALL/VISIT Lead Implementation Plan Updated (November 25, 2025)
+**Branch:** `007-call-visit-lead`  
+**Status:** 📋 Planning Complete - Ready for Implementation
+
+**Documentation Created:**
+- `specs/007-call-visit-lead/DEEP-AUDIT-REPORT.md` - Comprehensive 8-section backend/frontend audit
+- `specs/007-call-visit-lead/CALL-VISIT-IMPLEMENTATION-PLAN.md` - Updated with mock payment, testing gates
+- `specs/007-call-visit-lead/IMPLEMENTATION-SUMMARY.md` - 2-hour MVP timeline
+- `specs/007-call-visit-lead/tasks.md` - Detailed task breakdown with testing instructions
+
+**Key Plan Features:**
+- **Payment Strategy:** Mock implementation (1.5s delay) with Stripe-ready architecture
+- **Implementation Order:** Installer → Admin → Homeowner (incremental validation)
+- **Testing Framework:** Mandatory checkpoints with STOP RULES between phases
+- **Design Compliance:** References `DOC/Guidelines/DESIGN-SYSTEM-SOT.md` for UI consistency
+
+**Audit Findings:**
+- Backend: Production-ready (Prisma schema ✅, purchase API ✅, contact masking ✅)
+- Frontend: Mock data already removed (plan was outdated)
+- Critical Gaps: 
+  * StripeUnlockModal not wired to real API
+  * Purchased leads endpoint missing
+  * Multi-installer detection not implemented
+
+**Implementation Phases:**
+1. ✅ Phase 1: Setup validation (COMPLETE - mock data already removed)
+2. Phase 2: Installer purchase flow with mock payment
+3. Phase 3: Purchased leads page with dedicated endpoint
+4. Phase 4: Multi-installer "purchased by another" detection
+5. Phase 6: Homeowner notifications and action locking
+6. Phase 7: Admin purchase tracking
+
+**Testing Requirements:**
+- ❌ STOP on any test failure before proceeding
+- ✅ Build validation after each phase
+- ✅ Manual testing with multiple accounts
+- ✅ Network tab validation for API calls
+- ✅ Design system compliance checks
+
+**Next Steps:**
+1. Begin Phase 2 implementation (InstallerLeadFeed.tsx updates)
+2. Follow `specs/007-call-visit-lead/tasks.md` strictly
+3. Test incrementally with STOP checkpoints
+4. Document any deviations from plan
+
+**Stripe Integration Notes:**
+- Mock payment in place (setTimeout 1.5s)
+- Real API call preserved (works with/without Stripe)
+- Integration points marked with `// TODO: When Stripe available` comments
+- Future upgrade: Single-point change at marked locations
+
+---
+
 ### Phase 22.1: Fix Flow 2 Modal Issue (November 17, 2025)
 **Commit:** `9b6d895` - fix: Phase 22.1 - use FirstQuoteSuccessModal for authenticated first lead  
 **Branch:** `main-secondary`  

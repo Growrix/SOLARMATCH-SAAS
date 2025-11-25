@@ -84,3 +84,56 @@ CALL_VISIT leads are visible to multiple installers until purchased. Once purcha
 
 ---
 End of Plan.
+
+
+
+## Plan: Enhanced Call/Visit Lead User Flow (UX Upgrade)
+
+This plan refines the call/visit lead journey for all roles, focusing on clarity, feedback, and seamless transitions. It ensures each user type (installer, admin, homeowner) experiences a logical, informative, and secure process, with real-time updates and clear status cues.
+
+### Steps
+
+1. **Installer Flow**
+   - Assigned leads appear in the lead feed with masked contact details.
+   - On "Purchase", show a confirmation modal with price, terms, and irreversible action warning.
+   - After purchase:
+     - Instantly show a success toast and auto-redirect to the "Purchased Leads" page (default to the correct tab: Call/Visit, Written Quotes, Bidding).
+     - The purchased lead card displays full contact details and a "Purchased" badge.
+     - Other installers see the lead as "Purchased by another installer" (disabled state, masked contact).
+     - All purchase attempts and status changes are logged for audit.
+     - Allow private notes for purchased leads (installer-only, not visible to others).
+   - All purchased leads remain accessible to the buyer; others see a disabled state.
+   - If a lead is cancelled/archived post-purchase, show a “No longer available” state and remove contact details.
+
+2. **Admin Flow**
+   - Lead management modal shows:
+     - Assignment status (assigned, purchased, available).
+     - Which installer purchased the lead (with timestamp).
+     - Ability to reassign leads to other installers if needed.
+     - If a lead is cancelled/archived, status updates in real time.
+   - Admin can view audit trail of all purchase attempts and status changes.
+   - Admin can override or reassign leads as business needs require.
+
+3. **Homeowner Flow**
+   - Upon purchase, homeowner receives instant notification.
+   - Lead status updates to *responded by an Installer*.
+   - Homeowner sees a message: "An Installer has responded to your request and will contact you soon."
+   - After purchase, the lead becomes locked: no edits, updates, or cancellations allowed by the homeowner.
+   - All homeowner actions are disabled for purchased leads, ensuring data integrity.
+
+### Further Considerations
+
+1. **Real-Time Sync**
+   - Use websockets or polling to update lead status across all roles instantly (prevents double-purchase, stale UI).
+2. **Edge Cases**
+   - If two installers attempt to purchase simultaneously, show a clear error to the slower one: “Sorry, this lead was just purchased by another installer.”
+   - If a lead is cancelled after purchase, notify both installer and homeowner, and update UI accordingly.
+3. **UI/UX Enhancements**
+   - Use badges, tooltips, and color cues for lead status (available, purchased by me, purchased by another, unavailable).
+   - Confirmation modals and toasts should be clear, branded, and accessible.
+   - Tabs in "Purchased Leads" page for easy filtering by lead type.
+4. **Audit & Analytics**
+   - Log all actions for compliance and troubleshooting.
+   - Track conversion rates and show recent purchase activity for admins.
+
+This plan ensures a robust, user-friendly, and auditable call/visit lead flow for all parties.
