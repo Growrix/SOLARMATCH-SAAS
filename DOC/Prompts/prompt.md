@@ -2353,3 +2353,6 @@ Optionally, show “Recently purchased” highlight activity.
 
 ***instructions***  now merge my idea and your idea and create a Call/visit lead plan .md file under the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Leadfeed folder. I just need the plan only. keep it precised so that we can develop accordingly. 
 
+-------------------------------------------------------------------------
+
+one thing I mostly face while reste the database, while restoring a site it seems a lot of DB ISSUE like seed data or you can check this whole chat conversation regarding this issues. How can I keep the working state safe , so that anytime I can easily resotre the DB . 
