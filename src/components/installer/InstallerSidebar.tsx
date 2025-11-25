@@ -194,6 +194,15 @@ const InstallerSidebar: React.FC<InstallerSidebarProps> = ({
             isCollapsed={isCollapsed}
           />
         </Link>
+        <Link href="/installer/purchased-leads">
+          <NavItem
+            icon={<ClipboardCheckIcon />}
+            title="Purchased Leads"
+            isActive={activePage === 'Purchased Leads'}
+            onClick={() => {}}
+            isCollapsed={isCollapsed}
+          />
+        </Link>
         <Link href="/installer/profile">
           <NavItem
             icon={<UserIcon />}

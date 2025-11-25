@@ -13,6 +13,156 @@ Purpose: Canonical standards for layouts, routing, components, theming, and vali
 ---
 
 ## Layout Standards
+
+### Dashboard Page Layout (Installer/Homeowner Pattern - SOT)
+**Standard:** Dashboard pages under `(dashboard)` folder should follow this minimal pattern (lead feed page is the reference):
+
+#### Pattern 1: Component-Based (Preferred for Complex Pages)
+```tsx
+// ✅ CORRECT: Delegate to component (best for reusable/complex UIs)
+'use client';
+
+import { useState, useEffect } from 'react';
+import YourMainComponent from '@/components/YourMainComponent';
+
+export default function DashboardPage() {
+  // ... data fetching logic
+  
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto mb-4"></div>
+          <p className="text-foreground-muted">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <p className="text-error mb-4">⚠️ {error}</p>
+          <button onClick={() => window.location.reload()} className="btn-primary">
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <YourMainComponent data={data} />
+      <SupportingModals />
+    </>
+  );
+}
+```
+
+#### Pattern 2: Direct Rendering (For Simpler Pages)
+```tsx
+// ✅ CORRECT: Render directly with internal spacing container
+'use client';
+
+import { useState, useEffect } from 'react';
+
+export default function DashboardPage() {
+  // ... data fetching logic
+  
+  if (loading) {
+    return (
+      <>
+        <div className="space-y-6">
+          <div className="bg-surface border border-border rounded-xl shadow-neu-outset p-6 animate-pulse">
+            <div className="h-8 bg-muted/20 rounded w-1/3 mb-4"></div>
+            <div className="h-4 bg-muted/20 rounded w-2/3"></div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <div className="bg-error/10 border border-error/20 rounded-xl p-6">
+          <p className="text-body text-error">Error message</p>
+          <button onClick={retry} className="mt-4 btn-primary">Retry</button>
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <div className="space-y-6">
+        {/* Header Section */}
+        <div className="mb-8">
+          <h1 className="text-heading-1 text-foreground mb-2">Page Title</h1>
+          <p className="text-body text-muted">Page description</p>
+        </div>
+
+        {/* Stats Section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-surface rounded-lg p-6 border border-border shadow-neu-outset">
+            {/* stat card content */}
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="bg-surface rounded-lg p-6 border border-border shadow-neu-outset">
+          {/* main content */}
+        </div>
+      </div>
+    </>
+  );
+}
+```
+
+**Key Rules:**
+- **NO** `min-h-screen` wrapper - inherited from `(dashboard)/layout.tsx`
+- **NO** `bg-background text-foreground` wrapper - inherited from layout
+- **NO** `p-4 sm:p-6 md:p-8` padding wrapper on the page - layout provides chrome spacing
+- **YES** Use React fragments `<>...</>` for the page return wrapper
+- **YES** Components manage their own internal spacing and structure
+- **YES** Use `<div className="space-y-6">` as inner container if rendering multiple sections directly (Pattern 2)
+- The `(dashboard)/layout.tsx` provides the structural background, padding, and chrome
+
+**Why This Pattern:**
+- Eliminates duplicate wrappers (layout already provides bg/padding)
+- Keeps pages clean and focused on content
+- Components are self-contained with their own spacing
+- Consistent across all dashboard pages
+- Inner `space-y-6` container provides section spacing when needed without duplicating layout styles
+
+**Examples:**
+- **leads/page.tsx** (SOT): Pattern 1 - `<> <InstallerLeadFeed /> </>`
+- **purchased-leads/page.tsx**: Pattern 2 - `<> <div className="space-y-6">...</div> </>`
+- **profile/page.tsx**: Pattern 2 - `<> <div className="space-y-6">...</div> </>`
+
+### Admin Dashboard Page Layout (Different Pattern)
+**Standard:** Admin pages may use a wrapper for additional control:
+
+```tsx
+// ✅ Admin pattern (when needed)
+export default function AdminPage() {
+  return (
+    <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 md:p-8">
+      <div className="mb-8">
+        <h1 className="text-heading-1">Page Title</h1>
+        <p className="text-muted">Description</p>
+      </div>
+      {/* content */}
+    </div>
+  );
+}
+```
+
+**Note:** Use admin pattern only when admin layout doesn't provide these styles.
+
+### Component Standards
 - Structural Surfaces: Use `bg-background` for body, header, sidebar, and shell layouts.
 - Elevated Surfaces: Use `bg-surface` for cards, panels, modals, inputs, menus.
 - Borders & Text: Use `border-border`, `text-foreground`, `text-body`, `text-muted`.

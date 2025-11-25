@@ -2355,3 +2355,14 @@ Optionally, show “Recently purchased” highlight activity.
 
 -------------------------------------------------------------------
 
+***call/visit lead curent scenario***  Now the admin can assing to installers > installers lead feed shows the assigned lead>after purchase it is not showing up the full contact details > and nothing further
+
+***what it should be***
+###installers Flow : 
+ after purchase it should show the full contact details  > the lead should move to the purchased lead page (need to create 3 tabs within this page: call/visit, Written Quotes, Bidding) and just show the installers lead modals there which is unlocked already> other installers should see the lead as purchased by another installer and unable to purchase that lead > only the installer who purchased the lead should see the full contact details > other call/visit leads purchased by installers should remain accessible with contact; purchased by others show a disabled state >  there should be a confirmation modal before purchase (“Are you sure? This action cannot be undone.”) > show price and terms clearly in the modal > after purchase, show a success toast/notification and auto-redirect to the purchased lead page  > log all purchase attempts and status changes for audit trail > 
+
+ ###Admin flow : 
+ The admin lead management modal should show the lead assignment status accordingly > there should be a section to show which installer purchased the lead > the admin should be able to reassign the lead to other installers if needed > if a lead is cancelled or archived by admin/homeowner after purchase, show a “No longer available” state in the installer’s feed.
+
+ ###homeowners flow : 
+ The homeowners will get notified instantly, also their lead statu will be changed to *responded by a Installer* > they should get a message saying "An Installer has responded to your request, Installer will contact you soon" > after installer purchase the lead, the leads cant be edited, updated, cancelled. All the homeowners actions will be locked> end of call/visit lead flow. 

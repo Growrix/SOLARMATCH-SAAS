@@ -459,34 +459,37 @@ const InstallerProfilePage: React.FC = () => {
   // Show loading skeleton
   if (loading) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 space-y-6">
-        <div className="bg-surface border border-border rounded-xl shadow-neu-outset p-6 animate-pulse">
-          <div className="h-8 bg-muted/20 rounded w-1/3 mb-4"></div>
-          <div className="h-4 bg-muted/20 rounded w-2/3"></div>
+      <>
+        <div className="space-y-6">
+          <div className="bg-surface border border-border rounded-xl shadow-neu-outset p-6 animate-pulse">
+            <div className="h-8 bg-muted/20 rounded w-1/3 mb-4"></div>
+            <div className="h-4 bg-muted/20 rounded w-2/3"></div>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
   
   // Show error state
   if (error || !profileData) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8">
+      <>
         <div className="bg-error/10 border border-error/20 rounded-xl p-6">
           <p className="text-body text-error">Failed to load profile</p>
           <p className="text-body-small text-error/80 mt-2">{error || 'Unknown error'}</p>
           <Button onClick={loadProfile} className="mt-4">Retry</Button>
         </div>
-      </div>
+      </>
     );
   }
   
   const { user, profile, verification, preferences } = profileData;
   
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
-      {/* Success/Error Feedback Banners */}
-      {verificationSuccess && (
+    <>
+      <div className="space-y-6">
+        {/* Success/Error Feedback Banners */}
+        {verificationSuccess && (
         <div className="bg-success/10 border border-success/20 rounded-xl p-4 flex items-start gap-3">
           <svg className="w-6 h-6 text-success flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -1496,7 +1499,8 @@ const InstallerProfilePage: React.FC = () => {
           onResendOTP={handleResendOTP}
         />
       )}
-    </div>
+      </div>
+    </>
   );
 };
 
