@@ -2353,3 +2353,5 @@ Optionally, show “Recently purchased” highlight activity.
 
 ***instructions***  now merge my idea and your idea and create a Call/visit lead plan .md file under the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Leadfeed folder. I just need the plan only. keep it precised so that we can develop accordingly. 
 
+-------------------------------------------------------------------
+
