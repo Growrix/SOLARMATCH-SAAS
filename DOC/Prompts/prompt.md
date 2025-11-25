@@ -2378,3 +2378,13 @@ There are few things to update accordingly in the D:\Desktop Mass\SOLAR LEAD GEN
  - refer this D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines while building any new UI. so that you can stay concistent. 
 
  ***instructions*** update the implimenetation plan as per explained above. After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\007-call-visit-lead\tasks.md based on the implimentation Plan. make sure the tasks has testing instructions after implimentations and also follow the mandatory rules. 
+
+ ------------------------------------------------------------------------
+
+
+ I want you to create a new file in the guidelines folder. the flies is the instruction and rules while implimenting any new task by AI models.
+
+ - create a new file in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines folder named AI-IMPLEMENTATION-GUIDELINES.md 
+ - in this file, write down the instructions and rules that should be followed while implimenting any new task by AI models.
+
+ 

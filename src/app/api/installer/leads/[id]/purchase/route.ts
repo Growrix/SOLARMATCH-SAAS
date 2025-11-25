@@ -118,6 +118,17 @@ export async function POST(
       }
     });
 
+    // Create notification for homeowner
+    await prisma.notification.create({
+      data: {
+        userId: updatedLead.homeownerId,
+        type: 'LEAD_PURCHASED',
+        title: 'Installer Responded to Your Request',
+        message: 'An installer has responded to your solar request and will contact you soon.',
+        isRead: false
+      }
+    });
+
     // Return unmasked contact details
     return NextResponse.json({
       success: true,

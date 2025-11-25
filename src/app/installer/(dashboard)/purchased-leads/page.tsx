@@ -73,7 +73,7 @@ export default function PurchasedLeadsPage() {
   async function fetchPurchasedLeads() {
     try {
       setLoading(true);
-      const response = await fetch('/api/leads?purchased=true');
+      const response = await fetch('/api/installer/leads/purchased');
       
       if (!response.ok) {
         throw new Error('Failed to fetch purchased leads');

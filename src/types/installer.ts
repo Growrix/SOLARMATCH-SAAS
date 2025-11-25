@@ -49,4 +49,5 @@ export interface AssignedLead {
     expired: boolean;
   } | null;
   isPurchased?: boolean;
+  isPurchasedByAnother?: boolean;
 }

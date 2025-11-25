@@ -839,6 +839,41 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
             )}
           </div>
 
+          {/* PURCHASE INFORMATION (Phase 7) */}
+          {lead.purchasedAt && (
+            <div className="p-6 rounded-lg bg-surface shadow-neu-inset border border-border">
+              <h2 className="text-heading-3 mb-4 text-foreground">
+                Purchase Information
+              </h2>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-body-small text-muted-foreground">Purchased By:</span>
+                  <span className="text-body-small text-foreground">
+                    {lead.installer?.name || 'Unknown Installer'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-body-small text-muted-foreground">Purchase Date:</span>
+                  <span className="text-body-small text-foreground">
+                    {formatDate(lead.purchasedAt)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-body-small text-muted-foreground">Purchase Status:</span>
+                  <span className="px-2 py-1 text-caption rounded-full bg-success/10 text-success">
+                    {lead.purchaseStatus || 'COMPLETED'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-body-small text-muted-foreground">Lead Price:</span>
+                  <span className="text-body-small text-foreground">
+                    ${lead.leadPrice || 'N/A'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* QUOTE DATA (Phase 4.5) */}
           {lead.quoteData && (
             <div className="p-6 rounded-lg bg-surface shadow-neu-outset">

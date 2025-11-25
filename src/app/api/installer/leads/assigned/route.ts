@@ -94,6 +94,7 @@ export async function GET(request: NextRequest) {
         },
         countdown: calculateCountdown(lead.expiresAt),
         isPurchased,
+        isPurchasedByAnother: !!lead.installerId && lead.installerId !== session.user.id,
       };
     });
 

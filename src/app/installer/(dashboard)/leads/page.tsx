@@ -41,6 +41,7 @@ function mapAssignedLeadToComponentLead(apiLead: AssignedLead): Lead {
     },
     unlockPrice: apiLead.leadPrice || 0,
     isUnlocked: !isLocked,
+    isPurchasedByAnother: apiLead.isPurchasedByAnother || false,
     unlockedBy: !isLocked ? [1] : [],
     quotesReceived: apiLead.quotesCount || 0,
     expiresAt: apiLead.expiresAt ? new Date(apiLead.expiresAt) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),

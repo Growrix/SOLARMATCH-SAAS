@@ -52,6 +52,7 @@ export interface Lead {
   };
   unlockPrice: number;
   isUnlocked: boolean;
+  isPurchasedByAnother?: boolean;
   unlockedBy: number[];
   quotesReceived: number;
   expiresAt: Date; // TODO: Change to string (ISO) for countdown timer integration with real API
@@ -92,9 +93,10 @@ const StripeUnlockModal: React.FC<{
   isOpen: boolean;
   onClose: () => void;
   lead: Lead | null;
+  onUnlockLead: (leadId: number) => Promise<boolean>;
   onPaymentSuccess: (leadId: number) => void;
   installer: InstallerProfile;
-}> = ({ isOpen, onClose, lead, onPaymentSuccess, installer }) => {
+}> = ({ isOpen, onClose, lead, onUnlockLead, onPaymentSuccess, installer }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
 
@@ -105,8 +107,22 @@ const StripeUnlockModal: React.FC<{
     setPaymentStatus('processing');
     
     try {
-      // Mock Stripe payment process
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // MOCK PAYMENT (Stripe placeholder)
+      // TODO: When Stripe available, add here:
+      // const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY);
+      // const { error } = await stripe.confirmCardPayment(clientSecret);
+      
+      // Simulate payment delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Call real purchase API
+      const success = await onUnlockLead(lead.id);
+      
+      if (!success) {
+        setPaymentStatus('error');
+        setTimeout(() => setPaymentStatus('idle'), 3000);
+        return;
+      }
       
       setPaymentStatus('success');
       setTimeout(() => {
@@ -115,6 +131,7 @@ const StripeUnlockModal: React.FC<{
         setPaymentStatus('idle');
       }, 1500);
     } catch (error) {
+      console.error('Purchase error:', error);
       setPaymentStatus('error');
       setTimeout(() => setPaymentStatus('idle'), 3000);
     } finally {
@@ -244,7 +261,8 @@ const LeadCard: React.FC<{
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   
   const isUnlockedByInstaller = lead.unlockedBy.includes(installer.id);
-  const canUnlock = lead.type === 'call_visit' && !isUnlockedByInstaller && lead.status === 'new';
+  const isPurchasedByAnother = lead.isPurchasedByAnother || false;
+  const canUnlock = lead.type === 'call_visit' && !isUnlockedByInstaller && !isPurchasedByAnother && lead.status === 'new';
   const canQuote = lead.type === 'written' || isUnlockedByInstaller;
 
   const getStatusBadge = () => {
@@ -287,7 +305,20 @@ const LeadCard: React.FC<{
 
   return (
     <>
-      <div className={`theme-card border-l-4 ${getPriorityColor()} p-6 transition-colors duration-200`}>
+      <div className={`theme-card border-l-4 ${getPriorityColor()} p-6 transition-colors duration-200 ${isPurchasedByAnother ? 'opacity-50' : ''}`}>
+      
+      {/* Banner if purchased by another installer */}
+      {isPurchasedByAnother && (
+        <div className="bg-error/10 border border-error/20 rounded-lg p-3 mb-4">
+          <div className="flex items-center space-x-2">
+            <LockIcon className="h-5 w-5 text-error" />
+            <p className="text-body text-error">
+              ⛔ This lead has been purchased by another installer
+            </p>
+          </div>
+        </div>
+      )}
+      
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center space-x-3">
@@ -738,6 +769,7 @@ const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({
           setSelectedLead(null);
         }}
         lead={selectedLead}
+        onUnlockLead={onUnlockLead}
         onPaymentSuccess={handlePaymentSuccess}
         installer={installer}
       />
