@@ -46,6 +46,13 @@ export async function GET(request: NextRequest) {
         lead: {
           // Exclude CANCELLED leads
           status: { not: 'CANCELLED' },
+          // Exclude leads purchased by this installer (they go to Purchased Leads page)
+          NOT: {
+            AND: [
+              { installerId: session.user.id },
+              { purchasedAt: { not: null } }
+            ]
+          },
           // Optionally filter expired leads
           ...(includeExpired ? {} : {
             OR: [
