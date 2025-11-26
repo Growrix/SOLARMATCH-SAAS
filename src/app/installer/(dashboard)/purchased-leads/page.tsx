@@ -24,6 +24,7 @@ import {
   CheckCircleIcon,
   EyeIcon
 } from '@heroicons/react/24/outline';
+import Button from '@/components/ui/button';
 
 interface PurchasedLead {
   id: string;
@@ -253,12 +254,12 @@ export default function PurchasedLeadsPage() {
             }
           </p>
           {leads.length === 0 && (
-            <button
+            <Button
               onClick={() => router.push('/installer/lead-feed')}
-              className="btn-primary"
+              variant="primary"
             >
               Browse Available Leads
-            </button>
+            </Button>
           )}
         </div>
       ) : (
@@ -392,27 +393,30 @@ export default function PurchasedLeadsPage() {
 
                 {/* Action Buttons */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                  <button
+                  <Button
                     onClick={() => handleCall(lead.homeowner.phone)}
-                    className="btn-success flex items-center justify-center"
+                    variant="primary"
+                    className="flex items-center justify-center"
                   >
                     <PhoneIcon className="h-5 w-5 mr-2" />
                     Call Now
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={() => handleEmail(lead.homeowner.email)}
-                    className="btn-primary flex items-center justify-center"
+                    variant="primary"
+                    className="flex items-center justify-center"
                   >
                     <EnvelopeIcon className="h-5 w-5 mr-2" />
                     Send Email
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={() => handleViewDetails(lead.id)}
-                    className="btn-secondary flex items-center justify-center"
+                    variant="secondary"
+                    className="flex items-center justify-center"
                   >
                     <EyeIcon className="h-5 w-5 mr-2" />
                     View Details
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
