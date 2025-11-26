@@ -101,8 +101,8 @@ interface InstallerLeadFeedProps {
   installer: InstallerProfile;
   leads?: Lead[]; // Optional: use provided leads or fallback to empty array
   onUnlockLead: (leadId: string) => Promise<boolean>;
-  onSubmitQuote: (leadId: number, quoteData: any) => Promise<boolean>;
-  onStartChat: (leadId: number) => void;
+  onSubmitQuote: (leadId: string, quoteData: any) => Promise<boolean>;
+  onStartChat: (leadId: string) => void;
 }
 
 // --- Stripe Payment Modal Component ---
@@ -296,7 +296,7 @@ const ViewDetailsModal: React.FC<{
           <div className="flex items-center justify-between">
             <div>
               <p className="text-caption text-muted-foreground">Lead ID</p>
-              <p className="text-body text-foreground font-medium">#{lead.id}</p>
+              <p className="text-body text-foreground">#{lead.id}</p>
             </div>
             <div className="flex items-center space-x-2">
               <span className={`px-3 py-1 text-caption rounded-full ${
@@ -317,7 +317,7 @@ const ViewDetailsModal: React.FC<{
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-body-small text-muted-foreground">Name:</span>
-                <span className="text-body-small text-foreground font-medium">{lead.contact.name}</span>
+                <span className="text-body-small text-foreground">{lead.contact.name}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-body-small text-muted-foreground">Phone:</span>
@@ -427,7 +427,7 @@ const ViewDetailsModal: React.FC<{
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-body-small text-muted-foreground">Lead Price:</span>
-                <span className="text-body-small text-foreground font-medium">${lead.unlockPrice}</span>
+                <span className="text-body-small text-foreground">${lead.unlockPrice}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-body-small text-muted-foreground">Submitted:</span>
@@ -518,8 +518,8 @@ const LeadCard: React.FC<{
   lead: Lead;
   installer: InstallerProfile;
   onUnlock: (leadId: string) => void;
-  onSubmitQuote: (leadId: number, quoteData: any) => Promise<boolean>;
-  onStartChat: (leadId: number) => void;
+  onSubmitQuote: (leadId: string, quoteData: any) => Promise<boolean>;
+  onStartChat: (leadId: string) => void;
 }> = ({ lead, installer, onUnlock, onSubmitQuote, onStartChat }) => {
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   const [isViewDetailsOpen, setIsViewDetailsOpen] = useState(false);
@@ -854,7 +854,7 @@ const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({
     return true;
   });
 
-  const handleUnlockLead = (leadId: number) => {
+  const handleUnlockLead = (leadId: string) => {
     const lead = leads.find(l => l.id === leadId);
     if (lead) {
       setSelectedLead(lead);

@@ -53,6 +53,7 @@ export default function PurchasedLeadsPage() {
   const [leads, setLeads] = useState<PurchasedLead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'CALL_VISIT' | 'WRITTEN_QUOTE' | 'BIDDING'>('CALL_VISIT');
 
   // Redirect if not authenticated or not installer
   useEffect(() => {
@@ -157,7 +158,7 @@ export default function PurchasedLeadsPage() {
                 £{leads.reduce((sum, lead) => sum + lead.leadPrice, 0)}
               </p>
             </div>
-            <CurrencyPoundIcon className="h-10 w-10 text-brand" />
+            <CurrencyPoundIcon className="h-10 w-10 text-accent" />
           </div>
         </div>
 
@@ -179,23 +180,90 @@ export default function PurchasedLeadsPage() {
         </div>
       </div>
 
+      {/* Tab Navigation */}
+      <div className="mb-6">
+        <div className="flex gap-2 p-1 bg-surface rounded-lg border border-border shadow-neu-inset">
+          {/* Call/Visit Tab */}
+          <button
+            onClick={() => setActiveTab('CALL_VISIT')}
+            className={`flex-1 px-4 py-3 rounded-lg text-body transition-all ${
+              activeTab === 'CALL_VISIT'
+                ? 'bg-accent text-background shadow-neu-outset'
+                : 'bg-transparent text-muted hover:bg-surface-hover'
+            }`}
+          >
+            <div className="flex items-center justify-center gap-2">
+              <span>Call/Visit</span>
+              {leads.filter(l => l.quoteType === 'CALL_VISIT').length > 0 && (
+                <span className="text-caption bg-accent/20 text-accent px-2 py-0.5 rounded-full">
+                  {leads.filter(l => l.quoteType === 'CALL_VISIT').length}
+                </span>
+              )}
+            </div>
+          </button>
+
+          {/* Written Quotes Tab */}
+          <button
+            onClick={() => setActiveTab('WRITTEN_QUOTE')}
+            className={`flex-1 px-4 py-3 rounded-lg text-body transition-all ${
+              activeTab === 'WRITTEN_QUOTE'
+                ? 'bg-accent text-background shadow-neu-outset'
+                : 'bg-transparent text-muted hover:bg-surface-hover'
+            }`}
+          >
+            <div className="flex items-center justify-center gap-2">
+              <span>Written Quotes</span>
+              {leads.filter(l => l.quoteType === 'WRITTEN_QUOTE').length > 0 && (
+                <span className="text-caption bg-accent/20 text-accent px-2 py-0.5 rounded-full">
+                  {leads.filter(l => l.quoteType === 'WRITTEN_QUOTE').length}
+                </span>
+              )}
+            </div>
+          </button>
+
+          {/* Bidding Tab */}
+          <button
+            onClick={() => setActiveTab('BIDDING')}
+            className={`flex-1 px-4 py-3 rounded-lg text-body transition-all ${
+              activeTab === 'BIDDING'
+                ? 'bg-accent text-background shadow-neu-outset'
+                : 'bg-transparent text-muted hover:bg-surface-hover'
+            }`}
+          >
+            <div className="flex items-center justify-center gap-2">
+              <span>Bidding</span>
+              {leads.filter(l => l.quoteType === 'BIDDING').length > 0 && (
+                <span className="text-caption bg-accent/20 text-accent px-2 py-0.5 rounded-full">
+                  {leads.filter(l => l.quoteType === 'BIDDING').length}
+                </span>
+              )}
+            </div>
+          </button>
+        </div>
+      </div>
+
       {/* Leads List */}
-      {leads.length === 0 ? (
+      {leads.filter(lead => lead.quoteType === activeTab).length === 0 ? (
         <div className="bg-surface rounded-lg p-12 text-center border border-border shadow-neu-outset">
           <CurrencyPoundIcon className="h-12 w-12 text-muted mx-auto mb-4" />
           <p className="text-body text-muted mb-4">
-            You haven&apos;t purchased any leads yet.
+            {leads.length === 0 
+              ? "You haven't purchased any leads yet."
+              : `No ${activeTab.replace('_', ' ').toLowerCase()} leads purchased yet.`
+            }
           </p>
-          <button
-            onClick={() => router.push('/installer/marketplace')}
-            className="btn-primary"
-          >
-            Browse Marketplace
-          </button>
+          {leads.length === 0 && (
+            <button
+              onClick={() => router.push('/installer/lead-feed')}
+              className="btn-primary"
+            >
+              Browse Available Leads
+            </button>
+          )}
         </div>
       ) : (
         <div className="space-y-6">
-          {leads.map(lead => (
+          {leads.filter(lead => lead.quoteType === activeTab).map(lead => (
             <div
               key={lead.id}
               className="bg-surface rounded-lg shadow-neu-outset border border-border p-6"
@@ -206,7 +274,7 @@ export default function PurchasedLeadsPage() {
                   {/* Header */}
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-3">
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-caption bg-brand/20 text-brand">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-caption bg-accent/20 text-accent">
                         {lead.quoteType.replace('_', ' ')}
                       </span>
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-caption bg-success/20 text-success">
@@ -283,8 +351,8 @@ export default function PurchasedLeadsPage() {
                 <div className="lg:ml-6 lg:w-64">
                   <div className="bg-surface rounded-lg p-4 mb-4 border border-border shadow-neu-inset">
                     <p className="text-body text-muted mb-1">Purchase Price</p>
-                    <div className="flex items-center">
-                      <CurrencyPoundIcon className="h-6 w-6 text-brand mr-1" />
+                  <div className="flex items-center">
+                      <CurrencyPoundIcon className="h-6 w-6 text-accent mr-1" />
                       <span className="text-heading-1 text-foreground">
                         {lead.leadPrice}
                       </span>
