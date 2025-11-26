@@ -266,122 +266,153 @@ export default function PurchasedLeadsPage() {
           {leads.filter(lead => lead.quoteType === activeTab).map(lead => (
             <div
               key={lead.id}
-              className="bg-surface rounded-lg shadow-neu-outset border border-border p-6"
+              className="bg-surface rounded-lg border border-border max-w-4xl w-full hover:shadow-neu-outset-md transition-shadow duration-300"
+              style={{ boxShadow: 'var(--shadow-outset)' }}
             >
-              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between">
-                {/* Left Side - Lead Info */}
-                <div className="flex-1 mb-6 lg:mb-0">
-                  {/* Header */}
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-caption bg-accent/20 text-accent">
-                        {lead.quoteType.replace('_', ' ')}
-                      </span>
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-caption bg-success/20 text-success">
-                        <CheckCircleIcon className="h-3 w-3 mr-1" />
-                        Purchased
-                      </span>
-                    </div>
-                    <p className="text-body text-muted">
-                      {new Date(lead.purchasedAt).toLocaleDateString()}
-                    </p>
+              <div className="p-6 space-y-6">
+                {/* Lead ID, Status & Purchase Info */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-caption text-muted-foreground">Lead ID</p>
+                    <p className="text-body text-foreground">#{lead.id}</p>
                   </div>
-
-                  {/* Contact Details - REVEALED */}
-                  <div className="bg-success/10 border border-success/30 rounded-lg p-4 mb-4 shadow-neu-inset">
-                    <h3 className="text-body text-success mb-3">
-                      Contact Information
-                    </h3>
-                    <div className="space-y-2">
-                      <p className="text-body text-success">
-                        {lead.homeowner.name}
-                      </p>
-                      <div className="flex items-center text-body text-success">
-                        <PhoneIcon className="h-4 w-4 mr-2 text-icon" />
-                        <a href={`tel:${lead.homeowner.phone}`} className="hover:underline">
-                          {lead.homeowner.phone}
-                        </a>
-                      </div>
-                      <div className="flex items-center text-body text-success">
-                        <EnvelopeIcon className="h-4 w-4 mr-2 text-icon" />
-                        <a href={`mailto:${lead.homeowner.email}`} className="hover:underline">
-                          {lead.homeowner.email}
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Lead Details */}
-                  <div className="grid grid-cols-2 gap-4">
-                    {lead.location && (
-                      <div className="flex items-center text-body text-muted">
-                        <MapPinIcon className="h-4 w-4 mr-2 text-icon" />
-                        {lead.location}
-                      </div>
-                    )}
-                    {lead.propertyType && (
-                      <div className="text-body text-muted">
-                        <span>Property:</span> {lead.propertyType}
-                      </div>
-                    )}
-                    {lead.roofType && (
-                      <div className="text-body text-muted">
-                        <span>Roof:</span> {lead.roofType}
-                      </div>
-                    )}
-                    {lead.estimatedBudget && (
-                      <div className="text-body text-muted">
-                        <span>Budget:</span> £{lead.estimatedBudget.toLocaleString()}
-                      </div>
-                    )}
-                    {lead.electricityBill && (
-                      <div className="text-body text-muted">
-                        <span>Monthly Bill:</span> £{lead.electricityBill}
-                      </div>
-                    )}
-                    {lead.roofArea && (
-                      <div className="text-body text-muted">
-                        <span>Roof Area:</span> {lead.roofArea}m²
-                      </div>
-                    )}
+                  <div className="flex items-center space-x-2">
+                    <span className="px-3 py-1 text-caption rounded-full bg-success/10 text-success">
+                      <CheckCircleIcon className="h-3 w-3 inline-block mr-1" />
+                      Purchased
+                    </span>
+                    <span className="px-3 py-1 text-caption rounded-full bg-accent/10 text-accent">
+                      {lead.quoteType === 'CALL_VISIT' ? 'Call/Visit' : lead.quoteType === 'WRITTEN_QUOTE' ? 'Written Quote' : 'Bidding'}
+                    </span>
                   </div>
                 </div>
 
-                {/* Right Side - Actions & Price */}
-                <div className="lg:ml-6 lg:w-64">
-                  <div className="bg-surface rounded-lg p-4 mb-4 border border-border shadow-neu-inset">
-                    <p className="text-body text-muted mb-1">Purchase Price</p>
-                  <div className="flex items-center">
-                      <CurrencyPoundIcon className="h-6 w-6 text-accent mr-1" />
-                      <span className="text-heading-1 text-foreground">
-                        {lead.leadPrice}
+                {/* Contact Information - REVEALED */}
+                <div className="bg-success/10 border border-success/30 rounded-lg p-4 shadow-neu-inset">
+                  <h3 className="text-heading-4 text-success mb-3">✓ Contact Information</h3>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-body-small text-success/80">Name:</span>
+                      <span className="text-body-small text-success">{lead.homeowner.name}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-body-small text-success/80">Phone:</span>
+                      <a href={`tel:${lead.homeowner.phone}`} className="text-body-small text-success hover:underline">
+                        {lead.homeowner.phone}
+                      </a>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-body-small text-success/80">Email:</span>
+                      <a href={`mailto:${lead.homeowner.email}`} className="text-body-small text-success hover:underline break-all">
+                        {lead.homeowner.email}
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  {/* Property Details */}
+                  {(lead.location || lead.propertyType || lead.roofType) && (
+                    <div className="bg-surface rounded-lg shadow-neu-inset border border-border p-4">
+                      <h3 className="text-heading-4 text-foreground mb-3">Property Details</h3>
+                      <div className="space-y-2">
+                        {lead.location && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-body-small text-muted-foreground">Location:</span>
+                            <span className="text-body-small text-foreground">{lead.location}</span>
+                          </div>
+                        )}
+                        {lead.propertyType && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-body-small text-muted-foreground">Property Type:</span>
+                            <span className="text-body-small text-foreground">{lead.propertyType}</span>
+                          </div>
+                        )}
+                        {lead.roofType && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-body-small text-muted-foreground">Roof Type:</span>
+                            <span className="text-body-small text-foreground">{lead.roofType}</span>
+                          </div>
+                        )}
+                        {lead.roofArea && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-body-small text-muted-foreground">Roof Area:</span>
+                            <span className="text-body-small text-foreground">{lead.roofArea}m²</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Energy & Budget Details */}
+                  {(lead.electricityBill || lead.estimatedBudget) && (
+                    <div className="bg-surface rounded-lg shadow-neu-inset border border-border p-4">
+                      <h3 className="text-heading-4 text-foreground mb-3">Energy & Budget</h3>
+                      <div className="space-y-2">
+                        {lead.electricityBill && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-body-small text-muted-foreground">Monthly Bill:</span>
+                            <span className="text-body-small text-foreground">£{lead.electricityBill}</span>
+                          </div>
+                        )}
+                        {lead.estimatedBudget && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-body-small text-muted-foreground">Budget Range:</span>
+                            <span className="text-body-small text-foreground">£{lead.estimatedBudget.toLocaleString()}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Lead Metadata & Purchase Info */}
+                <div className="bg-surface rounded-lg shadow-neu-inset border border-border p-4">
+                  <h3 className="text-heading-4 text-foreground mb-3">Purchase Information</h3>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-body-small text-muted-foreground">Purchase Price:</span>
+                      <div className="flex items-center">
+                        <CurrencyPoundIcon className="h-4 w-4 text-accent mr-1" />
+                        <span className="text-body text-accent">{lead.leadPrice}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-body-small text-muted-foreground">Purchased On:</span>
+                      <span className="text-body-small text-foreground">{new Date(lead.purchasedAt).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-body-small text-muted-foreground">Quote Type:</span>
+                      <span className="text-body-small text-foreground">
+                        {lead.quoteType === 'CALL_VISIT' ? 'Call/Visit' : lead.quoteType === 'WRITTEN_QUOTE' ? 'Written Quote' : 'Bidding'}
                       </span>
                     </div>
                   </div>
+                </div>
 
-                  <div className="space-y-2">
-                    <button
-                      onClick={() => handleCall(lead.homeowner.phone)}
-                      className="btn-success w-full"
-                    >
-                      <PhoneIcon className="h-5 w-5 mr-2" />
-                      Call Now
-                    </button>
-                    <button
-                      onClick={() => handleEmail(lead.homeowner.email)}
-                      className="btn-primary w-full"
-                    >
-                      <EnvelopeIcon className="h-5 w-5 mr-2" />
-                      Send Email
-                    </button>
-                    <button
-                      onClick={() => handleViewDetails(lead.id)}
-                      className="btn-secondary w-full"
-                    >
-                      <EyeIcon className="h-5 w-5 mr-2" />
-                      View Details
-                    </button>
-                  </div>
+                {/* Action Buttons */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                  <button
+                    onClick={() => handleCall(lead.homeowner.phone)}
+                    className="btn-success flex items-center justify-center"
+                  >
+                    <PhoneIcon className="h-5 w-5 mr-2" />
+                    Call Now
+                  </button>
+                  <button
+                    onClick={() => handleEmail(lead.homeowner.email)}
+                    className="btn-primary flex items-center justify-center"
+                  >
+                    <EnvelopeIcon className="h-5 w-5 mr-2" />
+                    Send Email
+                  </button>
+                  <button
+                    onClick={() => handleViewDetails(lead.id)}
+                    className="btn-secondary flex items-center justify-center"
+                  >
+                    <EyeIcon className="h-5 w-5 mr-2" />
+                    View Details
+                  </button>
                 </div>
               </div>
             </div>
