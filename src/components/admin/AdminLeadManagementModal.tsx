@@ -9,8 +9,7 @@
  * - Section A: Approval & Pricing
  * - Section B: Installer Assignment (filters, suggestions, profile preview)
  * - Section C: Admin Notes
- * - Section D: Lifecycle & Maintenance
- * - Section E: Summary & Confirmation
+ * - Section D: Summary & Confirmation
  * UI-Only: Preserves all existing backend handlers unchanged
  */
 
@@ -78,10 +77,7 @@ interface AdminLeadManagementModalProps {
   onReject: (reason: string) => Promise<void>;
   onSavePrice: (price: string) => Promise<void>;
   onSaveNotes: (notes: string) => Promise<void>;
-  onResell?: () => Promise<void>;
-  onResetTimer?: (days: number) => Promise<void>;
-  onArchive?: () => Promise<void>;
-  onUnarchive?: () => Promise<void>;
+  onUpdateCountdown?: (days: number) => Promise<void>; // Set countdown to specific days
   onAssign: (data: {
     installerIds: string[];
     mode: 'exclusive' | 'competitive';
@@ -99,10 +95,7 @@ export default function AdminLeadManagementModal({
   onReject,
   onSavePrice,
   onSaveNotes,
-  onResell,
-  onResetTimer,
-  onArchive,
-  onUnarchive,
+  onUpdateCountdown,
   onAssign,
   onRemoveAssignment,
 }: AdminLeadManagementModalProps) {
@@ -111,6 +104,7 @@ export default function AdminLeadManagementModal({
     // Initialize from leadPrice or price field
     return (lead.leadPrice?.toString() || lead.price?.toString() || '');
   });
+  const [countdownEnabled, setCountdownEnabled] = useState(true); // Countdown enabled by default
   const [countdownDays, setCountdownDays] = useState(() => {
     // Calculate from expiresAt if exists, otherwise default to 7
     if (lead.expiresAt) {
@@ -136,14 +130,13 @@ export default function AdminLeadManagementModal({
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [notifyInstallers, setNotifyInstallers] = useState(true);
   const [removingInstallerId, setRemovingInstallerId] = useState<string | null>(null);
+  const [assignmentMode, setAssignmentMode] = useState<'exclusive' | 'competitive'>('competitive');
+  const [assignmentNotes, setAssignmentNotes] = useState('');
 
   // Section C: Admin Notes State
   const [adminNotes, setAdminNotes] = useState(lead.adminNotes || '');
 
-  // Section D: Lifecycle State
-  const [resetDays, setResetDays] = useState(7);
-
-  // Section E: Summary & Confirmation State
+  // Section D: Summary & Confirmation State
   const [confirmStep, setConfirmStep] = useState(false);
   const [bulkMessage, setBulkMessage] = useState('');
   const [showMap, setShowMap] = useState(false);
@@ -778,16 +771,43 @@ export default function AdminLeadManagementModal({
                     <label className="block text-body-small mb-2 text-muted-foreground">
                       Countdown Days (1-90)
                     </label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="90"
-                      value={countdownDays}
-                      onChange={(e) => setCountdownDays(parseInt(e.target.value) || 7)}
-                      placeholder="Enter expiry days"
-                      className="form-input w-full px-4 py-3 placeholder:text-muted-foreground"
-                      disabled={submitting}
-                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="number"
+                        min="1"
+                        max="90"
+                        value={countdownDays}
+                        onChange={(e) => setCountdownDays(parseInt(e.target.value) || 7)}
+                        placeholder="Enter expiry days"
+                        className="form-input flex-1 px-4 py-3 placeholder:text-muted-foreground"
+                        disabled={submitting}
+                      />
+                      {onUpdateCountdown && lead.expiresAt && (
+                        <Button
+                          onClick={async () => {
+                            if (countdownDays < 1 || countdownDays > 90) {
+                              alert('Please enter a valid countdown (1-90 days)');
+                              return;
+                            }
+                            
+                            setSubmitting(true);
+                            try {
+                              await onUpdateCountdown(countdownDays);
+                              // Success message handled by parent
+                            } catch (err: any) {
+                              setError(err.message || 'Failed to update countdown');
+                            } finally {
+                              setSubmitting(false);
+                            }
+                          }}
+                          disabled={submitting || countdownDays < 1 || countdownDays > 90}
+                          variant="primary"
+                          className="px-6 bg-info text-info-foreground"
+                        >
+                          Update
+                        </Button>
+                      )}
+                    </div>
                     <p className="text-caption mt-1 text-muted-foreground">
                       {lead.expiresAt ? (
                         <>
@@ -829,104 +849,6 @@ export default function AdminLeadManagementModal({
               </div>
             )}
 
-            {/* SECTION D: Lifecycle & Maintenance (moved up) */}
-            {(lead.installerId || lead.expiresAt || !lead.archivedAt) && (
-              <div className="p-6 rounded-lg bg-surface shadow-neu-outset space-y-4">
-                <h3 className="text-heading-3 text-foreground">Lifecycle & Maintenance</h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {lead.installerId && onResell && (
-                    <Button
-                      onClick={async () => {
-                        setSubmitting(true);
-                        try {
-                          await onResell();
-                        } catch (err: any) {
-                          setError(err.message);
-                        } finally {
-                          setSubmitting(false);
-                        }
-                      }}
-                      disabled={submitting}
-                      variant="secondary"
-                    >
-                      🔄 Resell Lead
-                    </Button>
-                  )}
-
-                  {lead.expiresAt && onResetTimer && (
-                    <div className="flex gap-2">
-                      <input
-                        type="number"
-                        value={resetDays}
-                        onChange={(e) => setResetDays(parseInt(e.target.value) || 7)}
-                        min="1"
-                        max="365"
-                        placeholder="Days"
-                        className="form-input w-20 px-4 py-3"
-                      />
-                      <Button
-                        onClick={async () => {
-                          setSubmitting(true);
-                          try {
-                            await onResetTimer(resetDays);
-                          } catch (err: any) {
-                            setError(err.message);
-                          } finally {
-                            setSubmitting(false);
-                          }
-                        }}
-                        disabled={submitting}
-                        variant="secondary"
-                        className="flex-1"
-                      >
-                        ⏰ Extend Timer (+{resetDays}d)
-                      </Button>
-                    </div>
-                  )}
-
-                  {!lead.archivedAt && onArchive && (
-                    <Button
-                      onClick={async () => {
-                        setSubmitting(true);
-                        try {
-                          await onArchive();
-                        } catch (err: any) {
-                          setError(err.message);
-                        } finally {
-                          setSubmitting(false);
-                        }
-                      }}
-                      disabled={submitting}
-                      variant="secondary"
-                    >
-                      🗄️ Archive Lead
-                    </Button>
-                  )}
-
-                  {lead.archivedAt && onUnarchive && (
-                    <Button
-                      onClick={async () => {
-                        setSubmitting(true);
-                        try {
-                          await onUnarchive();
-                        } catch (err: any) {
-                          setError(err.message);
-                        } finally {
-                          setSubmitting(false);
-                        }
-                      }}
-                      disabled={submitting}
-                      variant="secondary"
-                      className="bg-success text-success-foreground"
-                    >
-                      📤 Restore Lead
-                    </Button>
-                  )}
-                </div>
-              </div>
-            )}
-
             {/* SECTION C: Admin Notes */}
             <div className="p-6 rounded-lg bg-surface shadow-neu-outset space-y-4">
               <h3 className="text-heading-3 text-foreground">Admin Notes</h3>
@@ -942,48 +864,83 @@ export default function AdminLeadManagementModal({
 
           {/* Footer: Summary & Actions */}
           <div className="border-t border-border px-6 py-4 bg-surface">
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-body-small text-muted-foreground">
-                {selectedInstallerIds.length > 0 && (
-                  <span>{selectedInstallerIds.length} installer{selectedInstallerIds.length !== 1 ? 's' : ''} • </span>
-                )}
-                {leadPrice && <span>£{leadPrice} • </span>}
-                {countdownDays > 0 && <span>{countdownDays} days expiry</span>}
+            {/* Summary */}
+            <div className="mb-4 p-4 rounded-lg bg-surface shadow-neu-inset">
+              <h4 className="text-body-small mb-2 text-foreground">Assignment Summary</h4>
+              <div className="space-y-2 text-body-small">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Selected Installers:</span>
+                  <span className="text-foreground">{selectedInstallerIds.length}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Countdown:</span>
+                  <span className="text-foreground">
+                    {countdownEnabled ? `${countdownDays} days` : 'Disabled'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Lead Price:</span>
+                  <span className="text-foreground">£{leadPrice || '0'}</span>
+                </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3">
-              {isApprovalState ? (
-                <>
-                  <Button
-                    variant="primary"
-                    onClick={handleApproveClick}
-                    disabled={submitting || !leadPrice}
-                  >
-                    {submitting ? 'Approving...' : 'Approve'}
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={() => setShowRejectInput(!showRejectInput)}
-                    disabled={submitting}
-                  >
-                    Reject
-                  </Button>
-                </>
-              ) : (
+            {/* Action Buttons - Conditional based on lead status */}
+            <div className="flex gap-3">
+              {(['DRAFT', 'PENDING_APPROVAL', 'PENDING_PHONE'].includes(lead.status)) ? (
+                // Unapproved lead - single button for approve + assign
                 <Button
-                  onClick={handleSubmit}
-                  disabled={submitting}
+                  onClick={() => {
+                    if (selectedInstallerIds.length === 0) {
+                      alert('Please select at least one installer before approving');
+                      return;
+                    }
+                    if (!leadPrice || parseFloat(leadPrice) <= 0) {
+                      alert('Please set a valid lead price');
+                      return;
+                    }
+                    
+                    onApprove({
+                      enableCountdown: countdownEnabled,
+                      countdownDays: countdownDays,
+                      price: parseFloat(leadPrice),
+                      installerIds: selectedInstallerIds,
+                      mode: assignmentMode,
+                      notes: assignmentNotes,
+                      notifyInstallers: true,
+                    });
+                  }}
+                  disabled={selectedInstallerIds.length === 0 || !leadPrice || submitting}
                   variant="primary"
+                  className="flex-1 bg-success text-success-foreground"
                 >
-                  {submitting ? 'Saving...' : 'Save Changes'}
+                  {submitting ? '⏳ Processing...' : `✅ Approve & Assign to ${selectedInstallerIds.length} Installer(s)`}
+                </Button>
+              ) : (
+                // Already approved - allow assignment updates
+                <Button
+                  onClick={() => {
+                    if (selectedInstallerIds.length === 0) {
+                      alert('Please select at least one installer');
+                      return;
+                    }
+                    
+                    onAssign({
+                      installerIds: selectedInstallerIds,
+                      mode: assignmentMode,
+                      notes: assignmentNotes,
+                      notifyInstallers: true,
+                    });
+                  }}
+                  disabled={selectedInstallerIds.length === 0 || submitting}
+                  variant="primary"
+                  className="flex-1 bg-info text-info-foreground"
+                >
+                  {submitting ? '⏳ Saving...' : '💾 Update Assignments'}
                 </Button>
               )}
-              <Button
-                variant="secondary"
-                onClick={onClose}
-                disabled={submitting}
-              >
+              
+              <Button onClick={onClose} variant="secondary" className="px-8" disabled={submitting}>
                 Cancel
               </Button>
             </div>

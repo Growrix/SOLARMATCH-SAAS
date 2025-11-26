@@ -43,18 +43,23 @@ export async function GET(request: NextRequest) {
     const assignments = await prisma.leadAssignment.findMany({
       where: {
         installerId: session.user.id,
-        lead: includeExpired ? undefined : {
-          OR: [
-            { expiresAt: null },
-            { expiresAt: { gt: new Date() } }
-          ]
+        lead: {
+          // Exclude CANCELLED leads
+          status: { not: 'CANCELLED' },
+          // Optionally filter expired leads
+          ...(includeExpired ? {} : {
+            OR: [
+              { expiresAt: null },
+              { expiresAt: { gt: new Date() } }
+            ]
+          })
         }
       },
       include: {
         lead: {
           include: {
             homeowner: {
-              select: { id: true, name: true, phone: true }
+              select: { id: true, name: true, phone: true, email: true }
             },
             quotes: { select: { id: true } }
           }
@@ -76,6 +81,7 @@ export async function GET(request: NextRequest) {
         postcode: lead.postcode,
         location: lead.location,
         state: lead.state,
+        address: isPurchased ? (lead.address || null) : null,
         propertyType: lead.propertyType,
         projectType: lead.projectType,
         roofType: lead.roofType,
@@ -86,11 +92,26 @@ export async function GET(request: NextRequest) {
         quotesCount: lead.quotes.length,
         expiresAt: lead.expiresAt?.toISOString() || null,
         createdAt: lead.createdAt.toISOString(),
+        approvedAt: lead.approvedAt?.toISOString() || null,
         assignedAt: assignment.assignedAt.toISOString(),
         assignmentNotes: assignment.notes,
+        // Energy details (only show if purchased)
+        energyBill: isPurchased ? lead.energyBill : null,
+        billType: isPurchased ? lead.billType : null,
+        desiredOffset: isPurchased ? lead.desiredOffset : null,
+        batteryRequired: isPurchased ? lead.batteryRequired : null,
+        batteryCapacity: isPurchased ? (lead.batteryCapacity || null) : null,
+        timeframe: isPurchased ? (lead.timeframe || null) : null,
+        additionalNotes: isPurchased ? (lead.additionalNotes || null) : null,
+        // Phone verification
+        phoneNumber: isPurchased ? (lead.phoneNumber || null) : null,
+        phoneVerified: isPurchased ? lead.phoneVerified : null,
+        // InstantQuote data (only show if purchased)
+        quoteData: isPurchased ? lead.quoteData : null,
         homeowner: {
           name: isPurchased ? lead.homeowner.name : '***LOCKED***',
-          phone: isPurchased ? lead.homeowner.phone : '***LOCKED***'
+          phone: isPurchased ? lead.homeowner.phone : '***LOCKED***',
+          email: isPurchased ? lead.homeowner.email : '***LOCKED***'
         },
         countdown: calculateCountdown(lead.expiresAt),
         isPurchased,

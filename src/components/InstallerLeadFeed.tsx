@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import QuoteBuilderModal from './QuoteBuilderModal';
 import { LiveCountdownBar } from '@/components/LiveCountdownBar';
 import Button from '@/components/ui/button';
+import QuoteDataDisplay from '@/components/admin/QuoteDataDisplay';
 
 // --- Icon Components ---
 const FilterIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3z"/></svg>;
@@ -23,14 +24,15 @@ const ClockIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xml
 const AlertCircleIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>;
 const XIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>;
 const SendIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>;
+const EyeIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>;
 
 // --- Types ---
 export type LeadType = 'call_visit' | 'written' | 'bidding';
 export type LeadStatus = 'new' | 'unlocked' | 'submitted' | 'expired' | 'contacted';
 
 export interface Lead {
-  id: number;
-  homeownerId: number;
+  id: string;
+  homeownerId: string;
   type: LeadType;
   status: LeadStatus;
   dateSubmitted: Date;
@@ -58,6 +60,21 @@ export interface Lead {
   expiresAt: Date; // TODO: Change to string (ISO) for countdown timer integration with real API
   priority: 'low' | 'medium' | 'high';
   notes?: string;
+  // Extended fields from API
+  address?: string | null;
+  energyBill?: number | null;
+  billType?: string | null;
+  desiredOffset?: number | null;
+  batteryRequired?: boolean | null;
+  batteryCapacity?: string | null;
+  timeframe?: string | null;
+  additionalNotes?: string | null;
+  phoneNumber?: string | null;
+  phoneVerified?: boolean | null;
+  createdAt?: string;
+  approvedAt?: string | null;
+  purchasedAt?: string | null;
+  quoteData?: any | null;
 }
 
 export interface InstallerProfile {
@@ -83,7 +100,7 @@ interface LeadFilters {
 interface InstallerLeadFeedProps {
   installer: InstallerProfile;
   leads?: Lead[]; // Optional: use provided leads or fallback to empty array
-  onUnlockLead: (leadId: number) => Promise<boolean>;
+  onUnlockLead: (leadId: string) => Promise<boolean>;
   onSubmitQuote: (leadId: number, quoteData: any) => Promise<boolean>;
   onStartChat: (leadId: number) => void;
 }
@@ -93,8 +110,8 @@ const StripeUnlockModal: React.FC<{
   isOpen: boolean;
   onClose: () => void;
   lead: Lead | null;
-  onUnlockLead: (leadId: number) => Promise<boolean>;
-  onPaymentSuccess: (leadId: number) => void;
+  onUnlockLead: (leadId: string) => Promise<boolean>;
+  onPaymentSuccess: (leadId: string) => void;
   installer: InstallerProfile;
 }> = ({ isOpen, onClose, lead, onUnlockLead, onPaymentSuccess, installer }) => {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -250,17 +267,264 @@ const StripeUnlockModal: React.FC<{
   );
 };
 
+// --- View Details Modal Component ---
+const ViewDetailsModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  lead: Lead;
+}> = ({ isOpen, onClose, lead }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={onClose}>
+      <div className="bg-surface rounded-lg border border-border max-w-2xl w-full max-h-[90vh] overflow-y-auto" style={{ boxShadow: 'var(--shadow-outset-lg)' }} onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div className="sticky top-0 bg-surface border-b border-border p-6 flex items-center justify-between">
+          <h2 className="text-heading-3 text-foreground">Lead Details</h2>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-lg hover:bg-muted transition-colors"
+            aria-label="Close modal"
+          >
+            <XIcon className="h-5 w-5 text-muted-foreground" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 space-y-6">
+          {/* Lead ID & Status */}
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-caption text-muted-foreground">Lead ID</p>
+              <p className="text-body text-foreground font-medium">#{lead.id}</p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className={`px-3 py-1 text-caption rounded-full ${
+                lead.status === 'new' ? 'bg-success/10 text-success' :
+                lead.status === 'unlocked' ? 'bg-info/10 text-info' :
+                lead.status === 'submitted' ? 'bg-primary/10 text-primary' :
+                lead.status === 'contacted' ? 'bg-warning/10 text-warning' :
+                'bg-destructive/10 text-destructive'
+              }`}>
+                {lead.status.toUpperCase()}
+              </span>
+            </div>
+          </div>
+
+          {/* Contact Information */}
+          <div className="bg-surface rounded-lg shadow-neu-inset border border-border p-4">
+            <h3 className="text-heading-4 text-foreground mb-3">Contact Information</h3>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-body-small text-muted-foreground">Name:</span>
+                <span className="text-body-small text-foreground font-medium">{lead.contact.name}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-body-small text-muted-foreground">Phone:</span>
+                <div className="flex items-center space-x-2">
+                  <span className="text-body-small text-foreground">{lead.contact.phone}</span>
+                  {lead.phoneVerified !== null && (
+                    <span className={`text-caption ${
+                      lead.phoneVerified ? 'text-success' : 'text-error'
+                    }`}>
+                      {lead.phoneVerified ? '✓ Verified' : '✗ Not verified'}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-body-small text-muted-foreground">Email:</span>
+                <span className="text-body-small text-foreground">{lead.contact.email}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Property Details */}
+          <div className="bg-surface rounded-lg shadow-neu-inset border border-border p-4">
+            <h3 className="text-heading-4 text-foreground mb-3">Property Details</h3>
+            <div className="space-y-2">
+              {lead.address && (
+                <div className="flex items-start justify-between pb-2 border-b border-border">
+                  <span className="text-body-small text-muted-foreground">Full Address:</span>
+                  <span className="text-body-small text-foreground text-right max-w-[60%]">{lead.address}</span>
+                </div>
+              )}
+              <div className="flex items-center justify-between">
+                <span className="text-body-small text-muted-foreground">Location:</span>
+                <span className="text-body-small text-foreground">{lead.location.suburb}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-body-small text-muted-foreground">Postcode:</span>
+                <span className="text-body-small text-foreground">{lead.location.postcode}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-body-small text-muted-foreground">State:</span>
+                <span className="text-body-small text-foreground">{lead.location.state}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-body-small text-muted-foreground">Property Type:</span>
+                <span className="text-body-small text-foreground">{lead.systemDetails.propertyType}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-body-small text-muted-foreground">Roof Type:</span>
+                <span className="text-body-small text-foreground">{lead.systemDetails.roofType}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-body-small text-muted-foreground">Budget Range:</span>
+                <span className="text-body-small text-foreground">{lead.systemDetails.budget}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Energy Details */}
+          {(lead.energyBill !== null || lead.desiredOffset !== null || lead.batteryRequired !== null || lead.timeframe) && (
+            <div className="bg-surface rounded-lg shadow-neu-inset border border-border p-4">
+              <h3 className="text-heading-4 text-foreground mb-3">Energy Details</h3>
+              <div className="space-y-2">
+                {lead.energyBill !== null && lead.billType && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-body-small text-muted-foreground">Energy Bill:</span>
+                    <span className="text-body-small text-foreground">${lead.energyBill!.toFixed(2)} / {lead.billType}</span>
+                  </div>
+                )}
+                {lead.desiredOffset !== null && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-body-small text-muted-foreground">Desired Offset:</span>
+                    <span className="text-body-small text-foreground">{lead.desiredOffset}%</span>
+                  </div>
+                )}
+                {lead.batteryRequired !== null && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-body-small text-muted-foreground">Battery Required:</span>
+                    <span className="text-body-small text-foreground">
+                      {lead.batteryRequired ? `Yes${lead.batteryCapacity ? ` (${lead.batteryCapacity})` : ''}` : 'No'}
+                    </span>
+                  </div>
+                )}
+                {lead.timeframe && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-body-small text-muted-foreground">Timeframe:</span>
+                    <span className="text-body-small text-foreground">{lead.timeframe}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Lead Metadata */}
+          <div className="bg-surface rounded-lg shadow-neu-inset border border-border p-4">
+            <h3 className="text-heading-4 text-foreground mb-3">Lead Information</h3>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-body-small text-muted-foreground">Quote Type:</span>
+                <span className="px-2 py-1 text-caption rounded-full bg-primary/10 text-primary">
+                  {lead.type === 'call_visit' ? 'Call/Visit' : lead.type === 'written' ? 'Written Quote' : 'Bidding'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-body-small text-muted-foreground">System Size:</span>
+                <span className="text-body-small text-foreground">{lead.systemDetails.estimatedSize}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-body-small text-muted-foreground">Lead Price:</span>
+                <span className="text-body-small text-foreground font-medium">${lead.unlockPrice}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-body-small text-muted-foreground">Submitted:</span>
+                <span className="text-body-small text-foreground">{new Date(lead.dateSubmitted).toLocaleDateString()}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-body-small text-muted-foreground">Expires:</span>
+                <span className="text-body-small text-foreground">{new Date(lead.expiresAt).toLocaleDateString()}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-body-small text-muted-foreground">Quotes Received:</span>
+                <span className="text-body-small text-foreground">{lead.quotesReceived}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Timeline/Timestamps */}
+          <div className="bg-surface rounded-lg shadow-neu-inset border border-border p-4">
+            <h3 className="text-heading-4 text-foreground mb-3">Timeline</h3>
+            <div className="space-y-2">
+              {lead.createdAt && (
+                <div className="flex items-center justify-between">
+                  <span className="text-body-small text-muted-foreground">Created:</span>
+                  <span className="text-body-small text-foreground">{new Date(lead.createdAt).toLocaleString()}</span>
+                </div>
+              )}
+              {lead.approvedAt && (
+                <div className="flex items-center justify-between">
+                  <span className="text-body-small text-muted-foreground">Approved:</span>
+                  <span className="text-body-small text-foreground">{new Date(lead.approvedAt).toLocaleString()}</span>
+                </div>
+              )}
+              {lead.purchasedAt && (
+                <div className="flex items-center justify-between">
+                  <span className="text-body-small text-muted-foreground">Purchased:</span>
+                  <span className="text-body-small text-foreground">{new Date(lead.purchasedAt).toLocaleString()}</span>
+                </div>
+              )}
+              <div className="flex items-center justify-between">
+                <span className="text-body-small text-muted-foreground">Expires:</span>
+                <span className="text-body-small text-foreground">{new Date(lead.expiresAt).toLocaleDateString()}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* InstantQuote Data */}
+          {lead.quoteData && (
+            <div className="bg-surface rounded-lg shadow-neu-inset border border-border p-4">
+              <h3 className="text-heading-4 text-foreground mb-3">📊 Instant Quote Calculation</h3>
+              <QuoteDataDisplay quoteData={lead.quoteData} />
+            </div>
+          )}
+
+          {/* Homeowner Additional Notes */}
+          {lead.additionalNotes && (
+            <div className="bg-surface rounded-lg shadow-neu-inset border border-border p-4">
+              <h3 className="text-heading-4 text-foreground mb-2">Homeowner Notes</h3>
+              <p className="text-body-small text-foreground whitespace-pre-wrap">{lead.additionalNotes}</p>
+            </div>
+          )}
+
+          {/* Notes (if available) */}
+          {lead.notes && (
+            <div className="bg-surface rounded-lg shadow-neu-inset border border-border p-4">
+              <h3 className="text-heading-4 text-foreground mb-2">Notes</h3>
+              <p className="text-body-small text-muted-foreground">{lead.notes}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="sticky bottom-0 bg-surface border-t border-border p-6">
+          <Button
+            onClick={onClose}
+            variant="secondary"
+            className="w-full"
+          >
+            Close
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // --- Lead Card Component ---
 const LeadCard: React.FC<{
   lead: Lead;
   installer: InstallerProfile;
-  onUnlock: (leadId: number) => void;
+  onUnlock: (leadId: string) => void;
   onSubmitQuote: (leadId: number, quoteData: any) => Promise<boolean>;
   onStartChat: (leadId: number) => void;
 }> = ({ lead, installer, onUnlock, onSubmitQuote, onStartChat }) => {
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
+  const [isViewDetailsOpen, setIsViewDetailsOpen] = useState(false);
   
-  const isUnlockedByInstaller = lead.unlockedBy.includes(installer.id);
+  const isUnlockedByInstaller = lead.isUnlocked;
   const isPurchasedByAnother = lead.isPurchasedByAnother || false;
   const canUnlock = lead.type === 'call_visit' && !isUnlockedByInstaller && !isPurchasedByAnother && lead.status === 'new';
   const canQuote = lead.type === 'written' || isUnlockedByInstaller;
@@ -432,6 +696,18 @@ const LeadCard: React.FC<{
               <span className="ml-2 text-foreground">{lead.contact.email}</span>
             </div>
           </div>
+          
+          {/* View Details Button */}
+          <div className="mt-3">
+            <Button
+              onClick={() => setIsViewDetailsOpen(true)}
+              variant="secondary"
+              className="flex items-center space-x-2 w-full md:w-auto"
+            >
+              <EyeIcon className="h-4 w-4" />
+              <span>View Full Details</span>
+            </Button>
+          </div>
         </div>
       )}
 
@@ -492,6 +768,13 @@ const LeadCard: React.FC<{
           budget: lead.systemDetails.budget
         }}
         onSubmitQuote={onSubmitQuote}
+      />
+
+      {/* View Details Modal */}
+      <ViewDetailsModal
+        isOpen={isViewDetailsOpen}
+        onClose={() => setIsViewDetailsOpen(false)}
+        lead={lead}
       />
     </>
   );
@@ -580,7 +863,7 @@ const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({
   };
 
   // Placeholder: real purchase logic will update via parent callback after backend integration
-  const handlePaymentSuccess = (leadId: number) => {
+  const handlePaymentSuccess = (leadId: string) => {
     setShowUnlockModal(false);
     setSelectedLead(null);
   };

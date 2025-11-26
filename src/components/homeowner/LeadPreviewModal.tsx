@@ -22,6 +22,20 @@ const XIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="2
 const CheckIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>;
 const XCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>;
 
+// Status label mapping for better UX
+const STATUS_DISPLAY_LABELS: Record<string, string> = {
+  PURCHASED: 'Responded by Installer',
+  APPROVED: 'Approved',
+  PENDING_APPROVAL: 'Awaiting Review',
+  REJECTED: 'Rejected',
+  EXPIRED: 'Expired',
+  CANCELLED: 'Cancelled',
+  FLAGGED: 'Flagged',
+  QUOTED: 'Quotes Received',
+  ACCEPTED: 'Accepted',
+  PENDING_PHONE: 'Needs Verification',
+};
+
 interface LeadPreviewModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -70,15 +84,16 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 bg-background/95 backdrop-blur-sm z-modal flex items-center justify-center px-4 py-8 animate-fade-in"
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in"
+      style={{ zIndex: 1400 }}
       onClick={onClose}
     >
       <div 
-        className="theme-card relative w-full max-w-4xl p-4 sm:p-6 lg:p-8 animate-slide-in-up max-h-[95vh] overflow-y-auto"
+        className="bg-surface rounded-xl shadow-modal w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-slide-in-up"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="sticky top-0 z-10 bg-surface border-b border-border px-6 py-4 flex items-center justify-between rounded-t-lg -mx-4 sm:-mx-6 lg:-mx-8 -mt-4 sm:-mt-6 lg:-mt-8 mb-6">
+        {/* Header - Fixed at top */}
+        <div className="flex items-center justify-between p-6 border-b border-border bg-surface flex-shrink-0">
           <div>
             <h2 className="text-heading-2 text-foreground">
               Quote Request Details
@@ -96,19 +111,21 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
           </button>
         </div>
 
-        {/* Status Badge */}
-        <div className="mb-6">
-          <span className={`inline-flex items-center px-3 py-1 rounded-full text-body-small ${
-            lead.status === 'APPROVED' ? 'bg-success/20 text-success' :
-            lead.status === 'PURCHASED' ? 'bg-accent/20 text-accent' :
-            'bg-surface text-foreground'
-          }`}>
-            {lead.status.replace('_', ' ')}
-          </span>
-        </div>
+        {/* Scrollable Content Area */}
+        <div className="overflow-y-auto flex-1 p-6">
+          {/* Status Badge */}
+          <div className="mb-6">
+            <span className={`inline-flex items-center px-3 py-1 rounded-full text-body-small ${
+              lead.status === 'APPROVED' ? 'bg-success/20 text-success' :
+              lead.status === 'PURCHASED' ? 'bg-accent/20 text-accent' :
+              'bg-surface text-foreground'
+            }`}>
+              {STATUS_DISPLAY_LABELS[lead.status] || lead.status.replace('_', ' ')}
+            </span>
+          </div>
 
-        {/* Content Sections */}
-        <div className="space-y-6">
+          {/* Content Sections */}
+          <div className="space-y-6">
           {/* Location Details */}
           <div className="info-section rounded-lg p-4">
             <h3 className="text-heading-4 text-foreground mb-4">Location Details</h3>
@@ -396,16 +413,17 @@ const LeadPreviewModal: React.FC<LeadPreviewModalProps> = ({
               </div>
             </div>
           </div>
-        </div>
+          </div>
 
-        {/* Footer */}
-        <div className="mt-6 flex justify-end">
-          <button
-            onClick={onClose}
-            className="neu-btn px-6 py-2.5 rounded-xl"
-          >
-            Close
-          </button>
+          {/* Footer */}
+          <div className="mt-8 flex justify-end pt-4 border-t border-border">
+            <button
+              onClick={onClose}
+              className="neu-btn px-6 py-2.5 rounded-xl"
+            >
+              Close
+            </button>
+          </div>
         </div>
       </div>
     </div>

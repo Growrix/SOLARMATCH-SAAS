@@ -2,6 +2,49 @@
 
 ## Latest Commits
 
+### CALL/VISIT Lead Purchase Flow Implementation Complete (November 25, 2025)
+**Commit:** `9ebb94ddedd21fe7c293520ef5a264144875684b`  
+**Branch:** `007-call-visit-lead`  
+**Status:** ✅ Implementation Complete - Ready for Testing
+
+**Changes Implemented:**
+- **Phase 2:** Installer purchase flow with mock payment (1.5s delay) + real API call
+- **Phase 3:** Purchased leads API endpoint (`/api/installer/leads/purchased`)
+- **Phase 4:** Multi-installer detection with "purchased by another" banner and disabled button
+- **Phase 6:** Homeowner notifications on purchase + existing lead cancellation protection
+- **Phase 7:** Admin purchase information display in lead detail page
+
+**Files Modified:**
+- `src/components/InstallerLeadFeed.tsx` - Added onUnlockLead prop, mock payment flow, isPurchasedByAnother banner
+- `src/app/api/installer/leads/purchased/route.ts` - NEW endpoint for purchased leads
+- `src/app/installer/(dashboard)/purchased-leads/page.tsx` - Updated to call correct endpoint
+- `src/app/api/installer/leads/assigned/route.ts` - Added isPurchasedByAnother field
+- `src/app/installer/(dashboard)/leads/page.tsx` - Added isPurchasedByAnother to type mapping
+- `src/types/installer.ts` - Added isPurchasedByAnother to AssignedLead interface
+- `src/app/api/installer/leads/[id]/purchase/route.ts` - Added homeowner notification creation
+- `src/app/admin/leads/[id]/page.tsx` - Added Purchase Information section
+
+**Testing Status:**
+- ✅ TypeScript: 0 errors
+- ✅ Build: Successful with pre-existing warnings only
+- ✅ className Validation: 0 violations
+- ⏳ Manual Testing: Required (see tasks.md for test procedures)
+
+**Next Steps:**
+1. Test Phase 2: Purchase flow end-to-end
+2. Test Phase 3: Purchased leads page displays correctly
+3. Test Phase 4: Multi-installer "purchased by another" state
+4. Test Phase 6: Homeowner notifications and edit blocking
+5. Test Phase 7: Admin view of purchase information
+6. Full cross-role testing (Installer A → Installer B → Homeowner → Admin)
+
+**Stripe Integration:**
+- Mock payment in place (setTimeout 1.5s)
+- Real API call preserved
+- Upgrade points marked with `// TODO: When Stripe available` comments
+
+---
+
 ### CALL/VISIT Lead Implementation Plan Updated (November 25, 2025)
 **Branch:** `007-call-visit-lead`  
 **Status:** 📋 Planning Complete - Ready for Implementation

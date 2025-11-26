@@ -24,7 +24,7 @@ import OTPVerificationModal from '@/components/OTPVerificationModal';
 import FirstQuoteSuccessModal from '@/components/homeowner/FirstQuoteSuccessModal';
 import LeadEditModal from '@/components/homeowner/LeadEditModal';
 import LeadPreviewModal from '@/components/homeowner/LeadPreviewModal';
-import { LiveCountdownBar } from '@/components/LiveCountdownBar'; // Phase 4.5: Enhanced live countdown
+import { LiveCountdownBar } from '@/components/LiveCountdownBar';
 import Button from '@/components/ui/button';
 import HomeownerSidebar from '@/components/homeowner/HomeownerSidebar';
 import { HomeownerDashboardHeader } from '@/components/homeowner/HomeownerDashboardHeader';
@@ -193,8 +193,8 @@ const STATUS_LABELS: Record<LeadStatus, { label: string; description: string; ac
     accent: 'bg-success/10 text-success border border-success/30',
   },
   [LeadStatusEnum.PURCHASED]: {
-    label: 'Purchased',
-    description: 'An installer has claimed this lead',
+    label: 'Responded by Installer',
+    description: 'An installer has responded to your request',
     accent: 'bg-primary/10 text-primary border border-primary/30',
   },
   [LeadStatusEnum.QUOTED]: {
@@ -579,7 +579,7 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
                       style={{ position: 'relative' }}
                     >
                       {/* Left circular icon with strong neumorphic shadow */}
-                      <div className="flex-shrink-0 flex items-center justify-center w-16 h-16 rounded-full bg-background shadow-neu-outset border-4 border-background relative" style={{ zIndex: 2 }}>
+                      <div className="flex-shrink-0 flex items-center justify-center w-16 h-16 rounded-full bg-background shadow-neu-outset border-4 border-background relative z-10">
                         <span className="flex items-center justify-center w-12 h-12 rounded-full bg-surface shadow-neu-inset text-primary text-heading-2">
                           {getQuoteTypeIcon(lead.quoteType)}
                         </span>
@@ -587,20 +587,6 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
                       {/* Main card content area */}
                       <div className="flex-1 flex flex-col justify-center min-w-0 pr-3">
                         <div className="rounded-full bg-background shadow-neu-inset border border-border px-6 py-3 flex flex-col gap-2">
-                          {/* Countdown timer center-center in the embossed area, neumorphic */}
-                          {lead.expiresAt && lead.status === LeadStatusEnum.APPROVED && (
-                            <div className="flex items-center justify-center w-full h-full min-h-[32px] min-w-[120px]">
-                              <div className="rounded-lg bg-background shadow-neu-inset px-4 py-1 text-caption text-foreground">
-                                <LiveCountdownBar
-                                  expiresAt={lead.expiresAt}
-                                  leadId={lead.id}
-                                  leadStatus={lead.status}
-                                  quoteType={lead.quoteType}
-                                  position="top"
-                                />
-                              </div>
-                            </div>
-                          )}
                           <div className="flex items-center gap-4" style={{ width: '100%' }}>
                             <div className="flex flex-col min-w-0 flex-1">
                               <span className="text-body-small text-foreground truncate">
@@ -680,6 +666,16 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
                             <span className={`px-2.5 py-0.5 rounded-lg shadow-neu-inset text-caption ${statusInfo.accent}`}>
                               {statusInfo.label}
                             </span>
+                            {/* Live Countdown Timer - Only for APPROVED leads (not PURCHASED) */}
+                            {lead.expiresAt && lead.status === LeadStatusEnum.APPROVED && (
+                              <LiveCountdownBar
+                                expiresAt={lead.expiresAt}
+                                leadId={lead.id}
+                                position="inline"
+                                leadStatus={lead.status}
+                                quoteType={lead.quoteType}
+                              />
+                            )}
                           </div>
                         </div>
                       </div>

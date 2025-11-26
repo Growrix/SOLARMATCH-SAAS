@@ -41,6 +41,7 @@ export interface AssignedLead {
   homeowner: {
     name: string | null;
     phone: string | null;
+    email: string | null;
   };
   countdown: {
     daysLeft: number;
@@ -50,4 +51,17 @@ export interface AssignedLead {
   } | null;
   isPurchased?: boolean;
   isPurchasedByAnother?: boolean;
+  // Extended fields (visible only after purchase)
+  address?: string | null;
+  energyBill?: number | null;
+  billType?: string | null;
+  desiredOffset?: number | null;
+  batteryRequired?: boolean | null;
+  batteryCapacity?: string | null;
+  timeframe?: string | null;
+  additionalNotes?: string | null;
+  phoneNumber?: string | null;
+  phoneVerified?: boolean | null;
+  approvedAt?: string | null;
+  quoteData?: any; // JSON data from InstantQuote
 }

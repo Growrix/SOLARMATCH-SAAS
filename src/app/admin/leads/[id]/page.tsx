@@ -157,20 +157,11 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
   const [savingNotes, setSavingNotes] = useState(false);
   
   // Modal states
-  const [showRejectModal, setShowRejectModal] = useState(false);
-  const [showApproveModal, setShowApproveModal] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false); // Phase 7
   
   // Phase 3: Countdown timer states
   const [enableCountdown, setEnableCountdown] = useState(true);
   const [countdownDays, setCountdownDays] = useState(7);
-
-  // Phase 7: Lifecycle action states
-  const [reselling, setReselling] = useState(false);
-  const [archiving, setArchiving] = useState(false);
-  const [unarchiving, setUnarchiving] = useState(false);
-  const [resettingTimer, setResettingTimer] = useState(false);
-  const [resetDays, setResetDays] = useState(7);
 
   // Phase 24: Admin Lead Management Modal
   const [showManagementModal, setShowManagementModal] = useState(false);
@@ -207,47 +198,8 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
   };
 
   // ============================================================================
-  // APPROVE LEAD
+  // NOTE: handleApprove removed - now handled via AdminLeadManagementModal
   // ============================================================================
-
-  const handleApprove = async () => {
-    if (!lead) return;
-
-    try {
-      setApproving(true);
-      const response = await fetch(`/api/leads/${lead.id}/approve`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          price: leadPrice ? parseFloat(leadPrice) : undefined,
-          assignTo: 'ALL',
-          enableCountdown,
-          countdownDays: enableCountdown ? countdownDays : undefined,
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to approve lead');
-      }
-
-      const data = await response.json();
-      
-      // Show success message with countdown info
-      const message = data.countdown 
-        ? `Lead approved with ${data.countdown.daysRemaining} days countdown!` 
-        : 'Lead approved successfully!';
-      alert(message);
-
-      // Refresh lead data
-      await fetchLead();
-      setShowApproveModal(false);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to approve lead');
-    } finally {
-      setApproving(false);
-    }
-  };
 
   // ============================================================================
   // REJECT LEAD
@@ -940,33 +892,6 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
             </p>
           </div>
 
-          {/* ACTION BUTTONS - Show for DRAFT, PENDING_APPROVAL, and PENDING_PHONE statuses */}
-          {(['DRAFT', 'PENDING_APPROVAL', 'PENDING_PHONE'].includes(lead.status)) && (
-            <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
-              <h2 className="text-heading-3 mb-4 text-foreground">
-                Actions
-              </h2>
-              <div className="space-y-3">
-                <Button
-                  onClick={() => setShowApproveModal(true)}
-                  variant="secondary"
-                  className="w-full bg-success text-success-foreground"
-                >
-                  <CheckIcon />
-                  Approve Lead
-                </Button>
-                <Button
-                  onClick={() => setShowRejectModal(true)}
-                  variant="secondary"
-                  className="w-full bg-error text-error-foreground"
-                >
-                  <XIcon />
-                  Reject Lead
-                </Button>
-              </div>
-            </div>
-          )}
-
           {/* ASSIGNMENT HISTORY (Phase 7) */}
           <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
             <div className="flex items-center justify-between mb-4">
@@ -1016,119 +941,6 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
         </div>
       </div>
 
-      {/* APPROVE MODAL */}
-      {showApproveModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="max-w-md w-full mx-4 p-6 rounded-lg bg-surface shadow-neu-outset">
-            <h2 className="text-heading-2 mb-4 text-foreground">
-              Approve Lead
-            </h2>
-            <p className="mb-6 text-muted-foreground">
-              This will approve the lead and make it visible to installers in the marketplace.
-              {!leadPrice && ' Please set a price first.'}
-            </p>
-            
-            {/* Phase 3: Countdown Timer Controls */}
-            <div className="mb-6 p-4 rounded-lg border border-border bg-muted/30">
-              <div className="flex items-center gap-2 mb-3">
-                <input
-                  type="checkbox"
-                  id="enableCountdown"
-                  checked={enableCountdown}
-                  onChange={(e) => setEnableCountdown(e.target.checked)}
-                  className="w-4 h-4 text-info rounded"
-                />
-                <label 
-                  htmlFor="enableCountdown" 
-                  className="text-foreground"
-                >
-                  Enable countdown timer
-                </label>
-              </div>
-              {enableCountdown && (
-                <div>
-                  <label className="block text-body-small mb-2 text-muted-foreground">
-                    Days until expiry
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="90"
-                    value={countdownDays}
-                    onChange={(e) => setCountdownDays(parseInt(e.target.value) || 7)}
-                    className="form-input w-full placeholder:text-muted-foreground"
-                  />
-                  <p className="text-caption mt-1 text-muted-foreground">
-                    Lead will expire in {countdownDays} day{countdownDays !== 1 ? 's' : ''} (1-90 days range)
-                  </p>
-                </div>
-              )}
-            </div>
-            
-            <div className="flex gap-3">
-              <Button
-                onClick={() => setShowApproveModal(false)}
-                variant="secondary"
-                className="flex-1 bg-muted text-muted-foreground"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleApprove}
-                disabled={approving || !leadPrice}
-                variant="secondary"
-                className="flex-1 bg-success text-success-foreground"
-              >
-                {approving ? <LoadingIcon /> : <CheckIcon />}
-                Approve
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* REJECT MODAL */}
-      {showRejectModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="max-w-md w-full mx-4 p-6 rounded-lg bg-surface shadow-neu-outset">
-            <h2 className="text-heading-2 mb-4 text-foreground">
-              Reject Lead
-            </h2>
-            <p className="mb-4 text-muted-foreground">
-              Please provide a reason for rejection. The homeowner will be notified.
-            </p>
-            <textarea
-              value={rejectReason}
-              onChange={(e) => setRejectReason(e.target.value)}
-              placeholder="Reason for rejection..."
-              rows={4}
-              className="form-input w-full mb-4 placeholder:text-muted-foreground"
-            />
-            <div className="flex gap-3">
-              <Button
-                onClick={() => {
-                  setShowRejectModal(false);
-                  setRejectReason('');
-                }}
-                variant="secondary"
-                className="flex-1 bg-muted text-muted-foreground"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleReject}
-                disabled={rejecting || !rejectReason.trim()}
-                variant="secondary"
-                className="flex-1 bg-error text-error-foreground"
-              >
-                {rejecting ? <LoadingIcon /> : <XIcon />}
-                Reject
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* ASSIGN TO INSTALLER MODAL (Phase 7) */}
       {showAssignModal && (
         <InstallerSelectorModal
@@ -1145,10 +957,54 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
           isOpen={showManagementModal}
           lead={lead as any}
           onClose={() => setShowManagementModal(false)}
-          onApprove={async (data: any) => {
-            // Transform modal data to match handleApprove signature
-            await handleApprove();
-            setShowManagementModal(false);
+          onApprove={async (data: {
+            enableCountdown: boolean;
+            countdownDays: number;
+            price?: number;
+            installerIds: string[];
+            mode: 'exclusive' | 'competitive';
+            notes?: string;
+            notifyInstallers: boolean;
+          }) => {
+            try {
+              // Validate installer selection
+              if (!data.installerIds || data.installerIds.length === 0) {
+                alert('Please select at least one installer');
+                return;
+              }
+
+              const response = await fetch(`/api/leads/${lead.id}/approve`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  price: data.price || parseFloat(leadPrice),
+                  assignTo: data.installerIds, // ✅ Pass installer IDs
+                  enableCountdown: data.enableCountdown,
+                  countdownDays: data.countdownDays, // ✅ Use modal value
+                  assignmentNotes: data.notes,
+                  isHot: false,
+                }),
+              });
+
+              if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Failed to approve and assign lead');
+              }
+
+              const result = await response.json();
+              
+              // Show success message
+              alert(`Lead assigned successfully! Countdown: ${data.countdownDays} days`);
+              
+              // Refresh lead data to show assignments
+              await fetchLead();
+              
+              // Close modal
+              setShowManagementModal(false);
+            } catch (err) {
+              alert(err instanceof Error ? err.message : 'Failed to approve lead');
+              // Don't close modal on error - let user try again
+            }
           }}
           onReject={async (reason: string) => {
             // handleReject already uses rejectReason state
@@ -1198,14 +1054,10 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
               throw err;
             }
           }}
-          onResell={async () => {
-            await handleResell();
-            setShowManagementModal(false);
-          }}
-          onResetTimer={async (days: number) => {
-            // Reset timer using the passed parameter
+          onUpdateCountdown={async (days: number) => {
+            // NEW: Update countdown to specific days
             try {
-              const response = await fetch(`/api/leads/${lead.id}/reset-timer`, {
+              const response = await fetch(`/api/leads/${lead.id}/update-countdown`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ days }),
@@ -1213,22 +1065,20 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
 
               if (!response.ok) {
                 const error = await response.json();
-                throw new Error(error.message || 'Failed to reset timer');
+                throw new Error(error.message || 'Failed to update countdown');
               }
 
-              // Refresh lead data immediately
+              const result = await response.json();
+              
+              // Show success message
+              alert(result.message || `Countdown updated to ${days} days`);
+              
+              // Refresh lead data
               await fetchLead();
             } catch (err) {
+              alert(err instanceof Error ? err.message : 'Failed to update countdown');
               throw err;
             }
-          }}
-          onArchive={async () => {
-            await handleArchive();
-            setShowManagementModal(false);
-          }}
-          onUnarchive={async () => {
-            await handleUnarchive();
-            setShowManagementModal(false);
           }}
           onAssign={async (data: any) => {
             await handleAssign(data);

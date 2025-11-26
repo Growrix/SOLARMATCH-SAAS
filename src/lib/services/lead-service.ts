@@ -1442,4 +1442,110 @@ export async function resetLeadTimer(
   };
 }
 
+/**
+ * Update lead countdown timer to specific number of days from now
+ * Unlike resetLeadTimer which ADDS days, this SETS countdown to exact days
+ * @param leadId - Lead ID
+ * @param days - Number of days from now (absolute, not relative)
+ * @param updatedBy - Admin user ID
+ */
+export async function updateLeadCountdown(
+  leadId: string,
+  days: number,
+  updatedBy: string
+) {
+  // 1. Validate inputs
+  if (!leadId || !updatedBy) {
+    throw new Error('leadId and updatedBy are required');
+  }
+
+  if (typeof days !== 'number' || days < 1 || days > 90) {
+    throw new Error('days must be between 1 and 90');
+  }
+
+  // 2. Check lead exists
+  const lead = await prisma.lead.findUnique({
+    where: { id: leadId },
+    include: {
+      assignments: {
+        include: {
+          installer: {
+            include: {
+              installerVerification: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!lead) {
+    throw new Error('Lead not found');
+  }
+
+  // 3. Only allow for approved/assigned leads
+  if (!['APPROVED', 'ASSIGNED'].includes(lead.status)) {
+    throw new Error('Can only update countdown for approved or assigned leads');
+  }
+
+  // 4. Calculate new expiry date (absolute, not relative)
+  const now = new Date();
+  const newExpiryDate = new Date(now.getTime() + (days * 24 * 60 * 60 * 1000));
+
+  // 5. Update lead
+  const updatedLead = await prisma.lead.update({
+    where: { id: leadId },
+    data: {
+      expiresAt: newExpiryDate,
+      updatedAt: now,
+    },
+    include: {
+      homeowner: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+      assignments: {
+        include: {
+          installer: {
+            include: {
+              installerVerification: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  // 6. Create audit log
+  await createAuditLog({
+    action: AUDIT_ACTIONS.TIMER_RESET,
+    entityType: 'lead',
+    entityId: leadId,
+    leadId,
+    userId: updatedBy,
+    metadata: {
+      action: 'countdown_update',
+      previousExpiry: lead.expiresAt,
+      newExpiry: newExpiryDate,
+      daysSet: days,
+    },
+  });
+
+  // 7. Log action
+  console.log(`✅ [Lead Service] Countdown updated for lead ${leadId}:`, {
+    newExpiryDate: newExpiryDate.toISOString(),
+    daysSet: days,
+    updatedBy,
+  });
+
+  return {
+    lead: updatedLead,
+    newExpiryDate,
+    daysSet: days,
+  };
+}
+
 

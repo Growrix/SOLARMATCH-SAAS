@@ -1032,4 +1032,3299 @@ npm run build
 
 ---
 
+## PHASE 8: Post-Purchase Enhancements (BUG FIXES + UX)
+
+**Status:** 🔴 Not Started  
+**Priority:** 🔥 CRITICAL (Blocks user experience)  
+**Goal:** Fix email unlock, add View Details, create tabs in Purchased Leads, update homeowner status label
+
+**Audit Report:** `DOC/Installers/Leadfeed/PHASE8-POST-PURCHASE-AUDIT.md`
+
+---
+
+### 8.1 Fix Contact Email Unlock - Backend
+
+**File:** `src/app/api/installer/leads/assigned/route.ts`
+
+**Current Issue:** Email field missing from API response, causing it to remain locked after purchase
+
+**Implementation:**
+```typescript
+// Around line 91-95, update homeowner object:
+homeowner: {
+  name: isPurchased ? lead.homeowner.name : '***LOCKED***',
+  phone: isPurchased ? lead.homeowner.phone : '***LOCKED***',
+  email: isPurchased ? lead.homeowner.email : '***LOCKED***'  // ADD THIS LINE
+},
+```
+
+**File:** `src/types/installer.ts`
+
+**Update AssignedLead interface:**
+```typescript
+export interface AssignedLead {
+  // ... existing fields
+  homeowner: {
+    name: string;
+    phone: string;
+    email: string;  // ADD THIS LINE
+  };
+  // ... rest of interface
+}
+```
+
+**Testing 8.1:**
+
+**⚠️ MANDATORY: Open Browser DevTools - Network Tab**
+
+1. **Setup:**
+   - Open browser, press F12 → Network tab
+   - Check "Preserve log" checkbox
+   - Login as installer
+
+2. **Test Locked Lead (Before Purchase):**
+   - Navigate to `/installer/leads`
+   - Find GET request to `assigned` in Network tab
+   - Click request → Preview/Response tab
+   - Expand: `leads[0]` → `homeowner`
+   - **VERIFY ALL 4 FIELDS EXIST:**
+     ```json
+     "homeowner": {
+       "id": "...",
+       "name": "***LOCKED***",
+       "phone": "***LOCKED***",
+       "email": "***LOCKED***"  ← MUST EXIST
+     }
+     ```
+   - ❌ FAIL IF: `email` field missing/undefined
+
+3. **Purchase & Test Unlocked:**
+   - Click "Unlock Lead", complete purchase
+   - Find new GET `assigned` request (after purchase)
+   - Expand purchased lead → `homeowner`
+   - **VERIFY REAL EMAIL:**
+     ```json
+     "homeowner": {
+       "name": "Real Name",
+       "phone": "+614...",
+       "email": "real@email.com"  ← REAL EMAIL
+     }
+     ```
+
+4. **TypeScript Check:**
+   ```powershell
+   npx tsc --noEmit
+   ```
+
+**❌ STOP IF:** Email missing → Fix Prisma query (add `email: true` to select)
+
+**Checkpoint 8.1:** ✅ API returns email field correctly
+
+---
+
+### 8.2 Fix Contact Email Unlock - Frontend
+
+**File:** `src/app/installer/(dashboard)/leads/page.tsx`
+
+**Current Issue:** Mapping function hardcodes email as `***LOCKED***` regardless of purchase status
+
+**Implementation:**
+```typescript
+// Around line 42, update contact mapping:
+contact: {
+  name: apiLead.homeowner.name || '***LOCKED***',
+  email: apiLead.homeowner.email || '***LOCKED***',  // CHANGE THIS (use real email from API)
+  phone: apiLead.homeowner.phone || '***LOCKED***'
+},
+```
+
+**File:** `src/components/InstallerLeadFeed.tsx` (Line 263)
+
+**Critical Fix - Use isUnlocked property:**
+```typescript
+// CHANGE FROM:
+const isUnlockedByInstaller = lead.unlockedBy.includes(installer.id);
+
+// CHANGE TO:
+const isUnlockedByInstaller = lead.isUnlocked;
+```
+
+**Why:** The component was checking a legacy `unlockedBy` array instead of the `isUnlocked` boolean property from the API.
+
+**Testing 8.2:**
+
+**Step 1 - Initial State (Before Purchase):**
+1. Login as installer
+2. Navigate to `/installer/leads`
+3. Find assigned CALL_VISIT lead
+4. **Verify locked state:**
+   - Name: `***LOCKED***` ✅
+   - Phone: `***LOCKED***` ✅
+   - Email: `***LOCKED***` ✅
+   - No green "Contact Details Unlocked" section visible
+5. Open DevTools Console - verify no errors
+6. Open DevTools Network tab
+
+**Step 2 - Purchase Lead:**
+1. Click "Unlock Lead ($25)" button
+2. Verify modal opens
+3. Click "Pay $25 to Unlock"
+4. Watch processing animation (1.5 seconds)
+5. **In Network tab, verify:**
+   - POST request to `/api/installer/leads/[id]/purchase`
+   - Status: 200 OK
+   - Response includes: `homeowner.email = "real@email.com"`
+6. Watch for "Payment successful!" message
+7. Modal should auto-close after 1 second
+
+**Step 3 - Verify Email Unlocked:**
+1. After modal closes, lead card should refresh
+2. **Verify green unlock banner appears:**
+   ```
+   🔓 Contact Details Unlocked
+   ```
+3. **Verify all contact fields visible:**
+   - Name: `Mohammad Ikramul nayeem` ✅ (real name)
+   - Phone: `+61412952399` ✅ (real phone)
+   - Email: `real@email.com` ✅ (REAL EMAIL, NOT ***LOCKED***)
+4. **Open DevTools Network tab:**
+   - Find GET request to `/api/installer/leads/assigned`
+   - Click on request → Preview tab
+   - Navigate to homeowner object
+   - **Verify it includes:**
+     ```json
+     "homeowner": {
+       "name": "Mohammad Ikramul nayeem",
+       "phone": "+61412952399",
+       "email": "real@email.com"
+     }
+     ```
+5. **Console check:** No errors
+
+**Step 4 - Refresh Page Test:**
+1. Hard refresh page (Ctrl+Shift+R or Cmd+Shift+R)
+2. Navigate back to `/installer/leads`
+3. Find the purchased lead
+4. **Verify contact details persist:**
+   - Green unlock banner still shows ✅
+   - Name, phone, email all visible ✅
+   - Email is NOT `***LOCKED***` ✅
+
+**Step 5 - Other Leads Still Locked:**
+1. Scroll to other assigned leads (not purchased)
+2. **Verify they remain locked:**
+   - No green banner
+   - Name: `***LOCKED***`
+   - Phone: `***LOCKED***`
+   - Email: `***LOCKED***`
+
+**Expected Results:**
+- ✅ Email field shows real address after purchase
+- ✅ Name and phone also unlocked
+- ✅ Green "Contact Details Unlocked" banner appears
+- ✅ Unlock persists after page refresh
+- ✅ Other leads remain locked
+- ✅ No console errors
+- ✅ Network tab shows email in API response
+
+**❌ STOP IF:**
+- ❌ Email still shows `***LOCKED***` → Check mapping function line 42
+- ❌ Green banner doesn't appear → Check `isUnlockedByInstaller` logic (should use `lead.isUnlocked`)
+- ❌ API response missing email → Check Task 8.1 backend fix
+- ❌ Console errors → Fix JavaScript errors before proceeding
+
+**Checkpoint 8.2:** ✅ Email unlocks correctly after purchase in UI
+
+---
+
+### 8.3 Add View Details Button + Modal
+
+**File:** `src/components/InstallerLeadFeed.tsx`
+
+**Current Issue:** No way to view full lead details after purchase
+
+**Implementation Steps:** Add state, create modal component, add button, render modal
+
+**Testing 8.3:**
+
+**⚠️ MANDATORY: Open Browser DevTools Before Testing**
+
+**Step 1 - Verify Button Appears After Purchase:**
+1. Login as installer
+2. Navigate to `/installer/leads`
+3. Find an unpurchased CALL_VISIT lead
+4. **Before purchase:** Scroll to action buttons section
+   - Should see "Unlock Lead ($X)" button ✅
+   - Should NOT see "View Details" button ❌
+5. Click "Unlock Lead", complete purchase (Phase 2 flow)
+6. Wait for modal to close and card to refresh
+7. **After purchase:** Scroll to contact details section
+   - Should see green "🔓 Contact Details Unlocked" banner ✅
+   - Name, phone, email all visible (not ***LOCKED***) ✅
+   - **NEW:** "View Details" button should appear below contact info ✅
+8. **Button styling check:**
+   - Uses design system button styles
+   - Clear label: "View Details" or "View Full Details"
+   - Icon present (optional but recommended)
+
+**Step 2 - Modal Opens Correctly:**
+1. Click "View Details" button
+2. **Verify modal behavior:**
+   - Modal overlay appears with semi-transparent background ✅
+   - Modal slides in/fades in smoothly ✅
+   - Background content dimmed/blurred ✅
+   - Modal is centered on screen ✅
+3. **Check DevTools Console:** No errors
+
+**Step 3 - Modal Content Verification:**
+1. **Header Section:**
+   - Title: "Lead Details" or similar ✅
+   - Close button (X) in top-right corner ✅
+   - Lead ID or reference number visible ✅
+
+2. **Contact Information Section:**
+   - Homeowner Name: Real name (not ***LOCKED***) ✅
+   - Phone: Real phone number with proper formatting ✅
+   - Email: Real email address (not ***LOCKED***) ✅
+   - Section clearly labeled (e.g., "Contact Information") ✅
+
+3. **Property Details Section:**
+   - Location/Address ✅
+   - Postcode ✅
+   - State ✅
+   - Property Type ✅
+   - Roof Type ✅
+   - Budget Range ✅
+   - All fields populated (no undefined/null) ✅
+
+4. **Lead Metadata Section:**
+   - Quote Type: CALL_VISIT ✅
+   - Lead Status ✅
+   - Purchase Date with formatting ✅
+   - Lead Price ✅
+   - Purchase Status: COMPLETED ✅
+
+5. **Styling Check:**
+   - Uses design system tokens (--color-*, --spacing-*) ✅
+   - Consistent typography (text-body, text-heading-*) ✅
+   - Proper spacing between sections ✅
+   - Readable contrast ratios ✅
+   - No inline styles or hardcoded colors ✅
+
+**Step 4 - Modal Close Functionality:**
+1. **Test Close Button:**
+   - Click X button in top-right
+   - Modal should close with animation ✅
+   - Background returns to normal ✅
+   - No console errors ✅
+
+2. **Test Overlay Click:**
+   - Re-open modal (click "View Details")
+   - Click on dark overlay (outside modal)
+   - Modal should close ✅
+
+3. **Test Escape Key:**
+   - Re-open modal
+   - Press Escape key
+   - Modal should close ✅
+
+4. **Verify State Reset:**
+   - After closing, modal completely unmounts ✅
+   - No visual artifacts left behind ✅
+   - Lead card remains in purchased state ✅
+
+**Step 5 - Multiple Leads Test:**
+1. Navigate back to `/installer/leads`
+2. Find another unpurchased lead, purchase it
+3. Open "View Details" for FIRST purchased lead
+4. Verify correct lead data shows (not mixed up) ✅
+5. Close modal
+6. Open "View Details" for SECOND purchased lead
+7. Verify correct data for second lead ✅
+8. **Data integrity check:** Each modal shows unique lead data
+
+**Step 6 - Edge Cases:**
+1. **Test with missing optional fields:**
+   - Find lead with minimal data (if available)
+   - Open View Details
+   - Verify graceful handling of missing fields (show "N/A" or hide section) ✅
+
+2. **Test rapid clicking:**
+   - Click "View Details" multiple times quickly
+   - Should not open multiple modals ✅
+   - No console errors ✅
+
+3. **Test during page refresh:**
+   - Open modal
+   - Refresh page (F5)
+   - Navigate back, verify button still works ✅
+
+**Step 7 - TypeScript & Build Validation:**
+```powershell
+# Check TypeScript
+npx tsc --noEmit
+
+# Check build
+npm run build
+```
+
+**Expected Results:**
+- ✅ "View Details" button appears only after purchase
+- ✅ Button styled correctly with design system
+- ✅ Modal opens with smooth animation
+- ✅ All lead data displays correctly
+- ✅ Contact details are real (not ***LOCKED***)
+- ✅ Modal closes via X, overlay click, and Escape key
+- ✅ Multiple leads show correct individual data
+- ✅ No console errors at any step
+- ✅ TypeScript compiles without errors
+- ✅ Build succeeds
+
+**❌ STOP IF:**
+- ❌ Button appears before purchase → Check conditional rendering
+- ❌ Modal doesn't open → Check state management and event handlers
+- ❌ Contact details still show ***LOCKED*** → Verify Task 8.1 & 8.2 fixes
+- ❌ Modal shows wrong lead data → Check lead state/props passing
+- ❌ Close button doesn't work → Check onClick handlers
+- ❌ Console errors → Fix JavaScript errors before proceeding
+- ❌ TypeScript errors → Fix type definitions
+- ❌ Build fails → Fix compilation errors
+
+**Checkpoint 8.3:** ✅ View Details button works, modal displays all information correctly
+
+---
+
+### 8.4 Create Tabs in Purchased Leads Page
+
+**File:** `src/app/installer/(dashboard)/purchased-leads/page.tsx`
+
+**Current Issue:** All purchased leads shown in single list, no categorization by lead type
+
+**Implementation:** Add tab state, filtering, and tab UI
+
+**Testing 8.4:**
+
+**⚠️ MANDATORY: Test with Multiple Lead Types**
+
+**Prerequisites:**
+- Purchase at least 1 lead of each type:
+  - 1 CALL_VISIT lead
+  - 1 WRITTEN_QUOTES lead (if available)
+  - 1 BIDDING lead (if available)
+- If not available, you can still test with existing purchased leads
+
+**Step 1 - Initial Tab Display:**
+1. Login as installer
+2. Navigate to `/installer/purchased-leads`
+3. Wait for page to load completely
+4. **Verify tab bar exists:**
+   - Should see 3 tabs horizontally aligned ✅
+   - Tab labels: "Call/Visit", "Written Quotes", "Bidding" ✅
+   - Each tab shows count in parentheses, e.g., "Call/Visit (2)" ✅
+5. **Check active tab:**
+   - "Call/Visit" tab should be active by default ✅
+   - Active tab has different styling (highlighted/underlined) ✅
+6. **Open DevTools Console:** Check for no errors
+
+**Step 2 - Tab Styling Verification:**
+1. **Active tab styling:**
+   - Background color or underline indicator ✅
+   - Text color changes (more prominent) ✅
+   - Uses design system tokens (--color-primary, etc.) ✅
+2. **Inactive tab styling:**
+   - Subdued appearance ✅
+   - Clear visual distinction from active ✅
+   - Hover state changes cursor to pointer ✅
+3. **Tab counts:**
+   - Each tab shows correct count ✅
+   - Count updates dynamically (test later) ✅
+
+**Step 3 - Call/Visit Tab Filtering:**
+1. **Verify default state (Call/Visit tab active):**
+   - Only CALL_VISIT leads display ✅
+   - Count in tab matches number of cards shown ✅
+   - If no CALL_VISIT leads: Empty state message ✅
+2. **Check lead cards:**
+   - Each card shows quoteType badge: "Call/Visit" ✅
+   - Contact details visible (not ***LOCKED***) ✅
+   - Purchase date displays ✅
+3. **Open DevTools Network tab:**
+   - Find GET request to `/api/installer/leads/purchased`
+   - Click request → Preview
+   - Verify response includes leads with `quoteType: "CALL_VISIT"` ✅
+
+**Step 4 - Written Quotes Tab:**
+1. Click "Written Quotes" tab
+2. **Verify tab switch:**
+   - "Written Quotes" tab becomes active (styling changes) ✅
+   - "Call/Visit" tab becomes inactive ✅
+   - URL updates with query param (optional): `?tab=written` ✅
+3. **Verify lead filtering:**
+   - Only WRITTEN_QUOTES leads display ✅
+   - Count in tab matches number shown ✅
+   - If no leads: Empty state with message ✅
+4. **Check empty state (if applicable):**
+   - Message: "No written quote leads purchased yet" or similar ✅
+   - Clear, helpful message ✅
+   - No broken UI elements ✅
+5. **Console check:** No errors
+
+**Step 5 - Bidding Tab:**
+1. Click "Bidding" tab
+2. **Verify tab switch:**
+   - "Bidding" tab becomes active ✅
+   - Other tabs inactive ✅
+3. **Verify filtering:**
+   - Only BIDDING leads show ✅
+   - Count accurate ✅
+   - Empty state if no leads ✅
+4. **Console check:** No errors
+
+**Step 6 - Tab Switching Rapid Test:**
+1. Quickly click between tabs:
+   - Call/Visit → Written Quotes ✅
+   - Written Quotes → Bidding ✅
+   - Bidding → Call/Visit ✅
+2. **Verify smooth transitions:**
+   - No flickering or layout shifts ✅
+   - Content updates immediately ✅
+   - No duplicate API calls (check Network tab) ✅
+   - Active state updates correctly ✅
+3. **Console check:** No errors during rapid switching
+
+**Step 7 - Count Accuracy Verification:**
+1. **Manual count check:**
+   - Note count shown in "Call/Visit" tab, e.g., (3)
+   - Count visible cards in that tab
+   - Numbers should match exactly ✅
+2. **Repeat for other tabs:**
+   - Written Quotes count vs. visible cards ✅
+   - Bidding count vs. visible cards ✅
+3. **Open DevTools Network tab:**
+   - Find `/api/installer/leads/purchased` response
+   - Count leads with each quoteType in JSON
+   - Compare with tab counts - should match ✅
+
+**Step 8 - Empty State Testing:**
+1. If you have a tab with 0 leads:
+   - Click that tab
+   - **Verify empty state UI:**
+     - Icon or illustration (optional) ✅
+     - Clear message: "No [type] leads purchased yet" ✅
+     - Helpful subtext or CTA (optional) ✅
+     - Uses design system styling ✅
+2. If all tabs have leads:
+   - Note in testing: "Empty state not tested - all tabs have data"
+
+**Step 9 - Page Refresh Persistence:**
+1. Select "Written Quotes" tab
+2. Refresh page (F5 or Ctrl+R)
+3. **After refresh:**
+   - If using URL params: Same tab stays active ✅
+   - If not: Defaults back to "Call/Visit" (expected) ✅
+4. **Console check:** No errors after refresh
+
+**Step 10 - Responsive Design Check:**
+1. Open DevTools → Toggle device toolbar (Ctrl+Shift+M)
+2. **Test mobile view (375px):**
+   - Tabs stack vertically OR scroll horizontally ✅
+   - All tabs accessible (not cut off) ✅
+   - Active state still visible ✅
+   - Touch-friendly tap targets (min 44x44px) ✅
+3. **Test tablet view (768px):**
+   - Tabs display appropriately ✅
+   - Content readable ✅
+4. Return to desktop view
+
+**Step 11 - TypeScript & Build Validation:**
+```powershell
+# Check TypeScript
+npx tsc --noEmit
+
+# Full build
+npm run build
+```
+
+**Expected Results:**
+- ✅ 3 tabs display with correct labels and counts
+- ✅ Active tab visually distinct
+- ✅ Clicking tab filters leads correctly
+- ✅ Only matching quoteType leads show in each tab
+- ✅ Counts match actual number of cards
+- ✅ Empty state displays when no leads in tab
+- ✅ Tab switching smooth with no errors
+- ✅ No duplicate API calls
+- ✅ Responsive on mobile/tablet
+- ✅ No console errors
+- ✅ TypeScript compiles
+- ✅ Build succeeds
+
+**❌ STOP IF:**
+- ❌ Tabs don't appear → Check tab component rendering
+- ❌ All leads show in every tab → Check filter logic (quoteType matching)
+- ❌ Counts wrong → Check counting logic or API response
+- ❌ Active tab not highlighted → Check CSS classes and state
+- ❌ Console errors → Fix JavaScript errors
+- ❌ Empty state doesn't show → Check conditional rendering
+- ❌ TypeScript errors → Fix type definitions
+- ❌ Build fails → Fix compilation errors
+
+**Checkpoint 8.4:** ✅ Tabs work, filter correctly, counts accurate
+
+---
+
+### 8.5 Replace Purchased Leads UI with LeadCard
+
+**File:** `src/app/installer/(dashboard)/purchased-leads/page.tsx`
+
+**Current Issue:** Custom card design inconsistent with main feed
+
+**Implementation:** Import InstallerLeadFeed, create mapping function, replace custom UI
+
+**Testing 8.5:**
+
+**⚠️ MANDATORY: Visual Comparison Required**
+
+**Step 1 - Before Implementation Screenshot:**
+1. Navigate to `/installer/purchased-leads`
+2. Take screenshot or note current card design
+3. Note differences from main leads page
+
+**Step 2 - After Implementation - Initial Load:**
+1. Navigate to `/installer/purchased-leads`
+2. Wait for page to load completely
+3. **Verify InstallerLeadFeed component renders:**
+   - Lead cards appear ✅
+   - No layout breaks or overflow ✅
+   - Page doesn't crash ✅
+4. **Open DevTools Console:** Check for no errors
+
+**Step 3 - Visual Consistency Check:**
+1. **Split-screen comparison:**
+   - Open `/installer/leads` in one tab (main feed)
+   - Open `/installer/purchased-leads` in another tab (purchased)
+2. **Compare card styling (same for both):**
+   - Card border and shadow (theme-card) ✅
+   - Border-left color indicator ✅
+   - Padding and spacing ✅
+   - Typography (font sizes, weights) ✅
+   - Color scheme (uses design tokens) ✅
+   - Icon styles ✅
+3. **Compare sections:**
+   - Header section (lead type badge, status) ✅
+   - Property details section ✅
+   - Contact details section (green banner) ✅
+   - Action buttons section ✅
+4. **Verify identical layout:** Cards should be visually indistinguishable
+
+**Step 4 - Contact Details Display:**
+1. In `/installer/purchased-leads` page
+2. Find a purchased CALL_VISIT lead
+3. **Verify green unlock banner:**
+   - Text: "🔓 Contact Details Unlocked" ✅
+   - Green background with proper styling ✅
+   - Located above contact fields ✅
+4. **Verify contact fields visible:**
+   - Name: Real name (NOT ***LOCKED***) ✅
+   - Phone: Real phone (NOT ***LOCKED***) ✅
+   - Email: Real email (NOT ***LOCKED***) ✅
+   - Proper formatting and spacing ✅
+5. **Compare with main feed:**
+   - Navigate to `/installer/leads`
+   - Find same lead (or another purchased lead)
+   - Contact section should look identical ✅
+
+**Step 5 - View Details Button Test:**
+1. In `/installer/purchased-leads` page
+2. Scroll to action buttons in a lead card
+3. **Verify "View Details" button:**
+   - Button exists and visible ✅
+   - Styled correctly (design system) ✅
+   - Same position as in main feed ✅
+4. Click "View Details"
+5. **Verify modal opens:**
+   - Modal component renders ✅
+   - Shows correct lead data ✅
+   - All sections populated ✅
+6. Close modal (X button or overlay)
+7. Repeat for 2-3 different leads
+8. **Console check:** No errors
+
+**Step 6 - Tab Integration Test:**
+1. Click "Call/Visit" tab
+2. **Verify LeadCard displays:**
+   - Only CALL_VISIT leads show ✅
+   - Cards use LeadCard component ✅
+3. Click "Written Quotes" tab
+4. **Verify:**
+   - Only WRITTEN_QUOTES leads show ✅
+   - Same LeadCard styling ✅
+   - Empty state if no leads ✅
+5. Click "Bidding" tab
+6. **Verify:**
+   - Only BIDDING leads show ✅
+   - Same LeadCard styling ✅
+7. **Consistency check:** All tabs use same card component
+
+**Step 7 - Lead Actions Verification:**
+1. In a lead card, check for action buttons
+2. **Verify appropriate buttons show:**
+   - "View Details" button ✅
+   - NO "Unlock Lead" button (already purchased) ✅
+   - Any other context-appropriate buttons ✅
+3. **Button state check:**
+   - All buttons enabled (not disabled) ✅
+   - Cursor changes to pointer on hover ✅
+4. Test each button's functionality
+
+**Step 8 - Data Mapping Accuracy:**
+1. **Open DevTools Network tab**
+2. Find GET `/api/installer/leads/purchased` request
+3. Click request → Preview tab
+4. **Compare API data with UI:**
+   - First lead in API response:
+     - Check homeowner.name matches card ✅
+     - Check homeowner.phone matches card ✅
+     - Check homeowner.email matches card ✅
+     - Check quoteType matches badge ✅
+     - Check purchasedAt matches date shown ✅
+5. **Verify no data loss in mapping:** All fields correctly transformed
+
+**Step 9 - Responsive Design Test:**
+1. Open DevTools → Toggle device toolbar
+2. **Test mobile (375px):**
+   - Cards stack vertically ✅
+   - All content readable ✅
+   - Buttons accessible ✅
+   - No horizontal scroll ✅
+3. **Test tablet (768px):**
+   - Cards display appropriately ✅
+   - Tabs work correctly ✅
+4. **Test desktop (1440px):**
+   - Cards use available space well ✅
+   - Layout matches main feed ✅
+
+**Step 10 - Edge Cases:**
+1. **Test with 0 purchased leads:**
+   - Delete or hide purchased leads (if possible)
+   - Verify empty state shows correctly ✅
+   - Message clear and helpful ✅
+2. **Test with many leads (10+):**
+   - Scroll through list ✅
+   - No performance issues ✅
+   - Infinite scroll or pagination works (if implemented) ✅
+3. **Test lead with minimal data:**
+   - Find lead with missing optional fields
+   - Verify graceful handling (shows "N/A" or hides) ✅
+
+**Step 11 - Cross-Page Navigation:**
+1. Start at `/installer/purchased-leads`
+2. Click browser back button (or navigate to `/installer/leads`)
+3. Verify main feed still works ✅
+4. Navigate back to `/installer/purchased-leads`
+5. Verify page loads correctly ✅
+6. **State persistence check:** Tab selection, scroll position reasonable
+
+**Step 12 - TypeScript & Build Validation:**
+```powershell
+# Check TypeScript
+npx tsc --noEmit
+
+# Full build
+npm run build
+```
+
+**Expected Results:**
+- ✅ Purchased leads page uses InstallerLeadFeed component
+- ✅ Cards visually identical to main feed
+- ✅ Contact details show real data (not ***LOCKED***)
+- ✅ "View Details" button works correctly
+- ✅ Tabs filter leads using LeadCard
+- ✅ All lead data maps correctly from API
+- ✅ Responsive on all screen sizes
+- ✅ No console errors
+- ✅ TypeScript compiles
+- ✅ Build succeeds
+
+**❌ STOP IF:**
+- ❌ Cards look different from main feed → Check component import and props
+- ❌ Contact details still show ***LOCKED*** → Verify Task 8.1 & 8.2 fixes
+- ❌ "View Details" doesn't work → Check Task 8.3 implementation
+- ❌ Tabs don't filter → Check filter logic integration
+- ❌ Data mapping errors → Fix mapping function
+- ❌ Console errors → Fix JavaScript errors
+- ❌ TypeScript errors → Fix type definitions
+- ❌ Build fails → Fix compilation errors
+- ❌ Layout breaks on mobile → Fix responsive styles
+
+**Checkpoint 8.5:** ✅ UI consistent, LeadCard reused, all features work
+
+---
+
+### 8.6 Update Homeowner Status Label
+
+**File:** `src/app/homeowner/dashboard/page.tsx`
+
+**Current Issue:** Status shows "Purchased" instead of user-friendly message
+
+**Implementation:**
+```typescript
+// Around line 195-199, update PURCHASED status:
+[LeadStatusEnum.PURCHASED]: {
+  label: 'Responded by an Installer',  // CHANGED
+  description: 'An installer will contact you soon',  // CHANGED
+  accent: 'bg-primary/10 text-primary border border-primary/30',
+},
+```
+
+**Testing 8.6:**
+
+**⚠️ MANDATORY: Multi-User Testing Required**
+
+**Prerequisites:**
+- Have installer account
+- Have homeowner account
+- Know credentials for both
+- Have at least 1 CALL_VISIT lead assigned to installer, owned by homeowner
+
+**Step 1 - Initial Homeowner State:**
+1. Login as homeowner
+2. Navigate to homeowner dashboard
+3. Find the CALL_VISIT lead (not yet purchased)
+4. **Note current status:**
+   - Status label (e.g., "New", "Active") ✅
+   - Status description ✅
+   - Badge color/styling ✅
+5. Take screenshot for comparison
+6. Logout
+
+**Step 2 - Installer Purchases Lead:**
+1. Login as installer
+2. Navigate to `/installer/leads`
+3. Find the same lead (cross-reference ID or details)
+4. Click "Unlock Lead ($X)"
+5. Complete purchase flow
+6. **Verify purchase success:**
+   - Modal shows "Payment successful!" ✅
+   - Contact details unlock ✅
+7. Logout
+
+**Step 3 - Homeowner Views Updated Status:**
+1. Login as homeowner (same account as lead owner)
+2. Navigate to homeowner dashboard
+3. **Find the purchased lead**
+4. **Verify status label changed:**
+   - OLD label: "Purchased" or "Active" ❌
+   - NEW label: "Responded by an Installer" ✅
+   - Case sensitivity correct ✅
+   - No typos ✅
+5. **Verify status description:**
+   - NEW description: "An installer will contact you soon" ✅
+   - Clear and reassuring message ✅
+   - Grammatically correct ✅
+6. **Verify badge styling:**
+   - Background: Light blue/primary color ✅
+   - Text: Primary color (readable) ✅
+   - Border: Subtle primary border ✅
+   - Uses design system classes ✅
+
+**Step 4 - Status Badge Visual Check:**
+1. **Compare with other statuses:**
+   - If you have other leads with different statuses, compare
+   - Verify "Responded by an Installer" status is visually distinct ✅
+   - Color scheme appropriate (not error red, not success green) ✅
+2. **Check responsiveness:**
+   - Badge doesn't overflow on mobile ✅
+   - Text wraps appropriately ✅
+
+**Step 5 - Notification Check (if applicable):**
+1. Check homeowner notifications
+2. **Verify notification about purchase:**
+   - Title: "Installer Responded to Your Request" (from Phase 6) ✅
+   - Message matches new status concept ✅
+   - Notification marked as unread ✅
+3. Click notification
+4. Verify navigates to lead details or dashboard ✅
+
+**Step 6 - Lead Details Page Check:**
+1. From dashboard, click on the purchased lead
+2. Navigate to lead details page
+3. **Verify status label shows:**
+   - Same label: "Responded by an Installer" ✅
+   - Same description: "An installer will contact you soon" ✅
+   - Consistent styling ✅
+4. **Check for any status timeline:**
+   - If timeline exists, verify "Responded by an Installer" appears ✅
+   - Timestamp shows purchase date/time ✅
+
+**Step 7 - Multiple Leads Scenario:**
+1. If homeowner has multiple leads:
+   - Purchase another lead as installer
+   - Return to homeowner dashboard
+   - **Verify both show correct status:**
+     - Both say "Responded by an Installer" ✅
+     - Statuses independent (not shared state) ✅
+2. If homeowner has unpurchased leads:
+   - Verify they still show "New" or "Active" ✅
+   - Only purchased leads show new status ✅
+
+**Step 8 - Edge Case - Different Status Values:**
+1. **Check status enum mapping:**
+   - Open DevTools Network tab
+   - Find API request that fetches homeowner leads
+   - Click request → Preview tab
+   - Find purchased lead in response
+   - **Verify status field:**
+     - Value: "PURCHASED" (enum) ✅
+     - Maps to "Responded by an Installer" (label) ✅
+2. **Test other status values don't break:**
+   - Find leads with status: NEW, ACTIVE, CANCELLED, etc.
+   - Verify they still display correctly ✅
+
+**Step 9 - Accessibility Check:**
+1. **Keyboard navigation:**
+   - Tab through dashboard
+   - Status badge should be keyboard accessible (if interactive) ✅
+2. **Screen reader test (if possible):**
+   - Use browser screen reader or NVDA/JAWS
+   - Verify status announced as "Responded by an Installer" ✅
+   - Description also announced ✅
+3. **Color contrast:**
+   - Use browser DevTools Accessibility panel
+   - Check contrast ratio meets WCAG AA (4.5:1 min) ✅
+
+**Step 10 - TypeScript & Build Validation:**
+```powershell
+# Check TypeScript
+npx tsc --noEmit
+
+# Full build
+npm run build
+```
+
+**Expected Results:**
+- ✅ Status label changed to "Responded by an Installer"
+- ✅ Description changed to "An installer will contact you soon"
+- ✅ Badge styling uses design system (primary color theme)
+- ✅ Status shows consistently across dashboard and details page
+- ✅ Only purchased leads show new status
+- ✅ Unpurchased leads retain original status
+- ✅ Notification matches new status concept
+- ✅ No console errors
+- ✅ TypeScript compiles
+- ✅ Build succeeds
+- ✅ Accessible to keyboard and screen readers
+- ✅ Color contrast meets WCAG AA
+
+**❌ STOP IF:**
+- ❌ Status still says "Purchased" → Check status enum mapping in code
+- ❌ Description wrong or missing → Verify status config object
+- ❌ Styling wrong (wrong colors) → Check design system class names
+- ❌ Status doesn't update after purchase → Check API response and state
+- ❌ Other statuses broken → Verify enum mapping for all status values
+- ❌ Console errors → Fix JavaScript errors
+- ❌ TypeScript errors → Fix type definitions
+- ❌ Build fails → Fix compilation errors
+- ❌ Poor contrast → Adjust colors to meet WCAG standards
+
+**Checkpoint 8.6:** ✅ Homeowner sees user-friendly status label
+
+---
+
+### 8.7 End-to-End Testing
+
+**⚠️ MANDATORY: Complete System Integration Test**
+
+**Complete Flow Test:**
+
+**Test 1: Single Purchase Flow (Full Journey)**
+
+**Part A - Setup:**
+1. Login as admin
+2. Create new CALL_VISIT lead or verify existing
+3. Assign to test installer
+4. Note lead ID for tracking
+5. Logout
+
+**Part B - Installer Purchase:**
+1. Login as installer (assigned to lead)
+2. Navigate to `/installer/leads`
+3. Find assigned CALL_VISIT lead
+4. **Verify locked state:**
+   - Contact shows ***LOCKED*** ✅
+   - "Unlock Lead ($X)" button visible ✅
+5. Click "Unlock Lead ($X)"
+6. **Verify purchase flow:**
+   - Modal opens ✅
+   - Lead details display ✅
+   - Price shown correctly ✅
+7. Click "Pay $X to Unlock"
+8. **Verify processing:**
+   - Loading state (1.5s) ✅
+   - DevTools Network: POST `/api/installer/leads/[id]/purchase` → 200 ✅
+9. **Verify success:**
+   - "Payment successful!" message ✅
+   - Modal auto-closes ✅
+10. **Verify unlock in UI:**
+    - Green banner "🔓 Contact Details Unlocked" ✅
+    - Real name, phone, email visible ✅
+    - Email NOT ***LOCKED*** ✅
+11. **Verify "View Details" appears:**
+    - Button visible below contact ✅
+    - Click button → Modal opens ✅
+    - All lead data correct ✅
+    - Close modal ✅
+12. Navigate to `/installer/purchased-leads`
+13. **Verify purchased page:**
+    - Lead appears in "Call/Visit" tab ✅
+    - Contact details visible ✅
+    - "View Details" works ✅
+14. Logout
+
+**Part C - Homeowner Notification:**
+1. Login as homeowner (owner of purchased lead)
+2. Navigate to homeowner dashboard
+3. **Verify notification:**
+   - Notification badge/indicator ✅
+   - Open notifications ✅
+   - Message: "Installer Responded to Your Request" ✅
+4. **Verify status updated:**
+   - Lead shows "Responded by an Installer" ✅
+   - Description: "An installer will contact you soon" ✅
+   - Badge styled correctly ✅
+5. **Verify edit blocked:**
+   - Try to edit lead → Blocked/disabled ✅
+   - Try to cancel lead → Blocked ✅
+   - Error message clear ✅
+6. Logout
+
+**Part D - Admin View:**
+1. Login as admin
+2. Navigate to admin leads page
+3. Find the purchased lead
+4. Click to open lead details modal
+5. **Verify purchase info section:**
+   - Section titled "Purchase Information" ✅
+   - Installer company name ✅
+   - Purchase date formatted ✅
+   - Purchase status: COMPLETED ✅
+   - Lead price ✅
+6. Close modal
+7. Logout
+
+**✅ Test 1 Result:** Single purchase flow works end-to-end
+
+---
+
+**Test 2: Multi-Installer Scenario**
+
+**Setup:**
+1. Login as admin
+2. Create/select CALL_VISIT lead
+3. Assign to Installer A AND Installer B
+4. Logout
+
+**Part A - Installer A Purchases:**
+1. Login as Installer A
+2. Navigate to `/installer/leads`
+3. Find lead, verify unlockable ✅
+4. Purchase lead (full flow)
+5. Verify success ✅
+6. Logout
+
+**Part B - Installer B Blocked:**
+1. Login as Installer B
+2. Navigate to `/installer/leads`
+3. Find same lead
+4. **Verify blocked state:**
+   - Red banner: "⛔ This lead has been purchased by another installer" ✅
+   - Card dimmed/opacity reduced ✅
+   - "Unlock Lead" button disabled/hidden ✅
+5. **DevTools check:**
+   - Network: GET `/api/installer/leads/assigned`
+   - Response includes `isPurchasedByAnother: true` ✅
+6. Try clicking purchase button (should not work) ✅
+7. Logout
+
+**✅ Test 2 Result:** Multi-installer protection works
+
+---
+
+**Test 3: Different Lead Types**
+
+**Part A - Written Quote Lead:**
+1. Login as admin
+2. Create WRITTEN_QUOTES lead
+3. Assign to installer
+4. Logout
+5. Login as installer
+6. Purchase lead (if purchase flow applies to this type)
+7. Navigate to `/installer/purchased-leads`
+8. Click "Written Quotes" tab
+9. **Verify:**
+   - Lead appears in correct tab ✅
+   - Badge shows "Written Quotes" ✅
+   - Contact details visible ✅
+10. Logout
+
+**Part B - Bidding Lead:**
+1. Repeat steps for BIDDING lead type
+2. **Verify:**
+   - Appears in "Bidding" tab ✅
+   - Badge shows "Bidding" ✅
+   - All features work ✅
+
+**✅ Test 3 Result:** All lead types handled correctly
+
+---
+
+**Test 4: Performance & Load Testing**
+
+**Part A - Many Leads Test:**
+1. Login as installer with 15+ purchased leads (or create via admin)
+2. Navigate to `/installer/purchased-leads`
+3. **Measure performance:**
+   - Page loads in < 2 seconds ✅
+   - No lag when switching tabs ✅
+   - Smooth scrolling ✅
+4. Open DevTools Performance tab
+5. Record profile while switching tabs
+6. **Verify:**
+   - No long tasks (>50ms) ✅
+   - No memory leaks ✅
+
+**Part B - Concurrent Actions:**
+1. Have 2 installers in separate browsers
+2. Assign same lead to both
+3. Both click "Unlock Lead" simultaneously
+4. **Verify:**
+   - Only 1 purchase succeeds ✅
+   - Other gets error message ✅
+   - No duplicate charges ✅
+
+**✅ Test 4 Result:** Performance acceptable, race conditions handled
+
+---
+
+**Test 5: Cross-Browser Testing**
+
+**Browsers to Test:**
+- Chrome/Edge (Chromium)
+- Firefox
+- Safari (if Mac available)
+
+**For Each Browser:**
+1. Complete Test 1 (Single Purchase Flow)
+2. **Verify:**
+   - All styling renders correctly ✅
+   - Modals open/close properly ✅
+   - Tabs work ✅
+   - No browser console errors ✅
+   - DevTools Network shows correct API calls ✅
+
+**✅ Test 5 Result:** Works in all major browsers
+
+---
+
+**Test 6: Mobile Responsive Testing**
+
+**Part A - Mobile (375px):**
+1. Open DevTools → Toggle device toolbar
+2. Select iPhone SE or similar (375px width)
+3. Complete purchase flow
+4. **Verify:**
+   - Modal fits screen ✅
+   - Buttons tappable (min 44x44px) ✅
+   - Text readable (min 16px) ✅
+   - No horizontal scroll ✅
+   - Tabs accessible ✅
+   - Cards stack vertically ✅
+
+**Part B - Tablet (768px):**
+1. Select iPad or similar
+2. Navigate through all pages
+3. **Verify:**
+   - Layout adapts well ✅
+   - Tabs display properly ✅
+   - Touch targets appropriate ✅
+
+**Part C - Touch Interactions:**
+1. Use real mobile device (if available)
+2. Test tap, swipe, scroll
+3. **Verify:**
+   - All interactions work ✅
+   - No ghost clicks ✅
+   - Modals dismissible ✅
+
+**✅ Test 6 Result:** Fully responsive on all screen sizes
+
+---
+
+**Test 7: Edge Cases & Error Handling**
+
+**Case A - Network Failure:**
+1. Open DevTools Network tab
+2. Set throttling to "Offline"
+3. Try to purchase lead
+4. **Verify:**
+   - Error message displays ✅
+   - User informed of network issue ✅
+   - Can retry after reconnecting ✅
+
+**Case B - Expired Lead:**
+1. Set lead expiration to past date (admin)
+2. Try to purchase as installer
+3. **Verify:**
+   - Purchase blocked ✅
+   - Clear error message ✅
+
+**Case C - Insufficient Funds (if implemented):**
+1. Set installer balance to $0 (if balance system exists)
+2. Try to purchase
+3. **Verify:**
+   - Error message ✅
+   - Redirected to add funds (if applicable) ✅
+
+**Case D - Malformed Data:**
+1. Use browser console to corrupt state
+2. Try various actions
+3. **Verify:**
+   - App doesn't crash ✅
+   - Graceful error handling ✅
+
+**✅ Test 7 Result:** Edge cases handled gracefully
+
+---
+
+**Test 8: Build & Deploy Validation**
+
+**Part A - TypeScript Check:**
+```powershell
+npx tsc --noEmit
+```
+**Expected:** 0 errors ✅
+
+**Part B - Production Build:**
+```powershell
+npm run build
+```
+**Expected:**
+- Build completes successfully ✅
+- 0 errors, 0 warnings ✅
+- Build time reasonable (< 2 minutes) ✅
+
+**Part C - Build Output Verification:**
+```powershell
+# Start production server
+npm run start
+```
+**Test in production mode:**
+1. Complete full purchase flow
+2. **Verify:**
+   - All features work identically ✅
+   - No console errors ✅
+   - Performance same or better ✅
+
+**Part D - Environment Variables Check:**
+```powershell
+# Verify all required env vars set
+cat .env.local
+```
+**Verify:**
+- Database URL ✅
+- NextAuth secret ✅
+- Any API keys ✅
+
+**✅ Test 8 Result:** Production build successful, ready to deploy
+
+---
+
+## PHASE 8 - E2E Test Results Summary
+
+**Test Results Matrix:**
+
+| Test | Status | Notes |
+|------|--------|-------|
+| 1. Single Purchase Flow | ⬜ | Full journey: Installer → Homeowner → Admin |
+| 2. Multi-Installer | ⬜ | Protection against duplicate purchase |
+| 3. Different Lead Types | ⬜ | Call/Visit, Written, Bidding |
+| 4. Performance | ⬜ | Load time, concurrent actions |
+| 5. Cross-Browser | ⬜ | Chrome, Firefox, Safari |
+| 6. Mobile Responsive | ⬜ | 375px, 768px, 1440px |
+| 7. Edge Cases | ⬜ | Network failures, expired leads |
+| 8. Build & Deploy | ⬜ | Production build validation |
+
+**Sign-Off Criteria:**
+- ✅ All 8 tests passed
+- ✅ No critical bugs found
+- ✅ Performance acceptable (< 2s page loads)
+- ✅ Build succeeds with 0 errors
+- ✅ All user flows work end-to-end
+- ✅ Design system compliance verified
+- ✅ Accessibility standards met (WCAG AA)
+
+**Checkpoint 8.7:** ✅ ALL TESTS PASS - Phase 8 Complete
+
+---
+
+## PHASE 8 COMPLETION CHECKLIST
+
+- [ ] Task 8.1: Email field added to assigned API
+- [ ] Task 8.2: Email unlocks in UI after purchase
+- [ ] Task 8.3: View Details button works with modal
+- [ ] Task 8.4: Tabs created in Purchased Leads page
+- [ ] Task 8.5: LeadCard reused for UI consistency
+- [ ] Task 8.6: Homeowner status label updated
+- [ ] Task 8.7: All E2E tests pass
+- [ ] No TypeScript errors
+- [ ] Build succeeds
+- [ ] No console errors
+- [ ] All existing features work
+
+---
+
+## Phase 8 Rollback
+
+```bash
+# Task 8.6 Rollback
+git checkout HEAD -- src/app/homeowner/dashboard/page.tsx
+
+# Task 8.5 Rollback
+git checkout HEAD -- src/app/installer/(dashboard)/purchased-leads/page.tsx
+
+# Task 8.4 Rollback  
+git checkout HEAD -- src/app/installer/(dashboard)/purchased-leads/page.tsx
+
+# Task 8.3 Rollback
+git checkout HEAD -- src/components/InstallerLeadFeed.tsx
+
+# Task 8.2 Rollback
+git checkout HEAD -- src/app/installer/(dashboard)/leads/page.tsx
+
+# Task 8.1 Rollback
+git checkout HEAD -- src/app/api/installer/leads/assigned/route.ts
+git checkout HEAD -- src/types/installer.ts
+
+npm run build
+```
+
+---
+
+## PHASE 9: Admin Lead Assignment Flow Fix
+
+**Date:** November 26, 2025  
+**Goal:** Fix admin lead assignment workflow to be single-step  
+**Audit Report:** `DOC/ADMIN/ADMIN-LEAD-ASSIGNMENT-AUDIT.md`
+
+### Issues Being Fixed:
+1. ❌ Remove redundant "Actions" section (Approve/Reject buttons)
+2. ❌ Fix double-attempt requirement (Approve → fails → Save Changes → works)
+3. ❌ Fix countdown ignoring admin input (uses default 6-7 days instead of specified)
+
+### Expected Outcome:
+- ✅ Single "Manage Lead" button opens modal
+- ✅ One click "Approve & Assign" completes entire flow
+- ✅ Countdown uses admin-specified days
+- ✅ Installers see lead immediately in feed
+
+---
+
+### Task 9.1: Remove Redundant Actions Section
+
+**Goal:** Clean up admin lead detail page by removing duplicate approval UI
+
+**File:** `src/app/admin/leads/[id]/page.tsx`
+
+**Changes Required:**
+1. Remove "Actions" section div (lines showing Approve/Reject buttons for DRAFT/PENDING statuses)
+2. Remove `showApproveModal` state variable
+3. Remove `showRejectModal` state variable
+4. Remove standalone `handleApprove()` function
+5. Remove standalone `handleReject()` function
+6. Remove approve modal JSX (the one triggered by showApproveModal)
+7. Remove reject modal JSX (the one triggered by showRejectModal)
+
+**Keep:**
+- "Manage Lead" button
+- `showManagementModal` state
+- AdminLeadManagementModal component
+- Assignment History section
+
+**Implementation:**
+```typescript
+// DELETE THIS ENTIRE BLOCK (around line 1000):
+{(['DRAFT', 'PENDING_APPROVAL', 'PENDING_PHONE'].includes(lead.status)) && (
+  <div className="p-6 rounded-lg bg-surface shadow-neu-outset">
+    <h2 className="text-heading-3 mb-4 text-foreground">
+      Actions
+    </h2>
+    <div className="space-y-3">
+      <Button onClick={() => setShowApproveModal(true)}>
+        <CheckIcon />
+        Approve Lead
+      </Button>
+      <Button onClick={() => setShowRejectModal(true)}>
+        <XIcon />
+        Reject Lead
+      </Button>
+    </div>
+  </div>
+)}
+
+// DELETE STATE VARIABLES (around line 180):
+const [showApproveModal, setShowApproveModal] = useState(false);
+const [showRejectModal, setShowRejectModal] = useState(false);
+
+// DELETE OLD HANDLERS (around line 215-290):
+const handleApprove = async () => { ... }
+const handleReject = async () => { ... }
+
+// DELETE STANDALONE MODALS (around line 1050-1130):
+{showApproveModal && ( ... )}
+{showRejectModal && ( ... )}
+```
+
+**Testing:**
+1. Open any lead in DRAFT/PENDING_APPROVAL status
+2. Verify: ONLY "Manage Lead" button visible in right column
+3. Verify: NO "Actions" section with Approve/Reject buttons
+4. Click "Manage Lead" → modal opens correctly
+5. Check console: no errors
+
+**Expected Result:**
+- ✅ Clean UI with single entry point ("Manage Lead")
+- ✅ No duplicate approval options
+- ✅ Modal still opens and functions
+
+**❌ STOP:** If modal doesn't open or console shows errors
+
+---
+
+### Task 9.2: Fix onApprove Handler Data Flow
+
+**Goal:** Pass modal data (installers, countdown) to approval API
+
+**File:** `src/app/admin/leads/[id]/page.tsx`
+
+**Current Problem (around line 1148):**
+```typescript
+onApprove={async (data: any) => {
+  await handleApprove(); // ❌ Calls handler with NO data
+  setShowManagementModal(false);
+}}
+```
+
+**Fix:**
+```typescript
+onApprove={async (data: {
+  enableCountdown: boolean;
+  countdownDays: number;
+  price?: number;
+  installerIds: string[];
+  mode: 'exclusive' | 'competitive';
+  notes?: string;
+  notifyInstallers: boolean;
+}) => {
+  try {
+    // Validate installer selection
+    if (!data.installerIds || data.installerIds.length === 0) {
+      alert('Please select at least one installer');
+      return;
+    }
+
+    const response = await fetch(`/api/leads/${lead.id}/approve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        price: data.price || parseFloat(leadPrice),
+        assignTo: data.installerIds, // ✅ Pass installer IDs
+        enableCountdown: data.enableCountdown,
+        countdownDays: data.countdownDays, // ✅ Use modal value
+        assignmentNotes: data.notes,
+        isHot: false,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to approve and assign lead');
+    }
+
+    const result = await response.json();
+    
+    // Show success message
+    alert(`Lead assigned successfully! Countdown: ${data.countdownDays} days`);
+    
+    // Refresh lead data to show assignments
+    await fetchLead();
+    
+    // Close modal
+    setShowManagementModal(false);
+  } catch (err) {
+    alert(err instanceof Error ? err.message : 'Failed to approve lead');
+    // Don't close modal on error - let user try again
+  }
+}}
+```
+
+**Testing:**
+1. Open lead detail page (PENDING_APPROVAL status)
+2. Click "Manage Lead"
+3. Modal opens
+4. Select 2 installers
+5. Set countdown to 3 days
+6. Set price to £30
+7. Open DevTools Network tab
+8. Click "Approve & Assign" button (we'll update button in next task)
+9. Check Network tab:
+   - POST `/api/leads/[id]/approve`
+   - Request body should show:
+     ```json
+     {
+       "price": 30,
+       "assignTo": ["id1", "id2"],
+       "enableCountdown": true,
+       "countdownDays": 3,
+       "assignmentNotes": "...",
+       "isHot": false
+     }
+     ```
+10. Check response: success message
+11. Modal closes
+12. Assignment History section updates
+
+**Expected Results:**
+- ✅ Request body includes `assignTo` array
+- ✅ `countdownDays` = 3 (not 6 or 7)
+- ✅ Response success
+- ✅ Lead status changes to APPROVED
+- ✅ Assignment History shows 2 installers
+
+**❌ STOP:** If request body missing fields or response fails
+
+---
+
+### Task 9.3: Update AdminLeadManagementModal Button Logic
+
+**Goal:** Show single "Approve & Assign" button for unapproved leads
+
+**File:** `src/components/admin/AdminLeadManagementModal.tsx`
+
+**Find Footer Section** (around line 943-1000):
+Current has confusing dual buttons:
+- "Approve" (for unapproved leads)
+- "Save Changes" (for approved leads)
+
+**Replace Footer** with conditional logic:
+
+```typescript
+{/* Footer: Summary & Actions */}
+<div className="border-t border-border p-6">
+  {/* Summary */}
+  <div className="mb-4 p-4 rounded-lg bg-surface shadow-neu-inset">
+    <h4 className="text-body-small mb-2 text-foreground">Assignment Summary</h4>
+    <div className="space-y-2 text-body-small">
+      <div className="flex justify-between">
+        <span className="text-muted-foreground">Selected Installers:</span>
+        <span className="text-foreground">{selectedInstallerIds.length}</span>
+      </div>
+      <div className="flex justify-between">
+        <span className="text-muted-foreground">Mode:</span>
+        <span className="text-foreground capitalize">{assignmentMode}</span>
+      </div>
+      <div className="flex justify-between">
+        <span className="text-muted-foreground">Countdown:</span>
+        <span className="text-foreground">
+          {countdownEnabled ? `${countdownDays} days` : 'Disabled'}
+        </span>
+      </div>
+      <div className="flex justify-between">
+        <span className="text-muted-foreground">Lead Price:</span>
+        <span className="text-foreground">£{price || '0'}</span>
+      </div>
+    </div>
+  </div>
+
+  {/* Action Buttons - Conditional based on lead status */}
+  <div className="flex gap-3">
+    {(['DRAFT', 'PENDING_APPROVAL', 'PENDING_PHONE'].includes(lead.status)) ? (
+      // Unapproved lead - single button for approve + assign
+      <Button
+        onClick={() => {
+          if (selectedInstallerIds.length === 0) {
+            alert('Please select at least one installer before approving');
+            return;
+          }
+          if (!price || parseFloat(price) <= 0) {
+            alert('Please set a valid lead price');
+            return;
+          }
+          
+          onApprove({
+            enableCountdown: countdownEnabled,
+            countdownDays: countdownDays,
+            price: parseFloat(price),
+            installerIds: selectedInstallerIds,
+            mode: assignmentMode,
+            notes: assignmentNotes,
+            notifyInstallers: true,
+          });
+        }}
+        disabled={selectedInstallerIds.length === 0 || !price}
+        variant="primary"
+        className="flex-1 bg-success text-success-foreground"
+      >
+        <CheckIcon />
+        ✅ Approve & Assign to {selectedInstallerIds.length} Installer(s)
+      </Button>
+    ) : (
+      // Already approved - allow assignment updates
+      <Button
+        onClick={() => {
+          if (selectedInstallerIds.length === 0) {
+            alert('Please select at least one installer');
+            return;
+          }
+          
+          onAssign({
+            installerIds: selectedInstallerIds,
+            mode: assignmentMode,
+            notes: assignmentNotes,
+            notifyInstallers: true,
+          });
+        }}
+        disabled={selectedInstallerIds.length === 0}
+        variant="primary"
+        className="flex-1 bg-info text-info-foreground"
+      >
+        <SaveIcon />
+        💾 Update Assignments
+      </Button>
+    )}
+    
+    <Button onClick={onClose} variant="secondary" className="px-8">
+      Cancel
+    </Button>
+  </div>
+</div>
+```
+
+**Testing:**
+1. Open PENDING_APPROVAL lead
+2. Click "Manage Lead"
+3. Verify button text: "✅ Approve & Assign to 0 Installer(s)"
+4. Verify button is DISABLED (no installers selected)
+5. Select 1 installer
+6. Verify button text updates: "✅ Approve & Assign to 1 Installer(s)"
+7. Verify button is ENABLED
+8. Select 2nd installer
+9. Verify button text: "✅ Approve & Assign to 2 Installer(s)"
+10. Set countdown to 3 days
+11. Set price to £25
+12. Verify summary shows: 2 installers, 3 days, £25
+13. Click "Approve & Assign" button
+14. Verify success message
+15. Open APPROVED lead with assignments
+16. Click "Manage Lead"
+17. Verify button text: "💾 Update Assignments"
+
+**Expected Results:**
+- ✅ Button label changes based on lead status
+- ✅ Button disabled when no installers selected
+- ✅ Summary shows all settings correctly
+- ✅ Validation prevents empty submissions
+- ✅ Success flow works for both new and existing assignments
+
+**❌ STOP:** If button doesn't update or validation fails
+
+---
+
+### Task 9.4: End-to-End Integration Test
+
+**Goal:** Verify complete single-step workflow
+
+**Test Scenario 1: New Lead Assignment**
+
+**Prerequisites:**
+- Fresh lead in PENDING_APPROVAL status (not yet approved)
+- At least 2 verified installers in system
+- Have 2 browser windows ready: Admin + Installer
+
+**Steps:**
+1. **Admin Window:**
+   - Login as admin
+   - Navigate to `/admin/leads`
+   - Click on pending lead
+   - Verify: Only "Manage Lead" button visible (no "Actions" section)
+   
+2. **Open Management Modal:**
+   - Click "Manage Lead"
+   - Modal opens
+   
+3. **Configure Assignment:**
+   - Pricing section: Verify price pre-filled (e.g., £25)
+   - Installer section: Select 2 installers
+   - Countdown: Change to **3 days**
+   - Mode: Select "Competitive"
+   - Notes: Enter "Test assignment"
+   
+4. **Verify Summary:**
+   - Selected Installers: 2
+   - Mode: competitive
+   - Countdown: 3 days
+   - Lead Price: £25
+   
+5. **Submit:**
+   - Click "✅ Approve & Assign to 2 Installer(s)"
+   - Wait for success alert: "Lead assigned successfully! Countdown: 3 days"
+   - Modal closes
+   
+6. **Verify Admin View:**
+   - Lead status badge: APPROVED
+   - Assignment History section shows 2 installers
+   - Each installer row shows: company name, email, "Assigned" status
+   - Countdown timer shows: "3 days left" (not 6 or 7)
+   
+7. **Installer Window:**
+   - Login as one of the assigned installers
+   - Navigate to `/installer/leads`
+   - **Within 5 seconds:** Verify lead appears in feed
+   - Check lead card:
+     - Contact: Masked (***LOCKED***)
+     - Location visible
+     - "Purchase" button enabled
+     - Countdown: "3 days left"
+   
+8. **DevTools Verification:**
+   - Admin DevTools → Network tab
+   - Find: POST `/api/leads/[id]/approve`
+   - Request body should include:
+     ```json
+     {
+       "assignTo": ["installer-id-1", "installer-id-2"],
+       "countdownDays": 3,
+       "enableCountdown": true,
+       "price": 25
+     }
+     ```
+   - Response: 200 OK with success message
+
+**Expected Results:**
+- ✅ Single-step process (no second attempt needed)
+- ✅ Countdown = 3 days (as specified, not default)
+- ✅ Both installers see lead immediately
+- ✅ Assignment History accurate
+- ✅ No console errors
+- ✅ All timestamps correct
+
+**❌ STOP:** If any step fails, double attempts required, or countdown wrong
+
+---
+
+**Test Scenario 2: Update Existing Assignment**
+
+**Prerequisites:**
+- Lead already APPROVED with 1 installer assigned
+
+**Steps:**
+1. Open lead detail page
+2. Click "Manage Lead"
+3. Verify button text: "💾 Update Assignments" (not Approve)
+4. Select 1 additional installer (total 2 now)
+5. Click "Update Assignments"
+6. Verify success message
+7. Assignment History shows 2 installers
+8. Check 2nd installer's feed → lead visible
+9. Verify countdown UNCHANGED (uses original expiresAt)
+
+**Expected Results:**
+- ✅ Can add installers to already-approved lead
+- ✅ Countdown doesn't reset
+- ✅ All installers see lead
+
+**❌ STOP:** If countdown resets or assignments don't update
+
+---
+
+**Test Scenario 3: Validation & Edge Cases**
+
+**Test 3.1: No Installers Selected**
+1. Open modal
+2. Don't select any installers
+3. Verify button DISABLED
+4. Try clicking (should not work)
+
+**Test 3.2: Invalid Price**
+1. Open modal
+2. Select installers
+3. Clear price field or set to 0
+4. Verify button DISABLED or shows error
+
+**Test 3.3: Countdown Edge Cases**
+1. Set countdown to 1 day → should work
+2. Set countdown to 30 days → should work
+3. Set countdown to 0 days → should show error
+4. Set countdown to 100 days → should show error (if max limit exists)
+
+**Test 3.4: Network Failure**
+1. Open modal
+2. Select installers
+3. Open DevTools → Network tab → Set to "Offline"
+4. Click "Approve & Assign"
+5. Verify error message
+6. Verify modal stays open (doesn't close on error)
+7. Set network back to "Online"
+8. Click button again
+9. Should succeed
+
+**Expected Results:**
+- ✅ All validations work
+- ✅ Clear error messages
+- ✅ Modal doesn't close on error
+- ✅ Can retry after fixing issues
+
+---
+
+### Task 9.5: Build & Type Check
+
+**Commands:**
+```bash
+# TypeScript validation
+npx tsc --noEmit
+
+# Build validation
+npm run build
+
+# Start dev server
+npm run dev
+```
+
+**Expected Results:**
+- ✅ 0 TypeScript errors
+- ✅ Build succeeds
+- ✅ No build warnings related to our changes
+- ✅ Dev server starts without errors
+
+**Check for:**
+- Missing imports
+- Type mismatches
+- Unused variables
+- Console errors in browser
+
+**❌ STOP:** If build fails or TypeScript errors
+
+---
+
+### Task 9.6: Regression Testing
+
+**Goal:** Ensure existing features still work
+
+**Test Checklist:**
+
+**Admin Features:**
+- [ ] Can view leads list
+- [ ] Can filter leads by status
+- [ ] Can search leads
+- [ ] Can view lead details
+- [ ] Can edit lead price (outside modal)
+- [ ] Can add admin notes (outside modal)
+- [ ] Can archive/unarchive leads
+- [ ] Can reset countdown timer
+- [ ] Can resell purchased leads
+
+**Installer Features:**
+- [ ] Can view assigned leads feed
+- [ ] Can purchase leads
+- [ ] Email unlocks after purchase
+- [ ] Can view purchased leads
+- [ ] Countdown timer displays correctly
+
+**Homeowner Features:**
+- [ ] Can submit new leads
+- [ ] Can view lead status
+- [ ] Receives notifications
+
+**System:**
+- [ ] No console errors on any page
+- [ ] No network request failures
+- [ ] Notifications working
+- [ ] Audit logs created
+
+**❌ STOP:** If any existing feature broken
+
+---
+
+## PHASE 9 TESTING SUMMARY
+
+### Critical Tests:
+1. ✅ Single-step assignment works
+2. ✅ Countdown uses admin input (not default)
+3. ✅ Installers see leads immediately
+4. ✅ No double-attempt required
+5. ✅ "Actions" section removed
+6. ✅ Build succeeds
+7. ✅ No regressions
+
+### Test Results Table:
+
+| Test | Status | Notes |
+|------|--------|-------|
+| Remove Actions Section | ⬜ | UI cleanup |
+| Pass Modal Data | ⬜ | onApprove handler |
+| Update Button Logic | ⬜ | Conditional rendering |
+| Single-Step Assignment | ⬜ | E2E test |
+| Countdown Accuracy | ⬜ | 3 days test |
+| Update Assignment | ⬜ | Add installer |
+| Validations | ⬜ | Edge cases |
+| Build & Types | ⬜ | npm run build |
+| Regression Tests | ⬜ | Existing features |
+
+**Sign-Off Criteria:**
+- ✅ All 9 tests passed
+- ✅ No duplicate approval flows
+- ✅ Countdown accuracy verified
+- ✅ Build succeeds with 0 errors
+- ✅ All existing features work
+- ✅ No console errors
+- ✅ Performance acceptable
+
+**Checkpoint 9.6:** ✅ ALL TESTS PASS - Phase 9 Complete
+
+---
+
+## PHASE 9 COMPLETION CHECKLIST
+
+- [ ] Task 9.1: Actions section removed
+- [ ] Task 9.2: onApprove handler passes data correctly
+- [ ] Task 9.3: Modal button logic updated
+- [ ] Task 9.4: E2E tests pass
+- [ ] Task 9.5: Build succeeds
+- [ ] Task 9.6: Regression tests pass
+- [ ] No TypeScript errors
+- [ ] No console errors
+- [ ] Single-step assignment works
+- [ ] Countdown uses admin input
+
+---
+
+## Phase 9 Rollback
+
+```bash
+# Full rollback
+git checkout HEAD -- src/app/admin/leads/[id]/page.tsx
+git checkout HEAD -- src/components/admin/AdminLeadManagementModal.tsx
+
+# Verify
+npm run build
+
+# Test
+npm run dev
+```
+
+**Alternative: Revert specific commits**
+```bash
+git log --oneline -5  # Find Phase 9 commits
+git revert <commit-hash>
+npm run build
+```
+
+---
+
+**End of Phase 9 - Admin Lead Assignment Flow Fix**
+
+---
+
+## PHASE 9.7: Enable Countdown Timer Update (NEW)
+
+**Date:** November 26, 2025  
+**Goal:** Allow admin to update countdown timer to specific value (e.g., 30 days → 3 days)  
+**Audit Report:** `DOC/ADMIN/COUNTDOWN-TIMER-UPDATE-AUDIT.md`
+
+### Current Problem:
+- ❌ Admin can only "extend" timer (add days), cannot set to specific value
+- ❌ Countdown input in modal is editable but has no save action
+- ❌ "Extend Timer" button adds days instead of setting countdown
+
+### Expected Solution:
+- ✅ Admin can update countdown from 30 days to 3 days directly
+- ✅ "Update Countdown" button next to countdown input
+- ✅ New API endpoint: POST `/api/leads/[id]/update-countdown`
+- ✅ Separate from "Extend Timer" (which adds days)
+
+---
+
+### Task 9.7.1: Create Update Countdown Service Function
+
+**Goal:** Add service function to set countdown to specific days
+
+**File:** `src/lib/services/lead-service.ts` (add new function)
+
+**Implementation:**
+```typescript
+/**
+ * Update lead countdown timer to specific number of days from now
+ * @param leadId - Lead ID
+ * @param days - Number of days (absolute, not relative)
+ * @param updatedBy - Admin user ID
+ */
+export async function updateLeadCountdown(
+  leadId: string,
+  days: number,
+  updatedBy: string
+) {
+  // 1. Validate inputs
+  if (!leadId || !updatedBy) {
+    throw new Error('leadId and updatedBy are required');
+  }
+
+  if (typeof days !== 'number' || days < 1 || days > 90) {
+    throw new Error('days must be between 1 and 90');
+  }
+
+  // 2. Check lead exists
+  const lead = await prisma.lead.findUnique({
+    where: { id: leadId },
+    include: {
+      assignments: {
+        include: {
+          installer: {
+            include: {
+              installerVerification: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!lead) {
+    throw new Error('Lead not found');
+  }
+
+  // 3. Only allow for approved/assigned leads
+  if (!['APPROVED', 'ASSIGNED'].includes(lead.status)) {
+    throw new Error('Can only update countdown for approved or assigned leads');
+  }
+
+  // 4. Calculate new expiry date (absolute, not relative)
+  const now = new Date();
+  const newExpiryDate = new Date(now.getTime() + (days * 24 * 60 * 60 * 1000));
+
+  // 5. Update lead
+  const updatedLead = await prisma.lead.update({
+    where: { id: leadId },
+    data: {
+      expiresAt: newExpiryDate,
+      updatedAt: now,
+    },
+    include: {
+      homeowner: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+      assignments: {
+        include: {
+          installer: {
+            include: {
+              installerVerification: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  // 6. Log action for audit
+  console.log(`✅ [Lead Service] Countdown updated for lead ${leadId}:`, {
+    newExpiryDate: newExpiryDate.toISOString(),
+    daysSet: days,
+    updatedBy,
+  });
+
+  return {
+    lead: updatedLead,
+    newExpiryDate,
+    daysSet: days,
+  };
+}
+```
+
+**Testing:**
+```bash
+# TypeScript check
+npx tsc --noEmit
+
+# Expected: No errors in lead-service.ts
+```
+
+**❌ STOP:** If TypeScript errors
+
+---
+
+### Task 9.7.2: Create Update Countdown API Endpoint
+
+**Goal:** New API route to handle countdown updates
+
+**File:** `src/app/api/leads/[id]/update-countdown/route.ts` (NEW)
+
+**Implementation:**
+```typescript
+/**
+ * POST /api/leads/[id]/update-countdown
+ * 
+ * Purpose: Update lead countdown timer to specific days (absolute, not relative)
+ * Difference from reset-timer: This SETS countdown, reset-timer ADDS days
+ * Auth: ADMIN role required
+ * 
+ * Body:
+ * - days: number - Number of days from now (1-90)
+ * 
+ * Returns: Updated lead with new expiry date
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { updateLeadCountdown } from '@/lib/services/lead-service';
+import { UserRole } from '@prisma/client';
+
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    // 1. Authenticate
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    // 2. Check admin role
+    if (session.user.role !== UserRole.ADMIN) {
+      return NextResponse.json(
+        { error: 'Forbidden: Admin access required' },
+        { status: 403 }
+      );
+    }
+
+    // 3. Parse request body
+    const body = await request.json().catch(() => ({}));
+    const { days } = body;
+
+    // 4. Validate days
+    if (!days) {
+      return NextResponse.json(
+        { error: 'days parameter is required' },
+        { status: 400 }
+      );
+    }
+
+    if (typeof days !== 'number' || days < 1 || days > 90) {
+      return NextResponse.json(
+        { error: 'days must be a number between 1 and 90' },
+        { status: 400 }
+      );
+    }
+
+    // 5. Update countdown
+    const result = await updateLeadCountdown(
+      params.id,
+      days,
+      session.user.id
+    );
+
+    // 6. Return success
+    return NextResponse.json(
+      {
+        success: true,
+        lead: result.lead,
+        newExpiryDate: result.newExpiryDate,
+        daysSet: result.daysSet,
+        message: `Countdown updated to ${days} day${days !== 1 ? 's' : ''}`,
+      },
+      { status: 200 }
+    );
+
+  } catch (error: any) {
+    console.error('❌ [API] POST /api/leads/[id]/update-countdown error:', error);
+
+    if (error.message.includes('not found')) {
+      return NextResponse.json(
+        { error: 'Lead not found' },
+        { status: 404 }
+      );
+    }
+
+    if (error.message.includes('only update countdown')) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: error.message || 'Failed to update countdown' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+**Testing:**
+1. Start dev server: `npm run dev`
+2. Use Postman/curl to test API:
+```bash
+curl -X POST http://localhost:3000/api/leads/[lead-id]/update-countdown \
+  -H "Content-Type: application/json" \
+  -H "Cookie: [admin-session-cookie]" \
+  -d '{"days": 3}'
+```
+3. Expected response:
+```json
+{
+  "success": true,
+  "message": "Countdown updated to 3 days",
+  "daysSet": 3,
+  "newExpiryDate": "2025-11-29T..."
+}
+```
+
+**❌ STOP:** If API returns error or wrong expiry date
+
+---
+
+### Task 9.7.3: Add onUpdateCountdown Handler to Admin Page
+
+**Goal:** Connect modal to new API endpoint
+
+**File:** `src/app/admin/leads/[id]/page.tsx`
+
+**Find:** AdminLeadManagementModal props (around line 1080)
+
+**Add handler after onResetTimer:**
+```typescript
+onResetTimer={async (days: number) => {
+  // Existing extend timer handler
+  try {
+    const response = await fetch(`/api/leads/${lead.id}/reset-timer`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ days }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to reset timer');
+    }
+
+    // Refresh lead data immediately
+    await fetchLead();
+  } catch (err) {
+    throw err;
+  }
+}}
+onUpdateCountdown={async (days: number) => {
+  // NEW: Update countdown to specific days
+  try {
+    const response = await fetch(`/api/leads/${lead.id}/update-countdown`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ days }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to update countdown');
+    }
+
+    const result = await response.json();
+    
+    // Show success message
+    alert(result.message || `Countdown updated to ${days} days`);
+    
+    // Refresh lead data
+    await fetchLead();
+  } catch (err) {
+    alert(err instanceof Error ? err.message : 'Failed to update countdown');
+    throw err;
+  }
+}}
+onArchive={async () => {
+  // Existing handler...
+}}
+```
+
+**Testing:**
+```bash
+npx tsc --noEmit
+# Expected: No TypeScript errors
+```
+
+**❌ STOP:** If TypeScript errors
+
+---
+
+### Task 9.7.4: Update AdminLeadManagementModal Interface
+
+**Goal:** Add new prop type for onUpdateCountdown
+
+**File:** `src/components/admin/AdminLeadManagementModal.tsx`
+
+**Find interface** (around line 79):
+```typescript
+interface AdminLeadManagementModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  lead: Lead;
+  // Handler props (preserve existing backend logic)
+  onApprove: (data: { enableCountdown: boolean; countdownDays: number }) => Promise<void>;
+  onReject: (reason: string) => Promise<void>;
+  onSavePrice: (price: string) => Promise<void>;
+  onSaveNotes: (notes: string) => Promise<void>;
+  onResell?: () => Promise<void>;
+  onResetTimer?: (days: number) => Promise<void>;
+  onArchive?: () => Promise<void>;
+  onUnarchive?: () => Promise<void>;
+  onAssign: (data: {
+    installerIds: string[];
+    mode: 'exclusive' | 'competitive';
+    notes?: string;
+    notifyInstallers: boolean;
+  }) => Promise<void>;
+  onRemoveAssignment?: (installerId: string) => Promise<void>;
+}
+```
+
+**Add new prop:**
+```typescript
+interface AdminLeadManagementModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  lead: Lead;
+  // Handler props (preserve existing backend logic)
+  onApprove: (data: { enableCountdown: boolean; countdownDays: number }) => Promise<void>;
+  onReject: (reason: string) => Promise<void>;
+  onSavePrice: (price: string) => Promise<void>;
+  onSaveNotes: (notes: string) => Promise<void>;
+  onResell?: () => Promise<void>;
+  onResetTimer?: (days: number) => Promise<void>;
+  onUpdateCountdown?: (days: number) => Promise<void>; // NEW: Set countdown to specific days
+  onArchive?: () => Promise<void>;
+  onUnarchive?: () => Promise<void>;
+  onAssign: (data: {
+    installerIds: string[];
+    mode: 'exclusive' | 'competitive';
+    notes?: string;
+    notifyInstallers: boolean;
+  }) => Promise<void>;
+  onRemoveAssignment?: (installerId: string) => Promise<void>;
+}
+```
+
+**Update destructuring** (around line 100):
+```typescript
+export default function AdminLeadManagementModal({
+  isOpen,
+  onClose,
+  lead,
+  onApprove,
+  onReject,
+  onSavePrice,
+  onSaveNotes,
+  onResell,
+  onResetTimer,
+  onUpdateCountdown, // NEW
+  onArchive,
+  onUnarchive,
+  onAssign,
+  onRemoveAssignment,
+}: AdminLeadManagementModalProps) {
+```
+
+**Testing:**
+```bash
+npx tsc --noEmit
+# Expected: No TypeScript errors
+```
+
+**❌ STOP:** If TypeScript errors
+
+---
+
+### Task 9.7.5: Add "Update Countdown" Button to Modal
+
+**Goal:** Add button next to countdown input for immediate updates
+
+**File:** `src/components/admin/AdminLeadManagementModal.tsx`
+
+**Find countdown input** (around line 795-817):
+```typescript
+<div>
+  <label className="block text-body-small mb-2 text-muted-foreground">
+    Countdown Days (1-90)
+  </label>
+  <input
+    type="number"
+    min="1"
+    max="90"
+    value={countdownDays}
+    onChange={(e) => setCountdownDays(parseInt(e.target.value) || 7)}
+    placeholder="Enter expiry days"
+    className="form-input w-full px-4 py-3 placeholder:text-muted-foreground"
+    disabled={submitting}
+  />
+  <p className="text-caption mt-1 text-muted-foreground">
+    {lead.expiresAt ? (
+      <>
+        Current expiry: {new Date(lead.expiresAt).toLocaleDateString('en-GB')}
+        {' • '}
+        {(() => {
+          const daysLeft = Math.ceil((new Date(lead.expiresAt).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+          return daysLeft > 0 ? `${daysLeft}d left` : 'Expired';
+        })()}
+      </>
+    ) : (
+      `Will expire in ${countdownDays} day${countdownDays !== 1 ? 's' : ''}`
+    )}
+  </p>
+</div>
+```
+
+**Replace with:**
+```typescript
+<div>
+  <label className="block text-body-small mb-2 text-muted-foreground">
+    Countdown Days (1-90)
+  </label>
+  <div className="flex gap-2">
+    <input
+      type="number"
+      min="1"
+      max="90"
+      value={countdownDays}
+      onChange={(e) => setCountdownDays(parseInt(e.target.value) || 7)}
+      placeholder="Enter expiry days"
+      className="form-input flex-1 px-4 py-3 placeholder:text-muted-foreground"
+      disabled={submitting}
+    />
+    {onUpdateCountdown && lead.expiresAt && (
+      <Button
+        onClick={async () => {
+          if (countdownDays < 1 || countdownDays > 90) {
+            alert('Please enter a valid countdown (1-90 days)');
+            return;
+          }
+          
+          setSubmitting(true);
+          try {
+            await onUpdateCountdown(countdownDays);
+            // Success message handled by parent
+          } catch (err: any) {
+            setError(err.message || 'Failed to update countdown');
+          } finally {
+            setSubmitting(false);
+          }
+        }}
+        disabled={submitting || countdownDays < 1 || countdownDays > 90}
+        variant="primary"
+        className="px-6 bg-info text-info-foreground"
+      >
+        Update
+      </Button>
+    )}
+  </div>
+  <p className="text-caption mt-1 text-muted-foreground">
+    {lead.expiresAt ? (
+      <>
+        Current expiry: {new Date(lead.expiresAt).toLocaleDateString('en-GB')}
+        {' • '}
+        {(() => {
+          const daysLeft = Math.ceil((new Date(lead.expiresAt).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+          return daysLeft > 0 ? `${daysLeft}d left` : 'Expired';
+        })()}
+      </>
+    ) : (
+      `Will expire in ${countdownDays} day${countdownDays !== 1 ? 's' : ''}`
+    )}
+  </p>
+</div>
+```
+
+**Key Changes:**
+- ✅ Wrapped input + button in flex container
+- ✅ "Update" button only shows if lead has expiry (already assigned)
+- ✅ Button validates countdown range (1-90)
+- ✅ Uses semantic classes (no inline styles)
+- ✅ Disabled state during submission
+
+**Testing:**
+```bash
+npm run dev
+```
+
+1. Open browser → `/admin/leads/[id]` (lead with existing countdown)
+2. Click "Manage Lead"
+3. Find countdown input
+4. Verify "Update" button visible next to input
+5. Change countdown from 30 to 3
+6. Click "Update" button
+7. Check DevTools Network tab:
+   - POST `/api/leads/[id]/update-countdown`
+   - Body: `{"days": 3}`
+8. Verify success alert
+9. Check countdown display updates
+10. Refresh page
+11. Verify countdown persists (3 days)
+
+**Expected Results:**
+- ✅ Button appears next to input
+- ✅ API call succeeds
+- ✅ Countdown updates to 3 days
+- ✅ No console errors
+- ✅ Persists after refresh
+
+**❌ STOP:** If button doesn't work or API fails
+
+---
+
+### Task 9.7.6: End-to-End Countdown Update Test
+
+**Goal:** Verify complete update workflow
+
+**Test Scenario: Reduce Countdown from 30 to 3 Days**
+
+**Prerequisites:**
+- Lead with 30 days countdown (create via assignment with 30 days)
+- Admin account
+- Installer account (assigned to the lead)
+
+**Steps:**
+
+1. **Initial State Verification:**
+   - Admin: View lead detail page
+   - Verify: Countdown shows "30 days left"
+   - Installer: View lead feed
+   - Verify: Lead shows "30 days left"
+
+2. **Update Countdown:**
+   - Admin: Click "Manage Lead"
+   - Modal opens
+   - Find "Countdown Days" input
+   - Current value: 30
+   - Change to: 3
+   - Click "Update" button
+   - Wait for success alert: "Countdown updated to 3 days"
+   - Modal stays open (doesn't close)
+
+3. **Verify Admin View:**
+   - Close modal manually
+   - Lead detail page updates
+   - Countdown now shows: "3 days left"
+   - Expiry date updated in Assignment History
+
+4. **Verify Installer View:**
+   - Installer: Refresh lead feed (or wait 5 seconds)
+   - Find the lead
+   - Verify countdown: "3 days left" (NOT 30 days)
+   - Verify "Purchase" button still enabled
+
+5. **DevTools Verification:**
+   - Admin DevTools → Network tab
+   - Find: POST `/api/leads/[id]/update-countdown`
+   - Request body:
+     ```json
+     {"days": 3}
+     ```
+   - Response:
+     ```json
+     {
+       "success": true,
+       "message": "Countdown updated to 3 days",
+       "daysSet": 3,
+       "newExpiryDate": "2025-11-29T..."
+     }
+     ```
+
+6. **Database Verification:**
+   - Check `Lead.expiresAt` in database
+   - Should be: `now + 3 days` (NOT old value + 3 days)
+
+**Expected Results:**
+- ✅ Countdown changes from 30 → 3 days
+- ✅ Installer sees updated countdown immediately
+- ✅ Expiry date absolute (not relative)
+- ✅ "Update" button works
+- ✅ Success message correct
+- ✅ No console errors
+
+**❌ STOP:** If countdown doesn't update or shows wrong value
+
+---
+
+**Test Scenario: Increase Countdown from 3 to 10 Days**
+
+**Steps:**
+1. Open lead with 3 days countdown
+2. Click "Manage Lead"
+3. Change countdown to 10
+4. Click "Update"
+5. Verify success message
+6. Verify countdown shows "10 days left"
+7. Verify installer feed updates
+
+**Expected Results:**
+- ✅ Countdown increases correctly
+- ✅ Works in both directions (reduce/increase)
+
+---
+
+**Test Scenario: Edge Cases**
+
+**Test 1: Minimum Countdown (1 day)**
+1. Set countdown to 1
+2. Click "Update"
+3. Expected: Success, countdown = 1 day
+
+**Test 2: Maximum Countdown (90 days)**
+1. Set countdown to 90
+2. Click "Update"
+3. Expected: Success, countdown = 90 days
+
+**Test 3: Invalid Countdown (0 days)**
+1. Set countdown to 0
+2. Click "Update"
+3. Expected: Alert "Please enter a valid countdown (1-90 days)"
+4. No API call made
+
+**Test 4: Invalid Countdown (100 days)**
+1. Set countdown to 100
+2. Click "Update"
+3. Expected: Alert with validation error
+4. No API call made
+
+**Test 5: Network Failure**
+1. Set countdown to 5
+2. Open DevTools → Network → Set to "Offline"
+3. Click "Update"
+4. Expected: Error alert "Failed to update countdown"
+5. Modal stays open
+6. Set network to "Online"
+7. Click "Update" again
+8. Expected: Success
+
+**Expected Results:**
+- ✅ All validations work
+- ✅ Clear error messages
+- ✅ Button disabled for invalid values
+- ✅ Can retry after network failure
+
+---
+
+### Task 9.7.7: Build & Type Check
+
+**Commands:**
+```bash
+# TypeScript validation
+npx tsc --noEmit
+
+# Build validation
+npm run build
+
+# Start dev server
+npm run dev
+```
+
+**Expected Results:**
+- ✅ 0 TypeScript errors
+- ✅ Build succeeds
+- ✅ No warnings related to countdown changes
+- ✅ Dev server starts without errors
+
+**Check for:**
+- Missing imports in new API route
+- Type mismatches in onUpdateCountdown
+- Unused variables
+- Console errors in browser
+
+**❌ STOP:** If build fails or TypeScript errors
+
+---
+
+### Task 9.7.8: Regression Testing
+
+**Goal:** Ensure existing features still work
+
+**Test Checklist:**
+
+**Countdown Features:**
+- [ ] Initial assignment with countdown still works
+- [ ] "Extend Timer" (+X days) still works independently
+- [ ] Countdown displays correctly in all views
+- [ ] Expired leads handled correctly
+
+**Admin Features:**
+- [ ] Can still approve/assign leads
+- [ ] Can still edit price/notes
+- [ ] Can still archive leads
+- [ ] Can still resell leads
+
+**Installer Features:**
+- [ ] Countdown updates reflect in feed immediately
+- [ ] Purchase flow unaffected
+- [ ] Email unlocks after purchase
+- [ ] Countdown timer ticks down correctly
+
+**System:**
+- [ ] No console errors
+- [ ] No network request failures
+- [ ] Notifications working
+- [ ] Audit logs created
+
+**❌ STOP:** If any existing feature broken
+
+---
+
+## PHASE 9.7 TESTING SUMMARY
+
+### Critical Tests:
+1. ✅ Update countdown reduces days (30 → 3)
+2. ✅ Update countdown increases days (3 → 10)
+3. ✅ Installer sees updated countdown
+4. ✅ "Update" button works correctly
+5. ✅ Validations prevent invalid values
+6. ✅ Build succeeds
+7. ✅ No regressions
+
+### Test Results Table:
+
+| Test | Status | Notes |
+|------|--------|-------|
+| Create Service Function | ⬜ | updateLeadCountdown |
+| Create API Endpoint | ⬜ | POST /update-countdown |
+| Add Handler to Page | ⬜ | onUpdateCountdown |
+| Update Modal Interface | ⬜ | Type definitions |
+| Add Update Button | ⬜ | UI implementation |
+| E2E Update Test | ⬜ | 30 → 3 days |
+| Edge Cases | ⬜ | Validations |
+| Build & Types | ⬜ | npm run build |
+| Regression Tests | ⬜ | Existing features |
+
+**Sign-Off Criteria:**
+- ✅ All 9 tasks passed
+- ✅ Countdown updates to specific value
+- ✅ Separate from "Extend Timer"
+- ✅ Build succeeds with 0 errors
+- ✅ All existing features work
+- ✅ No console errors
+- ✅ Performance acceptable
+
+**Checkpoint 9.7.8:** ✅ ALL TESTS PASS - Phase 9.7 Complete
+
+---
+
+## PHASE 9.7 COMPLETION CHECKLIST
+
+- [ ] Task 9.7.1: Service function created
+- [ ] Task 9.7.2: API endpoint created
+- [ ] Task 9.7.3: Handler added to admin page
+- [ ] Task 9.7.4: Modal interface updated
+- [ ] Task 9.7.5: "Update" button added to modal
+- [ ] Task 9.7.6: E2E tests pass
+- [ ] Task 9.7.7: Build succeeds
+- [ ] Task 9.7.8: Regression tests pass
+- [ ] No TypeScript errors
+- [ ] No console errors
+- [ ] Countdown updates correctly
+- [ ] Installer feed reflects changes
+
+---
+
+## Phase 9.7 Rollback
+
+**If Task 9.7.1-9.7.8 fail:**
+
+```bash
+# Remove new API route
+rm -rf src/app/api/leads/[id]/update-countdown
+
+# Revert service function
+git checkout HEAD -- src/lib/services/lead-service.ts
+
+# Revert admin page
+git checkout HEAD -- src/app/admin/leads/[id]/page.tsx
+
+# Revert modal
+git checkout HEAD -- src/components/admin/AdminLeadManagementModal.tsx
+
+# Verify
+npm run build
+
+# Test
+npm run dev
+```
+
+**Alternative: Revert specific commits**
+```bash
+git log --oneline -5  # Find Phase 9.7 commits
+git revert <commit-hash>
+npm run build
+```
+
+---
+
+**End of Phase 9.7 - Countdown Timer Update Feature**
+
+---
+
+## PHASE 9.9: Homeowner UI Updates - Status Labels & Countdown Timer
+
+**Goal:** Update homeowner dashboard and preview modal for better UX
+
+**Date:** November 26, 2025  
+**Audit Report:** `DOC/ADMIN/HOMEOWNER-UI-UPDATE-AUDIT.md`
+
+### Requirements:
+1. Replace all "Purchased" text with "Responded by Installer"
+2. Add countdown timer to homeowner lead cards (APPROVED + PURCHASED leads)
+3. Ensure preview modal shows correct status label
+4. Fix UI visibility issues (z-index, icon positioning)
+5. Remove inline styles, use semantic CSS classes only
+
+---
+
+### Task 9.9.1: Update Status Labels in Dashboard
+
+**File:** `src/app/homeowner/dashboard/page.tsx`
+
+**Changes:**
+1. Update STATUS_LABELS.PURCHASED (Lines 195-198)
+
+**Implementation:**
+```typescript
+// OLD
+[LeadStatusEnum.PURCHASED]: {
+  label: 'Purchased',
+  description: 'An installer has claimed this lead',
+  accent: 'bg-primary/10 text-primary border border-primary/30',
+},
+
+// NEW
+[LeadStatusEnum.PURCHASED]: {
+  label: 'Responded by Installer',
+  description: 'An installer has responded to your request',
+  accent: 'bg-primary/10 text-primary border border-primary/30',
+},
+```
+
+**Testing:**
+```bash
+# 1. Start dev server
+npm run dev
+
+# 2. Open homeowner dashboard
+# Navigate to: http://localhost:3000/homeowner/dashboard
+
+# 3. Find PURCHASED lead card
+# Expected: Badge shows "Responded by Installer" (not "Purchased")
+
+# 4. Check status breakdown stats
+# Expected: "Responded by Installer" count displays correctly
+
+# 5. Test other statuses unchanged
+# - APPROVED: "Approved" ✓
+# - PENDING_APPROVAL: "Awaiting Review" ✓
+# - REJECTED: "Rejected" ✓
+```
+
+**Expected Results:**
+- ✅ PURCHASED badge shows "Responded by Installer"
+- ✅ Accent color unchanged (primary blue)
+- ✅ Description tooltip shows new text
+- ✅ Stats counter shows correct label
+- ✅ Other status labels unchanged
+
+**❌ STOP:** If badge still shows "Purchased" or breaks, rollback and debug.
+
+---
+
+### Task 9.9.2: Add Countdown Timer to PURCHASED Leads
+
+**Files:** 
+1. `src/app/homeowner/dashboard/page.tsx` (Lines 586-597)
+2. `src/components/LiveCountdownBar.tsx` (Lines 108-112)
+
+**Changes:**
+
+**File 1: Dashboard Condition**
+```typescript
+// OLD (Line 586)
+{lead.expiresAt && lead.status === LeadStatusEnum.APPROVED && (
+
+// NEW
+{lead.expiresAt && (lead.status === LeadStatusEnum.APPROVED || lead.status === LeadStatusEnum.PURCHASED) && (
+```
+
+**File 2: LiveCountdownBar Logic**
+```typescript
+// OLD (Lines 108-112)
+// Hide countdown for purchased CALL_VISIT/WRITTEN_QUOTE leads
+// (BIDDING leads keep countdown visible)
+if (leadStatus === 'PURCHASED' && quoteType !== 'BIDDING') {
+  return null;
+}
+
+// NEW
+// Always show countdown if expiresAt exists (regardless of status)
+// Remove PURCHASED hide logic
+```
+
+**Implementation Steps:**
+1. Update dashboard condition to include PURCHASED status
+2. Remove conditional return in LiveCountdownBar for PURCHASED leads
+3. Keep existing countdown styling and behavior
+
+**Testing:**
+```bash
+# 1. Create test PURCHASED lead with expiresAt
+# In Prisma Studio or SQL:
+UPDATE "Lead" SET status = 'PURCHASED', "expiresAt" = NOW() + INTERVAL '5 days' WHERE id = '<lead-id>';
+
+# 2. Refresh homeowner dashboard
+# Expected: Countdown appears in lead card
+
+# 3. Verify countdown format
+# Expected: "Xd Yh Zm Ws remaining" with progress bar
+
+# 4. Wait 5 seconds
+# Expected: Countdown updates live (seconds decrement)
+
+# 5. Check color coding
+# - 6+ days: Green background
+# - 3-5 days: Yellow background
+# - 1-2 days: Red background
+# - Expired: Gray background
+
+# 6. Test APPROVED lead countdown
+# Expected: Still works (no regression)
+
+# 7. Test lead without expiresAt
+# Expected: No countdown displays (no error)
+```
+
+**Expected Results:**
+- ✅ PURCHASED leads show countdown timer
+- ✅ APPROVED leads still show countdown (regression test)
+- ✅ Countdown updates every second
+- ✅ Color coding correct (green/yellow/red)
+- ✅ No countdown for leads without expiresAt
+- ✅ No console errors
+
+**❌ STOP:** If countdown doesn't appear or causes errors, rollback and debug.
+
+---
+
+### Task 9.9.3: Update Preview Modal Status Display
+
+**File:** `src/components/homeowner/LeadPreviewModal.tsx`
+
+**Changes:**
+
+**Step 1: Add Status Mapping** (after imports, before component):
+```typescript
+// Add this constant after imports (around Line 25)
+const STATUS_DISPLAY_LABELS: Record<string, string> = {
+  PURCHASED: 'Responded by Installer',
+  APPROVED: 'Approved',
+  PENDING_APPROVAL: 'Awaiting Review',
+  REJECTED: 'Rejected',
+  EXPIRED: 'Expired',
+  CANCELLED: 'Cancelled',
+  FLAGGED: 'Flagged',
+  QUOTED: 'Quotes Received',
+  ACCEPTED: 'Accepted',
+  PENDING_PHONE: 'Needs Verification',
+};
+```
+
+**Step 2: Update Status Badge** (Lines 103-109):
+```tsx
+// OLD
+<span className={`inline-flex items-center px-3 py-1 rounded-full text-body-small ${
+  lead.status === 'APPROVED' ? 'bg-success/20 text-success' :
+  lead.status === 'PURCHASED' ? 'bg-accent/20 text-accent' :
+  'bg-surface text-foreground'
+}`}>
+  {lead.status.replace('_', ' ')}
+</span>
+
+// NEW
+<span className={`inline-flex items-center px-3 py-1 rounded-full text-body-small ${
+  lead.status === 'APPROVED' ? 'bg-success/20 text-success' :
+  lead.status === 'PURCHASED' ? 'bg-accent/20 text-accent' :
+  'bg-surface text-foreground'
+}`}>
+  {STATUS_DISPLAY_LABELS[lead.status] || lead.status.replace('_', ' ')}
+</span>
+```
+
+**Testing:**
+```bash
+# 1. Open homeowner dashboard
+npm run dev
+
+# 2. Click "Preview" on PURCHASED lead
+# Expected: Modal opens
+
+# 3. Check status badge at top
+# Expected: Shows "Responded by Installer"
+
+# 4. Verify badge styling
+# Expected: accent/20 background, accent text color
+
+# 5. Scroll through modal content
+# Expected: No countdown timer visible anywhere
+
+# 6. Test other statuses
+# - APPROVED lead: "Approved" ✓
+# - REJECTED lead: "Rejected" ✓
+# - PENDING_APPROVAL lead: "Awaiting Review" ✓
+
+# 7. Close modal
+# Expected: No console errors
+```
+
+**Expected Results:**
+- ✅ PURCHASED status shows "Responded by Installer"
+- ✅ Badge styling unchanged (accent colors)
+- ✅ No countdown timer in modal
+- ✅ Other statuses display correctly
+- ✅ Modal functions normally (scrolling, closing)
+
+**❌ STOP:** If status label wrong or modal breaks, rollback and debug.
+
+---
+
+### Task 9.9.4: Fix Modal Header Z-Index & Styling
+
+**File:** `src/components/homeowner/LeadPreviewModal.tsx`
+
+**Changes:**
+
+**Step 1: Update Header** (Lines 84-101):
+```tsx
+// OLD
+<div className="sticky top-0 z-10 bg-surface border-b border-border px-6 py-4 flex items-center justify-between rounded-t-lg -mx-4 sm:-mx-6 lg:-mx-8 -mt-4 sm:-mt-6 lg:-mt-8 mb-6">
+
+// NEW
+<div className="sticky top-0 z-50 bg-surface border-b border-border px-6 py-4 flex items-center justify-between rounded-t-lg -mx-4 sm:-mx-6 lg:-mx-8 -mt-4 sm:-mt-6 lg:-mt-8 mb-6">
+```
+
+**Rationale:**
+- Increase z-index from `z-10` to `z-50` for proper stacking
+- Modal wrapper uses `z-modal` (likely z-40), header needs higher z-index
+- Keep responsive negative margins (no semantic class available yet)
+- Document need for semantic classes in follow-up task
+
+**Testing:**
+```bash
+# 1. Open preview modal
+# Click "Preview" on any lead
+
+# 2. Scroll down to bottom of modal
+# Expected: Header stays at top (sticky)
+
+# 3. Verify header visibility
+# Expected: 
+# - Background opaque (not transparent)
+# - Border visible at bottom of header
+# - Close (X) button visible and clickable
+
+# 4. Check header text
+# Expected:
+# - "Quote Request Details" heading visible
+# - "Read-only view • Created..." subtitle visible
+# - Text not overlapping with content below
+
+# 5. Scroll back to top
+# Expected: No visual glitches, smooth transition
+
+# 6. Test in all themes
+# - Dark: Header bg-surface (dark gray) ✓
+# - Light: Header bg-surface (light gray) ✓
+# - Purple: Header bg-surface (purple tint) ✓
+
+# 7. Test responsive (resize browser)
+# - Desktop (1440px): Header full width ✓
+# - Tablet (768px): Header adjusts padding ✓
+# - Mobile (375px): Header remains visible ✓
+```
+
+**Expected Results:**
+- ✅ Header stays at top when scrolling
+- ✅ Header background opaque (not transparent)
+- ✅ Close button always clickable
+- ✅ No text overlap with content
+- ✅ All themes render correctly
+- ✅ Responsive design works
+
+**❌ STOP:** If header overlaps content or disappears, rollback and debug.
+
+---
+
+### Task 9.9.5: Remove Inline Styles from Lead Card
+
+**File:** `src/app/homeowner/dashboard/page.tsx`
+
+**Changes:**
+
+**Step 1: Remove Inline Z-Index** (Line 579):
+```tsx
+// OLD
+<div className="flex-shrink-0 flex items-center justify-center w-16 h-16 rounded-full bg-background shadow-neu-outset border-4 border-background relative" style={{ zIndex: 2 }}>
+
+// NEW
+<div className="flex-shrink-0 flex items-center justify-center w-16 h-16 rounded-full bg-background shadow-neu-outset border-4 border-background relative z-10">
+```
+
+**Rationale:**
+- Replace `style={{ zIndex: 2 }}` with Tailwind `z-10` utility
+- Ensures icon appears above card content
+- Follows design system rule: no inline styles
+
+**Testing:**
+```bash
+# 1. Open homeowner dashboard
+npm run dev
+
+# 2. Verify left icon rendering
+# Expected:
+# - Icon visible in circular container
+# - Icon centered in circle
+# - Icon above card background (not behind)
+
+# 3. Check icon shadow
+# Expected: Neumorphic shadow-neu-outset visible
+
+# 4. Test multiple lead cards
+# Expected: All icons render consistently
+
+# 5. Check icon overlap
+# Expected: Icon doesn't overlap adjacent cards
+
+# 6. Test responsive
+# - Mobile (375px): Icon size appropriate ✓
+# - Tablet (768px): Icon renders correctly ✓
+# - Desktop (1440px): Icon proportional ✓
+
+# 7. Test all themes
+# - Dark: Icon and shadow visible ✓
+# - Light: Neumorphic effect clear ✓
+# - Purple: Purple accent on shadow ✓
+```
+
+**Expected Results:**
+- ✅ Icon renders above card content (proper z-index)
+- ✅ No inline styles (style prop removed)
+- ✅ Neumorphic shadows visible
+- ✅ Icon centered in circle
+- ✅ No overlap with adjacent cards
+- ✅ Responsive sizing works
+
+**❌ STOP:** If icon disappears behind content, rollback and debug.
+
+---
+
+### Task 9.9.6: Verify No Floating Icons (Visual Audit)
+
+**File:** `src/components/homeowner/LeadPreviewModal.tsx`
+
+**Investigation:**
+1. Open preview modal in browser DevTools
+2. Inspect for absolutely positioned elements
+3. Check for elements outside modal boundaries
+
+**Testing:**
+```bash
+# 1. Open preview modal
+npm run dev
+# Navigate to homeowner dashboard
+# Click "Preview" on any lead
+
+# 2. Open Chrome DevTools
+# Press F12 → Elements tab
+
+# 3. Inspect modal container
+# Expected:
+# - Modal wrapper: fixed inset-0
+# - Modal content: relative positioning
+# - All content inside modal boundaries
+
+# 4. Visual check - Left edge
+# Expected: No phone/call icons floating outside
+
+# 5. Visual check - Right edge
+# Expected: No action buttons extending beyond modal
+
+# 6. Visual check - Top
+# Expected: Header contained within modal
+
+# 7. Visual check - Bottom
+# Expected: Footer/buttons within modal
+
+# 8. Scroll modal content
+# Expected: All elements scroll correctly, none fixed outside
+
+# 9. Test edge cases
+# - Very long content: Scrolling works ✓
+# - Short content: No empty space at bottom ✓
+# - Wide content: Horizontal scroll or wrap ✓
+
+# 10. Test responsive
+# - Mobile (375px): Modal fits screen ✓
+# - Tablet (768px): Modal centered ✓
+# - Desktop (1440px): Modal max-width applies ✓
+```
+
+**Expected Results:**
+- ✅ All icons contained within modal boundaries
+- ✅ No absolutely positioned elements outside modal
+- ✅ No negative positioning values causing overflow
+- ✅ Scrolling works correctly
+- ✅ Responsive design maintains containment
+
+**If Issues Found:**
+- Document specific element causing issue
+- Check CSS positioning (absolute, fixed, negative margins)
+- Add `overflow-hidden` to parent if needed
+- Ensure proper containment with `relative` positioning
+
+**❌ STOP:** If visual artifacts found, create follow-up task to fix.
+
+---
+
+## PHASE 9.9 TESTING SUMMARY
+
+### Functional Tests:
+- [ ] Task 9.9.1: Status label "Responded by Installer" displays
+- [ ] Task 9.9.2: Countdown appears on PURCHASED leads
+- [ ] Task 9.9.2: Countdown updates live (every second)
+- [ ] Task 9.9.3: Preview modal shows correct status
+- [ ] Task 9.9.3: Preview modal has no countdown
+
+### UI/Visual Tests:
+- [ ] Task 9.9.4: Modal header stays at top (sticky)
+- [ ] Task 9.9.4: Header doesn't overlap content
+- [ ] Task 9.9.5: Lead card icon renders correctly
+- [ ] Task 9.9.5: No inline styles present
+- [ ] Task 9.9.6: No floating icons outside modal
+
+### Theme Tests:
+- [ ] Dark theme: All changes render correctly
+- [ ] Light theme: Neumorphic effects visible
+- [ ] Purple theme: Accent colors applied
+
+### Responsive Tests:
+- [ ] Mobile (375px): UI elements scale properly
+- [ ] Tablet (768px): Layout adjusts correctly
+- [ ] Desktop (1440px): Full design visible
+
+### Regression Tests:
+- [ ] APPROVED leads: Countdown still works
+- [ ] Other status labels: Unchanged
+- [ ] Edit/Preview/Cancel actions: All functional
+- [ ] Property type badges: Render correctly
+
+### Build Validation:
+```bash
+# TypeScript compilation
+npx tsc --noEmit
+# Expected: 0 errors
+
+# Production build
+npm run build
+# Expected: Build succeeds
+
+# Start production server
+npm start
+# Expected: No runtime errors
+```
+
+---
+
+## PHASE 9.9 COMPLETION CHECKLIST
+
+- [ ] Task 9.9.1: Status labels updated (dashboard)
+- [ ] Task 9.9.2: Countdown added to PURCHASED leads
+- [ ] Task 9.9.3: Preview modal status labels updated
+- [ ] Task 9.9.4: Modal header z-index fixed
+- [ ] Task 9.9.5: Inline styles removed
+- [ ] Task 9.9.6: Visual audit passed
+- [ ] All functional tests pass
+- [ ] All UI/visual tests pass
+- [ ] All theme tests pass
+- [ ] All responsive tests pass
+- [ ] All regression tests pass
+- [ ] TypeScript compilation succeeds
+- [ ] Production build succeeds
+- [ ] No console errors in browser
+- [ ] No network errors in DevTools
+
+---
+
+## Phase 9.9 Rollback
+
+**If Task 9.9.1-9.9.6 fail:**
+
+```bash
+# Option 1: Revert specific files
+git checkout HEAD -- src/app/homeowner/dashboard/page.tsx
+git checkout HEAD -- src/components/homeowner/LeadPreviewModal.tsx
+git checkout HEAD -- src/components/LiveCountdownBar.tsx
+
+# Option 2: Revert to backup (if created)
+cp src/app/homeowner/dashboard/page.tsx.backup-20251126 src/app/homeowner/dashboard/page.tsx
+cp src/components/homeowner/LeadPreviewModal.tsx.backup-20251126 src/components/homeowner/LeadPreviewModal.tsx
+cp src/components/LiveCountdownBar.tsx.backup-20251126 src/components/LiveCountdownBar.tsx
+
+# Verify
+npm run build
+npx tsc --noEmit
+
+# Test
+npm run dev
+# Open homeowner dashboard
+# Verify original state restored
+```
+
+**Alternative: Revert specific commits**
+```bash
+git log --oneline -5  # Find Phase 9.9 commits
+git revert <commit-hash>
+npm run build
+npm run dev
+```
+
+**Verify Rollback Success:**
+- ✅ Dashboard shows "Purchased" (original label)
+- ✅ No countdown on PURCHASED leads
+- ✅ Modal status shows "PURCHASED"
+- ✅ Inline styles present (original code)
+- ✅ No build errors
+- ✅ No runtime errors
+
+---
+
+**End of Phase 9.9 - Homeowner UI Updates**
+
+---
+
 **End of Implementation Tasks**
+
+

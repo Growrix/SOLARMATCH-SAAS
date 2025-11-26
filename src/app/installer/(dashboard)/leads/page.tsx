@@ -18,8 +18,8 @@ function mapAssignedLeadToComponentLead(apiLead: AssignedLead): Lead {
   };
 
   return {
-    id: parseInt(apiLead.id) || 1,
-    homeownerId: parseInt(apiLead.homeownerId) || 1,
+    id: apiLead.id,
+    homeownerId: apiLead.homeownerId,
     type: quoteTypeMap[apiLead.quoteType] || 'call_visit',
     status: isLocked ? 'new' : 'unlocked', // TODO: map backend LeadStatus to UI statuses
     dateSubmitted: new Date(apiLead.createdAt),
@@ -36,7 +36,7 @@ function mapAssignedLeadToComponentLead(apiLead: AssignedLead): Lead {
     },
     contact: {
       name: apiLead.homeowner.name || '***LOCKED***',
-      email: isLocked ? '***LOCKED***' : '***LOCKED***', // real email not exposed yet
+      email: apiLead.homeowner.email || '***LOCKED***',
       phone: apiLead.homeowner.phone || '***LOCKED***'
     },
     unlockPrice: apiLead.leadPrice || 0,
@@ -46,7 +46,22 @@ function mapAssignedLeadToComponentLead(apiLead: AssignedLead): Lead {
     quotesReceived: apiLead.quotesCount || 0,
     expiresAt: apiLead.expiresAt ? new Date(apiLead.expiresAt) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     priority: 'medium',
-    notes: apiLead.assignmentNotes || undefined
+    notes: apiLead.assignmentNotes || undefined,
+    // Add all extended fields from API (available after purchase)
+    address: apiLead.address || null,
+    energyBill: apiLead.energyBill || null,
+    billType: apiLead.billType || null,
+    desiredOffset: apiLead.desiredOffset || null,
+    batteryRequired: apiLead.batteryRequired || null,
+    batteryCapacity: apiLead.batteryCapacity || null,
+    timeframe: apiLead.timeframe || null,
+    additionalNotes: apiLead.additionalNotes || null,
+    phoneNumber: apiLead.phoneNumber || null,
+    phoneVerified: apiLead.phoneVerified || null,
+    createdAt: apiLead.createdAt,
+    approvedAt: apiLead.approvedAt || null,
+    purchasedAt: apiLead.purchasedAt || null,
+    quoteData: apiLead.quoteData || null
   };
 }
 
@@ -112,7 +127,7 @@ export default function InstallerLeadsPage() {
     fetchData();
   }, [status, session]);
 
-  const handleUnlockLead = async (leadId: number): Promise<boolean> => {
+  const handleUnlockLead = async (leadId: string): Promise<boolean> => {
     try {
       const response = await fetch(`/api/installer/leads/${leadId}/purchase`, {
         method: 'POST',
