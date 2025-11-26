@@ -2481,4 +2481,14 @@ I want you to create a new file in the guidelines folder. the flies is the instr
 ***instructions*** I want you to audit the the .md files and speckits, constitution.md etc to collect infomration regarding my pain points. the reason behind creating the guidelines to control the AI with proper instructions for error free builds and concistency . read through all the necessary files and comeup with a universal impliemetation plan instuctions . 
 - specially I recommend you to read this file D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Prompts\prompt.md first , becuase i have saved most of my prompts here. so that you can understand my pain points and build the better instructions. 
 - second recommendation: read the above all the conversation of this chat filed
-- thired : check the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\007-call-visit-lead\tasks.md   , this is a recent one. I need more improvements . 
+- third : check the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\007-call-visit-lead\tasks.md   , this is a recent one. I need more improvements . 
+
+---------------------------------------------------------------------------
+
+***Installers Purchased lead Page UI Enhancement***
+- create tabs in the purchased leads page : Call/Visit, Written Quotes, Bidding . and the purchased leads should be shown in their respective tabs. e.g if the lead is call/visit then it should be shown in the call/visit tab only.
+
+- The lead card in the purchased leads page should follow the same UI design as the lead feed lead card. so replace the existing design accordingly. 
+
+
+***instructions*** Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md
