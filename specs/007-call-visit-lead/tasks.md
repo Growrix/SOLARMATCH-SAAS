@@ -4325,6 +4325,629 @@ npm run dev
 
 ---
 
+## PHASE 10: Installer Purchased Leads Page UI Enhancement
+
+**Date Added:** November 26, 2025  
+**Goal:** Add tab navigation and update lead card design to match InstallerLeadFeed (SOT)  
+**Prerequisites:** Phase 1-9 complete, GATE 0 passed  
+**Audit Report:** `DOC/Installers/Leadfeed/PURCHASED-LEADS-PAGE-AUDIT.md`
+
+---
+
+### PHASE 10.0: Pre-Implementation Validation
+
+**Task 10.0.1: Verify Current State**
+
+```bash
+# Check file exists
+ls src/app/installer/(dashboard)/purchased-leads/page.tsx
+
+# Run TypeScript check
+npx tsc --noEmit
+# Expected: 0 errors
+
+# Start dev server
+npm run dev
+# Expected: Starts without errors
+```
+
+**Testing:**
+1. Login as installer
+2. Navigate to `/installer/purchased-leads`
+3. Verify page loads
+4. Check browser console (should be no errors)
+5. Verify purchased leads display correctly
+
+**Expected Results:**
+- ✅ Page loads successfully
+- ✅ Purchased leads display
+- ✅ Stats cards show correct data
+- ✅ No console errors
+- ✅ TypeScript: 0 errors
+
+**❌ STOP:** If any issues, resolve before Phase 10.1.
+
+---
+
+### Task 10.0.2: Reference Design System
+
+**Files to Read:**
+```
+DOC/Guidelines/DESIGN-SYSTEM-SOT.md
+DOC/Guidelines/UI-UX-Layout-and-Routing-Standards.md
+DOC/Guidelines/AI-IMPLEMENTATION-GUIDELINES.md
+```
+
+**Study InstallerLeadFeed Card:**
+```
+src/components/InstallerLeadFeed.tsx (lines 516-780)
+```
+
+**Key Patterns to Note:**
+- Card structure: Header → Location → System Details → Contact → Actions
+- Semantic classes: `bg-surface`, `text-foreground`, `border-border`
+- Badge components: Quote type, status, priority
+- Button styles: `btn-primary`, `btn-secondary`, `btn-success`
+- Neumorphic shadows: `shadow-neu-outset`, `shadow-neu-inset`
+
+**❌ STOP:** Don't proceed until design patterns understood.
+
+---
+
+### PHASE 10.1: Add Tab Navigation
+
+**Goal:** Add 3 tabs to filter leads by quote type
+
+**Task 10.1.1: Add Tab State and Filter Logic**
+
+**File:** `src/app/installer/(dashboard)/purchased-leads/page.tsx`
+
+**Changes:**
+1. Add state for active tab (after existing useState declarations):
+```typescript
+const [activeTab, setActiveTab] = useState<'CALL_VISIT' | 'WRITTEN_QUOTE' | 'BIDDING'>('CALL_VISIT');
+```
+
+2. Add filter function (before return statement):
+```typescript
+// Filter leads by active tab
+const filteredLeads = leads.filter(lead => lead.quoteType === activeTab);
+
+// Calculate counts per tab
+const callVisitCount = leads.filter(l => l.quoteType === 'CALL_VISIT').length;
+const writtenQuoteCount = leads.filter(l => l.quoteType === 'WRITTEN_QUOTE').length;
+const biddingCount = leads.filter(l => l.quoteType === 'BIDDING').length;
+```
+
+3. Replace `leads.map(lead => ...)` with `filteredLeads.map(lead => ...)`
+
+**Testing:**
+```bash
+# TypeScript check
+npx tsc --noEmit
+# Expected: 0 errors
+
+# Build check
+npm run build
+# Expected: Success
+```
+
+**Manual Testing:**
+1. Open browser DevTools console
+2. Navigate to `/installer/purchased-leads`
+3. Check console for errors (should be none)
+4. Verify leads still display
+
+**Expected Results:**
+- ✅ TypeScript: 0 errors
+- ✅ Build: Success
+- ✅ Console: No errors
+- ✅ Leads display correctly
+
+**❌ STOP:** If errors, fix before 10.1.2.
+
+---
+
+**Task 10.1.2: Add Tab UI Component**
+
+**File:** `src/app/installer/(dashboard)/purchased-leads/page.tsx`
+
+**Changes:**
+Add tab navigation UI (after stats cards, before leads list):
+
+```typescript
+{/* Tab Navigation */}
+<div className="mb-6">
+  <div className="flex gap-2 p-1 bg-surface rounded-lg border border-border shadow-neu-inset">
+    {/* Call/Visit Tab */}
+    <button
+      onClick={() => setActiveTab('CALL_VISIT')}
+      className={`flex-1 px-4 py-3 rounded-lg text-body transition-all ${
+        activeTab === 'CALL_VISIT'
+          ? 'bg-brand text-brand-foreground shadow-neu-outset'
+          : 'bg-transparent text-muted hover:bg-surface-hover'
+      }`}
+    >
+      <div className="flex items-center justify-center gap-2">
+        <span>Call/Visit</span>
+        {callVisitCount > 0 && (
+          <span className="text-caption bg-brand-foreground/20 px-2 py-0.5 rounded-full">
+            {callVisitCount}
+          </span>
+        )}
+      </div>
+    </button>
+
+    {/* Written Quotes Tab */}
+    <button
+      onClick={() => setActiveTab('WRITTEN_QUOTE')}
+      className={`flex-1 px-4 py-3 rounded-lg text-body transition-all ${
+        activeTab === 'WRITTEN_QUOTE'
+          ? 'bg-brand text-brand-foreground shadow-neu-outset'
+          : 'bg-transparent text-muted hover:bg-surface-hover'
+      }`}
+    >
+      <div className="flex items-center justify-center gap-2">
+        <span>Written Quotes</span>
+        {writtenQuoteCount > 0 && (
+          <span className="text-caption bg-brand-foreground/20 px-2 py-0.5 rounded-full">
+            {writtenQuoteCount}
+          </span>
+        )}
+      </div>
+    </button>
+
+    {/* Bidding Tab */}
+    <button
+      onClick={() => setActiveTab('BIDDING')}
+      className={`flex-1 px-4 py-3 rounded-lg text-body transition-all ${
+        activeTab === 'BIDDING'
+          ? 'bg-brand text-brand-foreground shadow-neu-outset'
+          : 'bg-transparent text-muted hover:bg-surface-hover'
+      }`}
+    >
+      <div className="flex items-center justify-center gap-2">
+        <span>Bidding</span>
+        {biddingCount > 0 && (
+          <span className="text-caption bg-brand-foreground/20 px-2 py-0.5 rounded-full">
+            {biddingCount}
+          </span>
+        )}
+      </div>
+    </button>
+  </div>
+</div>
+```
+
+**Testing:**
+```bash
+# TypeScript check
+npx tsc --noEmit
+
+# Build check
+npm run build
+
+# Start dev server
+npm run dev
+```
+
+**Visual Testing:**
+1. Open `/installer/purchased-leads`
+2. Verify 3 tabs visible
+3. Click each tab → Verify active state changes
+4. Verify lead count badges display
+5. Verify only matching leads show per tab
+
+**Theme Testing:**
+1. Switch to Dark theme → Verify tabs render
+2. Switch to Light theme → Verify neumorphic shadows
+3. Switch to Purple theme → Verify purple brand colors
+
+**Responsive Testing:**
+1. Resize to 320px → Tabs should adjust (may stack on very small screens)
+2. Resize to 768px → Tabs should be horizontal
+3. Resize to 1440px → Tabs should be horizontal
+
+**Expected Results:**
+- ✅ TypeScript: 0 errors
+- ✅ Build: Success
+- ✅ Tabs visible and clickable
+- ✅ Active tab highlighted
+- ✅ Lead counts accurate
+- ✅ Filtering works correctly
+- ✅ All 3 themes work
+- ✅ Responsive on all breakpoints
+
+**❌ STOP:** If any test fails, fix before Phase 10.2.
+
+---
+
+### PHASE 10.2: Replace Lead Card Design
+
+**Goal:** Update lead card to match InstallerLeadFeed design (SOT)
+
+**Task 10.2.1: Replace Lead Card JSX**
+
+**File:** `src/app/installer/(dashboard)/purchased-leads/page.tsx`
+
+**Changes:**
+Replace the entire lead card section (currently lines ~200-320) with InstallerLeadFeed-style card.
+
+**New Card Structure:**
+```typescript
+{filteredLeads.map(lead => (
+  <div
+    key={lead.id}
+    className="bg-surface rounded-lg shadow-neu-outset border border-border p-6 hover:shadow-neu-outset-hover transition-shadow"
+  >
+    {/* Header: Quote Type Badge + Purchased Badge */}
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center gap-2">
+        {/* Quote Type Badge */}
+        <span className="px-3 py-1 rounded-full text-caption bg-brand/20 text-brand">
+          {lead.quoteType.replace('_', ' ')}
+        </span>
+        
+        {/* Purchased Badge */}
+        <span className="px-3 py-1 rounded-full text-caption bg-success/20 text-success flex items-center gap-1">
+          <CheckCircleIcon className="h-3 w-3" />
+          Purchased
+        </span>
+      </div>
+      
+      {/* Purchase Date */}
+      <p className="text-body-small text-muted">
+        {new Date(lead.purchasedAt).toLocaleDateString()}
+      </p>
+    </div>
+
+    {/* Location Info */}
+    <div className="flex items-start gap-2 mb-4">
+      <MapPinIcon className="h-5 w-5 text-icon flex-shrink-0 mt-0.5" />
+      <div>
+        <p className="text-body text-foreground">
+          {lead.location || 'Location not specified'}
+        </p>
+        <p className="text-body-small text-muted">
+          {lead.postcode}, {lead.state}
+        </p>
+      </div>
+    </div>
+
+    {/* System Details Grid */}
+    <div className="grid grid-cols-2 gap-3 mb-4 p-4 bg-surface/50 rounded-lg border border-border">
+      {lead.propertyType && (
+        <div>
+          <p className="text-caption text-muted">Property Type</p>
+          <p className="text-body text-foreground">{lead.propertyType}</p>
+        </div>
+      )}
+      {lead.roofType && (
+        <div>
+          <p className="text-caption text-muted">Roof Type</p>
+          <p className="text-body text-foreground">{lead.roofType}</p>
+        </div>
+      )}
+      {lead.estimatedBudget && (
+        <div>
+          <p className="text-caption text-muted">Budget</p>
+          <p className="text-body text-foreground">£{lead.estimatedBudget.toLocaleString()}</p>
+        </div>
+      )}
+      {lead.electricityBill && (
+        <div>
+          <p className="text-caption text-muted">Monthly Bill</p>
+          <p className="text-body text-foreground">£{lead.electricityBill}</p>
+        </div>
+      )}
+    </div>
+
+    {/* Contact Details - Always Revealed for Purchased Leads */}
+    <div className="bg-success/10 border border-success/30 rounded-lg p-4 mb-4">
+      <h3 className="text-body text-success mb-3 flex items-center gap-2">
+        <CheckCircleIcon className="h-4 w-4" />
+        Contact Information
+      </h3>
+      <div className="space-y-2">
+        <p className="text-body text-success font-medium">
+          {lead.homeowner.name}
+        </p>
+        <div className="flex items-center gap-2 text-body text-success">
+          <PhoneIcon className="h-4 w-4" />
+          <a href={`tel:${lead.homeowner.phone}`} className="hover:underline">
+            {lead.homeowner.phone}
+          </a>
+        </div>
+        <div className="flex items-center gap-2 text-body text-success">
+          <EnvelopeIcon className="h-4 w-4" />
+          <a href={`mailto:${lead.homeowner.email}`} className="hover:underline">
+            {lead.homeowner.email}
+          </a>
+        </div>
+      </div>
+    </div>
+
+    {/* Price Display */}
+    <div className="mb-4 p-3 bg-surface/50 rounded-lg border border-border">
+      <p className="text-caption text-muted mb-1">Purchase Price</p>
+      <div className="flex items-center gap-1">
+        <CurrencyPoundIcon className="h-5 w-5 text-brand" />
+        <span className="text-heading-3 text-foreground">{lead.leadPrice}</span>
+      </div>
+    </div>
+
+    {/* Action Buttons */}
+    <div className="flex gap-2">
+      <button
+        onClick={() => handleCall(lead.homeowner.phone)}
+        className="btn-success flex-1"
+      >
+        <PhoneIcon className="h-4 w-4 mr-2" />
+        Call Now
+      </button>
+      <button
+        onClick={() => handleEmail(lead.homeowner.email)}
+        className="btn-primary flex-1"
+      >
+        <EnvelopeIcon className="h-4 w-4 mr-2" />
+        Email
+      </button>
+      <button
+        onClick={() => handleViewDetails(lead.id)}
+        className="btn-secondary flex-1"
+      >
+        <EyeIcon className="h-4 w-4 mr-2" />
+        Details
+      </button>
+    </div>
+  </div>
+))}
+```
+
+**Testing:**
+```bash
+# TypeScript check
+npx tsc --noEmit
+
+# Build check
+npm run build
+
+# Dev server
+npm run dev
+```
+
+**Visual Testing:**
+1. Open `/installer/purchased-leads`
+2. Verify new card design matches InstallerLeadFeed style
+3. Verify all data displays correctly
+4. Verify contact details are visible (not locked)
+5. Verify no unlock button present
+6. Verify all 3 action buttons work
+
+**Theme Testing:**
+1. Dark theme: Cards render correctly
+2. Light theme: Neumorphic effects visible
+3. Purple theme: Purple accents applied
+
+**Responsive Testing:**
+1. Mobile (320px): Cards adjust, buttons stack if needed
+2. Tablet (768px): Cards display properly
+3. Desktop (1440px): Full card layout visible
+
+**Expected Results:**
+- ✅ TypeScript: 0 errors
+- ✅ Build: Success
+- ✅ Cards match InstallerLeadFeed design
+- ✅ All data fields populate correctly
+- ✅ Contact details always visible
+- ✅ All buttons functional
+- ✅ All 3 themes work
+- ✅ Responsive on all breakpoints
+
+**❌ STOP:** If any test fails, fix before Phase 10.3.
+
+---
+
+### PHASE 10.3: Verification & Cleanup
+
+**Task 10.3.1: Run Design System Verification**
+
+**Commands (PowerShell):**
+```powershell
+# Command 1: Hardcoded gray/slate colors
+Select-String -Path "src\app\installer\(dashboard)\purchased-leads\page.tsx" -Pattern "text-gray-|text-slate-|bg-gray-|bg-slate-|border-gray-|border-slate-"
+
+# Command 2: Dark mode classes
+Select-String -Path "src\app\installer\(dashboard)\purchased-leads\page.tsx" -Pattern "dark:"
+
+# Command 3: RGB/HEX colors
+Select-String -Path "src\app\installer\(dashboard)\purchased-leads\page.tsx" -Pattern "rgba\(|rgb\(|#[0-9a-fA-F]{3,6}"
+
+# Command 4: Hardcoded white/black
+Select-String -Path "src\app\installer\(dashboard)\purchased-leads\page.tsx" -Pattern "text-white|bg-white|text-black|bg-black"
+
+# Command 5: Hardcoded typography
+Select-String -Path "src\app\installer\(dashboard)\purchased-leads\page.tsx" -Pattern "text-xs|text-sm|text-lg|text-xl|font-bold|font-semibold"
+
+# Command 6: Manual responsive classes
+Select-String -Path "src\app\installer\(dashboard)\purchased-leads\page.tsx" -Pattern "sm:text-|md:text-|lg:text-"
+```
+
+**Expected Result:** 0/0/0/0/0/0 (all commands return 0 matches)
+
+**❌ STOP:** If any command returns matches, fix hardcoded values before 10.3.2.
+
+---
+
+**Task 10.3.2: Final Build Validation**
+
+```bash
+# TypeScript compilation
+npx tsc --noEmit
+# Expected: 0 errors
+
+# Production build
+npm run build
+# Expected: Build succeeds
+
+# Start production server
+npm start
+# Expected: No runtime errors
+```
+
+**Expected Results:**
+- ✅ TypeScript: 0 errors
+- ✅ Build: Success
+- ✅ Production server starts
+- ✅ No console errors
+
+**❌ STOP:** If build fails, fix before 10.3.3.
+
+---
+
+**Task 10.3.3: Comprehensive Manual Testing**
+
+**Functional Tests:**
+1. Tab Navigation:
+   - Click "Call/Visit" → Only call/visit leads show
+   - Click "Written Quotes" → Only written quote leads show
+   - Click "Bidding" → Only bidding leads show
+   - Verify lead counts on tabs are accurate
+
+2. Lead Cards:
+   - Verify quote type badge displays correctly
+   - Verify "Purchased" badge displays
+   - Verify purchase date shows
+   - Verify location info complete
+   - Verify system details populate
+   - Verify contact details visible (not locked)
+   - Verify purchase price displays
+
+3. Actions:
+   - Click "Call Now" → Phone dialer opens with correct number
+   - Click "Email" → Email client opens with correct address
+   - Click "Details" → Navigate to lead details page
+
+4. Stats Cards:
+   - Verify "Total Purchased" count accurate
+   - Verify "Total Spent" sum correct
+   - Verify "This Month" count accurate
+
+**UI/Visual Tests:**
+1. Verify no hardcoded colors (all semantic)
+2. Verify neumorphic shadows present
+3. Verify proper spacing and alignment
+4. Verify icons render correctly
+5. Verify badges have correct styling
+
+**Theme Tests:**
+1. Dark theme:
+   - Cards have correct background
+   - Text readable
+   - Shadows visible
+   - Buttons styled correctly
+
+2. Light theme:
+   - Neumorphic effects prominent
+   - Cards have raised appearance
+   - Text contrast adequate
+
+3. Purple theme:
+   - Brand colors use purple
+   - Active tab uses purple
+   - Success colors unchanged
+
+**Responsive Tests:**
+1. Mobile (320px):
+   - Tabs readable (may stack)
+   - Cards full-width
+   - Action buttons may stack
+   - All content accessible
+
+2. Tablet (768px):
+   - Tabs horizontal
+   - Cards display well
+   - 2-column grid if space allows
+
+3. Desktop (1440px):
+   - Full layout visible
+   - Optimal spacing
+   - All elements comfortable to interact with
+
+**Regression Tests:**
+1. Stats cards still work
+2. Empty state message works
+3. Loading state works
+4. Error state works
+5. Navigation works
+
+**Expected Results:**
+- ✅ All functional tests pass
+- ✅ All UI/visual tests pass
+- ✅ All theme tests pass
+- ✅ All responsive tests pass
+- ✅ All regression tests pass
+- ✅ No console errors
+- ✅ No network errors
+
+**❌ STOP:** If any test fails, document issue and fix before marking complete.
+
+---
+
+### PHASE 10 COMPLETION CHECKLIST
+
+- [ ] Task 10.0.1: Pre-implementation validation passed
+- [ ] Task 10.0.2: Design guidelines reviewed
+- [ ] Task 10.1.1: Tab state and filter logic added
+- [ ] Task 10.1.2: Tab UI component implemented
+- [ ] Task 10.2.1: Lead card design replaced
+- [ ] Task 10.3.1: Design system verification passed (0/0/0/0/0/0)
+- [ ] Task 10.3.2: Final build validation passed
+- [ ] Task 10.3.3: Comprehensive manual testing passed
+- [ ] All functional tests pass
+- [ ] All UI/visual tests pass
+- [ ] All theme tests pass
+- [ ] All responsive tests pass
+- [ ] All regression tests pass
+- [ ] TypeScript: 0 errors
+- [ ] Build: Success
+- [ ] No console errors
+- [ ] No network errors
+
+---
+
+### PHASE 10 ROLLBACK
+
+**If Task 10.1-10.3 fail:**
+
+```bash
+# Revert purchased leads page
+git checkout HEAD -- src/app/installer/(dashboard)/purchased-leads/page.tsx
+
+# Verify rollback
+npx tsc --noEmit
+npm run build
+npm run dev
+
+# Test
+# Open /installer/purchased-leads
+# Verify original design restored
+```
+
+**Verify Rollback Success:**
+- ✅ Original purchased leads page restored
+- ✅ No tabs present
+- ✅ Original card design displays
+- ✅ All functionality works
+- ✅ No build errors
+- ✅ No runtime errors
+
+---
+
+**End of Phase 10 - Installer Purchased Leads Page UI Enhancement**
+
+---
+
 **End of Implementation Tasks**
 
 

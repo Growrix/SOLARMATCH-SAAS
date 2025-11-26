@@ -16,15 +16,13 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import {
-  PhoneIcon,
-  EnvelopeIcon,
-  MapPinIcon,
-  CurrencyPoundIcon,
-  CalendarIcon,
   CheckCircleIcon,
-  EyeIcon
+  CurrencyPoundIcon,
+  CalendarIcon
 } from '@heroicons/react/24/outline';
 import Button from '@/components/ui/button';
+import LeadCard from '@/components/installer/LeadCard';
+import type { Lead, InstallerProfile } from '@/components/installer/LeadCard';
 
 interface PurchasedLead {
   id: string;
@@ -55,6 +53,53 @@ export default function PurchasedLeadsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'CALL_VISIT' | 'WRITTEN_QUOTE' | 'BIDDING'>('CALL_VISIT');
+
+  // Mock installer profile (will be fetched from session in real implementation)
+  const installerProfile: InstallerProfile = {
+    id: Number(session?.user?.id) || 0,
+    companyName: session?.user?.name || 'Your Company',
+    email: session?.user?.email || '',
+    phone: '',
+    serviceAreas: [],
+    isApproved: true,
+    creditBalance: 0,
+    totalUnlocks: 0,
+    successRate: 0
+  };
+
+  // Transform PurchasedLead to Lead interface
+  const transformToLead = (purchasedLead: PurchasedLead): Lead => ({
+    id: purchasedLead.id,
+    homeownerId: purchasedLead.homeowner.id,
+    type: purchasedLead.quoteType === 'CALL_VISIT' ? 'call_visit' : purchasedLead.quoteType === 'WRITTEN_QUOTE' ? 'written' : 'bidding',
+    status: 'submitted', // Purchased leads are typically submitted
+    dateSubmitted: new Date(purchasedLead.purchasedAt),
+    location: {
+      suburb: purchasedLead.location?.split(',')[0] || 'Unknown',
+      postcode: purchasedLead.location?.split(',')[1]?.trim() || '',
+      state: purchasedLead.location?.split(',')[2]?.trim() || ''
+    },
+    systemDetails: {
+      estimatedSize: purchasedLead.roofArea ? `${purchasedLead.roofArea}m²` : 'N/A',
+      roofType: purchasedLead.roofType || 'N/A',
+      propertyType: purchasedLead.propertyType || 'N/A',
+      budget: purchasedLead.estimatedBudget ? `£${purchasedLead.estimatedBudget.toLocaleString()}` : 'N/A'
+    },
+    contact: {
+      name: purchasedLead.homeowner.name,
+      email: purchasedLead.homeowner.email,
+      phone: purchasedLead.homeowner.phone
+    },
+    unlockPrice: purchasedLead.leadPrice,
+    isUnlocked: true, // Always true for purchased leads
+    unlockedBy: [Number(session?.user?.id) || 0],
+    quotesReceived: 0,
+    expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+    priority: 'medium',
+    energyBill: purchasedLead.electricityBill,
+    quoteData: purchasedLead.quoteData,
+    purchasedAt: purchasedLead.purchasedAt
+  });
 
   // Redirect if not authenticated or not installer
   useEffect(() => {
@@ -88,19 +133,6 @@ export default function PurchasedLeadsPage() {
     } finally {
       setLoading(false);
     }
-  }
-
-  // Handle contact actions
-  function handleCall(phone: string) {
-    window.location.href = `tel:${phone}`;
-  }
-
-  function handleEmail(email: string) {
-    window.location.href = `mailto:${email}`;
-  }
-
-  function handleViewDetails(leadId: string) {
-    router.push(`/installer/leads/${leadId}`);
   }
 
   if (loading) {
@@ -265,161 +297,15 @@ export default function PurchasedLeadsPage() {
       ) : (
         <div className="space-y-6">
           {leads.filter(lead => lead.quoteType === activeTab).map(lead => (
-            <div
+            <LeadCard
               key={lead.id}
-              className="bg-surface rounded-lg border border-border max-w-4xl w-full hover:shadow-neu-outset-md transition-shadow duration-300"
-              style={{ boxShadow: 'var(--shadow-outset)' }}
-            >
-              <div className="p-6 space-y-6">
-                {/* Lead ID, Status & Purchase Info */}
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-caption text-muted-foreground">Lead ID</p>
-                    <p className="text-body text-foreground">#{lead.id}</p>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="px-3 py-1 text-caption rounded-full bg-success/10 text-success">
-                      <CheckCircleIcon className="h-3 w-3 inline-block mr-1" />
-                      Purchased
-                    </span>
-                    <span className="px-3 py-1 text-caption rounded-full bg-accent/10 text-accent">
-                      {lead.quoteType === 'CALL_VISIT' ? 'Call/Visit' : lead.quoteType === 'WRITTEN_QUOTE' ? 'Written Quote' : 'Bidding'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Contact Information - REVEALED */}
-                <div className="bg-success/10 border border-success/30 rounded-lg p-4 shadow-neu-inset">
-                  <h3 className="text-heading-4 text-success mb-3">✓ Contact Information</h3>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-body-small text-success/80">Name:</span>
-                      <span className="text-body-small text-success">{lead.homeowner.name}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-body-small text-success/80">Phone:</span>
-                      <a href={`tel:${lead.homeowner.phone}`} className="text-body-small text-success hover:underline">
-                        {lead.homeowner.phone}
-                      </a>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-body-small text-success/80">Email:</span>
-                      <a href={`mailto:${lead.homeowner.email}`} className="text-body-small text-success hover:underline break-all">
-                        {lead.homeowner.email}
-                      </a>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-4">
-                  {/* Property Details */}
-                  {(lead.location || lead.propertyType || lead.roofType) && (
-                    <div className="bg-surface rounded-lg shadow-neu-inset border border-border p-4">
-                      <h3 className="text-heading-4 text-foreground mb-3">Property Details</h3>
-                      <div className="space-y-2">
-                        {lead.location && (
-                          <div className="flex items-center justify-between">
-                            <span className="text-body-small text-muted-foreground">Location:</span>
-                            <span className="text-body-small text-foreground">{lead.location}</span>
-                          </div>
-                        )}
-                        {lead.propertyType && (
-                          <div className="flex items-center justify-between">
-                            <span className="text-body-small text-muted-foreground">Property Type:</span>
-                            <span className="text-body-small text-foreground">{lead.propertyType}</span>
-                          </div>
-                        )}
-                        {lead.roofType && (
-                          <div className="flex items-center justify-between">
-                            <span className="text-body-small text-muted-foreground">Roof Type:</span>
-                            <span className="text-body-small text-foreground">{lead.roofType}</span>
-                          </div>
-                        )}
-                        {lead.roofArea && (
-                          <div className="flex items-center justify-between">
-                            <span className="text-body-small text-muted-foreground">Roof Area:</span>
-                            <span className="text-body-small text-foreground">{lead.roofArea}m²</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Energy & Budget Details */}
-                  {(lead.electricityBill || lead.estimatedBudget) && (
-                    <div className="bg-surface rounded-lg shadow-neu-inset border border-border p-4">
-                      <h3 className="text-heading-4 text-foreground mb-3">Energy & Budget</h3>
-                      <div className="space-y-2">
-                        {lead.electricityBill && (
-                          <div className="flex items-center justify-between">
-                            <span className="text-body-small text-muted-foreground">Monthly Bill:</span>
-                            <span className="text-body-small text-foreground">£{lead.electricityBill}</span>
-                          </div>
-                        )}
-                        {lead.estimatedBudget && (
-                          <div className="flex items-center justify-between">
-                            <span className="text-body-small text-muted-foreground">Budget Range:</span>
-                            <span className="text-body-small text-foreground">£{lead.estimatedBudget.toLocaleString()}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Lead Metadata & Purchase Info */}
-                <div className="bg-surface rounded-lg shadow-neu-inset border border-border p-4">
-                  <h3 className="text-heading-4 text-foreground mb-3">Purchase Information</h3>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-body-small text-muted-foreground">Purchase Price:</span>
-                      <div className="flex items-center">
-                        <CurrencyPoundIcon className="h-4 w-4 text-accent mr-1" />
-                        <span className="text-body text-accent">{lead.leadPrice}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-body-small text-muted-foreground">Purchased On:</span>
-                      <span className="text-body-small text-foreground">{new Date(lead.purchasedAt).toLocaleDateString()}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-body-small text-muted-foreground">Quote Type:</span>
-                      <span className="text-body-small text-foreground">
-                        {lead.quoteType === 'CALL_VISIT' ? 'Call/Visit' : lead.quoteType === 'WRITTEN_QUOTE' ? 'Written Quote' : 'Bidding'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                  <Button
-                    onClick={() => handleCall(lead.homeowner.phone)}
-                    variant="primary"
-                    className="flex items-center justify-center"
-                  >
-                    <PhoneIcon className="h-5 w-5 mr-2" />
-                    Call Now
-                  </Button>
-                  <Button
-                    onClick={() => handleEmail(lead.homeowner.email)}
-                    variant="primary"
-                    className="flex items-center justify-center"
-                  >
-                    <EnvelopeIcon className="h-5 w-5 mr-2" />
-                    Send Email
-                  </Button>
-                  <Button
-                    onClick={() => handleViewDetails(lead.id)}
-                    variant="secondary"
-                    className="flex items-center justify-center"
-                  >
-                    <EyeIcon className="h-5 w-5 mr-2" />
-                    View Details
-                  </Button>
-                </div>
-              </div>
-            </div>
+              lead={transformToLead(lead)}
+              installer={installerProfile}
+              onUnlock={() => Promise.resolve()} // No unlock action for purchased leads
+              onSubmitQuote={async () => false} // No quote submission for purchased leads
+              onStartChat={() => {}} // Start chat placeholder
+              isPurchased={true} // Mark as purchased to show contact details without unlock buttons
+            />
           ))}
         </div>
       )}

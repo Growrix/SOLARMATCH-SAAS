@@ -27,10 +27,10 @@ const MOCK_PRESETS = [
 ];
 
 // --- Types ---
-interface Lead { id: number; name: string; location: string; propertyType: string; systemSize: string; estimatedUsage: string; budget: string; }
+interface Lead { id: string | number; name: string; location: string; propertyType: string; systemSize: string; estimatedUsage: string; budget: string; }
 interface LineItem { id: number; description: string; category: string; qty: number; unitPrice: number; tax: boolean; }
 interface QuoteData { systemSize: number; panelId: string; inverterId: string; batteryId: string | null; lineItems: LineItem[]; }
-interface QuoteBuilderModalProps { isOpen: boolean; onClose: () => void; lead: Lead | null; onSubmitQuote: (leadId: number, quoteData: any) => Promise<boolean>; }
+interface QuoteBuilderModalProps { isOpen: boolean; onClose: () => void; lead: Lead | null; onSubmitQuote: (leadId: string, quoteData: any) => Promise<boolean>; }
 
 const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({ isOpen, onClose, lead, onSubmitQuote }) => {
   const [quoteData, setQuoteData] = useState<QuoteData>({ systemSize: 6.6, panelId: 'p2', inverterId: 'i2', batteryId: null, lineItems: MOCK_PRESETS[0].pricing });

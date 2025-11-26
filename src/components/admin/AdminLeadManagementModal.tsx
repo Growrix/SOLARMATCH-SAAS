@@ -73,7 +73,15 @@ interface AdminLeadManagementModalProps {
   onClose: () => void;
   lead: Lead;
   // Handler props (preserve existing backend logic)
-  onApprove: (data: { enableCountdown: boolean; countdownDays: number }) => Promise<void>;
+  onApprove: (data: { 
+    enableCountdown: boolean; 
+    countdownDays: number;
+    price?: number;
+    installerIds: string[];
+    mode: 'exclusive' | 'competitive';
+    notes?: string;
+    notifyInstallers: boolean;
+  }) => Promise<void>;
   onReject: (reason: string) => Promise<void>;
   onSavePrice: (price: string) => Promise<void>;
   onSaveNotes: (notes: string) => Promise<void>;
@@ -323,10 +331,10 @@ export default function AdminLeadManagementModal({
       }
 
       // Reset timer if countdown changed and lead is approved
-      if (lead.status === 'APPROVED' && lead.expiresAt && onResetTimer) {
+      if (lead.status === 'APPROVED' && lead.expiresAt && onUpdateCountdown) {
         const currentDays = Math.ceil((new Date(lead.expiresAt).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
         if (countdownDays !== currentDays && countdownDays > 0) {
-          await onResetTimer(countdownDays);
+          await onUpdateCountdown(countdownDays);
         }
       }
 
@@ -356,7 +364,14 @@ export default function AdminLeadManagementModal({
 
     setSubmitting(true);
     try {
-      await onApprove({ enableCountdown: true, countdownDays });
+      await onApprove({ 
+        enableCountdown: true, 
+        countdownDays,
+        price: parseFloat(leadPrice),
+        installerIds: [],
+        mode: 'competitive',
+        notifyInstallers: false
+      });
       onClose();
     } catch (err: any) {
       setError(err.message);

@@ -158,6 +158,7 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
   
   // Modal states
   const [showAssignModal, setShowAssignModal] = useState(false); // Phase 7
+  const [showRejectModal, setShowRejectModal] = useState(false);
   
   // Phase 3: Countdown timer states
   const [enableCountdown, setEnableCountdown] = useState(true);
@@ -165,6 +166,13 @@ export default function AdminLeadDetailPage({ params }: { params: { id: string }
 
   // Phase 24: Admin Lead Management Modal
   const [showManagementModal, setShowManagementModal] = useState(false);
+  
+  // Phase 7: Additional action states
+  const [reselling, setReselling] = useState(false);
+  const [archiving, setArchiving] = useState(false);
+  const [unarchiving, setUnarchiving] = useState(false);
+  const [resettingTimer, setResettingTimer] = useState(false);
+  const [resetDays, setResetDays] = useState<number>(7);
 
   // ============================================================================
   // FETCH LEAD DATA

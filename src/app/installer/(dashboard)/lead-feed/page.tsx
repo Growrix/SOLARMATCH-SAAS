@@ -16,8 +16,8 @@ function mapAssignedLeadToComponentLead(apiLead: AssignedLead): Lead {
   };
 
   return {
-    id: parseInt(apiLead.id) || 1,
-    homeownerId: parseInt(apiLead.homeownerId) || 1,
+    id: apiLead.id,
+    homeownerId: apiLead.homeownerId,
     type: quoteTypeMap[apiLead.quoteType] || 'call_visit',
     status: isLocked ? 'new' : 'unlocked',
     dateSubmitted: new Date(apiLead.createdAt),
@@ -116,17 +116,17 @@ export default function LeadFeedPage() {
     fetchData();
   }, [status, session]);
 
-  const handleUnlockLead = async (leadId: number): Promise<boolean> => {
+  const handleUnlockLead = async (leadId: string): Promise<boolean> => {
     console.log('Unlock lead:', leadId);
     return true;
   };
 
-  const handleSubmitQuote = async (leadId: number, quoteData: any): Promise<boolean> => {
+  const handleSubmitQuote = async (leadId: string, quoteData: any): Promise<boolean> => {
     console.log('Submit quote for lead:', leadId, quoteData);
     return true;
   };
 
-  const handleStartChat = (leadId: number): void => {
+  const handleStartChat = (leadId: string): void => {
     console.log('Start chat with lead:', leadId);
   };
 

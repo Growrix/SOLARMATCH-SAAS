@@ -160,13 +160,13 @@ export default function InstallerLeadsPage() {
     }
   };
 
-  const handleSubmitQuote = async (leadId: number, quoteData: any): Promise<boolean> => {
+  const handleSubmitQuote = async (leadId: string, quoteData: any): Promise<boolean> => {
     console.log('Submit quote for lead:', leadId, quoteData);
     // TODO: Implement actual quote submission logic
     return true;
   };
 
-  const handleStartChat = (leadId: number): void => {
+  const handleStartChat = (leadId: string): void => {
     console.log('Start chat with lead:', leadId);
     setShowMessagingModal(true);
   };
