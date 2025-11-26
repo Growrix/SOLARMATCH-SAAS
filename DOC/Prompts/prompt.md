@@ -2490,5 +2490,18 @@ I want you to create a new file in the guidelines folder. the flies is the instr
 
 - The lead card in the purchased leads page should follow the same UI design as the lead feed lead card. so replace the existing design accordingly. 
 
+--------------------------------------------------------------------------------
+
+Leadfeed enhancement for Installers:
+- now in the lead feed we have some wrong things : credit system. there is not credit system in our project. it was mistakenly there while buiding the prototype. so please remove any credit system related things from the lead feed including frontend and backend. but make sure the installers can purchase now in dev environment without any credit system and stripe payment becuase right now we dont have stripe API at this momenet. but we need to test installers flow . 
+***instructions*** Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md
+---------------------------------------------------------------------------
+***Admin Lead Management modal update***
+- the assigned lead price is not editable , the admin should be able to update and change price until before the lead was purchased by any installers. fix it accordingly.
 
 ***instructions*** Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md
+-----------------------------------------------------------------------------
+
+I have updated the price and clicked on the update button and i see errors. Please fix the issue accordingly. and also there are nother issue. for the countdown update there is another update button within the same modal which is confusing and not user friendly. so please merge both the update buttons into one single update button. so that when the admin update any details and click on the update button all the changes will be saved. Make sure the edit update functionality works. 
+
+***instructions*** Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. also check the terminal output for better understanding what gone wrong.

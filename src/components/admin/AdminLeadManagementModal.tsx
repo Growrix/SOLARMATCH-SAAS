@@ -47,6 +47,7 @@ interface Lead {
   expiresAt?: Date | null;
   archivedAt?: Date | null;
   postcode?: string | null;
+  purchasedAt?: string | null;
   assignments?: Assignment[];
 }
 
@@ -322,7 +323,8 @@ export default function AdminLeadManagementModal({
     try {
       // Sequential handler calls for changed fields
       const initialPrice = lead.leadPrice?.toString() || lead.price?.toString() || '';
-      if (leadPrice && leadPrice !== initialPrice) {
+      // Only allow price updates if lead has not been purchased
+      if (leadPrice && leadPrice !== initialPrice && !lead.purchasedAt) {
         await onSavePrice(leadPrice);
       }
 
@@ -773,11 +775,16 @@ export default function AdminLeadManagementModal({
                       onChange={(e) => setLeadPrice(e.target.value)}
                       placeholder="Enter price"
                       className="form-input w-full px-4 py-3"
-                      disabled={submitting}
+                      disabled={submitting || !!lead.purchasedAt}
                     />
                     {lead.leadPrice && (
                       <p className="text-caption mt-1 text-muted-foreground">
                         Current: £{lead.leadPrice.toFixed(2)}
+                      </p>
+                    )}
+                    {lead.purchasedAt && (
+                      <p className="text-caption mt-1 text-warning">
+                        Price locked (lead purchased)
                       </p>
                     )}
                   </div>
@@ -797,31 +804,6 @@ export default function AdminLeadManagementModal({
                         className="form-input flex-1 px-4 py-3 placeholder:text-muted-foreground"
                         disabled={submitting}
                       />
-                      {onUpdateCountdown && lead.expiresAt && (
-                        <Button
-                          onClick={async () => {
-                            if (countdownDays < 1 || countdownDays > 90) {
-                              alert('Please enter a valid countdown (1-90 days)');
-                              return;
-                            }
-                            
-                            setSubmitting(true);
-                            try {
-                              await onUpdateCountdown(countdownDays);
-                              // Success message handled by parent
-                            } catch (err: any) {
-                              setError(err.message || 'Failed to update countdown');
-                            } finally {
-                              setSubmitting(false);
-                            }
-                          }}
-                          disabled={submitting || countdownDays < 1 || countdownDays > 90}
-                          variant="primary"
-                          className="px-6 bg-info text-info-foreground"
-                        >
-                          Update
-                        </Button>
-                      )}
                     </div>
                     <p className="text-caption mt-1 text-muted-foreground">
                       {lead.expiresAt ? (
@@ -932,21 +914,9 @@ export default function AdminLeadManagementModal({
                   {submitting ? '⏳ Processing...' : `✅ Approve & Assign to ${selectedInstallerIds.length} Installer(s)`}
                 </Button>
               ) : (
-                // Already approved - allow assignment updates
+                // Already approved - allow assignment updates (includes price, countdown, and notes)
                 <Button
-                  onClick={() => {
-                    if (selectedInstallerIds.length === 0) {
-                      alert('Please select at least one installer');
-                      return;
-                    }
-                    
-                    onAssign({
-                      installerIds: selectedInstallerIds,
-                      mode: assignmentMode,
-                      notes: assignmentNotes,
-                      notifyInstallers: true,
-                    });
-                  }}
+                  onClick={handleSubmit}
                   disabled={selectedInstallerIds.length === 0 || submitting}
                   variant="primary"
                   className="flex-1 bg-info text-info-foreground"

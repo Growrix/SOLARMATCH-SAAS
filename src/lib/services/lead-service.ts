@@ -1048,11 +1048,23 @@ export async function assignLeadToInstallers(input: AssignLeadInput) {
     },
   });
 
-  // Create LeadAssignment records for each installer
+  // Create or update LeadAssignment records for each installer (UPSERT to handle existing assignments)
   const assignments = await Promise.all(
     installerIds.map((installerId) =>
-      prisma.leadAssignment.create({
-        data: {
+      prisma.leadAssignment.upsert({
+        where: {
+          leadId_installerId: {
+            leadId,
+            installerId,
+          },
+        },
+        update: {
+          assignedBy,
+          notes,
+          notified: false,
+          assignedAt: new Date(), // Update timestamp when reassigning
+        },
+        create: {
           leadId,
           installerId,
           assignedBy,
