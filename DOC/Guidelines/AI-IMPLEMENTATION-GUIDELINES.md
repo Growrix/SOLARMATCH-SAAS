@@ -6,6 +6,72 @@
 
 ---
 
+## ⚠️ CRITICAL WARNINGS (Read First Before ANY Work)
+
+### 🔴 The Three Catastrophic Mistakes That Destroyed Projects
+
+**November 29, 2025 - Lessons from Real Production Incidents:**
+
+#### 1. Git Folder Deletion (CATASTROPHIC - 1+ Hour Recovery Time)
+**What Happened**: Used `Remove-Item -Path ".*"` thinking it would clean cache files → Deleted `.git` folder → Lost entire project history
+**Impact**: Unable to commit, pull, or track changes. Required re-cloning repository and manual file restoration.
+**Prevention**: 
+- ✅ NEVER use wildcards that match hidden folders (`.git`, `.env`, etc.)
+- ✅ ALWAYS create backup commit before ANY file deletion
+- ✅ ALWAYS test delete command with `-WhatIf` flag first
+- ✅ ALWAYS verify `.git` folder exists after operations: `Test-Path ".git"`
+
+#### 2. Conflicting Dynamic Route Names (CRITICAL - Complete App Crash)
+**What Happened**: Created `src/app/api/bids/[leadId]/route.ts` and `src/app/api/bids/[bidId]/route.ts` simultaneously
+**Error**: `Error: You cannot use different slug names for the same dynamic path ('bidId' !== 'leadId')`
+**Impact**: Dev server refused to start. Application completely non-functional.
+**Prevention**:
+- ✅ Plan route structure BEFORE creating files
+- ✅ Use consistent dynamic segment names at same level
+- ✅ Test dev server after creating EACH route (not after all routes)
+
+#### 3. Missing Dependencies & Prisma Desync (CRITICAL - Runtime Crashes)
+**What Happened**: Used `import { format } from 'date-fns'` without installing package + Modified schema without regenerating Prisma Client
+**Errors**: `Module not found: Can't resolve 'date-fns'` + `Cannot read properties of undefined (reading 'DRAFT')`
+**Impact**: Build failures, runtime crashes, type errors everywhere
+**Prevention**:
+- ✅ Check package.json BEFORE using any import
+- ✅ Run `npm install <package>` immediately when adding new import
+- ✅ Run `npx prisma generate` IMMEDIATELY after schema changes
+- ✅ Verify types in IDE before continuing
+
+### 🚨 The Golden Rules (Never Break These)
+
+1. **ONE CHANGE → TEST IMMEDIATELY → VERIFY WORKS → THEN NEXT CHANGE**
+   - Creating multiple endpoints then testing = Recipe for disaster
+   - You won't know which change broke things
+
+2. **BACKUP BEFORE MAJOR CHANGES (Non-Negotiable)**
+   ```powershell
+   git add .
+   git commit -m "backup: before [what you're about to do]"
+   ```
+
+3. **NEVER USE WILDCARDS NEAR ROOT OR .git**
+   ```powershell
+   # ❌ FORBIDDEN:
+   Remove-Item -Path ".*" -Recurse
+   Remove-Item -Path "*" -Recurse
+   rm -rf .*
+   
+   # ✅ REQUIRED:
+   Remove-Item -Path ".next" -Recurse
+   Remove-Item -Path "specific-folder" -Recurse
+   ```
+
+4. **TEST IN BROWSER, NOT JUST CODE**
+   - Open DevTools (F12) → Network tab
+   - See the actual HTTP request/response
+   - Verify database changes in Prisma Studio
+   - Don't trust "success" messages without verification
+
+---
+
 ## 🎯 CORE MANDATE
 
 **NEVER implement anything without:**
@@ -46,12 +112,25 @@
 Run these checks BEFORE starting:
 ```powershell
 npx tsc --noEmit    # TypeScript: 0 errors
-npm run build       # Build: Success
+npm run build       # Build: Success  
 npm run dev         # Dev server: Starts
 npx prisma validate # Schema: Valid
 git status          # Know current state
+ls -Force | Select-String ".git"  # Verify .git exists
 ```
 **❌ STOP if ANY check fails** - Fix first, then proceed.
+
+**Additional Backend Checks (if implementing APIs):**
+```powershell
+# Check existing route structure:
+Get-ChildItem src/app/api -Recurse -Directory | Where-Object { $_.Name -match '\[.*\]' }
+# Note any dynamic segment names ([id], [leadId], etc.)
+# Your new routes MUST use same names at same level
+
+# Verify dependencies for any planned imports:
+Get-Content package.json | Select-String "package-name"
+# If not found, add to implementation plan: "npm install package-name"
+```
 
 ---
 
@@ -84,13 +163,45 @@ See existing `specs/*/tasks.md` files for template patterns.
 ### Step 4: IMPLEMENT - Execute Phase by Phase
 
 **For each phase:**
-1. Modify files (one phase at a time)
-2. Run verification commands immediately
-3. Test in browser (visual + console + network tab)
-4. Check checkpoint - ALL tests must pass
-5. Only then proceed to next phase
+1. **Create backup**: `git add . && git commit -m "before phase X"`
+2. **Modify files** (one phase at a time)
+3. **Run verification commands immediately**:
+   ```powershell
+   npx tsc --noEmit           # TypeScript check
+   npm run dev                # Dev server starts?
+   # Check terminal - should see "✓ Compiled" without errors
+   ```
+4. **Test in browser** (visual + console + network tab)
+   - For APIs: Test endpoint immediately (curl or browser DevTools)
+   - For UI: Visual check + responsive check + theme check
+5. **Check checkpoint** - ALL tests must pass
+6. **Only then proceed to next phase**
 
 **STOP immediately if any test fails** - Don't continue to next phase.
+
+**Backend Implementation Specifics:**
+- Create ONE endpoint at a time (not all at once)
+- After creating each endpoint file:
+  ```powershell
+  # 1. Check dev server recompiles:
+  # Terminal should show: ✓ Compiled /api/your-route
+  
+  # 2. Test endpoint immediately:
+  curl http://localhost:3000/api/your-route
+  # OR open browser DevTools → Network tab → Trigger API call
+  
+  # 3. If modifies database, verify in Prisma Studio:
+  npx prisma studio
+  # Check affected table for changes
+  ```
+- Only after ONE endpoint fully works, create the next one
+
+**Frontend Implementation Specifics:**
+- Modify one component file
+- Check browser immediately (F5 refresh)
+- Check console for errors
+- Test all themes (Dark, Light, Purple)
+- Run design system verification if applicable
 
 ---
 
@@ -210,6 +321,209 @@ That file contains:
 **For database schema**: Reference `prisma/schema.prisma`
 **For API structure**: See `docs/constitution.md` for patterns
 
+### ⚠️ CRITICAL: Pre-Backend Implementation Checklist
+
+**BEFORE writing any backend code:**
+```markdown
+- [ ] Read prisma/schema.prisma - understand existing models
+- [ ] Check src/app/api/ - map existing route structure
+- [ ] Verify naming conventions - check how other routes are named
+- [ ] Plan route structure - no conflicting dynamic segments
+- [ ] List all dependencies - check if packages are installed
+- [ ] Create backup - commit current state before major changes
+```
+
+**❌ NEVER START BACKEND WITHOUT THESE CHECKS ❌**
+
+---
+
+### 🛡️ CRITICAL FILE SAFETY PROTOCOLS
+
+**ABSOLUTE RULES (Breaking these causes catastrophic failures):**
+
+#### 1. Git Folder Protection
+```powershell
+# ❌ NEVER DO THESE:
+Remove-Item -Path ".git" -Recurse
+Remove-Item -Path "**/.git" -Recurse
+git rm -rf .git
+
+# ❌ NEVER use wildcards that could match .git:
+Remove-Item -Path ".*" -Recurse
+rm -rf .*
+
+# ✅ SAFE: Always use specific paths
+Remove-Item -Path ".next" -Recurse -Force
+Remove-Item -Path "node_modules" -Recurse -Force
+```
+
+#### 2. Project Structure Protection
+```powershell
+# ❌ FORBIDDEN - Can delete critical folders:
+Remove-Item -Path "src/*" -Recurse
+Remove-Item -Path "*" -Include "*.tsx"
+Get-ChildItem | Remove-Item -Recurse
+
+# ✅ REQUIRED: Always specify EXACT paths
+Remove-Item -Path "src/app/api/specific-feature" -Recurse
+Remove-Item -Path "src/components/SpecificComponent.tsx"
+```
+
+#### 3. Pre-Delete Verification Protocol
+**BEFORE any Remove-Item or file deletion:**
+```markdown
+1. [ ] List what will be deleted first (Get-ChildItem with same path)
+2. [ ] Verify exact path matches intended target
+3. [ ] Check if any git-related folders in path
+4. [ ] Run git status to see current state
+5. [ ] Create backup commit: git add . && git commit -m "backup before deletion"
+6. [ ] Only then execute delete command
+```
+
+#### 4. Backup Creation Protocol
+**BEFORE major structural changes:**
+```powershell
+# Step 1: Commit current state
+git add .
+git commit -m "backup: before [feature] implementation"
+
+# Step 2: Create named backup branch (optional but recommended)
+git branch backup-$(Get-Date -Format 'yyyy-MM-dd-HHmm')
+
+# Step 3: Verify backup exists
+git log --oneline -1
+```
+
+---
+
+### 📁 Next.js Route Naming Rules (CRITICAL)
+
+**Next.js FORBIDS different dynamic segment names at same level:**
+
+```typescript
+// ❌ FORBIDDEN - Will crash dev server:
+src/app/api/bids/[leadId]/route.ts      // Uses [leadId]
+src/app/api/bids/[bidId]/route.ts       // Uses [bidId] - CONFLICT!
+
+// ✅ CORRECT - Consistent naming:
+src/app/api/bids/[bidId]/route.ts
+src/app/api/bids/[bidId]/select/route.ts
+src/app/api/bids/[bidId]/purchase/route.ts
+
+// ✅ ALSO CORRECT - Different levels can have different names:
+src/app/api/leads/[leadId]/bids/[bidId]/route.ts  // OK: different levels
+```
+
+**Route Planning Protocol:**
+```markdown
+BEFORE creating any API route:
+1. [ ] Map existing routes in same directory
+2. [ ] Check dynamic segment names ([id], [leadId], etc.)
+3. [ ] Use SAME name for all routes at same level
+4. [ ] Document route structure in plan.md
+5. [ ] Test dev server starts after creating EACH route
+```
+
+**Verification Command:**
+```powershell
+# After creating routes, verify no conflicts:
+npm run dev
+# If server starts → No conflicts ✅
+# If "different slug names" error → Fix naming IMMEDIATELY ❌
+```
+
+---
+
+### 🗄️ Prisma Workflow (MANDATORY)
+
+**Every schema change REQUIRES this sequence:**
+
+```powershell
+# 1. After ANY prisma/schema.prisma edit:
+npx prisma format          # Format schema file
+npx prisma validate        # Check for errors
+
+# 2. Generate Prisma Client (CRITICAL):
+npx prisma generate        # TypeScript types updated
+
+# 3. Verify in IDE:
+# - Open file using Prisma Client
+# - Check autocomplete shows new fields/models
+# - No TypeScript errors
+
+# 4. Create/apply migration (if in dev):
+npx prisma migrate dev --name feature_name
+
+# 5. Test in code:
+# - Import and use new model
+# - Run dev server
+# - Verify database operations work
+```
+
+**Common Prisma Errors & Fixes:**
+```typescript
+// ❌ ERROR: "Cannot read properties of undefined (reading 'MODELNAME')"
+// CAUSE: Forgot to run npx prisma generate
+// FIX: Run npx prisma generate, restart dev server
+
+// ❌ ERROR: "Type 'X' is not assignable to type 'Y'"
+// CAUSE: Schema changed but types not regenerated
+// FIX: Delete node_modules/.prisma, run npx prisma generate
+
+// ❌ ERROR: Migration fails
+// CAUSE: Database state doesn't match schema
+// FIX: npx prisma migrate reset (dev only), or write manual migration
+```
+
+---
+
+### 📦 Dependency Management Protocol
+
+**BEFORE using any import:**
+```markdown
+1. [ ] Check if package is in package.json dependencies
+2. [ ] If NOT in package.json:
+   - [ ] Run: npm install <package-name>
+   - [ ] Verify: Check package.json updated
+   - [ ] Test: Import in code, check no TypeScript errors
+3. [ ] If in package.json but import fails:
+   - [ ] CRITICAL: Verify physical files exist:
+     ```powershell
+     Test-Path "node_modules\<package-name>\index.js"
+     # OR check main file from package.json
+     ```
+   - [ ] If False (files missing): Run npm install <package-name> to actually download files
+   - [ ] If True (files exist): Clear cache and restart:
+     ```powershell
+     Remove-Item -Path ".next" -Recurse -Force
+     Remove-Item -Path "node_modules\.cache" -Recurse -Force -ErrorAction SilentlyContinue
+     npm run dev
+     ```
+4. [ ] Document which packages were added in implementation notes
+```
+
+**Common Package Errors:**
+```typescript
+// ❌ ERROR: "Module not found: Can't resolve 'package-name'"
+// CAUSE 1: Used import without installing package
+// FIX: npm install package-name
+
+// ❌ ERROR: "Module not found..." but package IS in package.json
+// CAUSE 2: Package listed but files not actually in node_modules (corrupted install)
+// FIX: 
+//   1. Verify: Test-Path "node_modules\package-name\index.js"
+//   2. If False: npm install package-name (actually downloads files)
+//   3. Clear cache: Remove-Item ".next" -Recurse -Force
+//   4. Restart: npm run dev
+// REAL EXAMPLE: date-fns was in package.json but node_modules/date-fns/index.js didn't exist
+
+// ❌ ERROR: "Cannot find module 'package-name' or its corresponding type declarations"
+// CAUSE: Types not installed (@types/package-name)
+// FIX: npm install --save-dev @types/package-name
+```
+
+---
+
 ### Standard API Route Pattern:
 ```typescript
 export async function POST(request: NextRequest) {
@@ -244,6 +558,140 @@ export async function POST(request: NextRequest) {
 2. **Use transactions**: Multi-step operations need `prisma.$transaction`
 3. **Handle not found**: Check if result exists before using
 4. **Select specific fields**: Don't fetch unnecessary data
+
+---
+
+## 🧪 BACKEND API TESTING WORKFLOW (MANDATORY)
+
+**Test EACH endpoint IMMEDIATELY after creation. Never create multiple endpoints then test later.**
+
+### Step-by-Step Testing Protocol:
+
+#### Phase 1: Endpoint Creation
+```markdown
+1. [ ] Create route file (e.g., src/app/api/bids/route.ts)
+2. [ ] Write endpoint handler code
+3. [ ] Save file
+4. [ ] Check terminal - does dev server auto-reload? (should see "Compiled...")
+5. [ ] Check for compilation errors - fix IMMEDIATELY if any
+```
+
+#### Phase 2: Basic Verification
+```powershell
+# 1. Dev server must compile successfully
+# Check terminal output - should see:
+✓ Compiled /api/your-endpoint in X.Xs
+
+# 2. No TypeScript errors
+npx tsc --noEmit  # Must return 0 errors
+```
+
+#### Phase 3: API Testing (Use Browser DevTools)
+```markdown
+1. [ ] Open Browser DevTools (F12)
+2. [ ] Go to Network Tab
+3. [ ] Trigger API call (click button, submit form, or use curl/Postman)
+4. [ ] Check Network Tab:
+   - [ ] Request sent? (should see API call listed)
+   - [ ] Status code? (200 = success, 4xx = client error, 5xx = server error)
+   - [ ] Response body? (click request → Preview tab → verify data structure)
+   - [ ] Response time? (should be < 5 seconds, if slower investigate)
+5. [ ] Check Browser Console:
+   - [ ] Any red errors? Fix immediately
+   - [ ] Any warnings? Investigate if related to feature
+```
+
+#### Phase 4: Database Verification
+```powershell
+# After API call that modifies database:
+
+# Option 1: Prisma Studio (Visual)
+npx prisma studio
+# Open http://localhost:5555
+# Navigate to affected table
+# Verify data was created/updated/deleted correctly
+
+# Option 2: Direct Query (Quick Check)
+# In terminal:
+npx prisma db seed  # If using seed file with test data
+# Or create quick test script
+```
+
+#### Phase 5: Error Case Testing
+```markdown
+Test THESE scenarios for EVERY endpoint:
+
+1. [ ] **No Auth**: Call without session → Should return 401
+2. [ ] **Wrong Role**: Installer calls admin endpoint → Should return 403
+3. [ ] **Missing Fields**: Omit required body field → Should return 400 with clear error
+4. [ ] **Invalid ID**: Use non-existent ID → Should return 404
+5. [ ] **Duplicate**: Create same resource twice (if applicable) → Handle appropriately
+6. [ ] **Large Payload**: Send 10x normal data → Should handle or return 413
+```
+
+**Use curl or API client for quick testing:**
+```powershell
+# Test GET endpoint:
+curl http://localhost:3000/api/bids?leadId=test123
+
+# Test POST endpoint:
+curl -X POST http://localhost:3000/api/bids `
+  -H "Content-Type: application/json" `
+  -d '{"leadId":"test","amount":100}'
+
+# Check response in terminal
+```
+
+#### Phase 6: Integration Testing
+```markdown
+After all endpoints created:
+
+1. [ ] **Full Flow Test**: User creates → reads → updates → deletes
+2. [ ] **Multi-User Test**: Admin creates, Installer reads, Homeowner updates
+3. [ ] **Concurrent Test**: Multiple requests at same time (open multiple tabs)
+4. [ ] **Edge Cases**: Empty arrays, null values, very long strings
+5. [ ] **Performance**: Check slow queries (> 1 second) in Network tab
+```
+
+### API Testing Checklist (Before Marking Complete):
+```markdown
+- [ ] All endpoints compile without errors
+- [ ] All endpoints tested in browser (Network tab shows 200 responses)
+- [ ] Database changes verified (Prisma Studio confirms data)
+- [ ] Error cases handled (401, 403, 404, 400 tested)
+- [ ] Frontend integration tested (if applicable)
+- [ ] Console has no errors
+- [ ] No breaking changes to existing APIs
+- [ ] API documented (if creating new patterns)
+```
+
+### Common API Errors & Solutions:
+```typescript
+// ❌ ERROR: "Error: You cannot use different slug names..."
+// CAUSE: Conflicting dynamic route names ([id] vs [bidId])
+// FIX: Rename folders to use consistent dynamic segment name
+// VERIFY: Run npm run dev, should start without errors
+
+// ❌ ERROR: "Module not found: Can't resolve..."
+// CAUSE: Missing npm package (e.g., date-fns, zod)
+// FIX: npm install <package-name>
+// VERIFY: Check package.json, restart dev server
+
+// ❌ ERROR: "Cannot read properties of undefined..."
+// CAUSE: Prisma Client not regenerated after schema change
+// FIX: npx prisma generate
+// VERIFY: Check types in IDE, restart dev server
+
+// ❌ ERROR: "PrismaClientKnownRequestError: Record not found"
+// CAUSE: Querying non-existent record without null check
+// FIX: Add null check: if (!result) return NextResponse.json(...)
+// VERIFY: Test with invalid ID, should return 404
+
+// ❌ ERROR: Network tab shows CORS error
+// CAUSE: Missing CORS headers or wrong origin
+// FIX: Check next.config.js headers configuration
+// VERIFY: Check Network tab, preflight (OPTIONS) should succeed
+```
 
 ---
 
@@ -283,29 +731,207 @@ export async function POST(request: NextRequest) {
 **Pattern**: "Test the feature" → User confused what to test
 **Lesson**: Numbered steps, clear actions, expected results. Test instructions should be followable by someone who doesn't know the feature.
 
+### Mistake 9: Creating Multiple API Routes Without Testing (CATASTROPHIC)
+**Pattern**: Create 5 API endpoints → Test none → All have errors → Dev server won't start
+**Lesson**: Create ONE route → Test IMMEDIATELY → Verify works → Only then create next route
+**Real Example**: Created `/api/bids/[leadId]` and `/api/bids/[bidId]` simultaneously → Conflicting names crashed entire dev server
+
+### Mistake 10: Not Testing Each Endpoint Individually
+**Wrong Approach**: 
+```
+1. Create POST /api/bids
+2. Create GET /api/bids/[bidId]
+3. Create POST /api/bids/[bidId]/purchase
+4. Run dev server → See errors → Don't know which endpoint is broken
+```
+**Correct Approach**:
+```
+1. Create POST /api/bids
+2. Test in browser (Network tab, verify 200 response)
+3. Check database (Prisma Studio, verify data created)
+4. Only then create next endpoint
+```
+
+### Mistake 11: Using Imports Without Installing Packages
+**Pattern**: Add `import { format } from 'date-fns'` → Don't run npm install → Build fails
+**Lesson**: EVERY new import MUST check package.json first. If not there, run npm install immediately
+**Real Example**: Used `date-fns` in `AssignmentHistoryTable.tsx` without installing → Module not found error
+
+### Mistake 12: Forgetting to Regenerate Prisma Client
+**Pattern**: Add field to schema.prisma → Use field in code → TypeScript error "Property doesn't exist"
+**Lesson**: ALWAYS run `npx prisma generate` after schema changes. No exceptions.
+**Real Example**: Schema had `LeadStatus.DRAFT` but Prisma Client wasn't regenerated → Runtime error "Cannot read properties of undefined"
+
+### Mistake 13: Conflicting Dynamic Route Names (CATASTROPHIC)
+**Pattern**: Create folders with different dynamic segment names at same level
+**Wrong**:
+```
+src/app/api/bids/[leadId]/route.ts      // ❌
+src/app/api/bids/[bidId]/route.ts       // ❌ Different name, same level
+```
+**Lesson**: All dynamic segments at same level MUST use same name
+**Real Example**: This exact mistake crashed the entire dev server, unable to recover without folder deletion
+
+### Mistake 14: Deleting Critical Files/Folders (CATASTROPHIC)
+**Pattern**: Use broad wildcards in delete commands → Accidentally delete `.git` folder → Lose entire project history
+**Wrong Commands**:
+```powershell
+Remove-Item -Path ".*" -Recurse          # ❌ Deletes .git!
+Remove-Item -Path "src/*" -Recurse       # ❌ Too broad!
+rm -rf .*                                 # ❌ DANGEROUS!
+```
+**Lesson**: ALWAYS use specific paths. NEVER use wildcards that could match hidden folders.
+**Real Example**: Project lost entire git history, required 1+ hour recovery time
+
+### Mistake 15: No Backup Before Major Changes (CATASTROPHIC)
+**Pattern**: Start backend implementation → Make breaking changes → No way to rollback
+**Lesson**: ALWAYS commit current state before major refactoring: `git add . && git commit -m "backup before feature"`
+**Real Example**: Had to re-clone repository and manually restore files after catastrophic deletion
+
+### Mistake 16: Testing Backend Without Browser DevTools
+**Pattern**: Write API endpoint → Assume it works → User finds it returns wrong data
+**Lesson**: ALWAYS test in browser with DevTools open:
+- Network tab → Verify status code (200, 201, 404, etc.)
+- Preview tab → Verify response structure matches expectation
+- Console tab → Check for errors
+**Real Example**: Would have caught routing conflict immediately if dev server tested after each route
+
+### Mistake 17: Not Verifying Database Changes
+**Pattern**: API returns success → Assume database updated → Database actually unchanged
+**Lesson**: After EVERY API call that modifies data:
+1. Open Prisma Studio (`npx prisma studio`)
+2. Navigate to affected table
+3. Verify record was created/updated/deleted
+**Never trust "success" responses without database verification**
+
+### Mistake 18: Creating All Routes Then Testing (WRONG WORKFLOW)
+**Pattern**: Spend 2 hours creating 10 endpoints → Test after all done → 8 have errors → Can't remember what you did
+**Correct Workflow**:
+```
+1. Create endpoint 1
+2. Test endpoint 1 (dev server, browser, database)
+3. If passes → Commit
+4. Only then create endpoint 2
+5. Repeat
+```
+**This way, if something breaks, you know EXACTLY which change caused it**
+
 ---
 
 ## ✅ FINAL CHECKLIST (Before Reporting Complete)
 
 ```markdown
-- [ ] GATE 0 checks passed
-- [ ] Audit report created
+### Pre-Implementation
+- [ ] Current state audit completed
 - [ ] Reference files read (DESIGN-SYSTEM-SOT.md, constitution.md, etc.)
 - [ ] Implementation plan documented (tasks.md)
-- [ ] ALL component dependencies identified and verified
-- [ ] TypeScript: 0 errors
-- [ ] Build: Success
+- [ ] Backup created: git add . && git commit -m "backup before [feature]"
+- [ ] Dependencies checked (all imports have matching packages in package.json)
+
+### Backend Specific (if applicable)
+- [ ] Route naming verified (no conflicting dynamic segments)
+- [ ] Prisma schema validated: npx prisma validate
+- [ ] Prisma Client generated: npx prisma generate
+- [ ] Each endpoint tested immediately after creation
+- [ ] API tested in browser DevTools (Network + Console tabs)
+- [ ] Database changes verified in Prisma Studio
+- [ ] Error cases tested (401, 403, 404, 400 responses)
+- [ ] No aggressive file deletions (no wildcards near .git)
+
+### Frontend Specific (if applicable)
+- [ ] Design system compliance (DESIGN-SYSTEM-SOT.md verification commands: 0/0/0/0/0/0)
 - [ ] All 3 themes tested (Dark, Light, Purple)
 - [ ] All breakpoints tested (320px, 768px, 1440px)
+- [ ] Component dependencies identified and verified
+
+### Final Validation
+- [ ] GATE 0 checks passed
+- [ ] TypeScript: 0 errors (npx tsc --noEmit)
+- [ ] Build: Success (npm run build)
+- [ ] Dev server: Starts without errors (npm run dev)
 - [ ] Browser console: No errors
-- [ ] Network tab: All API calls work
-- [ ] Database: Changes verified in Prisma Studio
+- [ ] Network tab: All API calls work correctly
 - [ ] Manual testing: All features work as expected
 - [ ] No existing functionality broken
 - [ ] Git commit created with descriptive message
 ```
 
 **Only after ALL checkboxes ticked can you report task complete.**
+
+---
+
+## 🚨 CATASTROPHIC FAILURE PREVENTION CHECKLIST
+
+**Before ANY file deletion or major structural change:**
+
+```markdown
+### MANDATORY PRE-DELETION CHECKS (Breaking these = Project Loss)
+
+1. [ ] **Git Safety Check**
+   ```powershell
+   # Verify what will be deleted BEFORE running command:
+   Get-ChildItem -Path "target/path" -Recurse | Select-Object FullName
+   # Check list carefully - is .git in there? STOP if yes!
+   ```
+
+2. [ ] **Backup Current State**
+   ```powershell
+   git add .
+   git commit -m "backup: before deleting [what you're deleting]"
+   git status  # Verify commit succeeded
+   ```
+
+3. [ ] **Verify Exact Path**
+   ```markdown
+   - [ ] Path uses absolute path OR specific relative path
+   - [ ] Path does NOT use wildcards that could match .git
+   - [ ] Path does NOT use .* pattern
+   - [ ] Path does NOT delete from project root without specific target
+   ```
+
+4. [ ] **Double-Check Delete Command**
+   ```powershell
+   # ❌ FORBIDDEN patterns:
+   Remove-Item -Path ".*"                    # Deletes .git!
+   Remove-Item -Path "*"                     # Deletes everything!
+   Remove-Item -Path "src/*"                 # Too broad!
+   rm -rf .*                                  # DANGEROUS!
+   
+   # ✅ REQUIRED patterns:
+   Remove-Item -Path ".next" -Recurse        # Specific folder
+   Remove-Item -Path "node_modules" -Recurse # Specific folder
+   Remove-Item -Path "src/app/api/specific-feature" -Recurse  # Exact path
+   ```
+
+5. [ ] **Test Delete Command (Dry Run)**
+   ```powershell
+   # Use -WhatIf to see what would be deleted:
+   Remove-Item -Path "target" -Recurse -WhatIf
+   # Review output carefully before running actual command
+   ```
+
+6. [ ] **Post-Delete Verification**
+   ```powershell
+   git status  # Should NOT show .git folder changes
+   ls -Force   # Verify .git folder still exists
+   git log     # Verify can still see history
+   ```
+
+### EMERGENCY RECOVERY (If .git deleted by mistake)
+
+```markdown
+1. [ ] STOP immediately - don't make more changes
+2. [ ] Check if remote backup exists: git remote -v
+3. [ ] If remote exists: 
+   - [ ] Clone fresh copy: git clone <url> project-recovery
+   - [ ] Copy .git folder to corrupted project
+   - [ ] Run: git status (should show untracked files)
+   - [ ] Commit all changes to recover state
+4. [ ] If no remote:
+   - [ ] Check backup folder (if created)
+   - [ ] Check trash/recycle bin
+   - [ ] Use file recovery software (last resort)
+```
 
 ---
 
@@ -322,6 +948,16 @@ export async function POST(request: NextRequest) {
 > **"You are overcomplicating it, giving fake information while it is not actually fixed" - Keep solutions simple and verify they actually work**
 
 > **"I have been repeating some of these issues again and again. And you are not fixing them effectively. please focus on the main issues and fix them completely." - Listen to repeated feedback and fix root causes**
+
+> **"CREATE ONE ENDPOINT → TEST IMMEDIATELY → VERIFY WORKS → THEN CREATE NEXT. Never batch-create backend routes without testing each one."**
+
+> **"NEVER use Remove-Item with wildcards near project root. ALWAYS use exact paths. ALWAYS create git backup before deletions."**
+
+> **"Every import needs a package. Check package.json BEFORE using any library. Run npm install immediately if missing."**
+
+> **"Schema change = npx prisma generate. No exceptions. Verify types updated in IDE before continuing."**
+
+> **"Dynamic route names MUST match at same level. [leadId] ≠ [bidId] will crash dev server. Plan route structure FIRST."**
 
 ---
 
