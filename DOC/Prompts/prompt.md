@@ -2567,5 +2567,11 @@ You are overcomplicating things. understand my goal. the bid evaluation modal is
 
 
 ***instructions** refact the bid evaluation modal if needed. check back the instantQuote modal again and audit its frontend and backend to understand the data flow. after that fix the issues accordingly. If the instantquote Data modal needs any fix then fix it accordingly. 
+--------------------------------------------------------------
+
+***homeowners/bidding - Review Bids modal build***
+the UI plan is already there in D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Bidding leads\brainstorm3.md . now you need to build the Review Bids modal for homeowners. so that the homeowners can review all the bids placed by installers and select one as winner.
+
+***instructions*** We are now building the UI UX only , no backend now. 
 
 ***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. 

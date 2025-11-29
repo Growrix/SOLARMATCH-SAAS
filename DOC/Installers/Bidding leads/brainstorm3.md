@@ -105,6 +105,8 @@ New component: `HomeownerBiddingReviewModal`.
 - Post-selection UX:
   - Lead card shows "Installer Selected — Expect Contact After Purchase".
   - No further edits/cancellation by homeowner.
+- Modal UI :
+  - Tabs : each tabs shows individual bid details. 
 
 Backend note: Winner selection, notifications, and subsequent purchase gating are deferred. UI will capture selection intent and show final-state mock until backend exists.
 
