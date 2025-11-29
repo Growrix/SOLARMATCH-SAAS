@@ -2,8 +2,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import QuoteBuilderModal from './QuoteBuilderModal';
-import BidEvaluationModal from './BidEvaluationModal';
-import BiddingStatusBadge from './BiddingStatusBadge';
 import { LiveCountdownBar } from '@/components/LiveCountdownBar';
 import Button from '@/components/ui/button';
 import QuoteDataDisplay from '@/components/admin/QuoteDataDisplay';
@@ -27,7 +25,6 @@ const AlertCircleIcon = ({ className ="h-4 w-4" }: { className?: string }) => <s
 const XIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>;
 const SendIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>;
 const EyeIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>;
-const TrophyIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>;
 
 // --- Types ---
 export type LeadType = 'call_visit' | 'written' | 'bidding';
@@ -330,7 +327,7 @@ const ViewDetailsModal: React.FC<{
                     <span className={`text-caption ${
                       lead.phoneVerified ? 'text-success' : 'text-error'
                     }`}>
-                      {lead.phoneVerified ? '? Verified' : '? Not verified'}
+                      {lead.phoneVerified ? '✓ Verified' : '✗ Not verified'}
                     </span>
                   )}
                 </div>
@@ -479,7 +476,7 @@ const ViewDetailsModal: React.FC<{
           {/* InstantQuote Data */}
           {lead.quoteData && (
             <div className="bg-surface rounded-lg shadow-neu-inset border border-border p-4">
-              <h3 className="text-heading-4 text-foreground mb-3">?? Instant Quote Calculation</h3>
+              <h3 className="text-heading-4 text-foreground mb-3">📊 Instant Quote Calculation</h3>
               <QuoteDataDisplay quoteData={lead.quoteData} />
             </div>
           )}
@@ -526,14 +523,11 @@ const LeadCard: React.FC<{
 }> = ({ lead, installer, onUnlock, onSubmitQuote, onStartChat }) => {
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   const [isViewDetailsOpen, setIsViewDetailsOpen] = useState(false);
-  const [isBidEvaluationOpen, setIsBidEvaluationOpen] = useState(false);
-  const [quoteMode, setQuoteMode] = useState<'quote' | 'bid'>('quote'); // Track if opening for quote or bid
   
   const isUnlockedByInstaller = lead.isUnlocked;
   const isPurchasedByAnother = lead.isPurchasedByAnother || false;
   const canUnlock = lead.type === 'call_visit' && !isUnlockedByInstaller && !isPurchasedByAnother && lead.status === 'new';
   const canQuote = lead.type === 'written' || isUnlockedByInstaller;
-  const canBid = lead.type === 'bidding'; // Bidding leads allow bids
 
   const getStatusBadge = () => {
     const baseClasses ="px-2 py-1 text-caption rounded-full";
@@ -583,7 +577,7 @@ const LeadCard: React.FC<{
           <div className="flex items-center space-x-2">
             <LockIcon className="h-5 w-5 text-error" />
             <p className="text-body text-error">
-              ? This lead has been purchased by another installer
+              ⛔ This lead has been purchased by another installer
             </p>
           </div>
         </div>
@@ -595,39 +589,13 @@ const LeadCard: React.FC<{
           <div className="flex items-center space-x-2">
             {lead.type === 'call_visit' ? (
               <PhoneIcon className="h-5 w-5 text-info" />
-            ) : lead.type === 'bidding' ? (
-              <TrophyIcon className="h-5 w-5 text-warning" />
             ) : (
               <FileTextIcon className="h-5 w-5 text-primary" />
             )}
             <span className="text-foreground">
-              {lead.type === 'call_visit' 
-                ? 'Call/Visit Lead' 
-                : lead.type === 'bidding'
-                ? 'Competitive Bidding'
-                : 'Written Quote Lead'}
+              {lead.type === 'call_visit' ? 'Call/Visit Lead' : 'Written Quote Lead'}
             </span>
           </div>
-          
-          {/* Bidding Status Badge */}
-          {lead.type === 'bidding' && (
-            <BiddingStatusBadge 
-              status={(() => {
-                // Check localStorage for draft or submitted bid
-                if (typeof window !== 'undefined') {
-                  const draftKey = `bid:draft:${lead.id}:${installer.id}`;
-                  const submittedKey = `bid:submitted:${lead.id}:${installer.id}`;
-                  
-                  if (localStorage.getItem(submittedKey)) {
-                    return 'submitted';
-                  } else if (localStorage.getItem(draftKey)) {
-                    return 'draft';
-                  }
-                }
-                return 'no_bids';
-              })()}
-            />
-          )}
           
           {canUnlock && (
             <div className="flex items-center space-x-1 text-warning">
@@ -660,7 +628,7 @@ const LeadCard: React.FC<{
           <div className="flex items-center space-x-2 text-body-small">
             <BoltIcon className="h-4 w-4 text-muted-foreground" />
             <span className="text-foreground">
-              {lead.systemDetails.estimatedSize} � {lead.systemDetails.roofType} Roof
+              {lead.systemDetails.estimatedSize} • {lead.systemDetails.roofType} Roof
             </span>
           </div>
           
@@ -758,56 +726,13 @@ const LeadCard: React.FC<{
 
         {canQuote && (
           <Button
-            onClick={() => {
-              setQuoteMode('quote');
-              setIsQuoteModalOpen(true);
-            }}
+            onClick={() => setIsQuoteModalOpen(true)}
             variant="primary"
             className="flex items-center space-x-2"
           >
             <SendIcon className="h-4 w-4" />
             <span>Submit Quote</span>
           </Button>
-        )}
-
-        {canBid && (
-          <>
-            <Button
-              onClick={() => setIsBidEvaluationOpen(true)}
-              variant="secondary"
-              className="flex items-center space-x-2"
-            >
-              <EyeIcon className="h-4 w-4" />
-              <span>Lead Details</span>
-            </Button>
-            
-            {/* Show draft button if draft exists */}
-            {typeof window !== 'undefined' && localStorage.getItem(`bid:draft:${lead.id}:${installer.id}`) && (
-              <Button
-                onClick={() => {
-                  setQuoteMode('bid');
-                  setIsQuoteModalOpen(true);
-                }}
-                variant="secondary"
-                className="flex items-center space-x-2 border-warning text-warning"
-              >
-                <FileTextIcon className="h-4 w-4" />
-                <span>Draft Saved � Click to Edit</span>
-              </Button>
-            )}
-            
-            <Button
-              onClick={() => {
-                setQuoteMode('bid');
-                setIsQuoteModalOpen(true);
-              }}
-              variant="primary"
-              className="flex items-center space-x-2 bg-warning hover:bg-warning/90"
-            >
-              <TrophyIcon className="h-4 w-4" />
-              <span>Place Bid</span>
-            </Button>
-          </>
         )}
 
         {isUnlockedByInstaller && (
@@ -843,16 +768,6 @@ const LeadCard: React.FC<{
           budget: lead.systemDetails.budget
         }}
         onSubmitQuote={onSubmitQuote}
-        mode={quoteMode}
-      />
-
-      {/* Bid Evaluation Modal */}
-      <BidEvaluationModal
-        isOpen={isBidEvaluationOpen}
-        onClose={() => setIsBidEvaluationOpen(false)}
-        leadId={String(lead.id)}
-        bids={[]}
-        yourBidId={undefined}
       />
 
       {/* View Details Modal */}
@@ -1064,7 +979,6 @@ const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({
               <option value="all">All Types</option>
               <option value="call_visit">Call/Visit</option>
               <option value="written">Written</option>
-              <option value="bidding">Competitive Bidding</option>
             </select>
 
             <select
