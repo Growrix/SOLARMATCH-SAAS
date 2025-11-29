@@ -2504,4 +2504,68 @@ Leadfeed enhancement for Installers:
 
 I have updated the price and clicked on the update button and i see errors. Please fix the issue accordingly. and also there are nother issue. for the countdown update there is another update button within the same modal which is confusing and not user friendly. so please merge both the update buttons into one single update button. so that when the admin update any details and click on the update button all the changes will be saved. Make sure the edit update functionality works. 
 
-***instructions*** Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. also check the terminal output for better understanding what gone wrong.
+***instructions*** Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. 
+
+-----------------------------------------------------------------------------
+
+### Further Considerations
+1. No
+2. no
+3. The countdown timer will be controlled by admin. the sytem is already exists in the lead assignmenet system. 
+
+- The homeowners can generate lead request as usual. so that part is not changing.
+- The admin will assign the lead to multiple installers as usual. so that part is not changing. All you need to understand , so that you can audit the existing system properly. 
+- We are now focusing on the installers side for the bidding leads. The call/visit lead flow is already built and working. so you need to audit the bidding lead flow and create the implimenetation plan accordingly. 
+- As we did not do anything for the bidding leads for installers, so you need to build the bidding lead flow for installers, homeowners and admins flow from scratch, except the lead assignment part which is already built and working in the admin side.
+- you need to design the end to end flow for all users. 
+- Make sure it is easy to manage and also user friendly. 
+
+***My initaila Plan*** the homeowners requested bidding> admin assigned to multiple installers within a countdown timer> installers see the bidding leads in their lead feed> they can place bid within the countdown timer> after countdown ends, the admin will review all the bids placed by installers and select one installer as winner> The Installer will pay to unlock the contact details> the winning installer will get the full contact details of the homeowner> After purchase it moves to the purchased leads page under bidding tab> the homeowners will get notified that an installer has responded to their bidding request.
+
+- you should build the plan and user story more comprehensively after auditing the existing system. need to build the homeowners flow, admin flow and installers flow accordingly. 
+
+***instructions*** Audit the fronend and backend of the Admin Lead managemenet, lead assignmenet to understand the Admins Side first. Then audit the frontend and backend of the Installers lead feed and purchased lead page and all of its modal and componenets. 
+
+
+
+
+***bidding Quote issues***
+- I have assigned a bidding lead to the installer > but it is showing up as a written quote in the installers lead feed (check the screenshot) > After assigining I check back the admin lead assign modal and found there is no installer is assigned > 
+
+- the assigining flow SOT is the call/visit flow. the assiging flow should be same for the bidding too. 
+- But the bidding lead card will have different functionality. 
+ - I want you to address all the issues and written quote showing issues, and why not bidding shown? 
+ - each type leads has different flow and endpoints. 
+ - but assigining flow is same. the flow changes after assigining. 
+ - the call/visit has a flow, the biding will have different flow, the written will have a different flow too. 
+
+ - now focus on assiging part and the lead type issue. 
+
+-----------------------------------------------------------------------------------
+
+- I want the bidding call lead card modals and logics to be added as we already have the quote builder modal, bid review modal. 
+- just need to connect the dots and make the bidding lead flow works for installers and homeowners lead card. 
+- you can read back if you are confused D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Bidding leads\brainstorm3.md. also check the screenshots 
+--------------------------------------------------------
+
+do the backend task for this modal. once the bidding lead is assigned , the installers should be able to see the masked user information with lead details in this modal.   . read the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Bidding leads\brainstorm3.md for better understanding . lets do the backend and frontend for this to work. 
+----------------------------------------------------------------------------
+
+***Bid evaliation modal backend enhancement***
+I have tested it but the outcome is not as per expectations. The issues are : 
+- it is not fetching compelete data as per users inputs and dropdown selections in the instantQuote builder modal. e.g if i select a specific inverter brand form the dropdown while building the quote, it is not showing in the bid evaluation modal.
+- Also not showing up the result and graph . 
+- The ui of the bid evaluation modal needs enhancement. everything is too wide, I need a compact design which is easy to read and understand. 
+
+----------------------------------------
+***Bid evaliation modal backend enhancement***
+it is still not fetching the pin point data, the custom battery size was not fetched. the graph is not fetched. and also more data to check.
+You are overcomplicating things. understand my goal. the bid evaluation modal is to show exactly all the data inputs . let me clear once again what I want : 
+
+- All the InstantQuote user inputs should show under a heading "InstantQuote Details"
+- The result card should show accordingly with graph and all the data under a heading "InstantQuote Result"
+
+
+***instructions** refact the bid evaluation modal if needed. check back the instantQuote modal again and audit its frontend and backend to understand the data flow. after that fix the issues accordingly. If the instantquote Data modal needs any fix then fix it accordingly. 
+
+***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. 

@@ -686,22 +686,36 @@ export async function getLeadById(input: GetLeadByIdInput) {
   if (userRole === 'INSTALLER') {
     // Installers can see:
     // 1. PUBLIC leads (not yet purchased)
-    // 2. Leads they have purchased
+    // 2. Leads they have purchased (installerId === userId)
+    // 3. Leads assigned to them via LeadAssignment (for bidding/multi-installer leads)
+    const isAssignedToInstaller = lead.assignments?.some(
+      (assignment) => assignment.installerId === userId
+    );
+    
     const canAccess =
       (lead.visibility === LeadVisibility.PUBLIC && !lead.installerId) ||
-      lead.installerId === userId;
+      lead.installerId === userId ||
+      isAssignedToInstaller; // NEW: Check assignments table
 
     if (!canAccess) {
       return null;
     }
 
     // Hide sensitive homeowner details if not purchased
+    // Show technical data but mask contact info (phone, email, full address)
     if (lead.installerId !== userId) {
-      // Mask contact details for unpurchased leads
+      // Mask contact details for unpurchased/unawarded leads
       lead.homeowner.phone = 'HIDDEN';
       lead.homeowner.email = `${lead.homeowner.email[0]}***@***`;
       if (lead.address) {
-        lead.address = `${lead.location}, ${lead.state}`; // Hide exact address
+        lead.address = `${lead.location}, ${lead.state}`; // Hide exact address, keep suburb/city
+      }
+      // Also mask lead-level contact fields
+      if (lead.phoneNumber) {
+        lead.phoneNumber = 'HIDDEN';
+      }
+      if (lead.name) {
+        lead.name = 'Hidden until purchased';
       }
     }
   }

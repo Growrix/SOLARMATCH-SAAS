@@ -716,11 +716,11 @@ Element is <button>?
 └─ NO → Continue to next check
 
 Element is <input type="text/number/email">?
-├─ YES → Add className="form-input w-full"
+├─ YES → Add className="form-input w-full px-4 py-3"
 └─ NO → Continue to next check
 
 Element is <select>?
-├─ YES → Add className="form-select w-full"
+├─ YES → Add className="form-select w-full px-4 py-3"
 └─ NO → Continue to next check
 
 Element is a chart (Bar, Line, Area, etc.)?
@@ -938,7 +938,7 @@ Select-String -Path "src\components\YourComponent.tsx" -Pattern "<button"
   </label>
   <input 
     type="email"
-    className="form-input w-full"
+    className="form-input w-full px-4 py-3"
   />
 </div>
 ```

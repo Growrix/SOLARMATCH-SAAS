@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
         id: lead.id,
         homeownerId: lead.homeownerId,
         status: lead.status, // Raw backend status (e.g. APPROVED, PURCHASED, QUOTED)
-        quoteType: lead.quoteType, // CALL_VISIT | WRITTEN_QUOTE | BIDDING
+        quoteType: lead.quoteType.toLowerCase().replace('_quote', '') as 'call_visit' | 'written' | 'bidding', // Convert CALL_VISIT -> call_visit, WRITTEN_QUOTE -> written, BIDDING -> bidding
         postcode: lead.postcode,
         location: lead.location,
         state: lead.state,

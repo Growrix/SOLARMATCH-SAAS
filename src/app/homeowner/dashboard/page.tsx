@@ -13,6 +13,7 @@ import NewQuoteRequestModal from '@/components/NewQuoteRequestModal';
 import SimplifiedQuoteFormModal from '@/components/homeowner/SimplifiedQuoteFormModal';
 import QuoteOptionsModal from '@/components/QuoteOptionsModal';
 import QuoteTypeDistributionModal from '@/components/homeowner/QuoteTypeDistributionModal';
+import HomeownerBiddingReviewModal from '@/components/homeowner/HomeownerBiddingReviewModal'; // Phase 3: Bidding review
 import HomeownersInfoForm from '@/components/HomeownersInfoForm'; // ✅ Phase 12: Reuse guest flow component for consistency
 import MessagingModal from '@/components/MessagingModal';
 import ProfileManagement from '@/components/ProfileManagement';
@@ -598,6 +599,21 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
                             </div>
                             {/* Action buttons (right side, minimal, icon-focused) */}
                             <div className="flex items-center gap-1">
+                              {/* Phase 3: Review Bids button for BIDDING leads */}
+                              {lead.quoteType === 'BIDDING' && [LeadStatusEnum.APPROVED as string, LeadStatusEnum.PURCHASED as string].includes(lead.status) && (
+                                <Button
+                                  onClick={() => {
+                                    setSelectedBiddingLeadId(lead.id);
+                                    setIsBiddingReviewModalOpen(true);
+                                  }}
+                                  variant="minimal"
+                                  className="flex items-center gap-1 px-2 py-1 text-caption text-warning hover:text-warning/80 bg-transparent shadow-none"
+                                  title="Review bids from installers"
+                                >
+                                  <TrophyIcon />
+                                  <span className="hidden sm:inline">Review Bids</span>
+                                </Button>
+                              )}
                               {canEdit && (
                                 <Button
                                   onClick={() => onEditLead(lead)}
@@ -705,6 +721,8 @@ export default function HomeownerDashboardPage() {
   const [isQuoteOptionsModalOpen, setIsQuoteOptionsModalOpen] = useState(false);
   const [isQuoteTypeDistributionModalOpen, setIsQuoteTypeDistributionModalOpen] = useState(false);
   const [isDetailedInfoModalOpen, setIsDetailedInfoModalOpen] = useState(false); // ✅ Phase 12: Added for first-quote contact info
+  const [isBiddingReviewModalOpen, setIsBiddingReviewModalOpen] = useState(false); // Phase 3: Bidding review modal
+  const [selectedBiddingLeadId, setSelectedBiddingLeadId] = useState<string | null>(null); // Phase 3: Track which lead to review
   const [homeownerInfo, setHomeownerInfo] = useState<{ name: string; phone: string; address: string } | null>(null); // ✅ Phase 12: Store homeowner contact info
   const [isMessagingModalOpen, setIsMessagingModalOpen] = useState(false);
   const [showContactVerificationModal, setShowContactVerificationModal] = useState(false);
@@ -1439,6 +1457,23 @@ export default function HomeownerDashboardPage() {
             createdAt: selectedLead.createdAt,
             updatedAt: selectedLead.updatedAt,
             quoteData: selectedLead.quoteData || {},
+          }}
+        />
+      )}
+
+      {/* Phase 3: Homeowner Bidding Review Modal */}
+      {isBiddingReviewModalOpen && selectedBiddingLeadId && (
+        <HomeownerBiddingReviewModal
+          isOpen={isBiddingReviewModalOpen}
+          onClose={() => {
+            setIsBiddingReviewModalOpen(false);
+            setSelectedBiddingLeadId(null);
+          }}
+          leadId={selectedBiddingLeadId}
+          onSelectWinner={(bidId: string) => {
+            console.log('Homeowner selected winning bid:', bidId);
+            alert(`Bid ${bidId} selected as winner! (Phase 1 UI-only)`);
+            setIsBiddingReviewModalOpen(false);
           }}
         />
       )}

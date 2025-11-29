@@ -9,10 +9,15 @@ import type { InstallerProfile as ComponentInstallerProfile, Lead } from '@/comp
 
 function mapAssignedLeadToComponentLead(apiLead: AssignedLead): Lead {
   const isLocked = apiLead.homeowner.name === '***LOCKED***';
+  // API now returns lowercase: 'call_visit', 'written', 'bidding'
   const quoteTypeMap: Record<string, Lead['type']> = {
-    CALL_VISIT: 'call_visit',
-    WRITTEN_QUOTE: 'written',
-    BIDDING: 'bidding'
+    'call_visit': 'call_visit',
+    'written': 'written',
+    'bidding': 'bidding',
+    // Legacy uppercase support (in case old data exists)
+    'CALL_VISIT': 'call_visit',
+    'WRITTEN_QUOTE': 'written',
+    'BIDDING': 'bidding'
   };
 
   return {

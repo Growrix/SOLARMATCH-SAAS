@@ -6,7 +6,45 @@ import { X, Save, Send, Eye, Zap, DollarSign, Plus, Trash2, FileText } from 'luc
 
 // --- Icon Components (Migrated: X, FileText, Save, Send, Eye, Zap, DollarSign, Plus, Trash → lucide-react) ---
 
-// --- Mock Data ---
+// --- Brand Lists (Task 18.2: Australian Market Brands) ---
+const SOLAR_PANELS = [
+  'JA Solar', 'Jinko Solar', 'LONGi Solar', 'Trina Solar', 'Canadian Solar',
+  'Risen Energy', 'Seraphim', 'Phono Solar', 'Suntech', 'REC Group',
+  'Q CELLS', 'SunPower', 'LG', 'Panasonic', 'Winaico', 'Custom...'
+];
+
+const INVERTERS = [
+  'Fronius', 'SMA', 'Solis', 'GoodWe', 'Growatt', 'Sungrow',
+  'Enphase', 'SolarEdge', 'Huawei', 'Custom...'
+];
+
+const BATTERIES = [
+  'Tesla Powerwall 2', 'BYD Battery-Box Premium', 'sonnen Battery',
+  'LG Chem RESU', 'Enphase Encharge', 'Sungrow SBR',
+  'Pylontech US2000', 'Custom...'
+];
+
+// Battery Capacity Presets (kWh)
+const BATTERY_CAPACITIES = [
+  { value: 5, label: '5 kWh' },
+  { value: 7.5, label: '7.5 kWh' },
+  { value: 10, label: '10 kWh' },
+  { value: 13.5, label: '13.5 kWh (Powerwall 2)' },
+  { value: 15, label: '15 kWh' },
+  { value: 20, label: '20 kWh' },
+  { value: 0, label: 'Custom...' }
+];
+
+// GST Rate Presets (%)
+const GST_RATES = [
+  { value: 0, label: '0% (No GST)' },
+  { value: 5, label: '5%' },
+  { value: 10, label: '10% (Standard)' },
+  { value: 15, label: '15%' },
+  { value: 0, label: 'Custom...' }
+];
+
+// --- Mock Data (Legacy - to be phased out) ---
 const MOCK_PANEL_MODELS = [
   { id: 'p1', name: 'SunPower Maxeon 6', wattage: 440, efficiency: 22.8 },
   { id: 'p2', name: 'Trina Solar Vertex S+', wattage: 430, efficiency: 21.5 },
@@ -30,15 +68,40 @@ const MOCK_PRESETS = [
 interface Lead { id: string | number; name: string; location: string; propertyType: string; systemSize: string; estimatedUsage: string; budget: string; }
 interface LineItem { id: number; description: string; category: string; qty: number; unitPrice: number; tax: boolean; }
 interface QuoteData { systemSize: number; panelId: string; inverterId: string; batteryId: string | null; lineItems: LineItem[]; }
-interface QuoteBuilderModalProps { isOpen: boolean; onClose: () => void; lead: Lead | null; onSubmitQuote: (leadId: string, quoteData: any) => Promise<boolean>; }
+interface QuoteBuilderModalProps { 
+  isOpen: boolean; 
+  onClose: () => void; 
+  lead: Lead | null; 
+  onSubmitQuote: (leadId: string, quoteData: any) => Promise<boolean>; 
+  mode?: 'quote' | 'bid'; // NEW: Default 'quote'
+}
 
-const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({ isOpen, onClose, lead, onSubmitQuote }) => {
+const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({ isOpen, onClose, lead, onSubmitQuote, mode = 'quote' }) => {
   const [quoteData, setQuoteData] = useState<QuoteData>({ systemSize: 6.6, panelId: 'p2', inverterId: 'i2', batteryId: null, lineItems: MOCK_PRESETS[0].pricing });
   const [viewMode, setViewMode] = useState<'installer' | 'customer'>('installer');
   const [mobileTab, setMobileTab] = useState<'editor' | 'preview'>('editor');
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
+  
+  // Task 18.2: Custom brand input states
+  const [customPanelBrand, setCustomPanelBrand] = useState('');
+  const [customInverterBrand, setCustomInverterBrand] = useState('');
+  const [customBatteryBrand, setCustomBatteryBrand] = useState('');
+  const [showCustomPanelInput, setShowCustomPanelInput] = useState(false);
+  const [showCustomInverterInput, setShowCustomInverterInput] = useState(false);
+  const [showCustomBatteryInput, setShowCustomBatteryInput] = useState(false);
+  
+  // Task 18.3: Battery capacity state (updated with dropdown support)
+  const [batteryCapacity, setBatteryCapacity] = useState<number>(10);
+  const [showCustomCapacityInput, setShowCustomCapacityInput] = useState(false);
+  
+  // Task 18.4: GST and Incentive toggle states (GST percent now editable)
+  const [includeGst, setIncludeGst] = useState(true);
+  const [gstPercent, setGstPercent] = useState(10);
+  const [showCustomGstInput, setShowCustomGstInput] = useState(false);
+  const [includeIncentive, setIncludeIncentive] = useState(true);
+  const [incentiveAmount, setIncentiveAmount] = useState(2000);
   
   // --- Effects ---
   useEffect(() => {
@@ -48,32 +111,90 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({ isOpen, onClose, 
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Auto-save mock
+  // Phase 2: Bidding-aware autosave - Save draft to localStorage (quote vs bid keys)
   useEffect(() => {
-    if(!isOpen) return;
-    const timer = setInterval(() => {
+    if (!isOpen || !lead) return;
+    
+    const saveDraft = () => {
       setIsSaving(true);
+      const draftData = {
+        leadId: lead.id,
+        panelId: quoteData.panelId,
+        inverterId: quoteData.inverterId,
+        batteryId: quoteData.batteryId,
+        customPanelBrand,
+        customInverterBrand,
+        customBatteryBrand,
+        batteryCapacity,
+        systemSize: quoteData.systemSize,
+        lineItems: quoteData.lineItems,
+        includeGst,
+        gstPercent,
+        includeIncentive,
+        incentiveAmount,
+        savedAt: new Date().toISOString()
+      };
+      // Phase 2: Use separate keys for quotes vs bids
+      const draftKey = mode === 'bid' ? `bid:draft:${lead.id}:installer-id` : `quote-draft-${lead.id}`;
+      localStorage.setItem(draftKey, JSON.stringify(draftData));
       setTimeout(() => {
         setIsSaving(false);
         setLastSaved(new Date());
-      }, 700);
-    }, 30000);
-    return () => clearInterval(timer);
-  }, [isOpen]);
+      }, 500);
+    };
+    
+    // Phase 2: Reduced debounce to 750ms for better UX
+    const timer = setTimeout(saveDraft, 750);
+    return () => clearTimeout(timer);
+  }, [isOpen, lead, mode, quoteData, customPanelBrand, customInverterBrand, customBatteryBrand, 
+      batteryCapacity, includeGst, gstPercent, includeIncentive, incentiveAmount]);
 
-  // --- Calculations ---
+  // Phase 2: Load draft on mount with bidding support
+  useEffect(() => {
+    if (!isOpen || !lead) return;
+    
+    // Phase 2: Check for bid draft first, then quote draft
+    const draftKey = mode === 'bid' ? `bid:draft:${lead.id}:installer-id` : `quote-draft-${lead.id}`;
+    const draft = localStorage.getItem(draftKey);
+    if (draft) {
+      try {
+        const data = JSON.parse(draft);
+        setQuoteData(prev => ({
+          ...prev,
+          panelId: data.panelId || prev.panelId,
+          inverterId: data.inverterId || prev.inverterId,
+          batteryId: data.batteryId || prev.batteryId,
+          systemSize: data.systemSize || prev.systemSize,
+          lineItems: data.lineItems || prev.lineItems
+        }));
+        setCustomPanelBrand(data.customPanelBrand || '');
+        setCustomInverterBrand(data.customInverterBrand || '');
+        setCustomBatteryBrand(data.customBatteryBrand || '');
+        setBatteryCapacity(data.batteryCapacity || 10);
+        setIncludeGst(data.includeGst !== undefined ? data.includeGst : true);
+        setGstPercent(data.gstPercent || 10);
+        setIncludeIncentive(data.includeIncentive !== undefined ? data.includeIncentive : true);
+        setIncentiveAmount(data.incentiveAmount || 2000);
+      } catch (error) {
+        console.error('Failed to load draft:', error);
+      }
+    }
+  }, [isOpen, lead, mode]);
+
+  // --- Calculations (Task 18.4: Updated for dynamic GST percent and Incentive toggles) ---
   const calculations = useMemo(() => {
     const subtotal = quoteData.lineItems.reduce((acc, item) => acc + item.qty * item.unitPrice, 0);
-    const tax = quoteData.lineItems.filter(i => i.tax).reduce((acc, item) => acc + item.qty * item.unitPrice * 0.1, 0);
-    const total = subtotal + tax;
+    const tax = includeGst ? subtotal * (gstPercent / 100) : 0;
+    const incentiveDeduction = includeIncentive ? incentiveAmount : 0;
+    const total = subtotal + tax - incentiveDeduction;
     const pricePerWatt = quoteData.systemSize > 0 ? total / (quoteData.systemSize * 1000) : 0;
     const federalIncentive = (quoteData.systemSize * 1.382 * 7) * 40;
-    const netCost = total - federalIncentive;
+    const netCost = total - (includeIncentive ? 0 : federalIncentive); // Use custom incentive if enabled
     const annualSavings = (quoteData.systemSize * 4.2 * 365 * 0.5) * 0.30;
     const payback = netCost / annualSavings;
 
     return { subtotal, tax, total, pricePerWatt, federalIncentive, netCost, annualSavings, payback };
-  }, [quoteData]);
+  }, [quoteData, includeGst, gstPercent, includeIncentive, incentiveAmount]);
 
   // --- Handlers ---
   const handleLineItemChange = (id: number, field: keyof LineItem, value: any) => {
@@ -81,21 +202,26 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({ isOpen, onClose, 
   };
   const addLineItem = () => setQuoteData(prev => ({ ...prev, lineItems: [...prev.lineItems, { id: Date.now(), description: '', category: 'Other', qty: 1, unitPrice: 0, tax: true }]}));
   const removeLineItem = (id: number) => setQuoteData(prev => ({ ...prev, lineItems: prev.lineItems.filter(item => item.id !== id)}));
-  const applyPreset = (presetName: string) => {
-    const preset = MOCK_PRESETS.find(p => p.name === presetName);
-    if (preset) {
-        setQuoteData(prev => ({ ...prev, panelId: preset.panelId, inverterId: preset.inverterId, batteryId: preset.batteryId, lineItems: preset.pricing }));
-    }
-  };
   
   if (!isOpen || !lead) return null;
 
-  const inputClasses ="w-full px-4 py-3 bg-background rounded-xl shadow-neu-inset border border-border/50 focus:outline-none focus:shadow-neu-inset-sm focus:border-primary/50 text-foreground transition-colors";
-  const selectClasses ="w-full px-4 py-3 bg-background rounded-xl shadow-neu-inset border border-border/50 focus:outline-none focus:shadow-neu-inset-sm focus:border-primary/50 text-foreground transition-colors appearance-none";
+  const inputClasses = "form-input w-full px-4 py-3";
+  const selectClasses = "form-select w-full px-4 py-3";
+
+  // Phase 2: Check if draft exists for restoration banner
+  const draftKey = mode === 'bid' ? `bid:draft:${lead.id}:installer-id` : `quote-draft-${lead.id}`;
+  const hasDraft = typeof window !== 'undefined' && localStorage.getItem(draftKey);
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-0 md:p-4 animate-fade-in" onClick={onClose}>
-      <div ref={modalRef} className="bg-background relative w-full h-full md:max-w-7xl md:h-[95vh] md:rounded-2xl flex flex-col animate-scale-in shadow-neu-outset-lg" onClick={e => e.stopPropagation()}>
+      <div ref={modalRef} className="bg-background relative w-full h-full md:max-w-[95vw] md:h-[95vh] md:rounded-2xl flex flex-col animate-scale-in shadow-neu-outset-lg" onClick={e => e.stopPropagation()}>
+        {/* Phase 2: Draft Restoration Banner */}
+        {hasDraft && (
+          <div className="flex-shrink-0 bg-warning/10 border-b border-warning px-4 py-2 flex items-center justify-center gap-2">
+            <FileText className="h-4 w-4 text-warning" />
+            <span className="text-body-small text-warning">Draft restored from previous session</span>
+          </div>
+        )}
         {/* Header */}
         <header className="flex-shrink-0 p-4 border-b border-border flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -111,16 +237,18 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({ isOpen, onClose, 
               </div>
             </div>
           </div>
-          {/* Migrated: buttons → shadcn Button - preserved onClick, alert functionality */}
+          {/* Migrated: buttons → shadcn Button - Task 18.6: Conditional based on mode */}
           <div className="flex items-center gap-2 w-full md:w-auto">
             <Button onClick={() => alert("Save Draft clicked")} variant="minimal" className="w-full md:w-auto px-4 py-2">
               <Save className="h-4 w-4" /> Save Draft
             </Button>
+            {mode === 'quote' && (
+              <Button variant="minimal" className="w-full md:w-auto px-4 py-2">
+                <Eye className="h-4 w-4" /> Preview PDF
+              </Button>
+            )}
             <Button variant="minimal" className="w-full md:w-auto px-4 py-2">
-              <Eye className="h-4 w-4" /> Preview PDF
-            </Button>
-            <Button variant="minimal" className="w-full md:w-auto px-4 py-2">
-              <Send className="h-4 w-4" /> Send Quote
+              <Send className="h-4 w-4" /> {mode === 'bid' ? 'Submit Bid' : 'Send Quote'}
             </Button>
             <Button onClick={onClose} variant="minimal" className="absolute top-4 right-4 md:static p-2">
               <X className="h-4 w-4" />
@@ -149,20 +277,126 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({ isOpen, onClose, 
         {/* Main Content */}
         <div className="flex-grow flex flex-col md:flex-row overflow-hidden">
           {/* Left: Editor Panel */}
-          <div className={`flex-grow p-4 overflow-y-auto space-y-6 ${mobileTab === 'preview' ? 'hidden md:block' : ''} md:w-2/3`}>
-            {/* Presets - Migrated: buttons → shadcn Button - preserved onClick, preset logic */}
-            <div className="bg-background rounded-2xl shadow-neu-inset p-4">
-                <h3 className="text-label mb-2 text-foreground">Quick Presets</h3>
-                <div className="flex gap-2">{MOCK_PRESETS.map(p => <Button key={p.name} onClick={() => applyPreset(p.name)} variant="secondary" className="flex-1 text-body-small px-2 py-1">{p.name}</Button>)}</div>
-            </div>
+          <div className={`flex-grow p-4 overflow-y-auto space-y-6 ${mobileTab === 'preview' ? 'hidden md:block' : ''} md:w-3/5`}>
             {/* System Design */}
             <div className="bg-background rounded-2xl shadow-neu-inset p-4">
               <h3 className="text-label mb-2 flex items-center gap-2 text-foreground"><Zap className="h-4 w-4" /> System Design</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div><label className="text-caption text-muted-foreground block mb-1">System Size (kW)</label><input type="number" value={quoteData.systemSize} onChange={e => setQuoteData(p => ({...p, systemSize: parseFloat(e.target.value)}))} className={inputClasses} /></div>
-                <div><label className="text-caption text-muted-foreground block mb-1">Panel Model</label><select value={quoteData.panelId} onChange={e => setQuoteData(p => ({...p, panelId: e.target.value}))} className={selectClasses}>{MOCK_PANEL_MODELS.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}</select></div>
-                <div><label className="text-caption text-muted-foreground block mb-1">Inverter Model</label><select value={quoteData.inverterId} onChange={e => setQuoteData(p => ({...p, inverterId: e.target.value}))} className={selectClasses}>{MOCK_INVERTER_MODELS.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}</select></div>
-                <div><label className="text-caption text-muted-foreground block mb-1">Battery</label><select value={quoteData.batteryId ?? ''} onChange={e => setQuoteData(p => ({...p, batteryId: e.target.value || null}))} className={selectClasses}><option value="">None</option>{MOCK_BATTERY_MODELS.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}</select></div>
+              <div className="space-y-4">
+                {/* Row 1: 4 Columns - System Size, Panel Brand, Inverter Brand, Battery Brand */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* Column 1: System Size */}
+                  <div>
+                    <label className="text-caption text-muted-foreground block mb-1">System Size (kW)</label>
+                    <input type="number" value={quoteData.systemSize} onChange={e => setQuoteData(p => ({...p, systemSize: parseFloat(e.target.value)}))} className={inputClasses} />
+                  </div>
+
+                  {/* Column 2: Solar Panel Brand */}
+                  <div>
+                    <label className="text-caption text-muted-foreground block mb-1">Solar Panel Brand</label>
+                    <select value={showCustomPanelInput ? 'Custom...' : quoteData.panelId} onChange={e => {
+                      if (e.target.value === 'Custom...') {
+                        setShowCustomPanelInput(true);
+                        setQuoteData(p => ({...p, panelId: ''}));
+                      } else {
+                        setShowCustomPanelInput(false);
+                        setQuoteData(p => ({...p, panelId: e.target.value}));
+                      }
+                    }} className={selectClasses}>
+                      <option value="">Select brand...</option>
+                      {SOLAR_PANELS.map(brand => <option key={brand} value={brand}>{brand}</option>)}
+                    </select>
+                    {showCustomPanelInput && (
+                      <input type="text" value={customPanelBrand} onChange={e => {
+                        setCustomPanelBrand(e.target.value);
+                        setQuoteData(p => ({...p, panelId: e.target.value}));
+                      }} placeholder="Enter custom panel brand" className={`${inputClasses} mt-2`} />
+                    )}
+                  </div>
+
+                  {/* Column 3: Inverter Brand */}
+                  <div>
+                    <label className="text-caption text-muted-foreground block mb-1">Inverter Brand</label>
+                    <select value={showCustomInverterInput ? 'Custom...' : quoteData.inverterId} onChange={e => {
+                      if (e.target.value === 'Custom...') {
+                        setShowCustomInverterInput(true);
+                        setQuoteData(p => ({...p, inverterId: ''}));
+                      } else {
+                        setShowCustomInverterInput(false);
+                        setQuoteData(p => ({...p, inverterId: e.target.value}));
+                      }
+                    }} className={selectClasses}>
+                      <option value="">Select brand...</option>
+                      {INVERTERS.map(brand => <option key={brand} value={brand}>{brand}</option>)}
+                    </select>
+                    {showCustomInverterInput && (
+                      <input type="text" value={customInverterBrand} onChange={e => {
+                        setCustomInverterBrand(e.target.value);
+                        setQuoteData(p => ({...p, inverterId: e.target.value}));
+                      }} placeholder="Enter custom inverter brand" className={`${inputClasses} mt-2`} />
+                    )}
+                  </div>
+
+                  {/* Column 4: Battery Brand */}
+                  <div>
+                    <label className="text-caption text-muted-foreground block mb-1">Battery Brand</label>
+                    <select value={showCustomBatteryInput ? 'Custom...' : (quoteData.batteryId ?? '')} onChange={e => {
+                      if (e.target.value === 'Custom...') {
+                        setShowCustomBatteryInput(true);
+                        setQuoteData(p => ({...p, batteryId: null}));
+                      } else {
+                        setShowCustomBatteryInput(false);
+                        setQuoteData(p => ({...p, batteryId: e.target.value || null}));
+                      }
+                    }} className={selectClasses}>
+                      <option value="">None</option>
+                      {BATTERIES.map(brand => <option key={brand} value={brand}>{brand}</option>)}
+                    </select>
+                    {showCustomBatteryInput && (
+                      <input type="text" value={customBatteryBrand} onChange={e => {
+                        setCustomBatteryBrand(e.target.value);
+                        setQuoteData(p => ({...p, batteryId: e.target.value}));
+                      }} placeholder="Enter custom battery brand" className={`${inputClasses} mt-2`} />
+                    )}
+                  </div>
+                </div>
+
+                {/* Row 2: Battery Capacity (conditional - full width, shown only when battery selected) */}
+                {quoteData.batteryId && (
+                  <div className="max-w-sm">
+                    <label className="text-caption text-muted-foreground block mb-1">Battery Capacity (kWh)</label>
+                    <select 
+                      value={showCustomCapacityInput ? 0 : batteryCapacity} 
+                      onChange={e => {
+                        const value = parseFloat(e.target.value);
+                        if (value === 0) {
+                          setShowCustomCapacityInput(true);
+                          setBatteryCapacity(10);
+                        } else {
+                          setShowCustomCapacityInput(false);
+                          setBatteryCapacity(value);
+                        }
+                      }} 
+                      className={selectClasses}
+                    >
+                      {BATTERY_CAPACITIES.map(cap => (
+                        <option key={cap.value} value={cap.value}>{cap.label}</option>
+                      ))}
+                    </select>
+                    {showCustomCapacityInput && (
+                      <input 
+                        type="number" 
+                        min="5" 
+                        max="100" 
+                        step="0.5" 
+                        value={batteryCapacity} 
+                        onChange={e => setBatteryCapacity(parseFloat(e.target.value))} 
+                        className={`${inputClasses} mt-2`} 
+                        placeholder="Enter custom capacity (kWh)"
+                      />
+                    )}
+                    <p className="text-caption mt-1 text-muted-foreground">Typical range: 5-20 kWh for residential</p>
+                  </div>
+                )}
               </div>
             </div>
             {/* Itemized Pricing */}
@@ -189,7 +423,7 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({ isOpen, onClose, 
             </div>
           </div>
           {/* Right: Preview Panel */}
-          <div className={`flex-shrink-0 p-4 overflow-y-auto space-y-4 bg-background-alt ${mobileTab === 'editor' ? 'hidden md:block' : ''} md:w-1/3 md:border-l border-border`}>
+          <div className={`flex-shrink-0 p-4 overflow-y-auto space-y-4 bg-background-alt ${mobileTab === 'editor' ? 'hidden md:block' : ''} md:w-2/5 md:border-l border-border`}>
             <div className="flex items-center justify-between">
               <h3 className="text-foreground">Live Preview</h3>
               <div className="flex items-center gap-2">
@@ -198,11 +432,73 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({ isOpen, onClose, 
                 <button onClick={() => setViewMode(v => v === 'installer' ? 'customer' : 'installer')} className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${viewMode === 'customer' ? 'bg-primary' : 'bg-border'}`}><span className={`inline-block h-3 w-3 transform rounded-full bg-surface transition-transform ${viewMode === 'customer' ? 'translate-x-5' : 'translate-x-1'}`}/></button>
               </div>
             </div>
+            {/* Task 18.4: GST and Incentive Toggles (Updated with editable GST %) */}
+            <div className="bg-background rounded-2xl p-4 shadow-neu-inset space-y-3">
+              <h4 className="text-body-small text-foreground mb-2">Pricing Options</h4>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={includeGst} onChange={e => setIncludeGst(e.target.checked)} className="w-4 h-4 rounded border-border bg-background text-primary focus:ring-primary" />
+                  <span className="text-body-small text-foreground">Include GST</span>
+                </label>
+                {includeGst && (
+                  <div className="ml-6 space-y-2">
+                    <label className="text-caption text-muted-foreground block mb-1">GST Rate (%)</label>
+                    <select 
+                      value={showCustomGstInput ? 0 : gstPercent} 
+                      onChange={e => {
+                        const value = parseFloat(e.target.value);
+                        if (value === 0 && e.target.selectedIndex === GST_RATES.length - 1) {
+                          setShowCustomGstInput(true);
+                          setGstPercent(10);
+                        } else {
+                          setShowCustomGstInput(false);
+                          setGstPercent(value);
+                        }
+                      }} 
+                      className={selectClasses}
+                    >
+                      {GST_RATES.map((rate, index) => (
+                        <option key={index} value={rate.value}>{rate.label}</option>
+                      ))}
+                    </select>
+                    {showCustomGstInput && (
+                      <input 
+                        type="number" 
+                        min="0" 
+                        max="100" 
+                        step="0.1" 
+                        value={gstPercent} 
+                        onChange={e => setGstPercent(parseFloat(e.target.value) || 0)} 
+                        className={inputClasses} 
+                        placeholder="Enter custom GST %"
+                      />
+                    )}
+                  </div>
+                )}
+              </div>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={includeIncentive} onChange={e => setIncludeIncentive(e.target.checked)} className="w-4 h-4 rounded border-border bg-background text-primary focus:ring-primary" />
+                  <span className="text-body-small text-foreground">Include Government Incentive</span>
+                </label>
+                {includeIncentive && (
+                  <div className="ml-6">
+                    <label className="text-caption text-muted-foreground block mb-1">Incentive Amount ($)</label>
+                    <input type="number" value={incentiveAmount} onChange={e => setIncentiveAmount(parseFloat(e.target.value) || 0)} className={`${inputClasses} text-body-small`} placeholder="Enter amount" />
+                  </div>
+                )}
+              </div>
+            </div>
             {/* Totals */}
             <div className="bg-background rounded-2xl p-4 shadow-neu-inset">
               <div className="space-y-2 text-body-small">
                 <div className="flex justify-between text-foreground"><span>Subtotal</span><span>{`$${calculations.subtotal.toLocaleString()}`}</span></div>
-                <div className="flex justify-between text-foreground"><span>GST (10%)</span><span>{`$${calculations.tax.toLocaleString()}`}</span></div>
+                {includeGst && (
+                  <div className="flex justify-between text-foreground"><span>GST ({gstPercent}%)</span><span>{`$${calculations.tax.toLocaleString()}`}</span></div>
+                )}
+                {includeIncentive && (
+                  <div className="flex justify-between text-success"><span>Incentive</span><span>{`-$${incentiveAmount.toLocaleString()}`}</span></div>
+                )}
                 <div className="flex justify-between text-body border-t border-border pt-2 mt-2 text-foreground"><span>Total Price</span><span>{`$${calculations.total.toLocaleString()}`}</span></div>
               </div>
             </div>

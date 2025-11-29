@@ -4948,6 +4948,767 @@ npm run dev
 
 ---
 
+## PHASE 18: Quote Builder Enhancements (Bidding UI - Phase 1)
+
+**Date Added:** November 26, 2025  
+**Goal:** Add brand dropdowns, battery capacity, GST/Incentive toggles, autosave, bidding mode  
+**Prerequisites:** Phase 1-10 complete, GATE 0 passed  
+**Audit Report:** `DOC/Installers/Bidding leads/BIDDING-UI-AUDIT-REPORT.md`
+
+### Task 18.1: Add Mode Prop to QuoteBuilderModal
+
+**File:** `src/components/QuoteBuilderModal.tsx`
+
+**Changes:**
+1. Add `mode` prop to interface (lines 20-30):
+```typescript
+interface QuoteBuilderModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  lead: Lead;
+  onSubmit: (quoteData: QuoteData) => Promise<void>;
+  mode?: 'quote' | 'bid'; // NEW: Default 'quote'
+}
+```
+
+2. Update destructuring:
+```typescript
+export default function QuoteBuilderModal({
+  isOpen,
+  onClose,
+  lead,
+  onSubmit,
+  mode = 'quote' // NEW: Default to quote mode
+}: QuoteBuilderModalProps) {
+```
+
+**Testing:**
+```bash
+npx tsc --noEmit
+npm run build
+```
+
+**Expected:** 0 errors
+
+---
+
+### Task 18.2: Add Custom Brand Inputs
+
+**File:** `src/components/QuoteBuilderModal.tsx`
+
+**Changes:**
+1. Add brand lists (after imports):
+```typescript
+const SOLAR_PANELS = [
+  'JA Solar', 'Jinko Solar', 'LONGi Solar', 'Trina Solar', 'Canadian Solar',
+  'Risen Energy', 'Seraphim', 'Phono Solar', 'Suntech', 'REC Group',
+  'Q CELLS', 'SunPower', 'LG', 'Panasonic', 'Winaico', 'Custom...'
+];
+
+const INVERTERS = [
+  'Fronius', 'SMA', 'Solis', 'GoodWe', 'Growatt', 'Sungrow',
+  'Enphase', 'SolarEdge', 'Huawei', 'Custom...'
+];
+
+const BATTERIES = [
+  'Tesla Powerwall 2', 'BYD Battery-Box Premium', 'sonnen Battery',
+  'LG Chem RESU', 'Enphase Encharge', 'Sungrow SBR',
+  'Pylontech US2000', 'Custom...'
+];
+```
+
+2. Add custom input state:
+```typescript
+const [customPanelBrand, setCustomPanelBrand] = useState('');
+const [customInverterBrand, setCustomInverterBrand] = useState('');
+const [customBatteryBrand, setCustomBatteryBrand] = useState('');
+const [showCustomPanelInput, setShowCustomPanelInput] = useState(false);
+const [showCustomInverterInput, setShowCustomInverterInput] = useState(false);
+const [showCustomBatteryInput, setShowCustomBatteryInput] = useState(false);
+```
+
+3. Update panel brand dropdown (around line 250):
+```typescript
+<select
+  value={showCustomPanelInput ? 'Custom...' : panelBrand}
+  onChange={(e) => {
+    if (e.target.value === 'Custom...') {
+      setShowCustomPanelInput(true);
+      setPanelBrand('');
+    } else {
+      setShowCustomPanelInput(false);
+      setPanelBrand(e.target.value);
+    }
+  }}
+  className="form-select"
+>
+  <option value="">Select brand...</option>
+  {SOLAR_PANELS.map(brand => (
+    <option key={brand} value={brand}>{brand}</option>
+  ))}
+</select>
+
+{showCustomPanelInput && (
+  <input
+    type="text"
+    value={customPanelBrand}
+    onChange={(e) => {
+      setCustomPanelBrand(e.target.value);
+      setPanelBrand(e.target.value);
+    }}
+    placeholder="Enter custom panel brand"
+    className="form-input mt-2"
+  />
+)}
+```
+
+**Repeat for inverter and battery**
+
+**Testing:**
+1. Open QuoteBuilderModal
+2. Select "Custom..." from panel dropdown
+3. Verify custom input appears
+4. Enter custom brand name
+5. Verify it saves correctly
+
+**Expected:** Custom inputs work, no console errors
+
+---
+
+### Task 18.3: Add Battery Capacity Field
+
+**File:** `src/components/QuoteBuilderModal.tsx`
+
+**Changes:**
+1. Add state:
+```typescript
+const [batteryCapacity, setBatteryCapacity] = useState<number>(10);
+```
+
+2. Add input field (after battery brand):
+```typescript
+<div>
+  <label className="block text-body-small mb-2 text-muted-foreground">
+    Battery Capacity (kWh)
+  </label>
+  <input
+    type="number"
+    min="5"
+    max="100"
+    step="0.5"
+    value={batteryCapacity}
+    onChange={(e) => setBatteryCapacity(parseFloat(e.target.value))}
+    className="form-input"
+  />
+  <p className="text-caption mt-1 text-muted-foreground">
+    Typical range: 5-20 kWh for residential
+  </p>
+</div>
+```
+
+**Testing:**
+1. Open modal
+2. Verify capacity input visible
+3. Enter 13.5 kWh
+4. Verify it accepts decimal values
+
+**Expected:** Capacity field works correctly
+
+---
+
+### Task 18.4: Add GST and Incentive Toggles
+
+**File:** `src/components/QuoteBuilderModal.tsx`
+
+**Changes:**
+1. Replace fixed GST with toggles:
+```typescript
+const [includeGst, setIncludeGst] = useState(true);
+const [includeIncentive, setIncludeIncentive] = useState(true);
+const [incentiveAmount, setIncentiveAmount] = useState(2000);
+const GST_PERCENT = 10;
+```
+
+2. Update calculation:
+```typescript
+const subtotal = systemCost + installationCost + additionalCosts;
+const gstAmount = includeGst ? (subtotal * GST_PERCENT / 100) : 0;
+const finalTotal = subtotal + gstAmount - (includeIncentive ? incentiveAmount : 0);
+```
+
+3. Add toggle UI (in pricing section):
+```typescript
+<div className="flex items-center gap-4">
+  <label className="flex items-center gap-2">
+    <input
+      type="checkbox"
+      checked={includeGst}
+      onChange={(e) => setIncludeGst(e.target.checked)}
+      className="form-checkbox"
+    />
+    <span className="text-body">Include GST (10%)</span>
+  </label>
+</div>
+
+<div className="flex items-center gap-4">
+  <label className="flex items-center gap-2">
+    <input
+      type="checkbox"
+      checked={includeIncentive}
+      onChange={(e) => setIncludeIncentive(e.target.checked)}
+      className="form-checkbox"
+    />
+    <span className="text-body">Include Government Incentive</span>
+  </label>
+  {includeIncentive && (
+    <input
+      type="number"
+      value={incentiveAmount}
+      onChange={(e) => setIncentiveAmount(parseFloat(e.target.value))}
+      className="form-input w-32"
+      placeholder="Amount"
+    />
+  )}
+</div>
+```
+
+**Testing:**
+1. Toggle GST on/off → Verify total updates
+2. Toggle incentive on/off → Verify total updates
+3. Change incentive amount → Verify calculation correct
+
+**Expected:** Toggles work, calculations accurate
+
+---
+
+### Task 18.5: Implement Real Autosave
+
+**File:** `src/components/QuoteBuilderModal.tsx`
+
+**Changes:**
+1. Add autosave effect:
+```typescript
+useEffect(() => {
+  if (!isOpen) return;
+  
+  const saveDraft = () => {
+    const draftData = {
+      leadId: lead.id,
+      panelBrand,
+      inverterBrand,
+      batteryBrand,
+      batteryCapacity,
+      systemSize,
+      systemCost,
+      installationCost,
+      additionalCosts,
+      includeGst,
+      includeIncentive,
+      incentiveAmount,
+      savedAt: new Date().toISOString()
+    };
+    localStorage.setItem(`quote-draft-${lead.id}`, JSON.stringify(draftData));
+  };
+  
+  const timer = setTimeout(saveDraft, 2000);
+  return () => clearTimeout(timer);
+}, [panelBrand, inverterBrand, batteryBrand, batteryCapacity, systemSize, 
+    systemCost, installationCost, additionalCosts, includeGst, includeIncentive, incentiveAmount]);
+```
+
+2. Load draft on mount:
+```typescript
+useEffect(() => {
+  if (!isOpen) return;
+  
+  const draftKey = `quote-draft-${lead.id}`;
+  const draft = localStorage.getItem(draftKey);
+  if (draft) {
+    const data = JSON.parse(draft);
+    setPanelBrand(data.panelBrand || '');
+    setInverterBrand(data.inverterBrand || '');
+    // ... restore all fields
+  }
+}, [isOpen, lead.id]);
+```
+
+**Testing:**
+1. Fill quote form halfway
+2. Close modal (don't submit)
+3. Reopen modal
+4. Verify all fields restored
+
+**Expected:** Draft saves and restores correctly
+
+---
+
+### Task 18.6: Update Submit Button for Bidding Mode
+
+**File:** `src/components/QuoteBuilderModal.tsx`
+
+**Changes:**
+1. Update button text based on mode:
+```typescript
+<Button
+  onClick={handleSubmit}
+  disabled={isSubmitting}
+  variant="primary"
+  className="flex-1"
+>
+  {mode === 'bid' ? (
+    <>
+      <SendIcon className="h-4 w-4 mr-2" />
+      Submit Bid
+    </>
+  ) : (
+    <>
+      <SendIcon className="h-4 w-4 mr-2" />
+      Send Quote
+    </>
+  )}
+</Button>
+```
+
+2. Remove "Preview PDF" for bidding mode:
+```typescript
+{mode === 'quote' && (
+  <Button
+    onClick={handlePreviewPDF}
+    disabled={isSubmitting}
+    variant="secondary"
+    className="flex-1"
+  >
+    <EyeIcon className="h-4 w-4 mr-2" />
+    Preview PDF
+  </Button>
+)}
+```
+
+**Testing:**
+1. Open modal in quote mode → Verify "Send Quote" button
+2. Open modal in bid mode → Verify "Submit Bid" button
+3. Verify "Preview PDF" only shows in quote mode
+
+**Expected:** Button text conditional, PDF preview hidden for bids
+
+---
+
+### Task 18.7: Phase 18 Testing
+
+**Checklist:**
+- [ ] Mode prop works (quote/bid)
+- [ ] Custom brand inputs appear and work
+- [ ] Battery capacity field accepts decimals
+- [ ] GST toggle updates total correctly
+- [ ] Incentive toggle updates total correctly
+- [ ] Autosave saves draft every 2 seconds
+- [ ] Draft restores on modal reopen
+- [ ] Submit button text changes by mode
+- [ ] Preview PDF hidden in bid mode
+- [ ] No hardcoded colors (0/0/0/0/0/0)
+- [ ] TypeScript: 0 errors
+- [ ] Build: Success
+
+**Testing:**
+```bash
+npx tsc --noEmit
+npm run build
+npm run dev
+```
+
+**Expected:** All tests pass, 0 errors
+
+**❌ STOP:** If any test fails, fix before Phase 19
+
+---
+
+## PHASE 19: Installer Bidding Modals (Bidding UI - Phase 2)
+
+**Goal:** Add BidEvaluationModal, BiddingStatusBadge, update InstallerLeadFeed
+
+### Task 19.1: Create BiddingStatusBadge Component
+
+**File:** `src/components/BiddingStatusBadge.tsx` (NEW)
+
+**Implementation:**
+```typescript
+import React from 'react';
+
+interface BiddingStatusBadgeProps {
+  status: 'no_bids' | 'draft' | 'submitted' | 'shortlisted' | 'not_selected';
+  count?: number;
+}
+
+export default function BiddingStatusBadge({ status, count }: BiddingStatusBadgeProps) {
+  const configs = {
+    no_bids: {
+      label: 'No Bids Yet',
+      className: 'bg-muted/20 text-muted'
+    },
+    draft: {
+      label: 'Draft Saved',
+      className: 'bg-warning/20 text-warning'
+    },
+    submitted: {
+      label: 'Bid Submitted',
+      className: 'bg-info/20 text-info'
+    },
+    shortlisted: {
+      label: 'Shortlisted',
+      className: 'bg-success/20 text-success'
+    },
+    not_selected: {
+      label: 'Not Selected',
+      className: 'bg-error/20 text-error'
+    }
+  };
+
+  const config = configs[status];
+
+  return (
+    <span className={`px-3 py-1 rounded-full text-caption ${config.className}`}>
+      {config.label}
+      {count !== undefined && count > 0 && ` (${count} bids)`}
+    </span>
+  );
+}
+```
+
+**Testing:**
+```bash
+npx tsc --noEmit
+```
+
+**Expected:** 0 errors
+
+---
+
+### Task 19.2: Create BidEvaluationModal Component
+
+**File:** `src/components/BidEvaluationModal.tsx` (NEW)
+
+**Implementation:** (See BIDDING-UI-AUDIT-REPORT.md for full spec)
+
+Key sections:
+- Lead technical details (property, roof, budget)
+- Your bid summary (if submitted)
+- Competitor bids table (anonymized: "Installer A", "Installer B")
+- Action buttons: "Place Bid" / "Update Bid"
+
+**Testing:**
+1. Open modal for bidding lead
+2. Verify lead details display
+3. Verify competitor bids show anonymously
+4. Verify "Place Bid" opens QuoteBuilderModal in bid mode
+
+**Expected:** Modal renders correctly, all data displays
+
+---
+
+### Task 19.3: Update InstallerLeadFeed for Bidding
+
+**File:** `src/components/InstallerLeadFeed.tsx`
+
+**Changes:**
+1. Add import:
+```typescript
+import BiddingStatusBadge from './BiddingStatusBadge';
+```
+
+2. Update status badge section (around line 380):
+```typescript
+{lead.type === 'bidding' ? (
+  <BiddingStatusBadge 
+    status={lead.biddingStatus || 'no_bids'}
+    count={lead.bidsCount}
+  />
+) : (
+  <span className={`px-3 py-1 rounded-full text-caption ${statusConfig.className}`}>
+    {statusConfig.label}
+  </span>
+)}
+```
+
+3. Add "View Bids" button for bidding leads:
+```typescript
+{lead.type === 'bidding' && (
+  <Button
+    onClick={() => handleViewBids(lead.id)}
+    variant="info"
+    className="flex items-center gap-2"
+  >
+    <EyeIcon className="h-4 w-4" />
+    View Bids
+  </Button>
+)}
+```
+
+**Testing:**
+1. View bidding lead in feed
+2. Verify BiddingStatusBadge displays
+3. Click "View Bids" → BidEvaluationModal opens
+
+**Expected:** Bidding leads show correct status, modal opens
+
+---
+
+### Task 19.4: Phase 19 Testing
+
+**Checklist:**
+- [ ] BiddingStatusBadge renders all 5 statuses
+- [ ] BidEvaluationModal displays lead details
+- [ ] Competitor bids anonymized correctly
+- [ ] "Place Bid" opens QuoteBuilderModal in bid mode
+- [ ] InstallerLeadFeed shows bidding status badge
+- [ ] "View Bids" button appears for bidding leads
+- [ ] No hardcoded colors (0/0/0/0/0/0)
+- [ ] TypeScript: 0 errors
+- [ ] Build: Success
+
+**Testing:**
+```bash
+npx tsc --noEmit
+npm run build
+```
+
+**Expected:** All tests pass
+
+**❌ STOP:** If any test fails, fix before Phase 20
+
+---
+
+## PHASE 20: Homeowner Bidding Review (Bidding UI - Phase 3)
+
+**Goal:** Create HomeownerBiddingReviewModal for bid comparison
+
+### Task 20.1: Create HomeownerBiddingReviewModal
+
+**File:** `src/components/homeowner/HomeownerBiddingReviewModal.tsx` (NEW)
+
+**Key Features:**
+- Side-by-side bid comparison table
+- Anonymized installer names
+- System specs, pricing, ratings
+- "Request Contact" button per bid
+- Admin approval required before revealing contact
+
+**Implementation:** (See BIDDING-UI-AUDIT-REPORT.md Section 4.2)
+
+**Testing:**
+1. Homeowner views bidding lead
+2. Click "Review Bids"
+3. Verify table shows all submitted bids
+4. Verify installers anonymized
+5. Click "Request Contact" → Admin notification created
+
+**Expected:** Modal renders, data displays correctly
+
+---
+
+### Task 20.2: Update Homeowner Dashboard
+
+**File:** `src/app/homeowner/dashboard/page.tsx`
+
+**Changes:**
+1. Add "Review Bids" button for bidding leads:
+```typescript
+{lead.quoteType === 'BIDDING' && lead.bidsCount > 0 && (
+  <Button
+    onClick={() => openBiddingReview(lead.id)}
+    variant="primary"
+  >
+    Review {lead.bidsCount} Bid{lead.bidsCount !== 1 ? 's' : ''}
+  </Button>
+)}
+```
+
+**Testing:**
+1. Homeowner dashboard
+2. Find bidding lead
+3. Verify "Review X Bids" button appears
+4. Click button → HomeownerBiddingReviewModal opens
+
+**Expected:** Button appears, modal opens
+
+---
+
+### Task 20.3: Phase 20 Testing
+
+**Checklist:**
+- [ ] HomeownerBiddingReviewModal renders
+- [ ] Bid comparison table displays correctly
+- [ ] Installers anonymized
+- [ ] "Request Contact" button works
+- [ ] Admin notification created on contact request
+- [ ] "Review Bids" button appears on dashboard
+- [ ] No hardcoded colors (0/0/0/0/0/0)
+- [ ] TypeScript: 0 errors
+- [ ] Build: Success
+
+**Expected:** All tests pass
+
+**❌ STOP:** If any test fails, fix before Phase 21
+
+---
+
+## PHASE 21: Admin Bidding Oversight (Bidding UI - Phase 4)
+
+**Goal:** Add AdminBidsPanel for bid management
+
+### Task 21.1: Create AdminBidsPanel Component
+
+**File:** `src/components/admin/AdminBidsPanel.tsx` (NEW)
+
+**Features:**
+- View all bids for a lead
+- Shortlist/reject bids
+- Approve homeowner contact requests
+- Flag suspicious bids
+
+**Implementation:** (See BIDDING-UI-AUDIT-REPORT.md Section 4.3)
+
+**Testing:**
+1. Admin opens lead with bids
+2. Click "Manage Bids"
+3. Verify all bids visible with installer names
+4. Shortlist 2 bids
+5. Verify homeowner sees only shortlisted bids
+
+**Expected:** Admin panel works, shortlist feature functional
+
+---
+
+### Task 21.2: Update AdminLeadManagementModal
+
+**File:** `src/components/admin/AdminLeadManagementModal.tsx`
+
+**Changes:**
+1. Add "Bids" tab (if lead is bidding type)
+2. Render AdminBidsPanel in tab
+
+**Testing:**
+1. Admin opens bidding lead
+2. Verify "Bids" tab appears
+3. Click tab → AdminBidsPanel displays
+
+**Expected:** Tab shows, panel renders
+
+---
+
+### Task 21.3: Phase 21 Testing
+
+**Checklist:**
+- [ ] AdminBidsPanel displays all bids
+- [ ] Shortlist feature works
+- [ ] Reject feature works
+- [ ] Contact approval workflow works
+- [ ] "Bids" tab appears in modal
+- [ ] No hardcoded colors (0/0/0/0/0/0)
+- [ ] TypeScript: 0 errors
+- [ ] Build: Success
+
+**Expected:** All tests pass
+
+**❌ STOP:** If any test fails, fix before Phase 22
+
+---
+
+## PHASE 22: Full System Verification (Bidding UI - Phase 5)
+
+**Goal:** End-to-end testing of all bidding features
+
+### Task 22.1: Installer Workflow Test
+
+**Test Steps:**
+1. Installer views bidding lead in feed
+2. Clicks "View Bids" → BidEvaluationModal opens
+3. Clicks "Place Bid" → QuoteBuilderModal opens in bid mode
+4. Fills custom brands, capacity, toggles
+5. Draft autosaves
+6. Submits bid
+7. Bid appears in "submitted" status
+
+**Expected:** Full workflow works, no errors
+
+---
+
+### Task 22.2: Homeowner Workflow Test
+
+**Test Steps:**
+1. Homeowner views bidding lead
+2. Clicks "Review Bids"
+3. Compares anonymized bids
+4. Requests contact for 2 bids
+5. Admin approves
+6. Contact info revealed to homeowner
+
+**Expected:** Full workflow works
+
+---
+
+### Task 22.3: Admin Workflow Test
+
+**Test Steps:**
+1. Admin opens bidding lead
+2. Views all bids with installer names
+3. Shortlists 3 bids
+4. Homeowner sees only shortlisted bids
+5. Approves contact requests
+6. Monitors bid activity
+
+**Expected:** Admin controls work correctly
+
+---
+
+### Task 22.4: Design System Verification
+
+**Run all 6 commands:**
+```powershell
+Select-String -Path "src\components\QuoteBuilderModal.tsx" -Pattern "text-gray-|text-slate-|bg-gray-|bg-slate-|border-gray-|border-slate-"
+Select-String -Path "src\components\QuoteBuilderModal.tsx" -Pattern "dark:"
+Select-String -Path "src\components\QuoteBuilderModal.tsx" -Pattern "rgba\(|rgb\(|#[0-9a-fA-F]{3,6}"
+Select-String -Path "src\components\QuoteBuilderModal.tsx" -Pattern "text-white|bg-white|text-black|bg-black"
+Select-String -Path "src\components\QuoteBuilderModal.tsx" -Pattern "text-xs|text-sm|text-lg|text-xl|font-bold|font-semibold"
+Select-String -Path "src\components\QuoteBuilderModal.tsx" -Pattern "sm:text-|md:text-|lg:text-"
+```
+
+**Repeat for all new components**
+
+**Expected:** 0/0/0/0/0/0 for all components
+
+---
+
+### Task 22.5: Phase 22 Completion
+
+**Final Checklist:**
+- [ ] All installer tests pass
+- [ ] All homeowner tests pass
+- [ ] All admin tests pass
+- [ ] Design system compliance verified
+- [ ] TypeScript: 0 errors
+- [ ] Build: Success
+- [ ] All 3 themes work
+- [ ] All 5 breakpoints work
+- [ ] No console errors
+- [ ] No network errors
+
+**Testing:**
+```bash
+npx tsc --noEmit
+npm run build
+npm run dev
+```
+
+**Expected:** All tests pass, ready for backend integration
+
+---
+
+**End of Bidding UI Implementation Phases**
+
+**Next Steps:** Backend API development (deferred per brainstorm3.md)
+
+---
+
 **End of Implementation Tasks**
 
 

@@ -29,7 +29,7 @@
 - `DOC/Guidelines/UI-UX-Layout-and-Routing-Standards.md` - Layout patterns, component structure, routing conventions
 
 ### For Current Task:
-- `specs/[current-spec]/tasks.md` - Specific task structure, testing protocols, phase details
+- D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\007-call-visit-lead\tasks.md - Specific task structure, testing protocols, phase details
 - `prisma/schema.prisma` - Database models and relationships
 
 
