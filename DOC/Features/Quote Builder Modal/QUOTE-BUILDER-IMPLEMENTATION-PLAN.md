@@ -127,7 +127,6 @@ LocalStorage key: `quote:draft:${leadId}:${installerId}`.
 ## 7. Smart Presets
 - Provide preset bundles (Economy/Balanced/Premium) with line items and product combos.
 - Quick apply & edit; installer can duplicate and modify.
-
 ---
 
 ## 8. Installer Cost Mode (Hidden)
