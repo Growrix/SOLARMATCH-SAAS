@@ -259,14 +259,14 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
 
   // Update preview options when relevant data changes
   useEffect(() => {
-    if (quoteDraft.pricing.lineItems.length > 0) {
+    if (quoteDraft.pricing?.lineItems?.length > 0) {
       const options = generatePreviewOptions();
       setQuoteDraft((prev) => ({
         ...prev,
         preview: { options }
       }));
     }
-  }, [quoteDraft.system, quoteDraft.products, quoteDraft.pricing.lineItems]);
+  }, [quoteDraft.system, quoteDraft.products, quoteDraft.pricing?.lineItems]);
 
   // Handlers
   const toggleSection = (section: string) => {
@@ -462,7 +462,7 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
           <div className="flex-shrink-0 bg-warning/10 border-b border-warning px-4 py-2 flex items-center justify-center gap-2">
             <FileText className="h-4 w-4 text-warning" />
             <span className="text-body-small text-warning">
-              Draft restored from previous session (v{quoteDraft.meta.version})
+              Draft restored from previous session (v{quoteDraft.meta?.version || 1})
             </span>
           </div>
         )}
