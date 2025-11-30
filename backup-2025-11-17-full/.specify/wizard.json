@@ -1,9 +1,0 @@
-{
-  "ai": "copilot",
-  "script": "ps",
-  "here": true,
-  "noGit": false,
-  "ignoreAgentTools": true,
-  "debug": true,
-  "lastProjectName": "solarmatch"
-}

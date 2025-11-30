@@ -1,109 +1,194 @@
-﻿'use client'
+'use client'
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Button from '@/components/ui/button';
-import { X, Save, Send, Eye, Zap, DollarSign, Plus, Trash2, FileText } from 'lucide-react';
+import { X, Save, Send, Eye, FileText, ChevronDown, ChevronUp } from 'lucide-react';
 
-// --- Icon Components (Migrated: X, FileText, Save, Send, Eye, Zap, DollarSign, Plus, Trash → lucide-react) ---
-
-// --- Brand Lists (Task 18.2: Australian Market Brands) ---
-const SOLAR_PANELS = [
-  'JA Solar', 'Jinko Solar', 'LONGi Solar', 'Trina Solar', 'Canadian Solar',
-  'Risen Energy', 'Seraphim', 'Phono Solar', 'Suntech', 'REC Group',
-  'Q CELLS', 'SunPower', 'LG', 'Panasonic', 'Winaico', 'Custom...'
-];
-
-const INVERTERS = [
-  'Fronius', 'SMA', 'Solis', 'GoodWe', 'Growatt', 'Sungrow',
-  'Enphase', 'SolarEdge', 'Huawei', 'Custom...'
-];
-
-const BATTERIES = [
-  'Tesla Powerwall 2', 'BYD Battery-Box Premium', 'sonnen Battery',
-  'LG Chem RESU', 'Enphase Encharge', 'Sungrow SBR',
-  'Pylontech US2000', 'Custom...'
-];
-
-// Battery Capacity Presets (kWh)
-const BATTERY_CAPACITIES = [
-  { value: 5, label: '5 kWh' },
-  { value: 7.5, label: '7.5 kWh' },
-  { value: 10, label: '10 kWh' },
-  { value: 13.5, label: '13.5 kWh (Powerwall 2)' },
-  { value: 15, label: '15 kWh' },
-  { value: 20, label: '20 kWh' },
-  { value: 0, label: 'Custom...' }
-];
-
-// GST Rate Presets (%)
-const GST_RATES = [
-  { value: 0, label: '0% (No GST)' },
-  { value: 5, label: '5%' },
-  { value: 10, label: '10% (Standard)' },
-  { value: 15, label: '15%' },
-  { value: 0, label: 'Custom...' }
-];
-
-// --- Mock Data (Legacy - to be phased out) ---
-const MOCK_PANEL_MODELS = [
-  { id: 'p1', name: 'SunPower Maxeon 6', wattage: 440, efficiency: 22.8 },
-  { id: 'p2', name: 'Trina Solar Vertex S+', wattage: 430, efficiency: 21.5 },
-  { id: 'p3', name: 'Canadian Solar HiKu6', wattage: 545, efficiency: 21.3 },
-];
-const MOCK_INVERTER_MODELS = [
-  { id: 'i1', name: 'Enphase IQ8M', type: 'Microinverter' },
-  { id: 'i2', name: 'Fronius Primo GEN24', type: 'Hybrid String' },
-];
-const MOCK_BATTERY_MODELS = [
-  { id: 'b1', name: 'Tesla Powerwall 2', capacity: 13.5 },
-  { id: 'b2', name: 'Enphase IQ Battery 5P', capacity: 5.0 },
-];
-const MOCK_PRESETS = [
-    { name: 'Economy', panelId: 'p2', inverterId: 'i2', batteryId: null, pricing: [ { id: 1, description:"Standard 6.6kW System Supply & Install", category: 'System', qty: 1, unitPrice: 7000, tax: true }] },
-    { name: 'Balanced', panelId: 'p2', inverterId: 'i2', batteryId: 'b2', pricing: [ { id: 1, description:"6.6kW System with 5kWh Battery", category: 'System', qty: 1, unitPrice: 12500, tax: true }] },
-    { name: 'Premium', panelId: 'p1', inverterId: 'i1', batteryId: 'b1', pricing: [ { id: 1, description:"8.8kW Premium System with Powerwall", category: 'System', qty: 1, unitPrice: 24000, tax: true }] },
-];
+// Import all section components
+import SystemSelection, { SystemSelectionData } from './quote-builder/SystemSelection';
+import RoofSiteDetails, { RoofSiteDetailsData } from './quote-builder/RoofSiteDetails';
+import ProductConfiguration, { ProductConfigurationData } from './quote-builder/ProductConfiguration';
+import PricingEngine, { PricingEngineData } from './quote-builder/PricingEngine';
+import ComplianceDocs, { ComplianceDocsData } from './quote-builder/ComplianceDocs';
+import CustomerPreview, { CustomerPreviewData, QuoteOption } from './quote-builder/CustomerPreview';
+import { PRESET_BUNDLES } from './quote-builder/Presets';
 
 // --- Types ---
-interface Lead { id: string | number; name: string; location: string; propertyType: string; systemSize: string; estimatedUsage: string; budget: string; }
-interface LineItem { id: number; description: string; category: string; qty: number; unitPrice: number; tax: boolean; }
-interface QuoteData { systemSize: number; panelId: string; inverterId: string; batteryId: string | null; lineItems: LineItem[]; }
-interface QuoteBuilderModalProps { 
-  isOpen: boolean; 
-  onClose: () => void; 
-  lead: Lead | null; 
-  onSubmitQuote: (leadId: string, quoteData: any) => Promise<boolean>; 
-  mode?: 'quote' | 'bid'; // NEW: Default 'quote'
+interface Lead {
+  id: string | number;
+  name: string;
+  location: string;
+  propertyType: string;
+  systemSize: string;
+  estimatedUsage: string;
+  budget: string;
 }
 
-const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({ isOpen, onClose, lead, onSubmitQuote, mode = 'quote' }) => {
-  const [quoteData, setQuoteData] = useState<QuoteData>({ systemSize: 6.6, panelId: 'p2', inverterId: 'i2', batteryId: null, lineItems: MOCK_PRESETS[0].pricing });
-  const [viewMode, setViewMode] = useState<'installer' | 'customer'>('installer');
-  const [mobileTab, setMobileTab] = useState<'editor' | 'preview'>('editor');
+interface QuoteBuilderModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  lead: Lead | null;
+  onSubmitQuote: (leadId: string, quoteData: any) => Promise<boolean>;
+  mode?: 'quote' | 'bid';
+}
+
+interface QuoteDraft {
+  mode: 'quote' | 'bid' | 'config';
+  system: SystemSelectionData;
+  roof: RoofSiteDetailsData;
+  products: ProductConfigurationData;
+  pricing: PricingEngineData;
+  compliance: ComplianceDocsData;
+  preview: CustomerPreviewData;
+  meta: {
+    version: number;
+    lastSavedAt: string;
+    autosaveStatus: 'idle' | 'saving' | 'saved';
+  };
+}
+
+const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
+  isOpen,
+  onClose,
+  lead,
+  onSubmitQuote,
+  mode = 'quote'
+}) => {
+  // Collapsible section state
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    system: true,
+    roof: false,
+    products: false,
+    pricing: false,
+    compliance: false,
+    preview: true
+  });
+
+  // Main quote draft state
+  const [quoteDraft, setQuoteDraft] = useState<QuoteDraft>({
+    mode: mode,
+    system: {
+      systemType: 'grid-connected',
+      systemSize: 6.6,
+      desiredPriceRange: undefined
+    },
+    roof: {
+      roofType: '',
+      pitchDeg: 22,
+      arrays: 1,
+      orientations: [],
+      shadingLevel: 0,
+      phaseType: 'single',
+      switchboardUpgrade: false,
+      smartMeterRequired: false,
+      distanceToSwitchboardM: 10,
+      notes: '',
+      photos: []
+    },
+    products: {
+      panels: {
+        brand: '',
+        model: '',
+        wattage: 430,
+        efficiency: 21.5,
+        qty: 16,
+        productWarranty: 12,
+        performanceWarranty: 25,
+        tier1: false
+      },
+      inverter: {
+        brand: '',
+        model: '',
+        type: '',
+        capacityKw: 5,
+        mppts: 2,
+        warranty: 10
+      },
+      battery: undefined,
+      addons: []
+    },
+    pricing: {
+      lineItems: [],
+      stc: {
+        eligible: true,
+        zone: 'Zone 3',
+        stcCount: 90,
+        stcPrice: 40
+      },
+      vic: {
+        rebateEligible: false,
+        rebateAmount: 1400,
+        interestFreeLoan: false,
+        batteryLoan: false
+      },
+      discounts: [],
+      installerCostMode: false
+    },
+    compliance: {
+      docs: [],
+      cecAccreditation: '',
+      electricalLicence: '',
+      insurance: ''
+    },
+    preview: {
+      options: []
+    },
+    meta: {
+      version: 1,
+      lastSavedAt: new Date().toISOString(),
+      autosaveStatus: 'idle'
+    }
+  });
+
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
-  
-  // Task 18.2: Custom brand input states
-  const [customPanelBrand, setCustomPanelBrand] = useState('');
-  const [customInverterBrand, setCustomInverterBrand] = useState('');
-  const [customBatteryBrand, setCustomBatteryBrand] = useState('');
-  const [showCustomPanelInput, setShowCustomPanelInput] = useState(false);
-  const [showCustomInverterInput, setShowCustomInverterInput] = useState(false);
-  const [showCustomBatteryInput, setShowCustomBatteryInput] = useState(false);
-  
-  // Task 18.3: Battery capacity state (updated with dropdown support)
-  const [batteryCapacity, setBatteryCapacity] = useState<number>(10);
-  const [showCustomCapacityInput, setShowCustomCapacityInput] = useState(false);
-  
-  // Task 18.4: GST and Incentive toggle states (GST percent now editable)
-  const [includeGst, setIncludeGst] = useState(true);
-  const [gstPercent, setGstPercent] = useState(10);
-  const [showCustomGstInput, setShowCustomGstInput] = useState(false);
-  const [includeIncentive, setIncludeIncentive] = useState(true);
-  const [incentiveAmount, setIncentiveAmount] = useState(2000);
-  
-  // --- Effects ---
+
+  // Generate preview options based on current config
+  const generatePreviewOptions = (): QuoteOption[] => {
+    const { system, products, pricing } = quoteDraft;
+    
+    // Calculate totals
+    const subtotal = pricing.lineItems.reduce(
+      (acc, item) => acc + item.qty * item.unitPrice,
+      0
+    );
+    const gstAmount = pricing.lineItems
+      .filter((item) => item.taxGst)
+      .reduce((acc, item) => acc + item.qty * item.unitPrice * 0.1, 0);
+    const stcDeduction = pricing.stc.eligible
+      ? pricing.stc.stcCount * pricing.stc.stcPrice
+      : 0;
+    const vicDeduction = pricing.vic.rebateEligible ? pricing.vic.rebateAmount : 0;
+    const totalDiscounts = pricing.discounts.reduce((acc, d) => acc + d.amount, 0);
+    const totalPrice = subtotal + gstAmount - stcDeduction - vicDeduction - totalDiscounts;
+    const pricePerWatt = system.systemSize > 0 ? totalPrice / (system.systemSize * 1000) : 0;
+    const estimatedSavingsPerYear = system.systemSize * 4.2 * 365 * 0.5 * 0.30;
+    const paybackYears = totalPrice / estimatedSavingsPerYear;
+    const co2OffsetTonnesPerYear = system.systemSize * 1.5;
+
+    return [
+      {
+        id: 'current',
+        name: 'Balanced',
+        label: 'Current Configuration',
+        systemSize: system.systemSize,
+        panels: `${products.panels.brand} ${products.panels.model} (${products.panels.qty} panels)`,
+        inverter: `${products.inverter.brand} ${products.inverter.model}`,
+        battery: products.battery
+          ? `${products.battery.brand} ${products.battery.model} (${products.battery.usableKwh}kWh)`
+          : undefined,
+        totalPrice,
+        pricePerWatt,
+        estimatedSavingsPerYear,
+        paybackYears,
+        warrantyYears: products.panels.performanceWarranty,
+        co2OffsetTonnesPerYear
+      }
+    ];
+  };
+
+  // Effects
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
@@ -111,411 +196,382 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({ isOpen, onClose, 
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Phase 2: Bidding-aware autosave - Save draft to localStorage (quote vs bid keys)
+  // Autosave effect
   useEffect(() => {
     if (!isOpen || !lead) return;
-    
+
     const saveDraft = () => {
       setIsSaving(true);
+      setQuoteDraft((prev) => ({
+        ...prev,
+        meta: { ...prev.meta, autosaveStatus: 'saving' }
+      }));
+
+      const draftKey =
+        mode === 'bid'
+          ? `bid:draft:${lead.id}:installer-id`
+          : `quote:draft:${lead.id}:installer-id`;
+      
       const draftData = {
-        leadId: lead.id,
-        panelId: quoteData.panelId,
-        inverterId: quoteData.inverterId,
-        batteryId: quoteData.batteryId,
-        customPanelBrand,
-        customInverterBrand,
-        customBatteryBrand,
-        batteryCapacity,
-        systemSize: quoteData.systemSize,
-        lineItems: quoteData.lineItems,
-        includeGst,
-        gstPercent,
-        includeIncentive,
-        incentiveAmount,
-        savedAt: new Date().toISOString()
+        ...quoteDraft,
+        meta: {
+          ...quoteDraft.meta,
+          lastSavedAt: new Date().toISOString()
+        }
       };
-      // Phase 2: Use separate keys for quotes vs bids
-      const draftKey = mode === 'bid' ? `bid:draft:${lead.id}:installer-id` : `quote-draft-${lead.id}`;
+
       localStorage.setItem(draftKey, JSON.stringify(draftData));
+
       setTimeout(() => {
         setIsSaving(false);
         setLastSaved(new Date());
+        setQuoteDraft((prev) => ({
+          ...prev,
+          meta: { ...prev.meta, autosaveStatus: 'saved' }
+        }));
       }, 500);
     };
-    
-    // Phase 2: Reduced debounce to 750ms for better UX
+
     const timer = setTimeout(saveDraft, 750);
     return () => clearTimeout(timer);
-  }, [isOpen, lead, mode, quoteData, customPanelBrand, customInverterBrand, customBatteryBrand, 
-      batteryCapacity, includeGst, gstPercent, includeIncentive, incentiveAmount]);
+  }, [isOpen, lead, mode, quoteDraft]);
 
-  // Phase 2: Load draft on mount with bidding support
+  // Load draft on mount
   useEffect(() => {
     if (!isOpen || !lead) return;
-    
-    // Phase 2: Check for bid draft first, then quote draft
-    const draftKey = mode === 'bid' ? `bid:draft:${lead.id}:installer-id` : `quote-draft-${lead.id}`;
+
+    const draftKey =
+      mode === 'bid'
+        ? `bid:draft:${lead.id}:installer-id`
+        : `quote:draft:${lead.id}:installer-id`;
     const draft = localStorage.getItem(draftKey);
+
     if (draft) {
       try {
-        const data = JSON.parse(draft);
-        setQuoteData(prev => ({
-          ...prev,
-          panelId: data.panelId || prev.panelId,
-          inverterId: data.inverterId || prev.inverterId,
-          batteryId: data.batteryId || prev.batteryId,
-          systemSize: data.systemSize || prev.systemSize,
-          lineItems: data.lineItems || prev.lineItems
-        }));
-        setCustomPanelBrand(data.customPanelBrand || '');
-        setCustomInverterBrand(data.customInverterBrand || '');
-        setCustomBatteryBrand(data.customBatteryBrand || '');
-        setBatteryCapacity(data.batteryCapacity || 10);
-        setIncludeGst(data.includeGst !== undefined ? data.includeGst : true);
-        setGstPercent(data.gstPercent || 10);
-        setIncludeIncentive(data.includeIncentive !== undefined ? data.includeIncentive : true);
-        setIncentiveAmount(data.incentiveAmount || 2000);
+        const data = JSON.parse(draft) as QuoteDraft;
+        setQuoteDraft(data);
       } catch (error) {
         console.error('Failed to load draft:', error);
       }
     }
   }, [isOpen, lead, mode]);
 
-  // --- Calculations (Task 18.4: Updated for dynamic GST percent and Incentive toggles) ---
-  const calculations = useMemo(() => {
-    const subtotal = quoteData.lineItems.reduce((acc, item) => acc + item.qty * item.unitPrice, 0);
-    const tax = includeGst ? subtotal * (gstPercent / 100) : 0;
-    const incentiveDeduction = includeIncentive ? incentiveAmount : 0;
-    const total = subtotal + tax - incentiveDeduction;
-    const pricePerWatt = quoteData.systemSize > 0 ? total / (quoteData.systemSize * 1000) : 0;
-    const federalIncentive = (quoteData.systemSize * 1.382 * 7) * 40;
-    const netCost = total - (includeIncentive ? 0 : federalIncentive); // Use custom incentive if enabled
-    const annualSavings = (quoteData.systemSize * 4.2 * 365 * 0.5) * 0.30;
-    const payback = netCost / annualSavings;
+  // Update preview options when relevant data changes
+  useEffect(() => {
+    if (quoteDraft.pricing.lineItems.length > 0) {
+      const options = generatePreviewOptions();
+      setQuoteDraft((prev) => ({
+        ...prev,
+        preview: { options }
+      }));
+    }
+  }, [quoteDraft.system, quoteDraft.products, quoteDraft.pricing.lineItems]);
 
-    return { subtotal, tax, total, pricePerWatt, federalIncentive, netCost, annualSavings, payback };
-  }, [quoteData, includeGst, gstPercent, includeIncentive, incentiveAmount]);
-
-  // --- Handlers ---
-  const handleLineItemChange = (id: number, field: keyof LineItem, value: any) => {
-    setQuoteData(prev => ({ ...prev, lineItems: prev.lineItems.map(item => item.id === id ? { ...item, [field]: value } : item)}));
+  // Handlers
+  const toggleSection = (section: string) => {
+    setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
-  const addLineItem = () => setQuoteData(prev => ({ ...prev, lineItems: [...prev.lineItems, { id: Date.now(), description: '', category: 'Other', qty: 1, unitPrice: 0, tax: true }]}));
-  const removeLineItem = (id: number) => setQuoteData(prev => ({ ...prev, lineItems: prev.lineItems.filter(item => item.id !== id)}));
-  
+
+  const updateSystem = (data: Partial<SystemSelectionData>) => {
+    setQuoteDraft((prev) => ({
+      ...prev,
+      system: { ...prev.system, ...data }
+    }));
+  };
+
+  const updateRoof = (data: Partial<RoofSiteDetailsData>) => {
+    setQuoteDraft((prev) => ({
+      ...prev,
+      roof: { ...prev.roof, ...data }
+    }));
+  };
+
+  const updateProducts = (data: Partial<ProductConfigurationData>) => {
+    setQuoteDraft((prev) => ({
+      ...prev,
+      products: { ...prev.products, ...data }
+    }));
+  };
+
+  const updatePricing = (data: Partial<PricingEngineData>) => {
+    setQuoteDraft((prev) => ({
+      ...prev,
+      pricing: { ...prev.pricing, ...data }
+    }));
+  };
+
+  const updateCompliance = (data: Partial<ComplianceDocsData>) => {
+    setQuoteDraft((prev) => ({
+      ...prev,
+      compliance: { ...prev.compliance, ...data }
+    }));
+  };
+
+  const updatePreview = (data: Partial<CustomerPreviewData>) => {
+    setQuoteDraft((prev) => ({
+      ...prev,
+      preview: { ...prev.preview, ...data }
+    }));
+  };
+
+  const applyPreset = (presetName: 'Economy' | 'Balanced' | 'Premium') => {
+    const preset = PRESET_BUNDLES.find((p) => p.name === presetName);
+    if (!preset) return;
+
+    setQuoteDraft((prev) => ({
+      ...prev,
+      system: {
+        ...prev.system,
+        systemType: preset.systemType,
+        systemSize: preset.systemSize
+      },
+      products: {
+        panels: { ...preset.panels, datasheetKey: undefined },
+        inverter: { ...preset.inverter, datasheetKey: undefined },
+        battery: preset.battery
+          ? { ...preset.battery, datasheetKey: undefined, backupCircuitRequired: false }
+          : undefined,
+        addons: []
+      },
+      pricing: {
+        ...prev.pricing,
+        lineItems: preset.lineItems.map((item, idx) => ({
+          ...item,
+          id: Date.now() + idx,
+          taxGst: item.tax
+        }))
+      }
+    }));
+  };
+
   if (!isOpen || !lead) return null;
 
-  const inputClasses = "form-input w-full px-4 py-3";
-  const selectClasses = "form-select w-full px-4 py-3";
-
-  // Phase 2: Check if draft exists for restoration banner
-  const draftKey = mode === 'bid' ? `bid:draft:${lead.id}:installer-id` : `quote-draft-${lead.id}`;
+  // Check if draft exists for restoration banner
+  const draftKey =
+    mode === 'bid'
+      ? `bid:draft:${lead.id}:installer-id`
+      : `quote:draft:${lead.id}:installer-id`;
   const hasDraft = typeof window !== 'undefined' && localStorage.getItem(draftKey);
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-0 md:p-4 animate-fade-in" onClick={onClose}>
-      <div ref={modalRef} className="bg-background relative w-full h-full md:max-w-[95vw] md:h-[95vh] md:rounded-2xl flex flex-col animate-scale-in shadow-neu-outset-lg" onClick={e => e.stopPropagation()}>
-        {/* Phase 2: Draft Restoration Banner */}
+    <div
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-0 md:p-4 animate-fade-in"
+      onClick={onClose}
+    >
+      <div
+        ref={modalRef}
+        className="bg-background relative w-full h-full md:max-w-[98vw] md:max-h-[98vh] md:rounded-2xl flex flex-col animate-scale-in shadow-neu-outset-lg overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Draft Restoration Banner */}
         {hasDraft && (
           <div className="flex-shrink-0 bg-warning/10 border-b border-warning px-4 py-2 flex items-center justify-center gap-2">
             <FileText className="h-4 w-4 text-warning" />
-            <span className="text-body-small text-warning">Draft restored from previous session</span>
+            <span className="text-body-small text-warning">
+              Draft restored from previous session (v{quoteDraft.meta.version})
+            </span>
           </div>
         )}
+
         {/* Header */}
-        <header className="flex-shrink-0 p-4 border-b border-border flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-primary/10"><FileText className="text-primary h-5 w-5" /></div>
-            <div>
-              <h2 className="text-heading-4 text-foreground">Quote Builder: {lead.name}</h2>
-              <div className="flex items-center gap-4 text-caption text-muted-foreground">
-                <span>Quote ID: #Q-2024-0012</span>
-                <div className="flex items-center gap-1.5">Status: <span className="text-warning">Draft</span></div>
-                <div className="hidden md:flex items-center gap-1.5">
-                  {isSaving ? 'Saving...' : lastSaved ? `Saved at ${lastSaved.toLocaleTimeString()}` : 'Unsaved changes'}
+        <header className="flex-shrink-0 p-4 border-b border-border">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-lg bg-primary/10">
+                <FileText className="text-primary h-5 w-5" />
+              </div>
+              <div>
+                <h2 className="text-heading-4 text-foreground">
+                  {mode === 'bid' ? 'Bid Builder' : 'Quote Builder'}: {lead.name}
+                </h2>
+                <div className="flex items-center gap-4 text-caption text-muted-foreground mt-1">
+                  <span>Lead #{lead.id}</span>
+                  <div className="flex items-center gap-1.5">
+                    Status: <span className="text-warning">Draft</span>
+                  </div>
+                  <div className="hidden md:flex items-center gap-1.5">
+                    {isSaving
+                      ? 'Saving...'
+                      : lastSaved
+                      ? `Saved at ${lastSaved.toLocaleTimeString()}`
+                      : 'Unsaved changes'}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          {/* Migrated: buttons → shadcn Button - Task 18.6: Conditional based on mode */}
-          <div className="flex items-center gap-2 w-full md:w-auto">
-            <Button onClick={() => alert("Save Draft clicked")} variant="minimal" className="w-full md:w-auto px-4 py-2">
-              <Save className="h-4 w-4" /> Save Draft
-            </Button>
-            {mode === 'quote' && (
-              <Button variant="minimal" className="w-full md:w-auto px-4 py-2">
-                <Eye className="h-4 w-4" /> Preview PDF
+
+            <div className="flex items-center gap-2 w-full md:w-auto">
+              <Button
+                onClick={() => alert('Save Draft clicked')}
+                variant="minimal"
+                className="flex-1 md:flex-initial px-4 py-2"
+              >
+                <Save className="h-4 w-4" /> Save Draft
               </Button>
-            )}
-            <Button variant="minimal" className="w-full md:w-auto px-4 py-2">
-              <Send className="h-4 w-4" /> {mode === 'bid' ? 'Submit Bid' : 'Send Quote'}
-            </Button>
-            <Button onClick={onClose} variant="minimal" className="absolute top-4 right-4 md:static p-2">
-              <X className="h-4 w-4" />
-            </Button>
+              {mode === 'quote' && (
+                <Button variant="minimal" className="flex-1 md:flex-initial px-4 py-2">
+                  <Eye className="h-4 w-4" /> Preview PDF
+                </Button>
+              )}
+              <Button variant="primary" className="flex-1 md:flex-initial px-4 py-2">
+                <Send className="h-4 w-4" /> {mode === 'bid' ? 'Submit Bid' : 'Send Quote'}
+              </Button>
+              <Button
+                onClick={onClose}
+                variant="minimal"
+                className="hidden md:flex p-2"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Preset Quick Apply */}
+          <div className="mt-4 flex flex-wrap gap-2">
+            <span className="text-caption text-muted-foreground self-center">Quick Presets:</span>
+            {PRESET_BUNDLES.map((preset) => (
+              <Button
+                key={preset.name}
+                onClick={() => applyPreset(preset.name)}
+                variant="secondary"
+                className="text-body-small px-4 py-1.5"
+              >
+                {preset.label}
+              </Button>
+            ))}
           </div>
         </header>
 
-        {/* Mobile Tabs - Migrated: buttons → shadcn Button - preserved onClick, active state */}
-        <div className="md:hidden p-2 border-b border-border flex gap-2">
-            <Button 
-              onClick={() => setMobileTab('editor')} 
-              variant={mobileTab === 'editor' ? 'secondary' : 'ghost'}
-              className="flex-1"
-            >
-              Editor
-            </Button>
-            <Button 
-              onClick={() => setMobileTab('preview')} 
-              variant={mobileTab === 'preview' ? 'secondary' : 'ghost'}
-              className="flex-1"
-            >
-              Preview
-            </Button>
-        </div>
+        {/* Main Content - Scrollable */}
+        <div className="flex-grow overflow-y-auto p-4 md:p-6 space-y-6">
+          {/* System Selection */}
+          <CollapsibleSection
+            title="System Selection"
+            expanded={expandedSections.system}
+            onToggle={() => toggleSection('system')}
+          >
+            <SystemSelection
+              systemType={quoteDraft.system.systemType}
+              systemSize={quoteDraft.system.systemSize}
+              desiredPriceRange={quoteDraft.system.desiredPriceRange}
+              onUpdate={updateSystem}
+            />
+          </CollapsibleSection>
 
-        {/* Main Content */}
-        <div className="flex-grow flex flex-col md:flex-row overflow-hidden">
-          {/* Left: Editor Panel */}
-          <div className={`flex-grow p-4 overflow-y-auto space-y-6 ${mobileTab === 'preview' ? 'hidden md:block' : ''} md:w-3/5`}>
-            {/* System Design */}
-            <div className="bg-background rounded-2xl shadow-neu-inset p-4">
-              <h3 className="text-label mb-2 flex items-center gap-2 text-foreground"><Zap className="h-4 w-4" /> System Design</h3>
-              <div className="space-y-4">
-                {/* Row 1: 4 Columns - System Size, Panel Brand, Inverter Brand, Battery Brand */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {/* Column 1: System Size */}
-                  <div>
-                    <label className="text-caption text-muted-foreground block mb-1">System Size (kW)</label>
-                    <input type="number" value={quoteData.systemSize} onChange={e => setQuoteData(p => ({...p, systemSize: parseFloat(e.target.value)}))} className={inputClasses} />
-                  </div>
+          {/* Roof & Site Details */}
+          <CollapsibleSection
+            title="Roof & Site Details"
+            expanded={expandedSections.roof}
+            onToggle={() => toggleSection('roof')}
+          >
+            <RoofSiteDetails
+              roofType={quoteDraft.roof.roofType}
+              pitchDeg={quoteDraft.roof.pitchDeg}
+              arrays={quoteDraft.roof.arrays}
+              orientations={quoteDraft.roof.orientations}
+              shadingLevel={quoteDraft.roof.shadingLevel}
+              phaseType={quoteDraft.roof.phaseType}
+              switchboardUpgrade={quoteDraft.roof.switchboardUpgrade}
+              smartMeterRequired={quoteDraft.roof.smartMeterRequired}
+              distanceToSwitchboardM={quoteDraft.roof.distanceToSwitchboardM}
+              notes={quoteDraft.roof.notes}
+              photos={quoteDraft.roof.photos}
+              onUpdate={updateRoof}
+            />
+          </CollapsibleSection>
 
-                  {/* Column 2: Solar Panel Brand */}
-                  <div>
-                    <label className="text-caption text-muted-foreground block mb-1">Solar Panel Brand</label>
-                    <select value={showCustomPanelInput ? 'Custom...' : quoteData.panelId} onChange={e => {
-                      if (e.target.value === 'Custom...') {
-                        setShowCustomPanelInput(true);
-                        setQuoteData(p => ({...p, panelId: ''}));
-                      } else {
-                        setShowCustomPanelInput(false);
-                        setQuoteData(p => ({...p, panelId: e.target.value}));
-                      }
-                    }} className={selectClasses}>
-                      <option value="">Select brand...</option>
-                      {SOLAR_PANELS.map(brand => <option key={brand} value={brand}>{brand}</option>)}
-                    </select>
-                    {showCustomPanelInput && (
-                      <input type="text" value={customPanelBrand} onChange={e => {
-                        setCustomPanelBrand(e.target.value);
-                        setQuoteData(p => ({...p, panelId: e.target.value}));
-                      }} placeholder="Enter custom panel brand" className={`${inputClasses} mt-2`} />
-                    )}
-                  </div>
+          {/* Product Configuration */}
+          <CollapsibleSection
+            title="Product Configuration"
+            expanded={expandedSections.products}
+            onToggle={() => toggleSection('products')}
+          >
+            <ProductConfiguration
+              panels={quoteDraft.products.panels}
+              inverter={quoteDraft.products.inverter}
+              battery={quoteDraft.products.battery}
+              addons={quoteDraft.products.addons}
+              onUpdate={updateProducts}
+            />
+          </CollapsibleSection>
 
-                  {/* Column 3: Inverter Brand */}
-                  <div>
-                    <label className="text-caption text-muted-foreground block mb-1">Inverter Brand</label>
-                    <select value={showCustomInverterInput ? 'Custom...' : quoteData.inverterId} onChange={e => {
-                      if (e.target.value === 'Custom...') {
-                        setShowCustomInverterInput(true);
-                        setQuoteData(p => ({...p, inverterId: ''}));
-                      } else {
-                        setShowCustomInverterInput(false);
-                        setQuoteData(p => ({...p, inverterId: e.target.value}));
-                      }
-                    }} className={selectClasses}>
-                      <option value="">Select brand...</option>
-                      {INVERTERS.map(brand => <option key={brand} value={brand}>{brand}</option>)}
-                    </select>
-                    {showCustomInverterInput && (
-                      <input type="text" value={customInverterBrand} onChange={e => {
-                        setCustomInverterBrand(e.target.value);
-                        setQuoteData(p => ({...p, inverterId: e.target.value}));
-                      }} placeholder="Enter custom inverter brand" className={`${inputClasses} mt-2`} />
-                    )}
-                  </div>
+          {/* Pricing Engine */}
+          <CollapsibleSection
+            title="Pricing Engine"
+            expanded={expandedSections.pricing}
+            onToggle={() => toggleSection('pricing')}
+          >
+            <PricingEngine
+              lineItems={quoteDraft.pricing.lineItems}
+              stc={quoteDraft.pricing.stc}
+              vic={quoteDraft.pricing.vic}
+              discounts={quoteDraft.pricing.discounts}
+              installerCostMode={quoteDraft.pricing.installerCostMode}
+              onUpdate={updatePricing}
+            />
+          </CollapsibleSection>
 
-                  {/* Column 4: Battery Brand */}
-                  <div>
-                    <label className="text-caption text-muted-foreground block mb-1">Battery Brand</label>
-                    <select value={showCustomBatteryInput ? 'Custom...' : (quoteData.batteryId ?? '')} onChange={e => {
-                      if (e.target.value === 'Custom...') {
-                        setShowCustomBatteryInput(true);
-                        setQuoteData(p => ({...p, batteryId: null}));
-                      } else {
-                        setShowCustomBatteryInput(false);
-                        setQuoteData(p => ({...p, batteryId: e.target.value || null}));
-                      }
-                    }} className={selectClasses}>
-                      <option value="">None</option>
-                      {BATTERIES.map(brand => <option key={brand} value={brand}>{brand}</option>)}
-                    </select>
-                    {showCustomBatteryInput && (
-                      <input type="text" value={customBatteryBrand} onChange={e => {
-                        setCustomBatteryBrand(e.target.value);
-                        setQuoteData(p => ({...p, batteryId: e.target.value}));
-                      }} placeholder="Enter custom battery brand" className={`${inputClasses} mt-2`} />
-                    )}
-                  </div>
-                </div>
+          {/* Compliance Documents */}
+          <CollapsibleSection
+            title="Compliance Documents"
+            expanded={expandedSections.compliance}
+            onToggle={() => toggleSection('compliance')}
+          >
+            <ComplianceDocs
+              docs={quoteDraft.compliance.docs}
+              cecAccreditation={quoteDraft.compliance.cecAccreditation}
+              electricalLicence={quoteDraft.compliance.electricalLicence}
+              insurance={quoteDraft.compliance.insurance}
+              onUpdate={updateCompliance}
+            />
+          </CollapsibleSection>
 
-                {/* Row 2: Battery Capacity (conditional - full width, shown only when battery selected) */}
-                {quoteData.batteryId && (
-                  <div className="max-w-sm">
-                    <label className="text-caption text-muted-foreground block mb-1">Battery Capacity (kWh)</label>
-                    <select 
-                      value={showCustomCapacityInput ? 0 : batteryCapacity} 
-                      onChange={e => {
-                        const value = parseFloat(e.target.value);
-                        if (value === 0) {
-                          setShowCustomCapacityInput(true);
-                          setBatteryCapacity(10);
-                        } else {
-                          setShowCustomCapacityInput(false);
-                          setBatteryCapacity(value);
-                        }
-                      }} 
-                      className={selectClasses}
-                    >
-                      {BATTERY_CAPACITIES.map(cap => (
-                        <option key={cap.value} value={cap.value}>{cap.label}</option>
-                      ))}
-                    </select>
-                    {showCustomCapacityInput && (
-                      <input 
-                        type="number" 
-                        min="5" 
-                        max="100" 
-                        step="0.5" 
-                        value={batteryCapacity} 
-                        onChange={e => setBatteryCapacity(parseFloat(e.target.value))} 
-                        className={`${inputClasses} mt-2`} 
-                        placeholder="Enter custom capacity (kWh)"
-                      />
-                    )}
-                    <p className="text-caption mt-1 text-muted-foreground">Typical range: 5-20 kWh for residential</p>
-                  </div>
-                )}
-              </div>
-            </div>
-            {/* Itemized Pricing */}
-            <div className="bg-background rounded-2xl shadow-neu-inset p-4">
-                <h3 className="text-label mb-2 flex items-center gap-2 text-foreground"><DollarSign className="h-4 w-4" /> Itemized Pricing</h3>
-                <div className="space-y-2">
-                    {quoteData.lineItems.map(item => (
-                        <div key={item.id} className="grid grid-cols-12 gap-2 items-center">
-                            <input type="text" placeholder="Description" value={item.description} onChange={e => handleLineItemChange(item.id, 'description', e.target.value)} className={`${inputClasses} col-span-5`} />
-                            <input type="number" placeholder="Qty" value={item.qty} onChange={e => handleLineItemChange(item.id, 'qty', parseFloat(e.target.value))} className={`${inputClasses} col-span-2 text-center`} />
-                            <input type="number" placeholder="Unit Price" value={item.unitPrice} onChange={e => handleLineItemChange(item.id, 'unitPrice', parseFloat(e.target.value))} className={`${inputClasses} col-span-2 text-right`} />
-                            <div className="col-span-2 text-right text-label text-foreground">{`$${(item.qty * item.unitPrice).toLocaleString()}`}</div>
-                            {/* Migrated: button → shadcn Button - preserved onClick, delete logic */}
-                            <Button onClick={() => removeLineItem(item.id)} variant="minimal" className="h-8 w-8 p-0">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                        </div>
-                    ))}
-                </div>
-                {/* Migrated: button → shadcn Button - preserved onClick, add item logic */}
-                <Button onClick={addLineItem} variant="minimal" className="mt-2 text-body-small px-3 py-1.5">
-                  <Plus className="h-4 w-4" /> Add Line Item
-                </Button>
-            </div>
-          </div>
-          {/* Right: Preview Panel */}
-          <div className={`flex-shrink-0 p-4 overflow-y-auto space-y-4 bg-background-alt ${mobileTab === 'editor' ? 'hidden md:block' : ''} md:w-2/5 md:border-l border-border`}>
-            <div className="flex items-center justify-between">
-              <h3 className="text-foreground">Live Preview</h3>
-              <div className="flex items-center gap-2">
-                <label className="text-caption text-muted-foreground">Customer View</label>
-                {/* Toggle preserved as-is - custom toggle pattern, not using Button component */}
-                <button onClick={() => setViewMode(v => v === 'installer' ? 'customer' : 'installer')} className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${viewMode === 'customer' ? 'bg-primary' : 'bg-border'}`}><span className={`inline-block h-3 w-3 transform rounded-full bg-surface transition-transform ${viewMode === 'customer' ? 'translate-x-5' : 'translate-x-1'}`}/></button>
-              </div>
-            </div>
-            {/* Task 18.4: GST and Incentive Toggles (Updated with editable GST %) */}
-            <div className="bg-background rounded-2xl p-4 shadow-neu-inset space-y-3">
-              <h4 className="text-body-small text-foreground mb-2">Pricing Options</h4>
-              <div className="space-y-2">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={includeGst} onChange={e => setIncludeGst(e.target.checked)} className="w-4 h-4 rounded border-border bg-background text-primary focus:ring-primary" />
-                  <span className="text-body-small text-foreground">Include GST</span>
-                </label>
-                {includeGst && (
-                  <div className="ml-6 space-y-2">
-                    <label className="text-caption text-muted-foreground block mb-1">GST Rate (%)</label>
-                    <select 
-                      value={showCustomGstInput ? 0 : gstPercent} 
-                      onChange={e => {
-                        const value = parseFloat(e.target.value);
-                        if (value === 0 && e.target.selectedIndex === GST_RATES.length - 1) {
-                          setShowCustomGstInput(true);
-                          setGstPercent(10);
-                        } else {
-                          setShowCustomGstInput(false);
-                          setGstPercent(value);
-                        }
-                      }} 
-                      className={selectClasses}
-                    >
-                      {GST_RATES.map((rate, index) => (
-                        <option key={index} value={rate.value}>{rate.label}</option>
-                      ))}
-                    </select>
-                    {showCustomGstInput && (
-                      <input 
-                        type="number" 
-                        min="0" 
-                        max="100" 
-                        step="0.1" 
-                        value={gstPercent} 
-                        onChange={e => setGstPercent(parseFloat(e.target.value) || 0)} 
-                        className={inputClasses} 
-                        placeholder="Enter custom GST %"
-                      />
-                    )}
-                  </div>
-                )}
-              </div>
-              <div className="space-y-2">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={includeIncentive} onChange={e => setIncludeIncentive(e.target.checked)} className="w-4 h-4 rounded border-border bg-background text-primary focus:ring-primary" />
-                  <span className="text-body-small text-foreground">Include Government Incentive</span>
-                </label>
-                {includeIncentive && (
-                  <div className="ml-6">
-                    <label className="text-caption text-muted-foreground block mb-1">Incentive Amount ($)</label>
-                    <input type="number" value={incentiveAmount} onChange={e => setIncentiveAmount(parseFloat(e.target.value) || 0)} className={`${inputClasses} text-body-small`} placeholder="Enter amount" />
-                  </div>
-                )}
-              </div>
-            </div>
-            {/* Totals */}
-            <div className="bg-background rounded-2xl p-4 shadow-neu-inset">
-              <div className="space-y-2 text-body-small">
-                <div className="flex justify-between text-foreground"><span>Subtotal</span><span>{`$${calculations.subtotal.toLocaleString()}`}</span></div>
-                {includeGst && (
-                  <div className="flex justify-between text-foreground"><span>GST ({gstPercent}%)</span><span>{`$${calculations.tax.toLocaleString()}`}</span></div>
-                )}
-                {includeIncentive && (
-                  <div className="flex justify-between text-success"><span>Incentive</span><span>{`-$${incentiveAmount.toLocaleString()}`}</span></div>
-                )}
-                <div className="flex justify-between text-body border-t border-border pt-2 mt-2 text-foreground"><span>Total Price</span><span>{`$${calculations.total.toLocaleString()}`}</span></div>
-              </div>
-            </div>
-            {/* Financial Summary */}
-            <div className="bg-background rounded-2xl p-4 text-body-small shadow-neu-inset">
-                <h4 className="mb-2 text-foreground">Financial Summary</h4>
-                <div className="space-y-1">
-                    <div className="flex justify-between text-foreground"><span>Federal Incentive (est.)</span><span className="text-success">{`-$${calculations.federalIncentive.toLocaleString()}`}</span></div>
-                    <div className="flex justify-between text-foreground"><span>Net Cost (est.)</span><span>{`$${calculations.netCost.toLocaleString()}`}</span></div>
-                    <div className="flex justify-between text-caption text-muted-foreground pt-2 mt-2 border-t border-border"><span>Price per Watt</span><span>{`$${calculations.pricePerWatt.toFixed(2)} / W`}</span></div>
-                    <div className="flex justify-between text-caption text-muted-foreground"><span>Est. Annual Savings</span><span>{`$${calculations.annualSavings.toLocaleString()}`}</span></div>
-                    <div className="flex justify-between text-caption text-muted-foreground"><span>Simple Payback</span><span>{`${calculations.payback.toFixed(1)} years`}</span></div>
-                </div>
-            </div>
-          </div>
+          {/* Customer Preview */}
+          <CollapsibleSection
+            title="Customer Preview"
+            expanded={expandedSections.preview}
+            onToggle={() => toggleSection('preview')}
+          >
+            <CustomerPreview
+              options={quoteDraft.preview.options}
+              systemSize={quoteDraft.system.systemSize}
+              onUpdate={updatePreview}
+            />
+          </CollapsibleSection>
         </div>
       </div>
+    </div>
+  );
+};
+
+// Collapsible Section Component
+interface CollapsibleSectionProps {
+  title: string;
+  expanded: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}
+
+const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
+  title,
+  expanded,
+  onToggle,
+  children
+}) => {
+  return (
+    <div className="space-y-3">
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center justify-between px-6 py-3 bg-background-alt rounded-lg hover:bg-primary/5 transition-colors"
+      >
+        <span className="text-heading-6 text-foreground">{title}</span>
+        {expanded ? (
+          <ChevronUp className="h-5 w-5 text-muted-foreground" />
+        ) : (
+          <ChevronDown className="h-5 w-5 text-muted-foreground" />
+        )}
+      </button>
+      {expanded && <div className="animate-fade-in">{children}</div>}
     </div>
   );
 };

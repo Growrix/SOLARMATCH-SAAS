@@ -1046,6 +1046,64 @@ body {
     @apply w-full h-2 bg-background rounded-lg appearance-none cursor-pointer;
     box-shadow: var(--shadow-inset-md);
   }
+
+  /* Selection Button - Used for multi-choice selection (inactive state) */
+  .selection-btn {
+    @apply px-4 py-3 rounded-lg text-body-small transition-all;
+    @apply bg-background-alt text-foreground;
+    box-shadow: var(--shadow-outset-sm);
+  }
+
+  .selection-btn:hover {
+    @apply text-primary;
+    box-shadow: var(--shadow-outset-md);
+    transform: translateY(-1px);
+  }
+
+  .selection-btn:active {
+    box-shadow: var(--shadow-inset-sm);
+    transform: translateY(0);
+  }
+
+  /* Selection Button - Active/Selected state */
+  .selection-btn-active {
+    @apply px-4 py-3 rounded-lg text-body-small transition-all;
+    @apply bg-primary text-background;
+    box-shadow: var(--shadow-inset-md);
+  }
+
+  .selection-btn-active:hover {
+    box-shadow: var(--shadow-inset-md);
+  }
+
+  /* Selection Chip - Smaller variant for tags/pills */
+  .selection-chip {
+    @apply px-4 py-2 rounded-lg text-body-small transition-all;
+    @apply bg-background-alt text-foreground;
+    box-shadow: var(--shadow-outset-sm);
+  }
+
+  .selection-chip:hover {
+    @apply text-primary;
+    box-shadow: var(--shadow-outset-md);
+    transform: translateY(-1px);
+  }
+
+  .selection-chip:active {
+    box-shadow: var(--shadow-inset-sm);
+    transform: translateY(0);
+  }
+
+  /* Selection Chip - Active state */
+  .selection-chip-active {
+    @apply px-4 py-2 rounded-lg text-body-small transition-all;
+    @apply bg-primary text-background;
+    box-shadow: var(--shadow-inset-md);
+  }
+
+  .selection-chip-active:hover {
+    box-shadow: var(--shadow-inset-md);
+  }
 }
 
 /* ============================================
@@ -1254,6 +1312,10 @@ body {
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  /* Semantic text color for content on primary backgrounds */
+  .text-primary-foreground {
+    color: rgb(var(--color-primary-foreground) / <alpha-value>);
   }
 }
 

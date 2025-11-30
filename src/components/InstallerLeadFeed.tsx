@@ -104,8 +104,8 @@ interface InstallerLeadFeedProps {
   installer: InstallerProfile;
   leads?: Lead[]; // Optional: use provided leads or fallback to empty array
   onUnlockLead: (leadId: string) => Promise<boolean>;
-  onSubmitQuote: (leadId: number, quoteData: any) => Promise<boolean>;
-  onStartChat: (leadId: number) => void;
+  onSubmitQuote: (leadId: string, quoteData: any) => Promise<boolean>;
+  onStartChat: (leadId: string) => void;
 }
 
 // --- Stripe Payment Modal Component ---
@@ -521,8 +521,8 @@ const LeadCard: React.FC<{
   lead: Lead;
   installer: InstallerProfile;
   onUnlock: (leadId: string) => void;
-  onSubmitQuote: (leadId: number, quoteData: any) => Promise<boolean>;
-  onStartChat: (leadId: number) => void;
+  onSubmitQuote: (leadId: string, quoteData: any) => Promise<boolean>;
+  onStartChat: (leadId: string) => void;
 }> = ({ lead, installer, onUnlock, onSubmitQuote, onStartChat }) => {
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   const [isViewDetailsOpen, setIsViewDetailsOpen] = useState(false);
@@ -939,7 +939,7 @@ const InstallerLeadFeed: React.FC<InstallerLeadFeedProps> = ({
     return true;
   });
 
-  const handleUnlockLead = (leadId: number) => {
+  const handleUnlockLead = (leadId: string) => {
     const lead = leads.find(l => l.id === leadId);
     if (lead) {
       setSelectedLead(lead);

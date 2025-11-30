@@ -74,7 +74,7 @@ export async function GET(
           }
         }
       },
-      orderBy: { submittedAt: 'desc' }
+      orderBy: { createdAt: 'desc' }
     });
 
     // Calculate countdown status
@@ -120,7 +120,7 @@ export async function GET(
           ? bid.installer.companyName || 'Installer'
           : `Installer #${index + 1}`,
         
-        submittedAt: bid.submittedAt.toISOString(),
+        submittedAt: bid.createdAt.toISOString(),
         
         // Internal data for recommendation calculation
         _valueScore: valueScore

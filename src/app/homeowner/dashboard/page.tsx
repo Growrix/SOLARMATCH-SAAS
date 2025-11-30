@@ -337,6 +337,8 @@ interface DashboardOverviewContentProps {
   onPreviewLead: (lead: RecentLeadSummary) => void;
   onCancelLead: (lead: RecentLeadSummary) => void;
   onLimitReached?: () => void;
+  setSelectedBiddingLeadId: (id: string) => void;
+  setIsBiddingReviewModalOpen: (open: boolean) => void;
 }
 
 const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
@@ -349,6 +351,8 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
   onPreviewLead,
   onCancelLead,
   onLimitReached,
+  setSelectedBiddingLeadId,
+  setIsBiddingReviewModalOpen,
 }) => {
   const StatCard: React.FC<{ 
     icon: React.ReactNode; 
@@ -1146,6 +1150,8 @@ export default function HomeownerDashboardPage() {
             onPreviewLead={handlePreviewLead}
             onCancelLead={handleCancelLead}
             onLimitReached={() => setIsLeadLimitModalOpen(true)}
+            setSelectedBiddingLeadId={setSelectedBiddingLeadId}
+            setIsBiddingReviewModalOpen={setIsBiddingReviewModalOpen}
           />
         );
       case 'Call/Visit Quotes':
@@ -1172,6 +1178,8 @@ export default function HomeownerDashboardPage() {
             onPreviewLead={handlePreviewLead}
             onCancelLead={handleCancelLead}
             onLimitReached={() => setIsLeadLimitModalOpen(true)}
+            setSelectedBiddingLeadId={setSelectedBiddingLeadId}
+            setIsBiddingReviewModalOpen={setIsBiddingReviewModalOpen}
           />
         );
     }
@@ -1470,10 +1478,11 @@ export default function HomeownerDashboardPage() {
             setSelectedBiddingLeadId(null);
           }}
           leadId={selectedBiddingLeadId}
-          onSelectWinner={(bidId: string) => {
-            console.log('Homeowner selected winning bid:', bidId);
-            alert(`Bid ${bidId} selected as winner! (Phase 1 UI-only)`);
-            setIsBiddingReviewModalOpen(false);
+          propertyAddress="Loading..." 
+          bids={[]}
+          onRequestContact={async (bidId: string) => {
+            console.log('Homeowner requested contact with bid:', bidId);
+            alert(`Contact requested for bid ${bidId}! (Phase 1 UI-only)`);
           }}
         />
       )}

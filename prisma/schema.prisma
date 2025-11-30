@@ -106,6 +106,7 @@ model User {
   leadsAsInstaller      Lead[]                     @relation("installer_leads")
   phoneVerifications    PhoneVerification[]
   quotesAsInstaller     Quote[]                    @relation("installer_quotes")
+  bidsAsInstaller       Bid[]                      @relation("installer_bids")
   sessions              Session[]
   installerAssignments  LeadAssignment[]           @relation("installer_assignments")
   adminAssignments      LeadAssignment[]           @relation("admin_assignments")
@@ -210,6 +211,7 @@ model Lead {
   homeowner             User              @relation("homeowner_leads", fields: [homeownerId], references: [id], onDelete: Cascade)
   installer             User?             @relation("installer_leads", fields: [installerId], references: [id])
   quotes                Quote[]
+  bids                  Bid[]
   assignments           LeadAssignment[]  @relation("lead_assignments")
 
   @@index([homeownerId])
@@ -332,6 +334,42 @@ model Quote {
   @@index([status])
   @@index([createdAt])
   @@map("quotes")
+}
+
+model Bid {
+  id                  String    @id @default(cuid())
+  leadId              String
+  installerId         String
+  amount              Float
+  capacityOffer       Float?
+  expectedInstallDate DateTime?
+  notes               String?
+  panelBrand          String?
+  inverterBrand       String?
+  batteryBrand        String?
+  batteryCapacity     String?
+  includeGst          Boolean   @default(true)
+  gstPercent          Float     @default(10.0)
+  gstAmount           Float     @default(0)
+  includeIncentive    Boolean   @default(false)
+  incentiveAmount     Float     @default(0)
+  finalTotal          Float
+  status              String    @default("SUBMITTED")
+  selectedAt          DateTime?
+  purchasedAt         DateTime?
+  rejectedAt          DateTime?
+  rejectionReason     String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  lead                Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  installer           User      @relation("installer_bids", fields: [installerId], references: [id], onDelete: Cascade)
+
+  @@unique([leadId, installerId])
+  @@index([leadId])
+  @@index([installerId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("bids")
 }
 
 model LeadFeedback {

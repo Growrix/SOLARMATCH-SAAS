@@ -2590,3 +2590,13 @@ As the Quote builder modal is not done completely. I have done some research by 
 ***instructions*** I want you to go through the research file and understand the requirements. after that create a comprehensive plan to build the Quote builder modal accordingly. create the plan in D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Features\Quote Builder Modal\QUOTE-BUILDER-IMPLEMENTATION-PLAN.md file. 
 
 ***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. 
+
+-------------------------------------------------------------------
+
+how come you did the unsemantic builds while you had the instructions in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md . I want you to find out the missing instructions or the issues cauased you not to follow the Strict rules. After that just update the guidelines or Design System SOT . so that you never do the simlar kind of mistakes. Read above few conversation to understand the current scenario.  while updating the guidelines, make sure to keep existing instructions as it is. just update on the specific area if needed. 
+
+----------------------------------------------------------------
+
+
+
+
