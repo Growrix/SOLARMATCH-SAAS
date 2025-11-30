@@ -2575,3 +2575,9 @@ the UI plan is already there in D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE
 ***instructions*** We are now building the UI UX only , no backend now. 
 
 ***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. 
+---------------------------------------------------------------
+
+***the bidding flow***
+as the last implimentation gone wrong , I have no idea what is the current situation of the bidding flow. so please audit the frontend and backend of the bidding flow deeply and check the  D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Bidding leads\brainstorm3.md , this was the plan to implimenet. prepare the audit report with your findings and gaps. 
+
+***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. 
