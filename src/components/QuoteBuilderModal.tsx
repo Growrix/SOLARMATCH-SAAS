@@ -250,7 +250,18 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
     if (draft) {
       try {
         const data = JSON.parse(draft) as QuoteDraft;
-        setQuoteDraft(data);
+        // Merge with current state to ensure all required properties exist
+        setQuoteDraft(prev => ({
+          ...prev,
+          ...data,
+          system: { ...prev.system, ...(data.system || {}) },
+          roof: { ...prev.roof, ...(data.roof || {}) },
+          products: { ...prev.products, ...(data.products || {}) },
+          pricing: { ...prev.pricing, ...(data.pricing || {}) },
+          compliance: { ...prev.compliance, ...(data.compliance || {}) },
+          preview: { ...prev.preview, ...(data.preview || {}) },
+          meta: { ...prev.meta, ...(data.meta || {}) }
+        }));
       } catch (error) {
         console.error('Failed to load draft:', error);
       }
@@ -439,11 +450,6 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
   };
 
   if (!isOpen || !lead) return null;
-  
-  // Don't render until quoteDraft is fully initialized
-  if (!quoteDraft.system || !quoteDraft.roof || !quoteDraft.products || !quoteDraft.pricing) {
-    return null;
-  }
 
   // Check if draft exists for restoration banner
   const draftKey =
@@ -481,10 +487,11 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
               </div>
               <div>
                 <h2 className="text-heading-4 text-foreground">
-                  {mode === 'bid' ? 'Bid Builder' : 'Quote Builder'}: {lead.name}
+                  {mode === 'bid' ? 'Bid Builder' : `Quote Builder: ${lead.name}`}
                 </h2>
                 <div className="flex items-center gap-4 text-caption text-muted-foreground mt-1">
                   <span>Lead #{lead.id}</span>
+                  <span>{lead.location}</span>
                   <div className="flex items-center gap-1.5">
                     Status: <span className="text-warning">Draft</span>
                   </div>

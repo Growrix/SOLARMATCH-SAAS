@@ -835,12 +835,14 @@ const LeadCard: React.FC<{
         onClose={() => setIsQuoteModalOpen(false)}
         lead={{
           id: lead.id,
-          name: lead.contact.name,
-          location: `${lead.location.suburb}, ${lead.location.state} ${lead.location.postcode}`,
-          propertyType: lead.systemDetails.propertyType,
-          systemSize: lead.systemDetails.estimatedSize,
-          estimatedUsage: 'N/A',
-          budget: lead.systemDetails.budget
+          name: lead.contact?.name || '***LOCKED***',
+          location: lead.location
+            ? `${lead.location.suburb}, ${lead.location.state} ${lead.location.postcode}`
+            : '',
+          propertyType: lead.systemDetails?.propertyType || '',
+          systemSize: lead.systemDetails?.estimatedSize || 0,
+          estimatedUsage: lead.systemDetails?.estimatedUsage || '',
+          budget: lead.systemDetails?.budget || ''
         }}
         onSubmitQuote={onSubmitQuote}
         mode={quoteMode}
