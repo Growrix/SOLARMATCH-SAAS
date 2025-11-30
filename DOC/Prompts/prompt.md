@@ -2599,5 +2599,7 @@ how come you did the unsemantic builds while you had the instructions in the D:\
 
 I need a error/issues fixing guidelines/SOT to create , I have been facing a lot of issues during fixing issues with AI . It deletes so many files , creates unsemantic code, inline styles, hardcoded values, inconsistent theming, no testing after implimentation etc. which is really annoying and time consuming to fix again and again. so I want you to create a error/issues fixing guidelines/SOT to avoid these kind of issues in future. 
 
+***instructions*** read the whole chat conversations to identify my pain point regarding error/issue fixing. After that create a error/issues fixing guidelines/SOT in D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-ISSUE-FIXING-GUIDELINES.md file. make sure to cover all the pain points you identified from the conversations. do not ovverride the existing guidelines. just create a new file for issue fixing guidelines. must add testing instructions and rules to follow after fixing any issue.
+
 
 

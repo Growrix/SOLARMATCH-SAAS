@@ -840,8 +840,8 @@ const LeadCard: React.FC<{
             ? `${lead.location.suburb}, ${lead.location.state} ${lead.location.postcode}`
             : '',
           propertyType: lead.systemDetails?.propertyType || '',
-          systemSize: lead.systemDetails?.estimatedSize || 0,
-          estimatedUsage: lead.systemDetails?.estimatedUsage || '',
+          systemSize: lead.systemDetails?.estimatedSize || '0',
+          estimatedUsage: lead.systemDetails?.estimatedSize || '',
           budget: lead.systemDetails?.budget || ''
         }}
         onSubmitQuote={onSubmitQuote}
