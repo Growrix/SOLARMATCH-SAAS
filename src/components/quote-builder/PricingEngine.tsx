@@ -279,7 +279,7 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
             <div className="col-span-1 flex justify-end">
               <Button
                 onClick={() => removeLineItem(item.id)}
-                variant="minimal"
+                variant="ghost"
                 className="h-8 w-8 p-0"
                 title="Remove line item"
               >
@@ -489,7 +489,7 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
                 <div className="col-span-2 flex justify-end">
                   <Button
                     onClick={() => removeDiscount(discount.id)}
-                    variant="minimal"
+                    variant="ghost"
                     className="h-8 w-8 p-0"
                     title="Remove discount"
                   >

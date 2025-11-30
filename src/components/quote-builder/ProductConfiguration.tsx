@@ -541,7 +541,7 @@ const ProductConfiguration: React.FC<ProductConfigurationProps> = ({
                 <div className="col-span-2 flex justify-end">
                   <Button
                     onClick={() => removeAddon(addon.key)}
-                    variant="minimal"
+                    variant="ghost"
                     className="h-8 w-8 p-0"
                     title="Remove item"
                   >

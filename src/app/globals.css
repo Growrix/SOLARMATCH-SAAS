@@ -62,6 +62,10 @@
   --color-error: 248 113 113;             /* #F87171 - red-400 */
   --color-info: 96 165 250;               /* #60A5FA - blue-400 */
   
+  /* Destructive/Error (HSL for shadcn/ui compatibility) */
+  --destructive: 0 91% 71%;               /* #F87171 - red-400 (HSL) */
+  --destructive-foreground: 255 255 255;  /* #FFFFFF - White text on red background */
+  
   /* Legacy aliases for backward compatibility - TO BE DEPRECATED */
   --color-primary: 255 255 255;
   --color-primary-hover: 230 230 230;
@@ -186,6 +190,10 @@
   --color-error: 220 38 38;               /* #DC2626 - red-600 */
   --color-info: 37 99 235;                /* #2563EB - blue-600 */
   
+  /* Destructive/Error (HSL for shadcn/ui compatibility) */
+  --destructive: 0 84% 60%;               /* #DC2626 - red-600 (HSL) */
+  --destructive-foreground: 255 255 255;  /* #FFFFFF - White text on red background */
+  
   /* Legacy aliases for backward compatibility */
   --color-primary: 0 0 0;
   --color-primary-hover: 37 37 37;
@@ -293,6 +301,10 @@
   --color-warning: 250 204 21;            /* #FACC15 - yellow-400 */
   --color-error: 248 113 113;             /* #F87171 - red-400 */
   --color-info: 147 197 253;              /* #93C5FD - blue-300 (lighter for purple background) */
+  
+  /* Destructive/Error (HSL for shadcn/ui compatibility) */
+  --destructive: 0 91% 71%;               /* #F87171 - red-400 (HSL) */
+  --destructive-foreground: 26 17 46;     /* Dark purple text for better contrast on purple theme */
   
   /* Legacy aliases for backward compatibility */
   --color-primary: 167 139 250;
