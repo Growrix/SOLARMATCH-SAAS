@@ -501,20 +501,30 @@ const ProductConfiguration: React.FC<ProductConfigurationProps> = ({
         )}
 
         {addons.length > 0 && (
-          <div className="space-y-2">
+          <div className="space-y-3">
+            {/* Header Row */}
+            <div className="grid grid-cols-12 gap-3 text-caption text-muted-foreground pb-2 border-b border-border">
+              <div className="col-span-4">Item</div>
+              <div className="col-span-2 text-center">Qty</div>
+              <div className="col-span-2 text-right">Price</div>
+              <div className="col-span-2 text-right">Total</div>
+              <div className="col-span-2"></div>
+            </div>
+            
+            {/* Data Rows */}
             {addons.map((addon) => (
               <div key={addon.key} className="grid grid-cols-12 gap-3 items-center">
-                <div className="col-span-5 text-body-small text-foreground">{addon.label}</div>
+                <div className="col-span-4 text-body-small text-foreground">{addon.label}</div>
                 <div className="col-span-2">
                   <input
                     type="number"
                     min="1"
                     value={addon.qty}
                     onChange={(e) => updateAddon(addon.key, 'qty', parseInt(e.target.value) || 1)}
-                    className="form-input w-full px-3 py-2 text-center"
+                    className="form-input w-full px-3 py-2 text-center text-body-small"
                   />
                 </div>
-                <div className="col-span-3">
+                <div className="col-span-2">
                   <input
                     type="number"
                     min="0"
@@ -522,19 +532,20 @@ const ProductConfiguration: React.FC<ProductConfigurationProps> = ({
                     onChange={(e) =>
                       updateAddon(addon.key, 'unitPrice', parseFloat(e.target.value) || 0)
                     }
-                    className="form-input w-full px-3 py-2 text-right"
+                    className="form-input w-full px-3 py-2 text-right text-body-small"
                   />
                 </div>
-                <div className="col-span-1 text-right text-body-small text-foreground">
+                <div className="col-span-2 text-right text-body-small text-foreground">
                   ${(addon.qty * addon.unitPrice).toLocaleString()}
                 </div>
-                <div className="col-span-1 flex justify-end">
+                <div className="col-span-2 flex justify-end">
                   <Button
                     onClick={() => removeAddon(addon.key)}
                     variant="minimal"
                     className="h-8 w-8 p-0"
+                    title="Remove item"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4 text-error" />
                   </Button>
                 </div>
               </div>

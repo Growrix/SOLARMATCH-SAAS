@@ -281,8 +281,9 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
                 onClick={() => removeLineItem(item.id)}
                 variant="minimal"
                 className="h-8 w-8 p-0"
+                title="Remove line item"
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className="h-4 w-4 text-error" />
               </Button>
             </div>
           </div>
@@ -450,42 +451,55 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
           </Button>
         </div>
 
-        {discounts.map((discount) => (
-          <div key={discount.id} className="grid grid-cols-12 gap-3 items-center">
-            <div className="col-span-8">
-              <input
-                type="text"
-                value={discount.label}
-                onChange={(e) => updateDiscount(discount.id, 'label', e.target.value)}
-                placeholder="Discount description"
-                className="form-input w-full px-3 py-2"
-              />
+        {discounts.length > 0 && (
+          <>
+            {/* Header Row */}
+            <div className="grid grid-cols-12 gap-3 text-caption text-muted-foreground pb-2 border-b border-border">
+              <div className="col-span-7">Description</div>
+              <div className="col-span-3 text-right">Amount ($)</div>
+              <div className="col-span-2"></div>
             </div>
+            
+            {/* Discount Rows */}
+            {discounts.map((discount) => (
+              <div key={discount.id} className="grid grid-cols-12 gap-3 items-center">
+                <div className="col-span-7">
+                  <input
+                    type="text"
+                    value={discount.label}
+                    onChange={(e) => updateDiscount(discount.id, 'label', e.target.value)}
+                    placeholder="Discount description"
+                    className="form-input w-full px-3 py-2 text-body-small"
+                  />
+                </div>
 
-            <div className="col-span-3">
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={discount.amount}
-                onChange={(e) =>
-                  updateDiscount(discount.id, 'amount', parseFloat(e.target.value) || 0)
-                }
-                className="form-input w-full px-3 py-2 text-right"
-              />
-            </div>
+                <div className="col-span-3">
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={discount.amount}
+                    onChange={(e) =>
+                      updateDiscount(discount.id, 'amount', parseFloat(e.target.value) || 0)
+                    }
+                    className="form-input w-full px-3 py-2 text-right text-body-small"
+                  />
+                </div>
 
-            <div className="col-span-1 flex justify-end">
-              <Button
-                onClick={() => removeDiscount(discount.id)}
-                variant="minimal"
-                className="h-8 w-8 p-0"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        ))}
+                <div className="col-span-2 flex justify-end">
+                  <Button
+                    onClick={() => removeDiscount(discount.id)}
+                    variant="minimal"
+                    className="h-8 w-8 p-0"
+                    title="Remove discount"
+                  >
+                    <Trash2 className="h-4 w-4 text-error" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </>
+        )}
       </div>
 
       {/* Totals Summary */}
