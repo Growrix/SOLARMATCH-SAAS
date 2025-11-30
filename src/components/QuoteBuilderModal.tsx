@@ -621,6 +621,8 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
               vic={quoteDraft.pricing.vic}
               discounts={quoteDraft.pricing.discounts}
               installerCostMode={quoteDraft.pricing.installerCostMode}
+              systemSize={quoteDraft.system.systemSize}
+              panelWattage={quoteDraft.products.panels.wattage}
               onUpdate={updatePricing}
             />
           </CollapsibleSection>

@@ -10,6 +10,8 @@ interface PricingEngineProps {
   vic: VICData;
   discounts: DiscountData[];
   installerCostMode: boolean;
+  systemSize: number; // in kW, for price per watt and STC auto-calc
+  panelWattage: number; // for STC auto-calc
   onUpdate: (data: Partial<PricingEngineData>) => void;
 }
 
@@ -53,12 +55,22 @@ export interface PricingEngineData {
 
 const CATEGORIES = ['System', 'Battery', 'Labour', 'Other'];
 
+// STC Deeming Factors (2025) by Zone
+const DEEMING_FACTORS: Record<string, number> = {
+  'Zone 1': 1.622,
+  'Zone 2': 1.536,
+  'Zone 3': 1.382,
+  'Zone 4': 1.185
+};
+
 const PricingEngine: React.FC<PricingEngineProps> = ({
   lineItems,
   stc,
   vic,
   discounts,
   installerCostMode,
+  systemSize,
+  panelWattage,
   onUpdate
 }) => {
   const addLineItem = () => {
@@ -124,6 +136,30 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
   const margin = installerCostMode ? finalPrice - totalCOGS : 0;
   const marginPercent = installerCostMode && finalPrice > 0 ? (margin / finalPrice) * 100 : 0;
 
+  // Price per watt (Phase 2.1)
+  const pricePerWatt = systemSize > 0 ? finalPrice / (systemSize * 1000) : null;
+
+  // Auto-calculate STC count (Phase 2.2)
+  React.useEffect(() => {
+    if (stc.eligible && systemSize > 0 && panelWattage > 0) {
+      const deemingFactor = DEEMING_FACTORS[stc.zone] || 1.382; // Default to Zone 3
+      const calculatedSTC = Math.round((systemSize * 1000 / panelWattage) * deemingFactor);
+      
+      // Only auto-update if STC count differs significantly (avoid infinite loops)
+      if (Math.abs(calculatedSTC - stc.stcCount) > 5) {
+        onUpdate({ stc: { ...stc, stcCount: calculatedSTC } });
+      }
+    }
+  }, [stc.eligible, stc.zone, systemSize, panelWattage]);
+
+  // Line item validation (Phase 2.3)
+  const validateLineItem = (item: LineItemData): string | null => {
+    if (!item.description.trim()) return 'Description required';
+    if (item.unitPrice <= 0) return 'Unit price must be > 0';
+    if (item.qty <= 0) return 'Quantity must be > 0';
+    return null;
+  };
+
   return (
     <div className="bg-background rounded-2xl shadow-neu-inset p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -159,8 +195,12 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
         </div>
 
         {/* Rows */}
-        {lineItems.map((item) => (
-          <div key={item.id} className="grid grid-cols-12 gap-3 items-center">
+        {lineItems.map((item) => {
+          const error = validateLineItem(item);
+          
+          return (
+          <div key={item.id} className="space-y-1">
+            <div className="grid grid-cols-12 gap-3 items-center">
             <div className="col-span-2">
               <select
                 value={item.category}
@@ -181,7 +221,7 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
                 value={item.description}
                 onChange={(e) => updateLineItem(item.id, 'description', e.target.value)}
                 placeholder="Description"
-                className="form-input w-full px-3 py-2 text-body-small"
+                className={`form-input w-full px-3 py-2 text-body-small ${!item.description.trim() && item.description !== '' ? 'border-error' : ''}`}
               />
             </div>
 
@@ -191,7 +231,7 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
                 min="1"
                 value={item.qty}
                 onChange={(e) => updateLineItem(item.id, 'qty', parseInt(e.target.value) || 1)}
-                className="form-input w-full px-3 py-2 text-center text-body-small"
+                className={`form-input w-full px-3 py-2 text-center text-body-small ${item.qty <= 0 ? 'border-error' : ''}`}
               />
             </div>
 
@@ -204,7 +244,7 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
                 onChange={(e) =>
                   updateLineItem(item.id, 'unitPrice', parseFloat(e.target.value) || 0)
                 }
-                className="form-input w-full px-3 py-2 text-right text-body-small"
+                className={`form-input w-full px-3 py-2 text-right text-body-small ${item.unitPrice <= 0 ? 'border-error' : ''}`}
               />
             </div>
 
@@ -246,7 +286,16 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
               </Button>
             </div>
           </div>
-        ))}
+          
+          {/* Validation error message */}
+          {error && (
+            <div className="text-caption text-error ml-3">
+              {error}
+            </div>
+          )}
+          </div>
+          );
+        })}
 
         <Button onClick={addLineItem} variant="secondary" className="mt-3">
           <Plus className="h-4 w-4" />
@@ -476,6 +525,13 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
           <span>Final Price</span>
           <span>${finalPrice.toLocaleString()}</span>
         </div>
+
+        {pricePerWatt !== null && (
+          <div className="flex justify-between text-body-small text-muted-foreground">
+            <span>Price per Watt</span>
+            <span>${pricePerWatt.toFixed(2)}/W</span>
+          </div>
+        )}
 
         {installerCostMode && (
           <div className="mt-4 pt-4 border-t border-border space-y-2 bg-warning/10 rounded-lg p-3">
