@@ -547,99 +547,111 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
         {/* Main Content - Scrollable */}
         <div className="flex-grow overflow-y-auto p-4 md:p-6 space-y-6">
           {/* System Selection */}
-          <CollapsibleSection
-            title="System Selection"
-            expanded={expandedSections.system}
-            onToggle={() => toggleSection('system')}
-          >
-            <SystemSelection
-              systemType={quoteDraft.system.systemType}
-              systemSize={quoteDraft.system.systemSize}
-              desiredPriceRange={quoteDraft.system.desiredPriceRange}
-              onUpdate={updateSystem}
-            />
-          </CollapsibleSection>
+          {quoteDraft.system && (
+            <CollapsibleSection
+              title="System Selection"
+              expanded={expandedSections.system}
+              onToggle={() => toggleSection('system')}
+            >
+              <SystemSelection
+                systemType={quoteDraft.system.systemType}
+                systemSize={quoteDraft.system.systemSize}
+                desiredPriceRange={quoteDraft.system.desiredPriceRange}
+                onUpdate={updateSystem}
+              />
+            </CollapsibleSection>
+          )}
 
           {/* Roof & Site Details */}
-          <CollapsibleSection
-            title="Roof & Site Details"
-            expanded={expandedSections.roof}
-            onToggle={() => toggleSection('roof')}
-          >
-            <RoofSiteDetails
-              roofType={quoteDraft.roof.roofType}
-              pitchDeg={quoteDraft.roof.pitchDeg}
-              arrays={quoteDraft.roof.arrays}
-              orientations={quoteDraft.roof.orientations}
-              shadingLevel={quoteDraft.roof.shadingLevel}
-              phaseType={quoteDraft.roof.phaseType}
-              switchboardUpgrade={quoteDraft.roof.switchboardUpgrade}
-              smartMeterRequired={quoteDraft.roof.smartMeterRequired}
-              distanceToSwitchboardM={quoteDraft.roof.distanceToSwitchboardM}
-              notes={quoteDraft.roof.notes}
-              photos={quoteDraft.roof.photos}
-              onUpdate={updateRoof}
-            />
-          </CollapsibleSection>
+          {quoteDraft.roof && (
+            <CollapsibleSection
+              title="Roof & Site Details"
+              expanded={expandedSections.roof}
+              onToggle={() => toggleSection('roof')}
+            >
+              <RoofSiteDetails
+                roofType={quoteDraft.roof.roofType}
+                pitchDeg={quoteDraft.roof.pitchDeg}
+                arrays={quoteDraft.roof.arrays}
+                orientations={quoteDraft.roof.orientations}
+                shadingLevel={quoteDraft.roof.shadingLevel}
+                phaseType={quoteDraft.roof.phaseType}
+                switchboardUpgrade={quoteDraft.roof.switchboardUpgrade}
+                smartMeterRequired={quoteDraft.roof.smartMeterRequired}
+                distanceToSwitchboardM={quoteDraft.roof.distanceToSwitchboardM}
+                notes={quoteDraft.roof.notes}
+                photos={quoteDraft.roof.photos}
+                onUpdate={updateRoof}
+              />
+            </CollapsibleSection>
+          )}
 
           {/* Product Configuration */}
-          <CollapsibleSection
-            title="Product Configuration"
-            expanded={expandedSections.products}
-            onToggle={() => toggleSection('products')}
-          >
-            <ProductConfiguration
-              panels={quoteDraft.products.panels}
-              inverter={quoteDraft.products.inverter}
-              battery={quoteDraft.products.battery}
-              addons={quoteDraft.products.addons}
-              onUpdate={updateProducts}
-            />
-          </CollapsibleSection>
+          {quoteDraft.products && (
+            <CollapsibleSection
+              title="Product Configuration"
+              expanded={expandedSections.products}
+              onToggle={() => toggleSection('products')}
+            >
+              <ProductConfiguration
+                panels={quoteDraft.products.panels}
+                inverter={quoteDraft.products.inverter}
+                battery={quoteDraft.products.battery}
+                addons={quoteDraft.products.addons}
+                onUpdate={updateProducts}
+              />
+            </CollapsibleSection>
+          )}
 
           {/* Pricing Engine */}
-          <CollapsibleSection
-            title="Pricing Engine"
-            expanded={expandedSections.pricing}
-            onToggle={() => toggleSection('pricing')}
-          >
-            <PricingEngine
-              lineItems={quoteDraft.pricing.lineItems}
-              stc={quoteDraft.pricing.stc}
-              vic={quoteDraft.pricing.vic}
-              discounts={quoteDraft.pricing.discounts}
-              installerCostMode={quoteDraft.pricing.installerCostMode}
-              onUpdate={updatePricing}
-            />
-          </CollapsibleSection>
+          {quoteDraft.pricing && (
+            <CollapsibleSection
+              title="Pricing Engine"
+              expanded={expandedSections.pricing}
+              onToggle={() => toggleSection('pricing')}
+            >
+              <PricingEngine
+                lineItems={quoteDraft.pricing.lineItems}
+                stc={quoteDraft.pricing.stc}
+                vic={quoteDraft.pricing.vic}
+                discounts={quoteDraft.pricing.discounts}
+                installerCostMode={quoteDraft.pricing.installerCostMode}
+                onUpdate={updatePricing}
+              />
+            </CollapsibleSection>
+          )}
 
           {/* Compliance Documents */}
-          <CollapsibleSection
-            title="Compliance Documents"
-            expanded={expandedSections.compliance}
-            onToggle={() => toggleSection('compliance')}
-          >
-            <ComplianceDocs
-              docs={quoteDraft.compliance.docs}
-              cecAccreditation={quoteDraft.compliance.cecAccreditation}
-              electricalLicence={quoteDraft.compliance.electricalLicence}
-              insurance={quoteDraft.compliance.insurance}
-              onUpdate={updateCompliance}
-            />
-          </CollapsibleSection>
+          {quoteDraft.compliance && (
+            <CollapsibleSection
+              title="Compliance Documents"
+              expanded={expandedSections.compliance}
+              onToggle={() => toggleSection('compliance')}
+            >
+              <ComplianceDocs
+                docs={quoteDraft.compliance.docs}
+                cecAccreditation={quoteDraft.compliance.cecAccreditation}
+                electricalLicence={quoteDraft.compliance.electricalLicence}
+                insurance={quoteDraft.compliance.insurance}
+                onUpdate={updateCompliance}
+              />
+            </CollapsibleSection>
+          )}
 
           {/* Customer Preview */}
-          <CollapsibleSection
-            title="Customer Preview"
-            expanded={expandedSections.preview}
-            onToggle={() => toggleSection('preview')}
-          >
-            <CustomerPreview
-              options={quoteDraft.preview.options}
-              systemSize={quoteDraft.system.systemSize}
-              onUpdate={updatePreview}
-            />
-          </CollapsibleSection>
+          {quoteDraft.preview && quoteDraft.system && (
+            <CollapsibleSection
+              title="Customer Preview"
+              expanded={expandedSections.preview}
+              onToggle={() => toggleSection('preview')}
+            >
+              <CustomerPreview
+                options={quoteDraft.preview.options}
+                systemSize={quoteDraft.system.systemSize}
+                onUpdate={updatePreview}
+              />
+            </CollapsibleSection>
+          )}
         </div>
       </div>
     </div>

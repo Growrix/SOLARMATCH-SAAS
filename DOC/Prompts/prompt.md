@@ -2597,6 +2597,7 @@ how come you did the unsemantic builds while you had the instructions in the D:\
 
 ----------------------------------------------------------------
 
+I need a error/issues fixing guidelines/SOT to create , I have been facing a lot of issues during fixing issues with AI . It deletes so many files , creates unsemantic code, inline styles, hardcoded values, inconsistent theming, no testing after implimentation etc. which is really annoying and time consuming to fix again and again. so I want you to create a error/issues fixing guidelines/SOT to avoid these kind of issues in future. 
 
 
 
