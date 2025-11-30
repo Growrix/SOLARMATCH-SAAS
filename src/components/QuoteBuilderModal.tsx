@@ -141,6 +141,7 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
   });
 
   const [isSaving, setIsSaving] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -314,7 +315,100 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
     }));
   };
 
-  const applyPreset = (presetName: 'Economy' | 'Balanced' | 'Premium') => {
+  // Submit handler
+  const handleSubmit = async () => {
+    if (!lead) return;
+
+    setIsSubmitting(true);
+
+    try {
+      if (mode === 'bid') {
+        // Calculate totals from pricing data
+        const subtotal = quoteDraft.pricing.lineItems.reduce(
+          (acc, item) => acc + item.qty * item.unitPrice,
+          0
+        );
+        const gstAmount = quoteDraft.pricing.lineItems
+          .filter((item) => item.taxGst)
+          .reduce((acc, item) => acc + item.qty * item.unitPrice * 0.1, 0);
+        const stcDeduction = quoteDraft.pricing.stc.eligible
+          ? quoteDraft.pricing.stc.stcCount * quoteDraft.pricing.stc.stcPrice
+          : 0;
+        const vicDeduction = quoteDraft.pricing.vic.rebateEligible
+          ? quoteDraft.pricing.vic.rebateAmount
+          : 0;
+        const totalDiscounts = quoteDraft.pricing.discounts.reduce(
+          (acc, d) => acc + d.amount,
+          0
+        );
+        const finalTotal = subtotal + gstAmount - stcDeduction - vicDeduction - totalDiscounts;
+
+        // Map QuoteDraft to Bid payload
+        const bidPayload = {
+          leadId: String(lead.id),
+          amount: subtotal,
+          capacityOffer: quoteDraft.system.systemSize,
+          expectedInstallDate: null, // TODO: Add to UI if needed
+          notes: quoteDraft.roof.notes || null,
+          
+          // Equipment details
+          panelBrand: quoteDraft.products.panels.brand || null,
+          inverterBrand: quoteDraft.products.inverter.brand || null,
+          batteryBrand: quoteDraft.products.battery?.brand || null,
+          batteryCapacity: quoteDraft.products.battery?.usableKwh || null,
+          
+          // Financial details
+          includeGst: true,
+          gstPercent: 10.0,
+          includeIncentive: quoteDraft.pricing.stc.eligible,
+          incentiveAmount: stcDeduction
+        };
+
+        // Call bid submission API
+        const response = await fetch('/api/bids', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bidPayload)
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to submit bid');
+        }
+
+        // Clear draft on success
+        const draftKey = `bid:draft:${lead.id}:installer-id`;
+        localStorage.removeItem(draftKey);
+
+        // Show success message
+        alert(`Bid submitted successfully! Bid ID: ${data.bidId}`);
+        onClose();
+      } else {
+        // For quotes, use the existing onSubmitQuote handler
+        const quoteData = {
+          ...quoteDraft,
+          leadId: lead.id
+        };
+        
+        const success = await onSubmitQuote(String(lead.id), quoteData);
+        
+        if (success) {
+          const draftKey = `quote:draft:${lead.id}:installer-id`;
+          localStorage.removeItem(draftKey);
+          onClose();
+        }
+      }
+    } catch (error) {
+      console.error('Submit error:', error);
+      alert(error instanceof Error ? error.message : 'Failed to submit');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Apply preset
+  const applyPreset = (presetName: string) => {
     const preset = PRESET_BUNDLES.find((p) => p.name === presetName);
     if (!preset) return;
 
@@ -413,8 +507,16 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
                   <Eye className="h-4 w-4" /> Preview PDF
                 </Button>
               )}
-              <Button variant="primary" className="flex-1 md:flex-initial px-4 py-2">
-                <Send className="h-4 w-4" /> {mode === 'bid' ? 'Submit Bid' : 'Send Quote'}
+              <Button 
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                variant="primary" 
+                className="flex-1 md:flex-initial px-4 py-2"
+              >
+                <Send className="h-4 w-4" /> 
+                {isSubmitting 
+                  ? 'Submitting...' 
+                  : mode === 'bid' ? 'Submit Bid' : 'Send Quote'}
               </Button>
               <Button
                 onClick={onClose}
