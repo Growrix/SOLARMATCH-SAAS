@@ -556,104 +556,108 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
           </div>
         </header>
 
-        {/* Main Content - Scrollable */}
-        <div className="flex-grow overflow-y-auto p-4 md:p-6 space-y-6">
-          {/* System Selection */}
-          <CollapsibleSection
-            title="System Selection"
-            expanded={expandedSections.system}
-            onToggle={() => toggleSection('system')}
-          >
-            <SystemSelection
-              systemType={quoteDraft.system.systemType}
-              systemSize={quoteDraft.system.systemSize}
-              desiredPriceRange={quoteDraft.system.desiredPriceRange}
-              onUpdate={updateSystem}
-            />
-          </CollapsibleSection>
+        {/* Main Content - Two Column Layout */}
+        <div className="flex-grow overflow-hidden flex gap-4 p-4 md:p-6">
+          {/* Left Column - 70% - Form Sections */}
+          <div className="w-[70%] overflow-y-auto pr-2 space-y-6">
+            {/* System Selection */}
+            <CollapsibleSection
+              title="System Selection"
+              expanded={expandedSections.system}
+              onToggle={() => toggleSection('system')}
+            >
+              <SystemSelection
+                systemType={quoteDraft.system.systemType}
+                systemSize={quoteDraft.system.systemSize}
+                desiredPriceRange={quoteDraft.system.desiredPriceRange}
+                onUpdate={updateSystem}
+              />
+            </CollapsibleSection>
 
-          {/* Roof & Site Details */}
-          <CollapsibleSection
-            title="Roof & Site Details"
-            expanded={expandedSections.roof}
-            onToggle={() => toggleSection('roof')}
-          >
-            <RoofSiteDetails
-              roofType={quoteDraft.roof.roofType}
-              pitchDeg={quoteDraft.roof.pitchDeg}
-              arrays={quoteDraft.roof.arrays}
-              orientations={quoteDraft.roof.orientations}
-              shadingLevel={quoteDraft.roof.shadingLevel}
-              phaseType={quoteDraft.roof.phaseType}
-              switchboardUpgrade={quoteDraft.roof.switchboardUpgrade}
-              smartMeterRequired={quoteDraft.roof.smartMeterRequired}
-              distanceToSwitchboardM={quoteDraft.roof.distanceToSwitchboardM}
-              notes={quoteDraft.roof.notes}
-              photos={quoteDraft.roof.photos}
-              onUpdate={updateRoof}
-            />
-          </CollapsibleSection>
+            {/* Roof & Site Details */}
+            <CollapsibleSection
+              title="Roof & Site Details"
+              expanded={expandedSections.roof}
+              onToggle={() => toggleSection('roof')}
+            >
+              <RoofSiteDetails
+                roofType={quoteDraft.roof.roofType}
+                pitchDeg={quoteDraft.roof.pitchDeg}
+                arrays={quoteDraft.roof.arrays}
+                orientations={quoteDraft.roof.orientations}
+                shadingLevel={quoteDraft.roof.shadingLevel}
+                phaseType={quoteDraft.roof.phaseType}
+                switchboardUpgrade={quoteDraft.roof.switchboardUpgrade}
+                smartMeterRequired={quoteDraft.roof.smartMeterRequired}
+                distanceToSwitchboardM={quoteDraft.roof.distanceToSwitchboardM}
+                notes={quoteDraft.roof.notes}
+                photos={quoteDraft.roof.photos}
+                onUpdate={updateRoof}
+              />
+            </CollapsibleSection>
 
-          {/* Product Configuration */}
-          <CollapsibleSection
-            title="Product Configuration"
-            expanded={expandedSections.products}
-            onToggle={() => toggleSection('products')}
-          >
-            <ProductConfiguration
-              panels={quoteDraft.products.panels}
-              inverter={quoteDraft.products.inverter}
-              battery={quoteDraft.products.battery}
-              addons={quoteDraft.products.addons}
-              onUpdate={updateProducts}
-            />
-          </CollapsibleSection>
+            {/* Product Configuration */}
+            <CollapsibleSection
+              title="Product Configuration"
+              expanded={expandedSections.products}
+              onToggle={() => toggleSection('products')}
+            >
+              <ProductConfiguration
+                panels={quoteDraft.products.panels}
+                inverter={quoteDraft.products.inverter}
+                battery={quoteDraft.products.battery}
+                addons={quoteDraft.products.addons}
+                onUpdate={updateProducts}
+              />
+            </CollapsibleSection>
 
-          {/* Pricing Engine */}
-          <CollapsibleSection
-            title="Pricing Engine"
-            expanded={expandedSections.pricing}
-            onToggle={() => toggleSection('pricing')}
-          >
-            <PricingEngine
-              lineItems={quoteDraft.pricing.lineItems}
-              stc={quoteDraft.pricing.stc}
-              vic={quoteDraft.pricing.vic}
-              discounts={quoteDraft.pricing.discounts}
-              installerCostMode={quoteDraft.pricing.installerCostMode}
-              systemSize={quoteDraft.system.systemSize}
-              panelWattage={quoteDraft.products.panels.wattage}
-              onUpdate={updatePricing}
-            />
-          </CollapsibleSection>
+            {/* Pricing Engine */}
+            <CollapsibleSection
+              title="Pricing Engine"
+              expanded={expandedSections.pricing}
+              onToggle={() => toggleSection('pricing')}
+            >
+              <PricingEngine
+                lineItems={quoteDraft.pricing.lineItems}
+                stc={quoteDraft.pricing.stc}
+                vic={quoteDraft.pricing.vic}
+                discounts={quoteDraft.pricing.discounts}
+                installerCostMode={quoteDraft.pricing.installerCostMode}
+                systemSize={quoteDraft.system.systemSize}
+                panelWattage={quoteDraft.products.panels.wattage}
+                onUpdate={updatePricing}
+              />
+            </CollapsibleSection>
 
-          {/* Compliance Documents */}
-          <CollapsibleSection
-            title="Compliance Documents"
-            expanded={expandedSections.compliance}
-            onToggle={() => toggleSection('compliance')}
-          >
-            <ComplianceDocs
-              docs={quoteDraft.compliance.docs}
-              cecAccreditation={quoteDraft.compliance.cecAccreditation}
-              electricalLicence={quoteDraft.compliance.electricalLicence}
-              insurance={quoteDraft.compliance.insurance}
-              onUpdate={updateCompliance}
-            />
-          </CollapsibleSection>
+            {/* Compliance Documents */}
+            <CollapsibleSection
+              title="Compliance Documents"
+              expanded={expandedSections.compliance}
+              onToggle={() => toggleSection('compliance')}
+            >
+              <ComplianceDocs
+                docs={quoteDraft.compliance.docs}
+                cecAccreditation={quoteDraft.compliance.cecAccreditation}
+                electricalLicence={quoteDraft.compliance.electricalLicence}
+                insurance={quoteDraft.compliance.insurance}
+                onUpdate={updateCompliance}
+              />
+            </CollapsibleSection>
+          </div>
 
-          {/* Customer Preview */}
-          <CollapsibleSection
-            title="Customer Preview"
-            expanded={expandedSections.preview}
-            onToggle={() => toggleSection('preview')}
-          >
-            <CustomerPreview
-              options={quoteDraft.preview.options}
-              systemSize={quoteDraft.system.systemSize}
-              onUpdate={updatePreview}
-            />
-          </CollapsibleSection>
+          {/* Right Column - 30% - Customer Preview (Sticky) */}
+          <div className="w-[30%] overflow-y-auto pl-2">
+            <div className="sticky top-0">
+              <div className="bg-background-alt rounded-2xl shadow-neu p-4 space-y-4">
+                <h3 className="text-heading-6 text-foreground">Customer Preview</h3>
+                <CustomerPreview
+                  options={quoteDraft.preview.options}
+                  systemSize={quoteDraft.system.systemSize}
+                  onUpdate={updatePreview}
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
