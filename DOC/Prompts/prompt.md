@@ -2581,3 +2581,12 @@ the UI plan is already there in D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE
 as the last implimentation gone wrong , I have no idea what is the current situation of the bidding flow. so please audit the frontend and backend of the bidding flow deeply and check the  D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Installers\Bidding leads\brainstorm3.md , this was the plan to implimenet. prepare the audit report with your findings and gaps. 
 
 ***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. 
+-------------------------------------------------------------------
+
+***Quote builder***
+- research:
+As the Quote builder modal is not done completely. I have done some research by chatgpt to enhance and make the quote builder professional. here is the research file D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Features\Quote Builder Modal\ChatGPT_research.md . 
+
+***instructions*** I want you to go through the research file and understand the requirements. after that create a comprehensive plan to build the Quote builder modal accordingly. create the plan in D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Features\Quote Builder Modal\QUOTE-BUILDER-IMPLEMENTATION-PLAN.md file. 
+
+***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. 
