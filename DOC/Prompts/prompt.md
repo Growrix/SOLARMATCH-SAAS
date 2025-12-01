@@ -2614,3 +2614,19 @@ I need a error/issues fixing guidelines/SOT to create , I have been facing a lot
 - Also validate the current calculation logic and mention the gaps if any.
 
 ***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md.
+
+------------------------------------------------------------------------
+
+
+- Take this as the SOT of my instructions regarding enhancing the Quote builder modal : D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Features\Quote Builder Modal\QUOTE-BUILDER-IMPROVEMENT-PLAN.md
+
+- The Goal is to enhance the Quote builder modal UI UX and calculation logic based on the improvement plan mentioned in the above file.
+
+- Important Note : You are crafting speckit for working on the existing modal, not building it. so be careful while crafting the speckit. 
+
+- you must audit the current state and get the 100% clear picture before even start plannig. 
+
+***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md.
+- You must refer this file in every tasks that will be accomplished. 
+
+----------------------------------------------------------------------

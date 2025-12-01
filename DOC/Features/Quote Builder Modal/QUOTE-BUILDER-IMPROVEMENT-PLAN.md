@@ -15,6 +15,35 @@ Scope: UI/UX, pricing engine, analytics, export
 
 ---
 
+## Additional Recommendations (2025-12-01)
+
+- **User Feedback & Error Handling:**
+  - Add inline validation for all numeric and required fields, especially in assumptions and compliance panels.
+  - Surface calculation errors (e.g., invalid inputs, negative savings, missing required fields) with clear, actionable messages.
+
+- **Accessibility:**
+  - Ensure all new UI elements (inputs, toggles, tables, charts) are accessible (ARIA labels, keyboard navigation, focus states).
+  - Test modal and preview sections with screen readers.
+
+- **Performance:**
+  - For large quotes or multiple options, ensure calculation and UI updates remain performant (debounce inputs, memoize calculations if needed).
+
+- **Testing:**
+  - Add/expand unit tests for the new calculation engine and option manager.
+  - Consider integration tests for the modal flow (e.g., Cypress or Playwright).
+
+- **Documentation:**
+  - Update or add developer documentation for the new calculation logic, option manager, and any new utilities.
+  - Document all assumptions and formulas for transparency and future audits.
+
+- **Analytics (Optional):**
+  - Consider tracking which presets/options are most used, and where users drop off in the quote process (for future UX improvements).
+
+- **Internationalization (i18n):**
+  - If future expansion is planned, structure labels and currency formatting for easy localization.
+
+---
+
 ## References Read
 - ChatGPT_CalculationLogic.md (formulas, TS module, payback series)
 - ChatGPT_research.md (complete AU blueprint, sections and features)
@@ -92,13 +121,14 @@ Conclusion: Replace with `utils/quoteCalculator.ts` from research; wire inputs; 
 - Optional: expose `npv(rate)` and `irr()` in advanced panel; default rate 5%.
 
 ### Phase 5 — Compliance & Branding
-- Compliance checklist: validate required artefacts before submit (panel, inverter, battery datasheets; CEC accreditation; licence; insurance).
+- Compliance checklist: validate required artefacts before submit (panel, inverter, battery datasheets; CEC accreditation; licence; insurance). Add inline validation and clear error messages for missing artefacts.
 - Branding inputs: company name, logo, ABN, accreditation; store in quote meta.
 - PDF export stub → JSON export first; later integrate server-side PDF.
 
 ### Phase 6 — UX & Presets
 - Presets: confirm 3 named bundles map to research’s Economy/Balanced/Premium (brands, wattage, warranty). Provide price guardrails.
 - Quick actions: apply preset to new option; re-run calculator; update preview.
+- Ensure all new UI/UX elements are accessible and performant. Add ARIA labels, keyboard navigation, and focus states. Test with screen readers.
 
 ### Phase 7 — Testing & Verification
 - Type checks: `npx tsc --noEmit` → 0 errors.
@@ -109,12 +139,13 @@ Conclusion: Replace with `utils/quoteCalculator.ts` from research; wire inputs; 
   - STC auto updates when size/zone/postcode changes; manual override persists.
   - Options A/B/C compute distinct totals and payback; comparison table populates.
   - Guards: if annualSavings <= 0, show message, payback = N/A.
+- Add/expand unit and integration tests for calculation engine, option manager, and modal flow.
 
 ---
 
 ## Data Model & API Notes
 - No schema change required for UI iteration; keep calculations client-side; include summary in payload for now.
-- For bids (`/api/bids`), add optional fields later: `pricePerWatt`, `annualSavings`, `paybackYears` and a `calcAssumptions` blob for transparency.
+- For bids (`/api/bids`), add optional fields later: `pricePerWatt`, `annualSavings`, `paybackYears` and a `calcAssumptions` blob for transparency. Plan for backward compatibility if adding new fields.
 
 ---
 
@@ -129,8 +160,8 @@ Conclusion: Replace with `utils/quoteCalculator.ts` from research; wire inputs; 
 ---
 
 ## Rollout & Safety
-- Feature flag multi-option and advanced finance; default on in staging.
-- Keep autosave keys versioned; migrating drafts should merge safely.
+- Feature flag multi-option and advanced finance; default on in staging. Ensure feature flags are easy to toggle for QA/staging/production and are documented.
+- Keep autosave keys versioned; migrating drafts should merge safely. Confirm autosave logic is robust for multi-option drafts and handles version migrations gracefully.
 - Backup commit before modifying modal and pricing files per guidelines.
 
 ---
