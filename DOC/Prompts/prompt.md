@@ -2689,3 +2689,44 @@ we have built the Bid builder almost, but Need more enhancements. The users gene
 
 -------------------------------------------------------------------
 
+these are just the copy paste from your above texts. I liked your plan . Now updte the enhancement plan.md file with all our discussed points.Lets finalize and lock the plan . 
+
+-Include all the fields from Instant Quote (orientation, tilt, shading, material, etc.) with the same or better options.
+Add any extra fields that installers need (e.g., roof access notes, structural notes, array count, etc.).
+Normalize the data so that what the homeowner provides can be directly mapped and prefilled for the installer, but also allow installers to add more technical details if needed.
+I want a concrete field list or a patch to expand the Bid Builder’s roof section.
+
+What Will Change? (In Plain English)
+1. Import Button
+If a lead has Instant Quote data, you’ll see an “Import from Instant Quote” button at the top of the Bid Builder.
+Clicking it will show you a preview of what will change (before/after).
+You can accept or cancel the import.
+2. Automatic Field Mapping
+The system will copy over matching info from the Instant Quote to the Bid Builder, such as:
+Project type (residential/commercial)
+System size (kW)
+Electricity rates (retail/feed-in tariff)
+Roof details (type, tilt, shading, orientation)
+Battery info (if the homeowner wanted a battery)
+Special features (like VPP, EV charger, smart home)
+It will convert values as needed (e.g., cents to dollars, tilt buckets to degrees).
+3. Smart Defaults & Hints
+If the homeowner gave a custom electricity rate, that will be used as the default.
+The system will estimate self-consumption based on usage patterns.
+If the total price goes over the homeowner’s budget, you’ll see a gentle warning.
+4. Helper Notes
+Any field that was prefilled from the Instant Quote will show a small note: “Prefilled from homeowner Instant Quote”.
+5. Battery & Addons
+If the homeowner wanted a battery, the Bid Builder will pre-create a battery section with the right details.
+Special requests (like VPP, EV, etc.) will show up as tags or $0 addons.
+6. Quick Adjust Controls
+You’ll get easy “+/-” buttons to quickly tweak the system size.
+7. Safe & Reversible
+You can always cancel or re-import if you want to start over.
+If the import fails (bad data), you’ll get a soft error message.
+
+------------------------------------------------------------------------------------------------------------------------------------
+
+I want you to impliment this plan accurately and exactly : D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Features\Quote Builder Modal\INSTANT-to-BID-ENHANCEMENT-PLAN.md
+
+***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and make sure to stay aligned with the specks as well. if needed , update the specks accordingly. 

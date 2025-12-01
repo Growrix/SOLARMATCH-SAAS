@@ -390,3 +390,135 @@ MVP Scope: COMPLETE
 - Phase 4 (UX): Addon integration & real-time updates ✓
 - Phase 7 (US5): Graphs, Lead Details, Preview Modal ✓
 - Phase 8 (US6): System Selection & Pricing Engine UI Optimization ✓
+
+---
+
+## Phase 9 – Import & Prefill Pipeline (P0 – Foundational for Instant Quote Integration)
+
+Story goal: Leverage homeowner Instant Quote inputs to streamline Bid Builder. Enable installer to import lead.quoteData and auto-prefill matching fields with one click, preserving logic integrity and design-system compliance.
+
+Independent test: Select a lead with quoteData → open Bid Builder → click "Import from Instant Quote" → verify diff preview shows before/after → accept → verify systemSize, projectType, roofType, pitch, orientation, shading, retail/FiT rates prefilled → verify autosave triggers → modify a field → verify graphs update within 500ms → run 6 verification commands → must return 0/0/0/0/0/0.
+
+Pre-phase checklist (MANDATORY):
+- [ ] Read `DOC/Guidelines/AI-IMPLEMENTATION-GUIDELINES.md` sections 1-6
+- [ ] Review `DOC/Features/Quote Builder Modal/INSTANT-to-BID-ENHANCEMENT-PLAN.md` (SOT)
+- [ ] Baseline verification: Run 6 commands on QuoteBuilderModal.tsx, RoofSiteDetails.tsx → record results
+- [ ] Backup commit: `git add . && git commit -m "backup: before Phase 9 (import & prefill)"`
+
+### T093 [P0][Mapping]: Create instant-to-bid mapper utility
+- Path: `src/lib/mappers/instant-to-bid.ts`
+- Action: Implement `mapInstantToBid(instant: any): Partial<QuoteDraft>` with normalizers:
+  - projectType ← propertyType
+  - system.systemSize ← systemSizeOverride || recommendedSize
+  - assumptions.retailPrice/feedInTariff ← customRetailRate/customFeedInRate (c/kWh → $/kWh)
+  - roof.roofType ← roofType
+  - roof.pitchDeg ← roofTilt bucket (flat=5°, low=15°, optimal=25°, steep=40°)
+  - roof.shadingLevel ← shadingLevel bucket (none=0, minimal=1, partial=2, moderate=3, heavy=4)
+  - roof.orientations[] ← panelOrientation
+  - products.battery ← batteryIncluded/capacity/brand
+  - tags/addons ← VPP/EV/SmartHome/GridServices flags
+- Testing:
+  - Unit test: Pass sample quoteData with all fields → verify correct mapping
+  - Unit test: Pass minimal quoteData → verify safe defaults
+  - Unit test: Pass malformed quoteData → verify no crash, return partial data
+- Acceptance: Mapper returns valid Partial<QuoteDraft>; all conversions accurate; no hardcoded values
+- Status: NOT STARTED
+
+### T094 [P0][UI]: Expand RoofSiteDetails component with InstantQuote parity
+- Path: `src/components/quote-builder/RoofSiteDetails.tsx`
+- Action: Add new fields to RoofSiteDetailsData interface and component:
+  - arrayLayoutNotes: string (textarea for stringing/combiner notes)
+  - roofAccessNotes: string (textarea for ladder/scaffold/access constraints)
+  - structuralNotes: string (textarea for truss spacing, batten type, tile condition)
+  - mountingSystemPreferred: string (text input for rail brand/model)
+  - conduitRunComplexity: 'low' | 'medium' | 'high' (select dropdown)
+  - inverterLocationNotes: string (textarea for indoor/outdoor, ventilation)
+- Update UI layout:
+  - Keep existing fields (roofType, pitchDeg, arrays, orientations, shadingLevel, phaseType, switchboard, smartMeter, distance, notes, photos)
+  - Add new section "Installer Technical Details" (collapsible, default collapsed)
+  - Place new fields in logical groups (Array Layout, Roof Access, Structural, Mounting, Conduit, Inverter)
+  - Use semantic classes only (no hardcoded colors/spacing/typography)
+- Testing:
+  - Visual: Open Bid Builder → verify new fields render correctly in Dark/Light/Purple themes
+  - Responsive: Test 320px, 768px, 1440px breakpoints → no overflow, fields stack properly
+  - Functional: Enter data in new fields → verify autosave triggers → reload → verify data persists
+  - Verification: Run 6 commands on RoofSiteDetails.tsx → must be 0/0/0/0/0/0
+- Acceptance: All new fields present; no design-system violations; autosave works; themes + responsive pass
+- Status: NOT STARTED
+
+### T095 [P0][UI]: Add "Import from Instant Quote" button to QuoteBuilderModal
+- Path: `src/components/QuoteBuilderModal.tsx`
+- Action:
+  - Add feature flag check: `const canImport = lead?.quoteData && process.env.NEXT_PUBLIC_FEATURE_IMPORT_INSTANT === 'true'`
+  - Add "Import from Instant Quote" button in header (right of modal title, before close button)
+  - Button style: secondary variant, with Download icon
+  - On click: open ImportPreviewModal (new component) showing before/after diff
+  - ImportPreviewModal: show side-by-side comparison of current draft vs. mapped values; Accept/Cancel buttons
+  - On Accept: apply mapping via setQuoteDraft(draft => ({ ...draft, ...mappedData })); close modal; trigger autosave; show toast "Imported from Instant Quote"
+  - On Cancel: close modal; no changes
+- Testing:
+  - Visual: Open Bid Builder with lead.quoteData present → verify button appears
+  - Visual: Open Bid Builder with lead.quoteData null → verify button hidden
+  - Functional: Click Import → verify diff modal opens → verify before/after columns
+  - Functional: Click Accept → verify fields update → verify graphs re-render within 500ms
+  - Functional: Click Cancel → verify no changes applied
+  - Verification: Run 6 commands on QuoteBuilderModal.tsx → must be 0/0/0/0/0/0
+- Acceptance: Button conditional on quoteData + feature flag; diff preview accurate; accept/cancel work; no violations
+- Status: NOT STARTED
+
+### T096 [P1][Mapper]: Add helper captions for prefilled fields
+- Path: `src/components/quote-builder/RoofSiteDetails.tsx`, `SystemSelection.tsx`, `PricingEngine.tsx`
+- Action: For fields that were prefilled from InstantQuote:
+  - Add small muted caption below field: "Prefilled from homeowner Instant Quote"
+  - Store `importMeta` in quoteDraft with timestamp and source
+  - Only show caption if field was prefilled (check importMeta.prefilledFields array)
+- Testing:
+  - Functional: Import lead → verify captions appear on prefilled fields
+  - Functional: Manually change prefilled field → verify caption persists (or remove if needed)
+  - Visual: Check caption styling in all themes → muted, not intrusive
+- Acceptance: Captions present on prefilled fields; non-intrusive; semantic classes only
+- Status: NOT STARTED
+
+### T097 [P1][Assumptions]: Tariff-aware defaults and self-consumption heuristic
+- Path: `src/utils/quoteCalculator.ts`, `src/lib/mappers/instant-to-bid.ts`
+- Action:
+  - In mapper: if customRetailRate/customFeedInRate present → use them; else use state averages
+  - Add usagePattern → selfConsumption mapping: evening=0.45, daytime=0.65, spread=0.55
+  - In PricingEngine: show small note "From homeowner Instant Quote" when rates are imported
+- Testing:
+  - Functional: Import lead with customRetailRate=0.32 → verify assumptions.retailPrice=0.32
+  - Functional: Import lead with usagePattern='evening' → verify assumptions.selfConsumption=0.45
+  - Functional: Graphs reflect updated assumptions immediately
+- Acceptance: Tariffs and self-consumption auto-set from quoteData; note displayed; graphs accurate
+- Status: NOT STARTED
+
+### T098 [P2][UX]: Budget hint and quick adjust controls
+- Path: `src/components/QuoteBuilderModal.tsx`, `src/components/quote-builder/SystemSelection.tsx`
+- Action:
+  - If budgetRange mapped to {min, max} and current total > max by >10% → show discreet banner: "Current total exceeds homeowner budget. Consider adjusting system size or components."
+  - Add +/- 0.5 kW buttons next to systemSize input for quick tweaks
+- Testing:
+  - Functional: Import lead with budgetRange='$8000-$10000' → set total=$11,500 → verify banner appears
+  - Functional: Click +0.5 kW button → verify system size increases, totals recalculate
+  - Visual: Banner non-blocking, dismissible; buttons compact, inline with input
+- Acceptance: Budget hint appears when appropriate; quick adjust buttons work; no design violations
+- Status: NOT STARTED
+
+Post-phase checklist (MANDATORY):
+- [ ] Run 6 verification commands on all modified files → 0/0/0/0/0/0
+- [ ] Test Dark/Light/Purple themes → all pass
+- [ ] Test responsive (320px, 768px, 1440px) → no overflow, proper stacking
+- [ ] Functional test: Import → prefill → modify → autosave → preview → graphs update
+- [ ] TypeScript: `npx tsc --noEmit` → 0 errors
+- [ ] Build: `npm run build` → Success
+- [ ] Browser console → no errors
+- [ ] Commit: `git add . && git commit -m "feat(quote-builder): Phase 9 - Import & Prefill Pipeline\n\n- Created mapper utility with normalizers\n- Expanded RoofSiteDetails with installer-only fields\n- Added Import button with diff preview modal\n- Helper captions for prefilled fields\n- Tariff-aware defaults and self-consumption heuristic\n- Budget hint and quick adjust controls\n- All verification: 0/0/0/0/0/0"`
+
+Acceptance Scenarios (from INSTANT-to-BID-ENHANCEMENT-PLAN.md):
+1. ✓ Import button appears only when lead.quoteData present
+2. ✓ Applying import pre-fills: projectType, systemSize, roofType, pitch/shade/orientation, retail/FiT, battery
+3. ✓ All changes maintain 0/0/0/0/0/0 design-system checks
+4. ✓ No logic regressions in calculator; graphs reflect updated assumptions immediately
+5. ✓ Import is idempotent and reversible (cancel or re-import allowed)
+6. ✓ Roof & Site section includes InstantQuote fields + installer extras
+7. ✓ Helper captions visible on prefilled fields
