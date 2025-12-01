@@ -1,3 +1,21 @@
+/* DELETE BUTTON - Semantic, theme-adaptive */
+.btn-delete {
+  @apply flex items-center justify-center rounded-full w-8 h-8 p-0 transition-colors duration-200 shadow-neu-outset-sm;
+  background-color: rgb(var(--color-error));
+  color: rgb(255 255 255);
+}
+.btn-delete:hover {
+  background-color: rgb(var(--color-error) / 0.85);
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+.theme-light .btn-delete {
+  background-color: rgb(var(--color-error));
+  color: #fff;
+}
+.theme-purple .btn-delete {
+  background-color: rgb(var(--color-error));
+  color: #1a112e;
+}
 /* Dark theme: theme-card uses elevated background and shows shadow on hover and active */
 :root.theme-dark .theme-card {
   background: #121212;

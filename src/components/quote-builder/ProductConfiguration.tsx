@@ -539,14 +539,14 @@ const ProductConfiguration: React.FC<ProductConfigurationProps> = ({
                   ${(addon.qty * addon.unitPrice).toLocaleString()}
                 </div>
                 <div className="col-span-2 flex justify-end">
-                  <Button
+                  <button
+                    type="button"
+                    className="btn-delete"
                     onClick={() => removeAddon(addon.key)}
-                    variant="ghost"
-                    className="h-8 w-8 p-0"
                     title="Remove item"
                   >
-                    <Trash2 className="h-4 w-4 text-error" />
-                  </Button>
+                    <Trash2 className="h-4 w-4" />
+                  </button>
                 </div>
               </div>
             ))}

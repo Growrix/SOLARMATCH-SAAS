@@ -277,14 +277,14 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
             </div>
 
             <div className="col-span-1 flex justify-end">
-              <Button
+              <button
+                type="button"
+                className="btn-delete"
                 onClick={() => removeLineItem(item.id)}
-                variant="ghost"
-                className="h-8 w-8 p-0"
                 title="Remove line item"
               >
-                <Trash2 className="h-4 w-4 text-error" />
-              </Button>
+                <Trash2 className="h-4 w-4" />
+              </button>
             </div>
           </div>
           
@@ -487,14 +487,14 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
                 </div>
 
                 <div className="col-span-2 flex justify-end">
-                  <Button
+                  <button
+                    type="button"
+                    className="btn-delete"
                     onClick={() => removeDiscount(discount.id)}
-                    variant="ghost"
-                    className="h-8 w-8 p-0"
                     title="Remove discount"
                   >
-                    <Trash2 className="h-4 w-4 text-error" />
-                  </Button>
+                    <Trash2 className="h-4 w-4" />
+                  </button>
                 </div>
               </div>
             ))}
