@@ -2,11 +2,13 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Button from '@/components/ui/button';
-import { X, Save, Send, Eye, FileText, ChevronDown, ChevronUp, Info } from 'lucide-react';
+import { X, Save, Send, Eye, FileText, ChevronDown, ChevronUp, Info, Download } from 'lucide-react';
 import { calcQuoteTotals, DEFAULT_ASSUMPTIONS, QuoteInputs } from '@/utils/quoteCalculator';
 import SavingsChart from './SavingsChart';
 import HomeownerPreviewModal from './HomeownerPreviewModal';
 import BidEvaluationModal from './BidEvaluationModal';
+import ImportPreviewModal from './ImportPreviewModal';
+import { mapInstantToBid, mergeQuoteDraft } from '@/lib/mappers/instant-to-bid';
 
 // Import all section components
 import SystemSelection, { SystemSelectionData } from './quote-builder/SystemSelection';
@@ -26,6 +28,7 @@ interface Lead {
   systemSize: string;
   estimatedUsage: string;
   budget: string;
+  quoteData?: any; // Instant Quote data from homeowner
 }
 
 interface QuoteBuilderModalProps {
@@ -97,7 +100,13 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
       smartMeterRequired: false,
       distanceToSwitchboardM: 10,
       notes: '',
-      photos: []
+      photos: [],
+      arrayLayoutNotes: '',
+      roofAccessNotes: '',
+      structuralNotes: '',
+      mountingSystemPreferred: '',
+      conduitRunComplexity: 'medium' as 'low' | 'medium' | 'high',
+      inverterLocationNotes: ''
     },
     products: {
       panels: {
@@ -168,6 +177,8 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [isBidEvaluationOpen, setIsBidEvaluationOpen] = useState(false);
+  const [isImportPreviewOpen, setIsImportPreviewOpen] = useState(false);
+  const [mappedImportData, setMappedImportData] = useState<any>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
   // Generate preview options based on current config
@@ -486,6 +497,30 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
     }
   };
 
+  // Handle Import from Instant Quote
+  const handleImportClick = () => {
+    if (!lead?.quoteData) return;
+    const mapped = mapInstantToBid(lead.quoteData);
+    setMappedImportData(mapped);
+    setIsImportPreviewOpen(true);
+  };
+
+  const handleImportAccept = () => {
+    if (!mappedImportData) return;
+    const merged = mergeQuoteDraft(quoteDraft, mappedImportData);
+    setQuoteDraft(merged);
+    setIsImportPreviewOpen(false);
+    setMappedImportData(null);
+    // Trigger autosave
+    if (lead) {
+      localStorage.setItem(
+        `quote:draft:${lead.id}:installer-id`,
+        JSON.stringify(merged)
+      );
+      setLastSaved(new Date());
+    }
+  };
+
   // Apply preset
   const applyPreset = (presetName: string) => {
     const preset = PRESET_BUNDLES.find((p) => p.name === presetName);
@@ -575,6 +610,15 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
             </div>
 
             <div className="flex items-center gap-2 w-full md:w-auto flex-wrap">
+              {lead?.quoteData && (
+                <Button
+                  onClick={handleImportClick}
+                  variant="secondary"
+                  className="flex-1 md:flex-initial px-4 py-2 bg-primary/10 text-primary hover:bg-primary/20"
+                >
+                  <Download className="h-4 w-4" /> Import from Instant Quote
+                </Button>
+              )}
               <Button
                 onClick={() => setIsBidEvaluationOpen(true)}
                 variant="secondary"
@@ -670,6 +714,12 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
                 distanceToSwitchboardM={quoteDraft.roof.distanceToSwitchboardM}
                 notes={quoteDraft.roof.notes}
                 photos={quoteDraft.roof.photos}
+                arrayLayoutNotes={quoteDraft.roof.arrayLayoutNotes}
+                roofAccessNotes={quoteDraft.roof.roofAccessNotes}
+                structuralNotes={quoteDraft.roof.structuralNotes}
+                mountingSystemPreferred={quoteDraft.roof.mountingSystemPreferred}
+                conduitRunComplexity={quoteDraft.roof.conduitRunComplexity}
+                inverterLocationNotes={quoteDraft.roof.inverterLocationNotes}
                 onUpdate={updateRoof}
               />
             </CollapsibleSection>
@@ -816,6 +866,15 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
           isSubmitting={isSubmitting}
         />
       )}
+
+      {/* Import Preview Modal */}
+      <ImportPreviewModal
+        isOpen={isImportPreviewOpen}
+        onClose={() => setIsImportPreviewOpen(false)}
+        onAccept={handleImportAccept}
+        currentDraft={quoteDraft}
+        mappedData={mappedImportData || {}}
+      />
     </div>
   );
 };

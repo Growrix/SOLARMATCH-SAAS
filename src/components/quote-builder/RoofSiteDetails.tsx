@@ -1,7 +1,7 @@
 'use client'
 
-import React from 'react';
-import { Home, Upload } from 'lucide-react';
+import React, { useState } from 'react';
+import { Home, Upload, ChevronDown, ChevronUp } from 'lucide-react';
 import { ROOF_TYPES, ORIENTATIONS, SHADING_LEVELS, PHASE_TYPES } from './Presets';
 import Button from '@/components/ui/button';
 
@@ -17,6 +17,12 @@ interface RoofSiteDetailsProps {
   distanceToSwitchboardM: number;
   notes: string;
   photos: string[];
+  arrayLayoutNotes?: string;
+  roofAccessNotes?: string;
+  structuralNotes?: string;
+  mountingSystemPreferred?: string;
+  conduitRunComplexity?: 'low' | 'medium' | 'high';
+  inverterLocationNotes?: string;
   onUpdate: (data: Partial<RoofSiteDetailsData>) => void;
 }
 
@@ -32,6 +38,12 @@ export interface RoofSiteDetailsData {
   distanceToSwitchboardM: number;
   notes: string;
   photos: string[];
+  arrayLayoutNotes?: string;
+  roofAccessNotes?: string;
+  structuralNotes?: string;
+  mountingSystemPreferred?: string;
+  conduitRunComplexity?: 'low' | 'medium' | 'high';
+  inverterLocationNotes?: string;
 }
 
 const RoofSiteDetails: React.FC<RoofSiteDetailsProps> = ({
@@ -46,8 +58,16 @@ const RoofSiteDetails: React.FC<RoofSiteDetailsProps> = ({
   distanceToSwitchboardM,
   notes,
   photos,
+  arrayLayoutNotes = '',
+  roofAccessNotes = '',
+  structuralNotes = '',
+  mountingSystemPreferred = '',
+  conduitRunComplexity = 'medium',
+  inverterLocationNotes = '',
   onUpdate
 }) => {
+  const [showInstallerDetails, setShowInstallerDetails] = useState(false);
+  
   const toggleOrientation = (orientation: string) => {
     const newOrientations = orientations.includes(orientation)
       ? orientations.filter((o) => o !== orientation)
@@ -254,6 +274,115 @@ const RoofSiteDetails: React.FC<RoofSiteDetailsProps> = ({
         {photos.length > 0 && (
           <div className="mt-3 text-body-small text-foreground">
             {photos.length} photo(s) uploaded
+          </div>
+        )}
+      </div>
+
+      {/* Installer Technical Details (Collapsible) */}
+      <div className="border-t border-border pt-6">
+        <button
+          onClick={() => setShowInstallerDetails(!showInstallerDetails)}
+          className="flex items-center gap-2 text-body text-foreground hover:text-primary transition-colors w-full"
+        >
+          {showInstallerDetails ? (
+            <ChevronUp className="h-5 w-5" />
+          ) : (
+            <ChevronDown className="h-5 w-5" />
+          )}
+          <span>Installer Technical Details</span>
+          <span className="text-caption text-muted-foreground ml-auto">
+            Optional installer-only fields
+          </span>
+        </button>
+
+        {showInstallerDetails && (
+          <div className="mt-6 space-y-6">
+            {/* Array Layout Notes */}
+            <div>
+              <label className="text-label text-foreground block mb-2">
+                Array Layout Notes
+              </label>
+              <textarea
+                value={arrayLayoutNotes}
+                onChange={(e) => onUpdate({ arrayLayoutNotes: e.target.value })}
+                rows={3}
+                className="form-input w-full px-4 py-3 resize-none"
+                placeholder="String configuration, combiner placement, array-specific notes..."
+              />
+            </div>
+
+            {/* Roof Access Notes */}
+            <div>
+              <label className="text-label text-foreground block mb-2">
+                Roof Access Notes
+              </label>
+              <textarea
+                value={roofAccessNotes}
+                onChange={(e) => onUpdate({ roofAccessNotes: e.target.value })}
+                rows={3}
+                className="form-input w-full px-4 py-3 resize-none"
+                placeholder="Ladder required, scaffold access, safety considerations, access constraints..."
+              />
+            </div>
+
+            {/* Structural Notes */}
+            <div>
+              <label className="text-label text-foreground block mb-2">
+                Structural Notes
+              </label>
+              <textarea
+                value={structuralNotes}
+                onChange={(e) => onUpdate({ structuralNotes: e.target.value })}
+                rows={3}
+                className="form-input w-full px-4 py-3 resize-none"
+                placeholder="Truss spacing, batten type, tile condition, penetrations, load-bearing concerns..."
+              />
+            </div>
+
+            {/* Mounting System & Conduit Complexity */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-label text-foreground block mb-2">
+                  Mounting System Preferred
+                </label>
+                <input
+                  type="text"
+                  value={mountingSystemPreferred}
+                  onChange={(e) => onUpdate({ mountingSystemPreferred: e.target.value })}
+                  className="form-input w-full px-4 py-3"
+                  placeholder="e.g., Clenergy, SunLock, IronRidge"
+                />
+              </div>
+
+              <div>
+                <label className="text-label text-foreground block mb-2">
+                  Conduit Run Complexity
+                </label>
+                <select
+                  value={conduitRunComplexity}
+                  onChange={(e) => onUpdate({ conduitRunComplexity: e.target.value as 'low' | 'medium' | 'high' })}
+                  className="form-select w-full px-4 py-3"
+                >
+                  <option value="low">Low (straight run, short distance)</option>
+                  <option value="medium">Medium (some obstacles, moderate distance)</option>
+                  <option value="high">High (complex routing, long distance)</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Inverter Location Notes */}
+            <div>
+              <label className="text-label text-foreground block mb-2">
+                Inverter Location Notes
+              </label>
+              <textarea
+                value={inverterLocationNotes}
+                onChange={(e) => onUpdate({ inverterLocationNotes: e.target.value })}
+                rows={3}
+                className="form-input w-full px-4 py-3 resize-none"
+                placeholder="Indoor/outdoor, ventilation requirements, proximity to switchboard, shading considerations..."
+              />
+            </div>
           </div>
         )}
       </div>
