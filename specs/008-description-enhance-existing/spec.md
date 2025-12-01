@@ -122,6 +122,32 @@ As an installer, I must provide required artefacts (panel/inverter/battery datas
 - Preview modal opened with incomplete data → show validation warnings inline (e.g., "Add at least one line item to generate accurate preview").
 - Graphs fail to render due to invalid data → display fallback message "Unable to generate graph with current data".
 
+---
+
+### User Story 7 - Import & Prefill from Instant Quote (Priority: P0)
+
+As an installer, I can import homeowner Instant Quote inputs with one click to pre-fill system size, project type, roof details, tariffs, battery requirements, and feature requests into the Bid Builder, so I can leverage homeowner-provided data and streamline quote preparation.
+
+**Why this priority**: Eliminates duplicate data entry, improves accuracy, and reduces friction by auto-mapping homeowner inputs to installer fields—foundational for a seamless homeowner-to-installer workflow.
+
+**Independent Test**: Open Bid Builder for a lead with quoteData → click "Import from Instant Quote" button → verify diff preview modal shows before/after comparison → click Accept → verify systemSize, projectType, roofType, pitchDeg, orientations, shadingLevel, retailPrice, feedInTariff, selfConsumption, battery, and addons are prefilled → modify a field → verify autosave triggers → verify graphs update within 500ms → run 6 verification commands → must return 0/0/0/0/0/0.
+
+**Acceptance Scenarios**:
+1. Given a lead with quoteData exists, when I open Bid Builder, then I see an "Import from Instant Quote" button in the header (styled with primary accent).
+2. Given I click the Import button, when the mapper processes quoteData, then a diff preview modal opens showing side-by-side current values vs. new values from Instant Quote.
+3. Given the diff preview modal is open, when I click "Accept & Import", then all mapped fields update in quoteDraft, autosave triggers, modal closes, and I see the imported values in the form.
+4. Given the diff preview modal is open, when I click "Cancel", then the modal closes with no changes applied to quoteDraft.
+5. Given quoteData contains customRetailRate and customFeedInRate in c/kWh, when I import, then assumptions.retailPrice and feedInTariff are set to $/kWh (divided by 100).
+6. Given quoteData contains roofTilt='optimal' and shadingLevel='minimal', when I import, then roof.pitchDeg=25 and roof.shadingLevel=1 (normalized per tilt/shading mapping).
+7. Given quoteData contains panelOrientation='north', when I import, then roof.orientations=['north'].
+8. Given quoteData contains batteryIncluded=true with capacity and brand, when I import, then products.battery is created with matching capacity and brand.
+9. Given quoteData contains includeVPP=true, includeEVCharging=true, when I import, then products.addons includes "VPP Enrollment" and "EV Charger Ready" with $0 prices.
+10. Given quoteData contains usagePattern='evening', when I import, then assumptions.selfConsumption=0.45 (heuristic mapping).
+11. Given I import data and then modify a prefilled field, when I check RoofSiteDetails, then I see new installer-only fields: arrayLayoutNotes, roofAccessNotes, structuralNotes, mountingSystemPreferred, conduitRunComplexity, inverterLocationNotes (all editable).
+12. Given I import data successfully, when I run 6 verification commands on modified files, then all return 0 matches (no hardcoded colors, no dark mode classes, no raw typography).
+
+---
+
 ## Requirements (mandatory)
 
 ### Functional Requirements
