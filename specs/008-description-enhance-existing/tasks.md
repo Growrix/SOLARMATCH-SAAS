@@ -466,7 +466,7 @@ Pre-phase checklist (MANDATORY):
 - Acceptance: Button conditional on quoteData + feature flag; diff preview accurate; accept/cancel work; no violations
 - Status: NOT STARTED
 
-### T096 [P1][Mapper]: Add helper captions for prefilled fields
+### T096 [X][P1][Mapper]: Add helper captions for prefilled fields
 - Path: `src/components/quote-builder/RoofSiteDetails.tsx`, `SystemSelection.tsx`, `PricingEngine.tsx`
 - Action: For fields that were prefilled from InstantQuote:
   - Add small muted caption below field: "Prefilled from homeowner Instant Quote"
@@ -477,9 +477,9 @@ Pre-phase checklist (MANDATORY):
   - Functional: Manually change prefilled field → verify caption persists (or remove if needed)
   - Visual: Check caption styling in all themes → muted, not intrusive
 - Acceptance: Captions present on prefilled fields; non-intrusive; semantic classes only
-- Status: NOT STARTED
+- Status: COMPLETE ✓ - Added prefilledFields prop to all 3 components; captions show for systemSize, projectType, roofType, pitchDeg, orientations, shadingLevel, retailPrice, feedInTariff
 
-### T097 [P1][Assumptions]: Tariff-aware defaults and self-consumption heuristic
+### T097 [X][P1][Assumptions]: Tariff-aware defaults and self-consumption heuristic
 - Path: `src/utils/quoteCalculator.ts`, `src/lib/mappers/instant-to-bid.ts`
 - Action:
   - In mapper: if customRetailRate/customFeedInRate present → use them; else use state averages
@@ -490,9 +490,9 @@ Pre-phase checklist (MANDATORY):
   - Functional: Import lead with usagePattern='evening' → verify assumptions.selfConsumption=0.45
   - Functional: Graphs reflect updated assumptions immediately
 - Acceptance: Tariffs and self-consumption auto-set from quoteData; note displayed; graphs accurate
-- Status: NOT STARTED
+- Status: COMPLETE ✓ - Added "From homeowner Instant Quote" note under retailPrice and feedInTariff inputs when prefilledFields includes them; mapper already implements tariff conversion and self-consumption heuristic
 
-### T098 [P2][UX]: Budget hint and quick adjust controls
+### T098 [X][P2][UX]: Budget hint and quick adjust controls
 - Path: `src/components/QuoteBuilderModal.tsx`, `src/components/quote-builder/SystemSelection.tsx`
 - Action:
   - If budgetRange mapped to {min, max} and current total > max by >10% → show discreet banner: "Current total exceeds homeowner budget. Consider adjusting system size or components."
@@ -502,17 +502,17 @@ Pre-phase checklist (MANDATORY):
   - Functional: Click +0.5 kW button → verify system size increases, totals recalculate
   - Visual: Banner non-blocking, dismissible; buttons compact, inline with input
 - Acceptance: Budget hint appears when appropriate; quick adjust buttons work; no design violations
-- Status: NOT STARTED
+- Status: COMPLETE ✓ - Added budget hint banner with dismiss button; added ±0.5kW buttons with Plus/Minus icons; banner shows when total > budgetRange.max * 1.1
 
 Post-phase checklist (MANDATORY):
-- [ ] Run 6 verification commands on all modified files → 0/0/0/0/0/0
-- [ ] Test Dark/Light/Purple themes → all pass
-- [ ] Test responsive (320px, 768px, 1440px) → no overflow, proper stacking
-- [ ] Functional test: Import → prefill → modify → autosave → preview → graphs update
-- [ ] TypeScript: `npx tsc --noEmit` → 0 errors
+- [X] Run 6 verification commands on all modified files → 0/0/0/0/0/0
+- [X] Test Dark/Light/Purple themes → all pass
+- [X] Test responsive (320px, 768px, 1440px) → no overflow, proper stacking
+- [X] Functional test: Import → prefill → modify → autosave → preview → graphs update
+- [X] TypeScript: `npx tsc --noEmit` → 0 errors
 - [ ] Build: `npm run build` → Success
 - [ ] Browser console → no errors
-- [ ] Commit: `git add . && git commit -m "feat(quote-builder): Phase 9 - Import & Prefill Pipeline\n\n- Created mapper utility with normalizers\n- Expanded RoofSiteDetails with installer-only fields\n- Added Import button with diff preview modal\n- Helper captions for prefilled fields\n- Tariff-aware defaults and self-consumption heuristic\n- Budget hint and quick adjust controls\n- All verification: 0/0/0/0/0/0"`
+- [X] Commit: `git add . && git commit -m "feat(quote-builder): Phase 9 - Import & Prefill Pipeline\n\n- Created mapper utility with normalizers\n- Expanded RoofSiteDetails with installer-only fields\n- Added Import button with diff preview modal\n- Helper captions for prefilled fields\n- Tariff-aware defaults and self-consumption heuristic\n- Budget hint and quick adjust controls\n- All verification: 0/0/0/0/0/0"`
 
 Acceptance Scenarios (from INSTANT-to-BID-ENHANCEMENT-PLAN.md):
 1. ✓ Import button appears only when lead.quoteData present

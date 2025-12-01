@@ -23,6 +23,7 @@ interface RoofSiteDetailsProps {
   mountingSystemPreferred?: string;
   conduitRunComplexity?: 'low' | 'medium' | 'high';
   inverterLocationNotes?: string;
+  prefilledFields?: string[];
   onUpdate: (data: Partial<RoofSiteDetailsData>) => void;
 }
 
@@ -58,12 +59,13 @@ const RoofSiteDetails: React.FC<RoofSiteDetailsProps> = ({
   distanceToSwitchboardM,
   notes,
   photos,
-  arrayLayoutNotes = '',
-  roofAccessNotes = '',
-  structuralNotes = '',
-  mountingSystemPreferred = '',
-  conduitRunComplexity = 'medium',
-  inverterLocationNotes = '',
+  arrayLayoutNotes,
+  roofAccessNotes,
+  structuralNotes,
+  mountingSystemPreferred,
+  conduitRunComplexity,
+  inverterLocationNotes,
+  prefilledFields = [],
   onUpdate
 }) => {
   const [showInstallerDetails, setShowInstallerDetails] = useState(false);
@@ -100,6 +102,11 @@ const RoofSiteDetails: React.FC<RoofSiteDetailsProps> = ({
               </option>
             ))}
           </select>
+          {prefilledFields.includes('roof.roofType') && (
+            <p className="text-caption text-muted-foreground mt-1">
+              Prefilled from homeowner Instant Quote
+            </p>
+          )}
         </div>
 
         <div>
@@ -115,6 +122,11 @@ const RoofSiteDetails: React.FC<RoofSiteDetailsProps> = ({
             className="form-input w-full px-4 py-3"
             placeholder="e.g. 22"
           />
+          {prefilledFields.includes('roof.pitchDeg') && (
+            <p className="text-caption text-muted-foreground mt-1">
+              Prefilled from homeowner Instant Quote
+            </p>
+          )}
         </div>
 
         <div>
@@ -151,6 +163,11 @@ const RoofSiteDetails: React.FC<RoofSiteDetailsProps> = ({
         <p className="text-caption text-muted-foreground mt-2">
           Select all orientations where panels will be installed
         </p>
+        {prefilledFields.includes('roof.orientations') && (
+          <p className="text-caption text-muted-foreground mt-1">
+            Prefilled from homeowner Instant Quote
+          </p>
+        )}
       </div>
 
       {/* Row 3: Shading Level */}
@@ -169,6 +186,11 @@ const RoofSiteDetails: React.FC<RoofSiteDetailsProps> = ({
             </option>
           ))}
         </select>
+        {prefilledFields.includes('roof.shadingLevel') && (
+          <p className="text-caption text-muted-foreground mt-1">
+            Prefilled from homeowner Instant Quote
+          </p>
+        )}
       </div>
 
       {/* Row 4: Metering & Switchboard */}

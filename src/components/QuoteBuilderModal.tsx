@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Button from '@/components/ui/button';
 import { X, Save, Send, Eye, FileText, ChevronDown, ChevronUp, Info, Download } from 'lucide-react';
 import { calcQuoteTotals, DEFAULT_ASSUMPTIONS, QuoteInputs } from '@/utils/quoteCalculator';
+import { parseBudgetRange } from '@/lib/mappers/instant-to-bid';
 import SavingsChart from './SavingsChart';
 import HomeownerPreviewModal from './HomeownerPreviewModal';
 import BidEvaluationModal from './BidEvaluationModal';
@@ -60,6 +61,9 @@ interface QuoteDraft {
     version: number;
     lastSavedAt: string;
     autosaveStatus: 'idle' | 'saving' | 'saved';
+    importedAt?: string;
+    importSource?: 'instant-quote';
+    prefilledFields?: string[];
   };
 }
 
@@ -179,6 +183,7 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
   const [isBidEvaluationOpen, setIsBidEvaluationOpen] = useState(false);
   const [isImportPreviewOpen, setIsImportPreviewOpen] = useState(false);
   const [mappedImportData, setMappedImportData] = useState<any>(null);
+  const [isBudgetHintDismissed, setIsBudgetHintDismissed] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
 
   // Generate preview options based on current config
@@ -561,6 +566,32 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
       : `quote:draft:${lead.id}:installer-id`;
   const hasDraft = typeof window !== 'undefined' && localStorage.getItem(draftKey);
 
+  // Calculate budget hint banner visibility
+  const budgetRange = lead.quoteData?.budgetRange 
+    ? parseBudgetRange(lead.quoteData.budgetRange) 
+    : null;
+  const currentTotals = calcQuoteTotals({
+    systemSize_kW: quoteDraft.system.systemSize,
+    lineItems: quoteDraft.pricing.lineItems.map(item => ({
+      description: item.description,
+      qty: item.qty,
+      unitPrice: item.unitPrice,
+      taxable: item.taxGst
+    })),
+    includeGst: true,
+    gstPercent: DEFAULT_ASSUMPTIONS.gstPercent,
+    includeIncentive: true,
+    incentiveAmount: (quoteDraft.pricing.stc.eligible ? quoteDraft.pricing.stc.stcCount * quoteDraft.pricing.stc.stcPrice : 0),
+    yield_kWh_per_kW_per_day: quoteDraft.assumptions.yield_kWh_per_kW_per_day,
+    selfConsumption: quoteDraft.assumptions.selfConsumption,
+    retailPrice: quoteDraft.assumptions.retailPrice,
+    feedInTariff: quoteDraft.assumptions.feedInTariff,
+    annualOpex: quoteDraft.assumptions.annualOpex
+  });
+  const showBudgetHint = !isBudgetHintDismissed && 
+    budgetRange && 
+    currentTotals.total > budgetRange.max * 1.1; // Show if >10% over budget
+
   return (
     <div
       className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-0 md:p-4 animate-fade-in"
@@ -578,6 +609,26 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
             <span className="text-body-small text-warning">
               Draft restored from previous session (v{quoteDraft.meta?.version || 1})
             </span>
+          </div>
+        )}
+
+        {/* Budget Hint Banner */}
+        {showBudgetHint && (
+          <div className="flex-shrink-0 bg-accent/10 border-b border-accent px-4 py-2 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Info className="h-4 w-4 text-accent" />
+              <span className="text-body-small text-accent">
+                Current total (${currentTotals.total.toLocaleString()}) exceeds homeowner budget (${budgetRange?.max.toLocaleString()}). 
+                Consider adjusting system size or components.
+              </span>
+            </div>
+            <Button
+              onClick={() => setIsBudgetHintDismissed(true)}
+              variant="minimal"
+              className="p-1 text-accent hover:text-accent/80"
+            >
+              <X className="h-4 w-4" />
+            </Button>
           </div>
         )}
 
@@ -692,6 +743,7 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
                 systemSize={quoteDraft.system.systemSize}
                 projectType={quoteDraft.system.projectType}
                 desiredPriceRange={quoteDraft.system.desiredPriceRange}
+                prefilledFields={quoteDraft.meta?.prefilledFields || []}
                 onUpdate={updateSystem}
               />
             </CollapsibleSection>
@@ -720,6 +772,7 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
                 mountingSystemPreferred={quoteDraft.roof.mountingSystemPreferred}
                 conduitRunComplexity={quoteDraft.roof.conduitRunComplexity}
                 inverterLocationNotes={quoteDraft.roof.inverterLocationNotes}
+                prefilledFields={quoteDraft.meta?.prefilledFields || []}
                 onUpdate={updateRoof}
               />
             </CollapsibleSection>
@@ -754,6 +807,7 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
                 systemSize={quoteDraft.system.systemSize}
                 panelWattage={quoteDraft.products.panels.wattage}
                 assumptions={quoteDraft.assumptions}
+                prefilledFields={quoteDraft.meta?.prefilledFields || []}
                 onUpdate={updatePricing}
                 onUpdateAssumptions={updateAssumptions}
               />

@@ -22,6 +22,7 @@ interface PricingEngineProps {
     degradationPercentPerYear: number;
     escalationPercentPerYear: number;
   };
+  prefilledFields?: string[];
   onUpdate: (data: Partial<PricingEngineData>) => void;
   onUpdateAssumptions?: (data: Partial<{
     yield_kWh_per_kW_per_day: number;
@@ -84,6 +85,7 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
   systemSize,
   panelWattage,
   assumptions,
+  prefilledFields = [],
   onUpdate,
   onUpdateAssumptions
 }) => {
@@ -629,6 +631,11 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
               <p className="text-caption text-muted-foreground mt-1">
                 What customer pays for grid electricity
               </p>
+              {prefilledFields.includes('assumptions.retailPrice') && (
+                <p className="text-caption text-accent mt-1">
+                  From homeowner Instant Quote
+                </p>
+              )}
             </div>
 
             <div>
@@ -647,6 +654,11 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
               <p className="text-caption text-muted-foreground mt-1">
                 Payment for exported electricity
               </p>
+              {prefilledFields.includes('assumptions.feedInTariff') && (
+                <p className="text-caption text-accent mt-1">
+                  From homeowner Instant Quote
+                </p>
+              )}
             </div>
 
             <div>
