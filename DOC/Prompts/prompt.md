@@ -2601,5 +2601,16 @@ I need a error/issues fixing guidelines/SOT to create , I have been facing a lot
 
 ***instructions*** read the whole chat conversations to identify my pain point regarding error/issue fixing. After that create a error/issues fixing guidelines/SOT in D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-ISSUE-FIXING-GUIDELINES.md file. make sure to cover all the pain points you identified from the conversations. do not ovverride the existing guidelines. just create a new file for issue fixing guidelines. must add testing instructions and rules to follow after fixing any issue.
 
+----------------------------------------------------------------------------------------------------
 
+***Quotebuilder/bid builder modal enhancement***
 
+- The quote builder is now working but the UI and calculation logic needs enhancement. I have done more reserach on ChatGPT to make it more professional and accurate. here is the research file D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Features\Quote Builder Modal\Main Plan\ChatGPT_CalculationLogic.md .
+- Also check back the previous research file D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Features\Quote Builder Modal\ChatGPT_research.md , based on this we have created the current modal. 
+
+***Instructions***
+- I want you to go through both the research files and understand the requirements. after that create a comprehensive implementation plan to enhance the Quote builder modal accordingly. create the plan in D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Features\Quote Builder Modal\QUOTE-BUILDER-IMPROVEMENT-PLAN.md file.
+- Also mention the gaps in the current quote builder modal based on the research findings.
+- Also validate the current calculation logic and mention the gaps if any.
+
+***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md.
