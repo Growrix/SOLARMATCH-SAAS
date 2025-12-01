@@ -210,15 +210,19 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
         <h4 className="text-body text-foreground">Line Items</h4>
         
         {/* Header */}
-        <div className="grid grid-cols-12 gap-3 text-caption text-muted-foreground pb-2 border-b border-border">
-          <div className="col-span-2">Category</div>
-          <div className="col-span-3">Description</div>
-          <div className="col-span-1 text-center">Qty</div>
-          <div className="col-span-2 text-right">Unit Price</div>
-          {installerCostMode && <div className="col-span-2 text-right">COGS</div>}
-          <div className="col-span-1 text-center">Tax</div>
-          <div className={installerCostMode ? 'col-span-1 text-right' : 'col-span-2 text-right'}>Total</div>
-          <div className="col-span-1"></div>
+        <div className={`grid gap-2 text-caption text-muted-foreground pb-2 border-b border-border ${
+          installerCostMode 
+            ? 'grid-cols-[minmax(100px,1fr)_minmax(120px,2fr)_60px_90px_90px_50px_90px_40px]'
+            : 'grid-cols-[minmax(100px,1.5fr)_minmax(150px,3fr)_80px_120px_60px_120px_50px]'
+        }`}>
+          <div>Category</div>
+          <div>Description</div>
+          <div className="text-center">Qty</div>
+          <div className="text-right">Unit Price</div>
+          {installerCostMode && <div className="text-right">COGS</div>}
+          <div className="text-center">Tax</div>
+          <div className="text-right">Total</div>
+          <div></div>
         </div>
 
         {/* Rows */}
@@ -227,8 +231,12 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
           
           return (
           <div key={item.id} className="space-y-1">
-            <div className="grid grid-cols-12 gap-3 items-center">
-            <div className="col-span-2">
+            <div className={`grid gap-2 items-center ${
+              installerCostMode 
+                ? 'grid-cols-[minmax(100px,1fr)_minmax(120px,2fr)_60px_90px_90px_50px_90px_40px]'
+                : 'grid-cols-[minmax(100px,1.5fr)_minmax(150px,3fr)_80px_120px_60px_120px_50px]'
+            }`}>
+            <div>
               <select
                 value={item.category}
                 onChange={(e) => updateLineItem(item.id, 'category', e.target.value)}
@@ -242,7 +250,7 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
               </select>
             </div>
 
-            <div className="col-span-3">
+            <div>
               <input
                 type="text"
                 value={item.description}
@@ -252,7 +260,7 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
               />
             </div>
 
-            <div className="col-span-1">
+            <div>
               <input
                 type="number"
                 min="1"
@@ -262,7 +270,7 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
               />
             </div>
 
-            <div className="col-span-2">
+            <div>
               <input
                 type="number"
                 min="0"
@@ -276,7 +284,7 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
             </div>
 
             {installerCostMode && (
-              <div className="col-span-2">
+              <div>
                 <input
                   type="number"
                   min="0"
@@ -290,7 +298,7 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
               </div>
             )}
 
-            <div className="col-span-1 flex justify-center">
+            <div className="flex justify-center">
               <input
                 type="checkbox"
                 checked={item.taxGst}
@@ -299,11 +307,11 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
               />
             </div>
 
-            <div className={`${installerCostMode ? 'col-span-1' : 'col-span-2'} text-right text-body-small text-foreground`}>
+            <div className="text-right text-body-small text-foreground">
               ${(item.qty * item.unitPrice).toLocaleString()}
             </div>
 
-            <div className="col-span-1 flex justify-end">
+            <div className="flex justify-end">
               <button
                 type="button"
                 className="btn-delete"

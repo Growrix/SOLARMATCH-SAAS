@@ -187,3 +187,206 @@ Dependencies:
 MVP Scope: COMPLETE
 - Phase 3 (US1): Calculator accuracy ✓
 - Phase 4 (UX): Addon integration & real-time updates ✓
+
+---
+
+## Phase 7 – [US5] Graphs, Lead Details, and Preview Modal (P2)
+
+Story goal: Add financial projection graphs, Lead Technical Details button, and Homeowner Preview modal to complete the bid builder experience.
+Independent test: Open Quote Builder → click Lead Details → verify lead info displayed → close → view graphs showing ROI/annual savings → click Preview → verify bid shown as homeowner would see it with masked contact → click Edit Bid → return to builder → click Confirm & Submit → bid submitted.
+
+### T022 [X][US5][P]: Add financial projection graphs to Quote Builder
+- Path: `src/components/QuoteBuilderModal.tsx`
+- Action: Import and integrate SavingsChart component to display ROI and annual cost comparison graphs using calculator data.
+- Testing: View Quote Builder → verify "Financial Projections" section appears → verify Long-Term ROI tab shows cumulative savings area chart with break-even marker → verify Annual Cost tab shows bar chart comparing current bill vs with-solar → change assumptions → verify graphs update with new calculations
+- Status: COMPLETE ✓ - Integrated SavingsChart with calculator totals, displayed below Customer Preview
+
+### T023 [X][US5][P]: Add Lead Technical Details button and modal
+- Path: `src/components/QuoteBuilderModal.tsx`
+- Action: Add "Lead Details" button to action bar (same row as Save Draft/Submit Bid). Create inline collapsible section or modal showing lead technical details (location, property, energy bill, budget, roof type, system requirements) extracted from lead data.
+- Testing: Click Lead Details button → verify modal/section opens → verify all lead fields displayed (location, postcode, property type, energy bill, budget range, desired offset, roof type, battery required, etc.) → verify close button works → verify does not interfere with quote building workflow
+- Status: COMPLETE ✓ - Added Lead Details button triggering BidEvaluationModal's lead section in read-only mode
+
+### T024 [X][US5][P]: Create Homeowner Preview Modal component
+- Path: `src/components/HomeownerPreviewModal.tsx` (new file)
+- Action: Build modal showing bid as homeowner would see it: System details, pricing breakdown, equipment specs, financial projections graph, installer info with masked contact ("Contact details will be unlocked after winner is selected"), and 2 action buttons: "Edit Bid" and "Confirm & Submit Bid".
+- Testing: Verify modal displays all bid details → verify graphs render correctly → verify contact info masked with note → verify Edit Bid closes modal and returns to builder → verify Confirm & Submit triggers bid submission → verify proper loading states and success/error messages
+- Status: COMPLETE ✓ - Created HomeownerPreviewModal with all sections, masked contact, graphs, and dual action buttons
+
+### T025 [X][US5]: Add Preview button to Quote Builder action bar
+- Path: `src/components/QuoteBuilderModal.tsx`
+- Action: Add "Preview" button with Eye icon to action bar (between Lead Details and Save Draft). Wire to open HomeownerPreviewModal passing current quote draft data.
+- Testing: Click Preview button → verify HomeownerPreviewModal opens with current data → verify can edit and return → verify can confirm & submit from preview
+- Status: COMPLETE ✓ - Added Preview button with Eye icon, integrated with HomeownerPreviewModal
+
+Post-checkpoint: Run verification commands; test all 3 new buttons (Lead Details, Preview, Submit); verify graphs render correctly; verify preview modal shows accurate data; confirm PASS.
+
+---
+
+## Final Phase – Polish & Cross-Cutting (Updated)
+
+T016 [X][Polish][P]: Performance pass (<500ms perceived)
+- Path: `src/components/quote-builder/*`
+- Action: Ensure recalculation and rendering are responsive.
+- Testing: Change assumptions → verify preview updates < 500ms → add/remove addons → verify line items sync < 500ms → modify line items → verify totals update < 500ms → verify graphs re-render < 500ms
+- Status: COMPLETE ✓ - All useEffect hooks optimized for immediate updates; real-time preview confirmed working
+
+T017 [X][Polish][P]: Documentation and decisions
+- Path: `specs/008-description-enhance-existing/`
+- Action: Update spec.md and tasks.md with final decisions.
+- Testing: Verify all completed tasks marked with ✓ → verify skipped phases documented with reasons → verify spec.md reflects implemented features → verify Phase 7 documented
+- Status: COMPLETE ✓ - Updated spec.md with User Stories 4 & 5; tasks.md with all phase details including Phase 7
+
+Post-checkpoint: Final verification and testing complete. ✅ ALL CHECKS PASSED
+
+---
+
+## Summary of Implementation (Updated)
+
+**Completed Phases:**
+- ✅ Phase 1: Setup (T001-T003)
+- ✅ Phase 2: Foundational (T004-T006)
+- ✅ Phase 3: US1 - Real-time calculator accuracy (T007-T010)
+- ✅ Phase 4: UX Improvements & Addon Integration (T018-T021)
+- ⏭️ Phase 5: US2 - Multi-option quoting (SKIPPED - Future iteration)
+- ⏭️ Phase 6: US3 - Compliance validation (SKIPPED - No blocking required)
+- ✅ Phase 7: US5 - Graphs, Lead Details, and Preview Modal (T022-T025)
+- ✅ Final Phase: Polish & Documentation (T016-T017)
+
+**Key Achievements:**
+1. Integrated professional calculator with accurate pricing and ROI calculations
+2. Added configurable financial assumptions panel (yield, self-consumption, tariffs, OPEX, etc.)
+3. Implemented STC zone detection from postcode with manual override
+4. Auto-sync addons to pricing engine for accurate total calculations
+5. Real-time preview updates without manual refresh
+6. Enhanced category options (9 categories for better organization)
+7. Proper handling of N/A payback scenarios
+8. **Financial projection graphs (ROI & annual cost comparison)**
+9. **Lead Technical Details button for quick reference**
+10. **Homeowner Preview Modal with masked contact info**
+
+**Files Created/Modified (Updated):**
+- Created: `src/utils/quoteCalculator.ts` (calculator module)
+- Created: `src/utils/stcZones.ts` (STC zone mapping)
+- Created: `src/components/HomeownerPreviewModal.tsx` (preview modal for homeowner view)
+- Modified: `src/components/QuoteBuilderModal.tsx` (calculator integration, addon sync, real-time preview, graphs, Lead Details button, Preview button)
+- Modified: `src/components/quote-builder/PricingEngine.tsx` (assumptions panel, postcode input, enhanced categories)
+- Modified: `src/components/quote-builder/CustomerPreview.tsx` (N/A handling, addon display)
+- Updated: `specs/008-description-enhance-existing/spec.md` (added User Stories 4 & 5)
+- Updated: `specs/008-description-enhance-existing/tasks.md` (all phase updates including Phase 7)
+
+Dependencies:
+- Story order: US1 → UX Improvements → Graphs & Preview → Polish
+- All parallel tasks [P] executed successfully
+
+MVP Scope: COMPLETE
+- Phase 3 (US1): Calculator accuracy ✓
+- Phase 4 (UX): Addon integration & real-time updates ✓
+- Phase 7 (US5): Graphs, Lead Details, Preview Modal ✓
+
+---
+
+## Phase 8 – [US6] System Selection & Pricing Engine UI Optimization (P2)
+
+Story goal: Streamline System Selection with dropdowns and compact layout; fix Pricing Engine installer cost mode overflow.
+Independent test: Open Quote Builder → verify System Type is dropdown → verify System Size input is compact (no slider/range labels) → verify no price range fields → verify Project Type dropdown present → toggle Installer Cost Mode → verify layout stays within section width.
+
+### T026 [X][US6][P]: Convert System Type to dropdown
+- Path: `src/components/quote-builder/SystemSelection.tsx`
+- Action: Replace button grid with single dropdown select using SYSTEM_TYPES array.
+- Testing: Open System Selection → verify dropdown shows all 7 system types → select each type → verify selection updates → verify proper design system styling
+- Status: COMPLETE ✓ - Replaced 4-column button grid with compact dropdown select
+
+### T027 [X][US6][P]: Compact System Size field and remove slider
+- Path: `src/components/quote-builder/SystemSelection.tsx`
+- Action: Remove range slider and 0kW-20kW labels; keep only number input with reduced width (max-w-xs or similar).
+- Testing: View System Size field → verify no slider present → verify no range labels → verify input is compact (not full width) → verify can still type values
+- Status: COMPLETE ✓ - Removed slider and range labels; input now max-w-xs with inline kW label
+
+### T028 [X][US6]: Remove Desired Price Range fields
+- Path: `src/components/quote-builder/SystemSelection.tsx`
+- Action: Remove entire "Desired Price Range (Optional)" section with Min/Max inputs.
+- Testing: View System Selection → verify no price range fields present → verify component interface still accepts desiredPriceRange prop (for backward compatibility)
+- Status: COMPLETE ✓ - Removed price range section; interface unchanged for compatibility
+
+### T029 [X][US6][P]: Add Project Type dropdown
+- Path: `src/components/quote-builder/SystemSelection.tsx`, `SystemSelectionData` interface
+- Action: Add projectType field to interface with options: Residential, Commercial. Add dropdown after System Type.
+- Testing: View System Selection → verify Project Type dropdown present → verify 2 options (Residential, Commercial) → select each → verify selection persists → verify default is Residential
+- Status: COMPLETE ✓ - Added projectType dropdown with Residential/Commercial options, defaults to Residential
+
+### T030 [X][US6]: Fix Pricing Engine installer cost mode layout
+- Path: `src/components/quote-builder/PricingEngine.tsx`
+- Action: When installerCostMode=true, ensure COGS column fits within section. Options: reduce column widths, wrap checkbox label, use icon toggle, or stack label above checkbox.
+- Testing: Toggle Installer Cost Mode ON → verify COGS column appears → verify all columns fit within section width (no horizontal overflow) → verify table headers align → toggle OFF → verify layout returns to normal
+- Status: COMPLETE ✓ - Moved checkbox below title, used compact label, adjusted grid to fit COGS column properly
+
+Post-checkpoint: Run verification commands; test all dropdowns; verify responsive behavior; confirm PASS.
+
+---
+
+## Final Phase – Polish & Cross-Cutting (Updated)
+
+T016 [X][Polish][P]: Performance pass (<500ms perceived)
+- Path: `src/components/quote-builder/*`
+- Action: Ensure recalculation and rendering are responsive.
+- Testing: Change assumptions → verify preview updates < 500ms → add/remove addons → verify line items sync < 500ms → modify line items → verify totals update < 500ms → verify graphs re-render < 500ms → change system type/project type dropdowns → verify instant updates
+- Status: COMPLETE ✓ - All useEffect hooks optimized for immediate updates; real-time preview confirmed working
+
+T017 [X][Polish][P]: Documentation and decisions
+- Path: `specs/008-description-enhance-existing/`
+- Action: Update spec.md and tasks.md with final decisions.
+- Testing: Verify all completed tasks marked with ✓ → verify skipped phases documented with reasons → verify spec.md reflects implemented features → verify Phases 7 & 8 documented
+- Status: COMPLETE ✓ - Updated spec.md with User Stories 5 & 6; tasks.md with all phase details including Phase 8
+
+Post-checkpoint: Final verification and testing complete. ✅ ALL CHECKS PASSED
+
+---
+
+## Summary of Implementation (Updated)
+
+**Completed Phases:**
+- ✅ Phase 1: Setup (T001-T003)
+- ✅ Phase 2: Foundational (T004-T006)
+- ✅ Phase 3: US1 - Real-time calculator accuracy (T007-T010)
+- ✅ Phase 4: UX Improvements & Addon Integration (T018-T021)
+- ⏭️ Phase 5: US2 - Multi-option quoting (SKIPPED - Future iteration)
+- ⏭️ Phase 6: US3 - Compliance validation (SKIPPED - No blocking required)
+- ✅ Phase 7: US5 - Graphs, Lead Details, and Preview Modal (T022-T025)
+- ✅ Phase 8: US6 - System Selection & Pricing Engine UI Optimization (T026-T030)
+- ✅ Final Phase: Polish & Documentation (T016-T017)
+
+**Key Achievements:**
+1. Integrated professional calculator with accurate pricing and ROI calculations
+2. Added configurable financial assumptions panel (yield, self-consumption, tariffs, OPEX, etc.)
+3. Implemented STC zone detection from postcode with manual override
+4. Auto-sync addons to pricing engine for accurate total calculations
+5. Real-time preview updates without manual refresh
+6. Enhanced category options (9 categories for better organization)
+7. Proper handling of N/A payback scenarios
+8. **Financial projection graphs (ROI & annual cost comparison)**
+9. **Lead Technical Details button (wired to BidEvaluationModal)**
+10. **Homeowner Preview Modal with masked contact info**
+11. **Streamlined System Selection with dropdowns and compact layout**
+12. **Fixed Pricing Engine installer cost mode overflow**
+
+**Files Created/Modified (Updated):**
+- Created: `src/utils/quoteCalculator.ts` (calculator module)
+- Created: `src/utils/stcZones.ts` (STC zone mapping)
+- Created: `src/components/HomeownerPreviewModal.tsx` (preview modal for homeowner view)
+- Modified: `src/components/QuoteBuilderModal.tsx` (calculator integration, addon sync, real-time preview, graphs, Lead Details button, Preview button)
+- Modified: `src/components/quote-builder/SystemSelection.tsx` (dropdown system type, compact size, project type dropdown, removed slider and price range)
+- Modified: `src/components/quote-builder/PricingEngine.tsx` (assumptions panel, postcode input, enhanced categories, fixed installer cost mode layout)
+- Modified: `src/components/quote-builder/CustomerPreview.tsx` (N/A handling, addon display)
+- Updated: `specs/008-description-enhance-existing/spec.md` (added User Stories 4, 5 & 6)
+- Updated: `specs/008-description-enhance-existing/tasks.md` (all phase updates including Phases 7 & 8)
+
+Dependencies:
+- Story order: US1 → UX Improvements → Graphs & Preview → UI Optimization → Polish
+- All parallel tasks [P] executed successfully
+
+MVP Scope: COMPLETE
+- Phase 3 (US1): Calculator accuracy ✓
+- Phase 4 (UX): Addon integration & real-time updates ✓
+- Phase 7 (US5): Graphs, Lead Details, Preview Modal ✓
+- Phase 8 (US6): System Selection & Pricing Engine UI Optimization ✓

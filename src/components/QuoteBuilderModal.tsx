@@ -2,8 +2,11 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Button from '@/components/ui/button';
-import { X, Save, Send, Eye, FileText, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, Save, Send, Eye, FileText, ChevronDown, ChevronUp, Info } from 'lucide-react';
 import { calcQuoteTotals, DEFAULT_ASSUMPTIONS, QuoteInputs } from '@/utils/quoteCalculator';
+import SavingsChart from './SavingsChart';
+import HomeownerPreviewModal from './HomeownerPreviewModal';
+import BidEvaluationModal from './BidEvaluationModal';
 
 // Import all section components
 import SystemSelection, { SystemSelectionData } from './quote-builder/SystemSelection';
@@ -80,6 +83,7 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
     system: {
       systemType: 'grid-connected',
       systemSize: 6.6,
+      projectType: 'Residential',
       desiredPriceRange: undefined
     },
     roof: {
@@ -162,6 +166,8 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const [isBidEvaluationOpen, setIsBidEvaluationOpen] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
 
   // Generate preview options based on current config
@@ -568,7 +574,21 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center gap-2 w-full md:w-auto">
+            <div className="flex items-center gap-2 w-full md:w-auto flex-wrap">
+              <Button
+                onClick={() => setIsBidEvaluationOpen(true)}
+                variant="secondary"
+                className="flex-1 md:flex-initial px-4 py-2"
+              >
+                <Info className="h-4 w-4" /> Lead Details
+              </Button>
+              <Button
+                onClick={() => setIsPreviewModalOpen(true)}
+                variant="secondary"
+                className="flex-1 md:flex-initial px-4 py-2"
+              >
+                <Eye className="h-4 w-4" /> Preview
+              </Button>
               <Button
                 onClick={() => alert('Save Draft clicked')}
                 variant="minimal"
@@ -576,11 +596,6 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
               >
                 <Save className="h-4 w-4" /> Save Draft
               </Button>
-              {mode === 'quote' && (
-                <Button variant="minimal" className="flex-1 md:flex-initial px-4 py-2">
-                  <Eye className="h-4 w-4" /> Preview PDF
-                </Button>
-              )}
               <Button 
                 onClick={handleSubmit}
                 disabled={isSubmitting}
@@ -631,6 +646,7 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
               <SystemSelection
                 systemType={quoteDraft.system.systemType}
                 systemSize={quoteDraft.system.systemSize}
+                projectType={quoteDraft.system.projectType}
                 desiredPriceRange={quoteDraft.system.desiredPriceRange}
                 onUpdate={updateSystem}
               />
@@ -711,7 +727,7 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
 
           {/* Right Column - 30% - Customer Preview (Sticky) */}
           <div className="w-[30%] overflow-y-auto pl-2">
-            <div className="sticky top-0">
+            <div className="sticky top-0 space-y-6">
               <div className="bg-background-alt rounded-2xl shadow-neu p-4 space-y-4">
                 <h3 className="text-heading-6 text-foreground">Customer Preview</h3>
                 <CustomerPreview
@@ -720,10 +736,86 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
                   onUpdate={updatePreview}
                 />
               </div>
+
+              {/* Financial Projections Graph */}
+              {quoteDraft.preview.options.length > 0 && (
+                <div className="bg-background-alt rounded-2xl shadow-neu p-4">
+                  <SavingsChart
+                    finalPrice={quoteDraft.preview.options[0].totalPrice}
+                    annualSavings={quoteDraft.preview.options[0].estimatedSavingsPerYear}
+                    currentAnnualBill={quoteDraft.preview.options[0].estimatedSavingsPerYear + (quoteDraft.preview.options[0].estimatedSavingsPerYear * 0.3)}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Bid Evaluation Modal */}
+      {lead && (
+        <BidEvaluationModal
+          isOpen={isBidEvaluationOpen}
+          onClose={() => setIsBidEvaluationOpen(false)}
+          leadId={String(lead.id)}
+          bids={[]}
+          yourBidId={undefined}
+        />
+      )}
+
+      {/* Homeowner Preview Modal */}
+      {quoteDraft.preview.options.length > 0 && (
+        <HomeownerPreviewModal
+          isOpen={isPreviewModalOpen}
+          onClose={() => setIsPreviewModalOpen(false)}
+          onEdit={() => {
+            setIsPreviewModalOpen(false);
+            // Modal closes and user continues editing
+          }}
+          onConfirmSubmit={handleSubmit}
+          quoteData={{
+            systemSize: quoteDraft.system.systemSize,
+            total: quoteDraft.preview.options[0].totalPrice,
+            pricePerWatt: quoteDraft.preview.options[0].pricePerWatt,
+            subtotal: quoteDraft.preview.options[0].totalPrice - (quoteDraft.preview.options[0].totalPrice * 0.1), // Estimate
+            gst: quoteDraft.preview.options[0].totalPrice * 0.1,
+            incentives: (quoteDraft.pricing.stc.eligible ? quoteDraft.pricing.stc.stcCount * quoteDraft.pricing.stc.stcPrice : 0) +
+                       (quoteDraft.pricing.vic.rebateEligible ? quoteDraft.pricing.vic.rebateAmount : 0),
+            annualProduction: quoteDraft.system.systemSize * quoteDraft.assumptions.yield_kWh_per_kW_per_day * 365,
+            annualSavings: quoteDraft.preview.options[0].estimatedSavingsPerYear,
+            paybackYears: quoteDraft.preview.options[0].paybackYears,
+            panelBrand: quoteDraft.products.panels.brand,
+            panelModel: quoteDraft.products.panels.model,
+            panelWattage: quoteDraft.products.panels.wattage,
+            panelQty: quoteDraft.products.panels.qty,
+            panelWarranty: quoteDraft.products.panels.performanceWarranty,
+            inverterBrand: quoteDraft.products.inverter.brand,
+            inverterModel: quoteDraft.products.inverter.model,
+            inverterCapacity: quoteDraft.products.inverter.capacityKw,
+            inverterWarranty: quoteDraft.products.inverter.warranty,
+            batteryBrand: quoteDraft.products.battery?.brand,
+            batteryModel: quoteDraft.products.battery?.model,
+            batteryCapacity: quoteDraft.products.battery?.usableKwh,
+            batteryWarranty: quoteDraft.products.battery?.warranty,
+            lineItems: quoteDraft.pricing.lineItems.map(item => ({
+              description: item.description,
+              qty: item.qty,
+              unitPrice: item.unitPrice,
+              category: item.category
+            })),
+            addons: quoteDraft.products.addons.map(addon => ({
+              label: addon.label,
+              price: addon.qty * addon.unitPrice
+            }))
+          }}
+          installerInfo={{
+            name: 'Installer Name',
+            cecAccreditation: quoteDraft.compliance.cecAccreditation || 'Provided',
+            electricalLicence: quoteDraft.compliance.electricalLicence || 'Provided'
+          }}
+          isSubmitting={isSubmitting}
+        />
+      )}
     </div>
   );
 };

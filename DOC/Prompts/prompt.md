@@ -2646,3 +2646,36 @@ I have noticed some issues in the current quote builder modal. here are the issu
 
 
 ***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and make sure to stay aligned with the specks as well. if needed , update the specks accordingly. 
+
+---------------------------------------------------------------------
+
+***Bid builder modal enhancement***
+- there is no graphs are per the plan in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Features\Quote Builder Modal\Main Plan was built. The graphs should have the accurate functionality based on the Quote.
+
+***Lead details button :**
+- you just need to import the "Lead details" button and its triggered modal "bid evaluation" just as it is now in the current bidding lead modal to the Bid builder modal. just add that button in the same line where save drat and submit Bid buttons are. so that the installers can see the lead details while building the bid.
+
+
+### Preview modal : 
+- also add a preview button to preview the bid before submitting. This preview modal is the modal which shows the bidding quote details to the Homeowner.
+
+- The preview modal should have 2 buttons : Edit Bid and Confirm & Submit Bid. The preview modal should show all the bid details as per the data filled in the bid builder modal. The Installers Contact details will be shown as masked in the preview modal with note, "Contact details will be unlocked after winner is selected by the Homeowners" . 
+
+- This modal will also show the Grpahs as well. 
+- just focus on building the UI UX only for now, no backend. 
+
+***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and make sure to stay aligned with the specks as well. if needed , update the specks accordingly.
+
+---------------------------------------------------
+
+***System Selection Section Enhancement***
+- System type can me shown in dropdown instead of a lot of buttons
+- System size field is too wide, make it compact and save space.
+- I do not need the 0kw-20kw selection line, it is not necessary. 
+- Desired price Range is not needed here. 
+- You should add dropdown Project type : Residential , commcercial . 
+
+ ***Price Engine section enhancement***
+ - The installer cost mode show weird layout. fix it to fit the overall setion size. check the screenshots for that. 
+
+***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and make sure to stay aligned with the specks as well. if needed , update the specks accordingly.

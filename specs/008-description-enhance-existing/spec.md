@@ -55,6 +55,48 @@ As an installer, I want addons (EV Charger, Bird Proofing, etc.) to automaticall
 
 ---
 
+### User Story 5 - Graphs, Lead Details, and Preview Modal (Priority: P2)
+
+As an installer, I want to see financial projection graphs in the Quote Builder, access Lead Technical Details with one click, and preview the bid exactly as homeowners will see it (with masked contact info) before submitting, so I can ensure accuracy and professionalism.
+
+**Why this priority**: Visual graphs improve credibility and help installers communicate value. Lead details provide quick reference without leaving the modal. Preview modal reduces errors and builds confidence before submission.
+
+**Independent Test**: Open Quote Builder for a lead → click "Lead Details" button → verify lead info (location, property, energy, budget, roof type) displays → close → scroll to graphs section → verify ROI and annual cost charts render → click "Preview" button → verify modal shows bid as homeowner sees it with masked contact and note "Contact details will be unlocked after winner is selected" → click "Edit Bid" → return to builder → make change → click Preview again → verify updated → click "Confirm & Submit Bid" → verify submission succeeds.
+
+**Acceptance Scenarios**:
+1. Given I am in Quote Builder with a valid configuration, when I view the modal, then I see a "Financial Projections" section with ROI graph (cumulative savings area chart with break-even marker) and Annual Cost comparison bar chart.
+2. Given graphs are displayed, when I change financial assumptions (e.g., self-consumption from 0.5 to 0.7), then graphs update automatically within 500ms to reflect new calculations.
+3. Given I am in Quote Builder, when I click the "Lead Details" button in the action bar, then a modal or collapsible section opens showing: Location & Property (location, postcode, property type, project type), Energy & Budget (energy bill, budget range, desired offset, lead price), System Requirements (roof type, battery required, battery capacity, timeframe), and Contact Information (masked until purchase).
+4. Given Lead Details is open, when I click close or outside the section, then it closes and I can continue building the quote without data loss.
+5. Given I am in Quote Builder with quote data filled, when I click the "Preview" button (Eye icon) in the action bar, then HomeownerPreviewModal opens showing: System details, pricing breakdown with line items, equipment specifications (panels, inverter, battery if applicable), financial projections graph (same as in builder), installer information with contact masked and note, and two buttons: "Edit Bid" and "Confirm & Submit Bid".
+6. Given HomeownerPreviewModal is open, when I click "Edit Bid", then the modal closes and I return to the Quote Builder with all data preserved.
+7. Given HomeownerPreviewModal is open with valid data, when I click "Confirm & Submit Bid", then the bid is submitted via API, success/error message displays, and on success the modal closes and draft is cleared.
+8. Given I preview the bid multiple times, when I make changes between previews, then the preview always shows the current state of the quote draft.
+
+---
+
+### User Story 6 - System Selection & Pricing Engine UI Optimization (Priority: P2)
+
+As an installer, I want a more compact and streamlined System Selection section with dropdowns instead of button grids, and I want the Pricing Engine's installer cost mode to fit properly within the section width, so I can build quotes faster without layout issues.
+
+**Why this priority**: Reduces visual clutter, saves screen space, and fixes layout overflow that disrupts workflow when using installer cost mode.
+
+**Independent Test**: Open Quote Builder → verify System Selection shows dropdowns for System Type and Project Type → verify System Size input is compact (no slider or range labels) → verify no Desired Price Range fields → scroll to Pricing Engine → toggle Installer Cost Mode ON → verify COGS column appears and all columns fit within section (no horizontal scroll or overflow) → toggle OFF → verify layout returns to normal.
+
+**Acceptance Scenarios**:
+1. Given I am in System Selection, when I view System Type, then I see a single dropdown (not button grid) with 7 options: Grid-Connected, Hybrid, Off-Grid, Battery Only, EV Charger, Add Panels, Replace Inverter.
+2. Given I select any System Type from the dropdown, when I make a selection, then the value updates immediately and is reflected in the quote draft.
+3. Given I am in System Selection, when I view Project Type, then I see a dropdown with 2 options: Residential, Commercial (default: Residential).
+4. Given I select Project Type, when I make a selection, then the value persists and can be used for project-specific logic or reporting.
+5. Given I am in System Selection, when I view System Size, then I see only a compact number input (max-w-xs) with inline "kW" label—no slider, no 0kW-20kW range labels.
+6. Given I type a system size value, when I enter a number, then the input updates immediately and the rest of the form remains compact and clean.
+7. Given I am in System Selection, when I view the section, then I do NOT see any "Desired Price Range" fields (Min/Max).
+8. Given I am in Pricing Engine with Installer Cost Mode OFF, when I view the line items table, then I see columns: Category, Description, Qty, Unit Price, Tax, Total, Actions (7 columns).
+9. Given I toggle Installer Cost Mode ON, when I view the table, then I see an additional COGS column (8 columns total: Category, Description, Qty, Unit Price, COGS, Tax, Total, Actions) and all columns fit within the section width with no horizontal overflow.
+10. Given I toggle Installer Cost Mode OFF again, when I view the table, then the COGS column disappears and the layout returns to the original 7-column format.
+
+---
+
 ### User Story 3 - Compliance validation before submit (Priority: P3)
 
 As an installer, I must provide required artefacts (panel/inverter/battery datasheets, CEC accreditation, licence, insurance) and receive inline validation errors if any are missing before I can submit a Quote/Bid.
@@ -73,9 +115,12 @@ As an installer, I must provide required artefacts (panel/inverter/battery datas
 
 - System size is 0 or negative → disable calculation and show guidance.
 - No line items → subtotal is 0; show message to add at least one line item.
-- Annual Savings computed <= 0 → Payback shows N/A with guidance to adjust assumptions.
+- Annual Savings computed <= 0 → Payback shows N/A with guidance to adjust assumptions; graphs show flat/negative trend.
 - Combined incentives lead to negative totals → clamp at minimum 0 with warning.
 - Postcode not mapped → allow manual STC zone override with transparent label.
+- Lead data fetch fails when opening Lead Details → display error message with retry option.
+- Preview modal opened with incomplete data → show validation warnings inline (e.g., "Add at least one line item to generate accurate preview").
+- Graphs fail to render due to invalid data → display fallback message "Unable to generate graph with current data".
 
 ## Requirements (mandatory)
 
