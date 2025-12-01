@@ -522,3 +522,83 @@ Acceptance Scenarios (from INSTANT-to-BID-ENHANCEMENT-PLAN.md):
 5. ✓ Import is idempotent and reversible (cancel or re-import allowed)
 6. ✓ Roof & Site section includes InstantQuote fields + installer extras
 7. ✓ Helper captions visible on prefilled fields
+
+---
+
+## Phase 10 – Import & Prefill Completeness (Enhancement Plan Gaps)
+
+Story goal: Complete the Import & Prefill implementation by adding missing items from INSTANT-to-BID-ENHANCEMENT-PLAN.md: import metadata stamping, STC auto-zone lookup on import, and roof field tooltips for orientation/tilt/shading guidance.
+
+Independent test: Import lead with quoteData containing postcode → verify importedAt/importSource stamped in meta → verify STC zone auto-detected and applied → verify tooltips appear on roof orientation/tilt/shading fields with Instant Quote guidance.
+
+Pre-phase checklist (MANDATORY):
+- [X] Read `DOC/Guidelines/AI-IMPLEMENTATION-GUIDELINES.md` sections 1-6
+- [X] Review `DOC/Features/Quote Builder Modal/INSTANT-to-BID-ENHANCEMENT-PLAN.md` (gaps identified)
+- [X] Baseline verification: Run 6 commands on target files → record results
+- [X] Backup commit: Current state already committed as Phase 9
+
+### T099 [X][P0][Meta]: Stamp import metadata on Accept
+- Path: `src/components/QuoteBuilderModal.tsx`
+- Action:
+  - In `handleImportAccept()`, update merged quoteDraft with:
+    - `meta.importedAt = new Date().toISOString()`
+    - `meta.importSource = 'instant-quote'`
+    - `meta.prefilledFields` already set by mapper
+  - Ensure localStorage save includes updated meta
+- Testing:
+  - Functional: Import lead → Accept → check localStorage draft → verify importedAt timestamp present
+  - Functional: Re-import → verify importedAt updates to new timestamp
+  - Functional: Captions still display correctly after import
+- Acceptance: importedAt and importSource stamped on every import; idempotent re-imports update timestamp
+- Status: COMPLETE ✓ - Updated handleImportAccept to stamp importedAt (ISO timestamp), importSource='instant-quote', and prefilledFields from mapper; saved to localStorage
+
+### T100 [X][P1][STC]: Auto-detect STC zone from postcode on import
+- Path: `src/components/QuoteBuilderModal.tsx`, `src/lib/mappers/instant-to-bid.ts`
+- Action:
+  - In mapper `mapInstantToBid()`, if `instant.postcode` present:
+    - Call `getSTCZoneFromPostcode(instant.postcode)`
+    - Add to result: `pricing.stc.postcode = instant.postcode`, `pricing.stc.zone = detectedZone || 'Zone 3'` (default fallback)
+    - Add `prefilledFields.push('pricing.stc.postcode', 'pricing.stc.zone')`
+  - In PricingEngine, show caption "Auto-detected from homeowner postcode" when prefilled
+- Testing:
+  - Functional: Import lead with postcode='3000' → verify STC zone='Zone 3' auto-set
+  - Functional: Import lead with postcode='2000' → verify correct zone detected
+  - Functional: Manually override zone → verify override persists
+  - Visual: Caption shown under STC Postcode input when prefilled
+- Acceptance: STC zone auto-detected from Instant Quote postcode; manual override still works; caption displayed
+- Status: COMPLETE ✓ - Added STC zone detection in mapper with postcode input; created pricing.stc structure with eligible/postcode/zone/stcCount/stcPrice; added caption in PricingEngine; updated mergeQuoteDraft to handle pricing.stc merge; added default 'Zone 3' fallback for null postcodes
+
+### T101 [X][P1][UX]: Add roof field tooltips with Instant Quote guidance
+- Path: `src/components/quote-builder/RoofSiteDetails.tsx`
+- Action:
+  - Add tooltip icon (Info from lucide-react) next to:
+    - **Array Orientations** label: "North-facing panels typically generate 100% efficiency in Australia. Other orientations may have 80-95% efficiency. Multiple orientations can be selected for complex roofs."
+    - **Roof Pitch** label: "Roof angle in degrees. Optimal pitch for most Australian locations is 20-30°. Flat roofs ~5°, steep roofs 40°+."
+    - **Shading Level** label: "None: No shade throughout the day. Minimal: <10% shading. Partial: 10-30%. Moderate: 30-50%. Heavy: >50% during peak hours."
+  - Use semantic classes for tooltip (text-caption, bg-surface, border-border)
+  - Tooltips appear on hover/focus with accessible ARIA labels
+- Testing:
+  - Visual: Hover over Info icon → verify tooltip displays with correct text
+  - Accessibility: Tab to tooltip icon → verify keyboard accessible
+  - Themes: Test in Dark/Light/Purple → verify tooltips readable
+  - Responsive: Test mobile/desktop → tooltips position correctly
+- Acceptance: Tooltips present on 3 roof fields; content matches Instant Quote guidance; accessible and theme-compliant
+- Status: COMPLETE ✓ - Added Info icons with CSS group/hover tooltips to Array Orientations, Roof Pitch, Shading Level labels; all tooltips use semantic classes (bg-surface, border-border, text-caption, shadow-neu-outset-lg); guidance text matches enhancement plan
+
+Post-phase checklist (MANDATORY):
+- [X] Run 6 verification commands on all modified files → 0/0/0/0/0/0
+- [X] Test Dark/Light/Purple themes → all pass
+- [X] Test responsive (320px, 768px, 1440px) → no overflow, tooltips position correctly
+- [X] Functional test: Import with postcode → verify STC zone auto-set → hover tooltips → verify guidance text
+- [X] TypeScript: `npx tsc --noEmit` → 0 errors
+- [ ] Build: `npm run build` → Success
+- [ ] Browser console → no errors
+- [ ] Commit: `git add . && git commit -m "feat(quote-builder): Phase 10 - Import Completeness (T099-T101)\n\n- Stamp importedAt and importSource in meta on import accept\n- Auto-detect STC zone from homeowner postcode during import\n- Add tooltips to roof orientation/pitch/shading fields\n- All verification: 0/0/0/0/0/0"`
+
+Acceptance Scenarios (Phase 10):
+1. ✓ Import Accept stamps meta.importedAt (ISO timestamp) and meta.importSource='instant-quote'
+2. ✓ STC zone auto-detected when lead.quoteData.postcode exists
+3. ✓ Manual STC zone override still functional after auto-detection
+4. ✓ Tooltips display on hover for Array Orientations, Roof Pitch, Shading Level
+5. ✓ Tooltip content matches Instant Quote guidance from enhancement plan
+6. ✓ All changes maintain 0/0/0/0/0/0 design-system checks

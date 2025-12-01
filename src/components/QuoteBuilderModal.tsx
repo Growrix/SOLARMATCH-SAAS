@@ -513,10 +513,20 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
   const handleImportAccept = () => {
     if (!mappedImportData) return;
     const merged = mergeQuoteDraft(quoteDraft, mappedImportData);
+    
+    // Stamp import metadata
+    merged.meta = {
+      ...merged.meta,
+      importedAt: new Date().toISOString(),
+      importSource: 'instant-quote',
+      prefilledFields: mappedImportData.meta?.prefilledFields || []
+    };
+    
     setQuoteDraft(merged);
     setIsImportPreviewOpen(false);
     setMappedImportData(null);
-    // Trigger autosave
+    
+    // Trigger autosave with updated meta
     if (lead) {
       localStorage.setItem(
         `quote:draft:${lead.id}:installer-id`,

@@ -6,6 +6,8 @@
  * Date: 2025-12-01
  */
 
+import { getSTCZoneFromPostcode } from '@/utils/stcZones';
+
 // Type definitions
 export interface InstantQuoteData {
   // Property & Location
@@ -76,6 +78,15 @@ export interface QuoteDraftPartial {
       qty: number;
       unitPrice: number;
     }>;
+  };
+  pricing?: {
+    stc?: {
+      eligible: boolean;
+      postcode?: string;
+      zone: string;
+      stcCount: number;
+      stcPrice: number;
+    };
   };
   assumptions?: {
     retailPrice?: number; // $/kWh
@@ -300,6 +311,20 @@ export function mapInstantToBid(instant: InstantQuoteData | null | undefined): Q
     result.products.addons = addons;
   }
 
+  // === STC Zone Auto-Detection ===
+  if (instant.postcode) {
+    const detectedZone = getSTCZoneFromPostcode(instant.postcode);
+    if (!result.pricing) result.pricing = {};
+    result.pricing.stc = {
+      eligible: true,
+      postcode: instant.postcode,
+      zone: detectedZone || 'Zone 3', // Default to Zone 3 if postcode lookup fails
+      stcCount: 0, // Will be recalculated by PricingEngine
+      stcPrice: 40, // Default STC price
+    };
+    prefilledFields.push('pricing.stc.postcode', 'pricing.stc.zone');
+  }
+
   // Store prefilled fields for caption logic
   if (result.meta) {
     result.meta.prefilledFields = prefilledFields;
@@ -338,6 +363,13 @@ export function mergeQuoteDraft(existing: any, mapped: QuoteDraftPartial): any {
       const existingAddonIds = new Set((merged.products.addons || []).map((a: any) => a.id));
       const newAddons = mapped.products.addons.filter(a => !existingAddonIds.has(a.id));
       merged.products.addons = [...(merged.products.addons || []), ...newAddons];
+    }
+  }
+  
+  if (mapped.pricing) {
+    merged.pricing = merged.pricing || {};
+    if (mapped.pricing.stc) {
+      merged.pricing.stc = { ...merged.pricing.stc, ...mapped.pricing.stc };
     }
   }
   

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import { Home, Upload, ChevronDown, ChevronUp } from 'lucide-react';
+import { Home, Upload, ChevronDown, ChevronUp, Info } from 'lucide-react';
 import { ROOF_TYPES, ORIENTATIONS, SHADING_LEVELS, PHASE_TYPES } from './Presets';
 import Button from '@/components/ui/button';
 
@@ -110,8 +110,16 @@ const RoofSiteDetails: React.FC<RoofSiteDetailsProps> = ({
         </div>
 
         <div>
-          <label className="text-label text-foreground block mb-2">
+          <label className="text-label text-foreground block mb-2 flex items-center gap-2">
             Roof Pitch (degrees)
+            <div className="group relative">
+              <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              <div className="absolute left-0 top-6 w-72 p-3 bg-surface border border-border rounded-lg shadow-neu-outset-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-10">
+                <p className="text-caption text-foreground">
+                  Roof angle in degrees. Optimal pitch for most Australian locations is 20-30°. Flat roofs ~5°, steep roofs 40°+.
+                </p>
+              </div>
+            </div>
           </label>
           <input
             type="number"
@@ -146,8 +154,16 @@ const RoofSiteDetails: React.FC<RoofSiteDetailsProps> = ({
 
       {/* Row 2: Orientations (Multi-select chips) */}
       <div>
-        <label className="text-label text-foreground block mb-3">
+        <label className="text-label text-foreground block mb-3 flex items-center gap-2">
           Array Orientations
+          <div className="group relative">
+            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+            <div className="absolute left-0 top-6 w-72 p-3 bg-surface border border-border rounded-lg shadow-neu-outset-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-10">
+              <p className="text-caption text-foreground">
+                North-facing panels typically generate 100% efficiency in Australia. Other orientations may have 80-95% efficiency. Multiple orientations can be selected for complex roofs.
+              </p>
+            </div>
+          </div>
         </label>
         <div className="flex flex-wrap gap-2">
           {ORIENTATIONS.map((orientation) => (
@@ -172,8 +188,16 @@ const RoofSiteDetails: React.FC<RoofSiteDetailsProps> = ({
 
       {/* Row 3: Shading Level */}
       <div>
-        <label className="text-label text-foreground block mb-2">
+        <label className="text-label text-foreground block mb-2 flex items-center gap-2">
           Shading Level
+          <div className="group relative">
+            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+            <div className="absolute left-0 top-6 w-72 p-3 bg-surface border border-border rounded-lg shadow-neu-outset-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-10">
+              <p className="text-caption text-foreground">
+                None: No shade throughout the day. Minimal: &lt;10% shading. Partial: 10-30%. Moderate: 30-50%. Heavy: &gt;50% during peak hours.
+              </p>
+            </div>
+          </div>
         </label>
         <select
           value={shadingLevel}
