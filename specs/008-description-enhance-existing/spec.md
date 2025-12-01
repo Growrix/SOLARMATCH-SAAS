@@ -37,6 +37,24 @@ As an installer, I can create up to three options (Economy/Balanced/Premium) fro
 
 ---
 
+### User Story 4 - UX Improvements & Addon Integration (Priority: P2)
+
+As an installer, I want addons (EV Charger, Bird Proofing, etc.) to automatically reflect in total price calculations and appear in the customer preview, with enhanced category options and real-time preview updates without manual refresh.
+
+**Why this priority**: Improves accuracy of pricing (addons must be included in totals), streamlines workflow (no button clicks), and provides comprehensive categorization for line items.
+
+**Independent Test**: Add an EV Charger addon for $1,500 → verify it appears as a line item in Pricing Engine with category "Addons" → verify total price increases by $1,500 → verify "EV Charger" appears in Customer Preview under Additional Items → change system configuration → verify preview updates automatically within 500ms.
+
+**Acceptance Scenarios**:
+1. Given I add an addon in Product Configuration, when I view Pricing Engine, then a line item with category "Addons" is automatically created with matching qty and price.
+2. Given I modify addon quantity from 1 to 2, when I check the line item, then qty updates to 2 and total price recalculates correctly.
+3. Given I remove an addon, when I view Pricing Engine, then the corresponding line item is automatically removed.
+4. Given I have selected multiple addons, when I view Customer Preview, then all addons appear under "Additional Items" section.
+5. Given I change any product configuration field, when I view Customer Preview, then the preview updates automatically without clicking any button within 500ms.
+6. Given I create a line item in Pricing Engine, when I open the category dropdown, then I see 9 options: Panels, Inverter, Battery, Mounting Structure, EV Charger, Electrical, Labour, Addons, Other.
+
+---
+
 ### User Story 3 - Compliance validation before submit (Priority: P3)
 
 As an installer, I must provide required artefacts (panel/inverter/battery datasheets, CEC accreditation, licence, insurance) and receive inline validation errors if any are missing before I can submit a Quote/Bid.

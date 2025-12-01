@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Button from '@/components/ui/button';
 import { X, Save, Send, Eye, FileText, ChevronDown, ChevronUp } from 'lucide-react';
+import { calcQuoteTotals, DEFAULT_ASSUMPTIONS, QuoteInputs } from '@/utils/quoteCalculator';
 
 // Import all section components
 import SystemSelection, { SystemSelectionData } from './quote-builder/SystemSelection';
@@ -40,6 +41,15 @@ interface QuoteDraft {
   pricing: PricingEngineData;
   compliance: ComplianceDocsData;
   preview: CustomerPreviewData;
+  assumptions: {
+    yield_kWh_per_kW_per_day: number;
+    selfConsumption: number;
+    retailPrice: number;
+    feedInTariff: number;
+    annualOpex: number;
+    degradationPercentPerYear: number;
+    escalationPercentPerYear: number;
+  };
   meta: {
     version: number;
     lastSavedAt: string;
@@ -133,6 +143,15 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
     preview: {
       options: []
     },
+    assumptions: {
+      yield_kWh_per_kW_per_day: DEFAULT_ASSUMPTIONS.yield_kWh_per_kW_per_day,
+      selfConsumption: DEFAULT_ASSUMPTIONS.selfConsumption,
+      retailPrice: DEFAULT_ASSUMPTIONS.retailPrice,
+      feedInTariff: DEFAULT_ASSUMPTIONS.feedInTariff,
+      annualOpex: DEFAULT_ASSUMPTIONS.annualOpex,
+      degradationPercentPerYear: DEFAULT_ASSUMPTIONS.degradationPercentPerYear,
+      escalationPercentPerYear: DEFAULT_ASSUMPTIONS.escalationPercentPerYear
+    },
     meta: {
       version: 1,
       lastSavedAt: new Date().toISOString(),
@@ -147,25 +166,32 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
 
   // Generate preview options based on current config
   const generatePreviewOptions = (): QuoteOption[] => {
-    const { system, products, pricing } = quoteDraft;
+    const { system, products, pricing, assumptions } = quoteDraft;
     
-    // Calculate totals
-    const subtotal = pricing.lineItems.reduce(
-      (acc, item) => acc + item.qty * item.unitPrice,
-      0
-    );
-    const gstAmount = pricing.lineItems
-      .filter((item) => item.taxGst)
-      .reduce((acc, item) => acc + item.qty * item.unitPrice * 0.1, 0);
-    const stcDeduction = pricing.stc.eligible
-      ? pricing.stc.stcCount * pricing.stc.stcPrice
-      : 0;
-    const vicDeduction = pricing.vic.rebateEligible ? pricing.vic.rebateAmount : 0;
-    const totalDiscounts = pricing.discounts.reduce((acc, d) => acc + d.amount, 0);
-    const totalPrice = subtotal + gstAmount - stcDeduction - vicDeduction - totalDiscounts;
-    const pricePerWatt = system.systemSize > 0 ? totalPrice / (system.systemSize * 1000) : 0;
-    const estimatedSavingsPerYear = system.systemSize * 4.2 * 365 * 0.5 * 0.30;
-    const paybackYears = totalPrice / estimatedSavingsPerYear;
+    // Prepare inputs for calculator
+    const calculatorInputs: QuoteInputs = {
+      systemSize_kW: system.systemSize,
+      lineItems: pricing.lineItems.map(item => ({
+        description: item.description,
+        qty: item.qty,
+        unitPrice: item.unitPrice,
+        taxable: item.taxGst
+      })),
+      includeGst: true, // Always include GST, controlled per line item
+      gstPercent: DEFAULT_ASSUMPTIONS.gstPercent,
+      includeIncentive: true,
+      incentiveAmount: (pricing.stc.eligible ? pricing.stc.stcCount * pricing.stc.stcPrice : 0) +
+                       (pricing.vic.rebateEligible ? pricing.vic.rebateAmount : 0) +
+                       pricing.discounts.reduce((acc, d) => acc + d.amount, 0),
+      yield_kWh_per_kW_per_day: assumptions.yield_kWh_per_kW_per_day,
+      selfConsumption: assumptions.selfConsumption,
+      retailPrice: assumptions.retailPrice,
+      feedInTariff: assumptions.feedInTariff,
+      annualOpex: assumptions.annualOpex
+    };
+
+    // Calculate totals using the calculator
+    const totals = calcQuoteTotals(calculatorInputs);
     const co2OffsetTonnesPerYear = system.systemSize * 1.5;
 
     return [
@@ -179,10 +205,11 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
         battery: products.battery
           ? `${products.battery.brand} ${products.battery.model} (${products.battery.usableKwh}kWh)`
           : undefined,
-        totalPrice,
-        pricePerWatt,
-        estimatedSavingsPerYear,
-        paybackYears,
+        addons: products.addons.length > 0 ? products.addons.map(a => a.label) : undefined,
+        totalPrice: totals.total,
+        pricePerWatt: totals.pricePerWatt,
+        estimatedSavingsPerYear: totals.annualSavings,
+        paybackYears: totals.paybackYears === 'N/A' ? Infinity : totals.paybackYears,
         warrantyYears: products.panels.performanceWarranty,
         co2OffsetTonnesPerYear
       }
@@ -260,6 +287,7 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
           pricing: { ...prev.pricing, ...(data.pricing || {}) },
           compliance: { ...prev.compliance, ...(data.compliance || {}) },
           preview: { ...prev.preview, ...(data.preview || {}) },
+          assumptions: { ...prev.assumptions, ...(data.assumptions || {}) },
           meta: { ...prev.meta, ...(data.meta || {}) }
         }));
       } catch (error) {
@@ -268,16 +296,43 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
     }
   }, [isOpen, lead, mode]);
 
-  // Update preview options when relevant data changes
+  // Update preview options when relevant data changes (T020 - Real-time preview)
   useEffect(() => {
-    if (quoteDraft.pricing?.lineItems?.length > 0) {
-      const options = generatePreviewOptions();
+    const options = generatePreviewOptions();
+    setQuoteDraft((prev) => ({
+      ...prev,
+      preview: { options }
+    }));
+  }, [quoteDraft.system, quoteDraft.products, quoteDraft.pricing?.lineItems, quoteDraft.assumptions]);
+
+  // Auto-sync addons to pricing engine line items (T018)
+  useEffect(() => {
+    const addonLineItems = quoteDraft.products.addons.map(addon => ({
+      id: Date.now() + Math.random(), // Ensure unique ID
+      category: 'Addons',
+      description: addon.label,
+      qty: addon.qty,
+      unitPrice: addon.unitPrice,
+      taxGst: true
+    }));
+
+    // Get non-addon line items
+    const nonAddonItems = quoteDraft.pricing.lineItems.filter(item => item.category !== 'Addons');
+    
+    // Combine non-addon items with current addon items
+    const updatedLineItems = [...nonAddonItems, ...addonLineItems];
+
+    // Only update if line items changed
+    if (JSON.stringify(quoteDraft.pricing.lineItems) !== JSON.stringify(updatedLineItems)) {
       setQuoteDraft((prev) => ({
         ...prev,
-        preview: { options }
+        pricing: {
+          ...prev.pricing,
+          lineItems: updatedLineItems
+        }
       }));
     }
-  }, [quoteDraft.system, quoteDraft.products, quoteDraft.pricing?.lineItems]);
+  }, [quoteDraft.products.addons]);
 
   // Handlers
   const toggleSection = (section: string) => {
@@ -323,6 +378,13 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
     setQuoteDraft((prev) => ({
       ...prev,
       preview: { ...prev.preview, ...data }
+    }));
+  };
+
+  const updateAssumptions = (data: Partial<QuoteDraft['assumptions']>) => {
+    setQuoteDraft((prev) => ({
+      ...prev,
+      assumptions: { ...prev.assumptions, ...data }
     }));
   };
 
@@ -625,7 +687,9 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
                 installerCostMode={quoteDraft.pricing.installerCostMode}
                 systemSize={quoteDraft.system.systemSize}
                 panelWattage={quoteDraft.products.panels.wattage}
+                assumptions={quoteDraft.assumptions}
                 onUpdate={updatePricing}
+                onUpdateAssumptions={updateAssumptions}
               />
             </CollapsibleSection>
 

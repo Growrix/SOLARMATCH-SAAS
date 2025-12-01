@@ -1,8 +1,9 @@
 'use client'
 
 import React from 'react';
-import { DollarSign, Plus, Trash2 } from 'lucide-react';
+import { DollarSign, Plus, Trash2, MapPin } from 'lucide-react';
 import Button from '@/components/ui/button';
+import { getSTCZoneFromPostcode, calculateSTCCount, DEEMING_FACTORS, STCZone } from '@/utils/stcZones';
 
 interface PricingEngineProps {
   lineItems: LineItemData[];
@@ -12,7 +13,25 @@ interface PricingEngineProps {
   installerCostMode: boolean;
   systemSize: number; // in kW, for price per watt and STC auto-calc
   panelWattage: number; // for STC auto-calc
+  assumptions?: {
+    yield_kWh_per_kW_per_day: number;
+    selfConsumption: number;
+    retailPrice: number;
+    feedInTariff: number;
+    annualOpex: number;
+    degradationPercentPerYear: number;
+    escalationPercentPerYear: number;
+  };
   onUpdate: (data: Partial<PricingEngineData>) => void;
+  onUpdateAssumptions?: (data: Partial<{
+    yield_kWh_per_kW_per_day: number;
+    selfConsumption: number;
+    retailPrice: number;
+    feedInTariff: number;
+    annualOpex: number;
+    degradationPercentPerYear: number;
+    escalationPercentPerYear: number;
+  }>) => void;
 }
 
 export interface LineItemData {
@@ -28,6 +47,7 @@ export interface LineItemData {
 export interface STCData {
   eligible: boolean;
   zone: string;
+  postcode?: string;
   stcCount: number;
   stcPrice: number;
 }
@@ -53,15 +73,7 @@ export interface PricingEngineData {
   installerCostMode: boolean;
 }
 
-const CATEGORIES = ['System', 'Battery', 'Labour', 'Other'];
-
-// STC Deeming Factors (2025) by Zone
-const DEEMING_FACTORS: Record<string, number> = {
-  'Zone 1': 1.622,
-  'Zone 2': 1.536,
-  'Zone 3': 1.382,
-  'Zone 4': 1.185
-};
+const CATEGORIES = ['Panels', 'Inverter', 'Battery', 'Mounting Structure', 'EV Charger', 'Electrical', 'Labour', 'Addons', 'Other'];
 
 const PricingEngine: React.FC<PricingEngineProps> = ({
   lineItems,
@@ -71,7 +83,9 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
   installerCostMode,
   systemSize,
   panelWattage,
-  onUpdate
+  assumptions,
+  onUpdate,
+  onUpdateAssumptions
 }) => {
   const addLineItem = () => {
     onUpdate({
@@ -142,7 +156,8 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
   // Auto-calculate STC count (Phase 2.2)
   React.useEffect(() => {
     if (stc.eligible && systemSize > 0 && panelWattage > 0) {
-      const deemingFactor = DEEMING_FACTORS[stc.zone] || 1.382; // Default to Zone 3
+      const zone = stc.zone as STCZone;
+      const deemingFactor = DEEMING_FACTORS[zone] || 1.382; // Default to Zone 3
       const calculatedSTC = Math.round((systemSize * 1000 / panelWattage) * deemingFactor);
       
       // Only auto-update if STC count differs significantly (avoid infinite loops)
@@ -158,6 +173,18 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
     if (item.unitPrice <= 0) return 'Unit price must be > 0';
     if (item.qty <= 0) return 'Quantity must be > 0';
     return null;
+  };
+
+  // Postcode to zone mapping handler
+  const handlePostcodeChange = (postcode: string) => {
+    onUpdate({ stc: { ...stc, postcode } });
+    
+    if (postcode.length >= 4) {
+      const detectedZone = getSTCZoneFromPostcode(postcode);
+      if (detectedZone) {
+        onUpdate({ stc: { ...stc, postcode, zone: detectedZone } });
+      }
+    }
   };
 
   return (
@@ -321,54 +348,84 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
           </label>
 
           {stc.eligible && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 ml-8">
+            <div className="ml-8 space-y-4">
+              {/* Postcode Input */}
               <div>
-                <label className="text-caption text-muted-foreground block mb-2">
-                  STC Zone
-                </label>
-                <select
-                  value={stc.zone}
-                  onChange={(e) => onUpdate({ stc: { ...stc, zone: e.target.value } })}
-                  className="form-select w-full px-3 py-2"
-                >
-                  <option value="Zone 1">Zone 1</option>
-                  <option value="Zone 2">Zone 2</option>
-                  <option value="Zone 3">Zone 3</option>
-                  <option value="Zone 4">Zone 4</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="text-caption text-muted-foreground block mb-2">
-                  STC Count
+                <label className="text-caption text-muted-foreground mb-2 flex items-center gap-2">
+                  <MapPin className="h-4 w-4" />
+                  Postcode (for zone detection)
                 </label>
                 <input
-                  type="number"
-                  min="0"
-                  value={stc.stcCount}
-                  onChange={(e) =>
-                    onUpdate({ stc: { ...stc, stcCount: parseInt(e.target.value) || 0 } })
-                  }
+                  type="text"
+                  maxLength={4}
+                  value={stc.postcode || ''}
+                  onChange={(e) => handlePostcodeChange(e.target.value)}
                   className="form-input w-full px-3 py-2"
-                  placeholder="e.g. 90"
+                  placeholder="e.g. 3000"
                 />
+                <p className="text-caption text-muted-foreground mt-1">
+                  Enter postcode to auto-detect STC zone
+                </p>
               </div>
 
-              <div>
-                <label className="text-caption text-muted-foreground block mb-2">
-                  STC Price ($)
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={stc.stcPrice}
-                  onChange={(e) =>
-                    onUpdate({ stc: { ...stc, stcPrice: parseFloat(e.target.value) || 0 } })
-                  }
-                  className="form-input w-full px-3 py-2"
-                  placeholder="e.g. 40"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="text-caption text-muted-foreground block mb-2">
+                    STC Zone
+                  </label>
+                  <select
+                    value={stc.zone}
+                    onChange={(e) => onUpdate({ stc: { ...stc, zone: e.target.value } })}
+                    className="form-select w-full px-3 py-2"
+                  >
+                    <option value="Zone 1">Zone 1</option>
+                    <option value="Zone 2">Zone 2</option>
+                    <option value="Zone 3">Zone 3</option>
+                    <option value="Zone 4">Zone 4</option>
+                  </select>
+                  <p className="text-caption text-muted-foreground mt-1">
+                    Manual override available
+                  </p>
+                </div>
+
+                <div>
+                  <label className="text-caption text-muted-foreground block mb-2">
+                    STC Count
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={stc.stcCount}
+                    onChange={(e) =>
+                      onUpdate({ stc: { ...stc, stcCount: parseInt(e.target.value) || 0 } })
+                    }
+                    className="form-input w-full px-3 py-2"
+                    placeholder="e.g. 90"
+                  />
+                  <p className="text-caption text-muted-foreground mt-1">
+                    Auto-calculated from size & zone
+                  </p>
+                </div>
+
+                <div>
+                  <label className="text-caption text-muted-foreground block mb-2">
+                    STC Price ($)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={stc.stcPrice}
+                    onChange={(e) =>
+                      onUpdate({ stc: { ...stc, stcPrice: parseFloat(e.target.value) || 0 } })
+                    }
+                    className="form-input w-full px-3 py-2"
+                    placeholder="e.g. 40"
+                  />
+                  <p className="text-caption text-muted-foreground mt-1">
+                    Current market price
+                  </p>
+                </div>
               </div>
             </div>
           )}
@@ -501,6 +558,147 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
           </>
         )}
       </div>
+
+      {/* Assumptions Panel */}
+      {assumptions && onUpdateAssumptions && (
+        <div className="space-y-4 border-t border-border pt-4">
+          <h4 className="text-body text-foreground">Financial Assumptions</h4>
+          <p className="text-caption text-muted-foreground">
+            These assumptions affect annual savings and payback calculations
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-caption text-muted-foreground block mb-2">
+                Solar Yield (kWh/kW/day)
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="0.1"
+                value={assumptions.yield_kWh_per_kW_per_day}
+                onChange={(e) => onUpdateAssumptions({ yield_kWh_per_kW_per_day: parseFloat(e.target.value) || 0 })}
+                className="form-input w-full px-3 py-2"
+                placeholder="e.g. 4.2"
+              />
+              <p className="text-caption text-muted-foreground mt-1">
+                Typical AU: 4.0-4.5
+              </p>
+            </div>
+
+            <div>
+              <label className="text-caption text-muted-foreground block mb-2">
+                Self-Consumption Ratio
+              </label>
+              <input
+                type="number"
+                min="0"
+                max="1"
+                step="0.05"
+                value={assumptions.selfConsumption}
+                onChange={(e) => onUpdateAssumptions({ selfConsumption: parseFloat(e.target.value) || 0 })}
+                className="form-input w-full px-3 py-2"
+                placeholder="e.g. 0.5"
+              />
+              <p className="text-caption text-muted-foreground mt-1">
+                0 = export all, 1 = use all (typical: 0.4-0.7)
+              </p>
+            </div>
+
+            <div>
+              <label className="text-caption text-muted-foreground block mb-2">
+                Retail Price ($/kWh)
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={assumptions.retailPrice}
+                onChange={(e) => onUpdateAssumptions({ retailPrice: parseFloat(e.target.value) || 0 })}
+                className="form-input w-full px-3 py-2"
+                placeholder="e.g. 0.30"
+              />
+              <p className="text-caption text-muted-foreground mt-1">
+                What customer pays for grid electricity
+              </p>
+            </div>
+
+            <div>
+              <label className="text-caption text-muted-foreground block mb-2">
+                Feed-in Tariff ($/kWh)
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={assumptions.feedInTariff}
+                onChange={(e) => onUpdateAssumptions({ feedInTariff: parseFloat(e.target.value) || 0 })}
+                className="form-input w-full px-3 py-2"
+                placeholder="e.g. 0.08"
+              />
+              <p className="text-caption text-muted-foreground mt-1">
+                Payment for exported electricity
+              </p>
+            </div>
+
+            <div>
+              <label className="text-caption text-muted-foreground block mb-2">
+                Annual OPEX ($/year)
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="10"
+                value={assumptions.annualOpex}
+                onChange={(e) => onUpdateAssumptions({ annualOpex: parseFloat(e.target.value) || 0 })}
+                className="form-input w-full px-3 py-2"
+                placeholder="e.g. 0"
+              />
+              <p className="text-caption text-muted-foreground mt-1">
+                Maintenance & insurance costs
+              </p>
+            </div>
+
+            <div>
+              <label className="text-caption text-muted-foreground block mb-2">
+                Panel Degradation (%/year)
+              </label>
+              <input
+                type="number"
+                min="0"
+                max="5"
+                step="0.1"
+                value={assumptions.degradationPercentPerYear}
+                onChange={(e) => onUpdateAssumptions({ degradationPercentPerYear: parseFloat(e.target.value) || 0 })}
+                className="form-input w-full px-3 py-2"
+                placeholder="e.g. 0.5"
+              />
+              <p className="text-caption text-muted-foreground mt-1">
+                Typical: 0.5% per year
+              </p>
+            </div>
+
+            <div>
+              <label className="text-caption text-muted-foreground block mb-2">
+                Electricity Escalation (%/year)
+              </label>
+              <input
+                type="number"
+                min="0"
+                max="20"
+                step="0.5"
+                value={assumptions.escalationPercentPerYear}
+                onChange={(e) => onUpdateAssumptions({ escalationPercentPerYear: parseFloat(e.target.value) || 0 })}
+                className="form-input w-full px-3 py-2"
+                placeholder="e.g. 3.0"
+              />
+              <p className="text-caption text-muted-foreground mt-1">
+                Typical: 3-5% per year
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Totals Summary */}
       <div className="border-t border-border pt-4 space-y-2">

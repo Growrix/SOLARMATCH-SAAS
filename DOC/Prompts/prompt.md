@@ -2630,3 +2630,19 @@ I need a error/issues fixing guidelines/SOT to create , I have been facing a lot
 - You must refer this file in every tasks that will be accomplished. 
 
 ----------------------------------------------------------------------
+
+I have noticed some issues in the current quote builder modal. here are the issues:
+
+### Product configuration section: 
+- The addons Items qty and price does not reflect in the total price calculation.
+- Also it does not show the selected addons in the customer preview. 
+- It is better to be auto added in the prcing engine as Addons with qty and price. so that the total price calculation will be accurate.
+
+### Customer preview section:
+- For the preview i have to click on the current configuration button to see the preview. I do not need the button here, just show the preview in real time as i select or change any input in the product configuration section.
+
+### Price Engine section:
+- The catergory dropdowns need to be enhaned with more options to add in the dropdown such as : Inverter, Ev charger, Battery, Mounting structure etc.
+
+
+***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and make sure to stay aligned with the specks as well. if needed , update the specks accordingly. 

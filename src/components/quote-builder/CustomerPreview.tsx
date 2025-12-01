@@ -18,6 +18,7 @@ export interface QuoteOption {
   panels: string;
   inverter: string;
   battery?: string;
+  addons?: string[]; // Array of addon labels
   totalPrice: number;
   pricePerWatt: number;
   estimatedSavingsPerYear: number;
@@ -117,6 +118,13 @@ const CustomerPreview: React.FC<CustomerPreviewProps> = ({
                       <p className="text-body-small text-foreground">{selected.battery}</p>
                     </div>
                   )}
+
+                  {selected.addons && selected.addons.length > 0 && (
+                    <div className="md:col-span-2">
+                      <p className="text-caption text-muted-foreground mb-1">Additional Items</p>
+                      <p className="text-body-small text-foreground">{selected.addons.join(', ')}</p>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -145,8 +153,13 @@ const CustomerPreview: React.FC<CustomerPreviewProps> = ({
                   <div className="text-center">
                     <p className="text-caption text-muted-foreground mb-1">Payback Period</p>
                     <p className="text-body text-foreground">
-                      {selected.paybackYears.toFixed(1)} years
+                      {isFinite(selected.paybackYears) ? `${selected.paybackYears.toFixed(1)} years` : 'N/A'}
                     </p>
+                    {!isFinite(selected.paybackYears) && (
+                      <p className="text-caption text-warning mt-1">
+                        Savings too low for payback
+                      </p>
+                    )}
                   </div>
 
                   <div className="text-center">
