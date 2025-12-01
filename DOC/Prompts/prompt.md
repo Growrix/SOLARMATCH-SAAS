@@ -2679,3 +2679,13 @@ I have noticed some issues in the current quote builder modal. here are the issu
  - The installer cost mode show weird layout. fix it to fit the overall setion size. check the screenshots for that. 
 
 ***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and make sure to stay aligned with the specks as well. if needed , update the specks accordingly.
+
+------------------------------------------------------------------
+
+we have built the Bid builder almost, but Need more enhancements. The users generate leads throuh instant Quote Calculator Modal. And I think we need to cross check both modals user inputs fields and comeup with a plan if we found we can update the Bid builder some areas as per the instant Quote calcuator. So that the both end will have some common fields matches . This will make the Bid Builder more relevant to the InstantQuote. Homeowners usually provied a lot of information in the instatQuote. So we need to leverage user inputs to build the bid builder modal more effecient and user-friendly. 
+
+***Instructions*** I need you to audit the fronent of the both modals deeply , so that you can comeup with the missing gaps, more enhancement idea of the UI. your audit should be comprehensive. Start with the InstantQuote first then Bid Builder. 
+- create the audit report and the Enhancement plan in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Features\Quote Builder Modal
+
+-------------------------------------------------------------------
+
