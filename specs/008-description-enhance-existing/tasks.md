@@ -602,3 +602,86 @@ Acceptance Scenarios (Phase 10):
 4. ✓ Tooltips display on hover for Array Orientations, Roof Pitch, Shading Level
 5. ✓ Tooltip content matches Instant Quote guidance from enhancement plan
 6. ✓ All changes maintain 0/0/0/0/0/0 design-system checks
+
+---
+
+## Phase 11 – Automated UI Verification & Bid Builder Stability (E2E Adoption)
+
+Goal: Introduce deterministic Playwright E2E tests to remove manual guesswork and ensure Bid Builder features (import workflow, STC auto-zone, tooltips, captions, budget banner) function exactly as planned. Address user pain: "still do not see any visual update" by providing verifiable test route and stable import button visibility (mock lead).
+
+Independent test: Run `npm run test:e2e` → All Bid Builder tests pass (0 failures). Import Workflow test confirms metadata stamping. Tooltips test confirms guidance text visible on hover/focus. STC test confirms postcode → zone mapping with caption. Budget banner test verifies appearance when total exceeds threshold.
+
+Pre-phase checklist (MANDATORY):
+- [ ] Install Playwright: `npm install -D @playwright/test`
+- [ ] Generate browsers: `npx playwright install`
+- [ ] Confirm dev server runs: `npm run dev`
+- [ ] Add test route `/test/quote-builder` with mock lead.quoteData
+- [ ] Backup commit: `git add . && git commit -m "backup: before Phase 11 (e2e setup)"`
+
+### T102 [Testing][Setup]: Add Playwright infrastructure
+- Path: `playwright.config.ts`, `package.json`, `tests/e2e/`
+- Action: Create Playwright config (HTML report, baseURL, trace on first retry). Add `test:e2e` npm script.
+- Testing: Run `npm run test:e2e` → framework initializes; zero tests failing.
+- Acceptance: Config present; script runs; no runtime errors.
+- Status: NOT STARTED
+
+### T103 [Testing][Import]: Import workflow test
+- Path: `tests/e2e/quote-builder.spec.ts`
+- Action: Navigate to `/test/quote-builder` → click "Import from Instant Quote" → click "Accept & Import" → assert localStorage draft contains `meta.importedAt`, `meta.importSource='instant-quote'`, `prefilledFields` includes `pricing.stc.zone`.
+- Acceptance: All assertions pass; no console errors.
+- Status: NOT STARTED
+
+### T104 [Testing][STC]: STC auto-zone detection test
+- Path: `tests/e2e/quote-builder.spec.ts`
+- Action: After import, assert caption "Auto-detected from homeowner postcode" is visible; assert zone field prefilled with expected zone (e.g. 'Zone 3').
+- Acceptance: Caption visible; correct zone; override persists after user change.
+- Status: NOT STARTED
+
+### T105 [Testing][Tooltips]: Roof guidance tooltips accessibility
+- Path: `tests/e2e/quote-builder.spec.ts`
+- Action: Hover & focus Info icons; expect tooltip text fragments for Orientation, Pitch, Shading. Use keyboard Tab to focus – tooltip appears.
+- Acceptance: All three tooltips accessible via hover & focus; texts match guidance.
+- Status: NOT STARTED
+
+### T106 [Testing][Captions]: Prefilled field captions validation
+- Path: `tests/e2e/quote-builder.spec.ts`
+- Action: Verify captions "Prefilled from homeowner Instant Quote" appear under imported fields (system size, project type, roof pitch, shading, orientations, retail, FiT, STC postcode).
+- Acceptance: All expected captions present; no extras.
+- Status: NOT STARTED
+
+### T107 [Testing][BudgetHint]: Budget exceed banner test
+- Path: `tests/e2e/quote-builder.spec.ts`
+- Action: Mock lead with budget range below current calculated total; verify banner appears; dismiss; verify disappearance.
+- Acceptance: Banner appears only when threshold exceeded; dismiss works; absent when total within range.
+- Status: NOT STARTED
+
+### T108 [Infra][CI]: Add GitHub Action for E2E
+- Path: `.github/workflows/e2e.yml`
+- Action: Workflow runs on push/PR for branch `008-description-enhance-existing`; steps: checkout → setup Node → `npm ci` → `npx playwright install --with-deps` → `npm run test:e2e`.
+- Acceptance: Failing tests block merge; report artifact uploaded.
+- Status: NOT STARTED
+
+### T109 [Fix][Visibility]: Ensure import button visibility with mock/testing route
+- Path: `src/app/test/quote-builder/page.tsx`
+- Action: Provide deterministic mock lead containing `quoteData` so Import button always visible on test route, eliminating environment flag ambiguity.
+- Acceptance: Import button visible at `/test/quote-builder` without additional env configuration.
+- Status: NOT STARTED
+
+Post-phase checklist (MANDATORY):
+- [ ] All T102–T109 implemented
+- [ ] `npm run test:e2e` → 100% pass
+- [ ] `npx tsc --noEmit` → 0 errors
+- [ ] `npm run build` → Success
+- [ ] Browser console during tests → no unexpected errors
+- [ ] CI workflow green on branch push
+- [ ] Commit: `git add . && git commit -m "feat(quote-builder): Phase 11 - Automated UI Verification (T102-T109)"`
+
+Acceptance Scenarios (Phase 11):
+1. ✓ Playwright config & script exist; tests execute locally
+2. ✓ Import workflow test stamps metadata and detects STC zone
+3. ✓ Tooltips test validates accessibility & content
+4. ✓ Captions test confirms all expected prefilled indicators
+5. ✓ Budget banner test passes for exceed + non-exceed cases
+6. ✓ CI workflow fails if any test fails (manual simulation acceptable if pipeline not yet active)
+7. ✓ No brittle selectors; all locators semantic
+8. ✓ All design-system verification commands still 0/0/0/0/0/0

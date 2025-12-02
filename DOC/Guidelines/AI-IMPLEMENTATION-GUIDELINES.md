@@ -963,6 +963,104 @@ rm -rf .*                                 # ❌ DANGEROUS!
 
 ## 🎯 SUCCESS CRITERIA
 
+## 🧪 UI & E2E AUTOMATED TESTING (MANDATORY FROM DEC 1, 2025)
+
+### Purpose
+Eliminate "surprise" UI failures by enforcing deterministic, automated browser tests (Playwright) for every Bid Builder phase (import, STC auto-detection, tooltips, captions, budget hint, performance). Manual visual checks are STILL required, but automation becomes a gating signal before reporting completion.
+
+### Framework Standard
+- Preferred: Playwright + TypeScript (multi-browser, trace, screenshot, accessibility checks)
+- Test Directory: `tests/e2e/`
+- Config File: `playwright.config.ts`
+- Base URL: `http://localhost:3000` (override with `E2E_BASE_URL`)
+- Reports: HTML (`playwright-report/`) + traces on first retry
+- Snapshots (visual): `tests/e2e/__screenshots__/` (baseline committed only after user approval)
+
+### Minimum Required Test Suites (Bid Builder)
+| Suite | Coverage |
+|-------|----------|
+| Import Workflow | Import button visibility, diff modal open, Accept action stamps meta.importedAt/importSource, prefilledFields populated |
+| STC Auto-Zone | Postcode → zone populated, caption appears, manual override persists |
+| Roof Tooltips | Hover/focus shows correct guidance for Orientation, Pitch, Shading (ARIA accessible) |
+| Prefilled Captions | All expected fields show caption text when imported (system size, project type, roof fields, retail/FiT, STC postcode) |
+| Budget Hint | Banner appears when total > max * 1.1; dismiss works; absent when below threshold |
+| Regression / Smoke | Modal mounts without runtime errors, core summary numbers present, no console errors |
+
+### Test Authoring Rules
+1. One logical concern per `test()` block (avoid sprawling tests)
+2. Use semantic locators (role, text) – NEVER brittle CSS selectors unless unavoidable.
+3. After an action that mutates localStorage/state, assert resulting state AND UI.
+4. If a feature depends on env/lead data, inject deterministic mock via dedicated test route (`/test/quote-builder`).
+5. All newly added user-facing strings must appear in at least one assertion.
+6. Every phase adds/updates tests BEFORE marking the phase complete.
+
+### Gating Workflow Update
+Replace former manual-only verification for UI work with:
+```powershell
+# Phase completion gate (ALL must pass):
+npm run dev              # Ensure server running
+npm run test:e2e         # Playwright test suite – MUST be green
+npx tsc --noEmit         # 0 TypeScript errors
+npm run build            # Production build succeeds
+```
+If any Playwright test fails → STOP → Fix → Re-run → Only proceed when green.
+
+### New Mandatory Checklist Additions (Append to Step 5 VERIFY)
+```markdown
+- [ ] E2E tests added/updated for new UI behavior
+- [ ] `npm run test:e2e` all green (no skipped critical tests)
+- [ ] Playwright trace reviewed for flaky interactions (none)
+- [ ] No unexpected console errors during test run
+```
+
+### Accessibility & Tooltip Standard
+Tooltips must:
+- Be reachable via keyboard focus (Info icon `tab` → tooltip visible)
+- Contain descriptive text matching enhancement plan guidance
+- Not rely solely on `hover` (Playwright uses `.hover()` + focus fallback)
+
+### LocalStorage Verification Pattern
+Use page evaluation to assert metadata after import:
+```ts
+const meta = await page.evaluate(() => {
+   const raw = localStorage.getItem('quote:draft:TEST_LEAD_ID:installer-id');
+   return raw ? JSON.parse(raw).meta : null;
+});
+expect(meta.importedAt).toBeTruthy();
+expect(meta.importSource).toBe('instant-quote');
+expect(meta.prefilledFields).toContain('pricing.stc.zone');
+```
+
+### Flakiness Prevention
+- Avoid arbitrary `waitForTimeout`; prefer `await expect(locator).toBeVisible()`.
+- Set deterministic mock data (no time-based random values)
+- Never depend on external APIs in e2e tests (mock or isolate)
+
+### CI Integration (Required Next Step)
+- Add GitHub Action: `.github/workflows/e2e.yml` running `npm ci`, `npx playwright install --with-deps`, `npm run test:e2e`.
+- Block merges if tests fail.
+
+### Failure Reporting Format
+```markdown
+## E2E Test Failure Report
+- Test: Import Workflow → should stamp metadata
+- Failure: meta.importedAt undefined
+- Root Cause: Accept handler missing timestamp assignment
+- Fix: Add `importedAt = new Date().toISOString()` before save
+- Status: FIXED → Re-run suite green
+```
+
+### Visual Regression (Phase 2 Optional Upgrade)
+Introduce snapshot comparisons for key UI states (import modal open, post-import summary, budget banner). Baseline snapshots must be reviewed and explicitly approved before locking.
+
+### Enforcement
+ANY UI feature delivered without accompanying passing e2e test is considered INCOMPLETE.
+
+### Transitional Exception (Current Work)
+Initial Playwright suite may start with core Bid Builder flows; expand coverage each subsequent phase until full matrix achieved.
+
+---
+
 **A task is successful when:**
 
 1. ✅ All tests pass (no failures)
