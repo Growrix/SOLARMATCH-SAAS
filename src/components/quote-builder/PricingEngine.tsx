@@ -377,7 +377,7 @@ const PricingEngine: React.FC<PricingEngineProps> = ({
                   Enter postcode to auto-detect STC zone
                 </p>
                 {prefilledFields.includes('pricing.stc.postcode') && (
-                  <p className="text-caption text-accent mt-1">
+                  <p className="text-caption text-accent mt-1" data-testid="stc-postcode-caption">
                     Auto-detected from homeowner postcode
                   </p>
                 )}

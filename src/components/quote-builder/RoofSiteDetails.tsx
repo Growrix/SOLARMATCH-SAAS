@@ -110,9 +110,9 @@ const RoofSiteDetails: React.FC<RoofSiteDetailsProps> = ({
         </div>
 
         <div>
-          <label className="text-label text-foreground block mb-2 flex items-center gap-2">
+          <label className="text-label text-foreground mb-2 flex items-center gap-2">
             Roof Pitch (degrees)
-            <div className="group relative">
+            <div className="group relative" data-testid="tooltip-pitch">
               <Info className="h-4 w-4 text-muted-foreground cursor-help" />
               <div className="absolute left-0 top-6 w-72 p-3 bg-surface border border-border rounded-lg shadow-neu-outset-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-10">
                 <p className="text-caption text-foreground">
@@ -154,9 +154,9 @@ const RoofSiteDetails: React.FC<RoofSiteDetailsProps> = ({
 
       {/* Row 2: Orientations (Multi-select chips) */}
       <div>
-        <label className="text-label text-foreground block mb-3 flex items-center gap-2">
+        <label className="text-label text-foreground mb-3 flex items-center gap-2">
           Array Orientations
-          <div className="group relative">
+          <div className="group relative" data-testid="tooltip-orientation">
             <Info className="h-4 w-4 text-muted-foreground cursor-help" />
             <div className="absolute left-0 top-6 w-72 p-3 bg-surface border border-border rounded-lg shadow-neu-outset-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-10">
               <p className="text-caption text-foreground">
@@ -188,9 +188,9 @@ const RoofSiteDetails: React.FC<RoofSiteDetailsProps> = ({
 
       {/* Row 3: Shading Level */}
       <div>
-        <label className="text-label text-foreground block mb-2 flex items-center gap-2">
+        <label className="text-label text-foreground mb-2 flex items-center gap-2">
           Shading Level
-          <div className="group relative">
+          <div className="group relative" data-testid="tooltip-shading">
             <Info className="h-4 w-4 text-muted-foreground cursor-help" />
             <div className="absolute left-0 top-6 w-72 p-3 bg-surface border border-border rounded-lg shadow-neu-outset-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-10">
               <p className="text-caption text-foreground">

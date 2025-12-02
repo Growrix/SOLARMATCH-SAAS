@@ -758,7 +758,7 @@ export default function BidEvaluationModal({
               <Award className="h-16 w-16 text-muted mb-4" />
               <h3 className="text-heading-4 text-foreground mb-2">No Bids Submitted Yet</h3>
               <p className="text-body text-muted-foreground max-w-md">
-                Bids from other installers will appear here once they submit their quotes. You'll be able to see anonymized competitor data.
+                Bids from other installers will appear here once they submit their quotes. You&apos;ll be able to see anonymized competitor data.
               </p>
             </div>
           ) : (

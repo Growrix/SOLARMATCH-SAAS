@@ -1,7 +1,7 @@
 # Page snapshot
 
 ```yaml
-- generic [active] [ref=e1]:
+- generic [ref=e1]:
   - generic [ref=e2]:
     - generic [ref=e5]:
       - generic [ref=e6]:
@@ -41,7 +41,7 @@
   - generic [ref=e47]:
     - generic [ref=e48]:
       - img [ref=e49]
-      - generic [ref=e52]: Draft restored from previous session (v1)
+      - generic [ref=e52]: Draft restored from previous session (v2.0)
     - banner [ref=e53]:
       - generic [ref=e54]:
         - generic [ref=e55]:
@@ -49,12 +49,12 @@
           - generic [ref=e60]:
             - heading "Bid Builder" [level=2] [ref=e61]
             - generic [ref=e62]:
-              - generic [ref=e63]: "Lead #TEST_LEAD_ID"
+              - generic [ref=e63]: "Lead #TEST_STC_2"
               - generic [ref=e64]: Melbourne VIC
               - generic [ref=e65]:
                 - text: "Status:"
                 - generic [ref=e66]: Draft
-              - generic [ref=e67]: Saved at 11:19:07 AM
+              - generic [ref=e67]: Saving...
         - generic [ref=e68]:
           - button "Import from Instant Quote" [ref=e69] [cursor=pointer]:
             - generic [ref=e70]:
@@ -102,10 +102,9 @@
                 - combobox [ref=e122] [cursor=pointer]:
                   - option "Residential" [selected]
                   - option "Commercial"
-                - paragraph [ref=e123]: Prefilled from homeowner Instant Quote
-              - generic [ref=e124]:
-                - generic [ref=e125]: System Type
-                - combobox [ref=e126] [cursor=pointer]:
+              - generic [ref=e123]:
+                - generic [ref=e124]: System Type
+                - combobox [ref=e125] [cursor=pointer]:
                   - option "Grid-Connected Solar" [selected]
                   - option "Hybrid (Solar + Battery)"
                   - option "Off-Grid System"
@@ -113,78 +112,192 @@
                   - option "EV Charger Add-on"
                   - option "Add Panels to Existing"
                   - option "Replace Inverter"
-              - generic [ref=e127]:
-                - generic [ref=e128]: System Size (kW)
-                - generic [ref=e129]:
-                  - button "Decrease by 0.5 kW" [ref=e130] [cursor=pointer]:
-                    - img [ref=e131]
-                  - spinbutton [ref=e132]: "6.6"
-                  - button "Increase by 0.5 kW" [ref=e133] [cursor=pointer]:
-                    - img [ref=e134]
-                  - generic [ref=e135]: kW
-                - paragraph [ref=e136]: Prefilled from homeowner Instant Quote
-        - button "Roof & Site Details" [ref=e138] [cursor=pointer]:
-          - generic [ref=e139]: Roof & Site Details
-          - img [ref=e140]
-        - button "Product Configuration" [ref=e143] [cursor=pointer]:
-          - generic [ref=e144]: Product Configuration
-          - img [ref=e145]
-        - button "Pricing Engine" [ref=e148] [cursor=pointer]:
-          - generic [ref=e149]: Pricing Engine
-          - img [ref=e150]
-        - button "Compliance Documents" [ref=e153] [cursor=pointer]:
-          - generic [ref=e154]: Compliance Documents
-          - img [ref=e155]
-      - generic [ref=e158]:
-        - generic [ref=e159]:
-          - heading "Customer Preview" [level=3] [ref=e160]
-          - generic [ref=e161]:
-            - heading "Customer Preview" [level=3] [ref=e162]:
-              - img [ref=e163]
+              - generic [ref=e126]:
+                - generic [ref=e127]: System Size (kW)
+                - generic [ref=e128]:
+                  - button "Decrease by 0.5 kW" [ref=e129] [cursor=pointer]:
+                    - img [ref=e130]
+                  - spinbutton [ref=e131]: "6.6"
+                  - button "Increase by 0.5 kW" [ref=e132] [cursor=pointer]:
+                    - img [ref=e133]
+                  - generic [ref=e134]: kW
+                - paragraph [ref=e135]: Prefilled from homeowner Instant Quote
+        - button "Roof & Site Details" [ref=e137] [cursor=pointer]:
+          - generic [ref=e138]: Roof & Site Details
+          - img [ref=e139]
+        - button "Product Configuration" [ref=e142] [cursor=pointer]:
+          - generic [ref=e143]: Product Configuration
+          - img [ref=e144]
+        - generic [ref=e146]:
+          - button "Pricing Engine" [active] [ref=e147] [cursor=pointer]:
+            - generic [ref=e148]: Pricing Engine
+            - img [ref=e149]
+          - generic [ref=e152]:
+            - generic [ref=e153]:
+              - heading "Pricing Engine" [level=3] [ref=e154]:
+                - img [ref=e155]
+                - text: Pricing Engine
+              - generic [ref=e157] [cursor=pointer]:
+                - generic [ref=e158]: Installer Cost Mode
+                - checkbox "Installer Cost Mode" [ref=e159]
+            - generic [ref=e160]:
+              - heading "Line Items" [level=4] [ref=e161]
+              - generic [ref=e162]:
+                - generic [ref=e163]: Category
+                - generic [ref=e164]: Description
+                - generic [ref=e165]: Qty
+                - generic [ref=e166]: Unit Price
+                - generic [ref=e167]: Tax
+                - generic [ref=e168]: Total
+              - button "Add Line Item" [ref=e170] [cursor=pointer]:
+                - generic [ref=e171]:
+                  - img [ref=e172]
+                  - text: Add Line Item
+            - generic [ref=e173]:
+              - heading "Incentives & Rebates" [level=4] [ref=e174]
+              - generic [ref=e175]:
+                - generic [ref=e176] [cursor=pointer]:
+                  - checkbox "STC Eligible (Federal)" [checked] [ref=e177]
+                  - generic [ref=e178]: STC Eligible (Federal)
+                - generic [ref=e179]:
+                  - generic [ref=e180]:
+                    - generic [ref=e181]:
+                      - img [ref=e182]
+                      - text: Postcode (for zone detection)
+                    - textbox "e.g. 3000" [ref=e185]: "3000"
+                    - paragraph [ref=e186]: Enter postcode to auto-detect STC zone
+                  - generic [ref=e187]:
+                    - generic [ref=e188]:
+                      - generic [ref=e189]: STC Zone
+                      - combobox [ref=e190] [cursor=pointer]:
+                        - option "Zone 1" [selected]
+                        - option "Zone 2"
+                        - option "Zone 3"
+                        - option "Zone 4"
+                      - paragraph [ref=e191]: Manual override available
+                    - generic [ref=e192]:
+                      - generic [ref=e193]: STC Count
+                      - spinbutton [ref=e194]: "21"
+                      - paragraph [ref=e195]: Auto-calculated from size & zone
+                    - generic [ref=e196]:
+                      - generic [ref=e197]: STC Price ($)
+                      - spinbutton [ref=e198]: "38.5"
+                      - paragraph [ref=e199]: Current market price
+              - generic [ref=e201] [cursor=pointer]:
+                - checkbox "VIC Solar Rebate Eligible" [ref=e202]
+                - generic [ref=e203]: VIC Solar Rebate Eligible
+              - paragraph [ref=e205]:
+                - strong [ref=e206]: "Feed-in Tariff (FiT):"
+                - text: Typically 5-10c/kWh in most states. Check with local retailer for current rates.
+            - generic [ref=e208]:
+              - heading "Discounts" [level=4] [ref=e209]
+              - button "Add Discount" [ref=e210] [cursor=pointer]:
+                - generic [ref=e211]:
+                  - img [ref=e212]
+                  - text: Add Discount
+            - generic [ref=e213]:
+              - heading "Financial Assumptions" [level=4] [ref=e214]
+              - paragraph [ref=e215]: These assumptions affect annual savings and payback calculations
+              - generic [ref=e216]:
+                - generic [ref=e217]:
+                  - generic [ref=e218]: Solar Yield (kWh/kW/day)
+                  - spinbutton [ref=e219]: "4.2"
+                  - paragraph [ref=e220]: "Typical AU: 4.0-4.5"
+                - generic [ref=e221]:
+                  - generic [ref=e222]: Self-Consumption Ratio
+                  - spinbutton [ref=e223]: "0.7"
+                  - paragraph [ref=e224]: "0 = export all, 1 = use all (typical: 0.4-0.7)"
+                - generic [ref=e225]:
+                  - generic [ref=e226]: Retail Price ($/kWh)
+                  - spinbutton [ref=e227]: "0.32"
+                  - paragraph [ref=e228]: What customer pays for grid electricity
+                  - paragraph [ref=e229]: From homeowner Instant Quote
+                - generic [ref=e230]:
+                  - generic [ref=e231]: Feed-in Tariff ($/kWh)
+                  - spinbutton [ref=e232]: "0.08"
+                  - paragraph [ref=e233]: Payment for exported electricity
+                  - paragraph [ref=e234]: From homeowner Instant Quote
+                - generic [ref=e235]:
+                  - generic [ref=e236]: Annual OPEX ($/year)
+                  - spinbutton [ref=e237]: "0"
+                  - paragraph [ref=e238]: Maintenance & insurance costs
+                - generic [ref=e239]:
+                  - generic [ref=e240]: Panel Degradation (%/year)
+                  - spinbutton [ref=e241]: "0.5"
+                  - paragraph [ref=e242]: "Typical: 0.5% per year"
+                - generic [ref=e243]:
+                  - generic [ref=e244]: Electricity Escalation (%/year)
+                  - spinbutton [ref=e245]: "3"
+                  - paragraph [ref=e246]: "Typical: 3-5% per year"
+            - generic [ref=e247]:
+              - generic [ref=e248]:
+                - generic [ref=e249]: Subtotal
+                - generic [ref=e250]: $0
+              - generic [ref=e251]:
+                - generic [ref=e252]: GST (10%)
+                - generic [ref=e253]: $0
+              - generic [ref=e254]:
+                - generic [ref=e255]: STC Incentive
+                - generic [ref=e256]: "-$808.5"
+              - generic [ref=e257]:
+                - generic [ref=e258]: Final Price
+                - generic [ref=e259]: $-808.5
+              - generic [ref=e260]:
+                - generic [ref=e261]: Price per Watt
+                - generic [ref=e262]: $-0.12/W
+        - button "Compliance Documents" [ref=e264] [cursor=pointer]:
+          - generic [ref=e265]: Compliance Documents
+          - img [ref=e266]
+      - generic [ref=e269]:
+        - generic [ref=e270]:
+          - heading "Customer Preview" [level=3] [ref=e271]
+          - generic [ref=e272]:
+            - heading "Customer Preview" [level=3] [ref=e273]:
+              - img [ref=e274]
               - text: Customer Preview
-            - button "Current Configuration $0" [ref=e167] [cursor=pointer]:
-              - generic [ref=e168]:
-                - generic [ref=e169]: Current Configuration
-                - generic [ref=e170]: $0
-            - paragraph [ref=e172]:
-              - strong [ref=e173]: "Phase 3:"
+            - button "Current Configuration $-3,272.5" [ref=e278] [cursor=pointer]:
+              - generic [ref=e279]:
+                - generic [ref=e280]: Current Configuration
+                - generic [ref=e281]: $-3,272.5
+            - paragraph [ref=e283]:
+              - strong [ref=e284]: "Phase 3:"
               - text: Installer branding (logo, company name, ABN, accreditation, signature) will be editable here before export.
-        - generic [ref=e175]:
-          - generic [ref=e176]:
-            - heading "Financial Projections" [level=3] [ref=e177]
-            - generic [ref=e178]:
-              - button "Long-Term ROI" [ref=e179] [cursor=pointer]:
-                - img [ref=e180]
+        - generic [ref=e286]:
+          - generic [ref=e287]:
+            - heading "Financial Projections" [level=3] [ref=e288]
+            - generic [ref=e289]:
+              - button "Long-Term ROI" [ref=e290] [cursor=pointer]:
+                - img [ref=e291]
                 - text: Long-Term ROI
-              - button "Annual Cost" [ref=e183] [cursor=pointer]:
-                - img [ref=e184]
+              - button "Annual Cost" [ref=e294] [cursor=pointer]:
+                - img [ref=e295]
                 - text: Annual Cost
-          - generic [ref=e185]:
-            - paragraph [ref=e186]:
+          - generic [ref=e296]:
+            - paragraph [ref=e297]:
               - text: This chart projects your net savings over 25 years. You're estimated to break even in
-              - generic [ref=e187]: Year 0
+              - generic [ref=e298]: Year 0
               - text: and save approximately
-              - generic [ref=e188]: $476
+              - generic [ref=e299]: $66,003
               - text: over the system's lifetime.
-            - generic [ref=e191]:
-              - img [ref=e192]:
-                - generic [ref=e197]:
-                  - generic [ref=e199]: Year 0
-                  - generic [ref=e201]: Year 6
-                  - generic [ref=e203]: Year 12
-                  - generic [ref=e205]: Year 18
-                  - generic [ref=e207]: Year 25
-                - generic [ref=e209]:
-                  - generic [ref=e211]: $0
-                  - generic [ref=e213]: $150
-                  - generic [ref=e215]: $300
-                  - generic [ref=e217]: $450
-                  - generic [ref=e219]: $600
-                - generic [ref=e221]: Break-even Point
-              - list [ref=e227]:
-                - listitem [ref=e228]:
-                  - img [ref=e229]
+            - generic [ref=e302]:
+              - img [ref=e303]:
+                - generic [ref=e308]:
+                  - generic [ref=e310]: Year 0
+                  - generic [ref=e312]: Year 6
+                  - generic [ref=e314]: Year 12
+                  - generic [ref=e316]: Year 18
+                  - generic [ref=e318]: Year 25
+                - generic [ref=e320]:
+                  - generic [ref=e322]: $0
+                  - generic [ref=e324]: $20,000
+                  - generic [ref=e326]: $40,000
+                  - generic [ref=e328]: $60,000
+                  - generic [ref=e330]: $80,000
+                - generic [ref=e332]: Break-even Point
+              - list [ref=e338]:
+                - listitem [ref=e339]:
+                  - img [ref=e340]
                   - text: Net Savings
-  - alert [ref=e231]
-  - generic [ref=e232]: $600
+  - alert [ref=e342]
+  - generic [ref=e343]: $80,000
 ```

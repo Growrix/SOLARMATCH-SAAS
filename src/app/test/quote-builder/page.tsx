@@ -1,10 +1,22 @@
+
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import QuoteBuilderModal from '@/components/QuoteBuilderModal';
 
 export default function QuoteBuilderTestPage() {
+  const [leadId, setLeadId] = useState('TEST_LEAD_ID');
+
+  useEffect(() => {
+    // Read query param client-side
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
+      if (id) setLeadId(id);
+    } catch {}
+  }, []);
+
   const mockLead = {
-    id: 'TEST_LEAD_ID',
+    id: leadId,
     name: 'Test Lead',
     location: 'Melbourne VIC',
     propertyType: 'Residential',
@@ -21,12 +33,12 @@ export default function QuoteBuilderTestPage() {
       usagePattern: 'evening',
       customRetailRate: 0.32,
       customFeedInRate: 0.08,
-      budgetRange: '$8000-$10000'
+      budgetRange: '$5000-$6000'
     }
   };
 
   return (
-    <div className="p-4">
+    <div className="p-4" data-testid="e2e-test-root">
       <QuoteBuilderModal
         isOpen={true}
         lead={mockLead as any}

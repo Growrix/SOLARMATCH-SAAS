@@ -504,10 +504,23 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
 
   // Handle Import from Instant Quote
   const handleImportClick = () => {
-    if (!lead?.quoteData) return;
-    const mapped = mapInstantToBid(lead.quoteData);
-    setMappedImportData(mapped);
-    setIsImportPreviewOpen(true);
+    console.log('[DEBUG] handleImportClick called');
+    console.log('[DEBUG] lead?.quoteData:', lead?.quoteData);
+    if (!lead?.quoteData) {
+      console.log('[DEBUG] No quoteData - returning early');
+      return;
+    }
+    
+    try {
+      console.log('[DEBUG] Calling mapInstantToBid...');
+      const mapped = mapInstantToBid(lead.quoteData);
+      console.log('[DEBUG] Mapped data:', mapped);
+      setMappedImportData(mapped);
+      setIsImportPreviewOpen(true);
+      console.log('[DEBUG] Modal should open now');
+    } catch (error) {
+      console.error('[DEBUG] Error in handleImportClick:', error);
+    }
   };
 
   const handleImportAccept = () => {
@@ -624,7 +637,7 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
 
         {/* Budget Hint Banner */}
         {showBudgetHint && (
-          <div className="flex-shrink-0 bg-accent/10 border-b border-accent px-4 py-2 flex items-center justify-between gap-2">
+          <div className="flex-shrink-0 bg-accent/10 border-b border-accent px-4 py-2 flex items-center justify-between gap-2" data-testid="budget-exceed-banner">
             <div className="flex items-center gap-2">
               <Info className="h-4 w-4 text-accent" />
               <span className="text-body-small text-accent">
@@ -650,7 +663,10 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
                 <FileText className="text-primary h-5 w-5" />
               </div>
               <div>
-                <h2 className="text-heading-4 text-foreground">
+                <h2
+                  className="text-heading-4 text-foreground"
+                  data-testid={mode === 'bid' ? 'bid-builder-heading' : 'quote-builder-heading'}
+                >
                   {mode === 'bid' ? 'Bid Builder' : `Quote Builder: ${lead.name}`}
                 </h2>
                 <div className="flex items-center gap-4 text-caption text-muted-foreground mt-1">

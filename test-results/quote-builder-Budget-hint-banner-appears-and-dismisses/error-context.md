@@ -41,7 +41,7 @@
   - generic [ref=e47]:
     - generic [ref=e48]:
       - img [ref=e49]
-      - generic [ref=e52]: Draft restored from previous session (v1)
+      - generic [ref=e52]: Draft restored from previous session (v2.0)
     - banner [ref=e53]:
       - generic [ref=e54]:
         - generic [ref=e55]:
@@ -49,12 +49,12 @@
           - generic [ref=e60]:
             - heading "Bid Builder" [level=2] [ref=e61]
             - generic [ref=e62]:
-              - generic [ref=e63]: "Lead #TEST_LEAD_ID"
+              - generic [ref=e63]: "Lead #TEST_BUDGET_5"
               - generic [ref=e64]: Melbourne VIC
               - generic [ref=e65]:
                 - text: "Status:"
                 - generic [ref=e66]: Draft
-              - generic [ref=e67]: Saving...
+              - generic [ref=e67]: Saved at 3:19:37 PM
         - generic [ref=e68]:
           - button "Import from Instant Quote" [ref=e69] [cursor=pointer]:
             - generic [ref=e70]:
@@ -102,10 +102,9 @@
                 - combobox [ref=e122] [cursor=pointer]:
                   - option "Residential" [selected]
                   - option "Commercial"
-                - paragraph [ref=e123]: Prefilled from homeowner Instant Quote
-              - generic [ref=e124]:
-                - generic [ref=e125]: System Type
-                - combobox [ref=e126] [cursor=pointer]:
+              - generic [ref=e123]:
+                - generic [ref=e124]: System Type
+                - combobox [ref=e125] [cursor=pointer]:
                   - option "Grid-Connected Solar" [selected]
                   - option "Hybrid (Solar + Battery)"
                   - option "Off-Grid System"
@@ -113,78 +112,78 @@
                   - option "EV Charger Add-on"
                   - option "Add Panels to Existing"
                   - option "Replace Inverter"
-              - generic [ref=e127]:
-                - generic [ref=e128]: System Size (kW)
-                - generic [ref=e129]:
-                  - button "Decrease by 0.5 kW" [ref=e130] [cursor=pointer]:
-                    - img [ref=e131]
-                  - spinbutton [ref=e132]: "6.6"
-                  - button "Increase by 0.5 kW" [ref=e133] [cursor=pointer]:
-                    - img [ref=e134]
-                  - generic [ref=e135]: kW
-                - paragraph [ref=e136]: Prefilled from homeowner Instant Quote
-        - button "Roof & Site Details" [ref=e138] [cursor=pointer]:
-          - generic [ref=e139]: Roof & Site Details
-          - img [ref=e140]
-        - button "Product Configuration" [ref=e143] [cursor=pointer]:
-          - generic [ref=e144]: Product Configuration
-          - img [ref=e145]
-        - button "Pricing Engine" [ref=e148] [cursor=pointer]:
-          - generic [ref=e149]: Pricing Engine
-          - img [ref=e150]
-        - button "Compliance Documents" [ref=e153] [cursor=pointer]:
-          - generic [ref=e154]: Compliance Documents
-          - img [ref=e155]
-      - generic [ref=e158]:
-        - generic [ref=e159]:
-          - heading "Customer Preview" [level=3] [ref=e160]
-          - generic [ref=e161]:
-            - heading "Customer Preview" [level=3] [ref=e162]:
-              - img [ref=e163]
+              - generic [ref=e126]:
+                - generic [ref=e127]: System Size (kW)
+                - generic [ref=e128]:
+                  - button "Decrease by 0.5 kW" [ref=e129] [cursor=pointer]:
+                    - img [ref=e130]
+                  - spinbutton [ref=e131]: "6.6"
+                  - button "Increase by 0.5 kW" [ref=e132] [cursor=pointer]:
+                    - img [ref=e133]
+                  - generic [ref=e134]: kW
+                - paragraph [ref=e135]: Prefilled from homeowner Instant Quote
+        - button "Roof & Site Details" [ref=e137] [cursor=pointer]:
+          - generic [ref=e138]: Roof & Site Details
+          - img [ref=e139]
+        - button "Product Configuration" [ref=e142] [cursor=pointer]:
+          - generic [ref=e143]: Product Configuration
+          - img [ref=e144]
+        - button "Pricing Engine" [ref=e147] [cursor=pointer]:
+          - generic [ref=e148]: Pricing Engine
+          - img [ref=e149]
+        - button "Compliance Documents" [ref=e152] [cursor=pointer]:
+          - generic [ref=e153]: Compliance Documents
+          - img [ref=e154]
+      - generic [ref=e157]:
+        - generic [ref=e158]:
+          - heading "Customer Preview" [level=3] [ref=e159]
+          - generic [ref=e160]:
+            - heading "Customer Preview" [level=3] [ref=e161]:
+              - img [ref=e162]
               - text: Customer Preview
-            - button "Current Configuration $0" [ref=e167] [cursor=pointer]:
-              - generic [ref=e168]:
-                - generic [ref=e169]: Current Configuration
-                - generic [ref=e170]: $0
-            - paragraph [ref=e172]:
-              - strong [ref=e173]: "Phase 3:"
+            - button "Current Configuration $-3,272.5" [ref=e166] [cursor=pointer]:
+              - generic [ref=e167]:
+                - generic [ref=e168]: Current Configuration
+                - generic [ref=e169]: $-3,272.5
+            - paragraph [ref=e171]:
+              - strong [ref=e172]: "Phase 3:"
               - text: Installer branding (logo, company name, ABN, accreditation, signature) will be editable here before export.
-        - generic [ref=e175]:
-          - generic [ref=e176]:
-            - heading "Financial Projections" [level=3] [ref=e177]
-            - generic [ref=e178]:
-              - button "Long-Term ROI" [ref=e179] [cursor=pointer]:
-                - img [ref=e180]
+        - generic [ref=e174]:
+          - generic [ref=e175]:
+            - heading "Financial Projections" [level=3] [ref=e176]
+            - generic [ref=e177]:
+              - button "Long-Term ROI" [ref=e178] [cursor=pointer]:
+                - img [ref=e179]
                 - text: Long-Term ROI
-              - button "Annual Cost" [ref=e183] [cursor=pointer]:
-                - img [ref=e184]
+              - button "Annual Cost" [ref=e182] [cursor=pointer]:
+                - img [ref=e183]
                 - text: Annual Cost
-          - generic [ref=e185]:
-            - paragraph [ref=e186]:
+          - generic [ref=e184]:
+            - paragraph [ref=e185]:
               - text: This chart projects your net savings over 25 years. You're estimated to break even in
-              - generic [ref=e187]: Year 0
+              - generic [ref=e186]: Year 0
               - text: and save approximately
-              - generic [ref=e188]: $476
+              - generic [ref=e187]: $66,003
               - text: over the system's lifetime.
-            - generic [ref=e191]:
-              - img [ref=e192]:
-                - generic [ref=e197]:
-                  - generic [ref=e199]: Year 0
-                  - generic [ref=e201]: Year 6
-                  - generic [ref=e203]: Year 12
-                  - generic [ref=e205]: Year 18
-                  - generic [ref=e207]: Year 25
-                - generic [ref=e209]:
-                  - generic [ref=e211]: $0
-                  - generic [ref=e213]: $150
-                  - generic [ref=e215]: $300
-                  - generic [ref=e217]: $450
-                  - generic [ref=e219]: $600
-                - generic [ref=e221]: Break-even Point
-              - list [ref=e227]:
-                - listitem [ref=e228]:
-                  - img [ref=e229]
+            - generic [ref=e190]:
+              - img [ref=e191]:
+                - generic [ref=e196]:
+                  - generic [ref=e198]: Year 0
+                  - generic [ref=e200]: Year 6
+                  - generic [ref=e202]: Year 12
+                  - generic [ref=e204]: Year 18
+                  - generic [ref=e206]: Year 25
+                - generic [ref=e208]:
+                  - generic [ref=e210]: $0
+                  - generic [ref=e212]: $20,000
+                  - generic [ref=e214]: $40,000
+                  - generic [ref=e216]: $60,000
+                  - generic [ref=e218]: $80,000
+                - generic [ref=e220]: Break-even Point
+              - list [ref=e226]:
+                - listitem [ref=e227]:
+                  - img [ref=e228]
                   - text: Net Savings
-  - alert [ref=e231]
-  - generic [ref=e232]: $600
+  - alert [ref=e230]
+  - generic [ref=e231]: $80,000
 ```

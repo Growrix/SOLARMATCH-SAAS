@@ -26,11 +26,11 @@ const ImportPreviewModal: React.FC<ImportPreviewModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  const renderFieldDiff = (label: string, before: any, after: any) => {
+  const renderFieldDiff = (label: string, before: any, after: any, key: string) => {
     if (before === after) return null;
     
     return (
-      <div className="grid grid-cols-[1fr,auto,1fr] gap-4 py-3 border-b border-border">
+      <div key={key} className="grid grid-cols-[1fr,auto,1fr] gap-4 py-3 border-b border-border">
         <div>
           <p className="text-caption text-muted-foreground mb-1">{label}</p>
           <p className="text-body text-foreground">
@@ -66,14 +66,16 @@ const ImportPreviewModal: React.FC<ImportPreviewModalProps> = ({
       changes.push(renderFieldDiff(
         'System Size',
         currentDraft.system.systemSize,
-        mappedData.system.systemSize
+        mappedData.system.systemSize,
+        'system-size'
       ));
     }
     if (mappedData.system.projectType !== undefined) {
       changes.push(renderFieldDiff(
         'Project Type',
         currentDraft.system.projectType,
-        mappedData.system.projectType
+        mappedData.system.projectType,
+        'project-type'
       ));
     }
   }
@@ -84,28 +86,32 @@ const ImportPreviewModal: React.FC<ImportPreviewModalProps> = ({
       changes.push(renderFieldDiff(
         'Roof Type',
         currentDraft.roof.roofType,
-        mappedData.roof.roofType
+        mappedData.roof.roofType,
+        'roof-type'
       ));
     }
     if (mappedData.roof.pitchDeg !== undefined) {
       changes.push(renderFieldDiff(
         'Roof Pitch (degrees)',
         currentDraft.roof.pitchDeg,
-        mappedData.roof.pitchDeg
+        mappedData.roof.pitchDeg,
+        'roof-pitch'
       ));
     }
     if (mappedData.roof.orientations && mappedData.roof.orientations.length > 0) {
       changes.push(renderFieldDiff(
         'Panel Orientation',
         currentDraft.roof.orientations.join(', ') || 'None',
-        mappedData.roof.orientations.join(', ')
+        mappedData.roof.orientations.join(', '),
+        'roof-orientation'
       ));
     }
     if (mappedData.roof.shadingLevel !== undefined) {
       changes.push(renderFieldDiff(
         'Shading Level',
         currentDraft.roof.shadingLevel,
-        mappedData.roof.shadingLevel
+        mappedData.roof.shadingLevel,
+        'shading-level'
       ));
     }
   }
@@ -116,21 +122,24 @@ const ImportPreviewModal: React.FC<ImportPreviewModalProps> = ({
       changes.push(renderFieldDiff(
         'Retail Price ($/kWh)',
         currentDraft.assumptions.retailPrice?.toFixed(4) || '0.30',
-        mappedData.assumptions.retailPrice.toFixed(4)
+        mappedData.assumptions.retailPrice.toFixed(4),
+        'retail-price'
       ));
     }
     if (mappedData.assumptions.feedInTariff !== undefined) {
       changes.push(renderFieldDiff(
         'Feed-In Tariff ($/kWh)',
         currentDraft.assumptions.feedInTariff?.toFixed(4) || '0.08',
-        mappedData.assumptions.feedInTariff.toFixed(4)
+        mappedData.assumptions.feedInTariff.toFixed(4),
+        'feed-in-tariff'
       ));
     }
     if (mappedData.assumptions.selfConsumption !== undefined) {
       changes.push(renderFieldDiff(
         'Self-Consumption',
         `${((currentDraft.assumptions.selfConsumption || 0.5) * 100).toFixed(0)}%`,
-        `${(mappedData.assumptions.selfConsumption * 100).toFixed(0)}%`
+        `${(mappedData.assumptions.selfConsumption * 100).toFixed(0)}%`,
+        'self-consumption'
       ));
     }
   }
@@ -140,13 +149,15 @@ const ImportPreviewModal: React.FC<ImportPreviewModalProps> = ({
     changes.push(renderFieldDiff(
       'Battery Included',
       currentDraft.products.battery?.included ? 'Yes' : 'No',
-      'Yes'
+      'Yes',
+      'battery-included'
     ));
     if (mappedData.products.battery.capacity) {
       changes.push(renderFieldDiff(
         'Battery Capacity',
         currentDraft.products.battery?.capacity || 'None',
-        `${mappedData.products.battery.capacity} kWh`
+        `${mappedData.products.battery.capacity} kWh`,
+        'battery-capacity'
       ));
     }
   }
@@ -156,7 +167,8 @@ const ImportPreviewModal: React.FC<ImportPreviewModalProps> = ({
     changes.push(renderFieldDiff(
       'Feature Requests',
       currentDraft.products.addons?.map((a: any) => a.label).join(', ') || 'None',
-      mappedData.products.addons.map((a: any) => a.label).join(', ')
+      mappedData.products.addons.map((a: any) => a.label).join(', '),
+      'feature-requests'
     ));
   }
 

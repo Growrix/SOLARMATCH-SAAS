@@ -98,7 +98,7 @@ export default function HomeownerBiddingReviewModal({
               <Award className="h-16 w-16 text-muted mb-4" />
               <h3 className="text-heading-4 text-foreground mb-2">No Bids Received Yet</h3>
               <p className="text-body text-muted-foreground max-w-md">
-                Installers are preparing their quotes. You'll be notified when bids are submitted for your review.
+                Installers are preparing their quotes. You&apos;ll be notified when bids are submitted for your review.
               </p>
             </div>
           ) : (
@@ -106,7 +106,7 @@ export default function HomeownerBiddingReviewModal({
               {/* Info Banner */}
               <div className="bg-info/10 border border-info/20 rounded-xl p-4 mb-6">
                 <p className="text-body-small text-info">
-                  <strong>How it works:</strong> Review all submitted bids below. Installers are anonymized to ensure fair evaluation. Click "Request Contact" on your preferred bid(s) - admin will approve and reveal installer details within 24 hours.
+                  <strong>How it works:</strong> Review all submitted bids below. Installers are anonymized to ensure fair evaluation. Click &ldquo;Request Contact&rdquo; on your preferred bid(s) - admin will approve and reveal installer details within 24 hours.
                 </p>
               </div>
 
