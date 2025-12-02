@@ -173,14 +173,133 @@ Conclusion: Tests validate behaviors in a controlled test page, but production i
 ---
 
 ## 9) Done vs Pending Snapshot (from audit)
-- Done: E2E infra, test route hydration fix, stable locators, initial budget banner logic, CI.
-- Pending: Production wiring of import button, mapper integration, captions appearing in real UI, expanded Roof & Site, assumptions prefill.
+
+### Already Implemented ✅
+- ✅ `src/lib/mappers/instant-to-bid.ts` - Complete mapper with all normalization functions
+- ✅ `src/components/ImportPreviewModal.tsx` - Full diff preview modal (241 lines)
+- ✅ Import button in `QuoteBuilderModal.tsx` header (conditional on `lead.quoteData`)
+- ✅ Import handler with preview → accept → apply mapping flow
+- ✅ Caption rendering in `SystemSelection.tsx` and `RoofSiteDetails.tsx` ("Prefilled from homeowner Instant Quote")
+- ✅ Budget banner logic with 110% threshold
+- ✅ E2E test infrastructure (6/6 passing tests)
+- ✅ Design-system compliance enforcement
+
+### Why UI May Look Unchanged ❓
+**Root Cause**: The Import button only appears when `lead.quoteData` is populated. If testing with leads that don't have Instant Quote data, the button won't show.
+
+**Visibility Conditions**:
+1. Lead must have `quoteData` field populated (from Instant Quote submission)
+2. Modal must be in production route `/installer/leads/[id]` or similar
+3. Captions only appear AFTER import is accepted (not before)
+4. Budget banner only visible when totals exceed `budgetRange.max * 1.1`
+
+### Verification Steps
+1. Navigate to a lead that went through Instant Quote flow
+2. Open Bid Builder modal
+3. Look for "Import from Instant Quote" button (should be blue/primary colored)
+4. Click Import → Review diff → Click Accept
+5. Verify captions appear under System Size, Project Type, Roof Type, Pitch, etc.
+6. Add line items to exceed budget threshold → verify banner appears
 
 ---
 
-## 10) Next Actions (Immediate)
-1. Create mapper file and wire header import button.
-2. Implement diff modal and apply mapping with captions.
-3. Expand Roof & Site inputs per plan.
-4. Extend Playwright tests to production modal.
-5. Commit with updated gitstatus.
+## 10) Implementation Status & Next Actions
+
+### Phase A — ✅ COMPLETE
+- ✅ Mapper implemented (`instant-to-bid.ts`)
+- ✅ Import button wired in modal header
+- ✅ Diff preview modal implemented
+- ✅ Caption rendering in SystemSelection and RoofSiteDetails
+
+### Phase B — ⚠️ PARTIAL
+- ✅ Roof Type, Pitch, Orientation, Shading mapped and shown
+- ⚠️ Arrays count, installer notes (access/structural), mount system fields NOT YET expanded in UI
+- Action: Expand `RoofSiteDetails.tsx` with additional installer-specific fields
+
+### Phase C — ✅ COMPLETE
+- ✅ Budget band conversion (`parseBudgetRange`)
+- ✅ Budget banner trigger (110% threshold)
+- ✅ Tariff conversions (c/kWh → $/kWh)
+- ✅ Self-consumption heuristic from usage pattern
+
+### Phase D — ⚠️ PARTIAL
+- ✅ 6/6 E2E tests passing in test environment
+- ⚠️ Production modal tests with real lead data NOT yet added
+- Action: Add E2E test that creates lead with quoteData → opens modal → verifies Import button → completes import flow
+
+---
+
+## 11) Immediate Remediation Plan
+
+### Issue: "No visual changes"
+**Diagnosis**: All code exists but may not be tested with leads containing `quoteData`.
+
+**Solution**:
+1. ✅ Verify implementation exists (DONE - confirmed above)
+2. Create test lead with populated `quoteData` in database
+3. Navigate to Bid Builder for that lead
+4. Document Import flow with screenshots
+5. Add production E2E test with mock lead containing quoteData
+
+### Next Implementation Work
+1. **Expand Roof & Site fields** (Phase B completion):
+   - Add `arrays` number input
+   - Add `roofAccessNotes` textarea
+   - Add `structuralNotes` textarea  
+   - Add `mountingSystemPreferred` text input
+   - Add `conduitRunComplexity` select
+   - Add `inverterLocationNotes` textarea
+
+2. **Add production E2E tests**:
+   - Test with lead containing quoteData
+   - Verify Import button visibility
+   - Test diff preview with actual data
+   - Verify captions appear after import
+   - Test budget banner with high line items
+
+3. **Quick adjust controls** (±0.5 kW in System Selection):
+   - Add increment/decrement buttons next to system size input
+   - Wire to update draft immediately
+
+---
+
+## 12) Testing Instructions for User
+
+To see the Import functionality:
+
+```typescript
+// Option 1: Use test route that simulates lead with quoteData
+// Navigate to: /test/quote-builder?id=TEST_IMPORT_1
+
+// Option 2: Manually add quoteData to existing lead in database
+// Update lead record with quoteData JSON containing:
+{
+  propertyType: 'residential',
+  recommendedSize: 6.6,
+  roofType: 'tile',
+  roofTilt: 'optimal',
+  panelOrientation: 'north',
+  shadingLevel: 'minimal',
+  customRetailRate: 32, // c/kWh
+  customFeedInRate: 8,   // c/kWh
+  usagePattern: 'evening',
+  budgetRange: '$8000-$10000',
+  batteryIncluded: false
+}
+```
+
+After adding quoteData, the Import button will appear in the modal header.
+
+---
+
+## 13) Deliverables Checklist (Updated)
+
+- ✅ `src/lib/mappers/instant-to-bid.ts` (382 lines, fully implemented)
+- ✅ Header import button + diff modal (QuoteBuilderModal)
+- ✅ Captions for prefilled fields (SystemSelection, RoofSiteDetails)
+- ⚠️ Roof & Site expanded inputs (PARTIAL - core fields done, installer extras pending)
+- ✅ Budget band hint + dismiss
+- ✅ Assumptions prefill (retail/FiT/selfConsumption)
+- ⚠️ Quick adjust controls (NOT YET IMPLEMENTED)
+- ⚠️ Extended Playwright tests against real modal with quoteData (PENDING)
+- ✅ Documentation updates (this plan, audit report)
