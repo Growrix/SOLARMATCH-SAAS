@@ -1,0 +1,187 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - img [ref=e7]
+        - generic [ref=e9]: "For Solar Installers:"
+      - generic [ref=e10]:
+        - button "Become a Partner" [ref=e11] [cursor=pointer]:
+          - img [ref=e12]
+          - generic [ref=e14]: Become a Partner
+        - button "Partner Sign In" [ref=e15] [cursor=pointer]:
+          - img [ref=e16]
+          - generic [ref=e19]: Partner Sign In
+    - banner [ref=e20]:
+      - generic [ref=e23]:
+        - generic [ref=e24]:
+          - link "SolarMatch" [ref=e25] [cursor=pointer]:
+            - /url: /
+            - img [ref=e26]
+            - generic [ref=e28]: SolarMatch
+          - link "Component Library DEV" [ref=e29] [cursor=pointer]:
+            - /url: /component-library
+            - generic [ref=e30]: Component Library
+            - generic [ref=e31]: DEV
+        - generic [ref=e32]:
+          - generic [ref=e33]:
+            - button "Switch to Dark theme" [ref=e34] [cursor=pointer]:
+              - generic [ref=e35]: 🌙
+            - button "Switch to Light theme" [ref=e36] [cursor=pointer]:
+              - generic [ref=e37]: ☀️
+            - button "Switch to Purple theme" [ref=e38] [cursor=pointer]:
+              - generic [ref=e39]: �️
+          - generic [ref=e40]:
+            - button "Login" [ref=e41] [cursor=pointer]:
+              - generic [ref=e42]: Login
+            - button "Sign Up" [ref=e43] [cursor=pointer]:
+              - generic [ref=e44]: Sign Up
+  - generic [ref=e47]:
+    - banner [ref=e48]:
+      - generic [ref=e49]:
+        - generic [ref=e50]:
+          - img [ref=e52]
+          - generic [ref=e55]:
+            - heading "Bid Builder" [level=2] [ref=e56]
+            - generic [ref=e57]:
+              - generic [ref=e58]: "Lead #TEST_LEAD_ID"
+              - generic [ref=e59]: Melbourne VIC
+              - generic [ref=e60]:
+                - text: "Status:"
+                - generic [ref=e61]: Draft
+              - generic [ref=e62]: Saved at 11:20:05 AM
+        - generic [ref=e63]:
+          - button "Import from Instant Quote" [ref=e64] [cursor=pointer]:
+            - generic [ref=e65]:
+              - img [ref=e66]
+              - text: Import from Instant Quote
+          - button "Lead Details" [ref=e69] [cursor=pointer]:
+            - generic [ref=e70]:
+              - img [ref=e71]
+              - text: Lead Details
+          - button "Preview" [ref=e73] [cursor=pointer]:
+            - generic [ref=e74]:
+              - img [ref=e75]
+              - text: Preview
+          - button "Save Draft" [ref=e78] [cursor=pointer]:
+            - generic [ref=e79]:
+              - img [ref=e80]
+              - text: Save Draft
+          - button "Submit Bid" [ref=e84] [cursor=pointer]:
+            - generic [ref=e85]:
+              - img [ref=e86]
+              - text: Submit Bid
+          - button [ref=e89] [cursor=pointer]:
+            - img [ref=e91]
+      - generic [ref=e94]:
+        - generic [ref=e95]: "Quick Presets:"
+        - button "Economy Package" [ref=e96] [cursor=pointer]:
+          - generic [ref=e97]: Economy Package
+        - button "Balanced Package" [ref=e98] [cursor=pointer]:
+          - generic [ref=e99]: Balanced Package
+        - button "Premium Package" [ref=e100] [cursor=pointer]:
+          - generic [ref=e101]: Premium Package
+    - generic [ref=e102]:
+      - generic [ref=e103]:
+        - generic [ref=e104]:
+          - button "System Selection" [ref=e105] [cursor=pointer]:
+            - generic [ref=e106]: System Selection
+            - img [ref=e107]
+          - generic [ref=e110]:
+            - heading "System Selection" [level=3] [ref=e111]:
+              - img [ref=e112]
+              - text: System Selection
+            - generic [ref=e114]:
+              - generic [ref=e115]:
+                - generic [ref=e116]: Project Type
+                - combobox [ref=e117] [cursor=pointer]:
+                  - option "Residential" [selected]
+                  - option "Commercial"
+                - paragraph [ref=e118]: Prefilled from homeowner Instant Quote
+              - generic [ref=e119]:
+                - generic [ref=e120]: System Type
+                - combobox [ref=e121] [cursor=pointer]:
+                  - option "Grid-Connected Solar" [selected]
+                  - option "Hybrid (Solar + Battery)"
+                  - option "Off-Grid System"
+                  - option "Battery Only"
+                  - option "EV Charger Add-on"
+                  - option "Add Panels to Existing"
+                  - option "Replace Inverter"
+              - generic [ref=e122]:
+                - generic [ref=e123]: System Size (kW)
+                - generic [ref=e124]:
+                  - button "Decrease by 0.5 kW" [ref=e125] [cursor=pointer]:
+                    - img [ref=e126]
+                  - spinbutton [ref=e127]: "6.6"
+                  - button "Increase by 0.5 kW" [ref=e128] [cursor=pointer]:
+                    - img [ref=e129]
+                  - generic [ref=e130]: kW
+                - paragraph [ref=e131]: Prefilled from homeowner Instant Quote
+        - button "Roof & Site Details" [ref=e133] [cursor=pointer]:
+          - generic [ref=e134]: Roof & Site Details
+          - img [ref=e135]
+        - button "Product Configuration" [ref=e138] [cursor=pointer]:
+          - generic [ref=e139]: Product Configuration
+          - img [ref=e140]
+        - button "Pricing Engine" [ref=e143] [cursor=pointer]:
+          - generic [ref=e144]: Pricing Engine
+          - img [ref=e145]
+        - button "Compliance Documents" [ref=e148] [cursor=pointer]:
+          - generic [ref=e149]: Compliance Documents
+          - img [ref=e150]
+      - generic [ref=e153]:
+        - generic [ref=e154]:
+          - heading "Customer Preview" [level=3] [ref=e155]
+          - generic [ref=e156]:
+            - heading "Customer Preview" [level=3] [ref=e157]:
+              - img [ref=e158]
+              - text: Customer Preview
+            - button "Current Configuration $0" [ref=e162] [cursor=pointer]:
+              - generic [ref=e163]:
+                - generic [ref=e164]: Current Configuration
+                - generic [ref=e165]: $0
+            - paragraph [ref=e167]:
+              - strong [ref=e168]: "Phase 3:"
+              - text: Installer branding (logo, company name, ABN, accreditation, signature) will be editable here before export.
+        - generic [ref=e170]:
+          - generic [ref=e171]:
+            - heading "Financial Projections" [level=3] [ref=e172]
+            - generic [ref=e173]:
+              - button "Long-Term ROI" [ref=e174] [cursor=pointer]:
+                - img [ref=e175]
+                - text: Long-Term ROI
+              - button "Annual Cost" [ref=e178] [cursor=pointer]:
+                - img [ref=e179]
+                - text: Annual Cost
+          - generic [ref=e180]:
+            - paragraph [ref=e181]:
+              - text: This chart projects your net savings over 25 years. You're estimated to break even in
+              - generic [ref=e182]: Year 0
+              - text: and save approximately
+              - generic [ref=e183]: $476
+              - text: over the system's lifetime.
+            - generic [ref=e186]:
+              - img [ref=e187]:
+                - generic [ref=e192]:
+                  - generic [ref=e194]: Year 0
+                  - generic [ref=e196]: Year 6
+                  - generic [ref=e198]: Year 12
+                  - generic [ref=e200]: Year 18
+                  - generic [ref=e202]: Year 25
+                - generic [ref=e204]:
+                  - generic [ref=e206]: $0
+                  - generic [ref=e208]: $150
+                  - generic [ref=e210]: $300
+                  - generic [ref=e212]: $450
+                  - generic [ref=e214]: $600
+                - generic [ref=e216]: Break-even Point
+              - list [ref=e222]:
+                - listitem [ref=e223]:
+                  - img [ref=e224]
+                  - text: Net Savings
+  - alert [ref=e226]
+  - generic [ref=e227]: $600
+```
