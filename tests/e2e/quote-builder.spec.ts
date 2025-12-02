@@ -98,6 +98,7 @@ test('Import workflow stamps metadata & STC zone', async ({ page }) => {
   await expect(acceptBtn).toBeEnabled();
   await acceptBtn.click();
   await expect(page.getByRole('heading', { name: /Import from Instant Quote/i })).toHaveCount(0);
+  await page.waitForTimeout(1000); // Wait for localStorage write
   const meta = await readMeta(page, testId);
   expect(meta).toBeTruthy();
   expect(meta?.importedAt).toBeTruthy();
@@ -109,14 +110,14 @@ test('STC postcode caption appears', async ({ page }) => {
   const testId = TEST_IDS.STC_CAPTION;
   await page.goto(`/test/quote-builder?id=${testId}`);
   await page.waitForLoadState('networkidle');
-  await expect(page.getByTestId('bid-builder-heading')).toBeVisible();
-  
-  // Setup imported draft state directly (avoid re-import which triggers "no changes")
-  await setupImportedDraft(page, testId);
-  // Reload page to pick up imported draft from localStorage
-  await page.reload();
-  await page.waitForLoadState('networkidle');
   await expect(page.getByTestId('bid-builder-heading')).toBeVisible({ timeout: 10000 });
+  
+  // Perform import to trigger caption rendering
+  await page.getByRole('button', { name: /Import from Instant Quote/i }).click();
+  await page.getByRole('button', { name: /Accept & Import/i }).click();
+  await page.waitForTimeout(1000);
+  
+  // Expand Pricing Engine section to see caption
   const pricingSectionToggle = page.getByRole('button', { name: /Pricing Engine/i });
   if (await pricingSectionToggle.isVisible().catch(() => false)) {
     await pricingSectionToggle.click();
@@ -161,11 +162,9 @@ test('Prefilled captions appear under imported fields', async ({ page }) => {
   await page.waitForLoadState('networkidle');
   await expect(page.getByTestId('bid-builder-heading')).toBeVisible({ timeout: 10000 });
   
-  // Setup imported draft state directly
-  await setupImportedDraft(page, testId);
-  await page.reload();
-  await page.waitForLoadState('networkidle');
-  await expect(page.getByRole('heading', { name: /Bid Builder|Quote Builder/i })).toBeVisible();
+  // Perform import to trigger prefilled captions
+  await page.getByRole('button', { name: /Import from Instant Quote/i }).click();
+  await page.getByRole('button', { name: /Accept & Import/i }).click();
   await page.waitForTimeout(1000);
   // Expand relevant sections where captions appear
   const pricingSectionToggle = page.getByRole('button', { name: /Pricing Engine/i });
@@ -185,12 +184,31 @@ test('Budget hint banner appears and dismisses', async ({ page }) => {
   await page.waitForLoadState('networkidle');
   await expect(page.getByTestId('bid-builder-heading')).toBeVisible({ timeout: 10000 });
   
-  // Setup imported draft state directly
-  await setupImportedDraft(page, testId);
+  // Perform import first
+  await page.getByRole('button', { name: /Import from Instant Quote/i }).click();
+  await page.getByRole('button', { name: /Accept & Import/i }).click();
+  await page.waitForTimeout(1000);
+  
+  // Add a high-priced line item to exceed budget ($6000 max, need >$6600)
+  // Budget is $5000-$6000, so max = $6000, need total > $6600 (110%)
+  // Add line item: $8000 to definitely exceed
+  await page.evaluate((key: string) => {
+    const raw = localStorage.getItem(key);
+    if (!raw) return;
+    const draft = JSON.parse(raw);
+    draft.pricing = draft.pricing || {};
+    draft.pricing.lineItems = [
+      { description: 'Solar Panels', qty: 20, unitPrice: 200, taxGst: true }, // $4000
+      { description: 'Inverter', qty: 1, unitPrice: 3500, taxGst: true }       // $3500
+      // Total: $7500 > $6600 threshold
+    ];
+    localStorage.setItem(key, JSON.stringify(draft));
+  }, DRAFT_KEY(testId));
+  
+  // Reload to trigger recalculation
   await page.reload();
   await page.waitForLoadState('networkidle');
-  await expect(page.getByRole('heading', { name: /Bid Builder|Quote Builder/i })).toBeVisible();
-  await page.waitForTimeout(1000); // Allow calculations to complete
+  await expect(page.getByTestId('bid-builder-heading')).toBeVisible({ timeout: 10000 });
   
   const banner = page.getByTestId('budget-exceed-banner');
   await expect(banner).toBeVisible({ timeout: 10000 });
