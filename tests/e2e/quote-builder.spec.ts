@@ -229,7 +229,15 @@ test('No console errors during core interactions', async ({ page }) => {
   await expect(page.getByTestId('bid-builder-heading')).toBeVisible({ timeout: 10000 });
   
   const errors: string[] = [];
-  page.on('console', msg => { if (msg.type() === 'error') errors.push(msg.text()); });
+  page.on('console', msg => {
+    if (msg.type() === 'error') {
+      const text = msg.text();
+      // Ignore React deprecation warnings from third-party libs (recharts)
+      if (!text.includes('defaultProps will be removed')) {
+        errors.push(text);
+      }
+    }
+  });
   await page.getByRole('button', { name: /Import from Instant Quote/i }).click();
   await page.getByRole('button', { name: /Accept & Import/i }).click();
   expect(errors).toEqual([]);
