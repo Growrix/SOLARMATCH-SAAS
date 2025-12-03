@@ -2735,3 +2735,17 @@ I want you to impliment this plan accurately and exactly : D:\Desktop Mass\SOLAR
 
 
 I still do not see any visual update in the bid builder. And why are you giving me surprises and pain to checck UI , why do not you have any testing system applied so that always you can give me the acurate information before checking the UI. To solve this kind of pain points you should comup with a testing method e.g cypress or playright. so that after the phase task done you can ensure the task was done prefectly as per planned. Before we go for further fixing I want you to update the specific area in the guidelines file to avoid this kind of pain points in future. after updating it  D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md , create a new phae in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md for the recent issues we are facing with the bid builder , And the impliement the testing methods to make sure the build was perfectly done as per planned. 
+
+-------------------------------------------
+
+So far it took a long time to do the so called enhancement of the bid builder modal. even you passed e2e tests as said. now it is sad but true, I do not see any visual impact in the bid builder modal. it is still same as before. no visual changes at all. so I want you to audit the whole conversation we had regarding the bid builder enhancement. 
+- you must compare the tasks you have done vs the plan vs the expected outcome. This is crucial, because I do not need such files with codes that has no use in real app. 
+- you must check the frontend and backend both deeply. Also check above all the conversation of this chat. 
+
+after that create a comprehensive implementation plan in D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Features\Quote Builder Modal\BID-BUILDER-ENHANCEMENT-COMPREHENSIVE-PLAN.md file. make sure to cover all the points we discussed so far.
+
+
+
+
+
+after that create a new phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and start implimenting the changes step by step as per the plan you created.

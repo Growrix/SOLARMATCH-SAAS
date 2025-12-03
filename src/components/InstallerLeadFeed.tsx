@@ -842,7 +842,8 @@ const LeadCard: React.FC<{
           propertyType: lead.systemDetails?.propertyType || '',
           systemSize: lead.systemDetails?.estimatedSize || '0',
           estimatedUsage: lead.systemDetails?.estimatedSize || '',
-          budget: lead.systemDetails?.budget || ''
+          budget: lead.systemDetails?.budget || '',
+          quoteData: lead.quoteData // Pass through quoteData for Import feature
         }}
         onSubmitQuote={onSubmitQuote}
         mode={quoteMode}
