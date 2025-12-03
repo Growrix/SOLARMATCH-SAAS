@@ -97,7 +97,7 @@ const FlexibleComboBox: React.FC<FlexibleComboBoxProps> = ({
 
   return (
     <div ref={containerRef} className={`relative ${className}`}>
-      <label className="text-label text-foreground-primary block mb-2">
+      <label className="text-label text-foreground block mb-2">
         {label}
         {required && <span className="text-error ml-1">*</span>}
       </label>
@@ -121,21 +121,21 @@ const FlexibleComboBox: React.FC<FlexibleComboBoxProps> = ({
           type="button"
           onClick={() => setIsOpen(!isOpen)}
           onMouseDown={(e) => e.preventDefault()} // Prevent input blur
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted hover:text-foreground-primary transition-colors"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
           aria-label="Toggle dropdown"
         >
           <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
         </button>
         
         {isOpen && filteredOptions.length > 0 && (
-          <div className="absolute z-50 mt-1 w-full bg-background-primary border border-stroke rounded-lg shadow-neu-outset-lg max-h-60 overflow-auto">
+          <div className="absolute z-50 mt-1 w-full bg-surface border border-border rounded-lg shadow-neu-outset-lg max-h-60 overflow-auto">
             {filteredOptions.map((opt) => (
               <button
                 key={opt.value}
                 type="button"
                 onClick={() => handleOptionClick(opt.value)}
                 onMouseDown={(e) => e.preventDefault()} // Prevent input blur
-                className="w-full px-4 py-2.5 text-left hover:bg-background-hover text-foreground-primary transition-colors flex items-center gap-2"
+                className="w-full px-4 py-2.5 text-left hover:bg-surface-hover text-foreground transition-colors flex items-center gap-2"
               >
                 {opt.label}
               </button>
@@ -145,13 +145,13 @@ const FlexibleComboBox: React.FC<FlexibleComboBoxProps> = ({
       </div>
       
       {prefilledCaption && (
-        <p className="text-caption text-foreground-muted mt-2 flex items-center gap-1">
+        <p className="text-caption text-muted-foreground mt-2 flex items-center gap-1">
           <span className="text-accent">💡</span> {prefilledCaption}
         </p>
       )}
       
       {allowCustom && !prefilledCaption && (
-        <p className="text-caption text-foreground-muted mt-1">
+        <p className="text-caption text-muted-foreground mt-1">
           Select from list or type custom value
         </p>
       )}
