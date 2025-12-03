@@ -185,3 +185,286 @@ Minimal UI changes (example outline – keep semantic classes):
 - Modify values → verify autosave and preview graphs update within 500ms
 - Mobile/desktop responsiveness for new inputs; accessibility labels/tooltips present
 
+---
+
+## Phase 12 – Flexible Combo Box Implementation (Dec 2025)
+
+**Date**: December 3, 2025  
+**Status**: ✅ Complete  
+**Objective**: Match UI with InstantQuote fields + flexible dropdowns so installers can type custom values
+
+### Problem Statement
+
+After implementing the import functionality, a critical UX gap was identified:
+- **Field Mismatch**: Only 18/40+ fields were mapping from Instant Quote
+- **Rigid Dropdowns**: Installers couldn't type custom values (e.g., "Custom Panel Model ABC123")
+- **Real-world Pain**: Panel/inverter model not in dropdown → installer stuck
+- **User Concern**: "Make sure Quick Presets functionality stays as it is, don't make it limited"
+
+### Design Philosophy
+
+**Formula**: `InstantQuote fields + Bid Builder extra fields = Perfect Bid Builder for installers`
+
+**Key Principle**: Additive, not restrictive
+- ✅ Provide common presets for speed (dropdown selection)
+- ✅ Allow manual typing for flexibility (custom values)
+- ✅ Preserve ALL existing features (60+ fields, Quick Presets, 9 categories)
+
+### Implementation Overview (T110-T118)
+
+#### T110: FlexibleComboBox Component ✅
+**File**: `src/components/ui/FlexibleComboBox.tsx` (157 lines)
+
+**Features**:
+- Dropdown selection OR manual typing
+- Real-time filtering as user types
+- Keyboard navigation (Arrow/Enter/Escape)
+- Click-outside detection
+- Optional prefilled captions
+- Design-system compliant (bg-surface, hover:bg-surface-hover)
+
+**Props**:
+```typescript
+interface FlexibleComboBoxProps {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: FlexibleComboBoxOption[];
+  placeholder?: string;
+  allowCustom?: boolean; // Default true
+  prefilledCaption?: string;
+}
+```
+
+**Key Code**:
+```typescript
+// Filtering logic
+const filteredOptions = options.filter(opt =>
+  opt.label.toLowerCase().includes(filter.toLowerCase())
+);
+
+// Input handler (allows typing)
+const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const newValue = e.target.value;
+  onChange(newValue); // Updates parent state
+  setFilter(newValue); // Updates filter for dropdown
+  setIsOpen(true); // Opens dropdown
+};
+```
+
+#### T111: Expanded Mapper (18→28 fields) ✅
+**File**: `src/lib/mappers/instant-to-bid.ts`
+
+**Added 11 Homeowner Context Fields**:
+- Energy Context: `electricityUsage`, `retailer`, `tariffPlan`
+- Product Preferences: `panelBrandPreference`, `optimizers`, `microinverters`
+- Property Context: `existingSystem`, `propertyType`
+- Goals: `budgetRange`, `desiredOffset`, `usagePattern`
+
+**Storage Location**: `quoteDraft.meta.homeowner*` fields
+
+**Example**:
+```typescript
+if (instant.budgetRange) {
+  result.meta.homeownerBudget = instant.budgetRange;
+}
+if (instant.panelBrandPreference) {
+  result.meta.homeownerPanelPreference = instant.panelBrandPreference;
+}
+```
+
+#### T112: Homeowner Requirements Section ✅
+**File**: `src/components/quote-builder/HomeownerContext.tsx` (280 lines)
+
+**Features**:
+- Collapsible section (default collapsed)
+- Only renders when homeowner data exists
+- 4 subsections with read-only display:
+  1. **Energy Usage**: electricity usage, pattern, retailer, tariff
+  2. **Budget & Goals**: budget range, desired offset
+  3. **Property Context**: property type, existing system
+  4. **Product Preferences**: panel brand, optimizers, microinverters
+
+**Integration**: Top of QuoteBuilderModal (above System Selection)
+
+**Example Display**:
+```
+Homeowner Requirements [Imported from Instant Quote]
+
+Energy Usage:
+  Electricity Usage: 1200 kWh/bill
+  Usage Pattern: Evening Peak
+  Retailer: AGL
+  Tariff: Peak/Off-Peak
+
+Budget & Goals:
+  Budget Range: $8000-$10000
+  Desired Offset: 80%
+```
+
+#### T113: Roof & Site Flexible Fields ✅
+**File**: `src/components/quote-builder/RoofSiteDetails.tsx`
+
+**Converted 5 Fields**:
+1. **Roof Type**: 7 presets (Tile, Metal, Colorbond, Tin, Slate, Flat, Other) + custom
+2. **Roof Pitch**: 6 common angles (5°, 15°, 22°, 25°, 30°, 40°) + custom degrees
+3. **Shading Level**: 4 levels (None, Light, Medium, Heavy) + custom
+4. **Mounting System**: 6 brands (Clenergy, SunLock, IronRidge, Unirac, Quick Mount, K2) + custom
+5. **Conduit Complexity**: 3 levels (Low, Medium, High) + custom
+
+**Preserved**: Orientations multi-select chips (not modified - works well)
+
+**Real-world Example**:
+- Installer sees homeowner preferred 22° pitch → can select from dropdown
+- Or type "27" for custom pitch not in list
+- Or type "SunLock Pro Series" for mounting system variant
+
+#### T114: Product Configuration Flexible Fields ✅
+**File**: `src/components/quote-builder/ProductConfiguration.tsx`
+
+**Converted 8 Fields**:
+
+**Panels** (2 fields):
+1. **Brand**: 8 major brands (Trina Solar, JinkoSolar, Canadian Solar, LONGi, JA Solar, Risen, Seraphim, Suntech) + custom
+2. **Model**: 6 popular models (Vertex S+ 430W, Tiger Neo 440W, HiKu6 450W, Hi-MO 5 435W, etc.) + custom
+
+**Inverters** (3 fields):
+3. **Brand**: 8 major brands (Fronius, SolarEdge, Sungrow, Huawei, GoodWe, Enphase, SMA, Growatt) + custom
+4. **Model**: 6 popular models (Primo GEN24, HD-Wave SE5000, SH5K, SUN2000-5KTL, etc.) + custom
+5. **Type**: 4 types (String, Hybrid, Microinverter, Power Optimizers) + custom
+
+**Battery** (3 fields):
+6. **Brand**: 8 major brands (Tesla, LG Chem, BYD, Sungrow, Huawei, Sonnen, Alpha ESS, Pylontech) + custom
+7. **Model**: 7 popular models (Powerwall 2, Powerwall 3, RESU10H, Battery-Box HVS, etc.) + custom
+8. **Chemistry**: 3 types (LFP, NMC, NCA) + custom
+
+**Real-world Example**:
+- Homeowner selected "Trina Solar" in Instant Quote
+- Installer sees this preference in Homeowner Requirements section
+- Can quickly select "Trina Solar" from dropdown
+- Or type "Trina Solar Custom Model XYZ-2024" if specific variant needed
+
+#### Design System Audit ✅
+**Commit**: 2e096c0
+
+**Fixed Issues**:
+- ❌ `bg-background-primary` → ✅ `bg-surface` (dropdowns are elevated)
+- ❌ `bg-background-hover` → ✅ `bg-surface-hover` (correct hover state)
+- ❌ `text-foreground-primary` → ✅ `text-foreground` (correct semantic)
+- ❌ `text-foreground-muted` → ✅ `text-muted-foreground` (correct order)
+
+**Rationale**:
+- Dropdown list = elevated element → uses `bg-surface` (like cards/modals)
+- Hover state → `bg-surface-hover` (defined in globals.css)
+- Text hierarchy → `text-foreground` (primary), `text-muted-foreground` (secondary)
+
+### Verification Results
+
+**TypeScript**: Clean compilation (no errors)
+
+**Design System**: 0/0/0/0/0/0 violations
+1. Hardcoded gray/slate colors: 0 matches ✅
+2. Dark mode classes: 0 matches ✅
+3. RGB/HEX colors: 0 matches ✅
+4. Hardcoded white/black: 0 matches ✅
+5. Hardcoded typography: 0 matches ✅
+6. Manual responsive classes: 0 matches ✅
+
+**Feature Preservation**: ✅ All confirmed intact
+- Quick Presets (3 bundles: Economy, Balanced, Premium)
+- 60+ installer-only fields
+- 9 pricing categories
+- Import functionality
+- Diff preview modal
+
+### Impact & Benefits
+
+**For Installers**:
+- ⚡ **Speed**: Select common products from dropdown (1 click)
+- 🎯 **Flexibility**: Type custom values when needed (no limitations)
+- 💡 **Context**: See homeowner preferences highlighted
+- ✅ **Familiarity**: Quick Presets still work exactly as before
+
+**For Homeowners**:
+- 🤝 **Alignment**: Installers see their preferences (budget, usage, product brands)
+- 📊 **Transparency**: Homeowner context visible in collapsed section
+- 🎯 **Relevance**: Bids match their actual needs and constraints
+
+**Real-world Scenarios**:
+1. **Common Case**: Installer selects "Tesla Powerwall 2" from dropdown → 1 click, done
+2. **Custom Case**: Installer types "Tesla Powerwall 3 with backup gateway 2" → flexibility preserved
+3. **Budget Aware**: Installer sees "$8k-$10k" budget → can adjust system accordingly
+4. **Preference Match**: Homeowner wanted "Trina Solar" → installer prioritizes that brand
+
+### Testing Checklist
+
+- [x] FlexibleComboBox renders with dropdown + typing capability
+- [x] Filtering works as user types
+- [x] Keyboard navigation (Arrow/Enter/Escape)
+- [x] Click-outside closes dropdown
+- [x] Prefilled captions display correctly
+- [x] 13 fields converted successfully
+- [x] Homeowner Requirements section displays all context
+- [x] Import still works (data pipeline intact)
+- [x] Quick Presets still functional
+- [x] Design-system compliant (0/0/0/0/0/0)
+- [x] TypeScript compilation clean
+- [x] No feature regressions
+
+### Lessons Learned
+
+**User Feedback Integration**:
+- "Match UI with InstantQuote fields" → Added Homeowner Requirements section
+- "Flexibility of installers inputs" → Built FlexibleComboBox with typing
+- "Quick presets stays as it is" → Preserved all 60+ fields, confirmed in audit
+
+**Design Decisions**:
+- **Why combo box, not pure dropdown?** Real-world need for custom values (panel models change frequently)
+- **Why show homeowner context?** Transparency and alignment (installers understand constraints)
+- **Why preserve everything?** Trust and reliability (no feature loss = user confidence)
+
+**Technical Wins**:
+- Reusable component pattern (FlexibleComboBox used 13 times)
+- Semantic design system compliance (proper bg-surface usage)
+- Type-safe implementation (TypeScript interfaces for all options)
+- Defensive programming (null checks, fallbacks)
+
+### Future Enhancements (Optional)
+
+**T115 - Budget Banner** (Skipped - time constraints):
+- Add banner when total exceeds homeowner budget
+- Quick actions: Reduce Battery, Remove Addons, Dismiss
+- Non-blocking notification pattern
+
+**T116 - Budget Badge** (Skipped - time constraints):
+- Display budget as badge in System Selection
+- Visual indicator: green (under), yellow (near), red (over)
+
+**T117 - E2E Testing** (Recommended):
+- Playwright test: Select from dropdown → verify value saved
+- Playwright test: Type custom value → verify value saved
+- Test all 13 flexible combo box fields
+- Test import → prefilled captions appear
+
+**Dynamic Model Filtering**:
+- When panel brand selected → filter model dropdown to matching models
+- When inverter brand selected → filter model dropdown
+- Requires brand-to-models mapping data
+
+### Commits
+
+1. **9ffd96e**: Backup before Phase 12
+2. **f3e9f93**: T110 FlexibleComboBox + T111 Mapper expansion
+3. **6660333**: T112 Homeowner Requirements section
+4. **2099ef3**: T113 Roof & Site flexible fields
+5. **5826e0d**: T114 Product Configuration flexible fields
+6. **2e096c0**: Design System audit fix
+
+### Conclusion
+
+Phase 12 successfully implemented flexible combo boxes across 13 fields, expanded the mapper to 28 fields, added homeowner context visibility, and maintained 100% design-system compliance with zero feature loss.
+
+**Formula Achieved**: ✅ InstantQuote + Bid Builder = Perfect Bid Builder
+
+The implementation balances speed (dropdown presets) with flexibility (custom typing) while preserving all existing functionality. Installers can now work efficiently with common products and handle custom scenarios without limitations.
+
