@@ -685,3 +685,202 @@ Acceptance Scenarios (Phase 11):
 6. ✓ CI workflow fails if any test fails (manual simulation acceptable if pipeline not yet active)
 7. ✓ No brittle selectors; all locators semantic
 8. ✓ All design-system verification commands still 0/0/0/0/0/0
+
+---
+
+## Phase 12 – Complete Field Mapping & Import Functionality (Field Parity)
+
+**Goal**: Address user-reported issues: "Import button has no functionality" and "fields mismatch between Instant Quote and Bid Builder". Achieve full field mapping parity so homeowner-provided data is accurately transferred and visible to installers.
+
+**Context**: 
+- Import button IS visible and opens diff modal ✅
+- Import accept DOES merge data ✅
+- **ISSUE**: Only 15/40+ fields are mapped, causing data loss
+- **ISSUE**: Budget range parsed but not applied to `system.desiredPriceRange`
+- **ISSUE**: Field captions not rendering due to missing conditional checks
+- **ISSUE**: Budget banner not triggering due to threshold logic bug
+- **USER GOAL**: "InstantQuote fields + Bid Builder extra fields = Perfect Bid Builder"
+
+**Audit Report**: `DOC/Features/Quote Builder Modal/FIELD-MAPPING-AUDIT-2025-12-03.md`
+
+Independent test: Create lead with comprehensive Instant Quote data (40+ fields populated) → Import into Bid Builder → Verify 25+ fields prefill correctly → Verify budget banner appears when total exceeds budget → Verify captions render on all prefilled fields → Verify homeowner context (budget, offset, usage, preferences) is visible to installer.
+
+Pre-phase checklist (MANDATORY):
+- [X] Read `DOC/Guidelines/AI-IMPLEMENTATION-GUIDELINES.md`
+- [X] Read audit report: `DOC/Features/Quote Builder Modal/FIELD-MAPPING-AUDIT-2025-12-03.md`
+- [ ] Backup commit: `git add . && git commit -m "backup: before Phase 12 (field mapping fixes)"`
+- [ ] Run verification commands on targeted files (expect 0/0/0/0/0/0)
+- [ ] Confirm dev server runs: `npm run dev`
+
+### T110 [Bug][Import]: Fix budget range application
+- **Path**: `src/lib/mappers/instant-to-bid.ts`, `src/components/QuoteBuilderModal.tsx`
+- **Action**: 
+  - Update `mapInstantToBid` to include `system.desiredPriceRange` with parsed budget range
+  - Verify `parseBudgetRange` returns {min, max} correctly
+  - Apply to `quoteDraft.system.desiredPriceRange` during merge
+- **Testing**: 
+  - Import lead with budget "$8000-$10000"
+  - Check `quoteDraft.system.desiredPriceRange = {min: 8000, max: 10000}`
+  - Verify UI displays budget range in System Selection section
+- **Acceptance**: Budget range field populated after import; values match Instant Quote input
+- **Status**: NOT STARTED
+
+### T111 [Bug][Import]: Fix budget banner threshold logic
+- **Path**: `src/components/QuoteBuilderModal.tsx`
+- **Action**: 
+  - Locate budget banner conditional rendering
+  - Verify threshold calculation: `currentTotals.total > budgetRange.max * 1.1`
+  - Fix any bugs preventing banner from appearing
+  - Add dismiss state persistence
+- **Testing**:
+  - Import lead with budget max $10,000
+  - Add line items totaling $11,500 (15% over)
+  - Verify banner appears with overage % displayed
+  - Click dismiss, verify banner disappears
+  - Reload, verify banner gone (persistent)
+- **Acceptance**: Banner triggers at correct threshold (110% of max); dismiss persists
+- **Status**: NOT STARTED
+
+### T112 [Bug][Import]: Fix field caption rendering
+- **Path**: `src/components/quote-builder/SystemSelection.tsx`, `src/components/quote-builder/RoofSiteDetails.tsx`
+- **Action**:
+  - Review caption conditional: `quoteDraft.meta?.prefilledFields?.includes('field.path')`
+  - Verify `prefilledFields` array is populated during import
+  - Fix any conditional bugs preventing caption display
+- **Testing**:
+  - Import lead with quoteData
+  - Check System Selection: system size field should show caption
+  - Check Roof & Site: roof type, pitch, orientation, shading should show captions
+  - Manually entered fields should NOT show captions
+- **Acceptance**: All prefilled fields show caption "Prefilled from homeowner Instant Quote"; no extras
+- **Status**: NOT STARTED
+
+### T113 [Enhancement][Mapper]: Add 10 critical missing fields
+- **Path**: `src/lib/mappers/instant-to-bid.ts`
+- **Action**: Expand mapper to include:
+  1. `desiredOffset` → `meta.homeownerOffset` (display in UI)
+  2. `electricityValue` + `electricityUsageType` → `meta.homeownerUsage` (display)
+  3. `panelBrand` → `products.panels.brand` (prefill)
+  4. `includeOptimizers` → `meta.homeownerPreferences.optimizers` (flag)
+  5. `includeMicroinverters` → `meta.homeownerPreferences.microinverters` (flag)
+  6. `retailer` → `meta.homeownerRetailer` (display)
+  7. `tariffPlan` → `meta.homeownerTariff` (display)
+  8. `hasExistingSystem` + `existingSystemSize` → `meta.existingSystem` (display)
+  9. `peakDemand` (commercial) → `meta.commercialPeakDemand` (display)
+  10. `isThreePhase` → `meta.commercialThreePhase` (display)
+- **Testing**:
+  - Create test lead with all 10 fields populated
+  - Import into Bid Builder
+  - Verify `quoteDraft.meta` contains all 10 new fields
+  - Verify diff preview modal shows all 10 changes
+- **Acceptance**: Mapper includes 25 total fields (15 existing + 10 new); all data preserved
+- **Status**: NOT STARTED
+
+### T114 [Enhancement][UI]: Add Homeowner Requirements section
+- **Path**: `src/components/QuoteBuilderModal.tsx`, new component `src/components/quote-builder/HomeownerContext.tsx`
+- **Action**:
+  - Create new collapsible section at top of modal: "Homeowner Requirements"
+  - Display read-only fields from `quoteDraft.meta.homeowner*`:
+    - Budget Range (with visual bar)
+    - Desired Offset (%)
+    - Electricity Usage ($950/month or $285/quarter)
+    - Retailer & Tariff Plan
+    - Existing System (if any)
+    - Panel Brand Preference
+    - Special Requests (optimizers, microinverters, etc.)
+  - Collapsed by default; expand on click
+- **Testing**:
+  - Import lead with full homeowner context
+  - Click to expand section
+  - Verify all fields display correctly
+  - Verify responsive layout (mobile/tablet/desktop)
+- **Acceptance**: Section renders; all homeowner context visible; responsive; design-system compliant
+- **Status**: NOT STARTED
+
+### T115 [Enhancement][UI]: Enhance budget banner with detail
+- **Path**: `src/components/QuoteBuilderModal.tsx`
+- **Action**:
+  - Replace generic warning with detailed breakdown:
+    - Requested Budget: $X - $Y
+    - Current Quote Total: $Z
+    - Overage: X% over budget max
+    - Homeowner priorities list (offset %, battery, addons)
+    - Quick action buttons: "Reduce Battery Size", "Remove Addons", "Dismiss"
+  - Wire quick actions to update `quoteDraft`
+- **Testing**:
+  - Trigger banner (quote > budget)
+  - Click "Reduce Battery Size" → battery capacity decreases by 20%
+  - Click "Remove Addons" → all $0 addons removed, optional addons flagged
+  - Verify total recalculates after each action
+- **Acceptance**: Banner shows detailed context; quick actions work; total updates
+- **Status**: NOT STARTED
+
+### T116 [Enhancement][UI]: Update field labels for parity
+- **Path**: `src/components/quote-builder/SystemSelection.tsx`, `src/components/quote-builder/RoofSiteDetails.tsx`
+- **Action**:
+  - Change "Pitch (degrees)" label to "Roof Pitch" with dropdown: Flat/Low/Optimal/Steep (show degrees in parentheses)
+  - Change "Shading Level" slider to dropdown: None/Minimal/Partial/Moderate/Heavy (show numeric 0-4 in parentheses)
+  - Add info tooltips matching Instant Quote guidance
+- **Testing**:
+  - Visual check: Labels match Instant Quote semantics
+  - Import lead with "Optimal" tilt → verify UI shows "Optimal (25°)"
+  - Import lead with "Minimal" shading → verify UI shows "Minimal (1)"
+- **Acceptance**: Field labels align with Instant Quote; semantic meaning preserved; tooltips helpful
+- **Status**: NOT STARTED
+
+### T117 [Testing][E2E]: Full field mapping test
+- **Path**: `tests/e2e/quote-builder-field-mapping.spec.ts`
+- **Action**:
+  - Create comprehensive test lead with 40+ Instant Quote fields populated
+  - Test import workflow end-to-end:
+    1. Click Import button
+    2. Diff modal shows 25+ changes
+    3. Accept import
+    4. Verify all 25 fields applied to `quoteDraft`
+    5. Verify Homeowner Requirements section displays context
+    6. Verify budget banner triggers (if applicable)
+    7. Verify captions on all prefilled fields
+  - Assert localStorage contains updated draft with `meta.prefilledFields`
+- **Testing**: Run `npm run test:e2e` → All assertions pass
+- **Acceptance**: E2E test covers full import workflow; 100% pass rate
+- **Status**: NOT STARTED
+
+### T118 [Documentation]: Update implementation plan with findings
+- **Path**: `DOC/Features/Quote Builder Modal/BID-BUILDER-ENHANCEMENT-COMPREHENSIVE-PLAN.md`
+- **Action**:
+  - Mark Phase 1 tasks as COMPLETE
+  - Document Phase 2 progress
+  - Add "Lessons Learned" section for future reference
+  - Update status report with field mapping completion
+- **Testing**: Manual review; ensure all changes documented
+- **Acceptance**: Plan reflects current state; status clear; learnings captured
+- **Status**: NOT STARTED
+
+Post-phase checklist (MANDATORY):
+- [ ] All T110–T118 implemented
+- [ ] Run verification commands: 0/0/0/0/0/0 (design-system compliance)
+- [ ] `npx tsc --noEmit` → 0 errors
+- [ ] `npm run build` → Success
+- [ ] `npm run dev` → Server starts without errors
+- [ ] Test with real lead containing quoteData:
+  - [ ] Import button visible
+  - [ ] Diff modal shows 25+ changes
+  - [ ] Accept applies all fields
+  - [ ] Homeowner Requirements section displays
+  - [ ] Budget banner triggers (if total > budget * 1.1)
+  - [ ] Field captions render on prefilled fields
+- [ ] Test themes: Dark/Light/Purple
+- [ ] Test responsive: 320px, 375px, 768px, 1024px, 1440px
+- [ ] Commit: `git add . && git commit -m "feat(quote-builder): Phase 12 - Complete Field Mapping & Import Functionality (T110-T118)"`
+
+Acceptance Scenarios (Phase 12):
+1. ✓ Budget range applies to `system.desiredPriceRange` after import
+2. ✓ Budget banner appears when total exceeds budget max * 1.1
+3. ✓ Field captions render on all prefilled fields (15+ expected)
+4. ✓ Mapper includes 25+ fields (added 10 new homeowner context fields)
+5. ✓ Homeowner Requirements section displays all context (budget, offset, usage, preferences)
+6. ✓ Budget banner shows detailed breakdown with quick actions
+7. ✓ Field labels match Instant Quote semantics (Optimal/Minimal vs degrees/numeric)
+8. ✓ E2E test passes for full import workflow (40+ fields)
+9. ✓ All changes maintain 0/0/0/0/0/0 design-system checks
+10. ✓ Documentation updated with findings and learnings
