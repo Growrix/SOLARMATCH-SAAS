@@ -12,13 +12,27 @@
 ### User Report
 > "I do not see any UI updates, also nothing is fetching in the bid builder modal. no button as you said."
 
-### Root Cause Identified
-**The Import button code was implemented correctly, but the `quoteData` field was not being passed through from `InstallerLeadFeed` to `QuoteBuilderModal`.**
+### Root Cause Identified (COMPLETE AUDIT)
+**Three data pipeline issues prevented `quoteData` from reaching `QuoteBuilderModal`:**
 
-The lead object was being **transformed** in `InstallerLeadFeed.tsx` (line 833-845), and the transformation excluded the `quoteData` field, causing the Import button's conditional rendering to fail.
+1. **API Issue** (`/api/installer/leads/assigned` route, line 130):
+   - Only returned `quoteData` for **PURCHASED** leads
+   - **BIDDING** leads (where Import feature is most valuable) had `quoteData = null`
+   - This was the PRIMARY issue preventing the feature from working
+
+2. **Mapper Issue** (`lead-feed/page.tsx`, line 11-52):
+   - `mapAssignedLeadToComponentLead` function didn't include `quoteData` field
+   - Even when API returned it, the mapper stripped it out during transformation
+
+3. **Component Issue** (`InstallerLeadFeed.tsx`, line 846):
+   - Lead object passed to `QuoteBuilderModal` didn't include `quoteData`
+   - Fixed in first commit
 
 ### Solution
-Added `quoteData: lead.quoteData` to the lead object transformation in `InstallerLeadFeed.tsx` line 846.
+**Three-part fix applied:**
+1. API: Return `quoteData` for BIDDING leads OR purchased leads (not just purchased)
+2. Mapper: Add `quoteData` field to lead object transformation
+3. Component: Pass `quoteData` through to QuoteBuilderModal (already done)
 
 ---
 

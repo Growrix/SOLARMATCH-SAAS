@@ -2749,3 +2749,14 @@ after that create a comprehensive implementation plan in D:\Desktop Mass\SOLAR L
 
 
 after that create a new phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and start implimenting the changes step by step as per the plan you created.
+
+-------------------------------------------------------------
+
+now even I see the Import button , but it has no functionality. and even in the modal it is not fetching the leads data completly as planned. the bid builder modal is not even importing the data as well. and I found there are important mismatch of the fileds in the bid builder. It has its own fileds , not same as the instantQuote . so the import will never reflect perfectly as per expected. 
+
+- I want you to audit the both modals frontend and backend deeply and create the field mapping list with the mismatched fields as well. after that create the implimenetation plan to fix the bid builder modal fields as per the instantQuote modal fields. so that the import functionality will work perfectly as per planned.
+- The Goal is InstantQuote fileds + Bid builder extra fileds = Perfect Bid builder modal for installers.
+
+- as you have build the import functionality partially, so you need to fix the import functionality as well based on the new field mapping plan you will create.
+
+***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and make sure to stay aligned with the specks as well. if needed , update the specks accordingly.
