@@ -688,172 +688,234 @@ Acceptance Scenarios (Phase 11):
 
 ---
 
-## Phase 12 – Complete Field Mapping & Import Functionality (Field Parity)
+## Phase 12 – UI Alignment with Flexible Combo Boxes (Revised Strategy)
 
-**Goal**: Address user-reported issues: "Import button has no functionality" and "fields mismatch between Instant Quote and Bid Builder". Achieve full field mapping parity so homeowner-provided data is accurately transferred and visible to installers.
+**Goal**: Match Bid Builder UI to Instant Quote field structure WHILE preserving installer flexibility to type custom values in all dropdowns.
+
+**User Requirement**: 
+> "I want you to match the UI with the InstantQuote fields so the installers and homeowners stays in the same page. The bid builder UI should have some flexibility of installers inputs even in each dropdown. e.g the panel model is not available in the dropdown, so the installer can manually type. this flexibility should be on each and every dropdowns."
 
 **Context**: 
-- Import button IS visible and opens diff modal ✅
-- Import accept DOES merge data ✅
-- **ISSUE**: Only 15/40+ fields are mapped, causing data loss
-- **ISSUE**: Budget range parsed but not applied to `system.desiredPriceRange`
-- **ISSUE**: Field captions not rendering due to missing conditional checks
-- **ISSUE**: Budget banner not triggering due to threshold logic bug
+- Data pipeline FIXED ✅ (API → Mapper → Component → Modal)
+- Import button visible and functional ✅
+- Diff preview working ✅
+- 18/40+ fields currently mapped ⚠️
+- **NEW REQUIREMENT**: Replace all dropdowns with flexible combo boxes
+- **NEW REQUIREMENT**: Show homeowner context in dedicated section
 - **USER GOAL**: "InstantQuote fields + Bid Builder extra fields = Perfect Bid Builder"
 
-**Audit Report**: `DOC/Features/Quote Builder Modal/FIELD-MAPPING-AUDIT-2025-12-03.md`
+**Strategy Documents**: 
+- Field Audit: `DOC/Features/Quote Builder Modal/FIELD-MAPPING-AUDIT-2025-12-03.md`
+- Flexible Strategy: `DOC/Features/Quote Builder Modal/UI-ALIGNMENT-FLEXIBLE-STRATEGY.md`
 
-Independent test: Create lead with comprehensive Instant Quote data (40+ fields populated) → Import into Bid Builder → Verify 25+ fields prefill correctly → Verify budget banner appears when total exceeds budget → Verify captions render on all prefilled fields → Verify homeowner context (budget, offset, usage, preferences) is visible to installer.
+**Key Innovation**: Flexible Combo Box = Dropdown OR Manual Typing (installer never limited by predefined lists)
+
+Independent test: Create lead with comprehensive Instant Quote data (40+ fields) → Import into Bid Builder → Verify 25+ fields prefill → Verify Homeowner Requirements section displays all context → Verify installer can type custom values in any combo box (e.g., "Custom Panel Brand XYZ") → Verify captions show prefilled vs manual fields.
 
 Pre-phase checklist (MANDATORY):
 - [X] Read `DOC/Guidelines/AI-IMPLEMENTATION-GUIDELINES.md`
-- [X] Read audit report: `DOC/Features/Quote Builder Modal/FIELD-MAPPING-AUDIT-2025-12-03.md`
-- [ ] Backup commit: `git add . && git commit -m "backup: before Phase 12 (field mapping fixes)"`
+- [X] Read field audit: `DOC/Features/Quote Builder Modal/FIELD-MAPPING-AUDIT-2025-12-03.md`
+- [X] Read flexible strategy: `DOC/Features/Quote Builder Modal/UI-ALIGNMENT-FLEXIBLE-STRATEGY.md`
+- [ ] Backup commit: `git add . && git commit -m "backup: before Phase 12 (flexible combo box implementation)"`
 - [ ] Run verification commands on targeted files (expect 0/0/0/0/0/0)
 - [ ] Confirm dev server runs: `npm run dev`
 
-### T110 [Bug][Import]: Fix budget range application
-- **Path**: `src/lib/mappers/instant-to-bid.ts`, `src/components/QuoteBuilderModal.tsx`
+### T110 [P0][Foundation]: Create FlexibleComboBox component
+- **Path**: `src/components/ui/FlexibleComboBox.tsx` (new file)
 - **Action**: 
-  - Update `mapInstantToBid` to include `system.desiredPriceRange` with parsed budget range
-  - Verify `parseBudgetRange` returns {min, max} correctly
-  - Apply to `quoteDraft.system.desiredPriceRange` during merge
+  - Implement combo box supporting:
+    - Dropdown selection from predefined options
+    - Direct text input for custom values
+    - Real-time filtering of options as user types
+    - Keyboard navigation (Arrow Up/Down, Enter, Escape)
+    - Optional caption for prefilled values
+    - Design-system compliant styling
+  - Props: `label`, `value`, `onChange`, `options`, `placeholder`, `allowCustom`, `prefilledCaption`
+  - State: `isOpen`, `filter`, filtered options list
 - **Testing**: 
-  - Import lead with budget "$8000-$10000"
-  - Check `quoteDraft.system.desiredPriceRange = {min: 8000, max: 10000}`
-  - Verify UI displays budget range in System Selection section
-- **Acceptance**: Budget range field populated after import; values match Instant Quote input
+  - Render with options → verify dropdown appears on click
+  - Type custom value → verify accepted
+  - Type partial match → verify filtering works (e.g., type "Ti" → shows "Tile")
+  - Test keyboard: Arrow keys navigate, Enter selects, Escape closes
+  - Verify Dark/Light/Purple themes
+  - Run verification commands → 0/0/0/0/0/0
+- **Acceptance**: Reusable component, accessible (keyboard nav), design-compliant, works in all themes
 - **Status**: NOT STARTED
 
-### T111 [Bug][Import]: Fix budget banner threshold logic
-- **Path**: `src/components/QuoteBuilderModal.tsx`
-- **Action**: 
-  - Locate budget banner conditional rendering
-  - Verify threshold calculation: `currentTotals.total > budgetRange.max * 1.1`
-  - Fix any bugs preventing banner from appearing
-  - Add dismiss state persistence
-- **Testing**:
-  - Import lead with budget max $10,000
-  - Add line items totaling $11,500 (15% over)
-  - Verify banner appears with overage % displayed
-  - Click dismiss, verify banner disappears
-  - Reload, verify banner gone (persistent)
-- **Acceptance**: Banner triggers at correct threshold (110% of max); dismiss persists
-- **Status**: NOT STARTED
-
-### T112 [Bug][Import]: Fix field caption rendering
-- **Path**: `src/components/quote-builder/SystemSelection.tsx`, `src/components/quote-builder/RoofSiteDetails.tsx`
-- **Action**:
-  - Review caption conditional: `quoteDraft.meta?.prefilledFields?.includes('field.path')`
-  - Verify `prefilledFields` array is populated during import
-  - Fix any conditional bugs preventing caption display
-- **Testing**:
-  - Import lead with quoteData
-  - Check System Selection: system size field should show caption
-  - Check Roof & Site: roof type, pitch, orientation, shading should show captions
-  - Manually entered fields should NOT show captions
-- **Acceptance**: All prefilled fields show caption "Prefilled from homeowner Instant Quote"; no extras
-- **Status**: NOT STARTED
-
-### T113 [Enhancement][Mapper]: Add 10 critical missing fields
+### T111 [P0][Mapper]: Expand instant-to-bid mapper (25+ fields)
 - **Path**: `src/lib/mappers/instant-to-bid.ts`
-- **Action**: Expand mapper to include:
-  1. `desiredOffset` → `meta.homeownerOffset` (display in UI)
-  2. `electricityValue` + `electricityUsageType` → `meta.homeownerUsage` (display)
-  3. `panelBrand` → `products.panels.brand` (prefill)
-  4. `includeOptimizers` → `meta.homeownerPreferences.optimizers` (flag)
-  5. `includeMicroinverters` → `meta.homeownerPreferences.microinverters` (flag)
-  6. `retailer` → `meta.homeownerRetailer` (display)
-  7. `tariffPlan` → `meta.homeownerTariff` (display)
-  8. `hasExistingSystem` + `existingSystemSize` → `meta.existingSystem` (display)
-  9. `peakDemand` (commercial) → `meta.commercialPeakDemand` (display)
-  10. `isThreePhase` → `meta.commercialThreePhase` (display)
+- **Action**: Add 10 new field mappings to existing 18:
+  1. `budgetRange` → `meta.homeownerBudget: {min, max}` (parse "$8000-$10000")
+  2. `desiredOffset` → `meta.homeownerOffset` (% as number)
+  3. `electricityValue` + `electricityUsageType` → `meta.homeownerUsage` (string: "$950/month")
+  4. `retailer` → `meta.homeownerRetailer` (string)
+  5. `tariffPlan` → `meta.homeownerTariff` (string)
+  6. `panelBrand` → `meta.homeownerPanelPref` (string)
+  7. `includeOptimizers` → `meta.homeownerOptimizers` (boolean)
+  8. `includeMicroinverters` → `meta.homeownerMicroinverters` (boolean)
+  9. `hasExistingSystem` + `existingSystemSize` → `meta.existingSystem` (string: "Yes, 3.3kW")
+  10. `peakDemand` + `isThreePhase` + `projectPriority` → `meta.commercial*` (commercial fields)
 - **Testing**:
-  - Create test lead with all 10 fields populated
-  - Import into Bid Builder
-  - Verify `quoteDraft.meta` contains all 10 new fields
-  - Verify diff preview modal shows all 10 changes
-- **Acceptance**: Mapper includes 25 total fields (15 existing + 10 new); all data preserved
+  - Create test lead with all 40+ Instant Quote fields populated
+  - Run `mapInstantToBid(quoteData)` → verify 25+ fields returned
+  - Verify all conversions accurate (c/kWh → $/kWh, buckets → degrees, etc.)
+  - Verify `meta.prefilledFields` array includes all 25 field paths
+  - Verify no hardcoded values in mapper
+- **Acceptance**: Mapper returns 25+ fields; all accurate; type-safe; defensive (handles missing data)
 - **Status**: NOT STARTED
 
-### T114 [Enhancement][UI]: Add Homeowner Requirements section
+### T112 [P0][UI]: Add Homeowner Requirements section
 - **Path**: `src/components/QuoteBuilderModal.tsx`, new component `src/components/quote-builder/HomeownerContext.tsx`
 - **Action**:
-  - Create new collapsible section at top of modal: "Homeowner Requirements"
-  - Display read-only fields from `quoteDraft.meta.homeowner*`:
-    - Budget Range (with visual bar)
-    - Desired Offset (%)
-    - Electricity Usage ($950/month or $285/quarter)
-    - Retailer & Tariff Plan
-    - Existing System (if any)
-    - Panel Brand Preference
-    - Special Requests (optimizers, microinverters, etc.)
-  - Collapsed by default; expand on click
+  - Create collapsible section at top of modal: "Homeowner Requirements"
+  - Group homeowner context into 4 subsections:
+    - 📊 Energy Usage Context (bill, retailer, tariff, usage pattern)
+    - 💰 Budget & Goals (budget range, desired offset)
+    - 🏠 Property Context (location, property type, existing system)
+    - ⚙️ Preferences (panel brand, battery, optimizers, special requests)
+  - Display all `meta.homeowner*` fields as read-only
+  - Collapsed by default, expand on click
+  - Design-system styling with proper spacing and icons
 - **Testing**:
-  - Import lead with full homeowner context
-  - Click to expand section
-  - Verify all fields display correctly
-  - Verify responsive layout (mobile/tablet/desktop)
-- **Acceptance**: Section renders; all homeowner context visible; responsive; design-system compliant
+  - Import lead with full homeowner context → verify section appears
+  - Click to expand → verify all fields display in correct groups
+  - Verify responsive layout (mobile: stack, desktop: 2-column)
+  - Verify Dark/Light/Purple themes
+  - Run verification commands → 0/0/0/0/0/0
+- **Acceptance**: Section renders; all homeowner context visible; responsive; design-compliant
 - **Status**: NOT STARTED
 
-### T115 [Enhancement][UI]: Enhance budget banner with detail
+### T113 [P1][UI]: Convert Roof & Site fields to flexible combo boxes
+- **Path**: `src/components/quote-builder/RoofSiteDetails.tsx`
+- **Action**: Replace inputs with `FlexibleComboBox`:
+  1. **Roof Type**: Options = [Tile, Metal, Concrete, Asphalt, Colorbond] + custom
+     - Prefilled caption if from homeowner
+  2. **Roof Pitch**: Options = [Flat (5°), Low (15°), Optimal (22°), Steep (40°)] + custom degrees
+     - Prefilled caption if from homeowner
+  3. **Panel Orientation**: Options = [N, NE, E, SE, S, SW, W, NW] + custom (e.g., "NNE")
+     - Prefilled caption if from homeowner
+  4. **Shading Level**: Options = [None (0), Minimal (1), Partial (2), Moderate (3), Heavy (4)] + custom description
+     - Prefilled caption if from homeowner
+  5. **Mounting System**: Options = [Tile Hook, Klip-Lok, Tribrack, Unirac] + custom
+     - No prefilled (installer-only field)
+  6. **Conduit Complexity**: Keep as dropdown [Low, Medium, High] (no custom needed)
+- **Testing**:
+  - Import lead → verify 4 main fields prefilled with homeowner values
+  - Verify captions show "💡 Prefilled from homeowner Instant Quote"
+  - Test custom input → type "Slate Roof" in Roof Type → verify accepted
+  - Test filtering → type "Ti" → verify "Tile" option appears
+  - Test mounting system → type custom value → verify no caption (installer field)
+  - Verify responsive and all themes
+  - Run verification commands → 0/0/0/0/0/0
+- **Acceptance**: All 6 fields flexible; homeowner values preserved; captions shown; custom values work; design-compliant
+- **Status**: NOT STARTED
+
+### T114 [P1][UI]: Convert Product Configuration to flexible combo boxes
+- **Path**: `src/components/quote-builder/ProductConfiguration.tsx`
+- **Action**: Replace dropdowns with `FlexibleComboBox`:
+  1. **Panel Brand**: Popular brands [SunPower, LG, REC, Trina, Q CELLS] + custom
+     - Show "💡 Homeowner prefers: X" if specified
+  2. **Panel Model**: Dynamic filtering by brand OR custom typing
+     - Placeholder: "Type or select model..."
+  3. **Inverter Brand**: Popular brands [Fronius, SolarEdge, Enphase, Sungrow] + custom
+  4. **Inverter Model**: Dynamic filtering by brand OR custom typing
+  5. **Inverter Type**: [String, Micro, Hybrid] + custom
+  6. **Battery Capacity**: Standard sizes [5, 10, 13.5, 16, 20 kWh] + custom
+     - Prefilled caption if from homeowner
+  7. **Battery Brand**: Popular brands [Tesla, LG, BYD, Sonnen] + custom
+     - Show "💡 Homeowner prefers: X" if specified
+  8. **Battery Model**: Dynamic filtering by brand OR custom typing
+- **Testing**:
+  - Import lead with battery (Tesla, 13.5 kWh) → verify brand/capacity prefilled
+  - Verify hints: "💡 Homeowner prefers: Tesla"
+  - Test custom brand → type "Local Brand XYZ" → verify accepted
+  - Test model filtering → select brand "LG" → verify only LG models shown
+  - Test custom model → type "Custom 500W Bifacial" → verify accepted
+  - Verify responsive and all themes
+  - Run verification commands → 0/0/0/0/0/0
+- **Acceptance**: All 8 product fields flexible; homeowner preferences shown; filtering works; custom values accepted; design-compliant
+- **Status**: NOT STARTED
+
+### T115 [P2][UX]: Enhanced budget banner with quick actions
 - **Path**: `src/components/QuoteBuilderModal.tsx`
 - **Action**:
-  - Replace generic warning with detailed breakdown:
-    - Requested Budget: $X - $Y
-    - Current Quote Total: $Z
-    - Overage: X% over budget max
-    - Homeowner priorities list (offset %, battery, addons)
-    - Quick action buttons: "Reduce Battery Size", "Remove Addons", "Dismiss"
-  - Wire quick actions to update `quoteDraft`
+  - Detect when `currentTotals.total > meta.homeownerBudget.max * 1.1`
+  - Show banner with:
+    - Budget range display: "$8,000 - $10,000"
+    - Current total: "$11,500"
+    - Overage percentage: "15% over budget"
+    - Homeowner priorities: "100% offset, Battery (Tesla), Optimizers"
+    - Quick action buttons:
+      - "Reduce Battery Size" → decrease capacity by 20%
+      - "Remove Optional Addons" → remove $0 value addons
+      - "Dismiss" → hide banner (persist in sessionStorage)
+  - Non-blocking, dismissible, design-system styling
 - **Testing**:
-  - Trigger banner (quote > budget)
-  - Click "Reduce Battery Size" → battery capacity decreases by 20%
-  - Click "Remove Addons" → all $0 addons removed, optional addons flagged
-  - Verify total recalculates after each action
-- **Acceptance**: Banner shows detailed context; quick actions work; total updates
+  - Import lead with budget $8k-$10k
+  - Add line items totaling $11.5k (15% over)
+  - Verify banner appears with all details
+  - Click "Reduce Battery" → verify capacity decreases (13.5 → 10.8 kWh), total updates
+  - Click "Remove Addons" → verify $0 addons removed, total updates
+  - Click "Dismiss" → verify banner disappears
+  - Reload page → verify banner stays dismissed
+  - Verify responsive and all themes
+- **Acceptance**: Banner triggers correctly; quick actions work; dismissible; persists; design-compliant
 - **Status**: NOT STARTED
 
-### T116 [Enhancement][UI]: Update field labels for parity
-- **Path**: `src/components/quote-builder/SystemSelection.tsx`, `src/components/quote-builder/RoofSiteDetails.tsx`
+### T116 [P2][UX]: Fix budget range application
+- **Path**: `src/lib/mappers/instant-to-bid.ts`, `src/components/quote-builder/SystemSelection.tsx`
 - **Action**:
-  - Change "Pitch (degrees)" label to "Roof Pitch" with dropdown: Flat/Low/Optimal/Steep (show degrees in parentheses)
-  - Change "Shading Level" slider to dropdown: None/Minimal/Partial/Moderate/Heavy (show numeric 0-4 in parentheses)
-  - Add info tooltips matching Instant Quote guidance
+  - Mapper: Already parses `budgetRange` → verify `meta.homeownerBudget: {min, max}`
+  - SystemSelection: Display budget context below system size:
+    - "💰 Homeowner Budget: $8,000 - $10,000"
+    - Show as info badge, not editable input field
+    - Style with design-system badge component
 - **Testing**:
-  - Visual check: Labels match Instant Quote semantics
-  - Import lead with "Optimal" tilt → verify UI shows "Optimal (25°)"
-  - Import lead with "Minimal" shading → verify UI shows "Minimal (1)"
-- **Acceptance**: Field labels align with Instant Quote; semantic meaning preserved; tooltips helpful
+  - Import lead with budget "$8000-$10000"
+  - Verify mapper returns `meta.homeownerBudget = {min: 8000, max: 10000}`
+  - Verify badge displays in System Selection section
+  - Verify budget banner uses this data for threshold calculation
+  - Verify responsive and all themes
+- **Acceptance**: Budget parsed correctly; displayed as badge; banner uses data; design-compliant
 - **Status**: NOT STARTED
 
-### T117 [Testing][E2E]: Full field mapping test
-- **Path**: `tests/e2e/quote-builder-field-mapping.spec.ts`
+### T117 [P2][Testing]: E2E test for full flexible workflow
+- **Path**: `tests/e2e/quote-builder-flexible-combos.spec.ts` (new file)
 - **Action**:
-  - Create comprehensive test lead with 40+ Instant Quote fields populated
-  - Test import workflow end-to-end:
-    1. Click Import button
-    2. Diff modal shows 25+ changes
-    3. Accept import
-    4. Verify all 25 fields applied to `quoteDraft`
-    5. Verify Homeowner Requirements section displays context
-    6. Verify budget banner triggers (if applicable)
-    7. Verify captions on all prefilled fields
-  - Assert localStorage contains updated draft with `meta.prefilledFields`
+  - Create test lead with 40+ Instant Quote fields populated
+  - Test steps:
+    1. Navigate to lead feed
+    2. Open Bid Builder for lead
+    3. Verify Import button visible
+    4. Click Import → verify diff modal shows 25+ changes
+    5. Accept import → verify all fields applied
+    6. Verify Homeowner Requirements section displays all context
+    7. Verify captions on prefilled fields (💡 Prefilled from homeowner)
+    8. Verify budget banner appears (if total > budget)
+    9. **Test flexible combo box**: 
+       - Click Roof Type combo → verify dropdown opens
+       - Type "Custom Slate" → verify accepted
+       - Verify NO caption (custom value, not prefilled)
+    10. **Test product filtering**: 
+        - Select Panel Brand "LG" → verify models filter
+        - Type custom model "Custom 500W" → verify accepted
+    11. Save draft → verify localStorage updated with custom values
 - **Testing**: Run `npm run test:e2e` → All assertions pass
-- **Acceptance**: E2E test covers full import workflow; 100% pass rate
+- **Acceptance**: E2E test covers full workflow; flexible combo boxes tested; 100% pass rate
 - **Status**: NOT STARTED
 
-### T118 [Documentation]: Update implementation plan with findings
+### T118 [Documentation]: Update implementation plan with flexible strategy
 - **Path**: `DOC/Features/Quote Builder Modal/BID-BUILDER-ENHANCEMENT-COMPREHENSIVE-PLAN.md`
 - **Action**:
-  - Mark Phase 1 tasks as COMPLETE
-  - Document Phase 2 progress
-  - Add "Lessons Learned" section for future reference
-  - Update status report with field mapping completion
+  - Mark Phase 1 tasks COMPLETE
+  - Document Phase 2: Flexible Combo Box Strategy
+  - Add "Lessons Learned" section:
+    - User need for flexibility (not limited by dropdowns)
+    - Real-world usage patterns (custom panel models, regional products)
+    - Design pattern: combo box > dropdown for extensibility
+  - Update status report with Phase 12 completion
 - **Testing**: Manual review; ensure all changes documented
-- **Acceptance**: Plan reflects current state; status clear; learnings captured
+- **Acceptance**: Plan reflects flexible strategy; status clear; learnings captured
 - **Status**: NOT STARTED
 
 Post-phase checklist (MANDATORY):
@@ -866,21 +928,30 @@ Post-phase checklist (MANDATORY):
   - [ ] Import button visible
   - [ ] Diff modal shows 25+ changes
   - [ ] Accept applies all fields
-  - [ ] Homeowner Requirements section displays
-  - [ ] Budget banner triggers (if total > budget * 1.1)
-  - [ ] Field captions render on prefilled fields
+  - [ ] Homeowner Requirements section displays all context
+  - [ ] All combo boxes allow custom typing
+  - [ ] Budget banner triggers with quick actions
+  - [ ] Field captions show prefilled vs manual
+- [ ] Test flexible combo boxes:
+  - [ ] Roof Type: type "Custom Slate" → accepted
+  - [ ] Panel Brand: type "Local Brand XYZ" → accepted
+  - [ ] Battery Capacity: type "15 kWh" → accepted
+  - [ ] All filtering works correctly
 - [ ] Test themes: Dark/Light/Purple
 - [ ] Test responsive: 320px, 375px, 768px, 1024px, 1440px
-- [ ] Commit: `git add . && git commit -m "feat(quote-builder): Phase 12 - Complete Field Mapping & Import Functionality (T110-T118)"`
+- [ ] Commit: `git add . && git commit -m "feat(quote-builder): Phase 12 - UI Alignment with Flexible Combo Boxes (T110-T118)"`
 
 Acceptance Scenarios (Phase 12):
-1. ✓ Budget range applies to `system.desiredPriceRange` after import
-2. ✓ Budget banner appears when total exceeds budget max * 1.1
-3. ✓ Field captions render on all prefilled fields (15+ expected)
-4. ✓ Mapper includes 25+ fields (added 10 new homeowner context fields)
-5. ✓ Homeowner Requirements section displays all context (budget, offset, usage, preferences)
+1. ✓ FlexibleComboBox component reusable across all field types
+2. ✓ Mapper includes 25+ fields (18 existing + 10 new homeowner context)
+3. ✓ Homeowner Requirements section displays all context (4 subsections)
+4. ✓ Roof & Site fields flexible (6 fields, custom values accepted)
+5. ✓ Product Configuration fields flexible (8 fields, dynamic filtering works)
 6. ✓ Budget banner shows detailed breakdown with quick actions
-7. ✓ Field labels match Instant Quote semantics (Optimal/Minimal vs degrees/numeric)
-8. ✓ E2E test passes for full import workflow (40+ fields)
-9. ✓ All changes maintain 0/0/0/0/0/0 design-system checks
-10. ✓ Documentation updated with findings and learnings
+7. ✓ Budget range displayed as badge in System Selection
+8. ✓ E2E test passes for flexible workflow (custom typing validated)
+9. ✓ Installer can type custom values in ALL combo boxes
+10. ✓ Homeowner preferences/selections always visible with captions
+11. ✓ All changes maintain 0/0/0/0/0/0 design-system checks
+12. ✓ UI matches Instant Quote field structure
+13. ✓ Documentation updated with flexible strategy and learnings
