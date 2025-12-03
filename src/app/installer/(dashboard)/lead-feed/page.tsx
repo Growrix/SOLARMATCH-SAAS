@@ -48,7 +48,8 @@ function mapAssignedLeadToComponentLead(apiLead: AssignedLead): Lead {
     quotesReceived: apiLead.quotesCount || 0,
     expiresAt: apiLead.expiresAt ? new Date(apiLead.expiresAt) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     priority: 'medium',
-    notes: apiLead.assignmentNotes || undefined
+    notes: apiLead.assignmentNotes || undefined,
+    quoteData: apiLead.quoteData || null // Pass through quoteData from API for Import feature
   };
 }
 

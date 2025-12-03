@@ -113,8 +113,8 @@ export async function GET(request: NextRequest) {
         // Phone verification
         phoneNumber: isPurchased ? (lead.phoneNumber || null) : null,
         phoneVerified: isPurchased ? lead.phoneVerified : null,
-        // InstantQuote data (only show if purchased)
-        quoteData: isPurchased ? lead.quoteData : null,
+        // InstantQuote data (show for bidding leads or purchased leads)
+        quoteData: (lead.quoteType === 'BIDDING' || isPurchased) ? lead.quoteData : null,
         homeowner: {
           name: isPurchased ? lead.homeowner.name : '***LOCKED***',
           phone: isPurchased ? lead.homeowner.phone : '***LOCKED***',
