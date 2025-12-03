@@ -32,6 +32,15 @@ export interface InstantQuoteData {
   usagePattern?: string; // 'evening' | 'daytime' | 'spread'
   budgetRange?: string; // e.g., '$8000-$10000'
   desiredOffset?: number; // percentage
+  electricityUsage?: number; // kWh per bill
+  retailer?: string; // energy retailer
+  tariffPlan?: string; // tariff name
+  
+  // Product Preferences (NEW - Phase 12)
+  panelBrandPreference?: string;
+  optimizers?: boolean;
+  microinverters?: boolean;
+  existingSystem?: boolean;
   
   // Battery
   batteryIncluded?: boolean;
@@ -97,6 +106,18 @@ export interface QuoteDraftPartial {
     importedAt?: string;
     importSource?: 'instant-quote';
     prefilledFields?: string[];
+    // Homeowner Context (NEW - Phase 12)
+    homeownerBudget?: string; // e.g., '$8000-$10000'
+    homeownerOffset?: number; // percentage 0-100
+    homeownerUsagePattern?: string; // 'evening' | 'daytime' | 'spread'
+    homeownerRetailer?: string; // energy retailer name
+    homeownerTariff?: string; // tariff plan name
+    homeownerElectricityUsage?: number; // kWh per bill
+    homeownerPanelPreference?: string; // preferred panel brand
+    homeownerOptimizerPreference?: boolean; // wants optimizers
+    homeownerMicroinverterPreference?: boolean; // wants microinverters
+    homeownerExistingSystem?: boolean; // has existing solar
+    homeownerPropertyType?: string; // 'residential' | 'commercial'
   };
 }
 
@@ -328,6 +349,57 @@ export function mapInstantToBid(instant: InstantQuoteData | null | undefined): Q
   // Store prefilled fields for caption logic
   if (result.meta) {
     result.meta.prefilledFields = prefilledFields;
+    
+    // === Homeowner Context (NEW - Phase 12) ===
+    // Store homeowner inputs for display in Homeowner Requirements section
+    
+    if (instant.budgetRange) {
+      result.meta.homeownerBudget = instant.budgetRange;
+    }
+    
+    if (instant.desiredOffset !== undefined) {
+      result.meta.homeownerOffset = typeof instant.desiredOffset === 'number' 
+        ? instant.desiredOffset 
+        : parseFloat(String(instant.desiredOffset));
+    }
+    
+    if (instant.usagePattern) {
+      result.meta.homeownerUsagePattern = instant.usagePattern;
+    }
+    
+    if (instant.electricityUsage) {
+      result.meta.homeownerElectricityUsage = typeof instant.electricityUsage === 'number'
+        ? instant.electricityUsage
+        : parseFloat(String(instant.electricityUsage));
+    }
+    
+    if (instant.retailer) {
+      result.meta.homeownerRetailer = instant.retailer;
+    }
+    
+    if (instant.tariffPlan) {
+      result.meta.homeownerTariff = instant.tariffPlan;
+    }
+    
+    if (instant.panelBrandPreference) {
+      result.meta.homeownerPanelPreference = instant.panelBrandPreference;
+    }
+    
+    if (instant.optimizers !== undefined) {
+      result.meta.homeownerOptimizerPreference = Boolean(instant.optimizers);
+    }
+    
+    if (instant.microinverters !== undefined) {
+      result.meta.homeownerMicroinverterPreference = Boolean(instant.microinverters);
+    }
+    
+    if (instant.existingSystem !== undefined) {
+      result.meta.homeownerExistingSystem = Boolean(instant.existingSystem);
+    }
+    
+    if (instant.propertyType) {
+      result.meta.homeownerPropertyType = instant.propertyType;
+    }
   }
 
   return result;
