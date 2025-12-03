@@ -18,6 +18,7 @@ import ProductConfiguration, { ProductConfigurationData } from './quote-builder/
 import PricingEngine, { PricingEngineData } from './quote-builder/PricingEngine';
 import ComplianceDocs, { ComplianceDocsData } from './quote-builder/ComplianceDocs';
 import CustomerPreview, { CustomerPreviewData, QuoteOption } from './quote-builder/CustomerPreview';
+import HomeownerContext from './quote-builder/HomeownerContext';
 import { PRESET_BUNDLES } from './quote-builder/Presets';
 
 // --- Types ---
@@ -64,6 +65,18 @@ interface QuoteDraft {
     importedAt?: string;
     importSource?: 'instant-quote';
     prefilledFields?: string[];
+    // Homeowner Context (Phase 12 - T111/T112)
+    homeownerBudget?: string;
+    homeownerOffset?: number;
+    homeownerUsagePattern?: string;
+    homeownerElectricityUsage?: number;
+    homeownerRetailer?: string;
+    homeownerTariff?: string;
+    homeownerPanelPreference?: string;
+    homeownerOptimizerPreference?: boolean;
+    homeownerMicroinverterPreference?: boolean;
+    homeownerExistingSystem?: boolean;
+    homeownerPropertyType?: string;
   };
 }
 
@@ -758,6 +771,9 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
         <div className="flex-grow overflow-hidden flex gap-4 p-4 md:p-6">
           {/* Left Column - 70% - Form Sections */}
           <div className="w-[70%] overflow-y-auto pr-2 space-y-6">
+            {/* Homeowner Requirements (Phase 12 - T112) */}
+            <HomeownerContext meta={quoteDraft.meta} />
+
             {/* System Selection */}
             <CollapsibleSection
               title="System Selection"
