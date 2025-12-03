@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Home, Upload, ChevronDown, ChevronUp, Info } from 'lucide-react';
 import { ROOF_TYPES, ORIENTATIONS, SHADING_LEVELS, PHASE_TYPES } from './Presets';
 import Button from '@/components/ui/button';
+import FlexibleComboBox from '@/components/ui/FlexibleComboBox';
 
 interface RoofSiteDetailsProps {
   roofType: string;
@@ -86,55 +87,39 @@ const RoofSiteDetails: React.FC<RoofSiteDetailsProps> = ({
 
       {/* Row 1: Roof Type, Pitch, Arrays */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label className="text-label text-foreground block mb-2">
-            Roof Type
-          </label>
-          <select
-            value={roofType}
-            onChange={(e) => onUpdate({ roofType: e.target.value })}
-            className="form-select w-full px-4 py-3"
-          >
-            <option value="">Select type...</option>
-            {ROOF_TYPES.map((type) => (
-              <option key={type.value} value={type.value}>
-                {type.label}
-              </option>
-            ))}
-          </select>
-          {prefilledFields.includes('roof.roofType') && (
-            <p className="text-caption text-muted-foreground mt-1">
-              Prefilled from homeowner Instant Quote
-            </p>
-          )}
-        </div>
+        <FlexibleComboBox
+          label="Roof Type"
+          value={roofType}
+          onChange={(value) => onUpdate({ roofType: value })}
+          options={ROOF_TYPES}
+          placeholder="Select or type roof type"
+          prefilledCaption={prefilledFields.includes('roof.roofType') ? 'Prefilled from homeowner Instant Quote' : undefined}
+        />
 
-        <div>
-          <label className="text-label text-foreground mb-2 flex items-center gap-2">
-            Roof Pitch (degrees)
-            <div className="group relative" data-testid="tooltip-pitch">
-              <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-              <div className="absolute left-0 top-6 w-72 p-3 bg-surface border border-border rounded-lg shadow-neu-outset-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-10">
-                <p className="text-caption text-foreground">
-                  Roof angle in degrees. Optimal pitch for most Australian locations is 20-30°. Flat roofs ~5°, steep roofs 40°+.
-                </p>
-              </div>
-            </div>
-          </label>
-          <input
-            type="number"
-            min="0"
-            max="90"
-            value={pitchDeg}
-            onChange={(e) => onUpdate({ pitchDeg: parseFloat(e.target.value) || 0 })}
-            className="form-input w-full px-4 py-3"
-            placeholder="e.g. 22"
+        <div className="relative">
+          <FlexibleComboBox
+            label="Roof Pitch (degrees)"
+            value={pitchDeg.toString()}
+            onChange={(value) => onUpdate({ pitchDeg: parseFloat(value) || 0 })}
+            options={[
+              { value: '5', label: '5° (Flat)' },
+              { value: '15', label: '15° (Low)' },
+              { value: '22', label: '22° (Optimal)' },
+              { value: '25', label: '25° (Optimal)' },
+              { value: '30', label: '30° (Medium)' },
+              { value: '40', label: '40° (Steep)' }
+            ]}
+            placeholder="Select or type pitch"
+            prefilledCaption={prefilledFields.includes('roof.pitchDeg') ? 'Prefilled from homeowner Instant Quote' : undefined}
           />
-          {prefilledFields.includes('roof.pitchDeg') && (
-            <p className="text-caption text-muted-foreground mt-1">
-              Prefilled from homeowner Instant Quote
-            </p>
-          )}
+          <div className="group absolute right-0 top-0">
+            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+            <div className="absolute right-0 top-6 w-72 p-3 bg-surface border border-border rounded-lg shadow-neu-outset-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-10">
+              <p className="text-caption text-foreground">
+                Roof angle in degrees. Optimal pitch for most Australian locations is 20-30°. Flat roofs ~5°, steep roofs 40°+.
+              </p>
+            </div>
+          </div>
         </div>
 
         <div>
@@ -199,22 +184,14 @@ const RoofSiteDetails: React.FC<RoofSiteDetailsProps> = ({
             </div>
           </div>
         </label>
-        <select
-          value={shadingLevel}
-          onChange={(e) => onUpdate({ shadingLevel: parseFloat(e.target.value) })}
-          className="form-select w-full px-4 py-3"
-        >
-          {SHADING_LEVELS.map((level) => (
-            <option key={level.value} value={level.value}>
-              {level.label}
-            </option>
-          ))}
-        </select>
-        {prefilledFields.includes('roof.shadingLevel') && (
-          <p className="text-caption text-muted-foreground mt-1">
-            Prefilled from homeowner Instant Quote
-          </p>
-        )}
+        <FlexibleComboBox
+          label=""
+          value={shadingLevel.toString()}
+          onChange={(value) => onUpdate({ shadingLevel: parseFloat(value) || 0 })}
+          options={SHADING_LEVELS.map(level => ({ value: level.value.toString(), label: level.label }))}
+          placeholder="Select or type shading level"
+          prefilledCaption={prefilledFields.includes('roof.shadingLevel') ? 'Prefilled from homeowner Instant Quote' : undefined}
+        />
       </div>
 
       {/* Row 4: Metering & Switchboard */}
@@ -387,33 +364,32 @@ const RoofSiteDetails: React.FC<RoofSiteDetailsProps> = ({
 
             {/* Mounting System & Conduit Complexity */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-label text-foreground block mb-2">
-                  Mounting System Preferred
-                </label>
-                <input
-                  type="text"
-                  value={mountingSystemPreferred}
-                  onChange={(e) => onUpdate({ mountingSystemPreferred: e.target.value })}
-                  className="form-input w-full px-4 py-3"
-                  placeholder="e.g., Clenergy, SunLock, IronRidge"
-                />
-              </div>
+              <FlexibleComboBox
+                label="Mounting System Preferred"
+                value={mountingSystemPreferred || ''}
+                onChange={(value) => onUpdate({ mountingSystemPreferred: value })}
+                options={[
+                  { value: 'Clenergy', label: 'Clenergy' },
+                  { value: 'SunLock', label: 'SunLock' },
+                  { value: 'IronRidge', label: 'IronRidge' },
+                  { value: 'Unirac', label: 'Unirac' },
+                  { value: 'Quick Mount', label: 'Quick Mount' },
+                  { value: 'K2 Systems', label: 'K2 Systems' }
+                ]}
+                placeholder="Select or type mounting system"
+              />
 
-              <div>
-                <label className="text-label text-foreground block mb-2">
-                  Conduit Run Complexity
-                </label>
-                <select
-                  value={conduitRunComplexity}
-                  onChange={(e) => onUpdate({ conduitRunComplexity: e.target.value as 'low' | 'medium' | 'high' })}
-                  className="form-select w-full px-4 py-3"
-                >
-                  <option value="low">Low (straight run, short distance)</option>
-                  <option value="medium">Medium (some obstacles, moderate distance)</option>
-                  <option value="high">High (complex routing, long distance)</option>
-                </select>
-              </div>
+              <FlexibleComboBox
+                label="Conduit Run Complexity"
+                value={conduitRunComplexity || 'medium'}
+                onChange={(value) => onUpdate({ conduitRunComplexity: value as 'low' | 'medium' | 'high' })}
+                options={[
+                  { value: 'low', label: 'Low (straight run, short distance)' },
+                  { value: 'medium', label: 'Medium (some obstacles, moderate distance)' },
+                  { value: 'high', label: 'High (complex routing, long distance)' }
+                ]}
+                placeholder="Select or type complexity"
+              />
             </div>
 
             {/* Inverter Location Notes */}
