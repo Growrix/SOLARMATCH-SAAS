@@ -49,7 +49,44 @@ const LeadTechnicalDetails: React.FC<LeadTechnicalDetailsProps> = ({ lead }) => 
     return 'projectType' in l && 'postcode' in l;
   };
 
-  const leadData = isFullLeadData(lead) ? lead : null;
+  // Extract data from either direct properties or quoteData
+  const extractLeadData = (): LeadData | null => {
+    if (isFullLeadData(lead)) {
+      return lead;
+    }
+    
+    // Try to extract from quoteData if available
+    if (lead.quoteData) {
+      const qd = lead.quoteData;
+      return {
+        id: String(lead.id),
+        projectType: qd.projectType || 'Residential',
+        propertyType: lead.propertyType || qd.propertyType || 'House',
+        postcode: qd.postcode || '',
+        location: lead.location || qd.location || '',
+        state: qd.state || '',
+        address: qd.address || '',
+        energyBill: qd.energyBill || qd.electricityBill || 0,
+        billType: qd.billType || 'monthly',
+        roofType: qd.roofType || '',
+        budgetRange: lead.budget || qd.budgetRange || '',
+        desiredOffset: qd.desiredOffset || 100,
+        batteryRequired: lead.batteryRequired || qd.batteryRequired || false,
+        batteryCapacity: qd.batteryCapacity || '',
+        timeframe: qd.timeframe || qd.installationUrgency || '',
+        additionalNotes: qd.additionalNotes || '',
+        quoteData: qd,
+        quoteType: qd.quoteType || 'instant',
+        expiresAt: qd.expiresAt || '',
+        leadPrice: qd.leadPrice || 0,
+        phoneNumber: qd.phoneNumber || ''
+      };
+    }
+    
+    return null;
+  };
+
+  const leadData = extractLeadData();
 
   if (!leadData) {
     return (
