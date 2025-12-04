@@ -361,6 +361,17 @@ model Bid {
   rejectionReason     String?
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
+  
+  // Phase 13 - Comprehensive Quote Builder data (JSON fields)
+  systemData          Json?     // System capacity, type, solar panels array
+  productsData        Json?     // Panel, inverter, battery details with brands/models
+  lineItems           Json?     // Pricing engine 9 categories with itemized breakdown
+  assumptions         Json?     // Feed-in tariff, usage, offset, payback assumptions
+  roofData            Json?     // Roof type, pitch, arrays, orientations, shading, site details
+  calculations        Json?     // Total cost, GST, incentive, final total, payback calculations
+  importMeta          Json?     // Prefilled fields, import source, import timestamp
+  installerContact    Json?     // Installer name, email, phone for homeowner to contact
+  
   lead                Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
   installer           User      @relation("installer_bids", fields: [installerId], references: [id], onDelete: Cascade)
 
