@@ -2,19 +2,22 @@
  * Bid Listing API for Homeowners
  * 
  * GET /api/leads/[id]/bids - Fetch all bids for a lead (anonymized)
+ * Phase 13C - Enhanced to return comprehensive Quote Builder data
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import type { GetBidsResponse } from '@/types/bid';
 
 /**
  * GET /api/leads/[id]/bids
  * Homeowner fetches all bids for their lead
+ * Phase 13C - Returns comprehensive Quote Builder data (8 JSON fields)
  * 
  * @access Homeowner only (must own the lead)
- * @returns 200 OK + Anonymized bid list
+ * @returns 200 OK + Bid list with full Quote Builder data
  * @errors 401 Unauthorized, 403 Forbidden, 404 Not Found, 500 Server Error
  */
 export async function GET(
@@ -108,6 +111,16 @@ export async function GET(
         inverterBrand: bid.inverterBrand,
         batteryBrand: bid.batteryBrand,
         batteryCapacity: bid.batteryCapacity,
+        
+        // Phase 13C - Comprehensive Quote Builder data (8 JSON fields)
+        systemData: bid.systemData as any ?? undefined,
+        productsData: bid.productsData as any ?? undefined,
+        lineItems: bid.lineItems as any ?? undefined,
+        assumptions: bid.assumptions as any ?? undefined,
+        roofData: bid.roofData as any ?? undefined,
+        calculations: bid.calculations as any ?? undefined,
+        importMeta: bid.importMeta as any ?? undefined,
+        installerContact: bid.installerContact as any ?? undefined,
         
         // Status indicators
         status: bid.status,
