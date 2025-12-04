@@ -1581,3 +1581,260 @@ Acceptance Scenarios (Phase 15):
 9. ✓ Responsive on all breakpoints
 10. ✓ No console errors
 
+---
+
+## Phase 16 – Fix Right Column Data Fetching: Align with BidEvaluationModal API Call
+
+**User Story**: As an installer, I want the right column Lead Details section to show accurate data matching what I see in the Bid Evaluation modal, so that I have consistent and complete lead information.
+
+**Context**: 
+- **Problem**: Right column components (LeadTechnicalDetails, InstantQuoteResult, HomeownerInstantQuoteDetails) receive incomplete data via the simplified `Lead` interface prop in QuoteBuilderModal
+- **Root Cause**: QuoteBuilderModal receives a basic Lead prop (id, name, location, propertyType, systemSize, estimatedUsage, budget, quoteData), but BidEvaluationModal fetches full lead data from API `/api/leads/${leadId}` with all fields (projectType, postcode, state, energyBill, roofType, etc.)
+- **Impact**: Right column shows "Lead technical details not available" or incomplete data because required properties are missing
+- **Solution**: Make QuoteBuilderModal fetch full lead data from the same API endpoint as BidEvaluationModal
+
+**Specification References**:
+- SOT: `DOC/Guidelines/AI-IMPLEMENTATION-GUIDELINES.md` (Mandatory audit before implementation)
+- Design System: `DOC/Guidelines/DESIGN-SYSTEM-SOT.md`
+- Feature Plan: `specs/008-description-enhance-existing/plan.md`
+
+### Tasks
+
+T153 [⏳][Audit]: Compare data flow between BidEvaluationModal and QuoteBuilderModal
+- **Action**: 
+  * Audit BidEvaluationModal.tsx lines 125-150 (useEffect fetching `/api/leads/${leadId}`)
+  * Audit QuoteBuilderModal.tsx Lead interface (lines 26-35)
+  * Document exact API response structure from `/api/leads/${leadId}`
+  * Identify all properties in API response vs. current Lead interface
+  * List missing properties that cause "not available" messages
+- **Output**: Create comparison table in commit message
+- **Testing**: Document findings, no code changes
+- **Acceptance**: Clear list of missing properties identified
+- **Status**: NOT STARTED
+
+T154 [⏳][Backend]: Verify API endpoint `/api/leads/${leadId}` works correctly
+- **Action**:
+  * Check if `src/app/api/leads/[leadId]/route.ts` exists and returns full lead data
+  * Test API endpoint manually: `GET /api/leads/{some-lead-id}`
+  * Verify response includes: projectType, postcode, state, energyBill, billType, roofType, budgetRange, desiredOffset, batteryRequired, batteryCapacity, timeframe, additionalNotes, quoteData
+  * Ensure quoteData is properly serialized JSON with all InstantQuote fields
+- **Output**: API response validation
+- **Testing**: Manual API test using browser DevTools or curl
+- **Acceptance**: API returns complete lead data matching BidEvaluationModal expectations
+- **Status**: NOT STARTED
+
+T155 [⏳][Frontend]: Add lead data fetching to QuoteBuilderModal (same pattern as BidEvaluationModal)
+- **Action**:
+  * Add state: `const [fullLeadData, setFullLeadData] = useState<LeadData | null>(null);`
+  * Add loading state: `const [isLoadingFullLead, setIsLoadingFullLead] = useState(false);`
+  * Add error state: `const [leadFetchError, setLeadFetchError] = useState<string | null>(null);`
+  * Import LeadData interface from BidEvaluationModal or create shared type file
+  * Add useEffect to fetch lead data when modal opens (similar to BidEvaluationModal lines 125-150)
+  * Fetch from: `/api/leads/${lead?.id}`
+  * Handle loading/error states with appropriate UI feedback
+- **Output**: QuoteBuilderModal.tsx updated with data fetching logic
+- **Testing**: Console.log the fetched lead data to verify all fields present
+- **Acceptance**: fullLeadData state populated with complete lead information
+- **Status**: NOT STARTED
+
+T156 [⏳][Frontend]: Update right column components to use fetched fullLeadData
+- **Action**:
+  * Replace `<LeadTechnicalDetails lead={lead} />` with `<LeadTechnicalDetails lead={fullLeadData || lead} />`
+  * Replace `<InstantQuoteResult quoteData={lead.quoteData} />` with `<InstantQuoteResult quoteData={fullLeadData?.quoteData || lead?.quoteData} />`
+  * Replace `<HomeownerInstantQuoteDetails quoteData={lead.quoteData} batteryRequired={lead.batteryRequired} />` with `<HomeownerInstantQuoteDetails quoteData={fullLeadData?.quoteData || lead?.quoteData} batteryRequired={fullLeadData?.batteryRequired || lead?.batteryRequired} />`
+  * Add loading state UI: Show skeleton or "Loading lead details..." message while `isLoadingFullLead === true`
+  * Add error state UI: Show error message if `leadFetchError` is set
+- **Output**: Right column components receive complete data
+- **Testing**: Open bid builder, verify right column sections display all data
+- **Acceptance**: No more "Lead technical details not available" messages, all fields populated
+- **Status**: NOT STARTED
+
+T157 [⏳][Refactor]: Extract LeadData interface to shared types file (optional but recommended)
+- **Action**:
+  * Create `src/types/lead.ts` if it doesn't exist
+  * Move LeadData interface from BidEvaluationModal to shared file
+  * Move InstantQuoteResults interface to shared file
+  * Update imports in BidEvaluationModal, QuoteBuilderModal, LeadTechnicalDetails, InstantQuoteResult, HomeownerInstantQuoteDetails
+  * Ensure all components use the same type definitions
+- **Output**: Centralized type definitions
+- **Testing**: TypeScript compilation should pass with 0 errors
+- **Acceptance**: No duplicate interface definitions, consistent types across components
+- **Status**: NOT STARTED
+
+T158 [⏳][Verification]: Run TypeScript compilation and build
+- **Action**: 
+  * Run `npx tsc --noEmit` → 0 errors
+  * Run `npm run build` → Success
+  * Run `npm run dev` → Server starts without errors
+- **Output**: Confirmation of no type errors or build issues
+- **Testing**: Terminal output verification
+- **Acceptance**: Clean compilation and build
+- **Status**: NOT STARTED
+
+T159 [⏳][Verification]: Run design system verification on modified files
+- **Action**: Run 6 verification commands on QuoteBuilderModal.tsx (no new hardcoded values should be added)
+  ```powershell
+  Select-String -Path "src\components\QuoteBuilderModal.tsx" -Pattern "text-gray-|text-slate-|bg-gray-|bg-slate-|border-gray-|border-slate-"
+  Select-String -Path "src\components\QuoteBuilderModal.tsx" -Pattern "dark:"
+  Select-String -Path "src\components\QuoteBuilderModal.tsx" -Pattern "rgba\(|rgb\(|#[0-9a-fA-F]{3,6}"
+  Select-String -Path "src\components\QuoteBuilderModal.tsx" -Pattern "text-white|bg-white|text-black|bg-black"
+  Select-String -Path "src\components\QuoteBuilderModal.tsx" -Pattern "text-xs|text-sm|text-lg|text-xl|font-bold|font-semibold"
+  Select-String -Path "src\components\QuoteBuilderModal.tsx" -Pattern "sm:text-|md:text-|lg:text-"
+  ```
+- **Output**: 0/0/0/0/0/0 (all 6 commands return 0 matches)
+- **Testing**: PowerShell verification commands
+- **Acceptance**: No new violations introduced
+- **Status**: NOT STARTED
+
+T160 [⏳][Testing]: Browser functional testing
+- **Action**:
+  * Open bid builder modal with a lead that has InstantQuote data
+  * Expand "Lead Details - InstantQuote Data" section
+  * Verify HomeownerInstantQuoteDetails displays all user input selections correctly
+  * Verify LeadTechnicalDetails shows:
+    - Location & Property: projectType, propertyType, postcode, location, state, address
+    - Energy & Budget: energyBill, billType, budgetRange, desiredOffset
+    - System Requirements: batteryRequired, batteryCapacity, roofType, timeframe
+    - Contact Information: "Available After Purchase" message with masked icon
+  * Verify InstantQuoteResult shows:
+    - System Overview: systemSize, panelsRequired, annualProduction
+    - Financial Breakdown: totalCost, federalRebate, batteryRebate, finalPrice
+    - Performance Metrics: annualSavings, simplePaybackYears, co2Reduction
+    - Savings Chart renders correctly
+  * Compare data with BidEvaluationModal → should match exactly
+  * Test with multiple leads to ensure consistency
+- **Output**: Functional verification report
+- **Testing**: Manual browser testing with DevTools open
+- **Acceptance**: All data displays correctly and matches BidEvaluationModal
+- **Status**: NOT STARTED
+
+T161 [⏳][Testing]: Cross-theme and responsive testing
+- **Action**:
+  * Test Dark theme: Verify all text readable, proper contrast
+  * Test Light theme: Verify neumorphic styling
+  * Test Purple theme: Verify accent colors and shadows
+  * Test breakpoints: 320px, 375px, 768px, 1024px, 1440px
+  * Verify loading states render properly in all themes
+  * Verify error states render properly in all themes
+- **Output**: Theme and responsive testing report
+- **Testing**: Browser responsive mode + theme switcher
+- **Acceptance**: Works correctly in all 3 themes and 5 breakpoints
+- **Status**: NOT STARTED
+
+T162 [⏳][Testing]: Error handling testing
+- **Action**:
+  * Test scenario: API returns 404 (lead not found)
+    - Expected: Error message displayed in right column
+  * Test scenario: API returns 500 (server error)
+    - Expected: Error message displayed, not white screen
+  * Test scenario: Network timeout
+    - Expected: Graceful error handling
+  * Test scenario: Lead with missing quoteData
+    - Expected: Show appropriate "no data" message, not crash
+- **Output**: Error handling verification
+- **Testing**: Mock API errors using browser DevTools Network tab (throttle/block requests)
+- **Acceptance**: All error scenarios handled gracefully
+- **Status**: NOT STARTED
+
+T163 [⏳][Commit]: Create atomic commit for Phase 16
+- **Action**: 
+  ```powershell
+  git add -A
+  git commit -m "fix(quote-builder): Phase 16 - Fix right column data fetching to match BidEvaluationModal (T153-T163)
+
+  Root Cause: Right column components received incomplete Lead prop data,
+  while BidEvaluationModal fetches full lead data from /api/leads/{id} API.
+
+  Solution: Added useEffect to QuoteBuilderModal to fetch complete lead data
+  from same API endpoint, ensuring data consistency across all modals.
+
+  Changes:
+   Add fullLeadData state and fetching logic to QuoteBuilderModal
+   Update right column components to use fetched fullLeadData
+   Add loading and error states for data fetching
+   Extract LeadData interface to shared types file
+   All components now receive complete lead information
+
+  Data Comparison:
+   Before: Basic Lead prop (id, name, location, propertyType, systemSize, estimatedUsage, budget, quoteData)
+   After: Full LeadData from API (projectType, postcode, state, energyBill, billType, roofType, budgetRange, desiredOffset, batteryRequired, batteryCapacity, timeframe, additionalNotes, quoteData with all fields)
+
+  Verification:
+   TypeScript: 0 errors
+   Build: Success  
+   Design system: 0/0/0/0/0/0 (no new violations)
+   Browser test: All right column sections display complete data
+   Data matches BidEvaluationModal exactly
+   Loading/error states work correctly
+   Tested in Dark/Light/Purple themes
+   Responsive on all breakpoints (320px-1440px)"
+  ```
+- **Output**: Git commit created
+- **Testing**: Git log verification
+- **Acceptance**: Commit message follows convention, pre-commit hook passes
+- **Status**: NOT STARTED
+
+### Success Criteria (Phase 16)
+
+**Functional Requirements**:
+- [ ] QuoteBuilderModal fetches full lead data from `/api/leads/${leadId}` API
+- [ ] Right column components receive complete lead data with all properties
+- [ ] LeadTechnicalDetails displays all 4 subsections with actual data (no "not available" messages)
+- [ ] InstantQuoteResult displays all financial data and chart correctly
+- [ ] HomeownerInstantQuoteDetails shows all user input selections
+- [ ] Data in right column exactly matches data in BidEvaluationModal
+- [ ] Loading state displays while fetching lead data
+- [ ] Error state displays if API call fails
+- [ ] No console errors during data fetching or rendering
+
+**Technical Requirements**:
+- [ ] TypeScript compilation: 0 errors
+- [ ] Build: Success
+- [ ] Design system verification: 0/0/0/0/0/0 (no new violations)
+- [ ] Shared type definitions used (no duplicate interfaces)
+- [ ] Proper error handling for API failures
+- [ ] Loading states implemented for better UX
+
+**Testing Requirements**:
+- [ ] Manual browser test: Right column displays complete data
+- [ ] Cross-modal comparison: Data matches BidEvaluationModal
+- [ ] Theme testing: Dark/Light/Purple themes work correctly
+- [ ] Responsive testing: 320px, 375px, 768px, 1024px, 1440px
+- [ ] Error scenario testing: 404, 500, network timeout handled gracefully
+- [ ] Multiple lead testing: Works consistently across different leads
+
+**Documentation**:
+- [ ] Commit message documents root cause and solution
+- [ ] Data comparison table included in commit message
+- [ ] Phase marked complete in tasks.md
+
+Post-phase checklist (MANDATORY):
+- [ ] All T153–T163 implemented
+- [ ] QuoteBuilderModal fetches lead data from API
+- [ ] Right column components updated to use fetched data
+- [ ] Shared types file created (src/types/lead.ts)
+- [ ] Run verification commands: 0/0/0/0/0/0
+- [ ] `npx tsc --noEmit` → 0 errors
+- [ ] `npm run build` → Success
+- [ ] `npm run dev` → Server starts without errors
+- [ ] Browser test: Right column shows complete data matching BidEvaluationModal
+- [ ] Test loading and error states
+- [ ] Test themes: Dark/Light/Purple
+- [ ] Test responsive: 320px, 375px, 768px, 1024px, 1440px
+- [ ] Commit: Phase 16 atomic commit with detailed message
+
+Acceptance Scenarios (Phase 16):
+1. ✓ Right column fetches data from `/api/leads/${leadId}` API (same as BidEvaluationModal)
+2. ✓ LeadTechnicalDetails displays all properties without "not available" message
+3. ✓ InstantQuoteResult displays complete financial data and chart
+4. ✓ HomeownerInstantQuoteDetails shows all user selections
+5. ✓ Data consistency: Right column matches BidEvaluationModal exactly
+6. ✓ Loading state works correctly
+7. ✓ Error handling works for API failures
+8. ✓ TypeScript compilation passes
+9. ✓ Build passes successfully
+10. ✓ Works in all 3 themes and all breakpoints
+11. ✓ No console errors
+12. ✓ Shared types defined in src/types/lead.ts
+
+

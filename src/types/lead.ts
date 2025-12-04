@@ -169,3 +169,89 @@ export interface PaginatedLeads {
   totalPages: number;
   hasMore: boolean;
 }
+
+/**
+ * InstantQuote Results (complete calculation data + user inputs)
+ * Used in BidEvaluationModal, QuoteBuilderModal right column, LeadTechnicalDetails
+ */
+export interface InstantQuoteResults {
+  quoteType: 'residential' | 'commercial';
+  systemSize: number;
+  annualProduction: number;
+  annualSavings: number;
+  currentAnnualBill: number;
+  totalCost: number;
+  federalRebate: number;
+  batteryRebate: number;
+  stateRebate: number;
+  finalPrice: number;
+  simplePaybackYears: number | null;
+  selfConsumedKwh?: number;
+  exportedKwh?: number;
+  co2Reduction?: number;
+  roofArea?: number;
+  panelsRequired?: number;
+  demandChargeSavings?: number;
+  energySavings?: number;
+  disclaimers?: string[];
+  // User selections from InstantQuoteForm
+  electricityValue?: string | number;
+  electricityUsageType?: 'monthly' | 'quarterly';
+  desiredOffset?: number;
+  usagePattern?: string;
+  panelBrand?: string;
+  panelOrientation?: string;
+  roofTilt?: string;
+  shadingLevel?: string;
+  includeOptimizers?: boolean;
+  includeMicroinverters?: boolean;
+  batteryBrand?: string;
+  batteryCapacity?: string;
+  customBatteryCapacity?: string;
+  backupCritical?: string;
+  batteryUsage?: string;
+  retailer?: string;
+  tariffPlan?: string;
+  customRetailRate?: string;
+  customFeedInRate?: string;
+  includeVPP?: boolean;
+  includeEVCharging?: boolean;
+  includeSmartHome?: boolean;
+  includeGridServices?: boolean;
+  hasExistingSystem?: boolean;
+  existingSystemSize?: string;
+  peakDemand?: string;
+  isThreePhase?: boolean;
+  projectPriority?: string;
+  systemSizeOverride?: string;
+}
+
+/**
+ * Full Lead Data (from API response)
+ * Used in BidEvaluationModal, QuoteBuilderModal right column
+ * Contains all lead properties including nested quoteData
+ */
+export interface LeadData {
+  id: string;
+  projectType: string;
+  propertyType: string;
+  postcode: string;
+  location: string;
+  state: string;
+  address?: string;
+  energyBill: number;
+  billType: string;
+  roofType: string;
+  budgetRange: string;
+  desiredOffset: number;
+  batteryRequired: boolean;
+  batteryCapacity?: string;
+  timeframe?: string;
+  additionalNotes?: string;
+  quoteData?: InstantQuoteResults;
+  quoteType: string;
+  expiresAt?: string;
+  leadPrice?: number;
+  phoneNumber?: string;
+  name?: string;
+}

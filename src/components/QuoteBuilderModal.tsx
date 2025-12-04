@@ -8,6 +8,7 @@ import { parseBudgetRange } from '@/lib/mappers/instant-to-bid';
 import SavingsChart from './SavingsChart';
 import HomeownerPreviewModal from './HomeownerPreviewModal';
 import BidEvaluationModal from './BidEvaluationModal';
+import { LeadData, InstantQuoteResults } from '@/types/lead';
 
 // Import all section components
 import SystemSelection, { SystemSelectionData } from './quote-builder/SystemSelection';
@@ -89,6 +90,11 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
   onSubmitQuote,
   mode = 'quote'
 }) => {
+  // Full lead data state (fetched from API for complete data)
+  const [fullLeadData, setFullLeadData] = useState<LeadData | null>(null);
+  const [isLoadingFullLead, setIsLoadingFullLead] = useState(false);
+  const [leadFetchError, setLeadFetchError] = useState<string | null>(null);
+
   // Collapsible section state
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     system: true,
@@ -260,6 +266,34 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
+
+  // Fetch full lead data from API (same pattern as BidEvaluationModal)
+  useEffect(() => {
+    if (!isOpen || !lead?.id) return;
+
+    const fetchFullLeadData = async () => {
+      setIsLoadingFullLead(true);
+      setLeadFetchError(null);
+
+      try {
+        const response = await fetch(`/api/leads/${lead.id}`);
+        
+        if (!response.ok) {
+          throw new Error(response.status === 404 ? 'Lead not found' : 'Failed to fetch lead details');
+        }
+
+        const data = await response.json();
+        setFullLeadData(data.lead);
+      } catch (error) {
+        console.error('[QuoteBuilderModal] Error fetching lead:', error);
+        setLeadFetchError(error instanceof Error ? error.message : 'Unknown error');
+      } finally {
+        setIsLoadingFullLead(false);
+      }
+    };
+
+    fetchFullLeadData();
+  }, [isOpen, lead?.id]);
 
   // Autosave effect
   useEffect(() => {
@@ -845,20 +879,38 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
               </CollapsibleSection>
 
               {/* Lead Details - InstantQuote Data - Collapsible */}
-              {lead?.quoteData && (
+              {(fullLeadData?.quoteData || lead?.quoteData) && (
                 <CollapsibleSection
                   title="Lead Details - InstantQuote Data"
                   expanded={expandedSections.leadDetails}
                   onToggle={() => toggleSection('leadDetails')}
                 >
-                  <div className="space-y-6">
-                    <HomeownerInstantQuoteDetails 
-                      quoteData={lead.quoteData}
-                      batteryRequired={lead.batteryRequired}
-                    />
-                    <LeadTechnicalDetails lead={lead} />
-                    <InstantQuoteResult quoteData={lead.quoteData} />
-                  </div>
+                  {isLoadingFullLead ? (
+                    <div className="bg-surface rounded-xl p-6 text-center">
+                      <div className="animate-pulse space-y-3">
+                        <div className="h-4 bg-muted rounded w-3/4 mx-auto"></div>
+                        <div className="h-4 bg-muted rounded w-1/2 mx-auto"></div>
+                      </div>
+                      <p className="text-body-small text-muted-foreground mt-4">
+                        Loading lead details...
+                      </p>
+                    </div>
+                  ) : leadFetchError ? (
+                    <div className="bg-danger/10 border border-danger/20 rounded-xl p-4">
+                      <p className="text-body-small text-danger">
+                        Error loading lead details: {leadFetchError}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      <HomeownerInstantQuoteDetails 
+                        quoteData={fullLeadData?.quoteData || lead?.quoteData!}
+                        batteryRequired={fullLeadData?.batteryRequired || lead?.batteryRequired}
+                      />
+                      <LeadTechnicalDetails lead={fullLeadData || lead} />
+                      <InstantQuoteResult quoteData={fullLeadData?.quoteData || lead?.quoteData!} />
+                    </div>
+                  )}
                 </CollapsibleSection>
               )}
             </div>
