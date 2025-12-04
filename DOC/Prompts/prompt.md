@@ -2800,6 +2800,20 @@ I found mismatch between the bid evaluation modal vs Right column lead details s
 - The bid data should include all the fields from the bid builder modal. so that we can store all the necessary information.
 - The endpoints should include : create bid, update bid, get bid by lead id and installer id, get all bids by lead id etc.
 - The scenario : the homewoners will compare multiple bids placed by installers for their bidding lead request. After comparing the bids, they will select one installer as winner. so we need to make sure the bid data is stored and fetched correctly for this flow. And the winner gets updated accordingly in the lead data as well. And the loosers will also get notified that they have lost the bid with polite message/notification. 
+---------------------------------------------------------
 
+
+
+- The bid submission is done . I need to create the Homeowners Review bids modal next. 
+- the review modal was already created just a blank modal . it opens when the user clicks on the review bids button in the homeowners bidding lead card.
+- I want you to build the Homeowners Review bids modal now. so that the homeowners can review all the bids placed by installers for their bidding lead request.
+- The Ui should look like a real Quotation . Create a 2 column layout. Left side will have all the bid details placed by the installer. Right side will have the lead details fetched from the instantQuote data as it is in the bid builder modal right column.
+- The homeowners can compare multiple bids placed by different installers by clicking on the installer list dropdown at the top of the modal.
+- The homeowners can select one installer as winner by clicking on the "Select as winner" button at the bottom right side of the modal. 
+- each quote will have this "Select as winner" button. so that the selected winner get notified accordingly as per their bid ID. So the bid data should be linked with the respective lead id and installer id. so that we can fetch the bid data later for review and selection by the homeowners.
+- Start wit a commit so that we can rollback if needed.
+***Instructions*** based on the installers BID submit data we will design the UI for the homeowners review bids modal. So that the homeowners can see all the bid details placed by the installers. We will design the UI accordingly and work on the UI only for now. But you must understand the data flow and backend part as well. because after building the UI we will work on the backend part to fetch the bid data placed by installers for that lead id.
 
 ***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and make sure to stay aligned with the specks as well.
+
+
