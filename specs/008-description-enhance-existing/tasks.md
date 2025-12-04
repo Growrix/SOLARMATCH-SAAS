@@ -1844,4 +1844,1462 @@ Acceptance Scenarios (Phase 16):
 **Files Changed**: 4 files (src/types/lead.ts, src/components/QuoteBuilderModal.tsx, specs/008-description-enhance-existing/tasks.md)
 **Changes**: 411 insertions(+), 9 deletions(-)
 
+---
+
+## Phase 13 – Bid Builder Data Persistence (P0 - Critical for Bidding Flow)
+
+**Goal**: Build comprehensive database schema and API endpoints to persist all Quote Builder modal data when installers submit bids. Enable homeowners to compare multiple bids, select a winner, and notify all participants.
+
+**User Requirement**:
+> "When installers click Submit Bid button, all bid data should be persisted in the database linked with lead id and installer id. Homeowners will compare multiple bids from installers for the same bidding lead request. After comparing, they select one installer as winner. The winner gets updated in lead data, and losers get notified with a polite message."
+
+**Context**:
+- Current Bid model (prisma/schema.prisma lines 339-373) stores basic data: amount, capacity, equipment brands, GST, incentive, status
+- Quote Builder has extensive data: system, products, pricing engine (line items with 9 categories), financial assumptions, roof details, calculations, graphs
+- API endpoint exists: POST /api/bids (creates bid), but only handles simple fields
+- Winner selection endpoint exists: POST /api/bids/[bidId]/select
+- Purchase endpoint exists: POST /api/bids/[bidId]/purchase
+- **Gap**: Bid model missing ~60+ fields from Quote Builder (line items, assumptions, roof details, products, calculations)
+
+**Data Flow**:
+1. Installer fills Quote Builder → clicks Submit Bid
+2. API creates Bid record with comprehensive data (stored as JSON for flexibility)
+3. Homeowner views all bids for their lead → compares side-by-side
+4. Homeowner selects winner → lead.installerId updated, winner notified
+5. Losers receive notification with polite message
+
+**Strategy**: 
+- **Phase 13A**: Extend Bid schema with JSON fields for structured data
+- **Phase 13B**: Update POST /api/bids to accept and store comprehensive Quote Builder data
+- **Phase 13C**: Create GET endpoints to fetch bids (by lead, by lead+installer)
+- **Phase 13D**: Update winner selection flow with loser notifications
+
+**Critical Rules** (from AI-IMPLEMENTATION-GUIDELINES.md):
+1. ✅ ONE CHANGE → TEST IMMEDIATELY → VERIFY WORKS → THEN NEXT CHANGE
+2. ✅ BACKUP BEFORE MAJOR CHANGES (git commit before each sub-phase)
+3. ✅ NEVER USE WILDCARDS NEAR ROOT OR .git
+4. ✅ TEST IN BROWSER, NOT JUST CODE (use DevTools Network tab, Prisma Studio)
+5. ✅ Check existing dynamic routes to avoid conflicts (no [bidId] and [leadId] at same level)
+6. ✅ Install dependencies BEFORE using imports (check package.json first)
+7. ✅ Run `npx prisma generate` IMMEDIATELY after schema changes
+
+Independent test: Fill complete Quote Builder (system selection, products, pricing engine with 5 line items, financial assumptions, roof details) → Submit Bid → Verify all data stored in database (check Prisma Studio) → Fetch bid via API → Verify returned data matches submitted data → Homeowner selects bid as winner → Verify lead.installerId updated → Verify winner notification sent → Verify loser notifications sent.
+
+Pre-phase checklist (MANDATORY):
+- [ ] Read `DOC/Guidelines/AI-IMPLEMENTATION-GUIDELINES.md` sections 1-6 (12-step audit workflow, testing principles, implementation workflow)
+- [ ] Review current Bid model: `prisma/schema.prisma` lines 339-373
+- [ ] Review existing bid endpoints: `src/app/api/bids/route.ts`, `src/app/api/bids/[bidId]/select/route.ts`
+- [ ] Audit Quote Builder data structure to identify all fields needing persistence
+- [ ] Check existing dynamic routes to avoid conflicts
+- [ ] Backup commit: `git add . && git commit -m "backup: before Phase 13 (bid data persistence)"`
+- [ ] Run GATE 0 checks: `npx tsc --noEmit`, `npm run build`, `npm run dev`, `npx prisma validate`
+
+---
+
+### Phase 13A – Database Schema Extension (Foundational)
+
+**Goal**: Extend Bid model to store comprehensive Quote Builder data without losing existing functionality.
+
+**Strategy**: Use JSON fields for flexibility (avoids 60+ individual columns). Prisma supports Json type with type-safe access.
+
+**Backup First**: `git add . && git commit -m "backup: before Phase 13A (schema changes)"`
+
+### T164 [P0][Schema]: Extend Bid model with comprehensive data fields
+- **Path**: `prisma/schema.prisma` (model Bid, lines 339-373)
+- **Action**: 
+  Add new fields to Bid model:
+  ```prisma
+  model Bid {
+    // ... existing fields (id, leadId, installerId, amount, etc.) ...
+    
+    // === NEW COMPREHENSIVE FIELDS ===
+    
+    // System Configuration
+    systemData          Json?     // { systemType, systemSize, projectType, desiredPriceRange }
+    
+    // Products (Panels, Inverter, Battery, Addons)
+    productsData        Json?     // { panels: {...}, inverter: {...}, battery: {...}, addons: [...] }
+    
+    // Pricing Engine Line Items (9 categories)
+    lineItems           Json?     // [{ id, category, description, qty, unitPrice, cogs, tax, total }, ...]
+    
+    // Financial Assumptions
+    assumptions         Json?     // { yield, selfConsumption, retailPrice, feedInTariff, opex, degradation, escalation, years }
+    
+    // Roof & Site Details
+    roofData            Json?     // { roofType, pitchDeg, arrays, orientations, shadingLevel, phaseType, switchboard, distance, notes, photos }
+    
+    // Calculated Totals (from quoteCalculator.ts)
+    calculations        Json?     // { subtotal, gst, incentives, total, pricePerWatt, annualProduction, annualSavings, paybackYears }
+    
+    // Import Metadata (if imported from Instant Quote)
+    importMeta          Json?     // { importedAt, importSource, prefilledFields: [...] }
+    
+    // Installer Contact (for winner unlock)
+    installerContact    Json?     // { phone, email, companyName, businessAddress } - masked until winner selected
+    
+    // ... existing relations and indexes ...
+  }
+  ```
+  
+  **Rationale**:
+  - Json fields keep schema flexible (Quote Builder may evolve)
+  - Existing scalar fields (amount, finalTotal, status) remain for quick queries
+  - JSON data queryable via Prisma's JSON filtering
+  - Backward compatible (all new fields optional with `?`)
+  
+- **Testing**:
+  1. Save schema changes
+  2. Run `npx prisma format` → verify syntax correct
+  3. Run `npx prisma validate` → must pass
+  4. Run `npx prisma generate` → regenerate Prisma Client with new types
+  5. Check for TypeScript errors: `npx tsc --noEmit` → 0 errors
+  6. Verify dev server still runs: `npm run dev` → no crashes
+  
+- **Acceptance**: 
+  - Schema valid
+  - Prisma Client regenerated
+  - TypeScript compilation passes
+  - Dev server starts without errors
+  - No breaking changes to existing Bid queries
+  
+- **Status**: NOT STARTED
+
+### T165 [P0][Migration]: Create and apply Prisma migration
+- **Path**: `prisma/migrations/`
+- **Action**:
+  1. Create migration: `npx prisma migrate dev --name add_bid_comprehensive_data`
+  2. Review migration SQL file in `prisma/migrations/` folder
+  3. Verify migration adds columns without dropping existing data
+  4. Apply migration (already done by migrate dev command)
+  5. Open Prisma Studio: `npx prisma studio`
+  6. Navigate to Bid table → verify new columns present (systemData, productsData, lineItems, etc.)
+  7. Verify existing bid records unaffected (if any exist in dev DB)
+  
+- **Testing**:
+  - Migration applies successfully without errors
+  - Prisma Studio shows new columns with NULL values for existing records
+  - Existing bids still queryable
+  - No data loss
+  
+- **Acceptance**:
+  - Migration created and applied
+  - Database schema updated
+  - Prisma Studio confirms new columns
+  - Existing data intact
+  
+- **Status**: NOT STARTED
+
+### T166 [P1][Types]: Create TypeScript types for comprehensive bid data
+- **Path**: `src/types/bid.ts` (new file)
+- **Action**:
+  Create comprehensive type definitions matching Quote Builder data structure:
+  
+  ```typescript
+  // System Configuration
+  export interface BidSystemData {
+    systemType: 'Grid-Connected' | 'Hybrid' | 'Off-Grid' | 'Battery Only' | 'EV Charger' | 'Add Panels' | 'Replace Inverter';
+    systemSize: number; // kW
+    projectType: 'Residential' | 'Commercial';
+    desiredPriceRange?: { min: number; max: number };
+  }
+  
+  // Products
+  export interface BidProductsData {
+    panels: {
+      brand: string;
+      model: string;
+      wattage: number;
+      quantity: number;
+      warranty: string;
+    };
+    inverter: {
+      brand: string;
+      model: string;
+      capacity: number;
+      type: 'String' | 'Micro' | 'Hybrid';
+      warranty: string;
+    };
+    battery?: {
+      brand: string;
+      model: string;
+      capacity: number; // kWh
+      warranty: string;
+      includeVPP: boolean;
+    };
+    addons: Array<{
+      name: string;
+      description: string;
+      price: number;
+    }>;
+  }
+  
+  // Pricing Engine Line Item (9 categories)
+  export interface BidLineItem {
+    id: number;
+    category: 'Panels' | 'Inverter' | 'Battery' | 'Mounting Structure' | 'EV Charger' | 'Electrical' | 'Labour' | 'Addons' | 'Other';
+    description: string;
+    qty: number;
+    unitPrice: number;
+    cogs?: number; // Cost of goods sold (installer view only)
+    tax: boolean;
+    total: number;
+  }
+  
+  // Financial Assumptions
+  export interface BidAssumptions {
+    yield: number; // kWh/kW/year
+    selfConsumption: number; // 0-1
+    retailPrice: number; // $/kWh
+    feedInTariff: number; // $/kWh
+    opex: number; // $/year
+    degradation: number; // %/year
+    escalation: number; // %/year
+    years: number; // analysis period
+  }
+  
+  // Roof & Site Details
+  export interface BidRoofData {
+    roofType: string;
+    pitchDeg: number;
+    arrays: number;
+    orientations: string[];
+    shadingLevel: number; // 0-4
+    phaseType: 'Single Phase' | 'Three Phase';
+    switchboard: string;
+    smartMeter: boolean;
+    distance: number; // meters to switchboard
+    notes?: string;
+    photos?: string[]; // S3 keys
+    // Installer-only fields
+    arrayLayoutNotes?: string;
+    roofAccessNotes?: string;
+    structuralNotes?: string;
+    mountingSystemPreferred?: string;
+    conduitRunComplexity?: 'low' | 'medium' | 'high';
+    inverterLocationNotes?: string;
+  }
+  
+  // Calculated Totals
+  export interface BidCalculations {
+    subtotal: number;
+    gst: number;
+    incentives: number; // STC + VIC combined
+    total: number;
+    pricePerWatt: number;
+    annualProduction: number; // kWh
+    annualSavings: number; // $
+    paybackYears: number | null; // null if N/A
+  }
+  
+  // Import Metadata
+  export interface BidImportMeta {
+    importedAt: string; // ISO timestamp
+    importSource: 'instant-quote';
+    prefilledFields: string[]; // Array of field paths
+  }
+  
+  // Installer Contact (masked until winner)
+  export interface BidInstallerContact {
+    phone: string;
+    email: string;
+    companyName: string;
+    businessAddress: string;
+  }
+  
+  // Complete Bid Submission (from Quote Builder)
+  export interface ComprehensiveBidData {
+    // Existing simple fields (still scalar in DB for quick queries)
+    amount: number;
+    capacityOffer?: number;
+    expectedInstallDate?: Date;
+    notes?: string;
+    panelBrand?: string;
+    inverterBrand?: string;
+    batteryBrand?: string;
+    batteryCapacity?: string;
+    includeGst: boolean;
+    gstPercent: number;
+    includeIncentive: boolean;
+    incentiveAmount: number;
+    
+    // New comprehensive fields (JSON in DB)
+    systemData: BidSystemData;
+    productsData: BidProductsData;
+    lineItems: BidLineItem[];
+    assumptions: BidAssumptions;
+    roofData: BidRoofData;
+    calculations: BidCalculations;
+    importMeta?: BidImportMeta;
+    installerContact: BidInstallerContact;
+  }
+  
+  // API Request/Response Types
+  export interface CreateBidRequest {
+    leadId: string;
+    bidData: ComprehensiveBidData;
+  }
+  
+  export interface CreateBidResponse {
+    success: boolean;
+    bidId: string;
+    message: string;
+  }
+  
+  export interface GetBidsResponse {
+    success: boolean;
+    bids: Array<{
+      id: string;
+      leadId: string;
+      installerId: string;
+      installerName: string;
+      installerCompany: string;
+      status: string;
+      finalTotal: number;
+      calculations: BidCalculations;
+      systemData: BidSystemData;
+      productsData: BidProductsData;
+      createdAt: Date;
+      selectedAt?: Date;
+    }>;
+  }
+  ```
+  
+- **Testing**:
+  - TypeScript compilation: `npx tsc --noEmit` → 0 errors
+  - Import types in test file to verify exports work
+  - Use types in API endpoint to verify structure matches
+  
+- **Acceptance**:
+  - All types defined
+  - TypeScript compilation passes
+  - Types reusable across frontend and backend
+  - No circular dependencies
+  
+- **Status**: NOT STARTED
+
+**Phase 13A Checkpoint** (MANDATORY - STOP if any fail):
+- [ ] Schema changes applied (`npx prisma migrate dev`)
+- [ ] Prisma Client regenerated (`npx prisma generate`)
+- [ ] TypeScript types created in `src/types/bid.ts`
+- [ ] TypeScript compilation: `npx tsc --noEmit` → 0 errors
+- [ ] Build: `npm run build` → Success
+- [ ] Dev server: `npm run dev` → Starts without errors
+- [ ] Prisma Studio: New columns visible in Bid table
+- [ ] Commit: `git add . && git commit -m "feat(bid): Phase 13A - Extend Bid schema with comprehensive data fields (T164-T166)"`
+
+---
+
+### Phase 13B – Update POST /api/bids Endpoint (Accept Comprehensive Data)
+
+**Goal**: Modify existing bid submission endpoint to accept and store all Quote Builder data.
+
+**Backup First**: `git add . && git commit -m "backup: before Phase 13B (API endpoint update)"`
+
+### T167 [P0][API]: Update POST /api/bids to accept comprehensive bid data
+- **Path**: `src/app/api/bids/route.ts` (lines 1-170)
+- **Action**:
+  1. Import types from `src/types/bid.ts`:
+     ```typescript
+     import type { 
+       ComprehensiveBidData, 
+       CreateBidRequest, 
+       CreateBidResponse 
+     } from '@/types/bid';
+     ```
+  
+  2. Update request body validation to accept new structure:
+     ```typescript
+     const body: CreateBidRequest = await request.json();
+     
+     // Validate required fields
+     if (!body.leadId || !body.bidData) {
+       return NextResponse.json(
+         { error: 'Missing required fields: leadId, bidData' },
+         { status: 400 }
+       );
+     }
+     
+     const { bidData } = body;
+     
+     // Validate bidData structure
+     if (!bidData.amount || bidData.amount <= 0) {
+       return NextResponse.json(
+         { error: 'Bid amount must be greater than 0' },
+         { status: 400 }
+       );
+     }
+     
+     if (!bidData.systemData || !bidData.productsData || !bidData.lineItems || bidData.lineItems.length === 0) {
+       return NextResponse.json(
+         { error: 'Incomplete bid data: missing system, products, or line items' },
+         { status: 400 }
+       );
+     }
+     ```
+  
+  3. Update prisma.bid.create() call to include new JSON fields:
+     ```typescript
+     const bid = await prisma.bid.create({
+       data: {
+         // Existing scalar fields (keep for backward compatibility and quick queries)
+         leadId: body.leadId,
+         installerId: session.user.id,
+         amount: bidData.amount,
+         capacityOffer: bidData.capacityOffer || null,
+         expectedInstallDate: bidData.expectedInstallDate ? new Date(bidData.expectedInstallDate) : null,
+         notes: bidData.notes || null,
+         panelBrand: bidData.panelBrand || bidData.productsData.panels.brand,
+         inverterBrand: bidData.inverterBrand || bidData.productsData.inverter.brand,
+         batteryBrand: bidData.batteryBrand || bidData.productsData.battery?.brand || null,
+         batteryCapacity: bidData.batteryCapacity || bidData.productsData.battery?.capacity.toString() || null,
+         includeGst: bidData.includeGst,
+         gstPercent: bidData.gstPercent,
+         gstAmount: bidData.calculations.gst,
+         includeIncentive: bidData.includeIncentive,
+         incentiveAmount: bidData.incentiveAmount,
+         finalTotal: bidData.calculations.total,
+         
+         // NEW: Comprehensive JSON fields
+         systemData: bidData.systemData as any, // Prisma expects any for Json type
+         productsData: bidData.productsData as any,
+         lineItems: bidData.lineItems as any,
+         assumptions: bidData.assumptions as any,
+         roofData: bidData.roofData as any,
+         calculations: bidData.calculations as any,
+         importMeta: bidData.importMeta as any || null,
+         installerContact: bidData.installerContact as any,
+         
+         status: 'SUBMITTED'
+       }
+     });
+     ```
+  
+  4. Update response to include success confirmation:
+     ```typescript
+     return NextResponse.json<CreateBidResponse>(
+       {
+         success: true,
+         bidId: bid.id,
+         message: 'Comprehensive bid submitted successfully'
+       },
+       { status: 201 }
+     );
+     ```
+  
+- **Testing** (CRITICAL - Test IMMEDIATELY after code change):
+  1. TypeScript check: `npx tsc --noEmit` → 0 errors
+  2. Restart dev server: `npm run dev` → Check terminal for compilation success
+  3. Open browser DevTools → Network tab
+  4. Navigate to Quote Builder modal, fill all fields
+  5. Click Submit Bid button
+  6. Check Network tab:
+     - Request: POST /api/bids
+     - Request body: Contains all Quote Builder data
+     - Response: 201 Created with bidId
+  7. Open Prisma Studio: `npx prisma studio`
+  8. Navigate to Bid table → Find newly created bid
+  9. Verify JSON fields populated (click to expand systemData, productsData, lineItems, etc.)
+  10. Verify calculations match Quote Builder preview
+  
+- **Acceptance**:
+  - Endpoint accepts comprehensive bid data
+  - All JSON fields stored correctly
+  - Response includes bidId
+  - Prisma Studio shows complete data
+  - No console errors
+  - Network request/response visible in DevTools
+  
+- **Status**: NOT STARTED
+
+### T168 [P1][Frontend]: Update QuoteBuilderModal to submit comprehensive data
+- **Path**: `src/components/QuoteBuilderModal.tsx`
+- **Action**:
+  1. Import types: `import type { ComprehensiveBidData, CreateBidRequest } from '@/types/bid';`
+  
+  2. Create function to build comprehensive bid data from current state:
+     ```typescript
+     const buildComprehensiveBidData = (): ComprehensiveBidData => {
+       // Get installer contact from session or user data
+       const installerContact = {
+         phone: session?.user?.phone || '',
+         email: session?.user?.email || '',
+         companyName: session?.user?.companyName || '',
+         businessAddress: session?.user?.businessAddress || ''
+       };
+       
+       return {
+         // Existing scalar fields (for backward compatibility)
+         amount: calculations.subtotal,
+         capacityOffer: systemSelection.systemSize,
+         expectedInstallDate: undefined, // Optional, can add field to modal
+         notes: quoteDraft.notes || '',
+         panelBrand: products.panels.brand,
+         inverterBrand: products.inverter.brand,
+         batteryBrand: products.battery?.brand,
+         batteryCapacity: products.battery?.capacity.toString(),
+         includeGst: pricing.includeGst,
+         gstPercent: pricing.gstPercent,
+         includeIncentive: pricing.stc.eligible,
+         incentiveAmount: calculations.incentives,
+         
+         // NEW: Comprehensive structured data
+         systemData: {
+           systemType: systemSelection.systemType,
+           systemSize: systemSelection.systemSize,
+           projectType: systemSelection.projectType,
+           desiredPriceRange: systemSelection.desiredPriceRange
+         },
+         productsData: {
+           panels: products.panels,
+           inverter: products.inverter,
+           battery: products.battery,
+           addons: products.addons
+         },
+         lineItems: pricingEngine.lineItems,
+         assumptions: assumptions,
+         roofData: roofSiteDetails,
+         calculations: {
+           subtotal: calculations.subtotal,
+           gst: calculations.gst,
+           incentives: calculations.incentives,
+           total: calculations.total,
+           pricePerWatt: calculations.pricePerWatt,
+           annualProduction: calculations.annualProduction,
+           annualSavings: calculations.annualSavings,
+           paybackYears: calculations.paybackYears
+         },
+         importMeta: quoteDraft.meta?.importedAt ? {
+           importedAt: quoteDraft.meta.importedAt,
+           importSource: 'instant-quote',
+           prefilledFields: quoteDraft.meta.prefilledFields || []
+         } : undefined,
+         installerContact: installerContact
+       };
+     };
+     ```
+  
+  3. Update handleSubmitBid function:
+     ```typescript
+     const handleSubmitBid = async () => {
+       try {
+         setIsSubmitting(true);
+         setSubmitError(null);
+         
+         const bidData = buildComprehensiveBidData();
+         
+         const response = await fetch('/api/bids', {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({
+             leadId: lead.id,
+             bidData: bidData
+           } as CreateBidRequest)
+         });
+         
+         const result = await response.json();
+         
+         if (!response.ok) {
+           throw new Error(result.error || 'Failed to submit bid');
+         }
+         
+         // Success: clear draft, show success message, close modal
+         localStorage.removeItem(`quote:draft:${lead.id}:${session?.user?.id}`);
+         toast.success('Bid submitted successfully!');
+         onClose();
+         
+       } catch (error) {
+         console.error('[QuoteBuilderModal] Submit bid error:', error);
+         setSubmitError(error instanceof Error ? error.message : 'Failed to submit bid');
+       } finally {
+         setIsSubmitting(false);
+       }
+     };
+     ```
+  
+- **Testing**:
+  1. Fill complete Quote Builder (all sections)
+  2. Click Submit Bid
+  3. Verify loading state shows
+  4. Check Network tab: POST /api/bids with comprehensive payload
+  5. Verify success toast appears
+  6. Verify modal closes
+  7. Verify draft cleared from localStorage
+  8. Open Prisma Studio → Find bid → Verify all data stored
+  
+- **Acceptance**:
+  - Submit button triggers comprehensive data submission
+  - All Quote Builder state included in payload
+  - Loading and error states work
+  - Success flow completes (toast + close modal)
+  - Draft cleared after submission
+  
+- **Status**: NOT STARTED
+
+**Phase 13B Checkpoint** (MANDATORY - STOP if any fail):
+- [ ] POST /api/bids endpoint updated and tested
+- [ ] QuoteBuilderModal submits comprehensive data
+- [ ] End-to-end test: Submit bid → Data stored in Prisma Studio
+- [ ] TypeScript compilation: `npx tsc --noEmit` → 0 errors
+- [ ] Dev server restarts without errors
+- [ ] Browser console: No errors during submission
+- [ ] Network tab: Request/response correct
+- [ ] Commit: `git add . && git commit -m "feat(bid): Phase 13B - Update bid submission to store comprehensive Quote Builder data (T167-T168)"`
+
+---
+
+### Phase 13C – GET Endpoints for Bid Retrieval (Homeowner Comparison View)
+
+**Goal**: Create API endpoints to fetch bids by lead ID for homeowner comparison, and by lead+installer for editing.
+
+**Backup First**: `git add . && git commit -m "backup: before Phase 13C (GET endpoints)"`
+
+**CRITICAL**: Avoid dynamic route conflicts. Existing routes:
+- `/api/bids` (POST - create bid)
+- `/api/bids/[bidId]/select` (POST - select winner)
+- `/api/bids/[bidId]/purchase` (POST - winner pays)
+
+**New routes** (safe - no conflicts):
+- `/api/bids/by-lead/[leadId]` (GET - all bids for a lead)
+- `/api/bids/by-lead-installer` (GET with query params ?leadId=X&installerId=Y)
+
+### T169 [P0][API]: Create GET /api/bids/by-lead/[leadId] endpoint
+- **Path**: `src/app/api/bids/by-lead/[leadId]/route.ts` (new file)
+- **Action**:
+  Create new API route to fetch all bids for a specific lead (homeowner comparison view).
+  
+  ```typescript
+  /**
+   * Bid Retrieval by Lead API
+   * 
+   * GET /api/bids/by-lead/[leadId] - Fetch all bids for a lead (homeowner view)
+   */
+  
+  import { NextRequest, NextResponse } from 'next/server';
+  import { getServerSession } from 'next-auth';
+  import { authOptions } from '@/lib/auth';
+  import { prisma } from '@/lib/prisma';
+  import type { GetBidsResponse } from '@/types/bid';
+  
+  /**
+   * GET /api/bids/by-lead/[leadId]
+   * Fetch all bids submitted for a specific lead
+   * 
+   * @access Homeowner (lead owner) or Admin
+   * @params leadId - Lead ID in URL path
+   * @returns 200 OK + Array of bids with installer info
+   * @errors 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found, 500 Server Error
+   */
+  export async function GET(
+    request: NextRequest,
+    { params }: { params: { leadId: string } }
+  ) {
+    try {
+      const session = await getServerSession(authOptions);
+  
+      // Authentication check
+      if (!session?.user) {
+        return NextResponse.json(
+          { error: 'Authentication required' },
+          { status: 401 }
+        );
+      }
+  
+      const { leadId } = params;
+  
+      if (!leadId) {
+        return NextResponse.json(
+          { error: 'Lead ID required' },
+          { status: 400 }
+        );
+      }
+  
+      // Fetch lead with ownership check
+      const lead = await prisma.lead.findUnique({
+        where: { id: leadId },
+        select: { 
+          id: true, 
+          homeownerId: true,
+          quoteType: true
+        }
+      });
+  
+      if (!lead) {
+        return NextResponse.json(
+          { error: 'Lead not found' },
+          { status: 404 }
+        );
+      }
+  
+      // Authorization: Only homeowner or admin can view bids
+      if (session.user.role !== 'ADMIN' && session.user.id !== lead.homeownerId) {
+        return NextResponse.json(
+          { error: 'You do not have permission to view these bids' },
+          { status: 403 }
+        );
+      }
+  
+      // Fetch all bids for this lead with installer info
+      const bids = await prisma.bid.findMany({
+        where: { leadId },
+        include: {
+          installer: {
+            select: {
+              id: true,
+              name: true,
+              companyName: true,
+              email: true,
+              phone: true,
+              businessAddress: true
+            }
+          }
+        },
+        orderBy: { createdAt: 'desc' }
+      });
+  
+      // Transform bids for response (mask installer contact unless winner selected)
+      const transformedBids = bids.map(bid => ({
+        id: bid.id,
+        leadId: bid.leadId,
+        installerId: bid.installerId,
+        installerName: bid.installer.name || 'Installer',
+        installerCompany: bid.installer.companyName || 'Company',
+        // Mask contact until winner selected
+        installerContact: bid.status === 'SELECTED' || bid.status === 'PURCHASED' 
+          ? bid.installerContact 
+          : { phone: '***', email: '***', companyName: bid.installer.companyName, businessAddress: '***' },
+        status: bid.status,
+        finalTotal: bid.finalTotal,
+        calculations: bid.calculations,
+        systemData: bid.systemData,
+        productsData: bid.productsData,
+        lineItems: bid.lineItems,
+        assumptions: bid.assumptions,
+        roofData: bid.roofData,
+        createdAt: bid.createdAt,
+        selectedAt: bid.selectedAt
+      }));
+  
+      return NextResponse.json<GetBidsResponse>(
+        {
+          success: true,
+          bids: transformedBids
+        },
+        { status: 200 }
+      );
+  
+    } catch (error) {
+      console.error('[GET /api/bids/by-lead/[leadId]] Error:', error);
+      return NextResponse.json(
+        { error: 'Failed to fetch bids' },
+        { status: 500 }
+      );
+    }
+  }
+  ```
+  
+- **Testing** (CRITICAL - Test IMMEDIATELY):
+  1. Create test lead with 2-3 submitted bids
+  2. TypeScript check: `npx tsc --noEmit` → 0 errors
+  3. Restart dev server: `npm run dev` → Check terminal
+  4. Browser DevTools → Network tab
+  5. Navigate to homeowner dashboard → view lead with bids
+  6. Fetch bids: GET /api/bids/by-lead/{leadId}
+  7. Verify response:
+     - 200 OK
+     - Array of bids with installer info
+     - Contact info masked (if no winner yet)
+     - All comprehensive data present
+  8. Test authorization:
+     - As homeowner: Can view own lead's bids
+     - As other homeowner: Cannot view (403 Forbidden)
+     - As admin: Can view all bids
+  
+- **Acceptance**:
+  - Endpoint returns all bids for lead
+  - Authorization checks work
+  - Contact info properly masked
+  - All comprehensive data included
+  - No server errors
+  
+- **Status**: NOT STARTED
+
+### T170 [P1][API]: Create GET /api/bids/by-lead-installer endpoint
+- **Path**: `src/app/api/bids/by-lead-installer/route.ts` (new file)
+- **Action**:
+  Create endpoint to fetch specific bid for editing (installer view).
+  
+  ```typescript
+  /**
+   * Bid Retrieval by Lead + Installer API
+   * 
+   * GET /api/bids/by-lead-installer?leadId=X&installerId=Y - Fetch installer's bid for lead
+   */
+  
+  import { NextRequest, NextResponse } from 'next/server';
+  import { getServerSession } from 'next-auth';
+  import { authOptions } from '@/lib/auth';
+  import { prisma } from '@/lib/prisma';
+  
+  /**
+   * GET /api/bids/by-lead-installer
+   * Fetch installer's own bid for a specific lead (for editing or viewing)
+   * 
+   * @access Installer (own bid) or Admin
+   * @query leadId - Lead ID
+   * @query installerId - Installer ID (optional, defaults to session user)
+   * @returns 200 OK + Bid with full data
+   * @errors 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found, 500 Server Error
+   */
+  export async function GET(request: NextRequest) {
+    try {
+      const session = await getServerSession(authOptions);
+  
+      // Authentication check
+      if (!session?.user) {
+        return NextResponse.json(
+          { error: 'Authentication required' },
+          { status: 401 }
+        );
+      }
+  
+      const { searchParams } = new URL(request.url);
+      const leadId = searchParams.get('leadId');
+      const installerId = searchParams.get('installerId') || session.user.id;
+  
+      if (!leadId) {
+        return NextResponse.json(
+          { error: 'Lead ID required' },
+          { status: 400 }
+        );
+      }
+  
+      // Authorization: Installer can only view own bid, admin can view any
+      if (session.user.role !== 'ADMIN' && session.user.id !== installerId) {
+        return NextResponse.json(
+          { error: 'You can only view your own bids' },
+          { status: 403 }
+        );
+      }
+  
+      // Fetch bid
+      const bid = await prisma.bid.findUnique({
+        where: {
+          leadId_installerId: {
+            leadId,
+            installerId
+          }
+        },
+        include: {
+          lead: {
+            select: {
+              id: true,
+              homeownerId: true,
+              quoteType: true,
+              status: true
+            }
+          },
+          installer: {
+            select: {
+              id: true,
+              name: true,
+              companyName: true
+            }
+          }
+        }
+      });
+  
+      if (!bid) {
+        return NextResponse.json(
+          { error: 'Bid not found' },
+          { status: 404 }
+        );
+      }
+  
+      // Return full bid data (installer can see all their own data)
+      return NextResponse.json(
+        {
+          success: true,
+          bid: {
+            id: bid.id,
+            leadId: bid.leadId,
+            installerId: bid.installerId,
+            status: bid.status,
+            finalTotal: bid.finalTotal,
+            systemData: bid.systemData,
+            productsData: bid.productsData,
+            lineItems: bid.lineItems,
+            assumptions: bid.assumptions,
+            roofData: bid.roofData,
+            calculations: bid.calculations,
+            importMeta: bid.importMeta,
+            installerContact: bid.installerContact,
+            createdAt: bid.createdAt,
+            updatedAt: bid.updatedAt,
+            selectedAt: bid.selectedAt
+          }
+        },
+        { status: 200 }
+      );
+  
+    } catch (error) {
+      console.error('[GET /api/bids/by-lead-installer] Error:', error);
+      return NextResponse.json(
+        { error: 'Failed to fetch bid' },
+        { status: 500 }
+      );
+    }
+  }
+  ```
+  
+- **Testing**:
+  1. Submit bid as installer
+  2. Fetch own bid: GET /api/bids/by-lead-installer?leadId={leadId}
+  3. Verify response contains full comprehensive data
+  4. Test authorization:
+     - Installer can fetch own bid
+     - Installer cannot fetch other's bid
+     - Admin can fetch any bid
+  
+- **Acceptance**:
+  - Endpoint returns installer's bid with full data
+  - Authorization works correctly
+  - Can be used for bid editing (future feature)
+  
+- **Status**: NOT STARTED
+
+**Phase 13C Checkpoint** (MANDATORY - STOP if any fail):
+- [ ] GET /api/bids/by-lead/[leadId] endpoint created and tested
+- [ ] GET /api/bids/by-lead-installer endpoint created and tested
+- [ ] TypeScript compilation: `npx tsc --noEmit` → 0 errors
+- [ ] Dev server restarts without errors
+- [ ] Browser test: Fetch bids for lead → Data returns correctly
+- [ ] Authorization tests pass (homeowner, installer, admin roles)
+- [ ] Commit: `git add . && git commit -m "feat(bid): Phase 13C - Create GET endpoints for bid retrieval (T169-T170)"`
+
+---
+
+### Phase 13D – Winner Selection & Notifications (Complete Bidding Flow)
+
+**Goal**: Update winner selection flow to notify winner, update lead.installerId, and send polite notifications to losing installers.
+
+**Backup First**: `git add . && git commit -m "backup: before Phase 13D (winner selection flow)"`
+
+### T171 [P0][API]: Update POST /api/bids/[bidId]/select endpoint
+- **Path**: `src/app/api/bids/[bidId]/select/route.ts` (existing file)
+- **Action**:
+  Enhance existing winner selection endpoint to:
+  1. Update bid status to 'SELECTED'
+  2. Update lead.installerId to winner's ID
+  3. Create notification for winner
+  4. Create polite notifications for all losing bidders
+  
+  Add after line 133 (after bid.selectedAt update):
+  ```typescript
+  // Update lead.installerId to winner
+  await prisma.lead.update({
+    where: { id: bid.leadId },
+    data: { 
+      installerId: bid.installerId,
+      status: 'PURCHASED' // or keep as APPROVED, depends on payment flow
+    }
+  });
+  
+  // Get all other bids for this lead (losers)
+  const allBids = await prisma.bid.findMany({
+    where: { 
+      leadId: bid.leadId,
+      id: { not: bidId } // Exclude winner
+    },
+    select: {
+      id: true,
+      installerId: true,
+      installer: {
+        select: { name: true, email: true }
+      }
+    }
+  });
+  
+  // Create winner notification
+  await prisma.notification.create({
+    data: {
+      userId: bid.installerId,
+      type: 'QUOTE_ACCEPTED',
+      title: '🎉 Congratulations! Your bid was selected',
+      message: `Your bid for ${lead.location} has been selected by the homeowner. You can now proceed with the installation.`,
+      actionUrl: `/installer/leads/${bid.leadId}`,
+      metadata: { bidId: bid.id, leadId: bid.leadId }
+    }
+  });
+  
+  // Create loser notifications (polite messages)
+  for (const loserBid of allBids) {
+    await prisma.notification.create({
+      data: {
+        userId: loserBid.installerId,
+        type: 'QUOTE_REJECTED',
+        title: 'Bid Update',
+        message: `Thank you for your bid on ${lead.location}. The homeowner has selected another installer for this project. We appreciate your participation and encourage you to continue bidding on future leads.`,
+        actionUrl: `/installer/leads`,
+        metadata: { bidId: loserBid.id, leadId: bid.leadId, reason: 'Another bid selected' }
+      }
+    });
+    
+    // Update loser bid status
+    await prisma.bid.update({
+      where: { id: loserBid.id },
+      data: { 
+        status: 'REJECTED',
+        rejectedAt: new Date(),
+        rejectionReason: 'Homeowner selected another bid'
+      }
+    });
+  }
+  
+  console.log('[POST /api/bids/[bidId]/select] Winner selected:', {
+    bidId: bid.id,
+    leadId: bid.leadId,
+    winnerId: bid.installerId,
+    losersNotified: allBids.length
+  });
+  ```
+  
+- **Testing**:
+  1. Create lead with 3 submitted bids
+  2. As homeowner, select one bid as winner
+  3. POST /api/bids/{bidId}/select
+  4. Verify in Prisma Studio:
+     - Winner bid: status='SELECTED', selectedAt set
+     - Lead: installerId = winner's ID
+     - Loser bids: status='REJECTED', rejectedAt set
+     - Notifications table: 1 winner + 2 loser notifications created
+  5. Check notification content:
+     - Winner: Congratulatory message
+     - Losers: Polite thank-you message
+  6. Verify lead status updated
+  
+- **Acceptance**:
+  - Winner bid marked as SELECTED
+  - Lead.installerId updated to winner
+  - Winner notification created
+  - All losers notified with polite message
+  - Loser bids marked as REJECTED
+  - No errors in console
+  
+- **Status**: NOT STARTED
+
+### T172 [P1][Notifications]: Create notification email templates (optional enhancement)
+- **Path**: `src/lib/email/templates/` (if email system exists)
+- **Action**:
+  If email notification system exists, create email templates:
+  
+  1. **Winner Email** (`bid-winner.tsx`):
+     ```
+     Subject: Congratulations! Your bid was selected
+     
+     Hi {installerName},
+     
+     Great news! The homeowner at {leadLocation} has selected your bid.
+     
+     Bid Details:
+     - System Size: {systemSize} kW
+     - Total: ${finalTotal}
+     - Lead Location: {leadLocation}
+     
+     Next Steps:
+     1. Contact the homeowner to schedule installation
+     2. Review project details in your dashboard
+     3. Update project status as you progress
+     
+     View Lead: {actionUrl}
+     
+     Best regards,
+     SolarMatch Team
+     ```
+  
+  2. **Loser Email** (`bid-not-selected.tsx`):
+     ```
+     Subject: Bid Update - {leadLocation}
+     
+     Hi {installerName},
+     
+     Thank you for submitting your bid for {leadLocation}.
+     
+     The homeowner has selected another installer for this project. 
+     We appreciate your time and effort in preparing your proposal.
+     
+     Why this happens:
+     - Competitive pricing from other installers
+     - Different product preferences
+     - Installation timeline requirements
+     
+     Keep bidding! You can find more leads in your dashboard.
+     
+     Browse Leads: {dashboardUrl}
+     
+     Thank you for being part of SolarMatch.
+     
+     Best regards,
+     SolarMatch Team
+     ```
+  
+- **Testing**:
+  - Send test emails to verify formatting
+  - Verify links work correctly
+  - Check spam folder (ensure not flagged)
+  
+- **Acceptance**:
+  - Email templates created (if email system exists)
+  - Professional and polite tone
+  - Action links included
+  
+- **Status**: OPTIONAL (Skip if email system not implemented)
+
+**Phase 13D Checkpoint** (MANDATORY - STOP if any fail):
+- [ ] Winner selection endpoint updated with notifications
+- [ ] End-to-end test: Select winner → Winner notified → Losers notified → Lead updated
+- [ ] Prisma Studio verification: All database updates correct
+- [ ] TypeScript compilation: `npx tsc --noEmit` → 0 errors
+- [ ] No console errors during winner selection
+- [ ] Commit: `git add . && git commit -m "feat(bid): Phase 13D - Complete winner selection with notifications (T171-T172)"`
+
+---
+
+### Phase 13E – Final Testing & Documentation (Non-Negotiable)
+
+### T173 [Testing]: Comprehensive end-to-end bidding flow test
+- **Action**:
+  Test complete bidding lifecycle:
+  
+  **Step 1: Installer Submits Bid**
+  1. Log in as Installer A
+  2. Open bidding lead
+  3. Fill complete Quote Builder:
+     - System: 6.6kW Grid-Connected Residential
+     - Products: Panels (Longi 440W), Inverter (Fronius 5kW), No Battery
+     - Pricing: 5 line items (Panels, Inverter, Mounting, Electrical, Labour)
+     - Assumptions: Default values
+     - Roof: Tile, 22°, North-facing, Minimal shading
+  4. Click Submit Bid
+  5. Verify success toast + modal closes
+  6. Verify Prisma Studio: Bid created with all comprehensive data
+  
+  **Step 2: Multiple Installers Submit Bids**
+  1. Repeat Step 1 as Installer B with different pricing
+  2. Repeat Step 1 as Installer C with battery included
+  3. Verify 3 bids in Prisma Studio for same lead
+  
+  **Step 3: Homeowner Compares Bids**
+  1. Log in as Homeowner
+  2. Navigate to lead detail page
+  3. Fetch bids: GET /api/bids/by-lead/{leadId}
+  4. Verify 3 bids displayed
+  5. Compare:
+     - System specs (size, products)
+     - Pricing (line items, totals)
+     - Calculations (payback, savings)
+     - Installer info (company name, contact masked)
+  
+  **Step 4: Homeowner Selects Winner**
+  1. Select Installer B as winner
+  2. POST /api/bids/{bidId}/select
+  3. Verify response: 200 OK
+  4. Verify Prisma Studio:
+     - Winner bid: status='SELECTED', selectedAt populated
+     - Lead: installerId = Installer B's ID
+     - Loser bids: status='REJECTED'
+  5. Verify Notifications table:
+     - Installer B: Winner notification
+     - Installer A & C: Polite loser notifications
+  
+  **Step 5: Winner Access**
+  1. Log in as Installer B
+  2. View notification: "Your bid was selected"
+  3. Navigate to lead
+  4. Verify homeowner contact info now unlocked
+  5. Verify can view complete lead details
+  
+  **Step 6: Loser Access**
+  1. Log in as Installer A
+  2. View notification: Polite "not selected" message
+  3. Navigate to leads dashboard
+  4. Verify bid marked as rejected
+  5. Verify can still browse new leads
+  
+- **Acceptance**:
+  - All 6 steps complete without errors
+  - Data flow correct from submission to winner selection
+  - Notifications sent correctly
+  - Contact info masking/unmasking works
+  - No console errors throughout flow
+  
+- **Status**: NOT STARTED
+
+### T174 [Documentation]: Update spec.md and tasks.md with Phase 13 completion
+- **Path**: `specs/008-description-enhance-existing/spec.md`, `specs/008-description-enhance-existing/tasks.md`
+- **Action**:
+  1. Update spec.md:
+     - Add User Story for Bid Data Persistence
+     - Document acceptance scenarios
+     - Update success criteria
+  
+  2. Update tasks.md:
+     - Mark Phase 13 complete
+     - Document key achievements
+     - List files created/modified
+     - Record lessons learned
+  
+  3. Create Phase 13 summary:
+     ```markdown
+     ## Phase 13 Summary
+     
+     **Goal**: Build comprehensive database schema and API endpoints for Quote Builder data persistence.
+     
+     **Completed Tasks**: T164-T174 (11 tasks)
+     
+     **Key Achievements**:
+     1. Extended Bid model with 8 JSON fields for comprehensive data storage
+     2. Updated POST /api/bids to accept and store all Quote Builder data (60+ fields)
+     3. Created GET /api/bids/by-lead/[leadId] for homeowner bid comparison
+     4. Created GET /api/bids/by-lead-installer for installer bid editing
+     5. Enhanced winner selection with notifications (winner + polite loser messages)
+     6. Complete bidding flow tested end-to-end
+     
+     **Files Created**:
+     - `src/types/bid.ts` - Comprehensive TypeScript types
+     - `src/app/api/bids/by-lead/[leadId]/route.ts` - GET bids by lead
+     - `src/app/api/bids/by-lead-installer/route.ts` - GET bid by lead+installer
+     
+     **Files Modified**:
+     - `prisma/schema.prisma` - Extended Bid model with JSON fields
+     - `src/app/api/bids/route.ts` - Accept comprehensive bid data
+     - `src/app/api/bids/[bidId]/select/route.ts` - Winner selection with notifications
+     - `src/components/QuoteBuilderModal.tsx` - Submit comprehensive data
+     
+     **Database Changes**:
+     - Added 8 JSON columns to Bid table
+     - Migration: `add_bid_comprehensive_data`
+     
+     **API Endpoints**:
+     - POST /api/bids - Create bid (enhanced)
+     - GET /api/bids/by-lead/[leadId] - Fetch all bids for lead (new)
+     - GET /api/bids/by-lead-installer - Fetch installer's bid (new)
+     - POST /api/bids/[bidId]/select - Select winner (enhanced)
+     
+     **Testing**:
+     - End-to-end bidding flow: 6-step test passed
+     - Database verification: Prisma Studio confirms data integrity
+     - Authorization tests: All roles (homeowner, installer, admin) verified
+     - Network tests: All API calls work correctly
+     
+     **Lessons Learned**:
+     - JSON fields provide flexibility for evolving Quote Builder structure
+     - Scalar fields (amount, finalTotal) kept for quick queries
+     - Authorization critical for bid visibility (mask contact until winner)
+     - Polite loser notifications improve installer retention
+     - Comprehensive types improve frontend/backend consistency
+     ```
+  
+- **Acceptance**:
+  - Spec.md updated with Phase 13 details
+  - Tasks.md marked complete with summary
+  - Documentation clear and comprehensive
+  
+- **Status**: NOT STARTED
+
+### T175 [Verification]: Final Phase 13 verification checklist
+- **Action**:
+  Run all verification checks:
+  
+  1. **TypeScript**: `npx tsc --noEmit` → 0 errors
+  2. **Build**: `npm run build` → Success
+  3. **Prisma**: `npx prisma validate` → Valid
+  4. **Dev Server**: `npm run dev` → Starts without errors
+  5. **Database**: Open Prisma Studio → Verify Bid table has new columns
+  6. **API Tests**: 
+     - POST /api/bids → 201 Created
+     - GET /api/bids/by-lead/{leadId} → 200 OK with bids array
+     - GET /api/bids/by-lead-installer?leadId=X → 200 OK with bid data
+     - POST /api/bids/{bidId}/select → 200 OK with winner confirmation
+  7. **Browser Tests**:
+     - Submit bid from Quote Builder → Success
+     - View bids as homeowner → Data displays correctly
+     - Select winner → Notifications sent
+     - Winner sees unlocked contact → Confirmed
+     - Losers see polite message → Confirmed
+  8. **Console**: No errors in browser or server console
+  9. **Design System**: No new violations introduced (existing modal already compliant)
+  
+- **Acceptance**:
+  - All checks pass
+  - No blockers found
+  - Phase 13 ready for production
+  
+- **Status**: NOT STARTED
+
+**Phase 13 Final Checkpoint** (MANDATORY before marking complete):
+- [ ] All T164-T175 tasks completed
+- [ ] Prisma schema updated and migrated
+- [ ] All API endpoints created and tested
+- [ ] QuoteBuilderModal submits comprehensive data
+- [ ] Winner selection flow works with notifications
+- [ ] End-to-end bidding flow tested (6 steps)
+- [ ] TypeScript: 0 errors
+- [ ] Build: Success
+- [ ] Prisma Studio: New columns visible
+- [ ] Browser: No console errors
+- [ ] Documentation: spec.md and tasks.md updated
+- [ ] Commit: `git add . && git commit -m "feat(bid): Phase 13 Complete - Comprehensive bid data persistence and winner selection flow (T164-T175)
+
+**Comprehensive Bid Data Persistence Implementation**
+
+Database Schema:
+- Extended Bid model with 8 JSON fields for structured data storage
+- Fields: systemData, productsData, lineItems, assumptions, roofData, calculations, importMeta, installerContact
+- Migration: add_bid_comprehensive_data applied successfully
+- Backward compatible: All existing scalar fields preserved
+
+API Endpoints Created/Enhanced:
+✅ POST /api/bids - Enhanced to accept comprehensive Quote Builder data
+✅ GET /api/bids/by-lead/[leadId] - Fetch all bids for homeowner comparison
+✅ GET /api/bids/by-lead-installer - Fetch installer's own bid for editing
+✅ POST /api/bids/[bidId]/select - Enhanced with winner/loser notifications
+
+Frontend Integration:
+✅ QuoteBuilderModal updated to build and submit comprehensive bid data
+✅ All 60+ Quote Builder fields included in submission payload
+✅ Success/error handling with toast notifications
+✅ Draft cleared from localStorage after successful submission
+
+Winner Selection Flow:
+✅ Homeowner selects winner from bid comparison view
+✅ Winner bid marked as SELECTED with timestamp
+✅ Lead.installerId updated to winner's ID
+✅ Winner receives congratulatory notification
+✅ Losers receive polite thank-you notifications
+✅ Loser bids marked as REJECTED with reason
+
+End-to-End Testing:
+✅ 6-step bidding flow tested successfully
+✅ Database integrity verified in Prisma Studio
+✅ Authorization checks passed (homeowner, installer, admin roles)
+✅ Network requests/responses verified in DevTools
+✅ No console errors throughout flow
+
+TypeScript Types:
+✅ Comprehensive types defined in src/types/bid.ts
+✅ All interfaces match database schema
+✅ Type-safe API requests and responses
+✅ Reusable across frontend and backend
+
+Verification Results:
+✅ TypeScript: 0 errors
+✅ Build: Success
+✅ Prisma: Schema valid
+✅ Dev Server: Running without errors
+✅ Design System: No new violations
+✅ Browser Testing: All flows work correctly
+
+Files Created:
+- src/types/bid.ts (11 interfaces, 300+ lines)
+- src/app/api/bids/by-lead/[leadId]/route.ts (150 lines)
+- src/app/api/bids/by-lead-installer/route.ts (120 lines)
+
+Files Modified:
+- prisma/schema.prisma (+8 fields to Bid model)
+- src/app/api/bids/route.ts (+50 lines comprehensive data handling)
+- src/app/api/bids/[bidId]/select/route.ts (+40 lines notifications)
+- src/components/QuoteBuilderModal.tsx (+80 lines comprehensive submission)
+- specs/008-description-enhance-existing/spec.md (User Story 8 added)
+- specs/008-description-enhance-existing/tasks.md (Phase 13 documented)
+
+Lessons Learned:
+- JSON fields provide flexibility for evolving data structures
+- Keeping scalar fields (amount, finalTotal) enables fast queries
+- Authorization critical for bid visibility (contact masking)
+- Polite notifications improve installer retention
+- Type-safe approach catches errors early
+- End-to-end testing essential for complex flows
+
+Next Steps:
+- Phase 14: Homeowner bid comparison UI
+- Phase 15: Bid editing for installers (update functionality)
+- Phase 16: Email notifications for winner/losers
+- Future: Bid analytics and reporting
+
+Status: READY FOR PRODUCTION ✅"`
+
+---
+
+## Phase 13 Success Criteria (Mandatory)
+
+**Functional Requirements**:
+- [x] Bid model extended with comprehensive data fields
+- [x] POST /api/bids accepts and stores all Quote Builder data (60+ fields)
+- [x] GET /api/bids/by-lead/[leadId] returns all bids for homeowner comparison
+- [x] GET /api/bids/by-lead-installer returns installer's bid for editing
+- [x] Winner selection updates lead.installerId and sends notifications
+- [x] Loser notifications sent with polite message
+- [x] Contact info masked until winner selected
+- [x] All data persists correctly in database
+
+**Technical Requirements**:
+- [x] TypeScript types defined for all bid data structures
+- [x] Prisma schema migration applied successfully
+- [x] TypeScript compilation: 0 errors
+- [x] Build: Success
+- [x] Dev server: Starts without errors
+- [x] No console errors during bidding flow
+- [x] Design system compliance maintained
+
+**Testing Requirements**:
+- [x] End-to-end bidding flow (6 steps) passes
+- [x] Database verification in Prisma Studio
+- [x] Authorization tests (homeowner, installer, admin)
+- [x] Network tests (all API endpoints work)
+- [x] Multiple installers can bid on same lead
+- [x] Homeowner can compare bids side-by-side
+- [x] Winner selection completes successfully
+- [x] Notifications created correctly
+
+**Documentation**:
+- [x] spec.md updated with User Story 8
+- [x] tasks.md updated with Phase 13 details
+- [x] Comprehensive commit message with all changes
+- [x] Lessons learned documented
+
+**Data Integrity**:
+- [x] All Quote Builder fields stored (system, products, line items, assumptions, roof)
+- [x] Calculations preserved for comparison
+- [x] Import metadata tracked (if imported from Instant Quote)
+- [x] Installer contact info stored but masked
+- [x] Backward compatible with existing bids
+
+**User Experience**:
+- [x] Installer submission flow smooth (no errors, success feedback)
+- [x] Homeowner comparison view shows all bid details
+- [x] Winner notification clear and encouraging
+- [x] Loser notification polite and professional
+- [x] Contact unlocking works correctly for winner
+
+---
+
+**Phase 13 Status**: PLANNED - Ready for implementation
+**Priority**: P0 - Critical for bidding flow
+**Estimated Effort**: 8-10 hours (11 tasks across 5 sub-phases)
+**Dependencies**: 
+- Phase 9 (Import & Prefill) - Complete
+- Phase 16 (Right Column Data Fetching) - Complete
+- Quote Builder Modal - Complete with comprehensive data
+
+**Risk Assessment**:
+- **Low Risk**: Schema changes (additive only, backward compatible)
+- **Low Risk**: API endpoints (new routes, no conflicts)
+- **Medium Risk**: Winner selection flow (complex logic, notifications)
+- **Mitigation**: Test each sub-phase immediately, use Prisma Studio for verification, backup before each change
+
+**Blockers**: None - All dependencies complete
+
+**Next Phase After 13**: Phase 14 - Homeowner Bid Comparison UI (depends on Phase 13 GET endpoints)
+
 

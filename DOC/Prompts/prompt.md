@@ -2791,5 +2791,15 @@ in the right column > lead details section > s showing only one section from the
 
 I found mismatch between the bid evaluation modal vs Right column lead details section of the Bid builder modal.  even the fields are same but the not exactly as per the lead data from the instantQuote . 
 - I want this section to fetch the lead data from the instantQuote lead generation flow. As the bid evaluation modal is fetching correctly. 
+---------------------------------------------------------------
+
+***Plan to build DB schema and endpoints for the Bid Builder modal data persistence***
+- When the installers will click on the Submit bid button, the bid data should be persisted in the database. for that we need to build the DB schema and endpoints accordingly.
+- The bid data should be linked with the respective lead id and installer id. so that we can fetch the bid data later for review and selection by the homeowners.
+- As the lead is one to many relation with installers, so each installer will have their own bid data for the same lead id. so the DB schema should be designed accordingly.
+- The bid data should include all the fields from the bid builder modal. so that we can store all the necessary information.
+- The endpoints should include : create bid, update bid, get bid by lead id and installer id, get all bids by lead id etc.
+- The scenario : the homewoners will compare multiple bids placed by installers for their bidding lead request. After comparing the bids, they will select one installer as winner. so we need to make sure the bid data is stored and fetched correctly for this flow. And the winner gets updated accordingly in the lead data as well. And the loosers will also get notified that they have lost the bid with polite message/notification. 
+
 
 ***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and make sure to stay aligned with the specks as well.
