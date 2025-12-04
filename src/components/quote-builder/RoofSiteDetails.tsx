@@ -17,6 +17,15 @@ interface RoofSiteDetailsProps {
   distanceToSwitchboardM: number;
   notes: string;
   photos: string[];
+  // Phase 9 - Installer-only fields
+  arrayLayoutNotes?: string;
+  roofAccessNotes?: string;
+  structuralNotes?: string;
+  mountingSystemPreferred?: string;
+  conduitRunComplexity?: 'low' | 'medium' | 'high';
+  inverterLocationNotes?: string;
+  // Metadata
+  prefilledFields?: string[];
   onUpdate: (data: Partial<RoofSiteDetailsData>) => void;
 }
 
@@ -32,6 +41,13 @@ export interface RoofSiteDetailsData {
   distanceToSwitchboardM: number;
   notes: string;
   photos: string[];
+  // Phase 9 - Installer-only fields
+  arrayLayoutNotes?: string;
+  roofAccessNotes?: string;
+  structuralNotes?: string;
+  mountingSystemPreferred?: string;
+  conduitRunComplexity?: 'low' | 'medium' | 'high';
+  inverterLocationNotes?: string;
 }
 
 const RoofSiteDetails: React.FC<RoofSiteDetailsProps> = ({
