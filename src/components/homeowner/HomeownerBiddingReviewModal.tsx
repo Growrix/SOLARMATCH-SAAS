@@ -1,40 +1,32 @@
 'use client';
 
-import React, { useState } from 'react';
-import { X, Award, DollarSign, TrendingUp, Calendar, Battery, Zap, CheckCircle, Star, MessageSquare } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { 
+  X, Award, DollarSign, TrendingUp, Calendar, Battery, Zap, 
+  CheckCircle, Star, ChevronDown, ChevronUp, Info, Loader 
+} from 'lucide-react';
 import Button from '@/components/ui/button';
+import { GetBidsResponse } from '@/types/bid';
+import { LeadData } from '@/types/lead';
+import HomeownerInstantQuoteDetails from '@/components/quote-builder/HomeownerInstantQuoteDetails';
+import LeadTechnicalDetails from '@/components/quote-builder/LeadTechnicalDetails';
+import InstantQuoteResult from '@/components/quote-builder/InstantQuoteResult';
 
-interface BidForHomeowner {
-  id: string;
-  installerName: string; // Anonymized until contact approved: "Installer A", "Installer B"
+// Type alias for individual bid with full data
+type BidWithFullData = GetBidsResponse['bids'][number] & {
+  installerName: string;
   installerRating: number;
-  totalPrice: number;
   pricePerWatt: number;
-  systemSize: number;
-  panelBrand: string;
-  inverterBrand: string;
-  batteryBrand?: string;
-  batteryCapacity?: number;
-  warranty: number;
-  installationTimeline: string;
-  paybackYears: number;
-  annualSavings: number;
-  submittedAt: string;
-  status: 'submitted' | 'shortlisted' | 'not_selected';
-  contactRequested: boolean;
-  contactApproved: boolean;
-  installerCompany?: string; // Revealed after contact approved
-  installerPhone?: string; // Revealed after contact approved
-  installerEmail?: string; // Revealed after contact approved
-}
+  isWinner: boolean;
+};
 
 interface HomeownerBiddingReviewModalProps {
   isOpen: boolean;
   onClose: () => void;
   leadId: string;
   propertyAddress: string;
-  bids: BidForHomeowner[];
-  onRequestContact: (bidId: string) => Promise<void>;
+  bids: BidWithFullData[];
+  onSelectWinner?: (bidId: string) => Promise<void>;
 }
 
 export default function HomeownerBiddingReviewModal({
@@ -43,27 +35,110 @@ export default function HomeownerBiddingReviewModal({
   leadId,
   propertyAddress,
   bids,
-  onRequestContact
+  onSelectWinner
 }: HomeownerBiddingReviewModalProps) {
-  const [requestingContact, setRequestingContact] = useState<string | null>(null);
+  // State management
+  const [selectedBidId, setSelectedBidId] = useState<string>('');
+  const [leadData, setLeadData] = useState<LeadData | null>(null);
+  const [isLoadingLead, setIsLoadingLead] = useState(false);
+  const [leadError, setLeadError] = useState<string | null>(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    instantQuote: true,
+    technical: false,
+    results: false
+  });
 
-  if (!isOpen) return null;
+  // Select first bid by default when bids change
+  useEffect(() => {
+    if (bids.length > 0 && !selectedBidId) {
+      setSelectedBidId(bids[0].id);
+    }
+  }, [bids, selectedBidId]);
 
-  const handleRequestContact = async (bidId: string) => {
-    setRequestingContact(bidId);
+  // Fetch full lead data when modal opens
+  useEffect(() => {
+    if (isOpen && leadId) {
+      fetchLeadData();
+    }
+  }, [isOpen, leadId]);
+
+  const fetchLeadData = async () => {
+    setIsLoadingLead(true);
+    setLeadError(null);
     try {
-      await onRequestContact(bidId);
+      const response = await fetch(`/api/leads/${leadId}`);
+      if (!response.ok) throw new Error('Failed to fetch lead data');
+      const data = await response.json();
+      setLeadData(data);
+    } catch (error) {
+      console.error('[HomeownerBiddingReviewModal] Error fetching lead:', error);
+      setLeadError(error instanceof Error ? error.message : 'Unknown error');
     } finally {
-      setRequestingContact(null);
+      setIsLoadingLead(false);
     }
   };
 
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
+  const selectedBid = bids.find(b => b.id === selectedBidId);
+
   const sortedBids = [...bids].sort((a, b) => {
-    // Sort by status (shortlisted first), then price
+    // Winner first, then shortlisted, then by price
+    if (a.isWinner && !b.isWinner) return -1;
+    if (b.isWinner && !a.isWinner) return 1;
     if (a.status === 'shortlisted' && b.status !== 'shortlisted') return -1;
     if (b.status === 'shortlisted' && a.status !== 'shortlisted') return 1;
-    return a.totalPrice - b.totalPrice;
+    return a.finalTotal - b.finalTotal;
   });
+
+  const handleSelectWinnerClick = () => {
+    setShowConfirmation(true);
+  };
+
+  const handleConfirmSelection = async () => {
+    if (!selectedBidId || !onSelectWinner) return;
+    
+    setIsSelecting(true);
+    try {
+      await onSelectWinner(selectedBidId);
+      setShowConfirmation(false);
+      // Optionally close modal or show success message
+    } catch (error) {
+      console.error('[HomeownerBiddingReviewModal] Error selecting winner:', error);
+      alert('Failed to select winner. Please try again.');
+    } finally {
+      setIsSelecting(false);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-AU', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  // Helper functions to safely access bid data with fallbacks
+  const getSystemSize = (bid: BidWithFullData) => bid.systemData?.capacityKw || 0;
+  const getSystemType = (bid: BidWithFullData) => bid.systemData?.systemType || 'N/A';
+  const getAnnualProduction = (bid: BidWithFullData) => {
+    const systemSize = getSystemSize(bid);
+    const assumptions = bid.assumptions;
+    if (assumptions?.yield_kWh_per_kW_per_day) {
+      return Math.round(systemSize * assumptions.yield_kWh_per_kW_per_day * 365);
+    }
+    return bid.calculations?.totalAnnualProduction || 0;
+  };
+
+  if (!isOpen) return null;
 
   return (
     <div 
@@ -91,7 +166,7 @@ export default function HomeownerBiddingReviewModal({
           </button>
         </div>
 
-        {/* Bids Comparison Grid */}
+        {/* Body - 2 Column Layout */}
         <div className="flex-grow overflow-auto p-4 md:p-6">
           {sortedBids.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center">
@@ -103,237 +178,551 @@ export default function HomeownerBiddingReviewModal({
             </div>
           ) : (
             <>
-              {/* Info Banner */}
-              <div className="bg-info/10 border border-info/20 rounded-xl p-4 mb-6">
-                <p className="text-body-small text-info">
-                  <strong>How it works:</strong> Review all submitted bids below. Installers are anonymized to ensure fair evaluation. Click &ldquo;Request Contact&rdquo; on your preferred bid(s) - admin will approve and reveal installer details within 24 hours.
+              {/* Installer Selector Dropdown */}
+              <div className="mb-6 space-y-2">
+                <label className="text-label text-foreground block">
+                  Select Installer to Review:
+                </label>
+                <select 
+                  value={selectedBidId} 
+                  onChange={(e) => setSelectedBidId(e.target.value)}
+                  className="w-full md:w-auto px-4 py-3 bg-surface border border-border rounded-lg text-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors"
+                >
+                  {sortedBids.map((bid, index) => (
+                    <option key={bid.id} value={bid.id}>
+                      {bid.isWinner && '🏆 '}
+                      {bid.status === 'shortlisted' && '⭐ '}
+                      {bid.installerName} - ${bid.finalTotal.toLocaleString()} ({bid.systemData?.capacityKw || 0} kW)
+                    </option>
+                  ))}
+                </select>
+                <p className="text-caption text-muted-foreground">
+                  {bids.length} bid{bids.length !== 1 ? 's' : ''} received • Compare installers side-by-side
                 </p>
               </div>
 
-              {/* Bids Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                {sortedBids.map((bid, index) => (
-                  <div
-                    key={bid.id}
-                    className={`bg-surface rounded-2xl shadow-neu-inset p-6 space-y-4 border-2 transition-all ${
-                      bid.status === 'shortlisted'
-                        ? 'border-success/50 shadow-neu-outset'
-                        : bid.status === 'not_selected'
-                        ? 'border-error/30 opacity-60'
-                        : 'border-transparent hover:border-border'
-                    }`}
-                  >
-                    {/* Installer Header */}
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-heading-4 text-foreground">
-                            {bid.contactApproved && bid.installerCompany 
-                              ? bid.installerCompany 
-                              : bid.installerName
-                            }
-                          </h3>
-                          {bid.status === 'shortlisted' && (
-                            <span className="bg-success/20 text-success px-2 py-0.5 rounded-full text-caption">
-                              Recommended
+              {/* 2 Column Grid */}
+              {selectedBid && (
+                <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-6">
+                  {/* LEFT COLUMN: Bid Details (Quotation Style) */}
+                  <div className="space-y-6 overflow-y-auto">
+                    {/* Quote Header */}
+                    <div className="bg-surface rounded-xl p-6 border border-border space-y-4">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-label text-muted-foreground">Quote #</span>
+                            <span className="text-heading-5 text-foreground font-mono">
+                              {selectedBid.id.slice(-8).toUpperCase()}
                             </span>
-                          )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-label text-muted-foreground">Date Submitted:</span>
+                            <span className="text-body text-foreground">
+                              {formatDate(selectedBid.submittedAt)}
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1 mt-1">
+                        {selectedBid.isWinner && (
+                          <span className="bg-success/20 text-success px-3 py-1 rounded-full text-label flex items-center gap-2">
+                            <CheckCircle className="h-4 w-4" />
+                            Winner Selected
+                          </span>
+                        )}
+                        {selectedBid.status === 'shortlisted' && !selectedBid.isWinner && (
+                          <span className="bg-warning/20 text-warning px-3 py-1 rounded-full text-label flex items-center gap-2">
+                            <Star className="h-4 w-4" />
+                            Recommended
+                          </span>
+                        )}
+                      </div>
+                      <div className="border-t border-border pt-4">
+                        <h3 className="text-heading-3 text-foreground">{selectedBid.installerName}</h3>
+                        <div className="flex items-center gap-1 mt-2">
                           {Array.from({ length: 5 }).map((_, i) => (
                             <Star
                               key={i}
                               className={`h-4 w-4 ${
-                                i < Math.floor(bid.installerRating)
+                                i < Math.floor(selectedBid.installerRating)
                                   ? 'fill-warning text-warning'
                                   : 'text-muted'
                               }`}
                             />
                           ))}
                           <span className="text-caption text-muted-foreground ml-1">
-                            {bid.installerRating.toFixed(1)}
+                            {selectedBid.installerRating.toFixed(1)} / 5.0
                           </span>
                         </div>
-                        <p className="text-caption text-muted-foreground mt-1">
-                          Submitted {new Date(bid.submittedAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <span className="text-heading-5 text-primary">
-                        #{index + 1}
-                      </span>
-                    </div>
-
-                    {/* Pricing Highlight */}
-                    <div className="bg-primary/10 border border-primary/30 rounded-xl p-4">
-                      <div className="flex items-baseline justify-between mb-2">
-                        <span className="text-body-small text-foreground flex items-center gap-2">
-                          <DollarSign className="h-4 w-4" />
-                          Total Investment
-                        </span>
-                        <span className="text-heading-3 text-foreground">
-                          ${bid.totalPrice.toLocaleString()}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between text-caption">
-                        <span className="text-muted-foreground">Price per Watt</span>
-                        <span className="text-foreground">
-                          ${bid.pricePerWatt.toFixed(2)}/W
-                        </span>
                       </div>
                     </div>
 
                     {/* System Specifications */}
-                    <div className="space-y-3">
-                      <h4 className="text-label text-foreground flex items-center gap-2">
-                        <Zap className="h-4 w-4" />
-                        System Details
+                    <div className="bg-surface rounded-xl p-6 border border-border space-y-4">
+                      <h4 className="text-heading-5 text-foreground border-b border-border pb-2">
+                        Solar System Specifications
                       </h4>
-                      <div className="space-y-2 text-body-small">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">System Size</span>
-                          <span className="text-foreground">{bid.systemSize} kW</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Solar Panels</span>
-                          <span className="text-foreground">{bid.panelBrand}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Inverter</span>
-                          <span className="text-foreground">{bid.inverterBrand}</span>
-                        </div>
-                        {bid.batteryBrand && (
-                          <>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground flex items-center gap-1">
-                                <Battery className="h-3 w-3" />
-                                Battery
-                              </span>
-                              <span className="text-foreground">{bid.batteryBrand}</span>
-                            </div>
-                            {bid.batteryCapacity && (
-                              <div className="flex justify-between">
-                                <span className="text-muted-foreground">Capacity</span>
-                                <span className="text-foreground">{bid.batteryCapacity} kWh</span>
-                              </div>
-                            )}
-                          </>
-                        )}
-                      </div>
+                      <table className="w-full">
+                        <tbody className="divide-y divide-border">
+                          <tr>
+                            <td className="py-2 text-body text-muted-foreground">System Type</td>
+                            <td className="py-2 text-body text-foreground text-right">
+                              {selectedBid.systemData.systemType}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 text-body text-muted-foreground">System Size</td>
+                            <td className="py-2 text-body text-foreground text-right">
+                              {selectedBid.systemData.systemSize} kW
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 text-body text-muted-foreground">Project Type</td>
+                            <td className="py-2 text-body text-foreground text-right">
+                              {selectedBid.systemData.projectType}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 text-body text-muted-foreground">Annual Production (Est.)</td>
+                            <td className="py-2 text-body text-foreground text-right">
+                              {selectedBid.calculations.annualProduction.toLocaleString()} kWh/year
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
                     </div>
 
-                    {/* Financial & Timeline */}
-                    <div className="space-y-2 pt-4 border-t border-border">
-                      <div className="flex items-center justify-between text-body-small">
-                        <span className="text-muted-foreground flex items-center gap-2">
-                          <TrendingUp className="h-4 w-4" />
-                          Annual Savings
-                        </span>
-                        <span className="text-success">
-                          ${bid.annualSavings.toLocaleString()}/yr
-                        </span>
+                    {/* Equipment Details */}
+                    <div className="bg-surface rounded-xl p-6 border border-border space-y-4">
+                      <h4 className="text-heading-5 text-foreground border-b border-border pb-2">
+                        Equipment & Products
+                      </h4>
+                      
+                      {/* Solar Panels */}
+                      <div className="space-y-2">
+                        <h5 className="text-label text-foreground flex items-center gap-2">
+                          <Zap className="h-4 w-4" />
+                          Solar Panels
+                        </h5>
+                        <table className="w-full">
+                          <tbody className="divide-y divide-border/50">
+                            <tr>
+                              <td className="py-1.5 text-body-small text-muted-foreground">Brand & Model</td>
+                              <td className="py-1.5 text-body-small text-foreground text-right">
+                                {selectedBid.productsData.panels.brand} {selectedBid.productsData.panels.model}
+                              </td>
+                            </tr>
+                            <tr>
+                              <td className="py-1.5 text-body-small text-muted-foreground">Wattage</td>
+                              <td className="py-1.5 text-body-small text-foreground text-right">
+                                {selectedBid.productsData.panels.wattage}W
+                              </td>
+                            </tr>
+                            <tr>
+                              <td className="py-1.5 text-body-small text-muted-foreground">Quantity</td>
+                              <td className="py-1.5 text-body-small text-foreground text-right">
+                                {selectedBid.productsData.panels.qty} panels
+                              </td>
+                            </tr>
+                            <tr>
+                              <td className="py-1.5 text-body-small text-muted-foreground">Warranty</td>
+                              <td className="py-1.5 text-body-small text-foreground text-right">
+                                {selectedBid.productsData.panels.productWarranty} years (Product) / {selectedBid.productsData.panels.performanceWarranty} years (Performance)
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
-                      <div className="flex items-center justify-between text-body-small">
-                        <span className="text-muted-foreground">Payback Period</span>
-                        <span className="text-foreground">{bid.paybackYears} years</span>
-                      </div>
-                      <div className="flex items-center justify-between text-body-small">
-                        <span className="text-muted-foreground flex items-center gap-2">
-                          <Calendar className="h-4 w-4" />
-                          Installation
-                        </span>
-                        <span className="text-foreground">{bid.installationTimeline}</span>
-                      </div>
-                      <div className="flex items-center justify-between text-body-small">
-                        <span className="text-muted-foreground flex items-center gap-2">
-                          <Award className="h-4 w-4" />
-                          Warranty
-                        </span>
-                        <span className="text-foreground">{bid.warranty} years</span>
-                      </div>
-                    </div>
 
-                    {/* Contact Info (if approved) */}
-                    {bid.contactApproved && (
-                      <div className="bg-success/10 border border-success/30 rounded-xl p-4 space-y-2">
-                        <p className="text-body-small text-success flex items-center gap-2">
-                          <CheckCircle className="h-4 w-4" />
-                          Contact Approved
-                        </p>
-                        <div className="space-y-1 text-body-small">
-                          <p className="text-foreground">
-                            <strong>Company:</strong> {bid.installerCompany}
-                          </p>
-                          <p className="text-foreground">
-                            <strong>Phone:</strong> {bid.installerPhone}
-                          </p>
-                          <p className="text-foreground">
-                            <strong>Email:</strong> {bid.installerEmail}
-                          </p>
+                      {/* Inverter */}
+                      <div className="space-y-2">
+                        <h5 className="text-label text-foreground">Inverter</h5>
+                        <table className="w-full">
+                          <tbody className="divide-y divide-border/50">
+                            <tr>
+                              <td className="py-1.5 text-body-small text-muted-foreground">Brand & Model</td>
+                              <td className="py-1.5 text-body-small text-foreground text-right">
+                                {selectedBid.productsData.inverter.brand} {selectedBid.productsData.inverter.model}
+                              </td>
+                            </tr>
+                            <tr>
+                              <td className="py-1.5 text-body-small text-muted-foreground">Type</td>
+                              <td className="py-1.5 text-body-small text-foreground text-right">
+                                {selectedBid.productsData.inverter.type}
+                              </td>
+                            </tr>
+                            <tr>
+                              <td className="py-1.5 text-body-small text-muted-foreground">Capacity</td>
+                              <td className="py-1.5 text-body-small text-foreground text-right">
+                                {selectedBid.productsData.inverter.capacityKw} kW
+                              </td>
+                            </tr>
+                            <tr>
+                              <td className="py-1.5 text-body-small text-muted-foreground">Warranty</td>
+                              <td className="py-1.5 text-body-small text-foreground text-right">
+                                {selectedBid.productsData.inverter.warranty} years
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* Battery (if included) */}
+                      {selectedBid.productsData.battery && (
+                        <div className="space-y-2">
+                          <h5 className="text-label text-foreground flex items-center gap-2">
+                            <Battery className="h-4 w-4" />
+                            Battery Storage
+                          </h5>
+                          <table className="w-full">
+                            <tbody className="divide-y divide-border/50">
+                              <tr>
+                                <td className="py-1.5 text-body-small text-muted-foreground">Brand & Model</td>
+                                <td className="py-1.5 text-body-small text-foreground text-right">
+                                  {selectedBid.productsData.battery.brand} {selectedBid.productsData.battery.model}
+                                </td>
+                              </tr>
+                              <tr>
+                                <td className="py-1.5 text-body-small text-muted-foreground">Capacity</td>
+                                <td className="py-1.5 text-body-small text-foreground text-right">
+                                  {selectedBid.productsData.battery.capacityKwh} kWh
+                                </td>
+                              </tr>
+                              <tr>
+                                <td className="py-1.5 text-body-small text-muted-foreground">Warranty</td>
+                                <td className="py-1.5 text-body-small text-foreground text-right">
+                                  {selectedBid.productsData.battery.warranty} years
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
                         </div>
-                      </div>
-                    )}
-
-                    {/* Action Buttons */}
-                    <div className="pt-2">
-                      {bid.status === 'not_selected' ? (
-                        <Button
-                          variant="outline"
-                          className="w-full"
-                          disabled
-                        >
-                          Not Selected by Admin
-                        </Button>
-                      ) : bid.contactApproved ? (
-                        <Button
-                          variant="primary"
-                          className="w-full bg-success hover:bg-success/90"
-                          disabled
-                        >
-                          <CheckCircle className="h-4 w-4 mr-2" />
-                          Contact Approved
-                        </Button>
-                      ) : bid.contactRequested ? (
-                        <Button
-                          variant="secondary"
-                          className="w-full"
-                          disabled
-                        >
-                          <MessageSquare className="h-4 w-4 mr-2" />
-                          Contact Pending Approval
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="primary"
-                          className="w-full"
-                          onClick={() => handleRequestContact(bid.id)}
-                          disabled={requestingContact === bid.id}
-                        >
-                          <MessageSquare className="h-4 w-4 mr-2" />
-                          {requestingContact === bid.id ? 'Requesting...' : 'Request Contact'}
-                        </Button>
                       )}
                     </div>
+
+                    {/* Pricing Breakdown */}
+                    <div className="bg-surface rounded-xl p-6 border border-border space-y-4">
+                      <h4 className="text-heading-5 text-foreground border-b border-border pb-2">
+                        Investment Breakdown
+                      </h4>
+                      
+                      {/* Line Items Table */}
+                      {selectedBid.lineItems && selectedBid.lineItems.length > 0 && (
+                        <table className="w-full">
+                          <thead>
+                            <tr className="border-b border-border">
+                              <th className="py-2 text-label text-muted-foreground text-left">Description</th>
+                              <th className="py-2 text-label text-muted-foreground text-right">Qty</th>
+                              <th className="py-2 text-label text-muted-foreground text-right">Unit Price</th>
+                              <th className="py-2 text-label text-muted-foreground text-right">Total</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-border/50">
+                            {selectedBid.lineItems.map((item: any, index: number) => (
+                              <tr key={index}>
+                                <td className="py-2 text-body-small text-foreground">{item.description}</td>
+                                <td className="py-2 text-body-small text-foreground text-right">{item.quantity}</td>
+                                <td className="py-2 text-body-small text-foreground text-right">
+                                  ${item.unitPrice.toLocaleString()}
+                                </td>
+                                <td className="py-2 text-body-small text-foreground text-right">
+                                  ${item.total.toLocaleString()}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      )}
+
+                      {/* Totals */}
+                      <div className="space-y-3 pt-4 border-t border-border">
+                        <div className="flex items-center justify-between">
+                          <span className="text-body text-muted-foreground">Subtotal</span>
+                          <span className="text-body text-foreground">
+                            ${(selectedBid.calculations.totalCost - selectedBid.calculations.incentives).toLocaleString()}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-body text-success">Incentives & Rebates</span>
+                          <span className="text-body text-success">
+                            -${selectedBid.calculations.incentives.toLocaleString()}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between pt-3 border-t-2 border-primary/30">
+                          <span className="text-heading-4 text-foreground">Final Investment</span>
+                          <span className="text-heading-3 text-primary">
+                            ${selectedBid.finalTotal.toLocaleString()}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-caption text-muted-foreground">Price per Watt</span>
+                          <span className="text-caption text-foreground">
+                            ${selectedBid.pricePerWatt.toFixed(2)}/W
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Financial Projections */}
+                    <div className="bg-surface rounded-xl p-6 border border-border space-y-4">
+                      <h4 className="text-heading-5 text-foreground border-b border-border pb-2 flex items-center gap-2">
+                        <TrendingUp className="h-5 w-5" />
+                        Financial Projections
+                      </h4>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-success/10 border border-success/30 rounded-lg p-4 space-y-2">
+                          <div className="flex items-center gap-2 text-success">
+                            <DollarSign className="h-5 w-5" />
+                            <span className="text-label">Annual Savings</span>
+                          </div>
+                          <p className="text-heading-3 text-success">
+                            ${selectedBid.calculations.annualSavings.toLocaleString()}/year
+                          </p>
+                        </div>
+
+                        <div className="bg-info/10 border border-info/30 rounded-lg p-4 space-y-2">
+                          <div className="flex items-center gap-2 text-info">
+                            <Calendar className="h-5 w-5" />
+                            <span className="text-label">Payback Period</span>
+                          </div>
+                          <p className="text-heading-3 text-foreground">
+                            {selectedBid.calculations.paybackYears.toFixed(1)} years
+                          </p>
+                        </div>
+
+                        <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 space-y-2">
+                          <div className="flex items-center gap-2 text-primary">
+                            <Award className="h-5 w-5" />
+                            <span className="text-label">25-Year Savings</span>
+                          </div>
+                          <p className="text-heading-3 text-foreground">
+                            ${(selectedBid.calculations.annualSavings * 25).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Installation & Roof Details */}
+                    <div className="bg-surface rounded-xl p-6 border border-border space-y-4">
+                      <h4 className="text-heading-5 text-foreground border-b border-border pb-2">
+                        Installation Details
+                      </h4>
+                      
+                      <table className="w-full">
+                        <tbody className="divide-y divide-border">
+                          <tr>
+                            <td className="py-2 text-body-small text-muted-foreground">Roof Type</td>
+                            <td className="py-2 text-body-small text-foreground text-right">
+                              {selectedBid.roofData.roofType}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 text-body-small text-muted-foreground">Roof Pitch</td>
+                            <td className="py-2 text-body-small text-foreground text-right">
+                              {selectedBid.roofData.pitchDeg}°
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 text-body-small text-muted-foreground">Arrays</td>
+                            <td className="py-2 text-body-small text-foreground text-right">
+                              {selectedBid.roofData.arrays}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 text-body-small text-muted-foreground">Orientations</td>
+                            <td className="py-2 text-body-small text-foreground text-right">
+                              {selectedBid.roofData.orientations.join(', ')}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 text-body-small text-muted-foreground">Shading Assessment</td>
+                            <td className="py-2 text-body-small text-foreground text-right">
+                              {selectedBid.roofData.shadingLevel}% shading
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                ))}
-              </div>
+
+                  {/* RIGHT COLUMN: Lead Details (InstantQuote Data) */}
+                  <div className="space-y-6 lg:sticky lg:top-0 lg:h-fit">
+                    <h3 className="text-heading-4 text-foreground border-b border-border pb-2">
+                      Original Lead Details
+                    </h3>
+
+                    {isLoadingLead ? (
+                      <div className="bg-surface rounded-xl p-6 text-center">
+                        <Loader className="h-8 w-8 animate-spin text-primary mx-auto mb-2" />
+                        <p className="text-body-small text-muted-foreground">
+                          Loading lead details...
+                        </p>
+                      </div>
+                    ) : leadError ? (
+                      <div className="bg-danger/10 border border-danger/20 rounded-xl p-4">
+                        <Info className="h-8 w-8 text-danger mx-auto mb-2" />
+                        <p className="text-body-small text-danger text-center">
+                          Unable to load lead details: {leadError}
+                        </p>
+                      </div>
+                    ) : leadData && leadData.quoteData ? (
+                      <div className="space-y-4">
+                        {/* InstantQuote Details */}
+                        <CollapsibleSection
+                          title="InstantQuote Details"
+                          expanded={expandedSections.instantQuote}
+                          onToggle={() => toggleSection('instantQuote')}
+                        >
+                          <HomeownerInstantQuoteDetails 
+                            quoteData={leadData.quoteData}
+                            batteryRequired={leadData.batteryRequired}
+                          />
+                        </CollapsibleSection>
+
+                        {/* Technical Specifications */}
+                        <CollapsibleSection
+                          title="Technical Specifications"
+                          expanded={expandedSections.technical}
+                          onToggle={() => toggleSection('technical')}
+                        >
+                          <LeadTechnicalDetails lead={leadData} />
+                        </CollapsibleSection>
+
+                        {/* InstantQuote Results */}
+                        <CollapsibleSection
+                          title="InstantQuote Results"
+                          expanded={expandedSections.results}
+                          onToggle={() => toggleSection('results')}
+                        >
+                          <InstantQuoteResult quoteData={leadData.quoteData} />
+                        </CollapsibleSection>
+                      </div>
+                    ) : (
+                      <div className="bg-info/10 border border-info/20 rounded-xl p-4 text-center">
+                        <Info className="h-8 w-8 text-info mx-auto mb-2" />
+                        <p className="text-body-small text-info">
+                          No InstantQuote data available for this lead
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </>
           )}
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between p-4 md:p-6 border-t border-border">
+        <div className="flex flex-col md:flex-row items-center justify-between p-4 md:p-6 border-t border-border gap-4">
           <div className="text-body-small text-muted-foreground">
-            {sortedBids.filter(b => b.status === 'shortlisted').length > 0 && (
-              <span className="text-success">
-                {sortedBids.filter(b => b.status === 'shortlisted').length} recommended bid{sortedBids.filter(b => b.status === 'shortlisted').length !== 1 ? 's' : ''}
-              </span>
+            {selectedBid && (
+              <>
+                Reviewing: {selectedBid.installerName} • 
+                ${selectedBid.finalTotal.toLocaleString()} • 
+                {selectedBid.systemData.systemSize} kW
+              </>
             )}
           </div>
-          <Button variant="secondary" onClick={onClose}>
-            Close
-          </Button>
+          
+          <div className="flex items-center gap-3">
+            <Button 
+              variant="secondary" 
+              onClick={onClose}
+            >
+              Close
+            </Button>
+            
+            {selectedBid && (
+              <Button 
+                variant="primary" 
+                onClick={handleSelectWinnerClick}
+                disabled={selectedBid.isWinner || isSelecting}
+              >
+                {selectedBid.isWinner ? (
+                  <>
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Winner Selected
+                  </>
+                ) : isSelecting ? (
+                  <>
+                    <Loader className="h-4 w-4 mr-2 animate-spin" />
+                    Selecting...
+                  </>
+                ) : (
+                  <>
+                    <Award className="h-4 w-4 mr-2" />
+                    Select as Winner
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      {showConfirmation && selectedBid && (
+        <div className="fixed inset-0 bg-black/90 z-[60] flex items-center justify-center p-4">
+          <div className="bg-background rounded-2xl p-6 max-w-md w-full space-y-4 shadow-neu-outset-lg">
+            <h3 className="text-heading-4 text-foreground">Confirm Winning Bid Selection</h3>
+            <p className="text-body text-muted-foreground">
+              Are you sure you want to select <strong className="text-foreground">{selectedBid.installerName}</strong> as the winning installer?
+            </p>
+            <p className="text-body-small text-info">
+              This action will notify the installer and unlock their contact details for you.
+            </p>
+            <div className="flex items-center gap-3 pt-4">
+              <Button 
+                variant="secondary" 
+                onClick={() => setShowConfirmation(false)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button 
+                variant="primary" 
+                onClick={handleConfirmSelection}
+                disabled={isSelecting}
+                className="flex-1"
+              >
+                {isSelecting ? 'Confirming...' : 'Confirm Selection'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
+// Collapsible Section Component
+interface CollapsibleSectionProps {
+  title: string;
+  expanded: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}
+
+const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
+  title,
+  expanded,
+  onToggle,
+  children
+}) => {
+  return (
+    <div className="space-y-3">
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center justify-between px-4 py-3 bg-background-alt rounded-lg hover:bg-primary/5 transition-colors"
+      >
+        <span className="text-label text-foreground">{title}</span>
+        {expanded ? (
+          <ChevronUp className="h-4 w-4 text-muted-foreground" />
+        ) : (
+          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+        )}
+      </button>
+      {expanded && <div className="animate-fade-in">{children}</div>}
+    </div>
+  );
+};

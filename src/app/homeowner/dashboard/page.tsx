@@ -1480,9 +1480,10 @@ export default function HomeownerDashboardPage() {
           leadId={selectedBiddingLeadId}
           propertyAddress="Loading..." 
           bids={[]}
-          onRequestContact={async (bidId: string) => {
-            console.log('Homeowner requested contact with bid:', bidId);
-            alert(`Contact requested for bid ${bidId}! (Phase 1 UI-only)`);
+          onSelectWinner={async (bidId: string) => {
+            console.log('[Phase 13D] Homeowner selected winner bid:', bidId);
+            alert(`Winner selected: ${bidId}\n\nPhase 13E will implement actual backend integration.`);
+            // Phase 13E TODO: Call API POST /api/bids/[bidId]/select-winner
           }}
         />
       )}
