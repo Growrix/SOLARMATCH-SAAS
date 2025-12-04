@@ -19,6 +19,7 @@ import PricingEngine, { PricingEngineData } from './quote-builder/PricingEngine'
 import ComplianceDocs, { ComplianceDocsData } from './quote-builder/ComplianceDocs';
 import CustomerPreview, { CustomerPreviewData, QuoteOption } from './quote-builder/CustomerPreview';
 import HomeownerContext from './quote-builder/HomeownerContext';
+import HomeownerInstantQuoteDetails from './quote-builder/HomeownerInstantQuoteDetails';
 import { PRESET_BUNDLES } from './quote-builder/Presets';
 
 // --- Types ---
@@ -31,6 +32,7 @@ interface Lead {
   estimatedUsage: string;
   budget: string;
   quoteData?: any; // Instant Quote data from homeowner
+  batteryRequired?: boolean; // Battery required flag from InstantQuote
 }
 
 interface QuoteBuilderModalProps {
@@ -94,7 +96,9 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
     products: false,
     pricing: false,
     compliance: false,
-    preview: true
+    preview: true,
+    customerPreview: true,
+    leadDetails: true
   });
 
   // Main quote draft state
@@ -871,27 +875,45 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
             </CollapsibleSection>
           </div>
 
-          {/* Right Column - 30% - Customer Preview (Sticky) */}
+          {/* Right Column - 30% - Customer Preview & Lead Details (Sticky) */}
           <div className="w-[30%] overflow-y-auto pl-2">
             <div className="sticky top-0 space-y-6">
-              <div className="bg-background-alt rounded-2xl shadow-neu p-4 space-y-4">
-                <h3 className="text-heading-6 text-foreground">Customer Preview</h3>
+              {/* Customer Preview - Collapsible */}
+              <CollapsibleSection
+                title="Customer Preview"
+                expanded={expandedSections.customerPreview}
+                onToggle={() => toggleSection('customerPreview')}
+              >
                 <CustomerPreview
                   options={quoteDraft.preview.options}
                   systemSize={quoteDraft.system.systemSize}
                   onUpdate={updatePreview}
                 />
-              </div>
 
-              {/* Financial Projections Graph */}
-              {quoteDraft.preview.options.length > 0 && (
-                <div className="bg-background-alt rounded-2xl shadow-neu p-4">
-                  <SavingsChart
-                    finalPrice={quoteDraft.preview.options[0].totalPrice}
-                    annualSavings={quoteDraft.preview.options[0].estimatedSavingsPerYear}
-                    currentAnnualBill={quoteDraft.preview.options[0].estimatedSavingsPerYear + (quoteDraft.preview.options[0].estimatedSavingsPerYear * 0.3)}
+                {/* Financial Projections Graph */}
+                {quoteDraft.preview.options.length > 0 && (
+                  <div className="mt-4">
+                    <SavingsChart
+                      finalPrice={quoteDraft.preview.options[0].totalPrice}
+                      annualSavings={quoteDraft.preview.options[0].estimatedSavingsPerYear}
+                      currentAnnualBill={quoteDraft.preview.options[0].estimatedSavingsPerYear + (quoteDraft.preview.options[0].estimatedSavingsPerYear * 0.3)}
+                    />
+                  </div>
+                )}
+              </CollapsibleSection>
+
+              {/* Lead Details - InstantQuote Data - Collapsible */}
+              {lead?.quoteData && (
+                <CollapsibleSection
+                  title="Lead Details - InstantQuote Data"
+                  expanded={expandedSections.leadDetails}
+                  onToggle={() => toggleSection('leadDetails')}
+                >
+                  <HomeownerInstantQuoteDetails 
+                    quoteData={lead.quoteData}
+                    batteryRequired={lead.batteryRequired}
                   />
-                </div>
+                </CollapsibleSection>
               )}
             </div>
           </div>

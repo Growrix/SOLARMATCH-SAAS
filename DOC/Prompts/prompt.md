@@ -2760,3 +2760,19 @@ now even I see the Import button , but it has no functionality. and even in the 
 - as you have build the import functionality partially, so you need to fix the import functionality as well based on the new field mapping plan you will create.
 
 ***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and make sure to stay aligned with the specks as well. if needed , update the specks accordingly.
+
+-------------------------------------------------------------
+
+
+I want to show the bid evaluation exactly as it is in the right column of the bid builder . so the cutomer preview as it is just make it collapsible in the right side. so that the installers can see how the bid looks like while building the bid and also can see the lead details in the BID evaluation modal. 
+
+- just follow the UI of the left side sections. Each sections are collapsible there.  I just want the same thing. 
+- now there will be 2 sections in the right side : one is Customer preview, another "Customer details - InstantQuote Data". both should be collapsible.
+***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and make sure to stay aligned with the specks as well. 
+
+---------------------------------------------------------
+
+I want you to remove this "Import from instant Quote" modal and its functionalities from the system . as this is not in use and it does not work.
+
+- stat with a commit, so that we can rollback to this current state in case of messup you do .
+***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and make sure to stay aligned with the specks as well. 
