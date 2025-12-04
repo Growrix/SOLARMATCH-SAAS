@@ -8,8 +8,6 @@ import { parseBudgetRange } from '@/lib/mappers/instant-to-bid';
 import SavingsChart from './SavingsChart';
 import HomeownerPreviewModal from './HomeownerPreviewModal';
 import BidEvaluationModal from './BidEvaluationModal';
-import ImportPreviewModal from './ImportPreviewModal';
-import { mapInstantToBid, mergeQuoteDraft } from '@/lib/mappers/instant-to-bid';
 
 // Import all section components
 import SystemSelection, { SystemSelectionData } from './quote-builder/SystemSelection';
@@ -198,8 +196,6 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [isBidEvaluationOpen, setIsBidEvaluationOpen] = useState(false);
-  const [isImportPreviewOpen, setIsImportPreviewOpen] = useState(false);
-  const [mappedImportData, setMappedImportData] = useState<any>(null);
   const [isBudgetHintDismissed, setIsBudgetHintDismissed] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -519,53 +515,6 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
     }
   };
 
-  // Handle Import from Instant Quote
-  const handleImportClick = () => {
-    console.log('[DEBUG] handleImportClick called');
-    console.log('[DEBUG] lead?.quoteData:', lead?.quoteData);
-    if (!lead?.quoteData) {
-      console.log('[DEBUG] No quoteData - returning early');
-      return;
-    }
-    
-    try {
-      console.log('[DEBUG] Calling mapInstantToBid...');
-      const mapped = mapInstantToBid(lead.quoteData);
-      console.log('[DEBUG] Mapped data:', mapped);
-      setMappedImportData(mapped);
-      setIsImportPreviewOpen(true);
-      console.log('[DEBUG] Modal should open now');
-    } catch (error) {
-      console.error('[DEBUG] Error in handleImportClick:', error);
-    }
-  };
-
-  const handleImportAccept = () => {
-    if (!mappedImportData) return;
-    const merged = mergeQuoteDraft(quoteDraft, mappedImportData);
-    
-    // Stamp import metadata
-    merged.meta = {
-      ...merged.meta,
-      importedAt: new Date().toISOString(),
-      importSource: 'instant-quote',
-      prefilledFields: mappedImportData.meta?.prefilledFields || []
-    };
-    
-    setQuoteDraft(merged);
-    setIsImportPreviewOpen(false);
-    setMappedImportData(null);
-    
-    // Trigger autosave with updated meta
-    if (lead) {
-      localStorage.setItem(
-        `quote:draft:${lead.id}:installer-id`,
-        JSON.stringify(merged)
-      );
-      setLastSaved(new Date());
-    }
-  };
-
   // Apply preset
   const applyPreset = (presetName: string) => {
     const preset = PRESET_BUNDLES.find((p) => p.name === presetName);
@@ -704,15 +653,6 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
             </div>
 
             <div className="flex items-center gap-2 w-full md:w-auto flex-wrap">
-              {lead?.quoteData && (
-                <Button
-                  onClick={handleImportClick}
-                  variant="secondary"
-                  className="flex-1 md:flex-initial px-4 py-2 bg-primary/10 text-primary hover:bg-primary/20"
-                >
-                  <Download className="h-4 w-4" /> Import from Instant Quote
-                </Button>
-              )}
               <Button
                 onClick={() => setIsBidEvaluationOpen(true)}
                 variant="secondary"
@@ -984,15 +924,6 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
           isSubmitting={isSubmitting}
         />
       )}
-
-      {/* Import Preview Modal */}
-      <ImportPreviewModal
-        isOpen={isImportPreviewOpen}
-        onClose={() => setIsImportPreviewOpen(false)}
-        onAccept={handleImportAccept}
-        currentDraft={quoteDraft}
-        mappedData={mappedImportData || {}}
-      />
     </div>
   );
 };

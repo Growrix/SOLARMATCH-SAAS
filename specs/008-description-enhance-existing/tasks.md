@@ -1179,3 +1179,179 @@ Acceptance Scenarios (Phase 13):
 8. ✓ Works across all 3 themes
 9. ✓ Responsive on all breakpoints
 10. ✓ TypeScript and build pass without errors
+
+---
+
+## Phase 14 – Remove "Import from Instant Quote" Modal and Functionality
+
+**Goal**: Completely remove the unused and non-functional "Import from Instant Quote" modal, button, and all related code from the QuoteBuilderModal system.
+
+**User Story**: As a developer maintaining the codebase, I want to remove the unused Import from Instant Quote functionality to reduce code complexity and eliminate dead code that doesn't work properly.
+
+**Acceptance Criteria**:
+1. ImportPreviewModal.tsx file deleted
+2. Import button removed from QuoteBuilderModal
+3. All import-related state variables removed (isImportPreviewOpen)
+4. All import-related functions removed (handleImportClick, handleImportAccept)
+5. ImportPreviewModal import statement removed
+6. ImportPreviewModal JSX rendering removed
+7. TypeScript compilation passes (0 errors)
+8. Build passes successfully
+9. Dev server starts without errors
+10. No console errors in browser
+
+### T130 [Audit]: Identify all Import from Instant Quote references
+- **Path**: `src/components/QuoteBuilderModal.tsx`, `src/components/ImportPreviewModal.tsx`
+- **Action**:
+  - Search for "ImportPreviewModal" references
+  - Search for "Import from Instant Quote" text
+  - Identify all state variables related to import
+  - Identify all functions related to import (handleImportClick, handleImportAccept)
+  - Document line numbers and code blocks for removal
+- **Testing**:
+  - Grep search results documented
+  - All references cataloged
+- **Acceptance**: Complete list of code to remove
+- **Status**: ✅ COMPLETE
+
+### T131 [File]: Delete ImportPreviewModal.tsx
+- **Path**: `src/components/ImportPreviewModal.tsx`
+- **Action**:
+  - Delete entire ImportPreviewModal.tsx file
+  - Verify no other files import this component
+- **Testing**:
+  - File deleted successfully
+  - Grep search for "ImportPreviewModal" shows only QuoteBuilderModal references
+- **Acceptance**: ImportPreviewModal.tsx file no longer exists
+- **Status**: NOT STARTED
+
+### T132 [Import]: Remove ImportPreviewModal import statement
+- **Path**: `src/components/QuoteBuilderModal.tsx`
+- **Action**:
+  - Remove line: `import ImportPreviewModal from './ImportPreviewModal';`
+- **Testing**:
+  - TypeScript shows no errors
+  - IDE doesn't highlight missing import
+- **Acceptance**: Import statement removed
+- **Status**: NOT STARTED
+
+### T133 [State]: Remove import-related state variable
+- **Path**: `src/components/QuoteBuilderModal.tsx`
+- **Action**:
+  - Remove line: `const [isImportPreviewOpen, setIsImportPreviewOpen] = useState(false);`
+- **Testing**:
+  - TypeScript shows no unused variable warnings
+  - State management simplified
+- **Acceptance**: State variable removed
+- **Status**: NOT STARTED
+
+### T134 [Functions]: Remove handleImportClick function
+- **Path**: `src/components/QuoteBuilderModal.tsx` (around line 523)
+- **Action**:
+  - Delete entire handleImportClick function (lines 523-541)
+  - Includes console.log, lead.quoteData check, setIsImportPreviewOpen call
+- **Testing**:
+  - Function no longer exists
+  - No references to handleImportClick
+- **Acceptance**: handleImportClick function removed
+- **Status**: NOT STARTED
+
+### T135 [Functions]: Remove handleImportAccept function
+- **Path**: `src/components/QuoteBuilderModal.tsx` (around line 543)
+- **Action**:
+  - Delete entire handleImportAccept function (lines 543-557)
+  - Includes mergeQuoteDraft call, setQuoteDraft call, setIsImportPreviewOpen call
+- **Testing**:
+  - Function no longer exists
+  - No references to handleImportAccept
+- **Acceptance**: handleImportAccept function removed
+- **Status**: NOT STARTED
+
+### T136 [UI]: Remove Import button from header
+- **Path**: `src/components/QuoteBuilderModal.tsx` (around line 709)
+- **Action**:
+  - Remove entire Button component with "Import from Instant Quote" text
+  - Conditional check: {lead?.quoteData && ...}
+  - Includes Download icon and onClick handler
+- **Testing**:
+  - Button no longer visible in bid builder header
+  - Header layout remains clean
+  - No empty space where button was
+- **Acceptance**: Import button removed from UI
+- **Status**: NOT STARTED
+
+### T137 [JSX]: Remove ImportPreviewModal component rendering
+- **Path**: `src/components/QuoteBuilderModal.tsx` (around line 989)
+- **Action**:
+  - Remove entire <ImportPreviewModal> JSX block (lines 989-995)
+  - Includes isOpen, onClose, onAccept, lead, quoteDraft props
+- **Testing**:
+  - Modal no longer rendered
+  - No React warnings about missing components
+- **Acceptance**: ImportPreviewModal JSX removed
+- **Status**: NOT STARTED
+
+### T138 [TypeScript]: Verify types and fix any errors
+- **Path**: Project root
+- **Action**:
+  - Run `npx tsc --noEmit` → verify 0 errors
+  - Check for unused imports
+  - Check for unused variables
+- **Testing**:
+  - TypeScript compilation passes
+  - No type errors in IDE
+- **Acceptance**: TypeScript passes with 0 errors
+- **Status**: NOT STARTED
+
+### T139 [Build]: Build and dev server verification
+- **Path**: Project root
+- **Action**:
+  - Run `npm run build` → verify Success
+  - Run `npm run dev` → verify server starts
+  - Check terminal for compilation errors → should be none
+- **Testing**:
+  - Build completes successfully
+  - Dev server starts without errors
+  - No import errors in console
+- **Acceptance**: Build and dev server work correctly
+- **Status**: NOT STARTED
+
+### T140 [Browser]: Manual browser testing
+- **Path**: http://localhost:3000 (bid builder page)
+- **Action**:
+  - Open bid builder modal
+  - Verify "Import from Instant Quote" button is gone
+  - Check browser console for errors → should be 0
+  - Test bid builder functionality → should work normally
+  - Verify no modal opens unexpectedly
+- **Testing**:
+  - Manual browser inspection
+  - Console log verification
+  - Functional testing
+- **Acceptance**: Bid builder works without import functionality
+- **Status**: NOT STARTED
+
+Post-phase checklist (MANDATORY):
+- [ ] All T130–T140 implemented
+- [ ] ImportPreviewModal.tsx file deleted
+- [ ] Import button removed from UI
+- [ ] All import state/functions removed
+- [ ] `npx tsc --noEmit` → 0 errors
+- [ ] `npm run build` → Success
+- [ ] `npm run dev` → Server starts without errors
+- [ ] Browser test: Bid builder opens normally, no import button visible
+- [ ] No console errors
+- [ ] Commit: `git add . && git commit -m "refactor(quote-builder): Phase 14 - Remove Import from Instant Quote modal (T130-T140)"`
+
+Acceptance Scenarios (Phase 14):
+1. ✓ ImportPreviewModal.tsx file no longer exists
+2. ✓ Import button not visible in bid builder header
+3. ✓ No import-related state variables in code
+4. ✓ No import-related functions in code
+5. ✓ TypeScript compilation passes
+6. ✓ Build passes successfully
+7. ✓ Dev server starts normally
+8. ✓ Bid builder functions correctly
+9. ✓ No console errors
+10. ✓ Code cleaner and more maintainable
+
