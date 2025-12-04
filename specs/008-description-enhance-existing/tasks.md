@@ -1355,3 +1355,229 @@ Acceptance Scenarios (Phase 14):
 9. ✓ No console errors
 10. ✓ Code cleaner and more maintainable
 
+---
+
+## Phase 15 – Enhance Right Column: Add Lead Technical Details + InstantQuote Result + Collapse by Default
+
+**Goal**: Complete the right column "Lead Details" section by adding Lead Technical Details and InstantQuote Result sections from BidEvaluationModal, and set both right column sections to be collapsed by default.
+
+**User Story**: As an installer building a bid, I want to see comprehensive lead information in the right column including technical details and InstantQuote results, and I want sections collapsed by default to save screen space until I need them.
+
+**Acceptance Criteria**:
+1. Right column "Lead Details" section shows 3 subsections: InstantQuote Details (current), Lead Technical Details (NEW), InstantQuote Result (NEW)
+2. Lead Technical Details includes: Location & Property, Energy & Budget, System Requirements, Contact Information
+3. InstantQuote Result includes: System Overview, Financial Breakdown, Performance Metrics, Savings Chart
+4. Both right column sections (Customer Preview + Lead Details) default to collapsed (false)
+5. All sections use semantic classes (0/0/0/0/0/0 verification)
+6. TypeScript passes
+7. Build passes
+8. Works in all 3 themes
+9. Responsive on all breakpoints
+10. No console errors
+
+### T141 [Audit]: Review BidEvaluationModal Lead Technical Details structure
+- **Path**: `src/components/BidEvaluationModal.tsx` (lines 195-360)
+- **Action**:
+  - Document Lead Technical Details JSX structure
+  - Identify all subsections: Location & Property, Energy & Budget, System Requirements, Contact Info
+  - Note all props and data fields used
+  - Confirm semantic classes used
+- **Testing**:
+  - Structure documented
+  - All data fields cataloged
+- **Acceptance**: Complete understanding of Lead Technical Details section
+- **Status**: ✅ COMPLETE
+
+### T142 [Audit]: Review BidEvaluationModal InstantQuote Result structure
+- **Path**: `src/components/BidEvaluationModal.tsx` (lines 595-780)
+- **Action**:
+  - Document InstantQuote Result JSX structure
+  - Identify all subsections: System Overview, Financial Breakdown, Performance Metrics, Savings Chart
+  - Note all props and data fields used
+  - Verify SavingsChart component integration
+- **Testing**:
+  - Structure documented
+  - All data fields cataloged
+  - SavingsChart props identified
+- **Acceptance**: Complete understanding of InstantQuote Result section
+- **Status**: ✅ COMPLETE
+
+### T143 [Component]: Create LeadTechnicalDetails component
+- **Path**: `src/components/quote-builder/LeadTechnicalDetails.tsx` (NEW FILE)
+- **Action**:
+  - Extract Lead Technical Details structure from BidEvaluationModal (lines 195-360)
+  - Create reusable component with 4 subsections:
+    * Location & Property (location, postcode, propertyType, projectType)
+    * Energy & Budget (energyBill, billType, budgetRange, desiredOffset, leadPrice)
+    * System Requirements (roofType, batteryRequired, batteryCapacity, timeframe)
+    * Contact Information (masked, "Available After Purchase" message)
+  - Accept leadData prop
+  - Use semantic classes only
+- **Testing**:
+  - Component renders with sample data
+  - All 4 subsections display correctly
+  - Run 6 verification commands → 0/0/0/0/0/0
+- **Acceptance**: LeadTechnicalDetails component created
+- **Status**: NOT STARTED
+
+### T144 [Component]: Create InstantQuoteResult component
+- **Path**: `src/components/quote-builder/InstantQuoteResult.tsx` (NEW FILE)
+- **Action**:
+  - Extract InstantQuote Result structure from BidEvaluationModal (lines 595-780)
+  - Create reusable component with sections:
+    * System Overview Cards (systemSize, panelsRequired, annualProduction)
+    * Financial Breakdown (totalCost, rebates, finalPrice)
+    * Performance Metrics (annualSavings, paybackYears, co2Reduction, selfConsumed)
+    * Energy Breakdown (selfConsumedKwh, exportedKwh)
+    * Commercial Metrics (demandChargeSavings, energySavings - conditional)
+    * Savings Projection Chart (SavingsChart component)
+    * Disclaimers (conditional)
+  - Accept quoteData prop (InstantQuoteResults type)
+  - Import and render SavingsChart
+  - Use semantic classes only
+- **Testing**:
+  - Component renders with sample quoteData
+  - SavingsChart renders correctly
+  - All subsections display correctly
+  - Run 6 verification commands → 0/0/0/0/0/0
+- **Acceptance**: InstantQuoteResult component created
+- **Status**: NOT STARTED
+
+### T145 [Integration]: Import new components in QuoteBuilderModal
+- **Path**: `src/components/QuoteBuilderModal.tsx`
+- **Action**:
+  - Add import: `import LeadTechnicalDetails from './quote-builder/LeadTechnicalDetails';`
+  - Add import: `import InstantQuoteResult from './quote-builder/InstantQuoteResult';`
+- **Testing**:
+  - TypeScript shows no import errors
+  - IDE recognizes components
+- **Acceptance**: Imports added successfully
+- **Status**: NOT STARTED
+
+### T146 [State]: Update expandedSections default state to collapsed
+- **Path**: `src/components/QuoteBuilderModal.tsx` (around line 90)
+- **Action**:
+  - Change `customerPreview: true` to `customerPreview: false`
+  - Change `leadDetails: true` to `leadDetails: false`
+- **Testing**:
+  - State defaults to collapsed
+  - Sections can still be toggled
+- **Acceptance**: Both right column sections default to collapsed
+- **Status**: NOT STARTED
+
+### T147 [JSX]: Add LeadTechnicalDetails to Lead Details section
+- **Path**: `src/components/QuoteBuilderModal.tsx` (right column, Lead Details section)
+- **Action**:
+  - Inside "Lead Details - InstantQuote Data" CollapsibleSection
+  - Add LeadTechnicalDetails component after HomeownerInstantQuoteDetails
+  - Pass lead prop (not lead.quoteData)
+  - Add spacing between components (space-y-6 wrapper)
+- **Testing**:
+  - Component renders in Lead Details section
+  - Lead data passes correctly
+  - Spacing looks good
+- **Acceptance**: LeadTechnicalDetails displays in right column
+- **Status**: NOT STARTED
+
+### T148 [JSX]: Add InstantQuoteResult to Lead Details section
+- **Path**: `src/components/QuoteBuilderModal.tsx` (right column, Lead Details section)
+- **Action**:
+  - Inside "Lead Details - InstantQuote Data" CollapsibleSection
+  - Add InstantQuoteResult component after LeadTechnicalDetails
+  - Pass lead.quoteData prop
+  - Wrap in conditional: {lead?.quoteData && <InstantQuoteResult... />}
+  - Maintain space-y-6 wrapper for all 3 components
+- **Testing**:
+  - Component renders when quoteData exists
+  - Doesn't render when quoteData is null
+  - Spacing consistent
+- **Acceptance**: InstantQuoteResult displays in right column
+- **Status**: NOT STARTED
+
+### T149 [TypeScript]: Verify types and fix any errors
+- **Path**: Project root
+- **Action**:
+  - Run `npx tsc --noEmit` → verify 0 errors
+  - Check LeadTechnicalDetails props match Lead type
+  - Check InstantQuoteResult props match InstantQuoteResults type
+  - Fix any type mismatches
+- **Testing**:
+  - TypeScript compilation passes
+  - No type errors in IDE
+- **Acceptance**: TypeScript passes with 0 errors
+- **Status**: NOT STARTED
+
+### T150 [Build]: Build and dev server verification
+- **Path**: Project root
+- **Action**:
+  - Run `npm run build` → verify Success
+  - Run `npm run dev` → verify server starts
+  - Check terminal for compilation errors → should be none
+- **Testing**:
+  - Build completes successfully
+  - Dev server starts without errors
+  - No runtime errors
+- **Acceptance**: Build and dev server work correctly
+- **Status**: NOT STARTED
+
+### T151 [Verification]: Run all 6 verification commands
+- **Path**: Project root
+- **Action**:
+  - Run Command 1: `Select-String -Path "src\components\quote-builder\LeadTechnicalDetails.tsx" -Pattern "text-gray-|text-slate-|bg-gray-|bg-slate-|border-gray-|border-slate-"`
+  - Run Command 2: `Select-String -Path "src\components\quote-builder\LeadTechnicalDetails.tsx" -Pattern "dark:"`
+  - Run Command 3: `Select-String -Path "src\components\quote-builder\LeadTechnicalDetails.tsx" -Pattern "rgba\(|rgb\(|#[0-9a-fA-F]{3,6}"`
+  - Run Command 4: `Select-String -Path "src\components\quote-builder\LeadTechnicalDetails.tsx" -Pattern "text-white|bg-white|text-black|bg-black"`
+  - Run Command 5: `Select-String -Path "src\components\quote-builder\LeadTechnicalDetails.tsx" -Pattern "text-xs|text-sm|text-lg|text-xl|font-bold|font-semibold"`
+  - Run Command 6: `Select-String -Path "src\components\quote-builder\LeadTechnicalDetails.tsx" -Pattern "sm:text-|md:text-|lg:text-"`
+  - Repeat for InstantQuoteResult.tsx
+  - Verify ALL commands return 0 matches
+- **Testing**: Run all 12 commands (6 per file) and check output
+- **Acceptance**: 0/0/0/0/0/0 for both files
+- **Status**: NOT STARTED
+
+### T152 [Browser]: Manual browser testing
+- **Path**: http://localhost:3000 (bid builder page)
+- **Action**:
+  - Open bid builder with lead that has quoteData
+  - Verify right column sections collapsed by default
+  - Click "Customer Preview" → expands and shows preview
+  - Click "Lead Details - InstantQuote Data" → expands and shows:
+    * InstantQuote Details (existing)
+    * Lead Technical Details (NEW)
+    * InstantQuote Result (NEW)
+  - Verify all 3 subsections render correctly
+  - Check SavingsChart renders in InstantQuote Result
+  - Test themes: Dark/Light/Purple
+  - Test responsive: 320px-1440px
+  - Check console for errors → should be 0
+- **Testing**: Manual browser inspection and functional testing
+- **Acceptance**: All sections display correctly, collapsed by default
+- **Status**: NOT STARTED
+
+Post-phase checklist (MANDATORY):
+- [ ] All T141–T152 implemented
+- [ ] LeadTechnicalDetails.tsx created
+- [ ] InstantQuoteResult.tsx created
+- [ ] Both components integrated into QuoteBuilderModal
+- [ ] Right column sections default to collapsed
+- [ ] Run verification commands: 0/0/0/0/0/0 for both new components
+- [ ] `npx tsc --noEmit` → 0 errors
+- [ ] `npm run build` → Success
+- [ ] `npm run dev` → Server starts without errors
+- [ ] Browser test: Right column shows 3 subsections when expanded
+- [ ] Test themes: Dark/Light/Purple
+- [ ] Test responsive: 320px, 375px, 768px, 1024px, 1440px
+- [ ] Commit: `git add . && git commit -m "feat(quote-builder): Phase 15 - Complete right column with Lead Technical Details + InstantQuote Result (T141-T152)"`
+
+Acceptance Scenarios (Phase 15):
+1. ✓ Right column "Lead Details" section has 3 subsections
+2. ✓ Lead Technical Details displays location, energy, system requirements, contact info
+3. ✓ InstantQuote Result displays system overview, financial breakdown, performance metrics, chart
+4. ✓ Both right column sections default to collapsed
+5. ✓ All sections use semantic classes (0/0/0/0/0/0 verification)
+6. ✓ TypeScript compilation passes
+7. ✓ Build passes successfully
+8. ✓ Works in all 3 themes
+9. ✓ Responsive on all breakpoints
+10. ✓ No console errors
+

@@ -18,6 +18,8 @@ import ComplianceDocs, { ComplianceDocsData } from './quote-builder/ComplianceDo
 import CustomerPreview, { CustomerPreviewData, QuoteOption } from './quote-builder/CustomerPreview';
 import HomeownerContext from './quote-builder/HomeownerContext';
 import HomeownerInstantQuoteDetails from './quote-builder/HomeownerInstantQuoteDetails';
+import LeadTechnicalDetails from './quote-builder/LeadTechnicalDetails';
+import InstantQuoteResult from './quote-builder/InstantQuoteResult';
 import { PRESET_BUNDLES } from './quote-builder/Presets';
 
 // --- Types ---
@@ -95,8 +97,8 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
     pricing: false,
     compliance: false,
     preview: true,
-    customerPreview: true,
-    leadDetails: true
+    customerPreview: false,
+    leadDetails: false
   });
 
   // Main quote draft state
@@ -849,10 +851,14 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
                   expanded={expandedSections.leadDetails}
                   onToggle={() => toggleSection('leadDetails')}
                 >
-                  <HomeownerInstantQuoteDetails 
-                    quoteData={lead.quoteData}
-                    batteryRequired={lead.batteryRequired}
-                  />
+                  <div className="space-y-6">
+                    <HomeownerInstantQuoteDetails 
+                      quoteData={lead.quoteData}
+                      batteryRequired={lead.batteryRequired}
+                    />
+                    <LeadTechnicalDetails lead={lead} />
+                    <InstantQuoteResult quoteData={lead.quoteData} />
+                  </div>
                 </CollapsibleSection>
               )}
             </div>

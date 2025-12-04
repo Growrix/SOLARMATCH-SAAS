@@ -2776,3 +2776,13 @@ I want you to remove this "Import from instant Quote" modal and its functionalit
 
 - stat with a commit, so that we can rollback to this current state in case of messup you do .
 ***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and make sure to stay aligned with the specks as well. 
+
+
+------------------------------------------------------------
+
+in the right column > lead details section > s showing only one section from the bid evaluation modal > it aslo should show the Lead technical details and the InstantQuote result as it is. 
+
+- In the right column > keep the 2 section wrapped by default. Now the customer preview section is unwrapped by default. it should be wrapped by default.
+
+***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and make sure to stay aligned with the specks as well.
+
