@@ -127,6 +127,8 @@ module.exports = {
         'fade-out': 'fadeOut 250ms ease-in-out',
         'slide-in-up': 'slideInUp 250ms ease-in-out',
         'slide-out-down': 'slideOutDown 250ms ease-in-out',
+        'scale-in': 'scaleIn 250ms ease-in-out',
+        'scale-out': 'scaleOut 250ms ease-in-out',
       },
       
       backgroundImage: {

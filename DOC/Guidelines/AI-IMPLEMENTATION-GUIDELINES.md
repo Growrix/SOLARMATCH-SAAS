@@ -218,9 +218,10 @@ See existing `specs/*/tasks.md` files for template patterns.
 **CRITICAL RULE**: After EVERY implementation phase and BEFORE every commit, you MUST achieve:
 - **0 TypeScript errors** (`npx tsc --noEmit`)
 - **0 TypeScript warnings** (unused variables, implicit any, deprecated APIs)
-- **0 ESLint warnings** (if project has ESLint configured)
+- **0 ESLint warnings** (`npm run build` shows no warnings)
 - **0 console warnings in browser** (React warnings, prop type mismatches, key warnings)
-- **0 build warnings** (`npm run build` should be completely clean)
+- **0 build warnings** (`npm run build` should show "Compiled successfully" ONLY)
+- **0 problems in VSCode** (Check Problems panel - should be empty)
 
 **Why This Matters:**
 - Warnings indicate code quality issues that WILL become bugs later
@@ -303,6 +304,73 @@ See existing `specs/*/tasks.md` files for template patterns.
 | **Deprecated API** | Replace with modern equivalent (check docs/migration guide) |
 | **Missing dependency** | Run `npm install <package>` and verify package.json updated |
 | **React state update on unmounted** | Add cleanup in useEffect: `return () => { isMounted = false }` |
+| **React Hook exhaustive-deps** | Add missing dependencies to useEffect array OR use `// eslint-disable-next-line react-hooks/exhaustive-deps` if intentional |
+| **Custom classname not Tailwind** | Replace with design token class from tailwind.config.js OR add to config if new pattern |
+| **Using `<img>` instead of `<Image />`** | Replace with `import Image from 'next/image'` and use `<Image />` component |
+
+**ESLint Warning: "Classname 'X' is not a Tailwind CSS class"**
+```markdown
+CAUSE: Using custom CSS class that's not defined in tailwind.config.js
+
+SOLUTIONS (choose one):
+1. Replace with existing design token:
+   - ❌ className="text-danger" 
+   - ✅ className="text-error" (defined in config)
+   
+2. Replace with design system pattern:
+   - ❌ className="animate-scale-in" 
+   - ✅ className="animate-fade-in" (defined in config)
+   
+3. Add to tailwind.config.js if legitimate new pattern:
+   - Check tailwind.config.js → theme.extend
+   - Add new color/animation/typography token
+   - Document reason in commit message
+
+4. If using CSS module class, ensure file imported:
+   - import styles from './Component.module.css'
+   - className={styles.customClass}
+```
+
+**ESLint Warning: "React Hook useEffect has missing dependency"**
+```markdown
+CAUSE: useEffect dependency array doesn't include all used variables
+
+SOLUTIONS (choose one):
+1. Add missing dependency to array (PREFERRED):
+   // ❌ BEFORE:
+   useEffect(() => {
+     fetchData();
+   }, []); // fetchData not in deps
+
+   // ✅ AFTER:
+   useEffect(() => {
+     fetchData();
+   }, [fetchData]); // All deps included
+
+2. Move function inside useEffect:
+   // ✅ GOOD:
+   useEffect(() => {
+     const fetchData = async () => {
+       // ... fetch logic
+     };
+     fetchData();
+   }, [leadId]); // No function dep needed
+
+3. Use useCallback for stable function reference:
+   const fetchData = useCallback(async () => {
+     // ... fetch logic
+   }, [/* deps */]);
+
+   useEffect(() => {
+     fetchData();
+   }, [fetchData]);
+
+4. Suppress warning ONLY if intentionally omitting (rare):
+   useEffect(() => {
+     fetchData();
+   // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, []); // Intentionally run once only
+```
 
 **Verification Checklist Before Commit:**
 ```powershell

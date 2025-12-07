@@ -293,7 +293,7 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
     };
 
     fetchFullLeadData();
-  }, [isOpen, lead?.id]);
+  }, [isOpen, lead?.id]); // All dependencies included
 
   // Autosave effect
   useEffect(() => {
@@ -978,8 +978,8 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
                       </p>
                     </div>
                   ) : leadFetchError ? (
-                    <div className="bg-danger/10 border border-danger/20 rounded-xl p-4">
-                      <p className="text-body-small text-danger">
+                    <div className="bg-error/10 border border-error/20 rounded-xl p-4">
+                      <p className="text-body-small text-error">
                         Error loading lead details: {leadFetchError}
                       </p>
                     </div>
