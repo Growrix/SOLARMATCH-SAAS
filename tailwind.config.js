@@ -81,6 +81,8 @@ module.exports = {
         'heading-2': [typography.heading[2].fontSize.DEFAULT, { lineHeight: typography.heading[2].lineHeight, fontWeight: typography.heading[2].fontWeight }],
         'heading-3': [typography.heading[3].fontSize.DEFAULT, { lineHeight: typography.heading[3].lineHeight, fontWeight: typography.heading[3].fontWeight }],
         'heading-4': [typography.heading[4].fontSize.DEFAULT, { lineHeight: typography.heading[4].lineHeight, fontWeight: typography.heading[4].fontWeight }],
+        'heading-5': ['14px', { lineHeight: '1.5', fontWeight: '600' }], // 14px semibold for smaller headings
+        'heading-6': ['12px', { lineHeight: '1.5', fontWeight: '600' }], // 12px semibold for smallest headings
         body: [typography.body.fontSize.DEFAULT, { lineHeight: typography.body.lineHeight, fontWeight: typography.body.fontWeight }],
         'body-large': [typography['body-large'].fontSize.DEFAULT, { lineHeight: typography['body-large'].lineHeight }],
         'body-small': [typography['body-small'].fontSize, { lineHeight: typography['body-small'].lineHeight }],

@@ -374,6 +374,7 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
       ...prev,
       preview: { options }
     }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quoteDraft.system, quoteDraft.products, quoteDraft.pricing?.lineItems, quoteDraft.assumptions]);
 
   // Auto-sync addons to pricing engine line items (T018)
@@ -403,6 +404,7 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
         }
       }));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quoteDraft.products.addons]);
 
   // Handlers

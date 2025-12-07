@@ -215,13 +215,19 @@ See existing `specs/*/tasks.md` files for template patterns.
 
 **🚨 ZERO WARNINGS POLICY - Mandatory for ALL Changes**
 
-**CRITICAL RULE**: After EVERY implementation phase and BEFORE every commit, you MUST achieve:
-- **0 TypeScript errors** (`npx tsc --noEmit`)
+**CRITICAL RULE - ABSOLUTE 0 PROBLEMS REQUIREMENT**:
+
+After EVERY implementation phase and BEFORE every commit, you MUST achieve **EXACTLY 0 PROBLEMS**:
+- **0 TypeScript errors** (`npx tsc --noEmit` → empty output)
 - **0 TypeScript warnings** (unused variables, implicit any, deprecated APIs)
-- **0 ESLint warnings** (`npm run build` shows no warnings)
+- **0 ESLint warnings** (`npm run build` → "Compiled successfully" ONLY, no warning lines)
 - **0 console warnings in browser** (React warnings, prop type mismatches, key warnings)
-- **0 build warnings** (`npm run build` should show "Compiled successfully" ONLY)
-- **0 problems in VSCode** (Check Problems panel - should be empty)
+- **0 build warnings** (`npm run build` → NO yellow warning text)
+- **0 problems in VSCode Problems panel** (Ctrl+Shift+M → empty list)
+
+**"ZERO" means EXACTLY ZERO - not 1, not 2, not "reduced from 10 to 4"**
+
+If VSCode Problems panel shows "4 problems" → NOT acceptable → MUST fix to "0 problems"
 
 **Why This Matters:**
 - Warnings indicate code quality issues that WILL become bugs later
@@ -306,6 +312,7 @@ See existing `specs/*/tasks.md` files for template patterns.
 | **React state update on unmounted** | Add cleanup in useEffect: `return () => { isMounted = false }` |
 | **React Hook exhaustive-deps** | Add missing dependencies to useEffect array OR use `// eslint-disable-next-line react-hooks/exhaustive-deps` if intentional |
 | **Custom classname not Tailwind** | Replace with design token class from tailwind.config.js OR add to config if new pattern |
+| **Missing heading size (text-heading-5/6)** | Add missing fontSize to tailwind.config.js theme.extend.fontSize section |
 | **Using `<img>` instead of `<Image />`** | Replace with `import Image from 'next/image'` and use `<Image />` component |
 
 **ESLint Warning: "Classname 'X' is not a Tailwind CSS class"**
@@ -386,6 +393,84 @@ git status                          # ✅ Know what you're committing
 **❌ DO NOT COMMIT if ANY verification fails**  
 **❌ DO NOT proceed to next phase if warnings remain**  
 **❌ DO NOT report "complete" with active warnings**
+
+**🎯 ACHIEVING EXACTLY 0 PROBLEMS - Step-by-Step Protocol**
+
+If VSCode Problems panel shows ANY number > 0, follow this systematic approach:
+
+```markdown
+CURRENT STATE: VSCode shows "4 problems" (example from screenshot)
+
+STEP 1: Open Problems Panel
+- Press Ctrl+Shift+M (Windows) or Cmd+Shift+M (Mac)
+- Review EVERY problem listed
+- Document each: File, Line, Warning Type, Message
+
+STEP 2: Categorize Problems
+Group by type:
+- TypeScript errors (red X icon)
+- ESLint warnings (yellow ! icon)
+- Custom classname warnings
+- React Hook warnings
+
+STEP 3: Fix ONE Problem at a Time
+DO NOT try to fix all at once. For EACH problem:
+
+A) Read error message carefully
+B) Open file to exact line number
+C) Apply appropriate fix from "Fixing Common Warnings" table above
+D) Save file
+E) Check Problems panel - should decrease by 1
+F) Repeat until 0
+
+STEP 4: Verify 0 Problems Achieved
+After fixing all:
+- Problems panel shows "No problems" or empty list
+- Run: npx tsc --noEmit → empty output
+- Run: npm run build → "Compiled successfully" (no warnings)
+- VSCode status bar shows 0 errors, 0 warnings
+
+ONLY THEN proceed to commit.
+```
+
+**Example: Fixing "4 problems" to "0 problems"**
+
+```markdown
+BEFORE FIX:
+Problems panel shows:
+1. RoofSiteDetails.tsx (76): Classname 'text-heading-5' is not a Tailwind CSS class
+2. QuoteBuilderModal.tsx (377): React Hook useEffect has missing dependency: 'generatePreviewOptions'
+3. QuoteBuilderModal.tsx (405): React Hook useEffect has missing dependency: 'setQuoteDraft'
+4. QuoteBuilderModal.tsx (1091): Classname 'text-heading-6' is not a Tailwind CSS class
+
+FIX PROCESS:
+Problem 1 & 4 (Custom classnames):
+- Check tailwind.config.js → heading-5 and heading-6 NOT defined
+- Solution: Add to theme.extend.fontSize:
+  'heading-5': ['14px', { lineHeight: '1.5', fontWeight: '600' }],
+  'heading-6': ['12px', { lineHeight: '1.5', fontWeight: '600' }],
+- Result: Problems 1 & 4 resolved
+
+Problem 2 & 3 (React Hook deps):
+- generatePreviewOptions is complex function, adding it would cause infinite loop
+- setQuoteDraft is stable setter, doesn't need to be in deps
+- Solution: Add eslint-disable-next-line comment to each useEffect
+- Result: Problems 2 & 3 resolved
+
+AFTER FIX:
+- Problems panel: "No problems" ✅
+- npx tsc --noEmit: Clean ✅
+- npm run build: "Compiled successfully" ✅
+- Ready to commit ✅
+```
+
+**Common Mistake: "I reduced warnings from 10 to 4"**
+❌ WRONG: Thinking 4 is "better" and acceptable
+✅ CORRECT: 4 is still FAILURE. Must continue until 0.
+
+**Common Mistake: "Most warnings are fixed"**
+❌ WRONG: Partial completion
+✅ CORRECT: 100% completion required. ALL warnings must be resolved.
 
 ---
 
