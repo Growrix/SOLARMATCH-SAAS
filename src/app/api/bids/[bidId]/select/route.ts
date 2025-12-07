@@ -138,6 +138,15 @@ export async function POST(
         }
       });
 
+      // Update lead status to PURCHASED and set purchasedAt timestamp
+      await tx.lead.update({
+        where: { id: bid.leadId },
+        data: {
+          status: 'PURCHASED',
+          purchasedAt: new Date()
+        }
+      });
+
       return selectedBid;
     });
 

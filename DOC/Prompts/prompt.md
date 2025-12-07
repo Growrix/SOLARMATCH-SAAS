@@ -2817,3 +2817,36 @@ I found mismatch between the bid evaluation modal vs Right column lead details s
 ***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and make sure to stay aligned with the specks as well.
 
 
+-------------------------------------------------------------
+
+***your suggested backend plan***
+Backend Plan: Phase 13E – Bid Selection
+
+GET /api/bids/lead/[leadId]
+
+Returns all bids for a given lead.
+Used to populate the modal with up-to-date bid data.
+POST /api/bids/[bidId]/select-winner
+
+Marks a bid as the winner for the lead.
+Updates bid status and lead status to PURCHASED.
+Unlocks installer contact details for the homeowner.
+Sends notifications to the winning installer.
+Lead Status Update
+
+When a winner is selected, update the lead’s status to PURCHASED in the database.
+Notification System
+
+Notify the winning installer (email or in-app).
+Optionally notify other installers of the outcome.
+Security & Validation
+
+Ensure only the homeowner can select a winner for their lead.
+Validate bid and lead IDs.
+Audit Logging
+
+Log winner selection events for compliance and troubleshooting.
+
+***Instructions*** I want you to review the above backend plan and suggest any improvements or changes if needed. after that create the necessary endpoints and database schema as per the plan to support the homeowners review bids modal functionality. make sure the bid data is linked with the respective lead id and installer id. so that we can fetch the bid data later for review and selection by the homeowners.
+
+***strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and make sure to stay aligned with the specks as well.
