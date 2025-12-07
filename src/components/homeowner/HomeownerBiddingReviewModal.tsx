@@ -58,13 +58,8 @@ export default function HomeownerBiddingReviewModal({
   }, [bids, selectedBidId]);
 
   // Fetch full lead data when modal opens
-  useEffect(() => {
-    if (isOpen && leadId) {
-      fetchLeadData();
-    }
-  }, [isOpen, leadId]);
-
-  const fetchLeadData = async () => {
+  const fetchLeadData = React.useCallback(async () => {
+    if (!leadId) return;
     setIsLoadingLead(true);
     setLeadError(null);
     try {
@@ -78,7 +73,13 @@ export default function HomeownerBiddingReviewModal({
     } finally {
       setIsLoadingLead(false);
     }
-  };
+  }, [leadId]);
+
+  useEffect(() => {
+    if (isOpen && leadId) {
+      fetchLeadData();
+    }
+  }, [isOpen, leadId, fetchLeadData]);
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev => ({
@@ -144,7 +145,7 @@ export default function HomeownerBiddingReviewModal({
       onClick={onClose}
     >
       <div 
-        className="bg-background relative w-full h-full md:max-w-[95vw] md:h-[95vh] md:rounded-2xl flex flex-col animate-scale-in shadow-neu-outset-lg"
+        className="bg-background relative w-full h-full md:max-w-[95vw] md:h-[95vh] md:rounded-2xl flex flex-col animate-fade-in shadow-neu-outset-lg"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
@@ -210,7 +211,7 @@ export default function HomeownerBiddingReviewModal({
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
                             <span className="text-label text-muted-foreground">Quote #</span>
-                            <span className="text-heading-5 text-foreground font-mono">
+                            <span className="text-heading-4 text-foreground font-mono">
                               {selectedBid.id.slice(-8).toUpperCase()}
                             </span>
                           </div>
@@ -256,7 +257,7 @@ export default function HomeownerBiddingReviewModal({
 
                     {/* System Specifications */}
                     <div className="bg-surface rounded-xl p-6 border border-border space-y-4">
-                      <h4 className="text-heading-5 text-foreground border-b border-border pb-2">
+                      <h4 className="text-heading-4 text-foreground border-b border-border pb-2">
                         Solar System Specifications
                       </h4>
                       <table className="w-full">
@@ -291,7 +292,7 @@ export default function HomeownerBiddingReviewModal({
 
                     {/* Equipment Details */}
                     <div className="bg-surface rounded-xl p-6 border border-border space-y-4">
-                      <h4 className="text-heading-5 text-foreground border-b border-border pb-2">
+                      <h4 className="text-heading-4 text-foreground border-b border-border pb-2">
                         Equipment & Products
                       </h4>
                       
@@ -403,7 +404,7 @@ export default function HomeownerBiddingReviewModal({
 
                     {/* Pricing Breakdown */}
                     <div className="bg-surface rounded-xl p-6 border border-border space-y-4">
-                      <h4 className="text-heading-5 text-foreground border-b border-border pb-2">
+                      <h4 className="text-heading-4 text-foreground border-b border-border pb-2">
                         Investment Breakdown
                       </h4>
                       
@@ -468,7 +469,7 @@ export default function HomeownerBiddingReviewModal({
 
                     {/* Financial Projections */}
                     <div className="bg-surface rounded-xl p-6 border border-border space-y-4">
-                      <h4 className="text-heading-5 text-foreground border-b border-border pb-2 flex items-center gap-2">
+                      <h4 className="text-heading-4 text-foreground border-b border-border pb-2 flex items-center gap-2">
                         <TrendingUp className="h-5 w-5" />
                         Financial Projections
                       </h4>
@@ -506,7 +507,7 @@ export default function HomeownerBiddingReviewModal({
 
                     {/* Installation & Roof Details */}
                     <div className="bg-surface rounded-xl p-6 border border-border space-y-4">
-                      <h4 className="text-heading-5 text-foreground border-b border-border pb-2">
+                      <h4 className="text-heading-4 text-foreground border-b border-border pb-2">
                         Installation Details
                       </h4>
                       <table className="w-full">
@@ -560,9 +561,9 @@ export default function HomeownerBiddingReviewModal({
                         </p>
                       </div>
                     ) : leadError ? (
-                      <div className="bg-danger/10 border border-danger/20 rounded-xl p-4">
-                        <Info className="h-8 w-8 text-danger mx-auto mb-2" />
-                        <p className="text-body-small text-danger text-center">
+                      <div className="bg-error/10 border border-error/20 rounded-xl p-4">
+                        <Info className="h-8 w-8 text-error mx-auto mb-2" />
+                        <p className="text-body-small text-error text-center">
                           Unable to load lead details: {leadError}
                         </p>
                       </div>
