@@ -165,11 +165,24 @@ export default function HomeownerBiddingReviewModal({
     setIsSelecting(true);
     try {
       await onSelectWinner(selectedBidId);
+      
+      // ✅ T189: Update local state to show winner badge immediately
+      setBids(prevBids => prevBids.map(bid =>
+        bid.id === selectedBidId
+          ? { ...bid, status: 'SELECTED' as const, isWinner: true }
+          : { ...bid, status: 'REJECTED' as const, isWinner: false }
+      ));
+      
       setShowConfirmation(false);
-      // Optionally close modal or show success message
+      
+      // ✅ T189: Keep modal open for 2 seconds to show winner badge, then close
+      setTimeout(() => {
+        onClose();
+      }, 2000);
+      
     } catch (error) {
       console.error('[HomeownerBiddingReviewModal] Error selecting winner:', error);
-      alert('Failed to select winner. Please try again.');
+      // Error handled by parent with toast - no alert needed
     } finally {
       setIsSelecting(false);
     }

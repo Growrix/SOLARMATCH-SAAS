@@ -7,6 +7,7 @@ import { signOut, useSession } from 'next-auth/react';
 import { LeadStatus as LeadStatusEnum } from '@prisma/client';
 import { useTheme, type Theme } from '@/components/ThemeProvider';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
+import { toast } from 'sonner';
 import HomeownerBottomNavBar from '@/components/HomeownerBottomNavBar';
 import HomeownerMobileSidebarMenu from '@/components/HomeownerMobileSidebarMenu';
 import NewQuoteRequestModal from '@/components/NewQuoteRequestModal';
@@ -1482,7 +1483,7 @@ export default function HomeownerDashboardPage() {
           bids={[]}
           onSelectWinner={async (bidId: string) => {
             try {
-              console.log('[Phase 13E] Selecting winner bid:', bidId);
+              console.log('[Phase 13G] Selecting winner bid:', bidId);
               
               // Call backend API to select winner
               const response = await fetch(`/api/bids/${bidId}/select`, {
@@ -1497,18 +1498,35 @@ export default function HomeownerDashboardPage() {
               }
 
               const result = await response.json();
-              console.log('[Phase 13E] Winner selected successfully:', result);
+              console.log('[Phase 13G] Winner selected successfully:', result);
 
-              // Show success message
-              alert(`✅ Winner Selected!\n\nThe installer has been notified and will contact you shortly to schedule installation.`);
+              // ✅ T187: Use toast instead of alert
+              toast.success('Winner Selected!', {
+                description: 'The installer has been notified and will contact you shortly to complete the purchase and begin installation.',
+                duration: 5000
+              });
 
-              // Close the modal and reload page to show updated status
+              // ✅ T188: Close modal - parent will refetch on next open
               setSelectedBiddingLeadId(null);
-              window.location.reload();
+              setIsBiddingReviewModalOpen(false);
+              
             } catch (error) {
-              console.error('[Phase 13E] Error selecting winner:', error);
+              console.error('[Phase 13G] Error selecting winner:', error);
               const message = error instanceof Error ? error.message : 'Unknown error';
-              alert(`❌ Failed to select winner:\n\n${message}\n\nPlease try again.`);
+              
+              // ✅ T187: Use toast for errors too
+              toast.error('Failed to Select Winner', {
+                description: message,
+                duration: 5000,
+                action: {
+                  label: 'Retry',
+                  onClick: () => {
+                    // Modal stays open for retry
+                    console.log('[Phase 13G] User requested retry');
+                  }
+                }
+              });
+              
               throw error; // Re-throw so modal handles loading state
             }
           }}

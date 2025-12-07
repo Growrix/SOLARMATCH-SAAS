@@ -2870,3 +2870,14 @@ I have submitted a bid by the installers account but the bid data is not showing
 - also start with a commit so that we can rollback if needed.
 
 ***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and make sure to stay aligned with the specks as well.
+
+---------------------------------------------------------------
+
+***homeowners Review bids- select as winner function***
+
+now the homeowners can compare bids and has a button to select any installer as winner, but theere is no futher functionality after clicking the select as winner button. so I want you to build the select as winner functionality now. so that when the homeowners click on the select as winner button, the respective installer gets notified that they have won the bid for that lead. and also the lead status gets updated to PURCHASED after the installer make payments.
+
+
+***Instructions*** I want you to audit and understand the current status of the homeowners review bids modal functionality first. after that build the select as winner functionality as per the plan discussed before. so that when the homeowners click on the select as winner button, the respective installer gets notified that they have won the bid for that lead. and also the lead status gets updated to PURCHASED after the installer make payments.
+
+***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and make sure to stay aligned with the specks as well.

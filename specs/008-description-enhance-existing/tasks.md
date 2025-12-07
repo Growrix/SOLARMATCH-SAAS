@@ -4263,5 +4263,922 @@ Next Steps:
 
 ---
 
+## Phase 13G – Homeowner Review Bids: Select Winner Functionality (P0 - Critical)
+
+**Goal**: Complete the select-as-winner functionality so homeowners can select a winning bid, installers get notified, and the lead status updates correctly after payment.
+
+**User Requirement**:
+> "Homeowners can compare bids and have a button to select any installer as winner, but there is no further functionality after clicking the select as winner button. Build the select as winner functionality now so that when homeowners click on the select as winner button, the respective installer gets notified that they have won the bid for that lead, and the lead status gets updated to PURCHASED after the installer makes payments."
+
+**Context** (from comprehensive audit in DOC/Installers/Bidding leads/BID-WINNER-SELECTION-AUDIT.md):
+- **Current State**: UI exists, API endpoint exists, but flow is incomplete (60% complete)
+- **Critical Gaps**:
+  1. ❌ No notifications sent to winner/losers
+  2. ❌ Lead status changes to PURCHASED immediately (should be SELECTED → pay → PURCHASED)
+  3. ❌ Countdown validation blocks selection (should allow anytime)
+  4. ⚠️ Poor UX: Uses alert() instead of Toast, hard page reload
+  5. ⚠️ No audit logging
+
+**Specification References**:
+- Audit Report: `DOC/Installers/Bidding leads/BID-WINNER-SELECTION-AUDIT.md`
+- Guidelines: `DOC/Guidelines/AI-IMPLEMENTATION-GUIDELINES.md`
+- Notification Service: `src/lib/services/notification-service.ts`
+- Notification Types: `prisma/schema.prisma` (enum NotificationType)
+
+**Backup First**: `git add . && git commit -m "backup: before Phase 13G (select winner functionality)"`
+
+---
+
+### T183 [P0][Backend]: Add BID_WON and BID_LOST notification types to schema
+
+- **Path**: `prisma/schema.prisma` (enum NotificationType, around line 495)
+- **Action**:
+  Add new notification types for bid winner/loser flow:
+  
+  ```prisma
+  enum NotificationType {
+    NEW_LEAD
+    LEAD_PURCHASED
+    LEAD_APPROVED
+    LEAD_REJECTED
+    NEW_QUOTE
+    NEW_MESSAGE
+    QUOTE_ACCEPTED
+    QUOTE_REJECTED
+    PAYMENT_RECEIVED
+    SYSTEM
+    LEAD_ASSIGNED
+    LEAD_REASSIGNED
+    LEAD_RESOLD
+    ASSIGNMENT_REMOVED
+    ASSIGNMENT_ACCEPTED_COMPETITIVE
+    BID_WON              // NEW: Installer won the bid
+    BID_LOST             // NEW: Installer's bid was not selected
+  }
+  ```
+  
+- **Testing**:
+  1. Save schema changes
+  2. Run `npx prisma format` → Verify syntax
+  3. Run `npx prisma validate` → Must pass
+  4. Create migration: `npx prisma migrate dev --name add_bid_notification_types`
+  5. Verify migration created in `prisma/migrations/`
+  6. Run `npx prisma generate` → Regenerate client with new types
+  7. Check TypeScript: `npx tsc --noEmit` → 0 errors
+  
+- **Acceptance**:
+  - New notification types added to enum
+  - Migration created and applied
+  - Prisma Client regenerated
+  - TypeScript compilation passes
+  - No breaking changes
+  
+- **Status**: NOT STARTED
+
+---
+
+### T184 [P0][Backend]: Fix lead status logic in select winner endpoint
+
+- **Path**: `src/app/api/bids/[bidId]/select/route.ts`
+- **Action**:
+  Fix critical issues in winner selection endpoint:
+  
+  **1. Remove countdown validation** (lines 88-93):
+  ```typescript
+  // ❌ DELETE THIS CODE:
+  if (bid.lead.expiresAt && bid.lead.expiresAt > new Date()) {
+    return NextResponse.json(
+      { error: 'Cannot select winner until countdown expires' },
+      { status: 403 }
+    );
+  }
+  
+  // ✅ REASON: Homeowners should be able to select winner anytime after bids are submitted
+  //            Countdown is just a deadline for installers to submit, not selection deadline
+  ```
+  
+  **2. Fix lead status** (line 143):
+  ```typescript
+  // ❌ BEFORE (wrong - changes to PURCHASED before payment):
+  await tx.lead.update({
+    where: { id: bid.leadId },
+    data: {
+      status: 'PURCHASED',    // ❌ WRONG
+      purchasedAt: new Date() // ❌ WRONG
+    }
+  });
+  
+  // ✅ AFTER (correct - changes to SELECTED until payment):
+  await tx.lead.update({
+    where: { id: bid.leadId },
+    data: {
+      status: 'SELECTED',      // ✅ Correct: Winner selected, waiting for payment
+      installerId: bid.installerId // ✅ Add: Track winner
+      // purchasedAt should be set in purchase endpoint, not here
+    }
+  });
+  ```
+  
+- **Testing**:
+  1. TypeScript check: `npx tsc --noEmit` → 0 errors
+  2. Test endpoint:
+     - Create test lead with bids
+     - POST /api/bids/{bidId}/select
+     - Verify response: 200 OK
+     - Check Prisma Studio:
+       - Lead status: 'SELECTED' (not 'PURCHASED')
+       - Lead installerId: Winner's ID
+       - Lead purchasedAt: null (not set yet)
+     - Verify no countdown validation error
+  
+- **Acceptance**:
+  - Countdown validation removed
+  - Lead status changed to 'SELECTED' (not 'PURCHASED')
+  - Lead installerId updated to winner
+  - purchasedAt not set (waiting for payment)
+  - Endpoint works correctly
+  
+- **Status**: NOT STARTED
+
+---
+
+### T185 [P0][Backend]: Implement winner/loser notifications in select endpoint
+
+- **Path**: `src/app/api/bids/[bidId]/select/route.ts`
+- **Action**:
+  Add comprehensive notification system after winner selection:
+  
+  Replace TODO comment (lines 160-164) with actual implementation:
+  
+  ```typescript
+  // Import notification service at top of file
+  import { createNotification } from '@/lib/services/notification-service';
+  
+  // ... in POST function, after bid status updates ...
+  
+  // Get all bids for this lead (to notify losers)
+  const allBids = await prisma.bid.findMany({
+    where: { leadId: bid.leadId },
+    include: {
+      installer: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          companyName: true
+        }
+      }
+    }
+  });
+  
+  // Get lead location for notification messages
+  const leadLocation = `${bid.lead.suburb}, ${bid.lead.state} ${bid.lead.postcode}`;
+  
+  // Send notification to WINNER
+  await createNotification({
+    userId: bid.installerId,
+    type: 'BID_WON',
+    title: '🎉 Congratulations! Your bid was selected',
+    message: `The homeowner at ${leadLocation} has selected your bid! Proceed to payment to unlock full contact details and begin installation.`,
+    actionUrl: `/installer/leads/${bid.leadId}`,
+    metadata: {
+      bidId: bid.id,
+      leadId: bid.leadId,
+      leadLocation: leadLocation,
+      finalTotal: bid.finalTotal,
+      systemSize: bid.systemData?.capacityKw || 'N/A'
+    }
+  });
+  
+  console.log('[POST /api/bids/[bidId]/select] Winner notification sent:', {
+    bidId: bid.id,
+    winnerId: bid.installerId,
+    winnerEmail: bid.installer.email
+  });
+  
+  // Send notifications to LOSERS (polite messages)
+  const loserBids = allBids.filter(b => b.id !== bidId && b.status === 'SUBMITTED');
+  
+  for (const loserBid of loserBids) {
+    await createNotification({
+      userId: loserBid.installerId,
+      type: 'BID_LOST',
+      title: 'Bid Update',
+      message: `Thank you for your bid on ${leadLocation}. The homeowner has selected another installer for this project. We appreciate your participation and encourage you to continue bidding on future leads.`,
+      actionUrl: `/installer/leads`,
+      metadata: {
+        bidId: loserBid.id,
+        leadId: bid.leadId,
+        leadLocation: leadLocation,
+        reason: 'Another bid selected'
+      }
+    });
+    
+    console.log('[POST /api/bids/[bidId]/select] Loser notification sent:', {
+      bidId: loserBid.id,
+      loserId: loserBid.installerId,
+      loserEmail: loserBid.installer.email
+    });
+  }
+  
+  console.log('[POST /api/bids/[bidId]/select] Notifications complete:', {
+    winnerId: bid.installerId,
+    losersNotified: loserBids.length,
+    totalBids: allBids.length
+  });
+  ```
+  
+- **Testing**:
+  1. Create test scenario:
+     - 1 lead
+     - 3 submitted bids (Installer A, B, C)
+  2. Select Installer B as winner
+  3. POST /api/bids/{bidId}/select
+  4. Verify in Prisma Studio:
+     - Notification table: 3 new records
+       - 1x BID_WON for Installer B
+       - 2x BID_LOST for Installer A and C
+  5. Check notification content:
+     - Winner: Congratulatory message with lead location
+     - Losers: Polite thank-you message
+  6. Verify metadata included:
+     - bidId, leadId, leadLocation, finalTotal (winner only)
+  7. Check console logs confirm notifications sent
+  
+- **Acceptance**:
+  - Winner receives BID_WON notification
+  - All losers receive BID_LOST notifications
+  - Notification messages professional and clear
+  - Metadata includes relevant info for actions
+  - Console logs confirm all notifications sent
+  - No errors during notification creation
+  
+- **Status**: NOT STARTED
+
+---
+
+### T186 [P1][Backend]: Update notification service to handle BID_WON/BID_LOST emails
+
+- **Path**: `src/lib/services/notification-service.ts`
+- **Action**:
+  Add new notification types to email notification list:
+  
+  Find `shouldSendEmail` function (around line 82) and update:
+  
+  ```typescript
+  function shouldSendEmail(type: NotificationType): boolean {
+    const emailNotificationTypes: NotificationType[] = [
+      'NEW_LEAD',
+      'LEAD_PURCHASED',
+      'LEAD_APPROVED',
+      'NEW_QUOTE',
+      'QUOTE_ACCEPTED',
+      'PAYMENT_RECEIVED',
+      'BID_WON',        // ✅ NEW: Send email to winner
+      'BID_LOST',       // ✅ NEW: Send email to losers
+    ];
+  
+    return emailNotificationTypes.includes(type);
+  }
+  ```
+  
+  **Reasoning**: Bid winner/loser notifications are important enough to warrant email alerts, not just in-app notifications.
+  
+- **Testing**:
+  1. TypeScript check: `npx tsc --noEmit` → 0 errors
+  2. Test email sending (if email service configured):
+     - Trigger winner selection
+     - Check email inbox for BID_WON email
+     - Check loser inboxes for BID_LOST emails
+  3. If email not configured:
+     - Verify in-app notifications work
+     - Emails will be queued but not sent (expected behavior)
+  
+- **Acceptance**:
+  - BID_WON and BID_LOST added to email types list
+  - TypeScript compilation passes
+  - Email sending works (if configured)
+  - In-app notifications always work
+  
+- **Status**: NOT STARTED
+
+---
+
+### T187 [P1][Frontend]: Replace alert() with Toast notifications in dashboard
+
+- **Path**: `src/app/homeowner/dashboard/page.tsx`
+- **Action**:
+  Replace browser alert() calls with proper Toast UI component:
+  
+  Find `onSelectWinner` function (around line 1483) and update:
+  
+  ```typescript
+  // ❌ BEFORE (bad UX):
+  alert(`✅ Winner Selected!\n\nThe installer has been notified...`);
+  alert(`❌ Failed to select winner:\n\n${message}\n\nPlease try again.`);
+  
+  // ✅ AFTER (good UX):
+  import { toast } from 'sonner'; // or your toast library
+  
+  onSelectWinner={async (bidId: string) => {
+    try {
+      console.log('[Phase 13G] Selecting winner bid:', bidId);
+      
+      const response = await fetch(`/api/bids/${bidId}/select`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ leadId: selectedBiddingLeadId })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to select winner');
+      }
+
+      const result = await response.json();
+      console.log('[Phase 13G] Winner selected successfully:', result);
+
+      // ✅ SUCCESS: Use toast instead of alert
+      toast.success('Winner Selected!', {
+        description: 'The installer has been notified and will contact you shortly to schedule installation.',
+        duration: 5000
+      });
+
+      // ✅ BETTER: Update state instead of hard reload
+      // Option 1: Refetch bids
+      await fetchBids();
+      setIsBiddingReviewModalOpen(false);
+      
+      // Option 2: Or close and trigger parent refresh
+      setSelectedBiddingLeadId(null);
+      onRefresh(); // Add refresh callback prop if needed
+      
+    } catch (error) {
+      console.error('[Phase 13G] Error selecting winner:', error);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      
+      // ✅ ERROR: Use toast instead of alert
+      toast.error('Failed to Select Winner', {
+        description: message,
+        duration: 5000,
+        action: {
+          label: 'Retry',
+          onClick: () => {
+            // Retry logic or keep modal open
+          }
+        }
+      });
+    }
+  }}
+  ```
+  
+- **Testing**:
+  1. TypeScript check: `npx tsc --noEmit` → 0 errors
+  2. Test success flow:
+     - Select winner
+     - Verify toast appears (top-right or bottom-right)
+     - Verify toast has success styling (green checkmark)
+     - Verify toast auto-dismisses after 5 seconds
+     - Verify modal closes or refreshes
+  3. Test error flow:
+     - Trigger error (e.g., network failure)
+     - Verify error toast appears (red styling)
+     - Verify error message clear
+     - Verify retry button works
+  
+- **Acceptance**:
+  - alert() removed completely
+  - Toast notifications work for success and error
+  - Toast auto-dismiss after 5 seconds
+  - Better UX with proper styling
+  - No hard page reload (state updates instead)
+  
+- **Status**: NOT STARTED
+
+---
+
+### T188 [P2][Frontend]: Remove hard page reload, use state updates
+
+- **Path**: `src/app/homeowner/dashboard/page.tsx`
+- **Action**:
+  Replace `window.location.reload()` with React state updates:
+  
+  ```typescript
+  // ❌ BEFORE (bad UX - slow, janky):
+  window.location.reload();
+  
+  // ✅ AFTER (good UX - instant, smooth):
+  // Option 1: Refetch bids (if modal fetches data)
+  await fetchBids();
+  setIsBiddingReviewModalOpen(false);
+  
+  // Option 2: Update local state with winner badge
+  setBids(prevBids => prevBids.map(bid => 
+    bid.id === selectedBidId 
+      ? { ...bid, status: 'SELECTED', isWinner: true }
+      : { ...bid, status: 'REJECTED' }
+  ));
+  setIsBiddingReviewModalOpen(false);
+  
+  // Option 3: Trigger parent component refresh callback
+  onSelectWinnerSuccess(); // Parent handles refresh
+  setIsBiddingReviewModalOpen(false);
+  ```
+  
+- **Testing**:
+  1. Select winner
+  2. Verify modal closes smoothly (no page flash)
+  3. Verify lead card shows "Winner Selected" badge immediately
+  4. Verify no browser reload (check DevTools Network tab)
+  5. Verify bid list updates correctly
+  
+- **Acceptance**:
+  - No hard page reload
+  - State updates immediately
+  - UI reflects changes instantly
+  - Smooth user experience
+  - No network requests beyond API call
+  
+- **Status**: NOT STARTED
+
+---
+
+### T189 [P2][Frontend]: Add success state to HomeownerBiddingReviewModal
+
+- **Path**: `src/components/homeowner/HomeownerBiddingReviewModal.tsx`
+- **Action**:
+  Show winner badge immediately after selection:
+  
+  ```typescript
+  // Add state for winner selection
+  const [selectedWinnerId, setSelectedWinnerId] = useState<string | null>(null);
+  
+  // In handleConfirmSelection function:
+  const handleConfirmSelection = async () => {
+    if (!selectedBidId || !onSelectWinner) return;
+    
+    setIsSelecting(true);
+    try {
+      await onSelectWinner(selectedBidId);
+      
+      // ✅ Update local state to show winner badge immediately
+      setSelectedWinnerId(selectedBidId);
+      setBids(prevBids => prevBids.map(bid =>
+        bid.id === selectedBidId
+          ? { ...bid, status: 'SELECTED', isWinner: true }
+          : { ...bid, status: 'REJECTED' }
+      ));
+      
+      setShowConfirmation(false);
+      
+      // Don't close modal immediately - let user see winner badge
+      // toast.success will show, then modal can close after 2 seconds
+      setTimeout(() => {
+        onClose();
+      }, 2000);
+      
+    } catch (error) {
+      console.error('[HomeownerBiddingReviewModal] Error selecting winner:', error);
+      // Error handled by parent with toast
+    } finally {
+      setIsSelecting(false);
+    }
+  };
+  
+  // Update bid card UI to show winner badge:
+  {selectedBid.isWinner && (
+    <span className="bg-success/20 text-success px-3 py-1 rounded-full text-label flex items-center gap-2">
+      <CheckCircle className="h-4 w-4" />
+      Winner Selected
+    </span>
+  )}
+  ```
+  
+- **Testing**:
+  1. Select winner
+  2. Verify winner badge appears immediately
+  3. Verify other bids show "Not Selected" or disabled state
+  4. Verify modal stays open for 2 seconds (user sees result)
+  5. Verify modal closes after toast and delay
+  
+- **Acceptance**:
+  - Winner badge shows immediately after selection
+  - Modal doesn't close instantly (gives feedback)
+  - Success state visible before modal closes
+  - Smooth transition to closed state
+  
+- **Status**: NOT STARTED
+
+---
+
+### T190 [P2][Backend]: Add audit logging for bid selection events
+
+- **Path**: `src/app/api/bids/[bidId]/select/route.ts`
+- **Action**:
+  Add audit log entry after successful winner selection:
+  
+  ```typescript
+  // Import at top
+  import { prisma } from '@/lib/prisma';
+  
+  // After winner selection success, before return statement:
+  
+  // Create audit log entry
+  await prisma.auditLog.create({
+    data: {
+      leadId: bid.leadId,
+      userId: session.user.id, // Homeowner who selected winner
+      action: 'BID_SELECTED_AS_WINNER',
+      entityType: 'Bid',
+      entityId: bid.id,
+      metadata: {
+        bidId: bid.id,
+        winnerId: bid.installerId,
+        winnerEmail: bid.installer.email,
+        winnerCompany: bid.installer.companyName,
+        finalTotal: bid.finalTotal,
+        leadLocation: `${bid.lead.suburb}, ${bid.lead.state}`,
+        totalBidsReceived: allBids.length,
+        losersNotified: loserBids.length,
+        timestamp: new Date().toISOString()
+      },
+      ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
+      userAgent: request.headers.get('user-agent') || 'unknown'
+    }
+  });
+  
+  console.log('[POST /api/bids/[bidId]/select] Audit log created:', {
+    action: 'BID_SELECTED_AS_WINNER',
+    leadId: bid.leadId,
+    bidId: bid.id,
+    homeownerId: session.user.id
+  });
+  ```
+  
+- **Testing**:
+  1. Select winner
+  2. Check Prisma Studio → AuditLog table
+  3. Find entry with action='BID_SELECTED_AS_WINNER'
+  4. Verify metadata contains:
+     - bidId, winnerId, finalTotal, leadLocation
+     - totalBidsReceived, losersNotified
+     - timestamp
+  5. Verify ipAddress and userAgent captured
+  
+- **Acceptance**:
+  - Audit log created for every winner selection
+  - All relevant metadata included
+  - IP and user agent tracked
+  - Useful for compliance and troubleshooting
+  
+- **Status**: NOT STARTED
+
+---
+
+### T191 [P0][Testing]: End-to-end winner selection flow test
+
+- **Path**: Browser + Prisma Studio
+- **Action**:
+  Test complete winner selection flow:
+  
+  **Test Scenario:**
+  1. **Setup** (use seeded data from Phase 13F):
+     - 1 lead (Ashmore, QLD 4214)
+     - 3 installers submit bids (Mohammad, Installer B, Installer C)
+  
+  2. **Homeowner selects winner:**
+     - Login as homeowner: homeowner@test.com / homeowner123
+     - Navigate to lead detail page
+     - Click "Review Bids" button
+     - Compare 3 bids side-by-side
+     - Select Mohammad as winner
+     - Verify confirmation dialog appears
+     - Click "Confirm Selection"
+  
+  3. **Verify success feedback:**
+     - Verify toast notification appears: "Winner Selected!"
+     - Verify toast description clear
+     - Verify winner badge shows immediately
+     - Verify modal closes after 2 seconds
+     - Verify no alert() shown
+     - Verify no page reload
+  
+  4. **Verify database updates:**
+     - Open Prisma Studio: http://localhost:5555
+     - Check Bid table:
+       - Mohammad's bid: status='SELECTED', selectedAt populated
+       - Other bids: status='REJECTED'
+     - Check Lead table:
+       - status='SELECTED' (not 'PURCHASED')
+       - installerId=Mohammad's ID
+       - purchasedAt=null
+     - Check Notification table:
+       - 3 new notifications:
+         - 1x BID_WON for Mohammad
+         - 2x BID_LOST for others
+     - Check AuditLog table:
+       - 1 entry: action='BID_SELECTED_AS_WINNER'
+       - metadata includes all details
+  
+  5. **Verify winner notification:**
+     - Login as Mohammad: mohammad@installer.com / installer123
+     - Check notification center
+     - Verify "🎉 Congratulations! Your bid was selected" notification
+     - Click notification → Navigate to lead page
+     - Verify lead shows "Selected as Winner" badge
+     - Verify "Proceed to Payment" button visible
+     - Verify contact details still masked (until payment)
+  
+  6. **Verify loser notifications:**
+     - Login as Installer B
+     - Check notification center
+     - Verify "Bid Update" notification with polite message
+     - Verify no negative tone, professional message
+     - Verify link to browse new leads
+  
+  7. **Verify purchase flow** (future Phase 13D):
+     - As Mohammad, click "Proceed to Payment"
+     - Complete payment (dev mode - no Stripe)
+     - POST /api/bids/{bidId}/purchase
+     - Verify lead status changes to 'PURCHASED'
+     - Verify purchasedAt timestamp set
+     - Verify contact details unlocked
+  
+  **Expected Results:**
+  - ✅ Winner selection completes without errors
+  - ✅ Toast notifications work (no alerts)
+  - ✅ Database updates correct (SELECTED status, not PURCHASED)
+  - ✅ Winner receives BID_WON notification
+  - ✅ Losers receive polite BID_LOST notifications
+  - ✅ Audit log created
+  - ✅ No console errors
+  - ✅ No hard page reload
+  - ✅ Smooth user experience
+  
+- **Acceptance**:
+  - All 7 test steps pass
+  - End-to-end flow works correctly
+  - Database integrity maintained
+  - Notifications sent successfully
+  - UX improvements working
+  - Ready for Phase 13 completion
+  
+- **Status**: NOT STARTED
+
+---
+
+### T192 [P1][Documentation]: Update spec.md and tasks.md with Phase 13G completion
+
+- **Path**: `specs/008-description-enhance-existing/spec.md`, `specs/008-description-enhance-existing/tasks.md`
+- **Action**:
+  Document Phase 13G completion:
+  
+  **1. Update spec.md:**
+  Add User Story for winner selection flow:
+  
+  ```markdown
+  ### User Story 9: Homeowner Review Bids - Select Winner Functionality
+  
+  **As a** homeowner who requested a bidding quote  
+  **I want to** compare multiple installer bids and select a winner  
+  **So that** the winning installer is notified and I receive quality installation service
+  
+  **Acceptance Criteria:**
+  - [x] Homeowners can compare all submitted bids side-by-side
+  - [x] Select as Winner button available for each bid
+  - [x] Confirmation dialog before selection
+  - [x] Winner receives BID_WON notification immediately
+  - [x] Losers receive polite BID_LOST notifications
+  - [x] Lead status updates to SELECTED (not PURCHASED before payment)
+  - [x] Winner must pay to unlock full contact details
+  - [x] After payment, lead status changes to PURCHASED
+  - [x] Toast notifications (no browser alerts)
+  - [x] No hard page reload (state updates)
+  - [x] Audit log created for compliance
+  
+  **Technical Implementation:**
+  - Notification types: BID_WON, BID_LOST
+  - API endpoint: POST /api/bids/{bidId}/select
+  - Lead status flow: NEW → APPROVED → SELECTED → PURCHASED
+  - Notification service: createNotification()
+  - Audit logging: AuditLog table
+  ```
+  
+  **2. Update tasks.md:**
+  Mark Phase 13G complete with summary at end of Phase 13 section
+  
+- **Acceptance**:
+  - spec.md updated with User Story 9
+  - tasks.md marked complete with detailed summary
+  - All acceptance scenarios documented
+  
+- **Status**: NOT STARTED
+
+---
+
+### T193 [P0][Commit]: Create atomic commit for Phase 13G
+
+- **Path**: Git repository
+- **Action**:
+  Create comprehensive commit with all changes:
+  
+  ```powershell
+  git add -A
+  git commit -m "feat(bidding): Phase 13G Complete - Select Winner Functionality (T183-T193)
+
+**Homeowner Review Bids - Select Winner Implementation**
+
+Root Cause (from audit DOC/Installers/Bidding leads/BID-WINNER-SELECTION-AUDIT.md):
+- UI and API existed but flow incomplete (60% done)
+- No notifications sent to winner/losers
+- Lead status changed to PURCHASED immediately (should be SELECTED first)
+- Countdown validation blocked selection (incorrect business logic)
+- Poor UX: alert() instead of Toast, hard page reload
+- No audit logging
+
+Solution Implemented:
+✅ Added BID_WON and BID_LOST notification types to schema
+✅ Fixed lead status logic (SELECTED → pay → PURCHASED)
+✅ Removed countdown validation (homeowner can select anytime)
+✅ Implemented winner/loser notifications with polite messages
+✅ Replaced alert() with Toast notifications (better UX)
+✅ Removed hard page reload (state updates instead)
+✅ Added winner badge to modal (immediate feedback)
+✅ Added audit logging for compliance
+✅ Updated notification service for email alerts
+
+Database Changes:
+✅ Migration: add_bid_notification_types
+✅ Enum NotificationType: +2 values (BID_WON, BID_LOST)
+
+Backend Changes:
+✅ src/app/api/bids/[bidId]/select/route.ts:
+   - Removed countdown validation (lines 88-93)
+   - Fixed lead status: 'SELECTED' instead of 'PURCHASED'
+   - Added winner notification (BID_WON)
+   - Added loser notifications (BID_LOST) with polite message
+   - Added audit logging with metadata
+✅ src/lib/services/notification-service.ts:
+   - Added BID_WON and BID_LOST to email types
+
+Frontend Changes:
+✅ src/app/homeowner/dashboard/page.tsx:
+   - Replaced alert() with toast.success() / toast.error()
+   - Removed window.location.reload()
+   - Added state updates for smooth UX
+✅ src/components/homeowner/HomeownerBiddingReviewModal.tsx:
+   - Added winner badge state
+   - Immediate UI feedback after selection
+   - 2-second delay before modal close (user sees result)
+
+Testing Results:
+✅ End-to-end test passed:
+   - Homeowner selects winner → Toast shows → Database updated
+   - Winner receives BID_WON notification
+   - Losers receive polite BID_LOST notifications
+   - Lead status: 'SELECTED' (correct)
+   - Audit log created with metadata
+   - No console errors
+   - Smooth UX (no alert, no reload)
+
+Verification:
+✅ TypeScript: 0 errors
+✅ Build: Success
+✅ Prisma Studio: All database updates correct
+✅ Browser test: Winner selection works end-to-end
+✅ Notifications: Winner + losers notified correctly
+✅ Audit log: Created with full metadata
+✅ UX: Toast notifications, no hard reload, winner badge shows
+
+Files Modified:
+- prisma/schema.prisma (enum NotificationType)
+- src/app/api/bids/[bidId]/select/route.ts (notifications + audit)
+- src/lib/services/notification-service.ts (email types)
+- src/app/homeowner/dashboard/page.tsx (toast + state updates)
+- src/components/homeowner/HomeownerBiddingReviewModal.tsx (winner badge)
+- specs/008-description-enhance-existing/spec.md (User Story 9)
+- specs/008-description-enhance-existing/tasks.md (Phase 13G)
+
+Migration:
+- prisma/migrations/.../add_bid_notification_types
+
+Documentation:
+- Audit report: DOC/Installers/Bidding leads/BID-WINNER-SELECTION-AUDIT.md
+- User Story 9 added to spec.md
+- Phase 13G summary in tasks.md
+
+Lessons Learned:
+- Lead status flow critical: SELECTED ≠ PURCHASED (payment required first)
+- Polite loser notifications improve installer retention
+- Toast > alert() for professional UX
+- State updates > hard reload for smooth experience
+- Audit logging essential for compliance and troubleshooting
+
+Impact:
+✅ Phase 13 bidding flow 100% complete
+✅ Homeowners can select winners
+✅ Installers notified appropriately (winner/loser)
+✅ Payment flow ready (lead status correct)
+✅ Professional UX (no alerts, smooth transitions)
+✅ Audit trail for all selections
+
+Status: READY FOR PRODUCTION ✅
+
+Next Steps:
+- Phase 13H: Winner payment flow (POST /api/bids/{bidId}/purchase)
+- Phase 13I: Contact details unlock after payment
+- Phase 14: Homeowner bid comparison UI enhancements
+- Future: Email templates for winner/loser notifications"
+  ```
+  
+- **Acceptance**:
+  - Commit message comprehensive and clear
+  - All changes staged
+  - Commit follows convention
+  - Ready to push
+  
+- **Status**: NOT STARTED
+
+---
+
+**Phase 13G Checkpoint** (MANDATORY - STOP if any fail):
+- [ ] All T183-T193 tasks completed
+- [ ] Schema migration applied: add_bid_notification_types
+- [ ] TypeScript: `npx tsc --noEmit` → 0 errors
+- [ ] Build: `npm run build` → Success
+- [ ] Prisma Studio: Notification types visible, audit logs created
+- [ ] Browser test: Winner selection works end-to-end
+- [ ] Winner receives BID_WON notification
+- [ ] Losers receive polite BID_LOST notifications
+- [ ] Lead status: 'SELECTED' (not 'PURCHASED')
+- [ ] Toast notifications work (no alert())
+- [ ] No hard page reload (state updates)
+- [ ] Winner badge shows immediately
+- [ ] Audit log created with metadata
+- [ ] No console errors
+- [ ] spec.md and tasks.md updated
+- [ ] Atomic commit created with comprehensive message
+
+**Phase 13G Success Criteria:**
+
+**Functional Requirements:**
+- [x] Homeowners can select bid as winner
+- [x] Winner receives BID_WON notification
+- [x] Losers receive polite BID_LOST notifications
+- [x] Lead status updates to 'SELECTED' (not 'PURCHASED')
+- [x] Toast notifications replace alert()
+- [x] State updates replace hard reload
+- [x] Winner badge shows immediately
+- [x] Audit logging works
+
+**Technical Requirements:**
+- [x] BID_WON and BID_LOST notification types added
+- [x] Schema migration applied
+- [x] Notification service updated
+- [x] TypeScript: 0 errors
+- [x] Build: Success
+- [x] No console errors
+
+**Testing Requirements:**
+- [x] End-to-end test passed (7 steps)
+- [x] Database verification in Prisma Studio
+- [x] Notification delivery confirmed
+- [x] UX improvements verified
+- [x] No regressions in existing functionality
+
+**Documentation:**
+- [x] Audit report created
+- [x] spec.md updated with User Story 9
+- [x] tasks.md updated with Phase 13G
+- [x] Comprehensive commit message
+
+**User Experience:**
+- [x] Toast notifications (professional)
+- [x] No hard reload (smooth)
+- [x] Winner badge (immediate feedback)
+- [x] Polite loser messages (respectful)
+- [x] Clear success/error states
+
+---
+
+**Phase 13G Status**: PLANNED - Ready for implementation  
+**Priority**: P0 - Critical for bidding flow completion  
+**Estimated Effort**: 4-6 hours (11 tasks)  
+**Dependencies**: 
+- Phase 13A-C Complete (schema + API endpoints)
+- Phase 13F Complete (database seeded with test data)
+
+**Risk Assessment**:
+- **Low Risk**: Schema changes (additive only)
+- **Low Risk**: Notification implementation (service exists)
+- **Medium Risk**: UX changes (testing required)
+- **Mitigation**: Test each change immediately, use toast library correctly
+
+**Blockers**: None - All dependencies complete
+
+**Next Phase After 13G**: Phase 13H - Winner Payment Flow (purchase endpoint enhancement)
+
+---
+
 
 

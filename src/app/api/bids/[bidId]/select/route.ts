@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { createNotification } from '@/lib/services/notification-service';
 
 /**
  * POST /api/bids/[bidId]/select
@@ -48,15 +49,9 @@ export async function POST(
     const bid = await prisma.bid.findUnique({
       where: { id: bidId },
       include: {
-        lead: {
-          include: {
-            homeowner: {
-              select: { id: true, email: true, name: true }
-            }
-          }
-        },
+        lead: true,
         installer: {
-          select: { id: true, email: true, companyName: true }
+          select: { id: true, email: true, companyName: true, name: true }
         }
       }
     });
@@ -84,13 +79,8 @@ export async function POST(
       );
     }
 
-    // Validate countdown has expired
-    if (bid.lead.expiresAt && bid.lead.expiresAt > new Date()) {
-      return NextResponse.json(
-        { error: 'Cannot select winner until countdown expires' },
-        { status: 403 }
-      );
-    }
+    // ✅ T184: Removed countdown validation - homeowners can select winner anytime
+    // Countdown is a deadline for installers to submit bids, not for homeowner selection
 
     // Validate bid status is SUBMITTED (not already selected/rejected)
     if (bid.status !== 'SUBMITTED') {
@@ -138,12 +128,15 @@ export async function POST(
         }
       });
 
-      // Update lead status to PURCHASED and set purchasedAt timestamp
+      // ✅ T184: Fixed lead status - PURCHASED (after selection, installer must pay)
+      // Note: Lead status flow is NEW → APPROVED → PURCHASED (after winner selected)
+      // purchasedAt will be updated when installer completes payment
       await tx.lead.update({
         where: { id: bid.leadId },
         data: {
           status: 'PURCHASED',
-          purchasedAt: new Date()
+          installerId: bid.installerId, // Track winning installer
+          purchasedAt: new Date() // Mark as purchased when winner selected
         }
       });
 
@@ -157,11 +150,107 @@ export async function POST(
       homeownerId: session.user.id
     });
 
-    // TODO: Trigger notifications
-    // - Send email to winning installer: "Congratulations! Your bid was selected."
-    // - Send email to losing installers: "Thank you for bidding. Another installer was selected."
-    // await sendBidSelectedEmail(bid.installer.email, true);
-    // await sendBidRejectedEmails(losingInstallers);
+    // ✅ T185: Implement winner/loser notifications
+    // Get all bids for this lead (to notify losers)
+    const allBids = await prisma.bid.findMany({
+      where: { leadId: bid.leadId },
+      include: {
+        installer: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            companyName: true
+          }
+        }
+      }
+    });
+
+    const leadLocation = `${bid.lead.location}, ${bid.lead.state} ${bid.lead.postcode}`;
+
+    // Send notification to WINNER
+    await createNotification({
+      userId: bid.installerId,
+      type: 'BID_WON',
+      title: '🎉 Congratulations! Your bid was selected',
+      message: `The homeowner at ${leadLocation} has selected your bid! Proceed to payment to unlock full contact details and begin installation.`,
+      actionUrl: `/installer/leads/${bid.leadId}`,
+      metadata: {
+        bidId: bid.id,
+        leadId: bid.leadId,
+        leadLocation: leadLocation,
+        finalTotal: bid.finalTotal,
+        systemSize: (bid.systemData as any)?.capacityKw || 'N/A'
+      }
+    });
+
+    console.log('[POST /api/bids/[bidId]/select] Winner notification sent:', {
+      bidId: bid.id,
+      winnerId: bid.installerId,
+      winnerEmail: bid.installer.email
+    });
+
+    // Send notifications to LOSERS (polite messages)
+    const loserBids = allBids.filter(b => b.id !== bidId && b.status === 'REJECTED');
+
+    for (const loserBid of loserBids) {
+      await createNotification({
+        userId: loserBid.installerId,
+        type: 'BID_LOST',
+        title: 'Bid Update',
+        message: `Thank you for your bid on ${leadLocation}. The homeowner has selected another installer for this project. We appreciate your participation and encourage you to continue bidding on future leads.`,
+        actionUrl: `/installer/leads`,
+        metadata: {
+          bidId: loserBid.id,
+          leadId: bid.leadId,
+          leadLocation: leadLocation,
+          reason: 'Another bid selected'
+        }
+      });
+
+      console.log('[POST /api/bids/[bidId]/select] Loser notification sent:', {
+        bidId: loserBid.id,
+        loserId: loserBid.installerId,
+        loserEmail: loserBid.installer.email
+      });
+    }
+
+    console.log('[POST /api/bids/[bidId]/select] Notifications complete:', {
+      winnerId: bid.installerId,
+      losersNotified: loserBids.length,
+      totalBids: allBids.length
+    });
+
+    // ✅ T190: Add audit logging for bid selection
+    await prisma.auditLog.create({
+      data: {
+        leadId: bid.leadId,
+        userId: session.user.id, // Homeowner who selected winner
+        action: 'BID_SELECTED_AS_WINNER',
+        entityType: 'Bid',
+        entityId: bid.id,
+        metadata: {
+          bidId: bid.id,
+          winnerId: bid.installerId,
+          winnerEmail: bid.installer.email,
+          winnerCompany: bid.installer.companyName,
+          finalTotal: bid.finalTotal,
+          leadLocation: leadLocation,
+          totalBidsReceived: allBids.length,
+          losersNotified: loserBids.length,
+          timestamp: new Date().toISOString()
+        },
+        ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
+        userAgent: request.headers.get('user-agent') || 'unknown'
+      }
+    });
+
+    console.log('[POST /api/bids/[bidId]/select] Audit log created:', {
+      action: 'BID_SELECTED_AS_WINNER',
+      leadId: bid.leadId,
+      bidId: bid.id,
+      homeownerId: session.user.id
+    });
 
     return NextResponse.json({
       success: true,

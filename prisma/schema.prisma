@@ -75,41 +75,41 @@ model GuestInstantQuote {
 }
 
 model User {
-  id                    String                     @id @default(cuid())
-  email                 String                     @unique
+  id                    String                   @id @default(cuid())
+  email                 String                   @unique
   emailVerified         DateTime?
   emailVerifiedAt       DateTime? // Auth Part A+B: track verification timestamp
   password              String?
-  role                  UserRole                   @default(HOMEOWNER)
-  isActive              Boolean                    @default(true)
+  role                  UserRole                 @default(HOMEOWNER)
+  isActive              Boolean                  @default(true)
   name                  String?
   phone                 String?
   image                 String?
   companyName           String?
   businessAddress       String?
   postcode              String?
-  createdAt             DateTime                   @default(now())
-  updatedAt             DateTime                   @updatedAt
+  createdAt             DateTime                 @default(now())
+  updatedAt             DateTime                 @updatedAt
   lastLoginAt           DateTime?
-  installerVerified     Boolean                    @default(false)
-  leadSubmissionCount   Int                        @default(0)
-  phoneVerified         Boolean                    @default(false)
-  leadSubmissionLimit   Int                        @default(5)
-  biddingLeadsSubmitted Int                        @default(0)
-  profileComplete       Boolean                    @default(false) // Auth Part A+B: installer onboarding gate
-  sessionVersion        Int                        @default(0) // Auth Part A+B: invalidate sessions on password reset
+  installerVerified     Boolean                  @default(false)
+  leadSubmissionCount   Int                      @default(0)
+  phoneVerified         Boolean                  @default(false)
+  leadSubmissionLimit   Int                      @default(5)
+  biddingLeadsSubmitted Int                      @default(0)
+  profileComplete       Boolean                  @default(false) // Auth Part A+B: installer onboarding gate
+  sessionVersion        Int                      @default(0) // Auth Part A+B: invalidate sessions on password reset
   signupIp              String? // Phase 21: IP address captured at registration
   signupUserAgent       String? // Phase 21: Browser/device info at registration
   lastLoginIp           String? // Phase 21: Most recent login IP (future use)
   accounts              Account[]
-  leadsAsHomeowner      Lead[]                     @relation("homeowner_leads")
-  leadsAsInstaller      Lead[]                     @relation("installer_leads")
+  leadsAsHomeowner      Lead[]                   @relation("homeowner_leads")
+  leadsAsInstaller      Lead[]                   @relation("installer_leads")
   phoneVerifications    PhoneVerification[]
-  quotesAsInstaller     Quote[]                    @relation("installer_quotes")
-  bidsAsInstaller       Bid[]                      @relation("installer_bids")
+  quotesAsInstaller     Quote[]                  @relation("installer_quotes")
+  bidsAsInstaller       Bid[]                    @relation("installer_bids")
   sessions              Session[]
-  installerAssignments  LeadAssignment[]           @relation("installer_assignments")
-  adminAssignments      LeadAssignment[]           @relation("admin_assignments")
+  installerAssignments  LeadAssignment[]         @relation("installer_assignments")
+  adminAssignments      LeadAssignment[]         @relation("admin_assignments")
   installerProfile      InstallerProfile? // Auth Part A+B: installer onboarding data
   verificationTokens    EmailVerificationToken[] // Auth Part A+B: email verification
   passwordResetTokens   PasswordResetToken[] // Auth Part A+B: password reset
@@ -167,7 +167,7 @@ model Lead {
   visibility            LeadVisibility    @default(HIDDEN)
   phoneVerified         Boolean           @default(false)
   phoneNumber           String?
-  name                  String?           // Phase 12: Homeowner name for contact purposes
+  name                  String? // Phase 12: Homeowner name for contact purposes
   projectType           String
   propertyType          String
   postcode              String
@@ -227,18 +227,18 @@ model Lead {
 }
 
 model LeadAssignment {
-  id            String   @id @default(cuid())
-  leadId        String
-  installerId   String
-  assignedBy    String
-  assignedAt    DateTime @default(now())
-  notes         String?
-  notified      Boolean  @default(false)
-  
-  lead          Lead     @relation("lead_assignments", fields: [leadId], references: [id], onDelete: Cascade)
-  installer     User     @relation("installer_assignments", fields: [installerId], references: [id], onDelete: Cascade)
-  admin         User     @relation("admin_assignments", fields: [assignedBy], references: [id])
-  
+  id          String   @id @default(cuid())
+  leadId      String
+  installerId String
+  assignedBy  String
+  assignedAt  DateTime @default(now())
+  notes       String?
+  notified    Boolean  @default(false)
+
+  lead      Lead @relation("lead_assignments", fields: [leadId], references: [id], onDelete: Cascade)
+  installer User @relation("installer_assignments", fields: [installerId], references: [id], onDelete: Cascade)
+  admin     User @relation("admin_assignments", fields: [assignedBy], references: [id])
+
   @@unique([leadId, installerId])
   @@index([leadId])
   @@index([installerId])
@@ -361,19 +361,19 @@ model Bid {
   rejectionReason     String?
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
-  
+
   // Phase 13 - Comprehensive Quote Builder data (JSON fields)
-  systemData          Json?     // System capacity, type, solar panels array
-  productsData        Json?     // Panel, inverter, battery details with brands/models
-  lineItems           Json?     // Pricing engine 9 categories with itemized breakdown
-  assumptions         Json?     // Feed-in tariff, usage, offset, payback assumptions
-  roofData            Json?     // Roof type, pitch, arrays, orientations, shading, site details
-  calculations        Json?     // Total cost, GST, incentive, final total, payback calculations
-  importMeta          Json?     // Prefilled fields, import source, import timestamp
-  installerContact    Json?     // Installer name, email, phone for homeowner to contact
-  
-  lead                Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  installer           User      @relation("installer_bids", fields: [installerId], references: [id], onDelete: Cascade)
+  systemData       Json? // System capacity, type, solar panels array
+  productsData     Json? // Panel, inverter, battery details with brands/models
+  lineItems        Json? // Pricing engine 9 categories with itemized breakdown
+  assumptions      Json? // Feed-in tariff, usage, offset, payback assumptions
+  roofData         Json? // Roof type, pitch, arrays, orientations, shading, site details
+  calculations     Json? // Total cost, GST, incentive, final total, payback calculations
+  importMeta       Json? // Prefilled fields, import source, import timestamp
+  installerContact Json? // Installer name, email, phone for homeowner to contact
+
+  lead      Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  installer User @relation("installer_bids", fields: [installerId], references: [id], onDelete: Cascade)
 
   @@unique([leadId, installerId])
   @@index([leadId])
@@ -508,6 +508,8 @@ enum NotificationType {
   LEAD_RESOLD
   ASSIGNMENT_REMOVED
   ASSIGNMENT_ACCEPTED_COMPETITIVE
+  BID_WON
+  BID_LOST
 }
 
 // ============================================================================
@@ -561,31 +563,31 @@ model PasswordResetToken {
 // ============================================================================
 
 model InstallerVerification {
-  id                  String   @id @default(cuid())
-  userId              String   @unique
-  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  companyName         String
-  representativeName  String
-  designation         String
-  email               String
-  phone               String
-  address             String?
-  abnOrLicense        String
-  establishedYear     Int
-  employeeCount       Int
-  services            String[]
-  serviceAreas        String[]
-  postcodes           String[]
-  website             String?
-  socialLinks         Json?
-  companyDescription  String?
-  licenseDocKey       String?
-  abnDocKey           String?
-  logoKey             String?
-  status              String   @default("PENDING") // PENDING | APPROVED | REJECTED | MORE_INFO
-  adminNotes          String?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyName        String
+  representativeName String
+  designation        String
+  email              String
+  phone              String
+  address            String?
+  abnOrLicense       String
+  establishedYear    Int
+  employeeCount      Int
+  services           String[]
+  serviceAreas       String[]
+  postcodes          String[]
+  website            String?
+  socialLinks        Json?
+  companyDescription String?
+  licenseDocKey      String?
+  abnDocKey          String?
+  logoKey            String?
+  status             String   @default("PENDING") // PENDING | APPROVED | REJECTED | MORE_INFO
+  adminNotes         String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   @@index([userId])
   @@index([status])
@@ -596,7 +598,7 @@ model InstallerVerificationLog {
   id        String   @id @default(cuid())
   userId    String
   adminId   String
-  action    String   // SUBMITTED | APPROVED | REJECTED | REQUEST_INFO
+  action    String // SUBMITTED | APPROVED | REJECTED | REQUEST_INFO
   notes     String?
   createdAt DateTime @default(now())
 

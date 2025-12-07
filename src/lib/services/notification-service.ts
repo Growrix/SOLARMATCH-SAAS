@@ -93,6 +93,8 @@ function shouldSendEmail(type: NotificationType): boolean {
     'NEW_QUOTE',
     'QUOTE_ACCEPTED',
     'PAYMENT_RECEIVED',
+    'BID_WON',        // ✅ T186: Send email to winner
+    'BID_LOST',       // ✅ T186: Send email to losers
   ];
 
   return emailNotificationTypes.includes(type);
