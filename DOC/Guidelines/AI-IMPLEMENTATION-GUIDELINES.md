@@ -111,14 +111,20 @@
 
 Run these checks BEFORE starting:
 ```powershell
-npx tsc --noEmit    # TypeScript: 0 errors
-npm run build       # Build: Success  
-npm run dev         # Dev server: Starts
+npx tsc --noEmit    # TypeScript: 0 errors + 0 warnings (empty output)
+npm run build       # Build: "Compiled successfully" (no warnings)
+npm run dev         # Dev server: Starts without errors
 npx prisma validate # Schema: Valid
 git status          # Know current state
 ls -Force | Select-String ".git"  # Verify .git exists
 ```
 **❌ STOP if ANY check fails** - Fix first, then proceed.
+
+**⚠️ If you see warnings during GATE 0:**
+- Document them in your audit report
+- Plan to fix them BEFORE adding new code
+- Do NOT add new code on top of existing warnings
+- Warnings = Pre-existing technical debt that must be addressed
 
 **Additional Backend Checks (if implementing APIs):**
 ```powershell
@@ -207,17 +213,111 @@ See existing `specs/*/tasks.md` files for template patterns.
 
 ### Step 5: VERIFY - Complete System Validation
 
-**Run ALL verification commands:**
-- TypeScript: `npx tsc --noEmit` → 0 errors
-- Build: `npm run build` → Success
-- Design System: Run 6 verification commands from DESIGN-SYSTEM-SOT.md → 0/0/0/0/0/0
-- Themes: Test Dark, Light, Purple themes
-- Responsive: Test 320px, 768px, 1440px breakpoints
-- Browser Console: No errors
-- Network Tab: API calls work correctly
-- Database: Verify changes in Prisma Studio
+**🚨 ZERO WARNINGS POLICY - Mandatory for ALL Changes**
 
-**For UI work**: See verification commands in `DOC/Guidelines/DESIGN-SYSTEM-SOT.md`
+**CRITICAL RULE**: After EVERY implementation phase and BEFORE every commit, you MUST achieve:
+- **0 TypeScript errors** (`npx tsc --noEmit`)
+- **0 TypeScript warnings** (unused variables, implicit any, deprecated APIs)
+- **0 ESLint warnings** (if project has ESLint configured)
+- **0 console warnings in browser** (React warnings, prop type mismatches, key warnings)
+- **0 build warnings** (`npm run build` should be completely clean)
+
+**Why This Matters:**
+- Warnings indicate code quality issues that WILL become bugs later
+- Warnings in production deployments can cause runtime failures
+- Accumulating warnings creates technical debt that blocks future development
+- "Just warnings" mindset leads to degraded code quality over time
+
+**Run ALL verification commands:**
+
+1. **TypeScript Compilation** (No Errors + No Warnings):
+   ```powershell
+   npx tsc --noEmit
+   # Expected output: Empty (no errors, no warnings)
+   # ❌ STOP if you see ANY output - fix immediately
+   ```
+
+2. **Build Verification** (Clean Production Build):
+   ```powershell
+   npm run build
+   # Check terminal output carefully
+   # ✅ Must see: "Compiled successfully"
+   # ❌ STOP if warnings appear: "Compiled with warnings"
+   # Common warnings to fix:
+   #   - Unused variables: Remove or prefix with underscore (_unused)
+   #   - Console.log in production: Remove or wrap in dev check
+   #   - Missing dependencies: Add to package.json
+   #   - Image optimization warnings: Use next/image correctly
+   ```
+
+3. **Browser Console Check** (No React/Runtime Warnings):
+   ```powershell
+   # Start dev server:
+   npm run dev
+   
+   # Open browser → F12 DevTools → Console tab
+   # Navigate to modified pages/components
+   # ✅ Console should be completely clean (no yellow/orange warnings)
+   # ❌ Fix immediately if you see:
+   #   - "Warning: Each child in a list should have a unique key"
+   #   - "Warning: Failed prop type"
+   #   - "Warning: componentWillReceiveProps is deprecated"
+   #   - "Warning: Can't perform a React state update on unmounted component"
+   #   - "Warning: validateDOMNesting: <div> cannot appear as descendant"
+   ```
+
+4. **Design System Verification** (UI Work Only):
+   - Run 6 verification commands from DESIGN-SYSTEM-SOT.md → 0/0/0/0/0/0
+   
+5. **Theme Testing** (UI Work Only):
+   - Test Dark, Light, Purple themes → No color/contrast issues
+   
+6. **Responsive Testing** (UI Work Only):
+   - Test 320px, 768px, 1440px breakpoints → No layout breaks
+
+7. **Network Tab Verification** (API Work Only):
+   ```powershell
+   # Browser DevTools → Network tab
+   # Trigger API calls through UI
+   # ✅ Check: All requests return 200/201 (not 500/400)
+   # ✅ Check: Response payloads contain expected data
+   # ❌ Fix immediately: 500 errors, null responses, missing fields
+   ```
+
+8. **Database Verification** (Backend Work Only):
+   ```powershell
+   npx prisma studio
+   # Verify: Data written correctly to tables
+   # Verify: No NULL values in required fields
+   # Verify: Relationships linked properly (foreign keys)
+   ```
+
+**Fixing Common Warnings:**
+
+| Warning Type | How to Fix |
+|--------------|------------|
+| **Unused variable** | Remove it OR prefix with underscore `_unused` if intentional |
+| **Implicit `any` type** | Add explicit type annotation: `: string`, `: number`, etc. |
+| **Missing `key` prop** | Add unique `key={item.id}` to mapped JSX elements |
+| **Console.log in production** | Remove OR wrap: `if (process.env.NODE_ENV === 'development') console.log(...)` |
+| **Deprecated API** | Replace with modern equivalent (check docs/migration guide) |
+| **Missing dependency** | Run `npm install <package>` and verify package.json updated |
+| **React state update on unmounted** | Add cleanup in useEffect: `return () => { isMounted = false }` |
+
+**Verification Checklist Before Commit:**
+```powershell
+# Run this complete checklist:
+npx tsc --noEmit                    # ✅ Empty output (no errors/warnings)
+npm run build                       # ✅ "Compiled successfully" (no warnings)
+npm run dev                         # ✅ Starts without errors
+# Open browser + check console     # ✅ No yellow/orange warnings
+npx prisma validate                 # ✅ "Schema is valid" (if touched schema)
+git status                          # ✅ Know what you're committing
+```
+
+**❌ DO NOT COMMIT if ANY verification fails**  
+**❌ DO NOT proceed to next phase if warnings remain**  
+**❌ DO NOT report "complete" with active warnings**
 
 ---
 

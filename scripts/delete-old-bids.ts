@@ -3,7 +3,7 @@
  * Removes bids with NULL JSON fields (old test data before Phase 13B fix)
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -12,7 +12,7 @@ async function deleteOldBids() {
 
   const oldBids = await prisma.bid.findMany({
     where: {
-      systemData: { equals: null }
+      systemData: { equals: Prisma.JsonNull }
     },
     select: {
       id: true,
@@ -44,7 +44,7 @@ async function deleteOldBids() {
 
   const result = await prisma.bid.deleteMany({
     where: {
-      systemData: { equals: null }
+      systemData: { equals: Prisma.JsonNull }
     }
   });
 

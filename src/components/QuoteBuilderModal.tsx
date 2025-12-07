@@ -512,7 +512,7 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
             capacityKw: quoteDraft.system.systemSize,
             systemType: quoteDraft.system.systemType,
             solarPanelsArray: [{
-              quantity: quoteDraft.products.panels.quantity,
+              quantity: quoteDraft.products.panels.qty,
               wattage: quoteDraft.products.panels.wattage,
               totalKw: quoteDraft.system.systemSize
             }]
@@ -523,23 +523,23 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
               brand: quoteDraft.products.panels.brand,
               model: quoteDraft.products.panels.model || 'Standard',
               wattage: quoteDraft.products.panels.wattage,
-              quantity: quoteDraft.products.panels.quantity,
+              quantity: quoteDraft.products.panels.qty,
               efficiency: quoteDraft.products.panels.efficiency || 20,
-              warranty: quoteDraft.products.panels.warranty || '25 years'
+              warranty: `${quoteDraft.products.panels.performanceWarranty || 25} years`
             }],
             inverter: {
               brand: quoteDraft.products.inverter.brand,
               model: quoteDraft.products.inverter.model || 'Standard',
-              capacityKw: quoteDraft.products.inverter.capacity,
+              capacityKw: quoteDraft.products.inverter.capacityKw,
               type: quoteDraft.products.inverter.type,
-              warranty: quoteDraft.products.inverter.warranty || '10 years',
+              warranty: `${quoteDraft.products.inverter.warranty || 10} years`,
               phaseType: quoteDraft.roof.phaseType
             },
             battery: quoteDraft.products.battery ? {
               brand: quoteDraft.products.battery.brand,
               model: quoteDraft.products.battery.model || 'Standard',
               capacityKwh: quoteDraft.products.battery.usableKwh,
-              warranty: quoteDraft.products.battery.warranty || '10 years',
+              warranty: `${quoteDraft.products.battery.warranty || 10} years`,
               chemistry: 'lithium-ion'
             } : undefined
           },
@@ -547,21 +547,20 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
           lineItems: quoteDraft.pricing.lineItems.map(item => ({
             category: item.category,
             description: item.description,
-            quantity: item.quantity,
+            quantity: item.qty,
             unitPrice: item.unitPrice,
-            totalPrice: item.quantity * item.unitPrice,
-            gstIncluded: item.taxGst,
-            notes: item.notes
+            totalPrice: item.qty * item.unitPrice,
+            gstIncluded: item.taxGst
           })),
           
           assumptions: {
-            feedInTariffCentsKwh: quoteDraft.assumptions.feedInTariffCentsKwh,
-            dailyUsageKwh: quoteDraft.assumptions.dailyUsageKwh,
-            solarOffsetPercent: quoteDraft.assumptions.solarOffset,
-            annualPriceIncrease: quoteDraft.assumptions.annualPriceIncrease,
-            paybackYears: quoteDraft.assumptions.paybackPeriodYears,
-            systemLifespanYears: quoteDraft.assumptions.systemLifespanYears,
-            notes: quoteDraft.assumptions.notes
+            feedInTariffCentsKwh: quoteDraft.assumptions.feedInTariff * 100,
+            dailyUsageKwh: (quoteDraft.system.systemSize * quoteDraft.assumptions.yield_kWh_per_kW_per_day) || 0,
+            solarOffsetPercent: quoteDraft.assumptions.selfConsumption * 100,
+            annualPriceIncrease: quoteDraft.assumptions.escalationPercentPerYear,
+            paybackYears: 7,
+            systemLifespanYears: 25,
+            notes: ''
           },
           
           roofData: {
@@ -586,8 +585,8 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
             incentiveAmount: stcDeduction,
             finalTotal: finalTotal,
             pricePerWatt: subtotal / (quoteDraft.system.systemSize * 1000),
-            estimatedAnnualSavings: quoteDraft.assumptions.annualSavings,
-            paybackYears: quoteDraft.assumptions.paybackPeriodYears
+            estimatedAnnualSavings: 0,
+            paybackYears: 7
           }
         };
 
