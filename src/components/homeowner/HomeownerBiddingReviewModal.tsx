@@ -501,10 +501,10 @@ export default function HomeownerBiddingReviewModal({
                                   <td className="py-2 text-body-small text-foreground">{item.description}</td>
                                   <td className="py-2 text-body-small text-foreground text-right">{item.quantity}</td>
                                   <td className="py-2 text-body-small text-foreground text-right">
-                                    ${item.unitPrice.toLocaleString()}
+                                    ${item.unitPrice?.toLocaleString() || '0'}
                                   </td>
                                   <td className="py-2 text-body-small text-foreground text-right">
-                                    ${item.total.toLocaleString()}
+                                    ${(item.totalPrice || item.total || 0).toLocaleString()}
                                   </td>
                                 </tr>
                               ))}
