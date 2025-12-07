@@ -1481,9 +1481,36 @@ export default function HomeownerDashboardPage() {
           propertyAddress="Loading..." 
           bids={[]}
           onSelectWinner={async (bidId: string) => {
-            console.log('[Phase 13D] Homeowner selected winner bid:', bidId);
-            alert(`Winner selected: ${bidId}\n\nPhase 13E will implement actual backend integration.`);
-            // Phase 13E TODO: Call API POST /api/bids/[bidId]/select-winner
+            try {
+              console.log('[Phase 13E] Selecting winner bid:', bidId);
+              
+              // Call backend API to select winner
+              const response = await fetch(`/api/bids/${bidId}/select`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ leadId: selectedBiddingLeadId })
+              });
+
+              if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Failed to select winner');
+              }
+
+              const result = await response.json();
+              console.log('[Phase 13E] Winner selected successfully:', result);
+
+              // Show success message
+              alert(`✅ Winner Selected!\n\nThe installer has been notified and will contact you shortly to schedule installation.`);
+
+              // Close the modal and reload page to show updated status
+              setSelectedBiddingLeadId(null);
+              window.location.reload();
+            } catch (error) {
+              console.error('[Phase 13E] Error selecting winner:', error);
+              const message = error instanceof Error ? error.message : 'Unknown error';
+              alert(`❌ Failed to select winner:\n\n${message}\n\nPlease try again.`);
+              throw error; // Re-throw so modal handles loading state
+            }
           }}
         />
       )}
