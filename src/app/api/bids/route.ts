@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
         panelBrand: body.panelBrand || null,
         inverterBrand: body.inverterBrand || null,
         batteryBrand: body.batteryBrand || null,
-        batteryCapacity: body.batteryCapacity || null,
+        batteryCapacity: body.batteryCapacity ? String(body.batteryCapacity) : null,
         includeGst,
         gstPercent,
         gstAmount,
