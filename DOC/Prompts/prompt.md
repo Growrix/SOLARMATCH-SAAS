@@ -2850,3 +2850,23 @@ Log winner selection events for compliance and troubleshooting.
 ***Instructions*** I want you to review the above backend plan and suggest any improvements or changes if needed. after that create the necessary endpoints and database schema as per the plan to support the homeowners review bids modal functionality. make sure the bid data is linked with the respective lead id and installer id. so that we can fetch the bid data later for review and selection by the homeowners.
 
 ***strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and make sure to stay aligned with the specks as well.
+
+------------------------------------------------------
+
+***testing result***
+I have submitted a bid from ainstallers account , but I do not rceive the bid data in the homeowners bid review modal. Please test the endpoints and database schema you have created to make sure the bid data is stored and fetched correctly for the homeowners review bids modal functionality.
+
+***Instructions*** I want you to test the endpoints and database schema you have created to make sure the bid data is stored and fetched correctly for the homeowners review bids modal functionality. after that fix any issues if found during testing.
+
+------------------------------------------------
+
+***Homeowners Review modal***
+
+I have submitted a bid by the installers account but the bid data is not showing up in the homeowners review bids modal. please test the endpoints and database schema you have created to make sure the bid data is stored and fetched correctly for the homeowners review bids modal functionality.
+- also check the frontend part of the homeowners review bids modal to make sure it is fetching and displaying the bid data correctly.
+- NOw the frondtend is maybe showing some demo data, not the original data fromt he installers submitted bid.
+
+***Instructions*** I want you to test the endpoints and database schema you have created to make sure the bid data is stored and fetched correctly for the homeowners review bids modal functionality. after that fix any issues if found during testing. also check the frontend part of the homeowners review bids modal to make sure it is fetching and displaying the bid data correctly.
+- also start with a commit so that we can rollback if needed.
+
+***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and make sure to stay aligned with the specks as well.

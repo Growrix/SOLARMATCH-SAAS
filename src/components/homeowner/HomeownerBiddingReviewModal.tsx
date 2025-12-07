@@ -74,6 +74,18 @@ export default function HomeownerBiddingReviewModal({
       const data: GetBidsResponse = await response.json();
       console.log('[HomeownerBiddingReviewModal] Bids fetched:', data.bids.length, 'bids');
       
+      // DEBUG: Log first bid's structure
+      if (data.bids.length > 0) {
+        console.log('[DEBUG] First bid structure:', {
+          id: data.bids[0].id,
+          amount: data.bids[0].amount,
+          finalTotal: data.bids[0].finalTotal,
+          systemData: data.bids[0].systemData,
+          productsData: data.bids[0].productsData,
+          lineItems: data.bids[0].lineItems
+        });
+      }
+      
       // Transform API response to match component's expected format
       const transformedBids: BidWithFullData[] = data.bids.map(bid => ({
         ...bid,

@@ -487,7 +487,7 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
         );
         const finalTotal = subtotal + gstAmount - stcDeduction - vicDeduction - totalDiscounts;
 
-        // Map QuoteDraft to Bid payload
+        // Map QuoteDraft to comprehensive Bid payload (Phase 13B - Full JSON fields)
         const bidPayload = {
           leadId: String(lead.id),
           amount: subtotal,
@@ -495,7 +495,7 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
           expectedInstallDate: null, // TODO: Add to UI if needed
           notes: quoteDraft.roof.notes || null,
           
-          // Equipment details
+          // Legacy equipment details (backward compatible)
           panelBrand: quoteDraft.products.panels.brand || null,
           inverterBrand: quoteDraft.products.inverter.brand || null,
           batteryBrand: quoteDraft.products.battery?.brand || null,
@@ -505,7 +505,90 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
           includeGst: true,
           gstPercent: 10.0,
           includeIncentive: quoteDraft.pricing.stc.eligible,
-          incentiveAmount: stcDeduction
+          incentiveAmount: stcDeduction,
+          
+          // Phase 13B - Comprehensive JSON fields for homeowner comparison
+          systemData: {
+            capacityKw: quoteDraft.system.systemSize,
+            systemType: quoteDraft.system.systemType,
+            solarPanelsArray: [{
+              quantity: quoteDraft.products.panels.quantity,
+              wattage: quoteDraft.products.panels.wattage,
+              totalKw: quoteDraft.system.systemSize
+            }]
+          },
+          
+          productsData: {
+            solarPanels: [{
+              brand: quoteDraft.products.panels.brand,
+              model: quoteDraft.products.panels.model || 'Standard',
+              wattage: quoteDraft.products.panels.wattage,
+              quantity: quoteDraft.products.panels.quantity,
+              efficiency: quoteDraft.products.panels.efficiency || 20,
+              warranty: quoteDraft.products.panels.warranty || '25 years'
+            }],
+            inverter: {
+              brand: quoteDraft.products.inverter.brand,
+              model: quoteDraft.products.inverter.model || 'Standard',
+              capacityKw: quoteDraft.products.inverter.capacity,
+              type: quoteDraft.products.inverter.type,
+              warranty: quoteDraft.products.inverter.warranty || '10 years',
+              phaseType: quoteDraft.roof.phaseType
+            },
+            battery: quoteDraft.products.battery ? {
+              brand: quoteDraft.products.battery.brand,
+              model: quoteDraft.products.battery.model || 'Standard',
+              capacityKwh: quoteDraft.products.battery.usableKwh,
+              warranty: quoteDraft.products.battery.warranty || '10 years',
+              chemistry: 'lithium-ion'
+            } : undefined
+          },
+          
+          lineItems: quoteDraft.pricing.lineItems.map(item => ({
+            category: item.category,
+            description: item.description,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            totalPrice: item.quantity * item.unitPrice,
+            gstIncluded: item.taxGst,
+            notes: item.notes
+          })),
+          
+          assumptions: {
+            feedInTariffCentsKwh: quoteDraft.assumptions.feedInTariffCentsKwh,
+            dailyUsageKwh: quoteDraft.assumptions.dailyUsageKwh,
+            solarOffsetPercent: quoteDraft.assumptions.solarOffset,
+            annualPriceIncrease: quoteDraft.assumptions.annualPriceIncrease,
+            paybackYears: quoteDraft.assumptions.paybackPeriodYears,
+            systemLifespanYears: quoteDraft.assumptions.systemLifespanYears,
+            notes: quoteDraft.assumptions.notes
+          },
+          
+          roofData: {
+            roofType: quoteDraft.roof.roofType,
+            pitchDeg: quoteDraft.roof.pitchDeg,
+            arrays: quoteDraft.roof.arrays,
+            orientations: quoteDraft.roof.orientations,
+            shadingLevel: quoteDraft.roof.shadingLevel,
+            phaseType: quoteDraft.roof.phaseType,
+            switchboardUpgrade: quoteDraft.roof.switchboardUpgrade,
+            smartMeterRequired: quoteDraft.roof.smartMeterRequired,
+            distanceToSwitchboardM: quoteDraft.roof.distanceToSwitchboardM,
+            notes: quoteDraft.roof.notes,
+            photos: [] // TODO: Add photo upload support
+          },
+          
+          calculations: {
+            subtotal: subtotal,
+            gstPercent: 10.0,
+            gstAmount: gstAmount,
+            includeIncentive: quoteDraft.pricing.stc.eligible,
+            incentiveAmount: stcDeduction,
+            finalTotal: finalTotal,
+            pricePerWatt: subtotal / (quoteDraft.system.systemSize * 1000),
+            estimatedAnnualSavings: quoteDraft.assumptions.annualSavings,
+            paybackYears: quoteDraft.assumptions.paybackPeriodYears
+          }
         };
 
         // Call bid submission API
