@@ -34,7 +34,7 @@ export default function HomeownerBiddingReviewModal({
   onClose,
   leadId,
   propertyAddress,
-  bids,
+  bids: initialBids,
   onSelectWinner
 }: HomeownerBiddingReviewModalProps) {
   // State management
@@ -42,6 +42,9 @@ export default function HomeownerBiddingReviewModal({
   const [leadData, setLeadData] = useState<LeadData | null>(null);
   const [isLoadingLead, setIsLoadingLead] = useState(false);
   const [leadError, setLeadError] = useState<string | null>(null);
+  const [bids, setBids] = useState<BidWithFullData[]>(initialBids);
+  const [isLoadingBids, setIsLoadingBids] = useState(false);
+  const [bidsError, setBidsError] = useState<string | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isSelecting, setIsSelecting] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
@@ -56,6 +59,47 @@ export default function HomeownerBiddingReviewModal({
       setSelectedBidId(bids[0].id);
     }
   }, [bids, selectedBidId]);
+
+  // Fetch bids for the lead
+  const fetchBids = React.useCallback(async () => {
+    if (!leadId) return;
+    setIsLoadingBids(true);
+    setBidsError(null);
+    try {
+      console.log('[HomeownerBiddingReviewModal] Fetching bids for leadId:', leadId);
+      const response = await fetch(`/api/bids?leadId=${leadId}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch bids: ${response.status} ${response.statusText}`);
+      }
+      const data: GetBidsResponse = await response.json();
+      console.log('[HomeownerBiddingReviewModal] Bids fetched:', data.bids.length, 'bids');
+      
+      // Transform API response to match component's expected format
+      const transformedBids: BidWithFullData[] = data.bids.map(bid => ({
+        ...bid,
+        installerName: bid.installer?.companyName || 'Unknown Installer',
+        installerRating: 4.5, // TODO: Get actual rating from installer profile
+        pricePerWatt: bid.systemData?.capacityKw 
+          ? bid.finalTotal / bid.systemData.capacityKw / 1000
+          : 0,
+        isWinner: bid.status === 'SELECTED'
+      }));
+      
+      setBids(transformedBids);
+    } catch (error) {
+      console.error('[HomeownerBiddingReviewModal] Error fetching bids:', error);
+      setBidsError(error instanceof Error ? error.message : 'Failed to load bids');
+    } finally {
+      setIsLoadingBids(false);
+    }
+  }, [leadId]);
+
+  // Fetch bids when modal opens
+  useEffect(() => {
+    if (isOpen && leadId) {
+      fetchBids();
+    }
+  }, [isOpen, leadId, fetchBids]);
 
   // Fetch full lead data when modal opens
   const fetchLeadData = React.useCallback(async () => {
@@ -167,7 +211,26 @@ export default function HomeownerBiddingReviewModal({
 
         {/* Body - 2 Column Layout */}
         <div className="flex-grow overflow-auto p-4 md:p-6">
-          {sortedBids.length === 0 ? (
+          {isLoadingBids ? (
+            <div className="flex flex-col items-center justify-center h-full text-center">
+              <Loader className="h-16 w-16 animate-spin text-primary mb-4" />
+              <h3 className="text-heading-4 text-foreground mb-2">Loading Bids...</h3>
+              <p className="text-body text-muted-foreground max-w-md">
+                Please wait while we fetch all submitted bids for this lead.
+              </p>
+            </div>
+          ) : bidsError ? (
+            <div className="flex flex-col items-center justify-center h-full text-center">
+              <Info className="h-16 w-16 text-error mb-4" />
+              <h3 className="text-heading-4 text-foreground mb-2">Error Loading Bids</h3>
+              <p className="text-body text-muted-foreground max-w-md mb-4">
+                {bidsError}
+              </p>
+              <Button onClick={fetchBids} variant="primary">
+                Retry
+              </Button>
+            </div>
+          ) : sortedBids.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center">
               <Award className="h-16 w-16 text-muted mb-4" />
               <h3 className="text-heading-4 text-foreground mb-2">No Bids Received Yet</h3>
