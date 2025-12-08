@@ -2918,3 +2918,15 @@ After the homeowner select the winner, the winner still see the lead in the lead
 
 ------------------------------------------------------------
 
+***homeowner's Bidding lead Status update enhancement***
+- now after the Installer purchased the lead > the Homeonwer should see the lead status updated to "Bid awarded" in their bidding lead card. 
+- In the review BID modal > the Installer company Name and contact details should be shown as unmasked after the lead is purchased by the installer.
+- in the lead card > homwowner should see the "Start chat" button > and the chat modal should Open directly with the winning installer. 
+
+***Installers bidding lead card enhancement***
+- The button "View Full Details" > opens lead details modal. But I want it to open Bid Evaluation modal instead. 
+- And the button UI position should be changed . it should stay on the same line of other 2 buttons below. 
+
+***Instructions*** I want you to enhance the homeowners bidding lead card and installer's bidding lead card as per the above instructions. 
+
+***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and make sure to stay aligned with the specks as well.

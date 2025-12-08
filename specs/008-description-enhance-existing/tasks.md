@@ -5733,3 +5733,130 @@ Next Steps:
 
 
 
+
+
+---
+
+## Phase 13I  Bidding Lead Card Enhancements (Homeowner & Installer UI/UX)
+
+**Audit Report**: `DOC/AUDIT-REPORTS/PHASE-13I-BIDDING-CARD-ENHANCEMENTS-AUDIT.md`  
+**Date**: December 8, 2025  
+**Risk Level**: MEDIUM  
+**Story**: Enhance homeowner and installer bidding lead cards with status updates, contact unmasking, and button fixes
+
+### 13I-A: Homeowner Lead Card Status Enhancement
+
+T290 [ ][13I-A][P]: Update STATUS_LABELS for BIDDING + PURCHASED leads
+- Path: `src/app/homeowner/dashboard/page.tsx`
+- Action: Add conditional logic to display "Bid Awarded" label for BIDDING leads with PURCHASED status
+- Current: Shows generic "Responded by Installer" for all PURCHASED leads
+- Target: Show "Bid Awarded" specifically for BIDDING quote type
+- Testing: Verify label changes for BIDDING leads only, other types unaffected
+- Status: NOT STARTED
+
+T291 [ ][13I-A][P]: Add trophy badge visual indicator
+- Path: `src/app/homeowner/dashboard/page.tsx`
+- Action: Add trophy icon + "Bid Awarded" text badge for BIDDING + PURCHASED leads
+- UI: Green success color, positioned near status label
+- Testing: Verify badge appears for BIDDING + PURCHASED, hidden for other statuses
+- Status: NOT STARTED
+
+T292 [ ][13I-A][P]: Add "Start Chat" button for purchased bidding leads
+- Path: `src/app/homeowner/dashboard/page.tsx`
+- Action: Add button to initiate chat with winning installer
+- Note: Chat modal integration may be placeholder ("Chat feature coming soon" toast)
+- Testing: Button appears for BIDDING + PURCHASED leads, positioned with other action buttons
+- Status: NOT STARTED
+
+**Checkpoint**: Visual inspection + responsive test + theme test (Dark/Light/Purple). Verify "Bid Awarded" status, trophy badge, and Start Chat button display correctly for BIDDING + PURCHASED leads.
+
+---
+
+### 13I-B: Homeowner Review Modal Contact Unmasking
+
+T293 [ ][13I-B][P]: Enhance /api/bids API to include installer contacts
+- Path: `src/app/api/bids/route.ts`
+- Action: Add installer phone, email, businessAddress to API response when lead.status === 'PURCHASED'
+- Current: Only returns installer.id and installer.companyName
+- Target: Include full contact fields for purchased leads
+- Security: Verify only homeowner of lead can access installer contacts
+- Testing: API returns installer contacts for PURCHASED leads, masked for non-purchased
+- Status: NOT STARTED
+
+T294 [ ][13I-B][P]: Display unmasked installer contacts in review modal
+- Path: `src/components/homeowner/HomeownerBiddingReviewModal.tsx`
+- Action: Add installer contact section showing name, phone, email, address (only if lead.status === 'PURCHASED')
+- UI: Green success border section labeled "Winning Installer Contact"
+- Testing: Contacts visible after purchase, hidden before purchase
+- Status: NOT STARTED
+
+**Checkpoint**: API test (curl /api/bids?leadId=xxx) + UI test (review modal shows installer contacts after purchase). Verify security (only homeowner can access).
+
+---
+
+### 13I-C: Installer "View Full Details" Button Fix
+
+T295 [ ][13I-C][P]: Change "View Full Details" button to open BidEvaluationModal
+- Path: `src/components/InstallerLeadFeed.tsx`
+- Action: Change button handler from `setIsViewDetailsOpen(true)` to `setIsBidEvaluationOpen(true)`
+- Line: ~802
+- Current: Opens LeadDetailsModal (generic modal)
+- Target: Opens BidEvaluationModal (bidding-specific modal with InstantQuote data)
+- Testing: Click button  BidEvaluationModal opens, shows lead technical details + InstantQuote
+- Status: NOT STARTED
+
+T296 [ ][13I-C][P]: Reposition "View Full Details" button to action buttons line
+- Path: `src/components/InstallerLeadFeed.tsx`
+- Action: Remove `mt-3` wrapper, move button into `flex flex-wrap gap-2` action buttons div
+- Line: ~801 (remove div wrapper), move to ~829 (action buttons section)
+- Target: Button aligned horizontally with "Place Bid", "Lead Details", etc.
+- Testing: Button positioned on same line as other action buttons, responsive on all breakpoints
+- Status: NOT STARTED
+
+**Checkpoint**: Visual inspection + responsive test. Verify button opens correct modal and positioned correctly on all screen sizes.
+
+---
+
+### Phase 13I Verification
+
+T297 [ ][13I][Verify]: Run comprehensive verification suite
+- Commands:
+  ```powershell
+  npx tsc --noEmit                          # TypeScript: 0 errors
+  npm run build                             # Build: 0 warnings
+  npm run dev                               # Dev server starts
+  ```
+- Browser Tests:
+  - Homeowner dashboard: Verify "Bid Awarded" status, trophy badge, Start Chat button
+  - Homeowner review modal: Verify installer contacts unmasked after purchase
+  - Installer leads page: Verify "View Full Details" opens BidEvaluationModal, button positioned correctly
+- Theme Tests: Dark, Light, Purple
+- Responsive Tests: 320px, 375px, 768px, 1024px, 1440px
+- Status: NOT STARTED
+
+T298 [ ][13I][Docs]: Document lessons learned and update audit
+- Path: `DOC/AUDIT-REPORTS/PHASE-13I-BIDDING-CARD-ENHANCEMENTS-AUDIT.md`
+- Action: Update audit with actual implementation results, note any deviations from plan
+- Include: Screenshots of before/after, API response samples, any issues encountered
+- Status: NOT STARTED
+
+**Checkpoint**: ALL tests pass. 0 TypeScript errors, 0 build warnings, all features work as specified.
+
+---
+
+**Phase 13I Status**: NOT STARTED  
+**Priority**: P1 - High (Critical UX improvements for bidding flow)  
+**Estimated Effort**: 3-4 hours (9 tasks)  
+**Dependencies**: 
+- Phase 13H Complete (payment flow working)
+- Purchased leads display functional
+
+**Risk Assessment**:
+- **Low Risk**: Frontend conditional rendering (straightforward logic)
+- **Medium Risk**: API contract change (installer contacts exposure)
+- **Low Risk**: Button repositioning (CSS layout change)
+- **Mitigation**: Test security thoroughly, verify only authorized users see contacts
+
+**Blockers**: None - All dependencies satisfied
+
+**Next Phase After 13I**: Phase 13J - Bidding Analytics Dashboard (optional)

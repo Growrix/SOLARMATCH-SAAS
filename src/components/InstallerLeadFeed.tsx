@@ -602,7 +602,7 @@ const LeadCard: React.FC<{
           <div className="flex items-start space-x-3">
             <TrophyIcon className="h-8 w-8 text-warning flex-shrink-0 mt-1" />
             <div className="flex-1">
-              <h4 className="text-h6 text-success font-semibold mb-1">
+              <h4 className="text-h6 text-success mb-1">
                 🎉 Congratulations! You won this bid!
               </h4>
               <p className="text-body text-muted-foreground mb-3">
@@ -610,7 +610,7 @@ const LeadCard: React.FC<{
               </p>
               <Button
                 variant="primary"
-                className="font-semibold px-6 py-3 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="text-heading-6 px-6 py-3 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:scale-105"
                 onClick={async () => {
                   // T196: Call payment endpoint directly
                   if (!myBid?.id) return;
@@ -795,18 +795,6 @@ const LeadCard: React.FC<{
               <span className="ml-2 text-foreground">{lead.contact.email}</span>
             </div>
           </div>
-          
-          {/* View Details Button */}
-          <div className="mt-3">
-            <Button
-              onClick={() => setIsViewDetailsOpen(true)}
-              variant="secondary"
-              className="flex items-center space-x-2 w-full md:w-auto"
-            >
-              <EyeIcon className="h-4 w-4" />
-              <span>View Full Details</span>
-            </Button>
-          </div>
         </div>
       )}
       
@@ -816,7 +804,7 @@ const LeadCard: React.FC<{
           <div className="flex flex-col items-center text-center space-y-3">
             <LockIcon className="h-8 w-8 text-muted-foreground" />
             <div>
-              <p className="text-body font-semibold text-foreground mb-1">
+              <p className="text-body text-foreground mb-1">
                 Contact Details Locked
               </p>
               <p className="text-body-small text-muted-foreground">
@@ -829,6 +817,18 @@ const LeadCard: React.FC<{
 
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-2">
+        {/* T295-T296: View Full Details button for BIDDING leads (opens BidEvaluationModal, repositioned) */}
+        {lead.type === 'bidding' && (
+          <Button
+            onClick={() => setIsBidEvaluationOpen(true)}
+            variant="secondary"
+            className="flex items-center space-x-2"
+          >
+            <EyeIcon className="h-4 w-4" />
+            <span>View Full Details</span>
+          </Button>
+        )}
+        
         {canUnlock && (
           <Button
             onClick={() => onUnlock(lead.id)}

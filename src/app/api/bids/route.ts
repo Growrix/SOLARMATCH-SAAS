@@ -238,6 +238,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch all bids for the lead with installer details
+    // T293: Include businessAddress for PURCHASED leads (winner contact unmasking)
     const bids = await prisma.bid.findMany({
       where: { leadId },
       include: {
@@ -246,6 +247,7 @@ export async function GET(request: NextRequest) {
             id: true,
             email: true,
             phone: true,
+            businessAddress: true, // T293: Add for contact unmasking
             installerProfile: {
               select: {
                 companyName: true
@@ -267,7 +269,8 @@ export async function GET(request: NextRequest) {
         installer: {
           companyName: bid.installer.installerProfile?.companyName || 'Unknown Company',
           email: bid.installer.email || '',
-          phone: bid.installer.phone || ''
+          phone: bid.installer.phone || '',
+          businessAddress: bid.installer.businessAddress || '' // T293: Include for contact unmasking
         },
         amount: bid.amount,
         finalTotal: bid.finalTotal,

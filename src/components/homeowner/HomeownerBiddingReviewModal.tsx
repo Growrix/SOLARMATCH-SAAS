@@ -635,6 +635,47 @@ export default function HomeownerBiddingReviewModal({
                     </div>
                   </div>
 
+                  {/* T294: Winning Installer Contact (visible after purchase) */}
+                  {selectedBid && selectedBid.isWinner && selectedBid.installer && (
+                    <div className="bg-success/10 border-2 border-success/30 rounded-xl p-6" data-testid="installer-contact">
+                      <h4 className="text-heading-4 text-success mb-4 flex items-center gap-2">
+                        <CheckCircle className="h-5 w-5" />
+                        Winning Installer Contact
+                      </h4>
+                      <div className="space-y-3">
+                        <div className="flex items-start gap-3">
+                          <span className="text-label text-muted-foreground min-w-[100px]">Company:</span>
+                          <span className="text-body text-foreground">
+                            {selectedBid.installer.companyName}
+                          </span>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <span className="text-label text-muted-foreground min-w-[100px]">Phone:</span>
+                          <span className="text-body text-foreground">
+                            {selectedBid.installer.phone || 'Not provided'}
+                          </span>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <span className="text-label text-muted-foreground min-w-[100px]">Email:</span>
+                          <span className="text-body text-foreground">
+                            {selectedBid.installer.email || 'Not provided'}
+                          </span>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <span className="text-label text-muted-foreground min-w-[100px]">Address:</span>
+                          <span className="text-body text-foreground">
+                            {selectedBid.installer.businessAddress || 'Not provided'}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="mt-4 p-3 bg-success/5 rounded-md border border-success/20">
+                        <p className="text-caption text-muted-foreground">
+                          💡 Contact your winning installer to schedule installation and discuss project details.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   {/* RIGHT COLUMN: Lead Details (InstantQuote Data) */}
                   <div className="space-y-6 lg:sticky lg:top-0 lg:h-fit">
                     <h3 className="text-heading-4 text-foreground border-b border-border pb-2">

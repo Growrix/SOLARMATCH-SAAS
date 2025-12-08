@@ -18,6 +18,7 @@ import HomeownerBiddingReviewModal from '@/components/homeowner/HomeownerBidding
 import HomeownersInfoForm from '@/components/HomeownersInfoForm'; // ✅ Phase 12: Reuse guest flow component for consistency
 import MessagingModal from '@/components/MessagingModal';
 import ProfileManagement from '@/components/ProfileManagement';
+import type { LeadData } from '@/types/lead';
 import VerifiedBadge from '@/components/VerifiedBadge';
 import RequestMoreQuotesCTA from '@/components/homeowner/RequestMoreQuotesCTA';
 import LeadLimitReachedModal from '@/components/homeowner/LeadLimitReachedModal';
@@ -39,7 +40,7 @@ const ChevronDownIcon: React.FC<{ className?: string }> = ({ className }) => <sv
 const PhoneCallIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>;
 const FileSignatureIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><path d="M12 18h.01"/><path d="M16 12.5a2.5 2.5 0 0 0-5 0"/><path d="m15 18-2-2-2 2"/></svg>;
 const GavelIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="m14 12-8.5 8.5"/><path d="m18 16 1-1"/><path d="m17 11 4.3 4.3c.6.6.6 1.5 0 2.1l-2.1 2.1c-.6.6-1.5.6-2.1 0L12.8 16"/><path d="m3 3 8.5 8.5"/><path d="m13 7 4-4"/><path d="m14 11-4 4"/></svg>;
-const MessageSquareIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>;
+const MessageSquareIcon: React.FC<{ className?: string }> = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className || "h-5 w-5"}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>;
 const UserIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
 const BellIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>;
 const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>;
@@ -52,7 +53,7 @@ const MenuIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height
 const EditIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>;
 const EyeIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
 const XCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" x2="9" y1="9" y2="15"/><line x1="9" x2="15" y1="9" y2="15"/></svg>;
-const TrophyIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>;
+const TrophyIcon: React.FC<{ className?: string }> = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className || "h-5 w-5"}><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>;
 const Home = ({ className }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
 const Building = ({ className }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>;
 
@@ -173,7 +174,7 @@ const QUOTE_TYPE_LABELS: Record<QuoteTypeOption, string> = {
   BIDDING: 'Competitive Bidding',
 };
 
-const STATUS_LABELS: Record<LeadStatus, { label: string; description: string; accent: string }> = {
+const STATUS_LABELS: Record<LeadStatus, { label: string | ((lead?: { quoteType?: string }) => string); description: string; accent: string }> = {
   [LeadStatusEnum.DRAFT]: {
     label: 'Draft',
     description: 'Awaiting submission',
@@ -195,7 +196,10 @@ const STATUS_LABELS: Record<LeadStatus, { label: string; description: string; ac
     accent: 'bg-success/10 text-success border border-success/30',
   },
   [LeadStatusEnum.PURCHASED]: {
-    label: 'Responded by Installer',
+    // T290: Conditional label based on quote type
+    // BIDDING leads: "Bid Awarded" (homeowner selected winner)
+    // Other types: "Responded by Installer" (generic purchase)
+    label: (lead?: { quoteType?: string }) => lead?.quoteType === 'BIDDING' ? 'Bid Awarded' : 'Responded by Installer',
     description: 'An installer has responded to your request',
     accent: 'bg-primary/10 text-primary border border-primary/30',
   },
@@ -573,6 +577,10 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
           <div className="space-y-3">
             {summary.recentLeads.map((lead) => {
               const statusInfo = STATUS_LABELS[lead.status as LeadStatus];
+              // T290: Handle label as function for conditional "Bid Awarded" (BIDDING + PURCHASED)
+              const statusLabel = typeof statusInfo.label === 'function' 
+                ? statusInfo.label(lead) 
+                : statusInfo.label;
               const canEdit = lead.status === LeadStatusEnum.PENDING_APPROVAL;
               const isActuallyCancellable = canCancelLead(lead);
               const canPreview = [LeadStatusEnum.APPROVED as string, LeadStatusEnum.PURCHASED as string, LeadStatusEnum.QUOTED as string, LeadStatusEnum.ACCEPTED as string].includes(lead.status);
@@ -604,7 +612,31 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
                             </div>
                             {/* Action buttons (right side, minimal, icon-focused) */}
                             <div className="flex items-center gap-1">
-                              {/* Phase 3: Review Bids button for BIDDING leads */}
+                              {/* Phase 13I-A: Trophy Badge + Bid Awarded visual for PURCHASED BIDDING leads (T291) */}
+                              {lead.quoteType === 'BIDDING' && lead.status === LeadStatusEnum.PURCHASED && (
+                                <div className="flex items-center gap-1 px-2 py-1 bg-success/10 border border-success/30 rounded-md" title="Winner selected">
+                                  <TrophyIcon className="h-4 w-4 text-success" />
+                                  <span className="text-caption text-success">Bid Awarded</span>
+                                </div>
+                              )}
+                              
+                              {/* Phase 13I-A: Start Chat button for PURCHASED BIDDING leads (T292) */}
+                              {lead.quoteType === 'BIDDING' && lead.status === LeadStatusEnum.PURCHASED && (
+                                <Button
+                                  onClick={() => {
+                                    // TODO: Implement chat modal with winning installer
+                                    alert('Chat feature coming soon! You can contact the winning installer via their details in the Review Bids modal.');
+                                  }}
+                                  variant="minimal"
+                                  className="flex items-center gap-1 px-2 py-1 text-caption text-success hover:text-success/80 bg-transparent shadow-none"
+                                  title="Chat with winning installer"
+                                >
+                                  <MessageSquareIcon className="h-4 w-4" />
+                                  <span className="hidden sm:inline">Start Chat</span>
+                                </Button>
+                              )}
+                              
+                              {/* Phase 3: Review Bids button for BIDDING leads (APPROVED or PURCHASED) */}
                               {lead.quoteType === 'BIDDING' && [LeadStatusEnum.APPROVED as string, LeadStatusEnum.PURCHASED as string].includes(lead.status) && (
                                 <Button
                                   onClick={() => {
@@ -685,7 +717,7 @@ const DashboardOverviewContent: React.FC<DashboardOverviewContentProps> = ({
                             )}
                             {/* Status badge */}
                             <span className={`px-2.5 py-0.5 rounded-lg shadow-neu-inset text-caption ${statusInfo.accent}`}>
-                              {statusInfo.label}
+                              {statusLabel}
                             </span>
                             {/* Live Countdown Timer - Only for APPROVED leads (not PURCHASED) */}
                             {lead.expiresAt && lead.status === LeadStatusEnum.APPROVED && (

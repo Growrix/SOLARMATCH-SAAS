@@ -236,6 +236,7 @@ export interface GetBidsResponse {
       companyName: string;
       email: string;
       phone: string;
+      businessAddress: string;
     };
     amount: number;
     finalTotal: number;
