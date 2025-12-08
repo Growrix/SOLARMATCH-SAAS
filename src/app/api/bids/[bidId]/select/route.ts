@@ -128,15 +128,15 @@ export async function POST(
         }
       });
 
-      // ✅ T184: Fixed lead status - PURCHASED (after selection, installer must pay)
-      // Note: Lead status flow is NEW → APPROVED → PURCHASED (after winner selected)
-      // purchasedAt will be updated when installer completes payment
+      // ✅ T195: Lead status remains APPROVED until installer pays
+      // Flow: NEW → APPROVED → (winner selected) → APPROVED → (payment) → PURCHASED
+      // installerId tracks winner, but status/purchasedAt only set after payment
       await tx.lead.update({
         where: { id: bid.leadId },
         data: {
-          status: 'PURCHASED',
           installerId: bid.installerId, // Track winning installer
-          purchasedAt: new Date() // Mark as purchased when winner selected
+          // status remains 'APPROVED' until payment completed
+          // purchasedAt remains null until payment completed
         }
       });
 

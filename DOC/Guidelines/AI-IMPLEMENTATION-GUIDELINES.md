@@ -725,8 +725,143 @@ npx prisma migrate dev --name feature_name
 
 // ❌ ERROR: Migration fails
 // CAUSE: Database state doesn't match schema
-// FIX: npx prisma migrate reset (dev only), or write manual migration
+// FIX: Try npx prisma migrate resolve, or write manual migration to fix data
 ```
+
+---
+
+### 🚨 DATABASE RESET POLICY (CRITICAL - READ CAREFULLY)
+
+**⛔ NEVER USE `npx prisma migrate reset` UNLESS ABSOLUTELY NO OTHER OPTION EXISTS**
+
+**Why This Matters:**
+- `npx prisma migrate reset` **DESTROYS ALL DATABASE DATA** (users, leads, bids, settings, everything)
+- Even in dev mode, losing data is **time-consuming and annoying** - requires re-seeding, re-creating test data, re-testing workflows
+- Forces you to run multiple seed scripts (seed-settings.ts, seed-test-bidding.ts, etc.)
+- Breaks existing test scenarios and workflows that depend on specific data states
+- Wastes developer time recreating data that was working fine
+
+**✅ CORRECT APPROACH - Incremental Migrations (Preserves All Data):**
+
+```powershell
+# 1. Make schema changes in prisma/schema.prisma
+# 2. Generate Prisma Client (updates types only, no DB changes yet):
+npx prisma generate
+
+# 3. Create migration (applies changes incrementally, preserves existing data):
+npx prisma migrate dev --name descriptive_migration_name
+# Examples:
+# npx prisma migrate dev --name add_notification_types
+# npx prisma migrate dev --name add_user_preferences_field
+# npx prisma migrate dev --name update_lead_status_enum
+
+# 4. Verify migration worked:
+npx prisma studio
+# Check that:
+# - New fields/tables exist
+# - Existing data is still there
+# - No data loss occurred
+```
+
+**When Migration Conflicts Occur (Use These Steps BEFORE Considering Reset):**
+
+```powershell
+# STEP 1: Check migration status
+npx prisma migrate status
+# Shows: applied migrations, pending migrations, drift detected
+
+# STEP 2: Try to resolve drift/conflicts without reset:
+npx prisma migrate resolve --applied "migration_name"
+# OR
+npx prisma migrate resolve --rolled-back "migration_name"
+
+# STEP 3: If conflicts persist, try push (forces schema sync):
+npx prisma db push --accept-data-loss
+# Use ONLY if you understand what data will be lost
+
+# STEP 4: If specific migration is broken, delete it and recreate:
+# - Delete the problematic migration folder from prisma/migrations/
+# - Run: npx prisma migrate dev --name new_migration_name
+# - This creates a new migration without destroying existing data
+```
+
+**⚠️ LAST RESORT - When Reset Is Actually Necessary:**
+
+**ONLY use `npx prisma migrate reset` if ALL of these are true:**
+1. ✅ Migration history is completely broken and cannot be resolved
+2. ✅ `npx prisma migrate resolve` failed to fix the issue
+3. ✅ `npx prisma db push` failed or caused data corruption
+4. ✅ You have documented what data exists and how to restore it
+5. ✅ You have a plan to run ALL necessary seed scripts afterward
+6. ✅ You understand this will require re-testing all features
+
+**If you MUST reset (extremely rare):**
+```powershell
+# 1. Document current data state (if needed):
+# - Take screenshots of Prisma Studio
+# - Export critical data if possible
+# - Document what test scenarios will break
+
+# 2. Understand what seed scripts exist:
+# Check: prisma/seed-settings.ts
+# Check: prisma/seed-test-bidding.ts
+# Check: prisma/seed-admin.ts
+# Check: prisma/seed-complete.ts
+
+# 3. Reset database:
+npx prisma migrate reset --force
+
+# 4. IMMEDIATELY run ALL required seed scripts:
+npx tsx prisma/seed-settings.ts     # CRITICAL: System settings
+npx tsx prisma/seed-admin.ts        # Admin user for access
+npx tsx prisma/seed-test-bidding.ts # Test data for bidding flows
+# Run others as needed for your feature
+
+# 5. Verify in Prisma Studio:
+npx prisma studio
+# Check: Settings table populated (18 records)
+# Check: Admin user exists
+# Check: Test data exists
+
+# 6. Document in commit message:
+git commit -m "fix(database): Reset required due to [specific reason]
+
+RESET JUSTIFICATION:
+- Migration conflict: [describe]
+- Resolution attempts failed: [list what you tried]
+- Impact: All data lost, re-seeded with scripts
+
+POST-RESET ACTIONS:
+- Ran seed-settings.ts (18 settings)
+- Ran seed-admin.ts (admin user)
+- Ran seed-test-bidding.ts (3 users, 3 leads)
+- Verified in Prisma Studio
+
+REQUIRED RE-TESTING:
+- [List features that need re-testing]
+"
+```
+
+**Summary - Migration Decision Tree:**
+
+```
+Need to change schema?
+├─ YES → Make change in schema.prisma
+│   └─ Run: npx prisma migrate dev --name change_description
+│       ├─ Success? → ✅ Done! Data preserved.
+│       └─ Conflict/Error?
+│           ├─ Try: npx prisma migrate resolve
+│           ├─ Try: npx prisma db push
+│           ├─ Try: Delete bad migration folder, recreate
+│           └─ ALL FAILED? → Consider reset (LAST RESORT)
+│               └─ Document reason, run seeds, test everything
+└─ NO → Just run: npx prisma generate (updates types only)
+```
+
+**Key Takeaway:**
+- **Default approach**: `npx prisma migrate dev` (preserves data)
+- **Problem approach**: `npx prisma migrate resolve` or manual fix (still preserves data)
+- **Nuclear option**: `npx prisma migrate reset` (destroys everything - avoid unless truly necessary)
 
 ---
 

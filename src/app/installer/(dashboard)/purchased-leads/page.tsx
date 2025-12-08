@@ -32,7 +32,7 @@ function mapPurchasedLeadToComponentLead(apiLead: any): Lead {
     id: apiLead.id,
     homeownerId: apiLead.homeownerId,
     type: quoteTypeMap[apiLead.quoteType] || 'call_visit',
-    status: 'unlocked', // Purchased leads are always unlocked
+    status: 'PURCHASED', // Critical: Must be PURCHASED for contact display logic
     dateSubmitted: new Date(apiLead.createdAt || apiLead.purchasedAt),
     location: {
       suburb: apiLead.location || 'Unknown',
@@ -71,7 +71,7 @@ function mapPurchasedLeadToComponentLead(apiLead: any): Lead {
     phoneVerified: apiLead.phoneVerified || null,
     createdAt: apiLead.createdAt,
     approvedAt: apiLead.approvedAt || null,
-    purchasedAt: apiLead.purchasedAt || null,
+    purchasedAt: apiLead.purchasedAt, // Critical: Must be set for isPaid logic (checked by component)
     quoteData: apiLead.quoteData || null
   };
 }

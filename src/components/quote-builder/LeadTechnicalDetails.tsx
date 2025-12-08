@@ -37,13 +37,19 @@ interface LeadData {
   expiresAt?: string;
   leadPrice?: number;
   phoneNumber?: string;
+  homeowner?: {
+    name?: string;
+    phone?: string;
+    email?: string;
+  };
 }
 
 interface LeadTechnicalDetailsProps {
   lead: Lead | LeadData;
+  isPurchased?: boolean; // T13I-4: Show real contacts if purchased
 }
 
-const LeadTechnicalDetails: React.FC<LeadTechnicalDetailsProps> = ({ lead }) => {
+const LeadTechnicalDetails: React.FC<LeadTechnicalDetailsProps> = ({ lead, isPurchased = false }) => {
   // Type guard to check if it's full LeadData
   const isFullLeadData = (l: Lead | LeadData): l is LeadData => {
     return 'projectType' in l && 'postcode' in l;
@@ -205,25 +211,48 @@ const LeadTechnicalDetails: React.FC<LeadTechnicalDetailsProps> = ({ lead }) => 
           </div>
         </div>
 
-        {/* Contact Information (Masked) */}
+        {/* Contact Information */}
         <div className="space-y-3">
           <h4 className="text-label text-foreground flex items-center gap-2">
             <Lock className="h-4 w-4" />
             Contact Information
           </h4>
-          <div className="bg-warning/5 border border-warning/20 rounded-xl p-4">
-            <div className="flex items-start gap-3">
-              <Lock className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-body-small text-warning mb-1">
-                  Available After Purchase
-                </p>
-                <p className="text-caption text-muted-foreground">
-                  Contact details (name, phone, full address) will be unlocked after you submit your bid and homeowner selects you as winner.
-                </p>
+          {isPurchased && leadData.homeowner ? (
+            <div className="bg-success/5 border border-success/20 rounded-xl p-4 space-y-2">
+              <div className="flex justify-between text-body-small">
+                <span className="text-muted-foreground">Name</span>
+                <span className="text-foreground">{leadData.homeowner.name || 'N/A'}</span>
+              </div>
+              <div className="flex justify-between text-body-small">
+                <span className="text-muted-foreground">Phone</span>
+                <span className="text-foreground">{leadData.homeowner.phone || 'N/A'}</span>
+              </div>
+              <div className="flex justify-between text-body-small">
+                <span className="text-muted-foreground">Email</span>
+                <span className="text-foreground">{leadData.homeowner.email || 'N/A'}</span>
+              </div>
+              {leadData.address && (
+                <div className="flex justify-between text-body-small">
+                  <span className="text-muted-foreground">Full Address</span>
+                  <span className="text-foreground">{leadData.address}</span>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="bg-warning/5 border border-warning/20 rounded-xl p-4">
+              <div className="flex items-start gap-3">
+                <Lock className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-body-small text-warning mb-1">
+                    Available After Purchase
+                  </p>
+                  <p className="text-caption text-muted-foreground">
+                    Contact details (name, phone, full address) will be unlocked after you submit your bid and homeowner selects you as winner.
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
           {leadData.expiresAt && (
             <div className="bg-info/5 border border-info/20 rounded-xl p-4">
               <div className="flex items-center justify-between">

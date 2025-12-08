@@ -68,7 +68,18 @@ export async function GET(request: NextRequest) {
             homeowner: {
               select: { id: true, name: true, phone: true, email: true }
             },
-            quotes: { select: { id: true } }
+            quotes: { select: { id: true } },
+            // T196: Include bids for bidding leads to show winner/loser status
+            bids: {
+              select: {
+                id: true,
+                installerId: true,
+                status: true,
+                amount: true,
+                selectedAt: true,
+                purchasedAt: true
+              }
+            }
           }
         }
       },
@@ -120,6 +131,8 @@ export async function GET(request: NextRequest) {
           phone: isPurchased ? lead.homeowner.phone : '***LOCKED***',
           email: isPurchased ? lead.homeowner.email : '***LOCKED***'
         },
+        // T196: Include bids for bidding flow (winner/loser detection)
+        bids: lead.quoteType === 'BIDDING' ? lead.bids : undefined,
         countdown: calculateCountdown(lead.expiresAt),
         isPurchased,
         isPurchasedByAnother: !!lead.installerId && lead.installerId !== session.user.id,

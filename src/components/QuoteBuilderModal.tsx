@@ -34,6 +34,8 @@ interface Lead {
   budget: string;
   quoteData?: any; // Instant Quote data from homeowner
   batteryRequired?: boolean; // Battery required flag from InstantQuote
+  status?: string; // Lead status for purchase checking
+  purchasedAt?: string | null; // Purchase timestamp for purchase checking
 }
 
 interface QuoteBuilderModalProps {
@@ -991,7 +993,10 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
                         quoteData={fullLeadData?.quoteData || lead?.quoteData!}
                         batteryRequired={fullLeadData?.batteryRequired || lead?.batteryRequired}
                       />
-                      <LeadTechnicalDetails lead={fullLeadData || lead} />
+                      <LeadTechnicalDetails 
+                        lead={fullLeadData || lead} 
+                        isPurchased={!!(lead.status === 'PURCHASED' && lead.purchasedAt)} 
+                      />
                       <InstantQuoteResult quoteData={fullLeadData?.quoteData || lead?.quoteData!} />
                     </div>
                   )}
@@ -1010,6 +1015,7 @@ const QuoteBuilderModal: React.FC<QuoteBuilderModalProps> = ({
           leadId={String(lead.id)}
           bids={[]}
           yourBidId={undefined}
+          isPurchased={!!(lead.status === 'PURCHASED' && lead.purchasedAt)} // T13I-4: Pass purchase status
         />
       )}
 

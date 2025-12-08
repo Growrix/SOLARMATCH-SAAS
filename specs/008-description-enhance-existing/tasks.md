@@ -5180,5 +5180,556 @@ Next Steps:
 
 ---
 
+## Phase 13H – Bidding Winner Payment Flow Fix (P0 - Critical Revenue Blocker)
+
+**Feature**: Fix bidding payment flow to prevent premature contact reveal and ensure proper status transitions  
+**Priority**: P0 - Critical (Blocks revenue and violates business logic)  
+**Estimated Effort**: 3-4 hours (7 tasks)  
+**Created**: December 7, 2025  
+**Audit Report**: `DOC/Installers/Bidding leads/PHASE-13H-BIDDING-PAYMENT-FLOW-AUDIT.md`
+
+### Context & Problem Statement
+
+**Critical Bugs Identified**:
+1. **Loser Notification**: Frontend shows harsh "This lead has been purchased by another installer" (red, with lock icon) instead of polite backend message
+2. **Premature PURCHASED Status**: Lead marked as PURCHASED immediately when winner selected, BEFORE payment
+3. **Contact Details Leaked**: Homeowner name/email/phone revealed to winner WITHOUT payment
+4. **Wrong Lead Location**: Winner's lead moved to "Purchased Leads" before payment completed
+
+**Expected Behavior**:
+1. Loser sees polite message: "The bid was won by another installer. Better luck next time!" (yellow/warning color)
+2. Winner sees lead in feed with trophy icon + "You won! Proceed to payment to unlock contact details"
+3. Contact details remain LOCKED until payment completed
+4. Lead moves to "Purchased Leads" ONLY after payment
+
+**Business Impact**:
+- **Revenue Loss**: Winners may not pay if they already have contact details
+- **Trust Violation**: Homeowners expect contact details protected until payment
+- **UX Confusion**: Losers see harsh message, winners confused about payment requirement
+
+---
+
+### T194 [Phase 13H][Frontend]: Update loser notification to polite message
+- **File**: `src/components/InstallerLeadFeed.tsx` (line 581-591)
+- **Change 1**: Update message text
+  ```tsx
+  // OLD:
+  "? This lead has been purchased by another installer"
+  
+  // NEW:
+  "The bid was won by another installer. Better luck next time!"
+  ```
+- **Change 2**: Color from error (red) to warning (yellow/orange)
+  ```tsx
+  // OLD:
+  bg-error/10 border-error/20 text-error
+  
+  // NEW:
+  bg-warning/10 border-warning/20 text-warning
+  ```
+- **Change 3**: Icon from LockIcon to InfoIcon
+- **Verification**: Browser visual check - message polite, yellow color, info icon
+- **Status**: NOT STARTED
+
+---
+
+### T195 [Phase 13H][Backend]: Remove premature PURCHASED status from select winner endpoint
+- **File**: `src/app/api/bids/[bidId]/select/route.ts` (line 143-149)
+- **Change**: Remove premature lead status update
+  ```typescript
+  // ❌ DELETE THIS ENTIRE BLOCK:
+  await tx.lead.update({
+    where: { id: bid.leadId },
+    data: {
+      status: 'PURCHASED', // Delete - set too early
+      installerId: bid.installerId,
+      purchasedAt: new Date() // Delete - no payment yet
+    }
+  });
+  
+  // ✅ REPLACE WITH:
+  await tx.lead.update({
+    where: { id: bid.leadId },
+    data: {
+      installerId: bid.installerId, // Track winner only
+      // status remains 'APPROVED' until payment
+      // purchasedAt remains null until payment
+    }
+  });
+  ```
+- **Why**: Lead should only become PURCHASED after installer pays, not when selected
+- **Verification**: Prisma Studio - after winner selection, lead.status = 'APPROVED', lead.purchasedAt = null
+- **Status**: NOT STARTED
+
+---
+
+### T196 [Phase 13H][Frontend]: Add winner banner with trophy and payment CTA
+- **File**: `src/components/InstallerLeadFeed.tsx`
+- **Location**: Before loser banner (around line 580)
+- **Add**: Winner banner with trophy icon
+  ```tsx
+  {/* Winner banner - shown when installer won but hasn't paid yet */}
+  {isWinner && !isPaid && (
+    <div className="bg-success/10 border-2 border-success/30 rounded-lg p-4 mb-4">
+      <div className="flex items-start space-x-3">
+        <TrophyIcon className="h-8 w-8 text-warning flex-shrink-0 mt-1" />
+        <div className="flex-1">
+          <h4 className="text-h6 text-success font-semibold mb-1">
+            🎉 Congratulations! You won this bid!
+          </h4>
+          <p className="text-body text-muted-foreground mb-3">
+            The homeowner has selected your bid. Proceed to payment to unlock full contact details and begin installation.
+          </p>
+          <button className="btn-primary">
+            <LockIcon className="h-4 w-4" />
+            Proceed to Payment
+          </button>
+        </div>
+      </div>
+    </div>
+  )}
+  ```
+- **Logic**: Add state calculation
+  ```typescript
+  // Determine winner status
+  const myBid = lead.bids?.find(b => b.installerId === installer.id);
+  const isWinner = myBid?.status === 'SELECTED';
+  const isPaid = lead.status === 'PURCHASED' && lead.purchasedAt !== null;
+  ```
+- **Verification**: Browser check - winner sees trophy banner with payment button
+- **Status**: NOT STARTED
+
+---
+
+### T197 [Phase 13H][Frontend]: Update contact details locking logic
+- **Files**: 
+  - `src/components/InstallerLeadFeed.tsx`
+  - `src/components/installer/LeadDetailsModal.tsx` (if exists)
+  - Any other components showing lead contact details
+- **Change**: Add payment check to contact reveal logic
+  ```typescript
+  // OLD LOGIC (WRONG):
+  const canSeeContacts = lead.status === 'PURCHASED';
+  
+  // NEW LOGIC (CORRECT):
+  const canSeeContacts = lead.status === 'PURCHASED' && lead.purchasedAt !== null;
+  
+  // RENDER:
+  {canSeeContacts ? (
+    <>
+      <p>Name: {lead.name}</p>
+      <p>Email: {lead.email}</p>
+      <p>Phone: {lead.phoneNumber}</p>
+    </>
+  ) : isWinner ? (
+    <div className="bg-muted/50 border border-muted rounded-lg p-4">
+      <LockIcon className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
+      <p className="text-body text-center text-muted-foreground">
+        Complete payment to unlock homeowner contact details
+      </p>
+    </div>
+  ) : (
+    <div className="bg-muted/50 border border-muted rounded-lg p-4">
+      <LockIcon className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
+      <p className="text-body text-center text-muted-foreground">
+        Purchase this lead to view contact details
+      </p>
+    </div>
+  )}
+  ```
+- **Search Command**: Find all contact detail rendering
+  ```powershell
+  Select-String -Path "src\components\**\*.tsx" -Pattern "lead\.name|lead\.email|lead\.phoneNumber"
+  ```
+- **Verification**: Browser check - contact details hidden until payment
+- **Status**: NOT STARTED
+
+---
+
+### T198 [Phase 13H][Backend]: Verify/Create payment endpoint updates lead status correctly
+- **File**: `src/app/api/leads/[id]/purchase/route.ts` (or similar payment endpoint)
+- **Action**: Find existing payment endpoint or create new one
+- **Required Updates**: After successful payment, must update:
+  ```typescript
+  await prisma.$transaction(async (tx) => {
+    // Update lead status to PURCHASED
+    await tx.lead.update({
+      where: { id: leadId },
+      data: {
+        status: 'PURCHASED',
+        purchasedAt: new Date()
+      }
+    });
+    
+    // Update winner's bid with payment timestamp
+    await tx.bid.updateMany({
+      where: {
+        leadId: leadId,
+        installerId: installerId,
+        status: 'SELECTED'
+      },
+      data: {
+        purchasedAt: new Date()
+      }
+    });
+  });
+  ```
+- **Search**: Find existing payment endpoint
+  ```powershell
+  Select-String -Path "src\app\api\**\*.ts" -Pattern "purchase|payment" -CaseSensitive:$false
+  ```
+- **Verification**: 
+  - Prisma Studio: After payment, lead.status = 'PURCHASED', lead.purchasedAt has timestamp
+  - Prisma Studio: Winner bid.purchasedAt has timestamp
+- **Status**: NOT STARTED
+
+---
+
+### T199 [Phase 13H][Testing]: End-to-end flow verification
+- **Scenario 1: Loser View**
+  1. Login as loser installer
+  2. View lead that was won by another installer
+  3. ✓ See polite message "Bid was won by another installer. Better luck next time!"
+  4. ✓ Message in yellow/warning color (not red)
+  5. ✓ Info icon (not lock icon)
+  
+- **Scenario 2: Winner Before Payment**
+  1. Login as winner installer
+  2. View lead that homeowner selected them for
+  3. ✓ See trophy icon and "Congratulations!" banner
+  4. ✓ See "Proceed to Payment" button
+  5. ✓ Contact details are LOCKED (name/email/phone hidden)
+  6. ✓ Lead is in "Lead Feed" (not in "Purchased Leads")
+  
+- **Scenario 3: Payment Flow**
+  1. Winner clicks "Proceed to Payment"
+  2. Complete payment (Stripe or test mode)
+  3. ✓ Payment successful
+  4. ✓ Redirected to appropriate page
+  
+- **Scenario 4: Winner After Payment**
+  1. View lead after payment completed
+  2. ✓ Lead moved to "Purchased Leads" section
+  3. ✓ Contact details UNLOCKED (name/email/phone visible)
+  4. ✓ Full homeowner information accessible
+  5. ✓ Can contact homeowner
+
+- **Database Verification** (Prisma Studio):
+  - Before payment: lead.status = 'APPROVED', lead.purchasedAt = null
+  - After payment: lead.status = 'PURCHASED', lead.purchasedAt has timestamp
+  - Winner bid.status = 'SELECTED', bid.purchasedAt has timestamp
+  - Loser bid.status = 'REJECTED'
+
+- **Status**: NOT STARTED
+
+---
+
+### T200 [Phase 13H][Verification]: Build validation and atomic commit
+- **TypeScript Check**: `npx tsc --noEmit` → 0 errors
+- **Build Check**: `npm run build` → Success
+- **Browser Check**: 
+  - No console errors
+  - All 4 scenarios working
+  - Polite loser message
+  - Winner trophy banner
+  - Contact details locked until payment
+  - Payment flow functional
+- **Database Check** (Prisma Studio):
+  - Lead status transitions correct
+  - Timestamps set appropriately
+  - No data corruption
+- **Commit Message**:
+  ```
+  fix(bidding): Implement proper payment-gated contact reveal flow
+  
+  CRITICAL FIXES:
+  - Remove premature PURCHASED status (T195)
+  - Lock contact details until payment (T197)
+  - Keep winner lead in feed until payment (T196)
+  - Update loser message to polite version (T194)
+  
+  BUSINESS IMPACT:
+  - Prevents revenue loss from unpaid winners
+  - Protects homeowner privacy until payment
+  - Improves installer UX (clear payment requirement)
+  - Professional communication with losers
+  
+  FLOW:
+  Before: Select winner → PURCHASED (wrong) → contacts revealed (wrong)
+  After: Select winner → APPROVED → payment → PURCHASED → contacts revealed
+  
+  FILES CHANGED:
+  - src/app/api/bids/[bidId]/select/route.ts (remove premature status)
+  - src/components/InstallerLeadFeed.tsx (winner banner + loser message)
+  - src/app/api/leads/[id]/purchase/route.ts (payment updates)
+  
+  TESTING:
+  ✓ Loser sees polite message (yellow warning)
+  ✓ Winner sees trophy before payment
+  ✓ Contacts locked until payment
+  ✓ Payment flow works end-to-end
+  ✓ Contacts unlock after payment
+  ✓ Lead moves to purchased section after payment
+  
+  Phase: 13H - Bidding Payment Flow Fix
+  Tasks: T194-T200
+  Priority: P0 - Critical Revenue Blocker
+  ```
+- **Status**: NOT STARTED
+
+---
+
+**Phase 13H Checkpoint** (MANDATORY - STOP if any fail):
+- [ ] All T194-T200 tasks completed
+- [ ] TypeScript: `npx tsc --noEmit` → 0 errors
+- [ ] Build: `npm run build` → Success
+- [ ] Browser: All 4 scenarios tested and passing
+- [ ] Prisma Studio: Lead status flow correct (APPROVED → payment → PURCHASED)
+- [ ] Prisma Studio: purchasedAt timestamps correct (null before payment, set after)
+- [ ] Loser message: Polite and professional (yellow warning color)
+- [ ] Winner banner: Trophy icon + payment CTA visible
+- [ ] Contact details: Locked before payment, unlocked after
+- [ ] Lead location: In feed before payment, in purchased after
+- [ ] Payment flow: Works end-to-end
+- [ ] No console errors
+- [ ] No regressions in existing functionality
+- [ ] Atomic commit created with comprehensive message
+
+**Phase 13H Success Criteria:**
+
+**Functional Requirements:**
+- [ ] Loser sees polite notification message
+- [ ] Loser message in warning color (not error/red)
+- [ ] Winner sees trophy icon and congratulations banner
+- [ ] Winner sees "Proceed to Payment" button
+- [ ] Contact details locked until payment completed
+- [ ] Lead remains in feed (not moved) until payment
+- [ ] Payment flow updates database correctly
+- [ ] Lead moves to purchased section after payment
+- [ ] Contact details unlock after payment
+
+**Technical Requirements:**
+- [ ] No schema changes needed (use existing fields)
+- [ ] Backend: No premature PURCHASED status
+- [ ] Frontend: Proper status and payment checks
+- [ ] Payment endpoint: Updates lead + bid correctly
+- [ ] TypeScript: 0 errors
+- [ ] Build: Success
+- [ ] No console errors
+
+**Business Requirements:**
+- [ ] Revenue protected (payment required for contacts)
+- [ ] Homeowner privacy protected
+- [ ] Clear payment requirement communicated
+- [ ] Professional communication with losers
+- [ ] UX aligns with business model
+
+**Testing Requirements:**
+- [ ] All 4 scenarios tested manually
+- [ ] Database state verified in Prisma Studio
+- [ ] UX verified in browser
+- [ ] No regressions in existing bidding flow
+- [ ] End-to-end payment flow works
+
+**Documentation:**
+- [ ] Audit report created (PHASE-13H-BIDDING-PAYMENT-FLOW-AUDIT.md)
+- [ ] tasks.md updated with Phase 13H
+- [ ] Comprehensive commit message with before/after flow
+
+---
+
+**Phase 13H Status**: PLANNED - Ready for implementation  
+**Priority**: P0 - Critical (Revenue blocker, privacy violation)  
+**Estimated Effort**: 3-4 hours (7 tasks)  
+**Dependencies**: 
+- Phase 13G Complete (winner selection working)
+- Payment endpoint exists or can be created
+
+**Risk Assessment**:
+- **High Risk**: Revenue loss if not fixed (winners get contacts without payment)
+- **High Risk**: Privacy violation (homeowner contacts leaked)
+- **Medium Risk**: Payment flow integration (may need updates)
+- **Low Risk**: Frontend updates (mostly UI changes)
+- **Mitigation**: Test payment flow thoroughly, verify in Prisma Studio
+
+**Blockers**: None - All dependencies satisfied
+
+**Next Phase After 13H**: Phase 13I - Purchased Bidding Lead Enhancement
+
+---
+
+## Phase 13I – Purchased Bidding Lead Card Enhancement
+
+**Phase ID**: `P13I-PURCHASED-BIDDING-ENHANCEMENT`  
+**Created**: December 8, 2025  
+**Status**: IN PROGRESS  
+**Goal**: After purchasing a bidding lead (payment complete), unmask homeowner contact details in purchased lead card and Bid Evaluation modal, and remove the "Place Bid" button.
+
+**Context**:
+- Currently: After winning installer completes payment for a bidding lead, they can see the lead in the Purchased Leads page under the "Bidding" tab
+- Problem: Contact details remain masked, "Place Bid" button still shows, and Bid Evaluation modal still shows "Available After Purchase" message
+- Required: After payment, homeowner contact details should be fully visible (name, phone, email) in both the lead card and Bid Evaluation modal
+- Business Impact: Installers who paid need immediate access to contact information to begin installation
+
+**User Story**:
+> As an Installer who won and paid for a bidding lead,  
+> I want to see the homeowner's full contact details in my Purchased Leads page,  
+> So that I can contact them and begin the installation process.
+
+**Acceptance Criteria**:
+1. ✅ Purchased bidding leads show full contact details (name, phone, email) in lead card
+2. ✅ "Place Bid" button is removed/hidden for purchased bidding leads
+3. ✅ Bid Evaluation modal shows real contact information (not "Available After Purchase")
+4. ✅ No regressions for unpurchased bidding leads (still masked correctly)
+5. ✅ Works correctly for Call/Visit and Written Quote leads (no changes needed)
+
+---
+
+### Task List
+
+**T13I-1**: [Backend] Verify purchased leads API returns complete contact data
+- **Endpoint**: `/api/installer/leads/purchased`
+- **Action**: Ensure API returns homeowner name, phone, email for PURCHASED bidding leads
+- **Verification**: Check response in Network tab, verify isPaid=true and isUnlocked=true
+- **Status**: NOT STARTED
+
+**T13I-2**: [Frontend] Update InstallerLeadFeed - Remove "Place Bid" button for purchased bidding leads
+- **File**: `src/components/InstallerLeadFeed.tsx`
+- **Action**: 
+  - Check if lead is purchased: `lead.status === 'PURCHASED' && lead.purchasedAt && isPaid`
+  - Hide "Place Bid" button for purchased bidding leads
+  - Keep all other buttons visible (Lead Details, Start Chat)
+- **Verification**: Open Purchased Leads > Bidding tab, verify no "Place Bid" button shows
+- **Status**: NOT STARTED
+
+**T13I-3**: [Frontend] Update InstallerLeadFeed - Show contact details for purchased bidding leads
+- **File**: `src/components/InstallerLeadFeed.tsx`  
+- **Action**:
+  - Update contact display logic: Show contacts if `(isUnlockedByInstaller && (lead.type !== 'bidding' || isPaid))`
+  - Remove locked contact banner for purchased bidding leads
+  - Ensure contact details render correctly (name, phone, email)
+- **Verification**: Open Purchased Leads > Bidding tab, verify full contact details visible
+- **Status**: NOT STARTED
+
+**T13I-4**: [Frontend] Update BidEvaluationModal - Show real contact info after purchase
+- **File**: `src/components/BidEvaluationModal.tsx`
+- **Action**:
+  - Accept `isPaid` or `isPurchased` prop from parent
+  - Conditionally render: If paid, show real contact details; else show "Available After Purchase" message
+  - Update contact section to display name, phone, email when purchased
+- **Verification**: Open Bid Evaluation modal from purchased lead, verify real contacts shown
+- **Status**: NOT STARTED
+
+**T13I-5**: [Testing] Manual testing of purchased bidding lead flow
+- **Actions**:
+  1. Complete payment for a winning bid (using existing flow)
+  2. Verify lead appears in Purchased Leads > Bidding tab
+  3. Check lead card shows full contact details (name, phone, email)
+  4. Verify "Place Bid" button is NOT visible
+  5. Open "Lead Details" (Bid Evaluation modal)
+  6. Verify modal shows real contact information
+  7. Test with Call/Visit and Written Quote leads (no regression)
+- **Status**: NOT STARTED
+
+**T13I-6**: [Verification] Run all verification commands (0 errors)
+- **Actions**:
+  ```powershell
+  npx tsc --noEmit  # Must return empty output
+  npm run build      # Must say "Compiled successfully"
+  # Browser console - Must be clean (no warnings)
+  ```
+- **Status**: NOT STARTED
+
+**T13I-7**: [Commit] Atomic commit for Phase 13I
+- **Message**: "feat(bidding): unmask contacts in purchased bidding leads [P13I]"
+- **Description**: 
+  ```
+  After winning installer completes payment for bidding lead:
+  - Show full homeowner contact details in purchased lead card
+  - Remove "Place Bid" button from purchased bidding leads
+  - Update Bid Evaluation modal to show real contacts after purchase
+  
+  Changes:
+  - InstallerLeadFeed.tsx: Update contact display logic and button visibility
+  - BidEvaluationModal.tsx: Conditional contact rendering based on purchase status
+  
+  Testing:
+  - Verified purchased bidding leads show full contacts
+  - Verified "Place Bid" button hidden for purchased leads
+  - Verified Bid Evaluation modal shows real contacts after purchase
+  - Verified no regressions for Call/Visit and Written Quote leads
+  - 0 TypeScript errors, 0 build warnings, clean browser console
+  
+  Fixes: Purchased bidding lead contact visibility
+  Phase: 13I - Purchased Bidding Lead Enhancement
+  ```
+- **Status**: NOT STARTED
+
+---
+
+### Success Metrics
+
+**Functional Requirements:**
+- [ ] Purchased bidding leads show full contact details in lead card
+- [ ] "Place Bid" button hidden for purchased bidding leads
+- [ ] Bid Evaluation modal shows real contacts after purchase
+- [ ] No contact details shown for unpurchased bidding leads (still masked)
+- [ ] Call/Visit and Written Quote leads unchanged (no regression)
+
+**Technical Requirements:**
+- [ ] Backend API returns complete contact data for purchased leads
+- [ ] Frontend conditional logic correct (isPaid check)
+- [ ] BidEvaluationModal accepts and uses purchase status prop
+- [ ] TypeScript: 0 errors
+- [ ] Build: Success
+- [ ] No console errors
+
+**Business Requirements:**
+- [ ] Paid installers get immediate contact access
+- [ ] Revenue protection maintained (only paid installers see contacts)
+- [ ] Homeowner privacy protected (unpaid installers don't see contacts)
+- [ ] UX clear and professional
+
+**Testing Requirements:**
+- [ ] Purchased bidding lead tested manually
+- [ ] Unpurchased bidding lead verified still masked
+- [ ] Call/Visit lead tested (no regression)
+- [ ] Written Quote lead tested (no regression)
+- [ ] Bid Evaluation modal tested from purchased lead
+
+**Documentation:**
+- [ ] tasks.md updated with Phase 13I
+- [ ] Comprehensive commit message with changes
+
+---
+
+**Phase 13I Status**: IN PROGRESS  
+**Priority**: P1 - High (Installers need contact access after payment)  
+**Estimated Effort**: 2-3 hours (7 tasks)  
+**Dependencies**: 
+- Phase 13H Complete (payment flow working)
+- Purchased leads API functional
+
+**Risk Assessment**:
+- **Low Risk**: Frontend conditional rendering (straightforward logic)
+- **Low Risk**: BidEvaluationModal prop passing (clean interface)
+- **Medium Risk**: Regression testing (ensure no impact on other lead types)
+- **Mitigation**: Test all lead types thoroughly, verify isPaid logic
+
+**Blockers**: None - All dependencies satisfied
+
+**Next Phase After 13I**: Phase 13J - Bidding Analytics Dashboard (optional)
+
+---
+
+
+
+
+
+
+
+
+
+
 
 

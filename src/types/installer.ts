@@ -64,4 +64,14 @@ export interface AssignedLead {
   phoneVerified?: boolean | null;
   approvedAt?: string | null;
   quoteData?: any; // JSON data from InstantQuote
+  // T196: Bids data for winner/loser detection
+  installerId?: string | null;
+  bids?: Array<{
+    id: string;
+    installerId: string;
+    status: string;
+    amount: number;
+    selectedAt?: Date | null;
+    purchasedAt?: Date | null;
+  }>;
 }

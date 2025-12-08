@@ -43,10 +43,13 @@ export async function GET(request: NextRequest) {
     
     const leads = purchasedLeads.map(lead => ({
       id: lead.id,
+      homeownerId: lead.homeownerId,
       quoteType: lead.quoteType,
       status: lead.status,
       purchaseStatus: lead.purchaseStatus,
       purchasedAt: lead.purchasedAt?.toISOString(),
+      createdAt: lead.createdAt.toISOString(),
+      approvedAt: lead.approvedAt?.toISOString(),
       leadPrice: lead.leadPrice,
       homeowner: {
         id: lead.homeowner.id,
@@ -57,9 +60,21 @@ export async function GET(request: NextRequest) {
       location: lead.location,
       postcode: lead.postcode,
       state: lead.state,
+      address: lead.address,
       propertyType: lead.propertyType,
       roofType: lead.roofType,
+      projectType: lead.projectType,
       budgetRange: lead.budgetRange,
+      energyBill: lead.energyBill,
+      billType: lead.billType,
+      desiredOffset: lead.desiredOffset,
+      batteryRequired: lead.batteryRequired,
+      batteryCapacity: lead.batteryCapacity,
+      timeframe: lead.timeframe,
+      additionalNotes: lead.additionalNotes,
+      phoneNumber: lead.phoneNumber,
+      phoneVerified: lead.phoneVerified,
+      quoteData: lead.quoteData,
       quotesCount: lead.quotes.length
     }));
     

@@ -2881,3 +2881,40 @@ now the homeowners can compare bids and has a button to select any installer as 
 ***Instructions*** I want you to audit and understand the current status of the homeowners review bids modal functionality first. after that build the select as winner functionality as per the plan discussed before. so that when the homeowners click on the select as winner button, the respective installer gets notified that they have won the bid for that lead. and also the lead status gets updated to PURCHASED after the installer make payments.
 
 ***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and make sure to stay aligned with the specks as well.
+
+-----------------------------------------------------------
+
+- The looser installers are getting notified , but the message in red mark is not appropriate. now it is showing "This lead has been purchased by anoter installer" , you should write something politely  "The Bid is won by another installer. Better luck next time!" or something like that. 
+***Instructions*** I want you to update the looser notification message as per the above instruction. make sure the message is polite and professional.
+
+- The winner Installer's lead card is moved to the purchased leads page under bidding tab without making the payment. I want you to fix this issue. The lead should be moved to purchased leads only after the payment is done by the winner installer.
+- And the homeowners informations are revelaed immidiately before payment. which is wrong. 
+
+**what it should be***
+
+After the homeowner select the winner, the winner still see the lead in the leadfeed, but the status will be updated with a winning Trophy icon and a note "You have won this bid! Please proceed to payment to unlock homeowner contact details."
+- only after the payment is done by the winner installer, the lead gets moved to purchased leads page under bidding tab and reveal the contacts.
+
+***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and make sure to stay aligned with the specks as well.
+
+----------------------------------------------------
+
+-The winner installer is not getting notified after being selected as winner by the homeowners. I want you to fix this issue. so that the winner installer gets notified accordingly as per their bid ID.
+-The lead card is also not updated there is no button or note showing the winner installer to proceed to payment to unlock homeowner contact details.
+***Instructions*** I want you to fix the issue so that the winner installer gets notified accordingly as per their bid ID.
+- The lead card is also not updated there is no button or note showing the winner installer to proceed to payment to unlock homeowner contact details.
+- Must show a winner Trophy Icon and a note "You have won this bid! Please proceed to payment to unlock homeowner contact details." in the lead card of the winner installer in the lead feed.
+***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and make sure to stay aligned with the specks as well.
+
+--------------------------------------------------------------
+
+***Purchased Lead card enhancement***
+- After purchasing bidding lead, the homeowners Contact details should be Unmasked and shown in the purchased lead card under bidding tab.
+- The "Place bid" button should be removed from the purchased lead card under bidding tab.
+- The Lead details button > Bid Evaluation Modal's contact information section should reveal the contact information after purchase.
+
+***Instructions*** I want you to enhance the purchased lead card under bidding tab as per the above instructions. so that after purchasing bidding lead, the homeowners Contact details should be Unmasked and shown in the purchased lead card under bidding tab.
+***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and make sure to stay aligned with the specks as well.
+
+------------------------------------------------------------
+

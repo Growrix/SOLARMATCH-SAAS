@@ -66,7 +66,10 @@ function mapAssignedLeadToComponentLead(apiLead: AssignedLead): Lead {
     createdAt: apiLead.createdAt,
     approvedAt: apiLead.approvedAt || null,
     purchasedAt: apiLead.purchasedAt || null,
-    quoteData: apiLead.quoteData || null
+    quoteData: apiLead.quoteData || null,
+    // T196: Map bids data for winner/loser detection
+    bids: apiLead.bids || undefined,
+    installerId: apiLead.installerId || null
   };
 }
 
@@ -110,7 +113,7 @@ export default function InstallerLeadsPage() {
 
         // Set installer profile (simplified for component)
         setInstaller({
-          id: 1,
+          id: session.user.id as any, // T196: Use actual user ID for bid matching
           companyName: session.user.name || 'Installer',
           email: session.user.email || '',
           phone: '',

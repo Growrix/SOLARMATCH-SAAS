@@ -28,10 +28,11 @@ const XIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="
 const SendIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>;
 const EyeIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>;
 const TrophyIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>;
+const InfoIcon = ({ className ="h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>;
 
 // --- Types ---
 export type LeadType = 'call_visit' | 'written' | 'bidding';
-export type LeadStatus = 'new' | 'unlocked' | 'submitted' | 'expired' | 'contacted';
+export type LeadStatus = 'new' | 'unlocked' | 'submitted' | 'expired' | 'contacted' | 'APPROVED' | 'PURCHASED';
 
 export interface Lead {
   id: string;
@@ -78,6 +79,16 @@ export interface Lead {
   approvedAt?: string | null;
   purchasedAt?: string | null;
   quoteData?: any | null;
+  installerId?: string | null;
+  // Bidding fields
+  bids?: Array<{
+    id: string;
+    installerId: string;
+    status: string;
+    amount: number;
+    selectedAt?: Date | null;
+    purchasedAt?: Date | null;
+  }>;
 }
 
 export interface InstallerProfile {
@@ -531,9 +542,17 @@ const LeadCard: React.FC<{
   
   const isUnlockedByInstaller = lead.isUnlocked;
   const isPurchasedByAnother = lead.isPurchasedByAnother || false;
+  
+  // T196: Determine if this installer is the winner (selected but not paid yet)
+  const myBid = lead.bids?.find((b: any) => b.installerId === installer.id);
+  const isWinner = myBid?.status === 'SELECTED';
+  const isPaid = lead.status === 'PURCHASED' && lead.purchasedAt;
+  const isLoser = myBid?.status === 'REJECTED';
+  
   const canUnlock = lead.type === 'call_visit' && !isUnlockedByInstaller && !isPurchasedByAnother && lead.status === 'new';
   const canQuote = lead.type === 'written' || isUnlockedByInstaller;
-  const canBid = lead.type === 'bidding'; // Bidding leads allow bids
+  // T13I-2: Hide "Place Bid" button for purchased bidding leads
+  const canBid = lead.type === 'bidding' && !isPaid; // Bidding leads allow bids ONLY if not yet purchased
 
   const getStatusBadge = () => {
     const baseClasses ="px-2 py-1 text-caption rounded-full";
@@ -577,13 +596,61 @@ const LeadCard: React.FC<{
     <>
       <div className={`theme-card border-l-4 ${getPriorityColor()} p-6 transition-colors duration-200 ${isPurchasedByAnother ? 'opacity-50' : ''}`}>
       
-      {/* Banner if purchased by another installer */}
-      {isPurchasedByAnother && (
-        <div className="bg-error/10 border border-error/20 rounded-lg p-3 mb-4">
+      {/* T196: Winner banner - shown when installer won but hasn't paid yet */}
+      {isWinner && !isPaid && (
+        <div className="bg-success/10 border-2 border-success/30 rounded-lg p-4 mb-4">
+          <div className="flex items-start space-x-3">
+            <TrophyIcon className="h-8 w-8 text-warning flex-shrink-0 mt-1" />
+            <div className="flex-1">
+              <h4 className="text-h6 text-success font-semibold mb-1">
+                🎉 Congratulations! You won this bid!
+              </h4>
+              <p className="text-body text-muted-foreground mb-3">
+                The homeowner has selected your bid. Proceed to payment to unlock full contact details and begin installation.
+              </p>
+              <Button
+                variant="primary"
+                className="font-semibold px-6 py-3 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:scale-105"
+                onClick={async () => {
+                  // T196: Call payment endpoint directly
+                  if (!myBid?.id) return;
+                  if (!confirm('Complete payment to unlock homeowner contact details? (Dev mode: no actual charge)')) {
+                    return;
+                  }
+                  try {
+                    const response = await fetch(`/api/bids/${myBid.id}/purchase`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' }
+                    });
+                    if (!response.ok) {
+                      const error = await response.json();
+                      alert(error.error || 'Payment failed');
+                      return;
+                    }
+                    const data = await response.json();
+                    alert('✅ Payment successful! Contact details unlocked. Refreshing page...');
+                    window.location.reload(); // Refresh to show unlocked contacts
+                  } catch (error) {
+                    console.error('Payment error:', error);
+                    alert('Payment failed. Please try again.');
+                  }
+                }}
+              >
+                <LockIcon className="h-5 w-5" />
+                <span>Proceed to Payment</span>
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* T194: Loser banner - shown when installer's bid was rejected */}
+      {isLoser && (
+        <div className="bg-warning/10 border border-warning/20 rounded-lg p-3 mb-4">
           <div className="flex items-center space-x-2">
-            <LockIcon className="h-5 w-5 text-error" />
-            <p className="text-body text-error">
-              ? This lead has been purchased by another installer
+            <InfoIcon className="h-5 w-5 text-warning" />
+            <p className="text-body text-warning">
+              The bid was won by another installer. Better luck next time!
             </p>
           </div>
         </div>
@@ -705,8 +772,8 @@ const LeadCard: React.FC<{
         </div>
       </div>
 
-      {/* Contact Info (if unlocked) */}
-      {isUnlockedByInstaller && (
+      {/* T197 & T13I-3: Contact Info (if unlocked AND paid for bidding leads) */}
+      {isUnlockedByInstaller && (lead.type !== 'bidding' || isPaid) && (
         <div className="bg-success/10 border border-success/20 rounded-lg p-4 mb-4 shadow-neu-inset">
           <div className="flex items-center space-x-2 mb-2">
             <UnlockIcon className="h-4 w-4 text-success" />
@@ -739,6 +806,23 @@ const LeadCard: React.FC<{
               <EyeIcon className="h-4 w-4" />
               <span>View Full Details</span>
             </Button>
+          </div>
+        </div>
+      )}
+      
+      {/* T197: Locked contact details for winner awaiting payment */}
+      {lead.type === 'bidding' && isWinner && !isPaid && (
+        <div className="bg-muted/50 border border-muted rounded-lg p-4 mb-4">
+          <div className="flex flex-col items-center text-center space-y-3">
+            <LockIcon className="h-8 w-8 text-muted-foreground" />
+            <div>
+              <p className="text-body font-semibold text-foreground mb-1">
+                Contact Details Locked
+              </p>
+              <p className="text-body-small text-muted-foreground">
+                Complete payment to unlock homeowner name, phone, and email
+              </p>
+            </div>
           </div>
         </div>
       )}
@@ -843,7 +927,9 @@ const LeadCard: React.FC<{
           systemSize: lead.systemDetails?.estimatedSize || '0',
           estimatedUsage: lead.systemDetails?.estimatedSize || '',
           budget: lead.systemDetails?.budget || '',
-          quoteData: lead.quoteData // Pass through quoteData for Import feature
+          quoteData: lead.quoteData, // Pass through quoteData for Import feature
+          status: lead.status, // T13I-4: Pass status for purchase checking
+          purchasedAt: lead.purchasedAt // T13I-4: Pass purchasedAt for purchase checking
         }}
         onSubmitQuote={onSubmitQuote}
         mode={quoteMode}
@@ -856,6 +942,7 @@ const LeadCard: React.FC<{
         leadId={String(lead.id)}
         bids={[]}
         yourBidId={undefined}
+        isPurchased={!!isPaid} // T13I-4: Pass purchase status as boolean
       />
 
       {/* View Details Modal */}

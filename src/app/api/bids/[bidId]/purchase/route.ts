@@ -97,23 +97,22 @@ export async function POST(
 
     // Use transaction to update bid and lead atomically
     const result = await prisma.$transaction(async (tx) => {
-      // Update bid status to PURCHASED
+      // T198: Update bid with payment timestamp
       const purchasedBid = await tx.bid.update({
         where: { id: bidId },
         data: {
-          status: 'PURCHASED',
           purchasedAt: new Date()
+          // status remains 'SELECTED' (winner status)
         }
       });
 
-      // Update lead with installer and purchase info
+      // T198: Update lead status to PURCHASED with payment timestamp
       const updatedLead = await tx.lead.update({
         where: { id: bid.leadId },
         data: {
-          installerId: bid.installerId,
-          purchasedAt: new Date(),
-          purchaseStatus: 'COMPLETED',
-          status: 'PURCHASED'
+          status: 'PURCHASED', // Now officially purchased with payment
+          purchasedAt: new Date(), // Timestamp when payment completed
+          // installerId already set when winner selected
         },
         include: {
           homeowner: {
