@@ -2,7 +2,8 @@
 
 import React, { useState } from"react";
 import { ThemeSwitcher } from"@/components/ThemeSwitcher";
-import { Search as SearchIcon, HelpCircle as HelpCircleIcon, Bell as BellIcon } from"lucide-react";
+import { NotificationDropdown } from"@/components/NotificationDropdown";
+import { Search as SearchIcon, HelpCircle as HelpCircleIcon } from"lucide-react";
 
 interface InstallerDashboardHeaderProps {
   // No pageTitle prop
@@ -44,14 +45,8 @@ export const InstallerDashboardHeader: React.FC<InstallerDashboardHeaderProps> =
           <HelpCircleIcon />
         </button>
 
-        {/* Notifications Button */}
-        <button 
-          className="relative dashboard-header__action-btn"
-          aria-label="Notifications"
-        >
-          <BellIcon />
-          <span className="dashboard-header__notification-badge"></span>
-        </button>
+        {/* Notifications Dropdown */}
+        <NotificationDropdown />
 
         {/* User Avatar */}
         <button 

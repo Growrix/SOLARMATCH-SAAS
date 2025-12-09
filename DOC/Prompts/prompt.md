@@ -2930,3 +2930,17 @@ After the homeowner select the winner, the winner still see the lead in the lead
 ***Instructions*** I want you to enhance the homeowners bidding lead card and installer's bidding lead card as per the above instructions. 
 
 ***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and make sure to stay aligned with the specks as well.
+
+------------------------------------------------------------
+
+I want you to check the All API is working or not, We have doen API integrations in the .env file. But now need to make sure all are in realtime use. read the .env file and Do a deep Audit in the entire system including frontend backend API etc, Unerstand the API implimentations, identify any missing gaps if any, Run all the necessary tests, Do the playwright tests, the goal to make sure the ALL the API is working perfectly in realtime.
+
+***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. After that create a audit report in D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Audit-Reports\API-INTEGRATION-AUDIT-REPORT.md file .
+After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and make sure to stay aligned with the specks as well.
+
+---------------------------------------------------------------------------------
+
+Now I want you to do a deep audit in a simlar way that you did for the pusher. Now focus on the s3 . Audit all the frontend and backend, API ,prisma etc relevant to the s3. Make sure it is working and production ready and operational. 
+
+***Strickt rules***  Follow the Guidelines from this file before doing anything, and must read through: D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Guidelines\AI-IMPLEMENTATION-GUIDELINES.md. After that create a audit report in D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\DOC\Audit-Reports\API-INTEGRATION-AUDIT-REPORT.md file .
+After that create a phase in the D:\Desktop Mass\SOLAR LEAD GEN PROJECT MAIN FILE\solarmatch\specs\008-description-enhance-existing\tasks.md file and make sure to stay aligned with the specks as well.
